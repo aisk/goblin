@@ -1,200 +1,207 @@
 package transpiler
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
 
 	"github.com/aisk/goblin/ast"
-)
-
-var (
-	ErrNotImplemented = errors.New("not implemented")
-)
-
-func Transpile(mod *ast.Module, output io.Writer) error {
-	return transpileModule(mod, output)
-}
-
-func transpileModule(mod *ast.Module, output io.Writer) error {
-	fmt.Fprintf(output, `
-package main
-
-import (
-	"github.com/aisk/goblin/builtin"
 	"github.com/aisk/goblin/object"
+	"github.com/dave/jennifer/jen"
 )
 
-func main() {
-`)
+const (
+	pathBase    = "github.com/aisk/goblin"
+	pathObject  = pathBase + "/object"
+	pathBuiltin = pathBase + "/builtin"
+)
 
-	if err := transpileStatements(mod.Body, output); err != nil {
-		return err
-	}
+var ErrNotImplemented = errors.New("not implemented")
 
-	fmt.Fprintf(output, "}")
+var localNameCounter = 0
 
-	return nil
-}
-
-func transpileStatements(stmts []ast.Statement, output io.Writer) error {
-	for _, stmt := range stmts {
-		switch v := stmt.(type) {
-		case ast.FunctionCall:
-			if err := transpileFunctionCall(&v, output); err != nil {
-				return err
-			}
-		case ast.Declare:
-			if err := transpileDeclare(&v, output); err != nil {
-				return err
-			}
-		case ast.If:
-			if err := transpileIf(&v, output); err != nil {
-				return err
-			}
-		case ast.While:
-			if err := transpileWhile(&v, output); err != nil {
-				return err
-			}
-		case ast.FunctionDefine:
-			if err := transpileFunctionDefine(&v, output); err != nil {
-				return err
-			}
-		case ast.Return:
-			if err := transpileReturn(&v, output); err != nil {
-				return err
-			}
-		default:
-			return ErrNotImplemented
-		}
-	}
-
-	return nil
-}
-
-func resolveFunctionName(name string) string {
-	switch name {
-	case "print":
-		return "builtin.Print"
-	}
+func localName(prefix string) string {
+	name := fmt.Sprintf("_%s_%d", prefix, localNameCounter)
+	localNameCounter++
 	return name
 }
 
-func transpileFunctionCall(fn *ast.FunctionCall, output io.Writer) error {
-	fmt.Fprintf(output, "%s([]object.Object{", resolveFunctionName(fn.Name))
-	for i, arg := range fn.Args {
-		if err := transpileExpression(arg, output); err != nil {
-			return err
-		}
-		if i < len(fn.Args)-1 {
-			fmt.Fprintf(output, ", ")
-		}
-	}
-	fmt.Fprintf(output, "}, nil)\n") // TODO: add kwargs support
-
-	return nil
-}
-
-func transpileFunctionCallToString(fn *ast.FunctionCall) (string, error) {
-	buf := bytes.Buffer{}
-	if err := transpileFunctionCall(fn, &buf); err != nil {
-		return "", err
-	}
-	return buf.String(), nil
-}
-
-func transpileFunctionDefine(fn *ast.FunctionDefine, output io.Writer) error {
-	fmt.Fprintf(output, "%s := func(args []object.Object, kwargs map[string]object.Object) (object.Object, error) {", fn.Name)
-
-	for i, arg := range fn.Args {
-		fmt.Fprintf(output, "var %s = args[%d]; _ = %s\n", arg, i, arg)
-	}
-
-	if err := transpileStatements(fn.Body, output); err != nil {
-		return err
-	}
-	fmt.Fprintf(output, "}; _ = %s\n", fn.Name)
-
-	return nil
-}
-
-func transpileDeclare(decl *ast.Declare, output io.Writer) error {
-	e, err := transpileExpressionToString(decl.Value)
+func Transpile(mod *ast.Module, output io.Writer) error {
+	f := jen.NewFile(mod.Name)
+	stmts, err := transpileStatements(mod.Body)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(output, `var %s = %s; _ = %s`, decl.Name, e, decl.Name)
-	fmt.Fprint(output, "\n")
-	return nil
+	f.Func().Id("main").Params().Block(stmts...)
+	return f.Render(output)
 }
 
-func transpileIf(if_ *ast.If, output io.Writer) error {
-	fmt.Fprint(output, "if ")
-	if err := transpileExpression(if_.Condition, output); err != nil {
-		return err
+func transpileObject(obj object.Object) (*jen.Statement, error) {
+	switch v := obj.(type) {
+	case object.Bool:
+		if v.Bool() {
+			return jen.Qual(pathObject, "True"), nil
+		}
+		return jen.Qual(pathObject, "False"), nil
+	case object.Integer:
+		i := jen.Qual(pathObject, "Integer").Call(jen.Lit(int64(v)))
+		return i, nil
+	case object.String:
+		s := jen.Qual(pathObject, "String").Call(jen.Lit(string(v)))
+		return s, nil
 	}
-	fmt.Fprint(output, ".Bool() {\n")
-
-	if err := transpileStatements(if_.Body, output); err != nil {
-		return err
-	}
-
-	fmt.Fprintf(output, "}\n")
-
-	return nil
+	return nil, ErrNotImplemented
 }
 
-func transpileWhile(while_ *ast.While, output io.Writer) error {
-	fmt.Fprint(output, "for ")
-	if err := transpileExpression(while_.Condition, output); err != nil {
-		return err
-	}
-	fmt.Fprint(output, ".Bool() {\n")
-
-	if err := transpileStatements(while_.Body, output); err != nil {
-		return err
-	}
-
-	fmt.Fprintf(output, "}\n")
-
-	return nil
-}
-
-func transpileExpression(expr ast.Expression, output io.Writer) error {
-	s, err := transpileExpressionToString(expr)
-	if err != nil {
-		return err
-	}
-	fmt.Fprint(output, s)
-	return nil
-}
-
-func transpileExpressionToString(expr ast.Expression) (string, error) {
-	switch e := expr.(type) {
+func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
+	switch v := expr.(type) {
 	case ast.Literal:
-		return e.Value.Repr(), nil
+		return transpileObject(v.Value)
 	case ast.Symbol:
-		return e.Name, nil
+		return jen.Id(v.Name), nil
 	case ast.FunctionCall:
-		f, err := transpileFunctionCallToString(&e)
+		call, err := transpileFunctionCall(v)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
-		return fmt.Sprintf(`func() object.Object {
-			r, _ := %s // XXX: handle the error
-			return r
-		} ()`, f), nil
-	default:
-		return "", ErrNotImplemented
+		// hack to ignore the err
+		// TODO: implemt the error mechanism
+		return jen.Func().Params().Id("object.Object").Block(
+			jen.List(jen.Id("result"), jen.Id("_")).Op(":=").Add(call),
+			jen.Return(jen.Id("result")),
+		).Call(), nil
 	}
+	return nil, ErrNotImplemented
 }
 
-func transpileReturn(ret *ast.Return, output io.Writer) error {
-	fmt.Fprintf(output, "return ")
-	if err := transpileExpression(ret.Value, output); err != nil {
-		return err
+func transpileExpressions(exprs []ast.Expression) ([]jen.Code, error) {
+	result := []jen.Code{}
+	for _, expr := range exprs {
+		r, err := transpileExpression(expr)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, r)
 	}
-	fmt.Fprintf(output, ", nil\n")
-	return nil
+	return result, nil
+}
+
+func resolveFunctionName(name string) *jen.Statement {
+	switch name {
+	case "print":
+		return jen.Qual(pathBuiltin, "Print")
+	}
+	return jen.Id(name)
+}
+
+func transpileDeclare(decl ast.Declare) (*jen.Statement, error) {
+	value, err := transpileExpression(decl.Value)
+	if err != nil {
+		return nil, err
+	}
+	result := jen.Var().Id(decl.Name).Op("=").Add(value)
+	result.Op(";").Id("_").Op("=").Id(decl.Name)
+	return result, nil
+}
+
+func transpileIf(if_ ast.If) (*jen.Statement, error) {
+	cond, err := transpileExpression(if_.Condition)
+	if err != nil {
+		return nil, err
+	}
+	body, err := transpileStatements(if_.Body)
+	if err != nil {
+		return nil, err
+	}
+	return jen.If(cond.Dot("Bool").Call()).Block(body...), nil
+}
+
+func transpileWhile(while_ ast.While) (*jen.Statement, error) {
+	cond, err := transpileExpression(while_.Condition)
+	if err != nil {
+		return nil, err
+	}
+	body, err := transpileStatements(while_.Body)
+	if err != nil {
+		return nil, err
+	}
+	return jen.For(cond.Dot("Bool").Call()).Block(body...), nil
+}
+
+func transpileFunctionCall(call ast.FunctionCall) (*jen.Statement, error) {
+	l, err := transpileExpressions(call.Args)
+	if err != nil {
+		return nil, err
+	}
+	args := jen.Qual(pathObject, "Args").Values(l...)
+	kwargs := jen.Nil()
+	return resolveFunctionName(call.Name).Call(args, kwargs), nil
+}
+
+func transpileFunctionDefine(fn ast.FunctionDefine) (*jen.Statement, error) {
+	argsName := localName("args")
+	kwargsName := localName("kwargs")
+
+	argsDefine := []jen.Code{}
+	for i, arg := range fn.Args {
+		def := jen.Var().Id(arg).Op("=").Id(argsName).Index(jen.Lit(i))
+		def.Op(";").Id("_").Op("=").Id(arg)
+		argsDefine = append(argsDefine, def)
+	}
+
+	body, err := transpileStatements(fn.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	body = append(argsDefine, body...)
+
+	result := jen.Id(fn.Name).Op(":=").Func().Params(
+		jen.Id(argsName).Qual(pathObject, "Args"), jen.Id(kwargsName).Qual(pathObject, "KwArgs"),
+	).Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Id("error")),
+	).Block(body...)
+
+	result.Op(";").Id("_").Op("=").Id(fn.Name)
+
+	return result, nil
+}
+
+func transpileReturn(return_ ast.Return) (*jen.Statement, error) {
+	r, err := transpileExpression(return_.Value)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: implement the error mechanism
+	return jen.Return(jen.List(r, jen.Nil())), nil
+}
+
+func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
+	switch v := stmt.(type) {
+	case ast.Declare:
+		return transpileDeclare(v)
+	case ast.FunctionCall:
+		return transpileFunctionCall(v)
+	case ast.FunctionDefine:
+		return transpileFunctionDefine(v)
+	case ast.If:
+		return transpileIf(v)
+	case ast.While:
+		return transpileWhile(v)
+	case ast.Return:
+		return transpileReturn(v)
+	}
+	return nil, ErrNotImplemented
+}
+
+func transpileStatements(stmts []ast.Statement) ([]jen.Code, error) {
+	result := []jen.Code{}
+	for _, stmt := range stmts {
+		s, err := transpileStatement(stmt)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, s)
+	}
+	return result, nil
 }

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"go/format"
 	"log"
 	"os"
 
@@ -12,7 +10,7 @@ import (
 )
 
 var hello = ast.Module{
-	Name: "hello",
+	Name: "main",
 	Body: []ast.Statement{
 		ast.Declare{
 			Name:  "answer",
@@ -31,7 +29,7 @@ var hello = ast.Module{
 				ast.Literal{Value: object.String("!")},
 			},
 		},
-		// print("answer:", answer)
+		// // print("answer:", answer)
 		ast.FunctionCall{
 			Name: "print",
 			Args: []ast.Expression{
@@ -39,6 +37,7 @@ var hello = ast.Module{
 				ast.Symbol{Name: "answer"},
 			},
 		},
+		// if false { print("yes!") }
 		ast.If{
 			Condition: ast.Literal{Value: object.False},
 			Body: []ast.Statement{
@@ -50,7 +49,7 @@ var hello = ast.Module{
 				},
 			},
 		},
-		// if (answer) { print("42!") }
+		// if answer { print("42!") }
 		ast.If{
 			Condition: ast.Symbol{Name: "answer"},
 			Body: []ast.Statement{
@@ -107,17 +106,9 @@ var hello = ast.Module{
 }
 
 func main() {
-	buf := &bytes.Buffer{}
-	err := transpiler.Transpile(&hello, buf)
+	var err error
+	err = transpiler.Transpile(&hello, os.Stdout)
 	if err != nil {
 		log.Fatal(err)
 	}
-	src := buf.Bytes()
-	if true {
-		src, err = format.Source(buf.Bytes())
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	os.Stdout.Write(src)
 }

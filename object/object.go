@@ -93,3 +93,6 @@ var (
 	True  = Bool(true)
 	False = Bool(false)
 )
+
+type Args []Object
+type KwArgs map[string]Object
