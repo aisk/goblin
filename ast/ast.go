@@ -11,6 +11,7 @@ type statementMixin struct{}
 func (statementMixin) IsStatement() {}
 
 type Expression interface {
+	Statement
 	IsExpression()
 }
 
