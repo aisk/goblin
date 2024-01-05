@@ -1,0 +1,91 @@
+_digit : '0'-'9' ;
+int_lit : _digit { _digit } ;
+
+_alpha : 'a'-'z' | 'A'-'Z' | '_' ;
+_alphanum : _alpha | _digit ;
+id : _alpha { _alphanum } ;
+
+_ascii_char
+	: '\x01' - '\x21'
+	| '\x23' - '\x5B'
+	| '\x5D' - '\x7F'
+;
+_unicode_byte
+	: '\u0080' - '\uFFFC'
+	// skip invalid code point (\uFFFD)
+	| '\uFFFE' - '\U0010FFFF'
+;
+_unicode_char
+	: _ascii_char
+	| _unicode_byte
+;
+
+_escaped_char : '\\' ( _unicode_char | '"' | '\\' ) ;
+_char         : _unicode_char | _escaped_char ;
+
+string_lit : '"' { _char } '"' ;
+!whitespace : ' ' | '\t' | '\n' | '\r' ;
+!comment : '/' '*' {. | '*'} '*' '/' ;
+
+
+<< import (
+	"github.com/aisk/goblin/ast"
+) >>
+
+
+Module
+	: Statements                             << ast.NewModule($0) >>
+;
+
+Statements
+	: empty
+	| StatementList
+;
+
+StatementList
+	: Statement			   					 << ast.NewStatementList($0) >>
+	| StatementList Statement                << ast.AppendStatementList($0, $1) >>
+;
+
+Statement
+	: Expression							 << $0, nil >>
+;
+
+Expressions
+	: empty
+	| ExpressionList
+;
+
+ExpressionList
+	: Expression                             << ast.NewExpressionList($0) >>
+	| ExpressionList Expression              << ast.AppendStatementList($0, $1) >>
+;
+
+Expression
+	: IntegerLiteral 	     				 << $0, nil >>
+	| StringLiteral							 << $0, nil >>
+	| FunctionCall                           << $0, nil >>
+;
+
+
+IntegerLiteral
+	: int_lit                                << ast.NewIntegerLiteral($0) >>
+;
+
+StringLiteral
+ 	: string_lit							 << ast.NewStringLiteral($0) >>
+;
+
+FunctionCall
+	: id "(" Arguments ")"					 << ast.NewFunctionCall($0, $2) >>
+;
+
+Arguments
+	: empty
+	| ArgumentList
+;
+
+ArgumentList
+	: Expression							<< ast.NewExpressionList($0) >>
+	| ArgumentList "," Expression			<< ast.AppendExpressionList($0, $2) >>
+;

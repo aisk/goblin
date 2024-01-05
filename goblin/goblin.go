@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/transpiler"
 )
 
@@ -21,7 +24,7 @@ var hello = ast.Module{
 			Value: ast.Literal{Value: object.String("jim")},
 		},
 		// print("hello,", name, "!")
-		ast.FunctionCall{
+		&ast.FunctionCall{
 			Name: "print",
 			Args: []ast.Expression{
 				ast.Literal{Value: object.String("hello,")},
@@ -107,7 +110,22 @@ var hello = ast.Module{
 
 func main() {
 	var err error
-	err = transpiler.Transpile(&hello, os.Stdout)
+
+	input := []byte(`print("hello, world!")`)
+	l := lexer.NewLexer(input)
+	p := parser.NewParser()
+	st, err := p.Parse(l)
+	if err != nil {
+		panic(err)
+	}
+	m, ok := st.(*ast.Module)
+	if !ok {
+		panic("not ok!")
+	}
+	fmt.Printf("%#v\n", m)
+	return
+
+	err = transpiler.Transpile(m, os.Stdout)
 	if err != nil {
 		log.Fatal(err)
 	}
