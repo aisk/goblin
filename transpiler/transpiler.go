@@ -55,11 +55,11 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 
 func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 	switch v := expr.(type) {
-	case ast.Literal:
+	case *ast.Literal:
 		return transpileObject(v.Value)
-	case ast.Symbol:
+	case *ast.Symbol:
 		return jen.Id(v.Name), nil
-	case ast.FunctionCall:
+	case *ast.FunctionCall:
 		call, err := transpileFunctionCall(v)
 		if err != nil {
 			return nil, err
@@ -94,7 +94,7 @@ func resolveFunctionName(name string) *jen.Statement {
 	return jen.Id(name)
 }
 
-func transpileDeclare(decl ast.Declare) (*jen.Statement, error) {
+func transpileDeclare(decl *ast.Declare) (*jen.Statement, error) {
 	value, err := transpileExpression(decl.Value)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func transpileDeclare(decl ast.Declare) (*jen.Statement, error) {
 	return result, nil
 }
 
-func transpileIf(if_ ast.If) (*jen.Statement, error) {
+func transpileIf(if_ *ast.If) (*jen.Statement, error) {
 	cond, err := transpileExpression(if_.Condition)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func transpileIf(if_ ast.If) (*jen.Statement, error) {
 	return jen.If(cond.Dot("Bool").Call()).Block(body...), nil
 }
 
-func transpileWhile(while_ ast.While) (*jen.Statement, error) {
+func transpileWhile(while_ *ast.While) (*jen.Statement, error) {
 	cond, err := transpileExpression(while_.Condition)
 	if err != nil {
 		return nil, err
@@ -128,7 +128,7 @@ func transpileWhile(while_ ast.While) (*jen.Statement, error) {
 	return jen.For(cond.Dot("Bool").Call()).Block(body...), nil
 }
 
-func transpileFunctionCall(call ast.FunctionCall) (*jen.Statement, error) {
+func transpileFunctionCall(call *ast.FunctionCall) (*jen.Statement, error) {
 	l, err := transpileExpressions(call.Args)
 	if err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func transpileFunctionCall(call ast.FunctionCall) (*jen.Statement, error) {
 	return resolveFunctionName(call.Name).Call(args, kwargs), nil
 }
 
-func transpileFunctionDefine(fn ast.FunctionDefine) (*jen.Statement, error) {
+func transpileFunctionDefine(fn *ast.FunctionDefine) (*jen.Statement, error) {
 	argsName := localName("args")
 	kwargsName := localName("kwargs")
 
@@ -167,7 +167,7 @@ func transpileFunctionDefine(fn ast.FunctionDefine) (*jen.Statement, error) {
 	return result, nil
 }
 
-func transpileReturn(return_ ast.Return) (*jen.Statement, error) {
+func transpileReturn(return_ *ast.Return) (*jen.Statement, error) {
 	r, err := transpileExpression(return_.Value)
 	if err != nil {
 		return nil, err
@@ -178,17 +178,17 @@ func transpileReturn(return_ ast.Return) (*jen.Statement, error) {
 
 func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 	switch v := stmt.(type) {
-	case ast.Declare:
+	case *ast.Declare:
 		return transpileDeclare(v)
-	case ast.FunctionCall:
+	case *ast.FunctionCall:
 		return transpileFunctionCall(v)
-	case ast.FunctionDefine:
+	case *ast.FunctionDefine:
 		return transpileFunctionDefine(v)
-	case ast.If:
+	case *ast.If:
 		return transpileIf(v)
-	case ast.While:
+	case *ast.While:
 		return transpileWhile(v)
-	case ast.Return:
+	case *ast.Return:
 		return transpileReturn(v)
 	}
 	return nil, ErrNotImplemented

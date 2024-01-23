@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -15,93 +14,93 @@ import (
 var hello = ast.Module{
 	Name: "main",
 	Body: []ast.Statement{
-		ast.Declare{
+		&ast.Declare{
 			Name:  "answer",
-			Value: ast.Literal{Value: object.Integer(42)},
+			Value: &ast.Literal{Value: object.Integer(42)},
 		},
-		ast.Declare{
+		&ast.Declare{
 			Name:  "name",
-			Value: ast.Literal{Value: object.String("jim")},
+			Value: &ast.Literal{Value: object.String("jim")},
 		},
 		// print("hello,", name, "!")
 		&ast.FunctionCall{
 			Name: "print",
 			Args: []ast.Expression{
-				ast.Literal{Value: object.String("hello,")},
-				ast.Symbol{Name: "name"},
-				ast.Literal{Value: object.String("!")},
+				&ast.Literal{Value: object.String("hello,")},
+				&ast.Symbol{Name: "name"},
+				&ast.Literal{Value: object.String("!")},
 			},
 		},
-		// // print("answer:", answer)
-		ast.FunctionCall{
+		// print("answer:", answer)
+		&ast.FunctionCall{
 			Name: "print",
 			Args: []ast.Expression{
-				ast.Literal{Value: object.String("answer:")},
-				ast.Symbol{Name: "answer"},
+				&ast.Literal{Value: object.String("answer:")},
+				&ast.Symbol{Name: "answer"},
 			},
 		},
 		// if false { print("yes!") }
-		ast.If{
-			Condition: ast.Literal{Value: object.False},
+		&ast.If{
+			Condition: &ast.Literal{Value: object.False},
 			Body: []ast.Statement{
-				ast.FunctionCall{
+				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
-						ast.Literal{Value: object.String("yes!")},
+						&ast.Literal{Value: object.String("yes!")},
 					},
 				},
 			},
 		},
 		// if answer { print("42!") }
-		ast.If{
-			Condition: ast.Symbol{Name: "answer"},
+		&ast.If{
+			Condition: &ast.Symbol{Name: "answer"},
 			Body: []ast.Statement{
-				ast.FunctionCall{
+				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
-						ast.Literal{Value: object.String("42!")},
+						&ast.Literal{Value: object.String("42!")},
 					},
 				},
 			},
 		},
 		// while (false) { print("impossible") }
-		ast.While{
-			Condition: ast.Literal{Value: object.False},
+		&ast.While{
+			Condition: &ast.Literal{Value: object.False},
 			Body: []ast.Statement{
-				ast.FunctionCall{
+				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
-						ast.Literal{Value: object.String("impossible")},
+						&ast.Literal{Value: object.String("impossible")},
 					},
 				},
 			},
 		},
-		ast.FunctionDefine{
+		&ast.FunctionDefine{
 			Name: "greetings",
 			Args: []string{"name"},
 			Body: []ast.Statement{
-				ast.FunctionCall{
+				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
-						ast.Literal{Value: object.String("hello")},
-						ast.Symbol{Name: "name"},
+						&ast.Literal{Value: object.String("hello")},
+						&ast.Symbol{Name: "name"},
 					},
 				},
-				ast.Return{Value: ast.Literal{Value: object.True}},
+				&ast.Return{Value: &ast.Literal{Value: object.True}},
 			},
 		},
 		// grettings("jim")
-		ast.FunctionCall{
+		&ast.FunctionCall{
 			Name: "greetings",
-			Args: []ast.Expression{ast.Literal{Value: object.String("jim")}},
+			Args: []ast.Expression{&ast.Literal{Value: object.String("jim")}},
 		},
 		// print(greetings("jim"))
-		ast.FunctionCall{
+		&ast.FunctionCall{
 			Name: "print",
 			Args: []ast.Expression{
-				ast.FunctionCall{
+				&ast.FunctionCall{
 					Name: "greetings",
-					Args: []ast.Expression{ast.Literal{Value: object.String("jim")}},
+					Args: []ast.Expression{&ast.Literal{Value: object.String("jim")}},
 				},
 			},
 		},
@@ -122,8 +121,6 @@ func main() {
 	if !ok {
 		panic("not ok!")
 	}
-	fmt.Printf("%#v\n", m)
-	return
 
 	err = transpiler.Transpile(m, os.Stdout)
 	if err != nil {
