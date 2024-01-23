@@ -26,7 +26,7 @@ $ ./hello
 
 ## Grammer
 
-Take a look at `goblin.bnf`.
+Take a look at [goblin.bnf](https://github.com/aisk/goblin/tree/master/goblin.bnf).
 
 ## About the Project
 
@@ -34,4 +34,4 @@ Goblin is &copy; 2023-2024 by [aisk](https://github.com/aisk).
 
 ### License
 
-Vox is distributed by a [MIT license](https://github.com/aisk/goblib/tree/master/LICENSE).
+Vox is distributed by a [MIT license](https://github.com/aisk/goblin/tree/master/LICENSE).
