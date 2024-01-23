@@ -1,5 +1,7 @@
 # goblin
 
+![logo](https://i.redd.it/jq6wig9ybssb1.png)
+
 Toy language built for fun.
 
 ## Installation
