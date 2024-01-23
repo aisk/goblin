@@ -110,7 +110,15 @@ var hello = ast.Module{
 func main() {
 	var err error
 
-	input := []byte(`print("hello, world!")`)
+	if len(os.Args) != 2 {
+		println("Usage:  goblin <your_source_code.goblin>")
+		os.Exit(1)
+	}
+	input, err := os.ReadFile(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+
 	l := lexer.NewLexer(input)
 	p := parser.NewParser()
 	st, err := p.Parse(l)
