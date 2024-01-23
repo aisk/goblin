@@ -100,7 +100,7 @@ type Module struct {
 
 func NewModule(x any) (any, error) {
 	return &Module{
-		Name: "unknown",
+		Name: "main",
 		Body: x.([]Statement),
 	}, nil
 }
