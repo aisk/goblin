@@ -53,6 +53,7 @@ Statement
     | Assign                                 << $0, nil >>
     | If
     | IfElse
+    | While
 ;
 
 Expressions
@@ -116,4 +117,8 @@ If
 
 IfElse
     : "if" Condition Block "else" Block      << ast.NewIf($1, $2, $4) >>
+;
+
+While
+    : "while" Condition Block                << ast.NewWhile($1, $2) >>
 ;

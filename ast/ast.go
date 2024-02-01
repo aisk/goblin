@@ -126,6 +126,15 @@ type While struct {
 	Body      []Statement
 }
 
+func NewWhile(x, y any) (any, error) {
+	condition := x.(Expression)
+	body := y.([]Statement)
+	return &If{
+		Condition: condition,
+		Body:      body,
+	}, nil
+}
+
 type Module struct {
 	Name string
 	Body []Statement

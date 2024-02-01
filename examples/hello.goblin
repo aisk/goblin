@@ -1,11 +1,18 @@
 var a = 123
 a = 456
+
 print("Hello, world!")
+
 if 1 {
     print("true")
 }
+
 if 0 {
     print("true")
 } else {
     print("false")
+}
+
+while 0 {
+    print("forever")
 }

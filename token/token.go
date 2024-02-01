@@ -151,6 +151,7 @@ var TokMap = TokenMap{
 		"}",
 		"if",
 		"else",
+		"while",
 	},
 
 	idMap: map[string]Type{
@@ -169,5 +170,6 @@ var TokMap = TokenMap{
 		"}":          12,
 		"if":         13,
 		"else":       14,
+		"while":      15,
 	},
 }

@@ -17,18 +17,19 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			reduce(2), // ␚, reduce: Statements
 			nil,       // empty
-			shift(13), // int_lit
-			shift(14), // string_lit
-			shift(15), // id
+			shift(14), // int_lit
+			shift(15), // string_lit
+			shift(16), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
-			shift(16), // var
+			shift(17), // var
 			nil,       // =
 			nil,       // {
 			nil,       // }
-			shift(17), // if
+			shift(18), // if
 			nil,       // else
+			shift(19), // while
 		},
 	},
 	actionRow{ // S1
@@ -49,6 +50,7 @@ var actionTab = actionTable{
 			nil,          // }
 			nil,          // if
 			nil,          // else
+			nil,          // while
 		},
 	},
 	actionRow{ // S2
@@ -69,6 +71,7 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S3
@@ -77,18 +80,19 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			reduce(3), // ␚, reduce: Statements
 			nil,       // empty
-			shift(13), // int_lit
-			shift(14), // string_lit
-			shift(15), // id
+			shift(14), // int_lit
+			shift(15), // string_lit
+			shift(16), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
-			shift(16), // var
+			shift(17), // var
 			nil,       // =
 			nil,       // {
 			nil,       // }
-			shift(17), // if
+			shift(18), // if
 			nil,       // else
+			shift(19), // while
 		},
 	},
 	actionRow{ // S4
@@ -109,6 +113,7 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(4), // if, reduce: StatementList
 			nil,       // else
+			reduce(4), // while, reduce: StatementList
 		},
 	},
 	actionRow{ // S5
@@ -129,6 +134,7 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(6), // if, reduce: Statement
 			nil,       // else
+			reduce(6), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S6
@@ -149,6 +155,7 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(7), // if, reduce: Statement
 			nil,       // else
+			reduce(7), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S7
@@ -169,6 +176,7 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(8), // if, reduce: Statement
 			nil,       // else
+			reduce(8), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S8
@@ -189,6 +197,7 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(9), // if, reduce: Statement
 			nil,       // else
+			reduce(9), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S9
@@ -209,26 +218,28 @@ var actionTab = actionTable{
 			nil,        // }
 			reduce(10), // if, reduce: Statement
 			nil,        // else
+			reduce(10), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S10
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(15), // ␚, reduce: Expression
+			reduce(11), // ␚, reduce: Statement
 			nil,        // empty
-			reduce(15), // int_lit, reduce: Expression
-			reduce(15), // string_lit, reduce: Expression
-			reduce(15), // id, reduce: Expression
+			reduce(11), // int_lit, reduce: Statement
+			reduce(11), // string_lit, reduce: Statement
+			reduce(11), // id, reduce: Statement
 			nil,        // (
 			nil,        // )
 			nil,        // ,
-			reduce(15), // var, reduce: Expression
+			reduce(11), // var, reduce: Statement
 			nil,        // =
 			nil,        // {
 			nil,        // }
-			reduce(15), // if, reduce: Expression
+			reduce(11), // if, reduce: Statement
 			nil,        // else
+			reduce(11), // while, reduce: Statement
 		},
 	},
 	actionRow{ // S11
@@ -249,6 +260,7 @@ var actionTab = actionTable{
 			nil,        // }
 			reduce(16), // if, reduce: Expression
 			nil,        // else
+			reduce(16), // while, reduce: Expression
 		},
 	},
 	actionRow{ // S12
@@ -269,66 +281,70 @@ var actionTab = actionTable{
 			nil,        // }
 			reduce(17), // if, reduce: Expression
 			nil,        // else
+			reduce(17), // while, reduce: Expression
 		},
 	},
 	actionRow{ // S13
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(18), // ␚, reduce: IntegerLiteral
+			reduce(18), // ␚, reduce: Expression
 			nil,        // empty
-			reduce(18), // int_lit, reduce: IntegerLiteral
-			reduce(18), // string_lit, reduce: IntegerLiteral
-			reduce(18), // id, reduce: IntegerLiteral
+			reduce(18), // int_lit, reduce: Expression
+			reduce(18), // string_lit, reduce: Expression
+			reduce(18), // id, reduce: Expression
 			nil,        // (
 			nil,        // )
 			nil,        // ,
-			reduce(18), // var, reduce: IntegerLiteral
+			reduce(18), // var, reduce: Expression
 			nil,        // =
 			nil,        // {
 			nil,        // }
-			reduce(18), // if, reduce: IntegerLiteral
+			reduce(18), // if, reduce: Expression
 			nil,        // else
+			reduce(18), // while, reduce: Expression
 		},
 	},
 	actionRow{ // S14
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(19), // ␚, reduce: StringLiteral
+			reduce(19), // ␚, reduce: IntegerLiteral
 			nil,        // empty
-			reduce(19), // int_lit, reduce: StringLiteral
-			reduce(19), // string_lit, reduce: StringLiteral
-			reduce(19), // id, reduce: StringLiteral
+			reduce(19), // int_lit, reduce: IntegerLiteral
+			reduce(19), // string_lit, reduce: IntegerLiteral
+			reduce(19), // id, reduce: IntegerLiteral
 			nil,        // (
 			nil,        // )
 			nil,        // ,
-			reduce(19), // var, reduce: StringLiteral
+			reduce(19), // var, reduce: IntegerLiteral
 			nil,        // =
 			nil,        // {
 			nil,        // }
-			reduce(19), // if, reduce: StringLiteral
+			reduce(19), // if, reduce: IntegerLiteral
 			nil,        // else
+			reduce(19), // while, reduce: IntegerLiteral
 		},
 	},
 	actionRow{ // S15
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			shift(19), // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			shift(20), // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
+			nil,        // INVALID
+			reduce(20), // ␚, reduce: StringLiteral
+			nil,        // empty
+			reduce(20), // int_lit, reduce: StringLiteral
+			reduce(20), // string_lit, reduce: StringLiteral
+			reduce(20), // id, reduce: StringLiteral
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(20), // var, reduce: StringLiteral
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(20), // if, reduce: StringLiteral
+			nil,        // else
+			reduce(20), // while, reduce: StringLiteral
 		},
 	},
 	actionRow{ // S16
@@ -339,16 +355,17 @@ var actionTab = actionTable{
 			nil,       // empty
 			nil,       // int_lit
 			nil,       // string_lit
-			shift(21), // id
-			nil,       // (
+			nil,       // id
+			shift(21), // (
 			nil,       // )
 			nil,       // ,
 			nil,       // var
-			nil,       // =
+			shift(22), // =
 			nil,       // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S17
@@ -357,9 +374,9 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			shift(26), // int_lit
-			shift(27), // string_lit
-			shift(28), // id
+			nil,       // int_lit
+			nil,       // string_lit
+			shift(23), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
@@ -369,9 +386,52 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S18
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(28), // int_lit
+			shift(29), // string_lit
+			shift(30), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S19
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(28), // int_lit
+			shift(29), // string_lit
+			shift(30), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S20
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -389,19 +449,20 @@ var actionTab = actionTable{
 			nil,       // }
 			reduce(5), // if, reduce: StatementList
 			nil,       // else
+			reduce(5), // while, reduce: StatementList
 		},
 	},
-	actionRow{ // S19
+	actionRow{ // S21
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
-			shift(34),  // int_lit
-			shift(35),  // string_lit
-			shift(36),  // id
+			shift(37),  // int_lit
+			shift(38),  // string_lit
+			shift(39),  // id
 			nil,        // (
-			reduce(21), // ), reduce: Arguments
+			reduce(22), // ), reduce: Arguments
 			nil,        // ,
 			nil,        // var
 			nil,        // =
@@ -409,17 +470,18 @@ var actionTab = actionTable{
 			nil,        // }
 			nil,        // if
 			nil,        // else
+			nil,        // while
 		},
 	},
-	actionRow{ // S20
+	actionRow{ // S22
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			shift(13), // int_lit
-			shift(14), // string_lit
-			shift(40), // id
+			shift(14), // int_lit
+			shift(15), // string_lit
+			shift(43), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
@@ -429,9 +491,10 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S21
+	actionRow{ // S23
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -444,54 +507,36 @@ var actionTab = actionTable{
 			nil,       // )
 			nil,       // ,
 			nil,       // var
-			shift(41), // =
+			shift(44), // =
 			nil,       // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
-		},
-	},
-	actionRow{ // S22
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			reduce(28), // {, reduce: Condition
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S23
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			reduce(15), // {, reduce: Expression
-			nil,        // }
-			nil,        // if
-			nil,        // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S24
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			reduce(29), // {, reduce: Condition
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S25
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -509,9 +554,10 @@ var actionTab = actionTable{
 			nil,        // }
 			nil,        // if
 			nil,        // else
+			nil,        // while
 		},
 	},
-	actionRow{ // S25
+	actionRow{ // S26
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -529,26 +575,7 @@ var actionTab = actionTable{
 			nil,        // }
 			nil,        // if
 			nil,        // else
-		},
-	},
-	actionRow{ // S26
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			reduce(18), // {, reduce: IntegerLiteral
-			nil,        // }
-			nil,        // if
-			nil,        // else
+			nil,        // while
 		},
 	},
 	actionRow{ // S27
@@ -565,173 +592,56 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			reduce(19), // {, reduce: StringLiteral
+			reduce(18), // {, reduce: Expression
 			nil,        // }
 			nil,        // if
 			nil,        // else
+			nil,        // while
 		},
 	},
 	actionRow{ // S28
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			shift(42), // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			reduce(19), // {, reduce: IntegerLiteral
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
 		},
 	},
 	actionRow{ // S29
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			shift(44), // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			reduce(20), // {, reduce: StringLiteral
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
 		},
 	},
 	actionRow{ // S30
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(23), // ), reduce: ArgumentList
-			reduce(23), // ,, reduce: ArgumentList
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S31
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(15), // ), reduce: Expression
-			reduce(15), // ,, reduce: Expression
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S32
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(16), // ), reduce: Expression
-			reduce(16), // ,, reduce: Expression
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S33
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(17), // ), reduce: Expression
-			reduce(17), // ,, reduce: Expression
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S34
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(18), // ), reduce: IntegerLiteral
-			reduce(18), // ,, reduce: IntegerLiteral
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S35
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(19), // ), reduce: StringLiteral
-			reduce(19), // ,, reduce: StringLiteral
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S36
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -749,269 +659,10 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S37
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			shift(46), // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S38
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(22), // ), reduce: Arguments
-			shift(47),  // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S39
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(26), // ␚, reduce: Assign
-			nil,        // empty
-			reduce(26), // int_lit, reduce: Assign
-			reduce(26), // string_lit, reduce: Assign
-			reduce(26), // id, reduce: Assign
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(26), // var, reduce: Assign
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(26), // if, reduce: Assign
-			nil,        // else
-		},
-	},
-	actionRow{ // S40
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			shift(19), // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S41
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(13), // int_lit
-			shift(14), // string_lit
-			shift(40), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S42
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			shift(34),  // int_lit
-			shift(35),  // string_lit
-			shift(36),  // id
-			nil,        // (
-			reduce(21), // ), reduce: Arguments
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S43
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(29), // ␚, reduce: If
-			nil,        // empty
-			reduce(29), // int_lit, reduce: If
-			reduce(29), // string_lit, reduce: If
-			reduce(29), // id, reduce: If
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(29), // var, reduce: If
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(29), // if, reduce: If
-			shift(50),  // else
-		},
-	},
-	actionRow{ // S44
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(64), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			shift(65), // var
-			nil,       // =
-			nil,       // {
-			reduce(2), // }, reduce: Statements
-			shift(66), // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S45
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			shift(34),  // int_lit
-			shift(35),  // string_lit
-			shift(36),  // id
-			nil,        // (
-			reduce(21), // ), reduce: Arguments
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S46
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(20), // ␚, reduce: FunctionCall
-			nil,        // empty
-			reduce(20), // int_lit, reduce: FunctionCall
-			reduce(20), // string_lit, reduce: FunctionCall
-			reduce(20), // id, reduce: FunctionCall
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(20), // var, reduce: FunctionCall
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(20), // if, reduce: FunctionCall
-			nil,        // else
-		},
-	},
-	actionRow{ // S47
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(34), // int_lit
-			shift(35), // string_lit
-			shift(36), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S48
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(25), // ␚, reduce: Declare
-			nil,        // empty
-			reduce(25), // int_lit, reduce: Declare
-			reduce(25), // string_lit, reduce: Declare
-			reduce(25), // id, reduce: Declare
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(25), // var, reduce: Declare
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(25), // if, reduce: Declare
-			nil,        // else
-		},
-	},
-	actionRow{ // S49
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			shift(69), // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S50
+	actionRow{ // S31
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1025,13 +676,14 @@ var actionTab = actionTable{
 			nil,       // ,
 			nil,       // var
 			nil,       // =
-			shift(71), // {
+			shift(47), // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S51
+	actionRow{ // S32
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1045,333 +697,14 @@ var actionTab = actionTable{
 			nil,       // ,
 			nil,       // var
 			nil,       // =
-			nil,       // {
-			shift(72), // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S52
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(64), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			shift(65), // var
-			nil,       // =
-			nil,       // {
-			reduce(3), // }, reduce: Statements
-			shift(66), // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S53
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			reduce(4), // int_lit, reduce: StatementList
-			reduce(4), // string_lit, reduce: StatementList
-			reduce(4), // id, reduce: StatementList
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			reduce(4), // var, reduce: StatementList
-			nil,       // =
-			nil,       // {
-			reduce(4), // }, reduce: StatementList
-			reduce(4), // if, reduce: StatementList
-			nil,       // else
-		},
-	},
-	actionRow{ // S54
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			reduce(6), // int_lit, reduce: Statement
-			reduce(6), // string_lit, reduce: Statement
-			reduce(6), // id, reduce: Statement
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			reduce(6), // var, reduce: Statement
-			nil,       // =
-			nil,       // {
-			reduce(6), // }, reduce: Statement
-			reduce(6), // if, reduce: Statement
-			nil,       // else
-		},
-	},
-	actionRow{ // S55
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			reduce(7), // int_lit, reduce: Statement
-			reduce(7), // string_lit, reduce: Statement
-			reduce(7), // id, reduce: Statement
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			reduce(7), // var, reduce: Statement
-			nil,       // =
-			nil,       // {
-			reduce(7), // }, reduce: Statement
-			reduce(7), // if, reduce: Statement
-			nil,       // else
-		},
-	},
-	actionRow{ // S56
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			reduce(8), // int_lit, reduce: Statement
-			reduce(8), // string_lit, reduce: Statement
-			reduce(8), // id, reduce: Statement
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			reduce(8), // var, reduce: Statement
-			nil,       // =
-			nil,       // {
-			reduce(8), // }, reduce: Statement
-			reduce(8), // if, reduce: Statement
-			nil,       // else
-		},
-	},
-	actionRow{ // S57
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			reduce(9), // int_lit, reduce: Statement
-			reduce(9), // string_lit, reduce: Statement
-			reduce(9), // id, reduce: Statement
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			reduce(9), // var, reduce: Statement
-			nil,       // =
-			nil,       // {
-			reduce(9), // }, reduce: Statement
-			reduce(9), // if, reduce: Statement
-			nil,       // else
-		},
-	},
-	actionRow{ // S58
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(10), // int_lit, reduce: Statement
-			reduce(10), // string_lit, reduce: Statement
-			reduce(10), // id, reduce: Statement
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(10), // var, reduce: Statement
-			nil,        // =
-			nil,        // {
-			reduce(10), // }, reduce: Statement
-			reduce(10), // if, reduce: Statement
-			nil,        // else
-		},
-	},
-	actionRow{ // S59
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(15), // int_lit, reduce: Expression
-			reduce(15), // string_lit, reduce: Expression
-			reduce(15), // id, reduce: Expression
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(15), // var, reduce: Expression
-			nil,        // =
-			nil,        // {
-			reduce(15), // }, reduce: Expression
-			reduce(15), // if, reduce: Expression
-			nil,        // else
-		},
-	},
-	actionRow{ // S60
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(16), // int_lit, reduce: Expression
-			reduce(16), // string_lit, reduce: Expression
-			reduce(16), // id, reduce: Expression
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(16), // var, reduce: Expression
-			nil,        // =
-			nil,        // {
-			reduce(16), // }, reduce: Expression
-			reduce(16), // if, reduce: Expression
-			nil,        // else
-		},
-	},
-	actionRow{ // S61
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(17), // int_lit, reduce: Expression
-			reduce(17), // string_lit, reduce: Expression
-			reduce(17), // id, reduce: Expression
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(17), // var, reduce: Expression
-			nil,        // =
-			nil,        // {
-			reduce(17), // }, reduce: Expression
-			reduce(17), // if, reduce: Expression
-			nil,        // else
-		},
-	},
-	actionRow{ // S62
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(18), // int_lit, reduce: IntegerLiteral
-			reduce(18), // string_lit, reduce: IntegerLiteral
-			reduce(18), // id, reduce: IntegerLiteral
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(18), // var, reduce: IntegerLiteral
-			nil,        // =
-			nil,        // {
-			reduce(18), // }, reduce: IntegerLiteral
-			reduce(18), // if, reduce: IntegerLiteral
-			nil,        // else
-		},
-	},
-	actionRow{ // S63
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(19), // int_lit, reduce: StringLiteral
-			reduce(19), // string_lit, reduce: StringLiteral
-			reduce(19), // id, reduce: StringLiteral
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(19), // var, reduce: StringLiteral
-			nil,        // =
-			nil,        // {
-			reduce(19), // }, reduce: StringLiteral
-			reduce(19), // if, reduce: StringLiteral
-			nil,        // else
-		},
-	},
-	actionRow{ // S64
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			shift(74), // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			shift(75), // =
-			nil,       // {
+			shift(49), // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S65
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			shift(76), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S66
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(26), // int_lit
-			shift(27), // string_lit
-			shift(28), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S67
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			shift(78), // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S68
+	actionRow{ // S33
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -1389,6 +722,742 @@ var actionTab = actionTable{
 			nil,        // }
 			nil,        // if
 			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S34
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(16), // ), reduce: Expression
+			reduce(16), // ,, reduce: Expression
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S35
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(17), // ), reduce: Expression
+			reduce(17), // ,, reduce: Expression
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S36
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(18), // ), reduce: Expression
+			reduce(18), // ,, reduce: Expression
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S37
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(19), // ), reduce: IntegerLiteral
+			reduce(19), // ,, reduce: IntegerLiteral
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S38
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(20), // ), reduce: StringLiteral
+			reduce(20), // ,, reduce: StringLiteral
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S39
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			shift(50), // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S40
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			shift(51), // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S41
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(23), // ), reduce: Arguments
+			shift(52),  // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S42
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(27), // ␚, reduce: Assign
+			nil,        // empty
+			reduce(27), // int_lit, reduce: Assign
+			reduce(27), // string_lit, reduce: Assign
+			reduce(27), // id, reduce: Assign
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(27), // var, reduce: Assign
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(27), // if, reduce: Assign
+			nil,        // else
+			reduce(27), // while, reduce: Assign
+		},
+	},
+	actionRow{ // S43
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			shift(21), // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S44
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(14), // int_lit
+			shift(15), // string_lit
+			shift(43), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S45
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			shift(37),  // int_lit
+			shift(38),  // string_lit
+			shift(39),  // id
+			nil,        // (
+			reduce(22), // ), reduce: Arguments
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S46
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(30), // ␚, reduce: If
+			nil,        // empty
+			reduce(30), // int_lit, reduce: If
+			reduce(30), // string_lit, reduce: If
+			reduce(30), // id, reduce: If
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(30), // var, reduce: If
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(30), // if, reduce: If
+			shift(55),  // else
+			reduce(30), // while, reduce: If
+		},
+	},
+	actionRow{ // S47
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(70), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			shift(71), // var
+			nil,       // =
+			nil,       // {
+			reduce(2), // }, reduce: Statements
+			shift(72), // if
+			nil,       // else
+			shift(73), // while
+		},
+	},
+	actionRow{ // S48
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(32), // ␚, reduce: While
+			nil,        // empty
+			reduce(32), // int_lit, reduce: While
+			reduce(32), // string_lit, reduce: While
+			reduce(32), // id, reduce: While
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(32), // var, reduce: While
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(32), // if, reduce: While
+			nil,        // else
+			reduce(32), // while, reduce: While
+		},
+	},
+	actionRow{ // S49
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(70), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			shift(71), // var
+			nil,       // =
+			nil,       // {
+			reduce(2), // }, reduce: Statements
+			shift(72), // if
+			nil,       // else
+			shift(73), // while
+		},
+	},
+	actionRow{ // S50
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			shift(37),  // int_lit
+			shift(38),  // string_lit
+			shift(39),  // id
+			nil,        // (
+			reduce(22), // ), reduce: Arguments
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S51
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(21), // ␚, reduce: FunctionCall
+			nil,        // empty
+			reduce(21), // int_lit, reduce: FunctionCall
+			reduce(21), // string_lit, reduce: FunctionCall
+			reduce(21), // id, reduce: FunctionCall
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(21), // var, reduce: FunctionCall
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(21), // if, reduce: FunctionCall
+			nil,        // else
+			reduce(21), // while, reduce: FunctionCall
+		},
+	},
+	actionRow{ // S52
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(37), // int_lit
+			shift(38), // string_lit
+			shift(39), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S53
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(26), // ␚, reduce: Declare
+			nil,        // empty
+			reduce(26), // int_lit, reduce: Declare
+			reduce(26), // string_lit, reduce: Declare
+			reduce(26), // id, reduce: Declare
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(26), // var, reduce: Declare
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(26), // if, reduce: Declare
+			nil,        // else
+			reduce(26), // while, reduce: Declare
+		},
+	},
+	actionRow{ // S54
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			shift(77), // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S55
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			shift(49), // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S56
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			shift(79), // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S57
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(70), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			shift(71), // var
+			nil,       // =
+			nil,       // {
+			reduce(3), // }, reduce: Statements
+			shift(72), // if
+			nil,       // else
+			shift(73), // while
+		},
+	},
+	actionRow{ // S58
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(4), // int_lit, reduce: StatementList
+			reduce(4), // string_lit, reduce: StatementList
+			reduce(4), // id, reduce: StatementList
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(4), // var, reduce: StatementList
+			nil,       // =
+			nil,       // {
+			reduce(4), // }, reduce: StatementList
+			reduce(4), // if, reduce: StatementList
+			nil,       // else
+			reduce(4), // while, reduce: StatementList
+		},
+	},
+	actionRow{ // S59
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(6), // int_lit, reduce: Statement
+			reduce(6), // string_lit, reduce: Statement
+			reduce(6), // id, reduce: Statement
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(6), // var, reduce: Statement
+			nil,       // =
+			nil,       // {
+			reduce(6), // }, reduce: Statement
+			reduce(6), // if, reduce: Statement
+			nil,       // else
+			reduce(6), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S60
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(7), // int_lit, reduce: Statement
+			reduce(7), // string_lit, reduce: Statement
+			reduce(7), // id, reduce: Statement
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(7), // var, reduce: Statement
+			nil,       // =
+			nil,       // {
+			reduce(7), // }, reduce: Statement
+			reduce(7), // if, reduce: Statement
+			nil,       // else
+			reduce(7), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S61
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(8), // int_lit, reduce: Statement
+			reduce(8), // string_lit, reduce: Statement
+			reduce(8), // id, reduce: Statement
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(8), // var, reduce: Statement
+			nil,       // =
+			nil,       // {
+			reduce(8), // }, reduce: Statement
+			reduce(8), // if, reduce: Statement
+			nil,       // else
+			reduce(8), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S62
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(9), // int_lit, reduce: Statement
+			reduce(9), // string_lit, reduce: Statement
+			reduce(9), // id, reduce: Statement
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(9), // var, reduce: Statement
+			nil,       // =
+			nil,       // {
+			reduce(9), // }, reduce: Statement
+			reduce(9), // if, reduce: Statement
+			nil,       // else
+			reduce(9), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S63
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(10), // int_lit, reduce: Statement
+			reduce(10), // string_lit, reduce: Statement
+			reduce(10), // id, reduce: Statement
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(10), // var, reduce: Statement
+			nil,        // =
+			nil,        // {
+			reduce(10), // }, reduce: Statement
+			reduce(10), // if, reduce: Statement
+			nil,        // else
+			reduce(10), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S64
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(11), // int_lit, reduce: Statement
+			reduce(11), // string_lit, reduce: Statement
+			reduce(11), // id, reduce: Statement
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(11), // var, reduce: Statement
+			nil,        // =
+			nil,        // {
+			reduce(11), // }, reduce: Statement
+			reduce(11), // if, reduce: Statement
+			nil,        // else
+			reduce(11), // while, reduce: Statement
+		},
+	},
+	actionRow{ // S65
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(16), // int_lit, reduce: Expression
+			reduce(16), // string_lit, reduce: Expression
+			reduce(16), // id, reduce: Expression
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(16), // var, reduce: Expression
+			nil,        // =
+			nil,        // {
+			reduce(16), // }, reduce: Expression
+			reduce(16), // if, reduce: Expression
+			nil,        // else
+			reduce(16), // while, reduce: Expression
+		},
+	},
+	actionRow{ // S66
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(17), // int_lit, reduce: Expression
+			reduce(17), // string_lit, reduce: Expression
+			reduce(17), // id, reduce: Expression
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(17), // var, reduce: Expression
+			nil,        // =
+			nil,        // {
+			reduce(17), // }, reduce: Expression
+			reduce(17), // if, reduce: Expression
+			nil,        // else
+			reduce(17), // while, reduce: Expression
+		},
+	},
+	actionRow{ // S67
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(18), // int_lit, reduce: Expression
+			reduce(18), // string_lit, reduce: Expression
+			reduce(18), // id, reduce: Expression
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(18), // var, reduce: Expression
+			nil,        // =
+			nil,        // {
+			reduce(18), // }, reduce: Expression
+			reduce(18), // if, reduce: Expression
+			nil,        // else
+			reduce(18), // while, reduce: Expression
+		},
+	},
+	actionRow{ // S68
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(19), // int_lit, reduce: IntegerLiteral
+			reduce(19), // string_lit, reduce: IntegerLiteral
+			reduce(19), // id, reduce: IntegerLiteral
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(19), // var, reduce: IntegerLiteral
+			nil,        // =
+			nil,        // {
+			reduce(19), // }, reduce: IntegerLiteral
+			reduce(19), // if, reduce: IntegerLiteral
+			nil,        // else
+			reduce(19), // while, reduce: IntegerLiteral
 		},
 	},
 	actionRow{ // S69
@@ -1397,38 +1466,40 @@ var actionTab = actionTable{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
+			reduce(20), // int_lit, reduce: StringLiteral
+			reduce(20), // string_lit, reduce: StringLiteral
+			reduce(20), // id, reduce: StringLiteral
 			nil,        // (
 			nil,        // )
 			nil,        // ,
-			nil,        // var
+			reduce(20), // var, reduce: StringLiteral
 			nil,        // =
-			reduce(20), // {, reduce: FunctionCall
-			nil,        // }
-			nil,        // if
+			nil,        // {
+			reduce(20), // }, reduce: StringLiteral
+			reduce(20), // if, reduce: StringLiteral
 			nil,        // else
+			reduce(20), // while, reduce: StringLiteral
 		},
 	},
 	actionRow{ // S70
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(30), // ␚, reduce: IfElse
-			nil,        // empty
-			reduce(30), // int_lit, reduce: IfElse
-			reduce(30), // string_lit, reduce: IfElse
-			reduce(30), // id, reduce: IfElse
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(30), // var, reduce: IfElse
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(30), // if, reduce: IfElse
-			nil,        // else
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			shift(81), // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			shift(82), // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S71
@@ -1437,38 +1508,40 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(64), // id
+			nil,       // int_lit
+			nil,       // string_lit
+			shift(83), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
-			shift(65), // var
+			nil,       // var
 			nil,       // =
 			nil,       // {
-			reduce(2), // }, reduce: Statements
-			shift(66), // if
+			nil,       // }
+			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S72
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(27), // ␚, reduce: Block
-			nil,        // empty
-			reduce(27), // int_lit, reduce: Block
-			reduce(27), // string_lit, reduce: Block
-			reduce(27), // id, reduce: Block
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(27), // var, reduce: Block
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(27), // if, reduce: Block
-			reduce(27), // else, reduce: Block
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(28), // int_lit
+			shift(29), // string_lit
+			shift(30), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S73
@@ -1477,121 +1550,22 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			reduce(5), // int_lit, reduce: StatementList
-			reduce(5), // string_lit, reduce: StatementList
-			reduce(5), // id, reduce: StatementList
+			shift(28), // int_lit
+			shift(29), // string_lit
+			shift(30), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
-			reduce(5), // var, reduce: StatementList
+			nil,       // var
 			nil,       // =
 			nil,       // {
-			reduce(5), // }, reduce: StatementList
-			reduce(5), // if, reduce: StatementList
+			nil,       // }
+			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S74
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			shift(34),  // int_lit
-			shift(35),  // string_lit
-			shift(36),  // id
-			nil,        // (
-			reduce(21), // ), reduce: Arguments
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S75
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(82), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S76
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			shift(83), // =
-			nil,       // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S77
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			nil,       // var
-			nil,       // =
-			shift(85), // {
-			nil,       // }
-			nil,       // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S78
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // int_lit
-			nil,        // string_lit
-			nil,        // id
-			nil,        // (
-			reduce(20), // ), reduce: FunctionCall
-			reduce(20), // ,, reduce: FunctionCall
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-		},
-	},
-	actionRow{ // S79
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1609,9 +1583,10 @@ var actionTab = actionTable{
 			shift(86), // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S80
+	actionRow{ // S75
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1629,6 +1604,112 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S76
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(25), // ), reduce: ArgumentList
+			reduce(25), // ,, reduce: ArgumentList
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S77
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			reduce(21), // {, reduce: FunctionCall
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S78
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(31), // ␚, reduce: IfElse
+			nil,        // empty
+			reduce(31), // int_lit, reduce: IfElse
+			reduce(31), // string_lit, reduce: IfElse
+			reduce(31), // id, reduce: IfElse
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(31), // var, reduce: IfElse
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(31), // if, reduce: IfElse
+			nil,        // else
+			reduce(31), // while, reduce: IfElse
+		},
+	},
+	actionRow{ // S79
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(28), // ␚, reduce: Block
+			nil,        // empty
+			reduce(28), // int_lit, reduce: Block
+			reduce(28), // string_lit, reduce: Block
+			reduce(28), // id, reduce: Block
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(28), // var, reduce: Block
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(28), // if, reduce: Block
+			reduce(28), // else, reduce: Block
+			reduce(28), // while, reduce: Block
+		},
+	},
+	actionRow{ // S80
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			reduce(5), // int_lit, reduce: StatementList
+			reduce(5), // string_lit, reduce: StatementList
+			reduce(5), // id, reduce: StatementList
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			reduce(5), // var, reduce: StatementList
+			nil,       // =
+			nil,       // {
+			reduce(5), // }, reduce: StatementList
+			reduce(5), // if, reduce: StatementList
+			nil,       // else
+			reduce(5), // while, reduce: StatementList
 		},
 	},
 	actionRow{ // S81
@@ -1637,18 +1718,19 @@ var actionTab = actionTable{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
-			reduce(26), // int_lit, reduce: Assign
-			reduce(26), // string_lit, reduce: Assign
-			reduce(26), // id, reduce: Assign
+			shift(37),  // int_lit
+			shift(38),  // string_lit
+			shift(39),  // id
 			nil,        // (
-			nil,        // )
+			reduce(22), // ), reduce: Arguments
 			nil,        // ,
-			reduce(26), // var, reduce: Assign
+			nil,        // var
 			nil,        // =
 			nil,        // {
-			reduce(26), // }, reduce: Assign
-			reduce(26), // if, reduce: Assign
+			nil,        // }
+			nil,        // if
 			nil,        // else
+			nil,        // while
 		},
 	},
 	actionRow{ // S82
@@ -1657,10 +1739,10 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			nil,       // int_lit
-			nil,       // string_lit
-			nil,       // id
-			shift(74), // (
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(90), // id
+			nil,       // (
 			nil,       // )
 			nil,       // ,
 			nil,       // var
@@ -1669,6 +1751,7 @@ var actionTab = actionTable{
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S83
@@ -1677,121 +1760,22 @@ var actionTab = actionTable{
 			nil,       // INVALID
 			nil,       // ␚
 			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(82), // id
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
 			nil,       // var
-			nil,       // =
+			shift(91), // =
 			nil,       // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S84
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(29), // int_lit, reduce: If
-			reduce(29), // string_lit, reduce: If
-			reduce(29), // id, reduce: If
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(29), // var, reduce: If
-			nil,        // =
-			nil,        // {
-			reduce(29), // }, reduce: If
-			reduce(29), // if, reduce: If
-			shift(89),  // else
-		},
-	},
-	actionRow{ // S85
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(64), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			shift(65), // var
-			nil,       // =
-			nil,       // {
-			reduce(2), // }, reduce: Statements
-			shift(66), // if
-			nil,       // else
-		},
-	},
-	actionRow{ // S86
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			reduce(27), // ␚, reduce: Block
-			nil,        // empty
-			reduce(27), // int_lit, reduce: Block
-			reduce(27), // string_lit, reduce: Block
-			reduce(27), // id, reduce: Block
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(27), // var, reduce: Block
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			reduce(27), // if, reduce: Block
-			nil,        // else
-		},
-	},
-	actionRow{ // S87
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(20), // int_lit, reduce: FunctionCall
-			reduce(20), // string_lit, reduce: FunctionCall
-			reduce(20), // id, reduce: FunctionCall
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(20), // var, reduce: FunctionCall
-			nil,        // =
-			nil,        // {
-			reduce(20), // }, reduce: FunctionCall
-			reduce(20), // if, reduce: FunctionCall
-			nil,        // else
-		},
-	},
-	actionRow{ // S88
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(25), // int_lit, reduce: Declare
-			reduce(25), // string_lit, reduce: Declare
-			reduce(25), // id, reduce: Declare
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(25), // var, reduce: Declare
-			nil,        // =
-			nil,        // {
-			reduce(25), // }, reduce: Declare
-			reduce(25), // if, reduce: Declare
-			nil,        // else
-		},
-	},
-	actionRow{ // S89
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1805,10 +1789,116 @@ var actionTab = actionTable{
 			nil,       // ,
 			nil,       // var
 			nil,       // =
-			shift(92), // {
+			shift(93), // {
 			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S85
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			shift(95), // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S86
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(28), // ␚, reduce: Block
+			nil,        // empty
+			reduce(28), // int_lit, reduce: Block
+			reduce(28), // string_lit, reduce: Block
+			reduce(28), // id, reduce: Block
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(28), // var, reduce: Block
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(28), // if, reduce: Block
+			nil,        // else
+			reduce(28), // while, reduce: Block
+		},
+	},
+	actionRow{ // S87
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			reduce(21), // ), reduce: FunctionCall
+			reduce(21), // ,, reduce: FunctionCall
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S88
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			nil,       // int_lit
+			nil,       // string_lit
+			nil,       // id
+			nil,       // (
+			shift(96), // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S89
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(27), // int_lit, reduce: Assign
+			reduce(27), // string_lit, reduce: Assign
+			reduce(27), // id, reduce: Assign
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(27), // var, reduce: Assign
+			nil,        // =
+			nil,        // {
+			reduce(27), // }, reduce: Assign
+			reduce(27), // if, reduce: Assign
+			nil,        // else
+			reduce(27), // while, reduce: Assign
 		},
 	},
 	actionRow{ // S90
@@ -1820,78 +1910,166 @@ var actionTab = actionTable{
 			nil,       // int_lit
 			nil,       // string_lit
 			nil,       // id
+			shift(81), // (
+			nil,       // )
+			nil,       // ,
+			nil,       // var
+			nil,       // =
+			nil,       // {
+			nil,       // }
+			nil,       // if
+			nil,       // else
+			nil,       // while
+		},
+	},
+	actionRow{ // S91
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(90), // id
 			nil,       // (
 			nil,       // )
 			nil,       // ,
 			nil,       // var
 			nil,       // =
 			nil,       // {
-			shift(93), // }
+			nil,       // }
 			nil,       // if
 			nil,       // else
-		},
-	},
-	actionRow{ // S91
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(30), // int_lit, reduce: IfElse
-			reduce(30), // string_lit, reduce: IfElse
-			reduce(30), // id, reduce: IfElse
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(30), // var, reduce: IfElse
-			nil,        // =
-			nil,        // {
-			reduce(30), // }, reduce: IfElse
-			reduce(30), // if, reduce: IfElse
-			nil,        // else
+			nil,       // while
 		},
 	},
 	actionRow{ // S92
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,       // INVALID
-			nil,       // ␚
-			nil,       // empty
-			shift(62), // int_lit
-			shift(63), // string_lit
-			shift(64), // id
-			nil,       // (
-			nil,       // )
-			nil,       // ,
-			shift(65), // var
-			nil,       // =
-			nil,       // {
-			reduce(2), // }, reduce: Statements
-			shift(66), // if
-			nil,       // else
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(30), // int_lit, reduce: If
+			reduce(30), // string_lit, reduce: If
+			reduce(30), // id, reduce: If
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(30), // var, reduce: If
+			nil,        // =
+			nil,        // {
+			reduce(30), // }, reduce: If
+			reduce(30), // if, reduce: If
+			shift(98),  // else
+			reduce(30), // while, reduce: If
 		},
 	},
 	actionRow{ // S93
 		canRecover: false,
 		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			reduce(27), // int_lit, reduce: Block
-			reduce(27), // string_lit, reduce: Block
-			reduce(27), // id, reduce: Block
-			nil,        // (
-			nil,        // )
-			nil,        // ,
-			reduce(27), // var, reduce: Block
-			nil,        // =
-			nil,        // {
-			reduce(27), // }, reduce: Block
-			reduce(27), // if, reduce: Block
-			reduce(27), // else, reduce: Block
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(70), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			shift(71), // var
+			nil,       // =
+			nil,       // {
+			reduce(2), // }, reduce: Statements
+			shift(72), // if
+			nil,       // else
+			shift(73), // while
 		},
 	},
 	actionRow{ // S94
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(32), // int_lit, reduce: While
+			reduce(32), // string_lit, reduce: While
+			reduce(32), // id, reduce: While
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(32), // var, reduce: While
+			nil,        // =
+			nil,        // {
+			reduce(32), // }, reduce: While
+			reduce(32), // if, reduce: While
+			nil,        // else
+			reduce(32), // while, reduce: While
+		},
+	},
+	actionRow{ // S95
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,       // INVALID
+			nil,       // ␚
+			nil,       // empty
+			shift(68), // int_lit
+			shift(69), // string_lit
+			shift(70), // id
+			nil,       // (
+			nil,       // )
+			nil,       // ,
+			shift(71), // var
+			nil,       // =
+			nil,       // {
+			reduce(2), // }, reduce: Statements
+			shift(72), // if
+			nil,       // else
+			shift(73), // while
+		},
+	},
+	actionRow{ // S96
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(21), // int_lit, reduce: FunctionCall
+			reduce(21), // string_lit, reduce: FunctionCall
+			reduce(21), // id, reduce: FunctionCall
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(21), // var, reduce: FunctionCall
+			nil,        // =
+			nil,        // {
+			reduce(21), // }, reduce: FunctionCall
+			reduce(21), // if, reduce: FunctionCall
+			nil,        // else
+			reduce(21), // while, reduce: FunctionCall
+		},
+	},
+	actionRow{ // S97
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(26), // int_lit, reduce: Declare
+			reduce(26), // string_lit, reduce: Declare
+			reduce(26), // id, reduce: Declare
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(26), // var, reduce: Declare
+			nil,        // =
+			nil,        // {
+			reduce(26), // }, reduce: Declare
+			reduce(26), // if, reduce: Declare
+			nil,        // else
+			reduce(26), // while, reduce: Declare
+		},
+	},
+	actionRow{ // S98
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -1905,30 +2083,116 @@ var actionTab = actionTable{
 			nil,       // ,
 			nil,       // var
 			nil,       // =
-			nil,       // {
-			shift(95), // }
+			shift(95), // {
+			nil,       // }
 			nil,       // if
 			nil,       // else
+			nil,       // while
 		},
 	},
-	actionRow{ // S95
+	actionRow{ // S99
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
-			reduce(27), // int_lit, reduce: Block
-			reduce(27), // string_lit, reduce: Block
-			reduce(27), // id, reduce: Block
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
 			nil,        // (
 			nil,        // )
 			nil,        // ,
-			reduce(27), // var, reduce: Block
+			nil,        // var
 			nil,        // =
 			nil,        // {
-			reduce(27), // }, reduce: Block
-			reduce(27), // if, reduce: Block
+			shift(102), // }
+			nil,        // if
 			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S100
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // int_lit
+			nil,        // string_lit
+			nil,        // id
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			shift(103), // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+		},
+	},
+	actionRow{ // S101
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(31), // int_lit, reduce: IfElse
+			reduce(31), // string_lit, reduce: IfElse
+			reduce(31), // id, reduce: IfElse
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(31), // var, reduce: IfElse
+			nil,        // =
+			nil,        // {
+			reduce(31), // }, reduce: IfElse
+			reduce(31), // if, reduce: IfElse
+			nil,        // else
+			reduce(31), // while, reduce: IfElse
+		},
+	},
+	actionRow{ // S102
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(28), // int_lit, reduce: Block
+			reduce(28), // string_lit, reduce: Block
+			reduce(28), // id, reduce: Block
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(28), // var, reduce: Block
+			nil,        // =
+			nil,        // {
+			reduce(28), // }, reduce: Block
+			reduce(28), // if, reduce: Block
+			reduce(28), // else, reduce: Block
+			reduce(28), // while, reduce: Block
+		},
+	},
+	actionRow{ // S103
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			reduce(28), // int_lit, reduce: Block
+			reduce(28), // string_lit, reduce: Block
+			reduce(28), // id, reduce: Block
+			nil,        // (
+			nil,        // )
+			nil,        // ,
+			reduce(28), // var, reduce: Block
+			nil,        // =
+			nil,        // {
+			reduce(28), // }, reduce: Block
+			reduce(28), // if, reduce: Block
+			nil,        // else
+			reduce(28), // while, reduce: Block
 		},
 	},
 }
