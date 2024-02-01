@@ -2,7 +2,7 @@
 
 package parser
 
-const numNTSymbols = 14
+const numNTSymbols = 15
 
 type (
 	gotoTable [numStates]gotoRow
@@ -19,12 +19,13 @@ var gotoTab = gotoTable{
 		-1, // Expressions
 		-1, // ExpressionList
 		5,  // Expression
-		7,  // IntegerLiteral
-		8,  // StringLiteral
-		9,  // FunctionCall
+		8,  // IntegerLiteral
+		9,  // StringLiteral
+		10, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		6,  // Declare
+		7,  // Assign
 	},
 	gotoRow{ // S1
 		-1, // S'
@@ -41,6 +42,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S2
 		-1, // S'
@@ -57,22 +59,24 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S3
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
-		14, // Statement
+		15, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
 		5,  // Expression
-		7,  // IntegerLiteral
-		8,  // StringLiteral
-		9,  // FunctionCall
+		8,  // IntegerLiteral
+		9,  // StringLiteral
+		10, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		6,  // Declare
+		7,  // Assign
 	},
 	gotoRow{ // S4
 		-1, // S'
@@ -89,6 +93,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S5
 		-1, // S'
@@ -105,6 +110,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S6
 		-1, // S'
@@ -121,6 +127,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S7
 		-1, // S'
@@ -137,6 +144,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S8
 		-1, // S'
@@ -153,6 +161,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S9
 		-1, // S'
@@ -169,6 +178,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S10
 		-1, // S'
@@ -185,6 +195,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S11
 		-1, // S'
@@ -201,6 +212,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S12
 		-1, // S'
@@ -217,6 +229,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S13
 		-1, // S'
@@ -233,6 +246,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S14
 		-1, // S'
@@ -249,6 +263,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S15
 		-1, // S'
@@ -258,13 +273,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		17, // Expression
-		18, // IntegerLiteral
-		19, // StringLiteral
-		20, // FunctionCall
-		24, // Arguments
-		25, // ArgumentList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S16
 		-1, // S'
@@ -274,13 +290,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
+		19, // Expression
+		20, // IntegerLiteral
+		21, // StringLiteral
+		22, // FunctionCall
+		26, // Arguments
+		27, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S17
 		-1, // S'
@@ -290,13 +307,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // FunctionCall
+		28, // Expression
+		8,  // IntegerLiteral
+		9,  // StringLiteral
+		10, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S18
 		-1, // S'
@@ -313,6 +331,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S19
 		-1, // S'
@@ -329,6 +348,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S20
 		-1, // S'
@@ -345,6 +365,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S21
 		-1, // S'
@@ -361,6 +382,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S22
 		-1, // S'
@@ -377,6 +399,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S23
 		-1, // S'
@@ -393,6 +416,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S24
 		-1, // S'
@@ -409,6 +433,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S25
 		-1, // S'
@@ -425,6 +450,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S26
 		-1, // S'
@@ -434,13 +460,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		30, // Expression
-		7,  // IntegerLiteral
-		8,  // StringLiteral
-		9,  // FunctionCall
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S27
 		-1, // S'
@@ -450,13 +477,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		17, // Expression
-		18, // IntegerLiteral
-		19, // StringLiteral
-		20, // FunctionCall
-		31, // Arguments
-		25, // ArgumentList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S28
 		-1, // S'
@@ -473,6 +501,7 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S29
 		-1, // S'
@@ -482,13 +511,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		32, // Expression
-		18, // IntegerLiteral
-		19, // StringLiteral
-		20, // FunctionCall
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S30
 		-1, // S'
@@ -498,13 +528,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // FunctionCall
+		34, // Expression
+		8,  // IntegerLiteral
+		9,  // StringLiteral
+		10, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S31
 		-1, // S'
@@ -514,13 +545,14 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
+		19, // Expression
+		20, // IntegerLiteral
+		21, // StringLiteral
+		22, // FunctionCall
+		35, // Arguments
+		27, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S32
 		-1, // S'
@@ -537,8 +569,26 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
 	},
 	gotoRow{ // S33
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		36, // Expression
+		20, // IntegerLiteral
+		21, // StringLiteral
+		22, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+	},
+	gotoRow{ // S34
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -553,5 +603,57 @@ var gotoTab = gotoTable{
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
+		-1, // Assign
+	},
+	gotoRow{ // S35
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+	},
+	gotoRow{ // S36
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+	},
+	gotoRow{ // S37
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
 	},
 }

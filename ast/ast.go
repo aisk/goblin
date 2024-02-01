@@ -90,6 +90,15 @@ type Assign struct {
 	Value  Expression
 }
 
+func NewAssign(x, y any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	value := y.(Expression)
+	return &Assign{
+		Target: name,
+		Value:  value,
+	}, nil
+}
+
 type If struct {
 	statementMixin
 	Condition Expression

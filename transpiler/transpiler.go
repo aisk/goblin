@@ -104,6 +104,16 @@ func transpileDeclare(decl *ast.Declare) (*jen.Statement, error) {
 	return result, nil
 }
 
+func transpileAssign(decl *ast.Assign) (*jen.Statement, error) {
+	value, err := transpileExpression(decl.Value)
+	if err != nil {
+		return nil, err
+	}
+	result := jen.Id(decl.Target).Op("=").Add(value)
+	result.Op(";").Id("_").Op("=").Id(decl.Target)
+	return result, nil
+}
+
 func transpileIf(if_ *ast.If) (*jen.Statement, error) {
 	cond, err := transpileExpression(if_.Condition)
 	if err != nil {
@@ -180,6 +190,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
 		return transpileDeclare(v)
+	case *ast.Assign:
+		return transpileAssign(v)
 	case *ast.FunctionCall:
 		return transpileFunctionCall(v)
 	case *ast.FunctionDefine:

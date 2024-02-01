@@ -50,6 +50,7 @@ StatementList
 Statement
     : Expression                             << $0, nil >>
     | Declare                                << $0, nil >>
+    | Assign                                 << $0, nil >>
 ;
 
 Expressions
@@ -93,4 +94,8 @@ ArgumentList
 
 Declare
     : "var" id "=" Expression                << ast.NewDeclare($1, $3) >>
+;
+
+Assign
+    : id "=" Expression                      << ast.NewAssign($0, $2) >>
 ;

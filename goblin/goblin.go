@@ -16,7 +16,11 @@ var hello = ast.Module{
 	Body: []ast.Statement{
 		&ast.Declare{
 			Name:  "answer",
-			Value: &ast.Literal{Value: object.Integer(42)},
+			Value: &ast.Literal{Value: object.Integer(0)},
+		},
+		&ast.Assign{
+			Target: "answer",
+			Value:  &ast.Literal{Value: object.Integer(42)},
 		},
 		&ast.Declare{
 			Name:  "name",
