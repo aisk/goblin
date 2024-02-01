@@ -123,7 +123,8 @@ func transpileIf(if_ *ast.If) (*jen.Statement, error) {
 	if err != nil {
 		return nil, err
 	}
-	return jen.If(cond.Dot("Bool").Call()).Block(body...), nil
+	elseBody, err := transpileStatements(if_.Else)
+	return jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...), nil
 }
 
 func transpileWhile(while_ *ast.While) (*jen.Statement, error) {

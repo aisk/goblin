@@ -103,6 +103,7 @@ type If struct {
 	statementMixin
 	Condition Expression
 	Body      []Statement
+	Else      []Statement
 }
 
 type While struct {
