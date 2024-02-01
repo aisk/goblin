@@ -147,6 +147,10 @@ var TokMap = TokenMap{
 		",",
 		"var",
 		"=",
+		"{",
+		"}",
+		"if",
+		"else",
 	},
 
 	idMap: map[string]Type{
@@ -161,5 +165,9 @@ var TokMap = TokenMap{
 		",":          8,
 		"var":        9,
 		"=":          10,
+		"{":          11,
+		"}":          12,
+		"if":         13,
+		"else":       14,
 	},
 }

@@ -106,6 +106,20 @@ type If struct {
 	Else      []Statement
 }
 
+func NewIf(x, y, z any) (any, error) {
+	condition := x.(Expression)
+	ifBody := y.([]Statement)
+	var elseBody []Statement = nil
+	if z != nil {
+		elseBody = z.([]Statement)
+	}
+	return &If{
+		Condition: condition,
+		Body:      ifBody,
+		Else:      elseBody,
+	}, nil
+}
+
 type While struct {
 	statementMixin
 	Condition Expression

@@ -51,6 +51,8 @@ Statement
     : Expression                             << $0, nil >>
     | Declare                                << $0, nil >>
     | Assign                                 << $0, nil >>
+    | If
+    | IfElse
 ;
 
 Expressions
@@ -98,4 +100,20 @@ Declare
 
 Assign
     : id "=" Expression                      << ast.NewAssign($0, $2) >>
+;
+
+Block
+    : "{" Statements "}"                     << $1, nil >>
+;
+
+Condition
+    :  Expression                            << $0, nil >>
+;
+
+If
+    : "if" Condition Block                   << ast.NewIf($1, $2, nil) >>
+;
+
+IfElse
+    : "if" Condition Block "else" Block      << ast.NewIf($1, $2, $4) >>
 ;
