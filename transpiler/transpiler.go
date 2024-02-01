@@ -99,7 +99,7 @@ func transpileDeclare(decl *ast.Declare) (*jen.Statement, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := jen.Var().Id(decl.Name).Op("=").Add(value)
+	result := jen.Var().Id(decl.Name).Id("object.Object").Op("=").Add(value)
 	result.Op(";").Id("_").Op("=").Id(decl.Name)
 	return result, nil
 }
