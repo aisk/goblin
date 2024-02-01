@@ -129,7 +129,7 @@ type While struct {
 func NewWhile(x, y any) (any, error) {
 	condition := x.(Expression)
 	body := y.([]Statement)
-	return &If{
+	return &While{
 		Condition: condition,
 		Body:      body,
 	}, nil
