@@ -65,7 +65,7 @@ func NewFunctionCall(x, y any) (any, error) {
 }
 
 type Declare struct {
-	expressionMixin
+	statementMixin
 	Name  string
 	Value Expression
 }
