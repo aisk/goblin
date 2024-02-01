@@ -70,6 +70,15 @@ type Declare struct {
 	Value Expression
 }
 
+func NewDeclare(x, y any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	value := y.(Expression)
+	return &Declare{
+		Name:  name,
+		Value: value,
+	}, nil
+}
+
 type Symbol struct {
 	expressionMixin
 	Name string

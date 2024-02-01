@@ -49,6 +49,7 @@ StatementList
 
 Statement
     : Expression                             << $0, nil >>
+    | Declare                                << $0, nil >>
 ;
 
 Expressions
@@ -88,4 +89,8 @@ Arguments
 ArgumentList
     : Expression                             << ast.NewExpressionList($0) >>
     | ArgumentList "," Expression            << ast.AppendExpressionList($0, $2) >>
+;
+
+Declare
+    : "var" id "=" Expression                << ast.NewDeclare($1, $3) >>
 ;
