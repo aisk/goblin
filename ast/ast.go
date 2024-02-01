@@ -165,6 +165,14 @@ func NewStringLiteral(x any) (any, error) {
 	return &Literal{Value: object.String(s)}, nil
 }
 
+func NewTrueLiteral() (any, error) {
+	return &Literal{Value: object.True}, nil
+}
+
+func NewFalseLiteral() (any, error) {
+	return &Literal{Value: object.False}, nil
+}
+
 type FunctionDefine struct {
 	statementMixin
 	Name string

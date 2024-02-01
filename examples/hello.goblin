@@ -3,16 +3,16 @@ a = 456
 
 print("Hello, world!")
 
-if 1 {
+if true {
     print("true")
 }
 
-if 0 {
+if false {
     print("true")
 } else {
     print("false")
 }
 
-while 0 {
+while false {
     print("forever")
 }

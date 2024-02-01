@@ -69,6 +69,8 @@ ExpressionList
 Expression
     : IntegerLiteral                         << $0, nil >>
     | StringLiteral                          << $0, nil >>
+    | TrueLiteral
+    | FalseLiteral
     | FunctionCall                           << $0, nil >>
 ;
 
@@ -78,7 +80,15 @@ IntegerLiteral
 ;
 
 StringLiteral
-     : string_lit                            << ast.NewStringLiteral($0) >>
+    : string_lit                             << ast.NewStringLiteral($0) >>
+;
+
+TrueLiteral
+    : "true"                                 << ast.NewTrueLiteral() >>
+;
+
+FalseLiteral
+    : "false"                                << ast.NewFalseLiteral() >>
 ;
 
 FunctionCall
