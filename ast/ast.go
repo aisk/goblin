@@ -162,6 +162,7 @@ func NewIntegerLiteral(x any) (any, error) {
 
 func NewStringLiteral(x any) (any, error) {
 	s := string(x.(*token.Token).Lit)
+	s = s[1 : len(s)-1]
 	return &Literal{Value: object.String(s)}, nil
 }
 
