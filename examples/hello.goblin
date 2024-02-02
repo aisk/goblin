@@ -21,4 +21,4 @@ func hello() {
     print("hello!")
     return true
 }
-hello(1)
+hello()

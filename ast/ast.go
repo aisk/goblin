@@ -57,7 +57,10 @@ type FunctionCall struct {
 
 func NewFunctionCall(x, y any) (any, error) {
 	name := string(x.(*token.Token).Lit)
-	args := y.([]Expression)
+	var args []Expression = nil
+	if y != nil {
+		args = y.([]Expression)
+	}
 	return &FunctionCall{
 		Name: name,
 		Args: args,
