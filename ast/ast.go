@@ -187,6 +187,8 @@ type FunctionDefine struct {
 func NewFunctionDefine(x, y any) (any, error) {
 	name := string(x.(*token.Token).Lit)
 	body := y.([]Statement)
+	// Always insert a return block at the end of function define.
+	body = append(body, &Return{Value: &Literal{Value: object.True}})
 	return &FunctionDefine{
 		Name:       name,
 		Parameters: []string{},

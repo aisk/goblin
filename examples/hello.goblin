@@ -19,6 +19,5 @@ while false {
 
 func hello() {
     print("hello!")
-    return true
 }
 hello()
