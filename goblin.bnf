@@ -48,9 +48,9 @@ StatementList
 ;
 
 Statement
-    : Expression                             << $0, nil >>
-    | Declare                                << $0, nil >>
-    | Assign                                 << $0, nil >>
+    : Expression
+    | Declare
+    | Assign
     | If
     | IfElse
     | While
@@ -70,12 +70,12 @@ ExpressionList
 ;
 
 Expression
-    : IntegerLiteral                         << $0, nil >>
-    | StringLiteral                          << $0, nil >>
+    : IntegerLiteral
+    | StringLiteral
     | TrueLiteral
     | FalseLiteral
     | NilLiteral
-    | FunctionCall                           << $0, nil >>
+    | FunctionCall
 ;
 
 

@@ -82,7 +82,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Statement : Expression	<< X[0], nil >>`,
+		String: `Statement : Expression	<<  >>`,
 		Id:         "Statement",
 		NTType:     4,
 		Index:      6,
@@ -92,7 +92,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Statement : Declare	<< X[0], nil >>`,
+		String: `Statement : Declare	<<  >>`,
 		Id:         "Statement",
 		NTType:     4,
 		Index:      7,
@@ -102,7 +102,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Statement : Assign	<< X[0], nil >>`,
+		String: `Statement : Assign	<<  >>`,
 		Id:         "Statement",
 		NTType:     4,
 		Index:      8,
@@ -212,7 +212,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression : IntegerLiteral	<< X[0], nil >>`,
+		String: `Expression : IntegerLiteral	<<  >>`,
 		Id:         "Expression",
 		NTType:     7,
 		Index:      19,
@@ -222,7 +222,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression : StringLiteral	<< X[0], nil >>`,
+		String: `Expression : StringLiteral	<<  >>`,
 		Id:         "Expression",
 		NTType:     7,
 		Index:      20,
@@ -262,7 +262,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression : FunctionCall	<< X[0], nil >>`,
+		String: `Expression : FunctionCall	<<  >>`,
 		Id:         "Expression",
 		NTType:     7,
 		Index:      24,
