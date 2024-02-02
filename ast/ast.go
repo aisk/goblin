@@ -177,6 +177,10 @@ func NewFalseLiteral() (any, error) {
 	return &Literal{Value: object.False}, nil
 }
 
+func NewNilLiteral() (any, error) {
+	return &Literal{Value: object.Nil}, nil
+}
+
 type FunctionDefine struct {
 	statementMixin
 	Name       string
@@ -188,7 +192,7 @@ func NewFunctionDefine(x, y any) (any, error) {
 	name := string(x.(*token.Token).Lit)
 	body := y.([]Statement)
 	// Always insert a return block at the end of function define.
-	body = append(body, &Return{Value: &Literal{Value: object.True}})
+	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionDefine{
 		Name:       name,
 		Parameters: []string{},

@@ -73,6 +73,7 @@ Expression
     | StringLiteral                          << $0, nil >>
     | TrueLiteral
     | FalseLiteral
+    | NilLiteral
     | FunctionCall                           << $0, nil >>
 ;
 
@@ -91,6 +92,10 @@ TrueLiteral
 
 FalseLiteral
     : "false"                                << ast.NewFalseLiteral() >>
+;
+
+NilLiteral
+    : "nil"                                  << ast.NewNilLiteral() >>
 ;
 
 FunctionCall

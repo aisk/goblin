@@ -43,6 +43,8 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 			return jen.Qual(pathObject, "True"), nil
 		}
 		return jen.Qual(pathObject, "False"), nil
+	case object.Unit:
+		return jen.Qual(pathObject, "Nil"), nil
 	case object.Integer:
 		i := jen.Qual(pathObject, "Integer").Call(jen.Lit(int64(v)))
 		return i, nil

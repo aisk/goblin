@@ -87,12 +87,32 @@ func (b Bool) Compare(other Object) (int, error) {
 	return 0, ErrNotImplmeneted
 }
 
-var _ Bool = Bool(true)
+var _ Object = Bool(true)
 
 var (
 	True  = Bool(true)
 	False = Bool(false)
 )
+
+type Unit struct{}
+
+func (n Unit) Repr() string {
+	return "object.None"
+}
+
+func (n Unit) String() string {
+	return "none"
+}
+
+func (n Unit) Bool() bool {
+	return false
+}
+
+func (n Unit) Compare(other Object) (int, error) {
+	return 0, ErrNotImplmeneted
+}
+
+var Nil Object = Unit{}
 
 type Args []Object
 type KwArgs map[string]Object

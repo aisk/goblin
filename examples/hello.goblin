@@ -3,6 +3,8 @@ a = 456
 
 print("Hello, world!")
 
+var b = nil
+
 if true {
     print("true")
 }
