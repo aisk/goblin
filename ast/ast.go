@@ -138,6 +138,14 @@ func NewWhile(x, y any) (any, error) {
 	}, nil
 }
 
+type Break struct {
+	statementMixin
+}
+
+func NewBreak() (any, error) {
+	return &Break{}, nil
+}
+
 type Module struct {
 	Name string
 	Body []Statement

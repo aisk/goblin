@@ -155,6 +155,7 @@ var TokMap = TokenMap{
 		"if",
 		"else",
 		"while",
+		"break",
 		"func",
 		"return",
 	},
@@ -179,7 +180,8 @@ var TokMap = TokenMap{
 		"if":         16,
 		"else":       17,
 		"while":      18,
-		"func":       19,
-		"return":     20,
+		"break":      19,
+		"func":       20,
+		"return":     21,
 	},
 }

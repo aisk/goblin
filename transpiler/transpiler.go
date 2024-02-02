@@ -141,6 +141,10 @@ func transpileWhile(while_ *ast.While) (*jen.Statement, error) {
 	return jen.For(cond.Dot("Bool").Call()).Block(body...), nil
 }
 
+func transpileBreak(break_ *ast.Break) (*jen.Statement, error) {
+	return jen.Break(), nil
+}
+
 func transpileFunctionCall(call *ast.FunctionCall) (*jen.Statement, error) {
 	l, err := transpileExpressions(call.Args)
 	if err != nil {
@@ -203,6 +207,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 		return transpileIfElse(v)
 	case *ast.While:
 		return transpileWhile(v)
+	case *ast.Break:
+		return transpileBreak(v)
 	case *ast.Return:
 		return transpileReturn(v)
 	}

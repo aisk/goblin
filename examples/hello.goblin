@@ -3,8 +3,6 @@ a = 456
 
 print("Hello, world!")
 
-var b = nil
-
 if true {
     print("true")
 }
@@ -15,8 +13,11 @@ if false {
     print("false")
 }
 
-while false {
-    print("forever")
+while true {
+    print("loop")
+    if true {
+        break
+    }
 }
 
 func hello() {

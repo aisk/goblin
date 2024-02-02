@@ -54,6 +54,7 @@ Statement
     | If
     | IfElse
     | While
+    | Break
     | FunctionDefine
     | Return
 ;
@@ -138,6 +139,10 @@ IfElse
 
 While
     : "while" Condition Block                << ast.NewWhile($1, $2) >>
+;
+
+Break
+    : "break"                                << ast.NewBreak() >>
 ;
 
 FunctionDefine
