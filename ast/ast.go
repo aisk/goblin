@@ -181,7 +181,23 @@ type FunctionDefine struct {
 	Body []Statement
 }
 
+func NewFunctionDefine(x, y any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	body := y.([]Statement)
+	return &FunctionDefine{
+		Name: name,
+		Args: []string{},
+		Body: body,
+	}, nil
+}
+
 type Return struct {
 	statementMixin
 	Value Expression
+}
+
+func NewReturn(x any) (any, error) {
+	return &Return{
+		Value: x.(Expression),
+	}, nil
 }

@@ -16,3 +16,9 @@ if false {
 while false {
     print("forever")
 }
+
+func hello() {
+    print("hello!")
+    return true
+}
+hello(1)

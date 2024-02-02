@@ -54,6 +54,8 @@ Statement
     | If
     | IfElse
     | While
+    | FunctionDefine
+    | Return
 ;
 
 Expressions
@@ -131,4 +133,12 @@ IfElse
 
 While
     : "while" Condition Block                << ast.NewWhile($1, $2) >>
+;
+
+FunctionDefine
+    : "func" id "(" ")" Block                << ast.NewFunctionDefine($1, $4) >>
+;
+
+Return
+    : "return" Expression                    << ast.NewReturn($1) >>
 ;
