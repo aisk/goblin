@@ -44,9 +44,9 @@ var hello = ast.Module{
 			},
 		},
 		// if false { print("yes!") } else { print("no!") }
-		&ast.If{
+		&ast.IfElse{
 			Condition: &ast.Literal{Value: object.False},
-			Body: []ast.Statement{
+			IfBody: []ast.Statement{
 				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
@@ -54,7 +54,7 @@ var hello = ast.Module{
 					},
 				},
 			},
-			Else: []ast.Statement{
+			ElseBody: []ast.Statement{
 				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
@@ -64,9 +64,9 @@ var hello = ast.Module{
 			},
 		},
 		// if answer { print("42!") }
-		&ast.If{
+		&ast.IfElse{
 			Condition: &ast.Symbol{Name: "answer"},
-			Body: []ast.Statement{
+			IfBody: []ast.Statement{
 				&ast.FunctionCall{
 					Name: "print",
 					Args: []ast.Expression{
@@ -88,8 +88,8 @@ var hello = ast.Module{
 			},
 		},
 		&ast.FunctionDefine{
-			Name: "greetings",
-			Args: []string{"name"},
+			Name:       "greetings",
+			Parameters: []string{"name"},
 			Body: []ast.Statement{
 				&ast.FunctionCall{
 					Name: "print",

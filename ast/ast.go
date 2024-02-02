@@ -102,11 +102,11 @@ func NewAssign(x, y any) (any, error) {
 	}, nil
 }
 
-type If struct {
+type IfElse struct {
 	statementMixin
 	Condition Expression
-	Body      []Statement
-	Else      []Statement
+	IfBody    []Statement
+	ElseBody  []Statement
 }
 
 func NewIf(x, y, z any) (any, error) {
@@ -116,10 +116,10 @@ func NewIf(x, y, z any) (any, error) {
 	if z != nil {
 		elseBody = z.([]Statement)
 	}
-	return &If{
+	return &IfElse{
 		Condition: condition,
-		Body:      ifBody,
-		Else:      elseBody,
+		IfBody:    ifBody,
+		ElseBody:  elseBody,
 	}, nil
 }
 
@@ -179,18 +179,18 @@ func NewFalseLiteral() (any, error) {
 
 type FunctionDefine struct {
 	statementMixin
-	Name string
-	Args []string
-	Body []Statement
+	Name       string
+	Parameters []string
+	Body       []Statement
 }
 
 func NewFunctionDefine(x, y any) (any, error) {
 	name := string(x.(*token.Token).Lit)
 	body := y.([]Statement)
 	return &FunctionDefine{
-		Name: name,
-		Args: []string{},
-		Body: body,
+		Name:       name,
+		Parameters: []string{},
+		Body:       body,
 	}, nil
 }
 

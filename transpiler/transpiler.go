@@ -114,16 +114,16 @@ func transpileAssign(decl *ast.Assign) (*jen.Statement, error) {
 	return result, nil
 }
 
-func transpileIf(if_ *ast.If) (*jen.Statement, error) {
-	cond, err := transpileExpression(if_.Condition)
+func transpileIfElse(ifelse *ast.IfElse) (*jen.Statement, error) {
+	cond, err := transpileExpression(ifelse.Condition)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(if_.Body)
+	body, err := transpileStatements(ifelse.IfBody)
 	if err != nil {
 		return nil, err
 	}
-	elseBody, err := transpileStatements(if_.Else)
+	elseBody, err := transpileStatements(ifelse.ElseBody)
 	return jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...), nil
 }
 
@@ -154,9 +154,9 @@ func transpileFunctionDefine(fn *ast.FunctionDefine) (*jen.Statement, error) {
 	kwargsName := localName("kwargs")
 
 	argsDefine := []jen.Code{}
-	for i, arg := range fn.Args {
-		def := jen.Var().Id(arg).Op("=").Id(argsName).Index(jen.Lit(i))
-		def.Op(";").Id("_").Op("=").Id(arg)
+	for i, param := range fn.Parameters {
+		def := jen.Var().Id(param).Op("=").Id(argsName).Index(jen.Lit(i))
+		def.Op(";").Id("_").Op("=").Id(param)
 		argsDefine = append(argsDefine, def)
 	}
 
@@ -197,8 +197,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 		return transpileFunctionCall(v)
 	case *ast.FunctionDefine:
 		return transpileFunctionDefine(v)
-	case *ast.If:
-		return transpileIf(v)
+	case *ast.IfElse:
+		return transpileIfElse(v)
 	case *ast.While:
 		return transpileWhile(v)
 	case *ast.Return:
