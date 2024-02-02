@@ -7,7 +7,7 @@ Toy language built for fun.
 ## Installation
 
 ```sh
-$ go install github.com/aisk/goblin/goblin@latest
+$ go install github.com/aisk/goblin/command/goblin@latest
 ```
 
 ## Hello world
