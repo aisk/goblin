@@ -113,7 +113,9 @@ func NewIf(x, y, z any) (any, error) {
 	condition := x.(Expression)
 	ifBody := y.([]Statement)
 	var elseBody []Statement = nil
-	if z != nil {
+	if ifElse, ok := z.(*IfElse); ok {
+		elseBody = []Statement{ifElse}
+	} else if z != nil {
 		elseBody = z.([]Statement)
 	}
 	return &IfElse{

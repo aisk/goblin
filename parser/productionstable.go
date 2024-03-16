@@ -432,10 +432,30 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
+		String: `IfElse : "if" Condition Block "else" If	<< ast.NewIf(X[1], X[2], X[4]) >>`,
+		Id:         "IfElse",
+		NTType:     21,
+		Index:      41,
+		NumSymbols: 5,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewIf(X[1], X[2], X[4])
+		},
+	},
+	ProdTabEntry{
+		String: `IfElse : "if" Condition Block "else" IfElse	<< ast.NewIf(X[1], X[2], X[4]) >>`,
+		Id:         "IfElse",
+		NTType:     21,
+		Index:      42,
+		NumSymbols: 5,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewIf(X[1], X[2], X[4])
+		},
+	},
+	ProdTabEntry{
 		String: `While : "while" Condition Block	<< ast.NewWhile(X[1], X[2]) >>`,
 		Id:         "While",
 		NTType:     22,
-		Index:      41,
+		Index:      43,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewWhile(X[1], X[2])
@@ -445,7 +465,7 @@ var productionsTable = ProdTab{
 		String: `Break : "break"	<< ast.NewBreak() >>`,
 		Id:         "Break",
 		NTType:     23,
-		Index:      42,
+		Index:      44,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewBreak()
@@ -455,7 +475,7 @@ var productionsTable = ProdTab{
 		String: `FunctionDefine : "func" id "(" ")" Block	<< ast.NewFunctionDefine(X[1], X[4]) >>`,
 		Id:         "FunctionDefine",
 		NTType:     24,
-		Index:      43,
+		Index:      45,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFunctionDefine(X[1], X[4])
@@ -465,7 +485,7 @@ var productionsTable = ProdTab{
 		String: `Return : "return" Expression	<< ast.NewReturn(X[1]) >>`,
 		Id:         "Return",
 		NTType:     25,
-		Index:      44,
+		Index:      46,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturn(X[1])

@@ -8,9 +8,11 @@ if true {
 }
 
 if false {
+    print("false")
+} else if true {
     print("true")
 } else {
-    print("false")
+    print("never")
 }
 
 while true {

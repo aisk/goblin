@@ -135,6 +135,8 @@ If
 
 IfElse
     : "if" Condition Block "else" Block      << ast.NewIf($1, $2, $4) >>
+    | "if" Condition Block "else" If         << ast.NewIf($1, $2, $4) >>
+    | "if" Condition Block "else" IfElse     << ast.NewIf($1, $2, $4) >>
 ;
 
 While
