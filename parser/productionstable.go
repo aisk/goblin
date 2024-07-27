@@ -372,13 +372,13 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Declare : id ":=" Expression	<< ast.NewDeclare(X[0], X[2]) >>`,
+		String: `Declare : "var" id "=" Expression	<< ast.NewDeclare(X[1], X[3]) >>`,
 		Id:         "Declare",
 		NTType:     16,
 		Index:      35,
-		NumSymbols: 3,
+		NumSymbols: 4,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewDeclare(X[0], X[2])
+			return ast.NewDeclare(X[1], X[3])
 		},
 	},
 	ProdTabEntry{

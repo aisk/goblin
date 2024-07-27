@@ -99,7 +99,7 @@ var gotoTab = gotoTable{
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
-		31, // Statement
+		32, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
 		5,  // Expression
@@ -746,19 +746,19 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		35, // Expression
-		36, // IntegerLiteral
-		37, // StringLiteral
-		38, // TrueLiteral
-		39, // FalseLiteral
-		40, // NilLiteral
-		41, // FunctionCall
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
-		48, // Condition
+		-1, // Condition
 		-1, // If
 		-1, // IfElse
 		-1, // While
@@ -774,13 +774,13 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		35, // Expression
-		36, // IntegerLiteral
-		37, // StringLiteral
-		38, // TrueLiteral
-		39, // FalseLiteral
-		40, // NilLiteral
-		41, // FunctionCall
+		36, // Expression
+		37, // IntegerLiteral
+		38, // StringLiteral
+		39, // TrueLiteral
+		40, // FalseLiteral
+		41, // NilLiteral
+		42, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
@@ -802,19 +802,19 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
+		36, // Expression
+		37, // IntegerLiteral
+		38, // StringLiteral
+		39, // TrueLiteral
+		40, // FalseLiteral
+		41, // NilLiteral
+		42, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
-		-1, // Condition
+		50, // Condition
 		-1, // If
 		-1, // IfElse
 		-1, // While
@@ -858,7 +858,35 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		51, // Expression
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
+	},
+	gotoRow{ // S31
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		52, // Expression
 		14, // IntegerLiteral
 		15, // StringLiteral
 		16, // TrueLiteral
@@ -878,7 +906,7 @@ var gotoTab = gotoTable{
 		-1, // FunctionDefine
 		-1, // Return
 	},
-	gotoRow{ // S31
+	gotoRow{ // S32
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -906,34 +934,6 @@ var gotoTab = gotoTable{
 		-1, // FunctionDefine
 		-1, // Return
 	},
-	gotoRow{ // S32
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		53, // Expression
-		54, // IntegerLiteral
-		55, // StringLiteral
-		56, // TrueLiteral
-		57, // FalseLiteral
-		58, // NilLiteral
-		59, // FunctionCall
-		66, // Arguments
-		67, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
-	},
 	gotoRow{ // S33
 		-1, // S'
 		-1, // Module
@@ -942,15 +942,15 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		68, // Expression
-		14, // IntegerLiteral
-		15, // StringLiteral
-		16, // TrueLiteral
-		17, // FalseLiteral
-		18, // NilLiteral
-		19, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
+		54, // Expression
+		55, // IntegerLiteral
+		56, // StringLiteral
+		57, // TrueLiteral
+		58, // FalseLiteral
+		59, // NilLiteral
+		60, // FunctionCall
+		67, // Arguments
+		68, // ArgumentList
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1373,7 +1373,7 @@ var gotoTab = gotoTable{
 		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
-		71, // Block
+		-1, // Block
 		-1, // Condition
 		-1, // If
 		-1, // IfElse
@@ -1401,7 +1401,7 @@ var gotoTab = gotoTable{
 		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
-		73, // Block
+		72, // Block
 		-1, // Condition
 		-1, // If
 		-1, // IfElse
@@ -1429,7 +1429,7 @@ var gotoTab = gotoTable{
 		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
-		-1, // Block
+		74, // Block
 		-1, // Condition
 		-1, // If
 		-1, // IfElse
@@ -1978,15 +1978,15 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		53, // Expression
-		54, // IntegerLiteral
-		55, // StringLiteral
-		56, // TrueLiteral
-		57, // FalseLiteral
-		58, // NilLiteral
-		59, // FunctionCall
-		79, // Arguments
-		67, // ArgumentList
+		80, // Expression
+		14, // IntegerLiteral
+		15, // StringLiteral
+		16, // TrueLiteral
+		17, // FalseLiteral
+		18, // NilLiteral
+		19, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2006,15 +2006,15 @@ var gotoTab = gotoTable{
 		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
+		54, // Expression
+		55, // IntegerLiteral
+		56, // StringLiteral
+		57, // TrueLiteral
+		58, // FalseLiteral
+		59, // NilLiteral
+		60, // FunctionCall
+		81, // Arguments
+		68, // ArgumentList
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2029,144 +2029,172 @@ var gotoTab = gotoTable{
 	gotoRow{ // S72
 		-1, // S'
 		-1, // Module
-		81, // Statements
-		82, // StatementList
-		83, // Statement
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
 		-1, // Expressions
 		-1, // ExpressionList
-		84, // Expression
-		93, // IntegerLiteral
-		94, // StringLiteral
-		95, // TrueLiteral
-		96, // FalseLiteral
-		97, // NilLiteral
-		98, // FunctionCall
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
 		-1, // Arguments
 		-1, // ArgumentList
-		85, // Declare
-		86, // Assign
+		-1, // Declare
+		-1, // Assign
 		-1, // Block
 		-1, // Condition
-		87, // If
-		88, // IfElse
-		89, // While
-		90, // Break
-		91, // FunctionDefine
-		92, // Return
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S73
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		83,  // Statements
+		84,  // StatementList
+		85,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		86,  // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		87,  // Declare
+		88,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		89,  // If
+		90,  // IfElse
+		91,  // While
+		92,  // Break
+		93,  // FunctionDefine
+		94,  // Return
 	},
 	gotoRow{ // S74
-		-1,  // S'
-		-1,  // Module
-		110, // Statements
-		82,  // StatementList
-		83,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		84,  // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		85,  // Declare
-		86,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		87,  // If
-		88,  // IfElse
-		89,  // While
-		90,  // Break
-		91,  // FunctionDefine
-		92,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S75
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		113, // Statements
+		84,  // StatementList
+		85,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		86,  // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		87,  // Declare
+		88,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		89,  // If
+		90,  // IfElse
+		91,  // While
+		92,  // Break
+		93,  // FunctionDefine
+		94,  // Return
 	},
 	gotoRow{ // S76
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		53,  // Expression
-		54,  // IntegerLiteral
-		55,  // StringLiteral
-		56,  // TrueLiteral
-		57,  // FalseLiteral
-		58,  // NilLiteral
-		59,  // FunctionCall
-		112, // Arguments
-		67,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S77
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		54,  // Expression
+		55,  // IntegerLiteral
+		56,  // StringLiteral
+		57,  // TrueLiteral
+		58,  // FalseLiteral
+		59,  // NilLiteral
+		60,  // FunctionCall
+		115, // Arguments
+		68,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
+	},
+	gotoRow{ // S78
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -2194,7 +2222,7 @@ var gotoTab = gotoTable{
 		-1, // FunctionDefine
 		-1, // Return
 	},
-	gotoRow{ // S78
+	gotoRow{ // S79
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -2202,13 +2230,13 @@ var gotoTab = gotoTable{
 		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		113, // Expression
-		54,  // IntegerLiteral
-		55,  // StringLiteral
-		56,  // TrueLiteral
-		57,  // FalseLiteral
-		58,  // NilLiteral
-		59,  // FunctionCall
+		116, // Expression
+		55,  // IntegerLiteral
+		56,  // StringLiteral
+		57,  // TrueLiteral
+		58,  // FalseLiteral
+		59,  // NilLiteral
+		60,  // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
@@ -2222,7 +2250,7 @@ var gotoTab = gotoTable{
 		-1,  // FunctionDefine
 		-1,  // Return
 	},
-	gotoRow{ // S79
+	gotoRow{ // S80
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -2249,34 +2277,6 @@ var gotoTab = gotoTable{
 		-1, // Break
 		-1, // FunctionDefine
 		-1, // Return
-	},
-	gotoRow{ // S80
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		117, // Block
-		-1,  // Condition
-		115, // If
-		116, // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
 	},
 	gotoRow{ // S81
 		-1, // S'
@@ -2311,28 +2311,28 @@ var gotoTab = gotoTable{
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
-		119, // Statement
+		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		84,  // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
-		85,  // Declare
-		86,  // Assign
-		-1,  // Block
+		-1,  // Declare
+		-1,  // Assign
+		120, // Block
 		-1,  // Condition
-		87,  // If
-		88,  // IfElse
-		89,  // While
-		90,  // Break
-		91,  // FunctionDefine
-		92,  // Return
+		118, // If
+		119, // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S83
 		-1, // S'
@@ -2363,32 +2363,32 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S84
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		122, // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		86,  // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		87,  // Declare
+		88,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		89,  // If
+		90,  // IfElse
+		91,  // While
+		92,  // Break
+		93,  // FunctionDefine
+		94,  // Return
 	},
 	gotoRow{ // S85
 		-1, // S'
@@ -2951,60 +2951,60 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S105
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		35,  // Expression
-		36,  // IntegerLiteral
-		37,  // StringLiteral
-		38,  // TrueLiteral
-		39,  // FalseLiteral
-		40,  // NilLiteral
-		41,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		123, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S106
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		35,  // Expression
-		36,  // IntegerLiteral
-		37,  // StringLiteral
-		38,  // TrueLiteral
-		39,  // FalseLiteral
-		40,  // NilLiteral
-		41,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		124, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S107
 		-1, // S'
@@ -3035,32 +3035,32 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S108
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		36,  // Expression
+		37,  // IntegerLiteral
+		38,  // StringLiteral
+		39,  // TrueLiteral
+		40,  // FalseLiteral
+		41,  // NilLiteral
+		42,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		126, // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S109
 		-1,  // S'
@@ -3070,19 +3070,19 @@ var gotoTab = gotoTable{
 		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		126, // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
+		36,  // Expression
+		37,  // IntegerLiteral
+		38,  // StringLiteral
+		39,  // TrueLiteral
+		40,  // FalseLiteral
+		41,  // NilLiteral
+		42,  // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
-		-1,  // Condition
+		127, // Condition
 		-1,  // If
 		-1,  // IfElse
 		-1,  // While
@@ -3119,34 +3119,6 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S111
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		129, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
-	},
-	gotoRow{ // S112
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -3173,6 +3145,34 @@ var gotoTab = gotoTable{
 		-1, // Break
 		-1, // FunctionDefine
 		-1, // Return
+	},
+	gotoRow{ // S112
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		129, // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S113
 		-1, // S'
@@ -3203,32 +3203,32 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S114
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		132, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S115
 		-1, // S'
@@ -3371,88 +3371,88 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S120
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		53,  // Expression
-		54,  // IntegerLiteral
-		55,  // StringLiteral
-		56,  // TrueLiteral
-		57,  // FalseLiteral
-		58,  // NilLiteral
-		59,  // FunctionCall
-		131, // Arguments
-		67,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S121
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		132, // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S122
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		133, // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S123
 		-1,  // S'
@@ -3462,18 +3462,18 @@ var gotoTab = gotoTable{
 		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
+		54,  // Expression
+		55,  // IntegerLiteral
+		56,  // StringLiteral
+		57,  // TrueLiteral
+		58,  // FalseLiteral
+		59,  // NilLiteral
+		60,  // FunctionCall
+		134, // Arguments
+		68,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		134, // Block
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3490,18 +3490,18 @@ var gotoTab = gotoTable{
 		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
+		135, // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		136, // Block
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3539,60 +3539,60 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S126
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		137, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S127
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		139, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S128
 		-1, // S'
@@ -3791,90 +3791,62 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S135
-		-1,  // S'
-		-1,  // Module
-		141, // Statements
-		82,  // StatementList
-		83,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		84,  // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		85,  // Declare
-		86,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		87,  // If
-		88,  // IfElse
-		89,  // While
-		90,  // Break
-		91,  // FunctionDefine
-		92,  // Return
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
 	},
 	gotoRow{ // S136
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
-	},
-	gotoRow{ // S137
 		-1,  // S'
 		-1,  // Module
-		142, // Statements
-		82,  // StatementList
-		83,  // Statement
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		84,  // Expression
-		93,  // IntegerLiteral
-		94,  // StringLiteral
-		95,  // TrueLiteral
-		96,  // FalseLiteral
-		97,  // NilLiteral
-		98,  // FunctionCall
+		143, // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
-		85,  // Declare
-		86,  // Assign
+		-1,  // Declare
+		-1,  // Assign
 		-1,  // Block
 		-1,  // Condition
-		87,  // If
-		88,  // IfElse
-		89,  // While
-		90,  // Break
-		91,  // FunctionDefine
-		92,  // Return
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
-	gotoRow{ // S138
+	gotoRow{ // S137
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -3901,6 +3873,34 @@ var gotoTab = gotoTable{
 		-1, // Break
 		-1, // FunctionDefine
 		-1, // Return
+	},
+	gotoRow{ // S138
+		-1,  // S'
+		-1,  // Module
+		145, // Statements
+		84,  // StatementList
+		85,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		86,  // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		87,  // Declare
+		88,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		89,  // If
+		90,  // IfElse
+		91,  // While
+		92,  // Break
+		93,  // FunctionDefine
+		94,  // Return
 	},
 	gotoRow{ // S139
 		-1, // S'
@@ -3933,30 +3933,30 @@ var gotoTab = gotoTable{
 	gotoRow{ // S140
 		-1,  // S'
 		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
+		146, // Statements
+		84,  // StatementList
+		85,  // Statement
 		-1,  // Expressions
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
+		86,  // Expression
+		95,  // IntegerLiteral
+		96,  // StringLiteral
+		97,  // TrueLiteral
+		98,  // FalseLiteral
+		99,  // NilLiteral
+		100, // FunctionCall
 		-1,  // Arguments
 		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		146, // Block
+		87,  // Declare
+		88,  // Assign
+		-1,  // Block
 		-1,  // Condition
-		144, // If
-		145, // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
+		89,  // If
+		90,  // IfElse
+		91,  // While
+		92,  // Break
+		93,  // FunctionDefine
+		94,  // Return
 	},
 	gotoRow{ // S141
 		-1, // S'
@@ -4015,34 +4015,6 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S143
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Expressions
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // IntegerLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // FunctionCall
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		149, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // Break
-		-1,  // FunctionDefine
-		-1,  // Return
-	},
-	gotoRow{ // S144
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -4069,6 +4041,34 @@ var gotoTab = gotoTable{
 		-1, // Break
 		-1, // FunctionDefine
 		-1, // Return
+	},
+	gotoRow{ // S144
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		150, // Block
+		-1,  // Condition
+		148, // If
+		149, // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S145
 		-1, // S'
@@ -4127,32 +4127,32 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S147
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Expressions
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // IntegerLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // FunctionCall
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // Break
-		-1, // FunctionDefine
-		-1, // Return
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // Expressions
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // IntegerLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // FunctionCall
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		153, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // Break
+		-1,  // FunctionDefine
+		-1,  // Return
 	},
 	gotoRow{ // S148
 		-1, // S'
@@ -4183,6 +4183,118 @@ var gotoTab = gotoTable{
 		-1, // Return
 	},
 	gotoRow{ // S149
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
+	},
+	gotoRow{ // S150
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
+	},
+	gotoRow{ // S151
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
+	},
+	gotoRow{ // S152
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // Expressions
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // IntegerLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // FunctionCall
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // Break
+		-1, // FunctionDefine
+		-1, // Return
+	},
+	gotoRow{ // S153
 		-1, // S'
 		-1, // Module
 		-1, // Statements

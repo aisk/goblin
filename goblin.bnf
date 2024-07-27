@@ -114,7 +114,7 @@ ArgumentList
 ;
 
 Declare
-    : id ":=" Expression                     << ast.NewDeclare($0, $2) >>
+    : "var" id "=" Expression                << ast.NewDeclare($1, $3) >>
 ;
 
 Assign
