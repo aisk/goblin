@@ -1,0 +1,26 @@
+var a = 123
+a = 456
+
+if true {
+    print("true")
+}
+
+if false {
+    print("false")
+} else if true {
+    print("true")
+} else {
+    print("never")
+}
+
+while true {
+    print("loop")
+    if true {
+        break
+    }
+}
+
+func hello() {
+    print("hello!")
+}
+hello()
