@@ -82,9 +82,14 @@ func NewDeclare(x, y any) (any, error) {
 	}, nil
 }
 
-type Symbol struct {
+type Identifier struct {
 	expressionMixin
 	Name string
+}
+
+func NewIdentifier(x any) (any, error) {
+	s := string(x.(*token.Token).Lit)
+	return &Identifier{Name: s}, nil
 }
 
 type Assign struct {

@@ -59,11 +59,6 @@ Statement
     | Return
 ;
 
-Expressions
-    : empty
-    | ExpressionList
-;
-
 ExpressionList
     : Expression                             << ast.NewExpressionList($0) >>
     | ExpressionList Expression              << ast.AppendStatementList($0, $1) >>
@@ -76,8 +71,12 @@ Expression
     | FalseLiteral
     | NilLiteral
     | FunctionCall
+    | Identifier
 ;
 
+Identifier
+    : id                                     << ast.NewIdentifier($0) >>
+;
 
 IntegerLiteral
     : int_lit                                << ast.NewIntegerLiteral($0) >>

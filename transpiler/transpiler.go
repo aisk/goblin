@@ -59,7 +59,7 @@ func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
 		return transpileObject(v.Value)
-	case *ast.Symbol:
+	case *ast.Identifier:
 		return jen.Id(v.Name), nil
 	case *ast.FunctionCall:
 		call, err := transpileFunctionCall(v)

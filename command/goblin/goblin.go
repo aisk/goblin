@@ -31,7 +31,7 @@ var hello = ast.Module{
 			Name: "print",
 			Args: []ast.Expression{
 				&ast.Literal{Value: object.String("hello,")},
-				&ast.Symbol{Name: "name"},
+				&ast.Identifier{Name: "name"},
 				&ast.Literal{Value: object.String("!")},
 			},
 		},
@@ -40,7 +40,7 @@ var hello = ast.Module{
 			Name: "print",
 			Args: []ast.Expression{
 				&ast.Literal{Value: object.String("answer:")},
-				&ast.Symbol{Name: "answer"},
+				&ast.Identifier{Name: "answer"},
 			},
 		},
 		// if false { print("yes!") } else { print("no!") }
@@ -65,7 +65,7 @@ var hello = ast.Module{
 		},
 		// if answer { print("42!") }
 		&ast.IfElse{
-			Condition: &ast.Symbol{Name: "answer"},
+			Condition: &ast.Identifier{Name: "answer"},
 			IfBody: []ast.Statement{
 				&ast.FunctionCall{
 					Name: "print",
@@ -95,7 +95,7 @@ var hello = ast.Module{
 					Name: "print",
 					Args: []ast.Expression{
 						&ast.Literal{Value: object.String("hello")},
-						&ast.Symbol{Name: "name"},
+						&ast.Identifier{Name: "name"},
 					},
 				},
 				&ast.Return{Value: &ast.Literal{Value: object.True}},
