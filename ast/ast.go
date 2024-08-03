@@ -205,7 +205,10 @@ type FunctionDefine struct {
 
 func NewFunctionDefine(x, y any) (any, error) {
 	name := string(x.(*token.Token).Lit)
-	body := y.([]Statement)
+	var body []Statement
+	if y != nil {
+		body = y.([]Statement)
+	}
 	// Always insert a return block at the end of function define.
 	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionDefine{
