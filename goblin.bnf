@@ -61,7 +61,7 @@ Statement
 
 ExpressionList
     : Expression                             << ast.NewExpressionList($0) >>
-    | ExpressionList Expression              << ast.AppendStatementList($0, $1) >>
+    | ExpressionList Expression              << ast.AppendExpressionList($0, $1) >>
 ;
 
 Expression
@@ -125,7 +125,7 @@ Block
 ;
 
 Condition
-    :  Expression                            << $0, nil >>
+    :  Expression
 ;
 
 If

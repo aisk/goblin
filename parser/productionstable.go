@@ -182,13 +182,13 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `ExpressionList : ExpressionList Expression	<< ast.AppendStatementList(X[0], X[1]) >>`,
+		String: `ExpressionList : ExpressionList Expression	<< ast.AppendExpressionList(X[0], X[1]) >>`,
 		Id:         "ExpressionList",
 		NTType:     5,
 		Index:      16,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.AppendStatementList(X[0], X[1])
+			return ast.AppendExpressionList(X[0], X[1])
 		},
 	},
 	ProdTabEntry{
@@ -402,7 +402,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Condition : Expression	<< X[0], nil >>`,
+		String: `Condition : Expression	<<  >>`,
 		Id:         "Condition",
 		NTType:     19,
 		Index:      38,
