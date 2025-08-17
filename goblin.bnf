@@ -65,6 +65,22 @@ ExpressionList
 ;
 
 Expression
+    : Expression1
+;
+
+Expression1
+    : Expression2
+    | Expression1 "+" Expression2            << ast.NewBinaryOperation($0, "+", $2) >>
+    | Expression1 "-" Expression2            << ast.NewBinaryOperation($0, "-", $2) >>
+;
+
+Expression2
+    : Expression3
+    | Expression2 "*" Expression3            << ast.NewBinaryOperation($0, "*", $2) >>
+    | Expression2 "/" Expression3            << ast.NewBinaryOperation($0, "/", $2) >>
+;
+
+Expression3
     : IntegerLiteral
     | StringLiteral
     | TrueLiteral
@@ -72,6 +88,7 @@ Expression
     | NilLiteral
     | FunctionCall
     | Identifier
+    | "(" Expression ")"                     << $1, nil >>
 ;
 
 Identifier

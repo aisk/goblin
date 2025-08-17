@@ -72,6 +72,8 @@ func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 			jen.List(jen.Id("result"), jen.Id("_")).Op(":=").Add(call),
 			jen.Return(jen.Id("result")),
 		).Call(), nil
+	case *ast.BinaryOperation:
+		return transpileBinaryOperation(v)
 	}
 	return nil, ErrNotImplemented
 }
@@ -193,6 +195,41 @@ func transpileReturn(return_ *ast.Return) (*jen.Statement, error) {
 	return jen.Return(jen.List(r, jen.Nil())), nil
 }
 
+func transpileBinaryOperation(operation *ast.BinaryOperation) (*jen.Statement, error) {
+	lhs, err := transpileExpression(operation.LHS)
+	if err != nil {
+		return nil, err
+	}
+	rhs, err := transpileExpression(operation.RHS)
+	if err != nil {
+		return nil, err
+	}
+
+	var methodName string
+	switch operation.Operator {
+	case "+":
+		methodName = "Add"
+	case "-":
+		methodName = "Minus"
+	case "*":
+		methodName = "Multiply"
+	case "/":
+		methodName = "Divide"
+	default:
+		return nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
+	}
+
+	result := jen.Func().Params().Id("object.Object").Block(
+		jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
+		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Panic(jen.Id("err").Dot("Error").Call()),
+		),
+		jen.Return(jen.Id("result")),
+	).Call()
+
+	return result, nil
+}
+
 func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
@@ -211,6 +248,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 		return transpileBreak(v)
 	case *ast.Return:
 		return transpileReturn(v)
+	case *ast.BinaryOperation:
+		return transpileBinaryOperation(v)
 	}
 	return nil, ErrNotImplemented
 }

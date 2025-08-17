@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/aisk/goblin/object"
@@ -226,5 +227,32 @@ type Return struct {
 func NewReturn(x any) (any, error) {
 	return &Return{
 		Value: x.(Expression),
+	}, nil
+}
+
+var (
+	Add      = "+"
+	Minus    = "-"
+	Multiply = "*"
+	Divide   = "/"
+)
+
+type BinaryOperation struct {
+	expressionMixin
+	LHS      Expression
+	RHS      Expression
+	Operator string
+}
+
+func NewBinaryOperation(lhs, operator, rhs any) (any, error) {
+	switch operator.(string) {
+	case Add, Minus, Multiply, Divide:
+	default:
+		return nil, fmt.Errorf("invalid operator: '%s'", operator)
+	}
+	return &BinaryOperation{
+		LHS:      lhs.(Expression),
+		RHS:      rhs.(Expression),
+		Operator: operator.(string),
 	}, nil
 }
