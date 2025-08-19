@@ -74,6 +74,8 @@ func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 		).Call(), nil
 	case *ast.BinaryOperation:
 		return transpileBinaryOperation(v)
+	case *ast.UnaryOperation:
+		return transpileUnaryOperation(v)
 	}
 	return nil, ErrNotImplemented
 }
@@ -230,6 +232,31 @@ func transpileBinaryOperation(operation *ast.BinaryOperation) (*jen.Statement, e
 	return result, nil
 }
 
+func transpileUnaryOperation(operation *ast.UnaryOperation) (*jen.Statement, error) {
+	operand, err := transpileExpression(operation.Operand)
+	if err != nil {
+		return nil, err
+	}
+
+	var methodName string
+	switch operation.Operator {
+	case "!":
+		methodName = "Not"
+	default:
+		return nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
+	}
+
+	result := jen.Func().Params().Id("object.Object").Block(
+		jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(operand).Dot(methodName).Call(),
+		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Panic(jen.Id("err").Dot("Error").Call()),
+		),
+		jen.Return(jen.Id("result")),
+	).Call()
+
+	return result, nil
+}
+
 func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
@@ -250,6 +277,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 		return transpileReturn(v)
 	case *ast.BinaryOperation:
 		return transpileBinaryOperation(v)
+	case *ast.UnaryOperation:
+		return transpileUnaryOperation(v)
 	}
 	return nil, ErrNotImplemented
 }

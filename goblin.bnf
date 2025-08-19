@@ -88,6 +88,7 @@ Expression3
     | NilLiteral
     | FunctionCall
     | Identifier
+    | "!" Expression3                        << ast.NewUnaryOperation("!", $1) >>
     | "(" Expression ")"                     << $1, nil >>
 ;
 

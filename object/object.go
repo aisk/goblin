@@ -19,6 +19,7 @@ type Object interface {
 	Minus(other Object) (Object, error)
 	Multiply(other Object) (Object, error)
 	Divide(other Object) (Object, error)
+	Not() (Object, error)
 }
 
 type Integer int64
@@ -81,6 +82,10 @@ func (i Integer) Divide(other Object) (Object, error) {
 	}
 }
 
+func (i Integer) Not() (Object, error) {
+	return Bool(!i.Bool()), nil
+}
+
 var _ Object = Integer(0)
 
 type String string
@@ -138,6 +143,10 @@ func (s String) Divide(other Object) (Object, error) {
 	return nil, fmt.Errorf("cannot divide String")
 }
 
+func (s String) Not() (Object, error) {
+	return Bool(!s.Bool()), nil
+}
+
 var _ Object = String("")
 
 type Bool bool
@@ -185,6 +194,10 @@ func (b Bool) Divide(other Object) (Object, error) {
 	return nil, fmt.Errorf("cannot divide Bool")
 }
 
+func (b Bool) Not() (Object, error) {
+	return Bool(!b.Bool()), nil
+}
+
 var _ Object = Bool(true)
 
 var (
@@ -224,6 +237,10 @@ func (n Unit) Multiply(other Object) (Object, error) {
 
 func (n Unit) Divide(other Object) (Object, error) {
 	return nil, fmt.Errorf("cannot divide Nil")
+}
+
+func (n Unit) Not() (Object, error) {
+	return Bool(!n.Bool()), nil
 }
 
 var Nil Object = Unit{}

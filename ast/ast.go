@@ -235,6 +235,7 @@ var (
 	Minus    = "-"
 	Multiply = "*"
 	Divide   = "/"
+	Not      = "!"
 )
 
 type BinaryOperation struct {
@@ -253,6 +254,24 @@ func NewBinaryOperation(lhs, operator, rhs any) (any, error) {
 	return &BinaryOperation{
 		LHS:      lhs.(Expression),
 		RHS:      rhs.(Expression),
+		Operator: operator.(string),
+	}, nil
+}
+
+type UnaryOperation struct {
+	expressionMixin
+	Operand  Expression
+	Operator string
+}
+
+func NewUnaryOperation(operator, operand any) (any, error) {
+	switch operator.(string) {
+	case Not:
+	default:
+		return nil, fmt.Errorf("invalid unary operator: '%s'", operator)
+	}
+	return &UnaryOperation{
+		Operand:  operand.(Expression),
 		Operator: operator.(string),
 	}, nil
 }
