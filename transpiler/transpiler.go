@@ -32,7 +32,8 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	if err != nil {
 		return err
 	}
-	f.Func().Id("main").Params().Block(stmts...)
+	f.Func().Id("Execute").Params().Block(stmts...)
+	f.Func().Id("main").Params().Block(jen.Id("Execute").Call())
 	return f.Render(output)
 }
 
