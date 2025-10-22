@@ -70,17 +70,23 @@ Expression
 
 Expression1
     : Expression2
-    | Expression1 "+" Expression2            << ast.NewBinaryOperation($0, "+", $2) >>
-    | Expression1 "-" Expression2            << ast.NewBinaryOperation($0, "-", $2) >>
+    | Expression1 "&&" Expression2           << ast.NewBinaryOperation($0, "&&", $2) >>
+    | Expression1 "||" Expression2           << ast.NewBinaryOperation($0, "||", $2) >>
 ;
 
 Expression2
     : Expression3
-    | Expression2 "*" Expression3            << ast.NewBinaryOperation($0, "*", $2) >>
-    | Expression2 "/" Expression3            << ast.NewBinaryOperation($0, "/", $2) >>
+    | Expression2 "+" Expression3            << ast.NewBinaryOperation($0, "+", $2) >>
+    | Expression2 "-" Expression3            << ast.NewBinaryOperation($0, "-", $2) >>
 ;
 
 Expression3
+    : Expression4
+    | Expression3 "*" Expression4            << ast.NewBinaryOperation($0, "*", $2) >>
+    | Expression3 "/" Expression4            << ast.NewBinaryOperation($0, "/", $2) >>
+;
+
+Expression4
     : IntegerLiteral
     | StringLiteral
     | TrueLiteral
@@ -88,7 +94,7 @@ Expression3
     | NilLiteral
     | FunctionCall
     | Identifier
-    | "!" Expression3                        << ast.NewUnaryOperation("!", $1) >>
+    | "!" Expression4                        << ast.NewUnaryOperation("!", $1) >>
     | "(" Expression ")"                     << $1, nil >>
 ;
 

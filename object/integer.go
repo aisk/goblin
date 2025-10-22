@@ -65,6 +65,14 @@ func (i Integer) Divide(other Object) (Object, error) {
 	}
 }
 
+func (i Integer) And(other Object) (Object, error) {
+	return Bool(i.Bool() && other.Bool()), nil
+}
+
+func (i Integer) Or(other Object) (Object, error) {
+	return Bool(i.Bool() || other.Bool()), nil
+}
+
 func (i Integer) Not() (Object, error) {
 	return Bool(!i.Bool()), nil
 }
