@@ -1,0 +1,21 @@
+Testing logical operators: 
+true and true: true 
+true and false: false 
+false and true: false 
+false and false: false 
+true or true: true 
+true or false: true 
+false or true: true 
+false or false: false 
+1 and 0: false 
+1 or 0: true 
+0 and 1: false 
+0 or 1: true 
+\"hello\" and \"\": false 
+\"hello\" or \"\": true 
+\"\" and \"hello\": false 
+\"\" or \"hello\": true 
+(1 and 0) or true: true 
+true and (0 or 1): true 
+!false and true: true 
+!true or false: false 

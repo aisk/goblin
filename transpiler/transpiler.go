@@ -218,6 +218,10 @@ func transpileBinaryOperation(operation *ast.BinaryOperation) (*jen.Statement, e
 		methodName = "Multiply"
 	case "/":
 		methodName = "Divide"
+	case "and":
+		methodName = "And"
+	case "or":
+		methodName = "Or"
 	default:
 		return nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}

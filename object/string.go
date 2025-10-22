@@ -59,6 +59,14 @@ func (s String) Divide(other Object) (Object, error) {
 	return nil, fmt.Errorf("cannot divide String")
 }
 
+func (s String) And(other Object) (Object, error) {
+	return Bool(s.Bool() && other.Bool()), nil
+}
+
+func (s String) Or(other Object) (Object, error) {
+	return Bool(s.Bool() || other.Bool()), nil
+}
+
 func (s String) Not() (Object, error) {
 	return Bool(!s.Bool()), nil
 }

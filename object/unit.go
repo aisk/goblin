@@ -40,6 +40,14 @@ func (n Unit) Divide(other Object) (Object, error) {
 	return nil, fmt.Errorf("cannot divide Nil")
 }
 
+func (n Unit) And(other Object) (Object, error) {
+	return Bool(n.Bool() && other.Bool()), nil
+}
+
+func (n Unit) Or(other Object) (Object, error) {
+	return Bool(n.Bool() || other.Bool()), nil
+}
+
 func (n Unit) Not() (Object, error) {
 	return Bool(!n.Bool()), nil
 }

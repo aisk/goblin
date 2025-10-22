@@ -1,0 +1,26 @@
+print("Testing logical operators:")
+
+print("true and true:", true and true)
+print("true and false:", true and false)
+print("false and true:", false and true)
+print("false and false:", false and false)
+
+print("true or true:", true or true)
+print("true or false:", true or false)
+print("false or true:", false or true)
+print("false or false:", false or false)
+
+print("1 and 0:", 1 and 0)
+print("1 or 0:", 1 or 0)
+print("0 and 1:", 0 and 1)
+print("0 or 1:", 0 or 1)
+
+print("\"hello\" and \"\":", "hello" and "")
+print("\"hello\" or \"\":", "hello" or "")
+print("\"\" and \"hello\":", "" and "hello")
+print("\"\" or \"hello\":", "" or "hello")
+
+print("(1 and 0) or true:", (1 and 0) or true)
+print("true and (0 or 1):", true and (0 or 1))
+print("!false and true:", !false and true)
+print("!true or false:", !true or false)
