@@ -25,7 +25,7 @@ _char         : _unicode_char | _escaped_char ;
 
 string_lit : '"' { _char } '"' ;
 !whitespace : ' ' | '\t' | '\n' | '\r' ;
-!comment : '/' '*' {. | '*'} '*' '/' ;
+!comment : '#' {.} '\n' ;
 
 
 << import (

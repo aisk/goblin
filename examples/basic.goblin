@@ -1,6 +1,8 @@
 var a = 123
 a = 456
 
+# This is comment
+
 if true {
     print("true")
 }
