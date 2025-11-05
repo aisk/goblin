@@ -110,6 +110,8 @@ func resolveFunctionName(name string) *jen.Statement {
 	switch name {
 	case "print":
 		return jen.Qual(pathBuiltin, "Print")
+	case "range":
+		return jen.Qual(pathBuiltin, "Range")
 	}
 	return jen.Id(name)
 }
