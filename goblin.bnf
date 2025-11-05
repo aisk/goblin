@@ -92,6 +92,7 @@ Expression4
     | TrueLiteral
     | FalseLiteral
     | NilLiteral
+    | ListLiteral
     | FunctionCall
     | Identifier
     | "!" Expression4                        << ast.NewUnaryOperation("!", $1) >>
@@ -120,6 +121,20 @@ FalseLiteral
 
 NilLiteral
     : "nil"                                  << ast.NewNilLiteral() >>
+;
+
+ListLiteral
+    : "[" ListElements "]"                   << ast.NewListLiteral($1) >>
+;
+
+ListElements
+    : empty
+    | ListElementList
+;
+
+ListElementList
+    : Expression                             << ast.NewExpressionList($0) >>
+    | ListElementList "," Expression        << ast.AppendExpressionList($0, $2) >>
 ;
 
 FunctionCall

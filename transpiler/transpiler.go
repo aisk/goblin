@@ -56,6 +56,17 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 	return nil, ErrNotImplemented
 }
 
+func transpileListLiteral(list *ast.ListLiteral) (*jen.Statement, error) {
+	elements, err := transpileExpressions(list.Elements)
+	if err != nil {
+		return nil, err
+	}
+
+	return jen.Op("&").Qual(pathObject, "List").Values(
+		jen.Id("Elements").Op(":").Index().Qual(pathObject, "Object").Values(elements...),
+	), nil
+}
+
 func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
@@ -77,6 +88,8 @@ func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 		return transpileBinaryOperation(v)
 	case *ast.UnaryOperation:
 		return transpileUnaryOperation(v)
+	case *ast.ListLiteral:
+		return transpileListLiteral(v)
 	}
 	return nil, ErrNotImplemented
 }

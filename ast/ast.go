@@ -197,6 +197,21 @@ func NewNilLiteral() (any, error) {
 	return &Literal{Value: object.Nil}, nil
 }
 
+type ListLiteral struct {
+	expressionMixin
+	Elements []Expression
+}
+
+func NewListLiteral(x any) (any, error) {
+	var elements []Expression
+	if x != nil {
+		elements = x.([]Expression)
+	}
+	return &ListLiteral{
+		Elements: elements,
+	}, nil
+}
+
 type FunctionDefine struct {
 	statementMixin
 	Name       string
