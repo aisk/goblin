@@ -7,8 +7,11 @@ import (
 )
 
 func Print(args []object.Object, kwargs map[string]object.Object) (object.Object, error) {
-	for _, arg := range args {
-		fmt.Print(arg.String(), " ")
+	for i, arg := range args {
+		if i > 0 {
+			fmt.Print(" ")
+		}
+		fmt.Print(arg.String())
 	}
 	fmt.Print("\n")
 	return nil, nil
