@@ -32,8 +32,13 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	if err != nil {
 		return err
 	}
-	f.Func().Id("Execute").Params().Block(stmts...)
-	f.Func().Id("main").Params().Block(jen.Id("Execute").Call())
+	f.Func().Id("Execute").Params().Error().Block(append(stmts, jen.Return(jen.Nil()))...)
+	f.Func().Id("main").Params().Block(
+		jen.Id("err").Op(":=").Id("Execute").Call(),
+		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Panic(jen.Id("err")),
+		),
+	)
 	return f.Render(output)
 }
 
@@ -81,7 +86,10 @@ func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
 		// hack to ignore the err
 		// TODO: implemt the error mechanism
 		return jen.Func().Params().Id("object.Object").Block(
-			jen.List(jen.Id("result"), jen.Id("_")).Op(":=").Add(call),
+			jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(call),
+			jen.If(jen.Id("err").Op("!=").Nil()).Block(
+				jen.Panic(jen.Id("err")),
+			),
 			jen.Return(jen.Id("result")),
 		).Call(), nil
 	case *ast.BinaryOperation:
@@ -146,6 +154,9 @@ func transpileIfElse(ifelse *ast.IfElse) (*jen.Statement, error) {
 		return nil, err
 	}
 	elseBody, err := transpileStatements(ifelse.ElseBody)
+	if err != nil {
+		return nil, err
+	}
 	return jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...), nil
 }
 
