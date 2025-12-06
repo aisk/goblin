@@ -179,6 +179,14 @@ func NewIntegerLiteral(x any) (any, error) {
 	return &Literal{Value: object.Integer(d)}, nil
 }
 
+func NewFloatLiteral(x any) (any, error) {
+	f, err := strconv.ParseFloat(string(x.(*token.Token).Lit), 64)
+	if err != nil {
+		return nil, err
+	}
+	return &Literal{Value: object.Float(f)}, nil
+}
+
 func NewStringLiteral(x any) (any, error) {
 	s := string(x.(*token.Token).Lit)
 	s = s[1 : len(s)-1]

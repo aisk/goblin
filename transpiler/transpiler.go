@@ -54,6 +54,9 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 	case object.Integer:
 		i := jen.Qual(pathObject, "Integer").Call(jen.Lit(int64(v)))
 		return i, nil
+	case object.Float:
+		f := jen.Qual(pathObject, "Float").Call(jen.Lit(float64(v)))
+		return f, nil
 	case object.String:
 		s := jen.Qual(pathObject, "String").Call(jen.Lit(string(v)))
 		return s, nil

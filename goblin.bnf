@@ -1,5 +1,6 @@
 _digit : '0'-'9' ;
 int_lit : _digit { _digit } ;
+float_lit : _digit { _digit } '.' _digit { _digit } ;
 
 _alpha : 'a'-'z' | 'A'-'Z' | '_' ;
 _alphanum : _alpha | _digit ;
@@ -88,6 +89,7 @@ Expression3
 
 Expression4
     : IntegerLiteral
+    | FloatLiteral
     | StringLiteral
     | TrueLiteral
     | FalseLiteral
@@ -106,6 +108,9 @@ Identifier
 IntegerLiteral
     : int_lit                                << ast.NewIntegerLiteral($0) >>
 ;
+
+FloatLiteral
+    : float_lit                              << ast.NewFloatLiteral($0) >>;
 
 StringLiteral
     : string_lit                             << ast.NewStringLiteral($0) >>
