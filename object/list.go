@@ -81,4 +81,8 @@ func (l *List) Not() (Object, error) {
 	return Bool(!l.Bool()), nil
 }
 
+func (l *List) Iter() ([]Object, error) {
+	return l.Elements, nil
+}
+
 var _ Object = &List{}

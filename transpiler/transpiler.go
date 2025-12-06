@@ -179,6 +179,36 @@ func transpileBreak(break_ *ast.Break) (*jen.Statement, error) {
 	return jen.Break(), nil
 }
 
+func transpileFor(for_ *ast.For) (*jen.Statement, error) {
+	iterator, err := transpileExpression(for_.Iterator)
+	if err != nil {
+		return nil, err
+	}
+	body, err := transpileStatements(for_.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	iterVar := localName("iter")
+	elementsVar := localName("elements")
+
+	forLoopBody := []jen.Code{
+		jen.Id(for_.Variable).Op(":=").Id(iterVar),
+		jen.Id("_").Op("=").Id(for_.Variable),
+	}
+	forLoopBody = append(forLoopBody, body...)
+
+	result := []jen.Code{
+		jen.List(jen.Id(elementsVar), jen.Id("err")).Op(":=").Parens(jen.Add(iterator)).Dot("Iter").Call(),
+		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Panic(jen.Id("err")),
+		),
+		jen.For(jen.List(jen.Id("_"), jen.Id(iterVar)).Op(":=").Op("range").Id(elementsVar)).Block(forLoopBody...),
+	}
+
+	return jen.Block(result...), nil
+}
+
 func transpileFunctionCall(call *ast.FunctionCall) (*jen.Statement, error) {
 	l, err := transpileExpressions(call.Args)
 	if err != nil {
@@ -305,6 +335,8 @@ func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
 		return transpileIfElse(v)
 	case *ast.While:
 		return transpileWhile(v)
+	case *ast.For:
+		return transpileFor(v)
 	case *ast.Break:
 		return transpileBreak(v)
 	case *ast.Return:

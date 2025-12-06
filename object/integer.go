@@ -88,4 +88,8 @@ func (i Integer) Not() (Object, error) {
 	return Bool(!i.Bool()), nil
 }
 
+func (i Integer) Iter() ([]Object, error) {
+	return nil, fmt.Errorf("Integer does not support iteration")
+}
+
 var _ Object = Integer(0)

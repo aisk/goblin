@@ -52,4 +52,8 @@ func (n Unit) Not() (Object, error) {
 	return Bool(!n.Bool()), nil
 }
 
+func (n Unit) Iter() ([]Object, error) {
+	return nil, fmt.Errorf("Nil does not support iteration")
+}
+
 var _ Object = Unit{}

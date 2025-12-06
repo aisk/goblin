@@ -20,6 +20,7 @@ type Object interface {
 	And(other Object) (Object, error)
 	Or(other Object) (Object, error)
 	Not() (Object, error)
+	Iter() ([]Object, error)
 }
 
 type Args []Object

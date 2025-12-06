@@ -54,6 +54,10 @@ func (e *Error) Not() (Object, error) {
 	return nil, fmt.Errorf("cannot perform NOT operation on Error")
 }
 
+func (e *Error) Iter() ([]Object, error) {
+	return nil, fmt.Errorf("Error does not support iteration")
+}
+
 func (e *Error) Error() string {
 	return e.Value
 }

@@ -88,4 +88,8 @@ func (f Float) Not() (Object, error) {
 	return Bool(!f.Bool()), nil
 }
 
+func (f Float) Iter() ([]Object, error) {
+	return nil, fmt.Errorf("Float does not support iteration")
+}
+
 var _ Object = Float(0)

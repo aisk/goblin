@@ -71,4 +71,13 @@ func (s String) Not() (Object, error) {
 	return Bool(!s.Bool()), nil
 }
 
+func (s String) Iter() ([]Object, error) {
+	// String can be iterated character by character
+	var result []Object
+	for _, char := range string(s) {
+		result = append(result, String(string(char)))
+	}
+	return result, nil
+}
+
 var _ Object = String("")

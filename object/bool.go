@@ -66,4 +66,8 @@ func (b Bool) Not() (Object, error) {
 	return Bool(!b.Bool()), nil
 }
 
+func (b Bool) Iter() ([]Object, error) {
+	return nil, fmt.Errorf("Bool does not support iteration")
+}
+
 var _ Object = Bool(true)

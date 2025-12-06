@@ -1,0 +1,27 @@
+package main
+
+import (
+	builtin "github.com/aisk/goblin/builtin"
+	object "github.com/aisk/goblin/object"
+)
+
+func Execute() error {
+	{
+		_elements_1, err := (object.String("hello")).Iter()
+		if err != nil {
+			panic(err)
+		}
+		for _, _iter_0 := range _elements_1 {
+			ch := _iter_0
+			_ = ch
+			builtin.Print(object.Args{ch}, nil)
+		}
+	}
+	return nil
+}
+func main() {
+	err := Execute()
+	if err != nil {
+		panic(err)
+	}
+}

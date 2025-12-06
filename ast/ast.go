@@ -146,6 +146,24 @@ func NewWhile(x, y any) (any, error) {
 	}, nil
 }
 
+type For struct {
+	statementMixin
+	Variable string
+	Iterator Expression
+	Body     []Statement
+}
+
+func NewFor(x, y, z any) (any, error) {
+	variable := string(x.(*token.Token).Lit)
+	iterator := y.(Expression)
+	body := z.([]Statement)
+	return &For{
+		Variable: variable,
+		Iterator: iterator,
+		Body:     body,
+	}, nil
+}
+
 type Break struct {
 	statementMixin
 }
