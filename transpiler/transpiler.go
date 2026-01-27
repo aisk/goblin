@@ -26,9 +26,20 @@ func localName(prefix string) string {
 	return name
 }
 
+// errHandler generates the error-handling code for a given error variable name.
+// In Execute(), it generates: return errVar
+// In user-defined functions, it generates: return nil, errVar
+type errHandler func(errVar string) jen.Code
+
 func Transpile(mod *ast.Module, output io.Writer) error {
+	localNameCounter = 0
 	f := jen.NewFile(mod.Name)
-	stmts, err := transpileStatements(mod.Body)
+
+	onError := func(errVar string) jen.Code {
+		return jen.Return(jen.Id(errVar))
+	}
+
+	stmts, err := transpileStatements(mod.Body, onError)
 	if err != nil {
 		return err
 	}
@@ -64,57 +75,61 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 	return nil, ErrNotImplemented
 }
 
-func transpileListLiteral(list *ast.ListLiteral) (*jen.Statement, error) {
-	elements, err := transpileExpressions(list.Elements)
+func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, elements, err := transpileExpressions(list.Elements, onError)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return jen.Op("&").Qual(pathObject, "List").Values(
+	return preStmts, jen.Op("&").Qual(pathObject, "List").Values(
 		jen.Id("Elements").Op(":").Index().Qual(pathObject, "Object").Values(elements...),
 	), nil
 }
 
-func transpileExpression(expr ast.Expression) (*jen.Statement, error) {
+func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
-		return transpileObject(v.Value)
-	case *ast.Identifier:
-		return jen.Id(v.Name), nil
-	case *ast.FunctionCall:
-		call, err := transpileFunctionCall(v)
+		obj, err := transpileObject(v.Value)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		// hack to ignore the err
-		// TODO: implemt the error mechanism
-		return jen.Func().Params().Id("object.Object").Block(
-			jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(call),
-			jen.If(jen.Id("err").Op("!=").Nil()).Block(
-				jen.Panic(jen.Id("err")),
-			),
-			jen.Return(jen.Id("result")),
-		).Call(), nil
+		return nil, obj, nil
+	case *ast.Identifier:
+		return nil, jen.Id(v.Name), nil
+	case *ast.FunctionCall:
+		argPreStmts, call, err := transpileFunctionCall(v, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		tmpVar := localName("tmp")
+		errVar := localName("err")
+		preStmts := append(argPreStmts,
+			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return preStmts, jen.Id(tmpVar), nil
 	case *ast.BinaryOperation:
-		return transpileBinaryOperation(v)
+		return transpileBinaryOperation(v, onError)
 	case *ast.UnaryOperation:
-		return transpileUnaryOperation(v)
+		return transpileUnaryOperation(v, onError)
 	case *ast.ListLiteral:
-		return transpileListLiteral(v)
+		return transpileListLiteral(v, onError)
 	}
-	return nil, ErrNotImplemented
+	return nil, nil, ErrNotImplemented
 }
 
-func transpileExpressions(exprs []ast.Expression) ([]jen.Code, error) {
-	result := []jen.Code{}
+func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
+	var allPreStmts []jen.Code
+	var results []jen.Code
 	for _, expr := range exprs {
-		r, err := transpileExpression(expr)
+		pre, r, err := transpileExpression(expr, onError)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		result = append(result, r)
+		allPreStmts = append(allPreStmts, pre...)
+		results = append(results, r)
 	}
-	return result, nil
+	return allPreStmts, results, nil
 }
 
 func resolveFunctionName(name string) *jen.Statement {
@@ -127,70 +142,82 @@ func resolveFunctionName(name string) *jen.Statement {
 	return jen.Id(name)
 }
 
-func transpileDeclare(decl *ast.Declare) (*jen.Statement, error) {
-	value, err := transpileExpression(decl.Value)
+func transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
+	preStmts, value, err := transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
 	}
-	result := jen.Var().Id(decl.Name).Id("object.Object").Op("=").Add(value)
-	result.Op(";").Id("_").Op("=").Id(decl.Name)
-	return result, nil
+	declStmt := jen.Var().Id(decl.Name).Qual(pathObject, "Object").Op("=").Add(value)
+	declStmt.Op(";").Id("_").Op("=").Id(decl.Name)
+	return append(preStmts, declStmt), nil
 }
 
-func transpileAssign(decl *ast.Assign) (*jen.Statement, error) {
-	value, err := transpileExpression(decl.Value)
+func transpileAssign(decl *ast.Assign, onError errHandler) ([]jen.Code, error) {
+	preStmts, value, err := transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
 	}
-	result := jen.Id(decl.Target).Op("=").Add(value)
-	result.Op(";").Id("_").Op("=").Id(decl.Target)
-	return result, nil
+	assignStmt := jen.Id(decl.Target).Op("=").Add(value)
+	assignStmt.Op(";").Id("_").Op("=").Id(decl.Target)
+	return append(preStmts, assignStmt), nil
 }
 
-func transpileIfElse(ifelse *ast.IfElse) (*jen.Statement, error) {
-	cond, err := transpileExpression(ifelse.Condition)
+func transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
+	condPreStmts, cond, err := transpileExpression(ifelse.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(ifelse.IfBody)
+	body, err := transpileStatements(ifelse.IfBody, onError)
 	if err != nil {
 		return nil, err
 	}
-	elseBody, err := transpileStatements(ifelse.ElseBody)
+	elseBody, err := transpileStatements(ifelse.ElseBody, onError)
 	if err != nil {
 		return nil, err
 	}
-	return jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...), nil
+	ifStmt := jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...)
+	return append(condPreStmts, ifStmt), nil
 }
 
-func transpileWhile(while_ *ast.While) (*jen.Statement, error) {
-	cond, err := transpileExpression(while_.Condition)
+func transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
+	condPreStmts, cond, err := transpileExpression(while_.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(while_.Body)
+	body, err := transpileStatements(while_.Body, onError)
 	if err != nil {
 		return nil, err
 	}
-	return jen.For(cond.Dot("Bool").Call()).Block(body...), nil
+
+	if len(condPreStmts) > 0 {
+		// Complex condition with preStmts: convert to for { preStmts; if !cond { break }; body }
+		loopBody := append(condPreStmts,
+			jen.If(jen.Op("!").Add(cond).Dot("Bool").Call()).Block(jen.Break()),
+		)
+		loopBody = append(loopBody, body...)
+		return []jen.Code{jen.For().Block(loopBody...)}, nil
+	}
+
+	return []jen.Code{jen.For(cond.Dot("Bool").Call()).Block(body...)}, nil
 }
 
-func transpileBreak(break_ *ast.Break) (*jen.Statement, error) {
-	return jen.Break(), nil
+func transpileBreak(break_ *ast.Break) ([]jen.Code, error) {
+	return []jen.Code{jen.Break()}, nil
 }
 
-func transpileFor(for_ *ast.For) (*jen.Statement, error) {
-	iterator, err := transpileExpression(for_.Iterator)
+func transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
+	iterPreStmts, iterator, err := transpileExpression(for_.Iterator, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(for_.Body)
+	body, err := transpileStatements(for_.Body, onError)
 	if err != nil {
 		return nil, err
 	}
 
 	iterVar := localName("iter")
 	elementsVar := localName("elements")
+	errVar := localName("err")
 
 	forLoopBody := []jen.Code{
 		jen.Id(for_.Variable).Op(":=").Id(iterVar),
@@ -198,28 +225,26 @@ func transpileFor(for_ *ast.For) (*jen.Statement, error) {
 	}
 	forLoopBody = append(forLoopBody, body...)
 
-	result := []jen.Code{
-		jen.List(jen.Id(elementsVar), jen.Id("err")).Op(":=").Parens(jen.Add(iterator)).Dot("Iter").Call(),
-		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err")),
-		),
+	result := append(iterPreStmts,
+		jen.List(jen.Id(elementsVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(iterator)).Dot("Iter").Call(),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.For(jen.List(jen.Id("_"), jen.Id(iterVar)).Op(":=").Op("range").Id(elementsVar)).Block(forLoopBody...),
-	}
+	)
 
-	return jen.Block(result...), nil
+	return []jen.Code{jen.Block(result...)}, nil
 }
 
-func transpileFunctionCall(call *ast.FunctionCall) (*jen.Statement, error) {
-	l, err := transpileExpressions(call.Args)
+func transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	argPreStmts, l, err := transpileExpressions(call.Args, onError)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	args := jen.Qual(pathObject, "Args").Values(l...)
 	kwargs := jen.Nil()
-	return resolveFunctionName(call.Name).Call(args, kwargs), nil
+	return argPreStmts, resolveFunctionName(call.Name).Call(args, kwargs), nil
 }
 
-func transpileFunctionDefine(fn *ast.FunctionDefine) (*jen.Statement, error) {
+func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
 	argsName := localName("args")
 	kwargsName := localName("kwargs")
 
@@ -230,7 +255,11 @@ func transpileFunctionDefine(fn *ast.FunctionDefine) (*jen.Statement, error) {
 		argsDefine = append(argsDefine, def)
 	}
 
-	body, err := transpileStatements(fn.Body)
+	fnOnError := func(errVar string) jen.Code {
+		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+	}
+
+	body, err := transpileStatements(fn.Body, fnOnError)
 	if err != nil {
 		return nil, err
 	}
@@ -245,26 +274,25 @@ func transpileFunctionDefine(fn *ast.FunctionDefine) (*jen.Statement, error) {
 
 	result.Op(";").Id("_").Op("=").Id(fn.Name)
 
-	return result, nil
+	return []jen.Code{result}, nil
 }
 
-func transpileReturn(return_ *ast.Return) (*jen.Statement, error) {
-	r, err := transpileExpression(return_.Value)
+func transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
+	preStmts, r, err := transpileExpression(return_.Value, onError)
 	if err != nil {
 		return nil, err
 	}
-	// TODO: implement the error mechanism
-	return jen.Return(jen.List(r, jen.Nil())), nil
+	return append(preStmts, jen.Return(jen.List(r, jen.Nil()))), nil
 }
 
-func transpileBinaryOperation(operation *ast.BinaryOperation) (*jen.Statement, error) {
-	lhs, err := transpileExpression(operation.LHS)
+func transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := transpileExpression(operation.LHS, onError)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	rhs, err := transpileExpression(operation.RHS)
+	rhsPre, rhs, err := transpileExpression(operation.RHS, onError)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var methodName string
@@ -282,24 +310,23 @@ func transpileBinaryOperation(operation *ast.BinaryOperation) (*jen.Statement, e
 	case "||":
 		methodName = "Or"
 	default:
-		return nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
+		return nil, nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}
 
-	result := jen.Func().Params().Id("object.Object").Block(
-		jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
-		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err").Dot("Error").Call()),
-		),
-		jen.Return(jen.Id("result")),
-	).Call()
-
-	return result, nil
+	tmpVar := localName("tmp")
+	errVar := localName("err")
+	preStmts := append(lhsPre, rhsPre...)
+	preStmts = append(preStmts,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileUnaryOperation(operation *ast.UnaryOperation) (*jen.Statement, error) {
-	operand, err := transpileExpression(operation.Operand)
+func transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	operandPre, operand, err := transpileExpression(operation.Operand, onError)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var methodName string
@@ -307,56 +334,65 @@ func transpileUnaryOperation(operation *ast.UnaryOperation) (*jen.Statement, err
 	case "!":
 		methodName = "Not"
 	default:
-		return nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
+		return nil, nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
 	}
 
-	result := jen.Func().Params().Id("object.Object").Block(
-		jen.List(jen.Id("result"), jen.Id("err")).Op(":=").Add(operand).Dot(methodName).Call(),
-		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err").Dot("Error").Call()),
-		),
-		jen.Return(jen.Id("result")),
-	).Call()
-
-	return result, nil
+	tmpVar := localName("tmp")
+	errVar := localName("err")
+	preStmts := append(operandPre,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(operand).Dot(methodName).Call(),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileStatement(stmt ast.Statement) (*jen.Statement, error) {
+func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
-		return transpileDeclare(v)
+		return transpileDeclare(v, onError)
 	case *ast.Assign:
-		return transpileAssign(v)
+		return transpileAssign(v, onError)
 	case *ast.FunctionCall:
-		return transpileFunctionCall(v)
+		argPreStmts, call, err := transpileFunctionCall(v, onError)
+		if err != nil {
+			return nil, err
+		}
+		errVar := localName("err")
+		stmts := append(argPreStmts,
+			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return stmts, nil
 	case *ast.FunctionDefine:
-		return transpileFunctionDefine(v)
+		return transpileFunctionDefine(v, onError)
 	case *ast.IfElse:
-		return transpileIfElse(v)
+		return transpileIfElse(v, onError)
 	case *ast.While:
-		return transpileWhile(v)
+		return transpileWhile(v, onError)
 	case *ast.For:
-		return transpileFor(v)
+		return transpileFor(v, onError)
 	case *ast.Break:
 		return transpileBreak(v)
 	case *ast.Return:
-		return transpileReturn(v)
+		return transpileReturn(v, onError)
 	case *ast.BinaryOperation:
-		return transpileBinaryOperation(v)
+		pre, _, err := transpileBinaryOperation(v, onError)
+		return pre, err
 	case *ast.UnaryOperation:
-		return transpileUnaryOperation(v)
+		pre, _, err := transpileUnaryOperation(v, onError)
+		return pre, err
 	}
 	return nil, ErrNotImplemented
 }
 
-func transpileStatements(stmts []ast.Statement) ([]jen.Code, error) {
-	result := []jen.Code{}
+func transpileStatements(stmts []ast.Statement, onError errHandler) ([]jen.Code, error) {
+	var result []jen.Code
 	for _, stmt := range stmts {
-		s, err := transpileStatement(stmt)
+		codes, err := transpileStatement(stmt, onError)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, s)
+		result = append(result, codes...)
 	}
 	return result, nil
 }
