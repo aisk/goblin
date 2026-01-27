@@ -272,13 +272,19 @@ func NewReturn(x any) (any, error) {
 }
 
 var (
-	Add      = "+"
-	Minus    = "-"
-	Multiply = "*"
-	Divide   = "/"
-	And      = "&&"
-	Or       = "||"
-	Not      = "!"
+	Add            = "+"
+	Minus          = "-"
+	Multiply       = "*"
+	Divide         = "/"
+	And            = "&&"
+	Or             = "||"
+	Not            = "!"
+	Equal          = "=="
+	NotEqual       = "!="
+	LessThan       = "<"
+	GreaterThan    = ">"
+	LessOrEqual    = "<="
+	GreaterOrEqual = ">="
 )
 
 type BinaryOperation struct {
@@ -290,7 +296,7 @@ type BinaryOperation struct {
 
 func NewBinaryOperation(lhs, operator, rhs any) (any, error) {
 	switch operator.(string) {
-	case Add, Minus, Multiply, Divide, And, Or:
+	case Add, Minus, Multiply, Divide, And, Or, Equal, NotEqual, LessThan, GreaterThan, LessOrEqual, GreaterOrEqual:
 	default:
 		return nil, fmt.Errorf("invalid operator: '%s'", operator)
 	}

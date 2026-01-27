@@ -78,17 +78,27 @@ Expression1
 
 Expression2
     : Expression3
-    | Expression2 "+" Expression3            << ast.NewBinaryOperation($0, "+", $2) >>
-    | Expression2 "-" Expression3            << ast.NewBinaryOperation($0, "-", $2) >>
+    | Expression2 "==" Expression3           << ast.NewBinaryOperation($0, "==", $2) >>
+    | Expression2 "!=" Expression3           << ast.NewBinaryOperation($0, "!=", $2) >>
+    | Expression2 "<=" Expression3           << ast.NewBinaryOperation($0, "<=", $2) >>
+    | Expression2 ">=" Expression3           << ast.NewBinaryOperation($0, ">=", $2) >>
+    | Expression2 "<" Expression3            << ast.NewBinaryOperation($0, "<", $2) >>
+    | Expression2 ">" Expression3            << ast.NewBinaryOperation($0, ">", $2) >>
 ;
 
 Expression3
     : Expression4
-    | Expression3 "*" Expression4            << ast.NewBinaryOperation($0, "*", $2) >>
-    | Expression3 "/" Expression4            << ast.NewBinaryOperation($0, "/", $2) >>
+    | Expression3 "+" Expression4            << ast.NewBinaryOperation($0, "+", $2) >>
+    | Expression3 "-" Expression4            << ast.NewBinaryOperation($0, "-", $2) >>
 ;
 
 Expression4
+    : Expression5
+    | Expression4 "*" Expression5            << ast.NewBinaryOperation($0, "*", $2) >>
+    | Expression4 "/" Expression5            << ast.NewBinaryOperation($0, "/", $2) >>
+;
+
+Expression5
     : IntegerLiteral
     | FloatLiteral
     | StringLiteral

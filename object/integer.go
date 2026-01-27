@@ -23,7 +23,28 @@ func (i Integer) String() string {
 }
 
 func (i Integer) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	switch v := other.(type) {
+	case Integer:
+		a, b := int64(i), int64(v)
+		if a < b {
+			return -1, nil
+		}
+		if a > b {
+			return 1, nil
+		}
+		return 0, nil
+	case Float:
+		a, b := float64(i), float64(v)
+		if a < b {
+			return -1, nil
+		}
+		if a > b {
+			return 1, nil
+		}
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("cannot compare Integer and %T", other)
+	}
 }
 
 func (i Integer) Add(other Object) (Object, error) {

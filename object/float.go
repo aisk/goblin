@@ -23,7 +23,28 @@ func (f Float) String() string {
 }
 
 func (f Float) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	switch v := other.(type) {
+	case Float:
+		a, b := float64(f), float64(v)
+		if a < b {
+			return -1, nil
+		}
+		if a > b {
+			return 1, nil
+		}
+		return 0, nil
+	case Integer:
+		a, b := float64(f), float64(v)
+		if a < b {
+			return -1, nil
+		}
+		if a > b {
+			return 1, nil
+		}
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("cannot compare Float and %T", other)
+	}
 }
 
 func (f Float) Add(other Object) (Object, error) {

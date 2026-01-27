@@ -30,7 +30,7 @@ func (l *List) Bool() bool {
 }
 
 func (l *List) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	return 0, fmt.Errorf("cannot compare List and %T", other)
 }
 
 func (l *List) Add(other Object) (Object, error) {

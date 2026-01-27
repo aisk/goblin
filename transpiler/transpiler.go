@@ -285,7 +285,44 @@ func transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error
 	return append(preStmts, jen.Return(jen.List(r, jen.Nil()))), nil
 }
 
+func isComparisonOperator(op string) bool {
+	switch op {
+	case "==", "!=", "<", ">", "<=", ">=":
+		return true
+	}
+	return false
+}
+
+func transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := transpileExpression(operation.LHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	rhsPre, rhs, err := transpileExpression(operation.RHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	cmpVar := localName("cmp")
+	errVar := localName("err")
+	tmpVar := localName("tmp")
+
+	preStmts := append(lhsPre, rhsPre...)
+	preStmts = append(preStmts,
+		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot("Compare").Call(rhs),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(
+			jen.Id(cmpVar).Op(operation.Operator).Lit(0),
+		),
+	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
 func transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if isComparisonOperator(operation.Operator) {
+		return transpileComparisonOperation(operation, onError)
+	}
+
 	lhsPre, lhs, err := transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err

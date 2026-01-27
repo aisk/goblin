@@ -30,7 +30,26 @@ func (b Bool) Bool() bool {
 }
 
 func (b Bool) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	switch v := other.(type) {
+	case Bool:
+		ai, bi := boolToInt(bool(b)), boolToInt(bool(v))
+		if ai < bi {
+			return -1, nil
+		}
+		if ai > bi {
+			return 1, nil
+		}
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("cannot compare Bool and %T", other)
+	}
+}
+
+func boolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 func (b Bool) Add(other Object) (Object, error) {

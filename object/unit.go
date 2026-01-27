@@ -21,7 +21,12 @@ func (n Unit) Bool() bool {
 }
 
 func (n Unit) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	switch other.(type) {
+	case Unit:
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("cannot compare Nil and %T", other)
+	}
 }
 
 func (n Unit) Add(other Object) (Object, error) {

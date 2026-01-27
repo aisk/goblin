@@ -22,7 +22,19 @@ func (s String) Bool() bool {
 }
 
 func (s String) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	switch v := other.(type) {
+	case String:
+		a, b := string(s), string(v)
+		if a < b {
+			return -1, nil
+		}
+		if a > b {
+			return 1, nil
+		}
+		return 0, nil
+	default:
+		return 0, fmt.Errorf("cannot compare String and %T", other)
+	}
 }
 
 func (s String) Add(other Object) (Object, error) {

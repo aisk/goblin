@@ -23,7 +23,7 @@ func (e *Error) Bool() bool {
 }
 
 func (e *Error) Compare(other Object) (int, error) {
-	return 0, ErrNotImplmeneted
+	return 0, fmt.Errorf("cannot compare Error and %T", other)
 }
 
 func (e *Error) Add(other Object) (Object, error) {
