@@ -120,16 +120,27 @@ func runExampleTest(t *testing.T, goblinFile string, tempDir string) {
 		t.Fatalf("failed to read .stderr file: %v", err)
 	}
 
+	// Normalize line endings for comparison (handle Windows vs Unix line endings)
+	stdoutStr := normalizeLineEndings(string(stdout))
+	expectedStdoutStr := normalizeLineEndings(string(expectedStdout))
+	stderrStr := normalizeLineEndings(string(stderr))
+	expectedStderrStr := normalizeLineEndings(string(expectedStderr))
+
 	// Compare outputs
-	if string(stdout) != string(expectedStdout) {
-		t.Errorf("stdout mismatch:\nExpected:\n%s\nActual:\n%s", 
-			string(expectedStdout), string(stdout))
+	if stdoutStr != expectedStdoutStr {
+		t.Errorf("stdout mismatch:\nExpected:\n%s\nActual:\n%s",
+			expectedStdoutStr, stdoutStr)
 	}
 
-	if string(stderr) != string(expectedStderr) {
-		t.Errorf("stderr mismatch:\nExpected:\n%s\nActual:\n%s", 
-			string(expectedStderr), string(stderr))
+	if stderrStr != expectedStderrStr {
+		t.Errorf("stderr mismatch:\nExpected:\n%s\nActual:\n%s",
+			expectedStderrStr, stderrStr)
 	}
+}
+
+// normalizeLineEndings converts all line endings to Unix style (\n)
+func normalizeLineEndings(s string) string {
+	return strings.ReplaceAll(s, "\r\n", "\n")
 }
 
 // runGoFile runs a Go file and captures stdout and stderr
