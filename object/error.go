@@ -64,3 +64,5 @@ func (e *Error) Error() string {
 
 var _ Object = (*Error)(nil)
 var _ error = (*Error)(nil)
+
+var NotImplementedError = NewError("not implemented")

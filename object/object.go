@@ -1,13 +1,5 @@
 package object
 
-import (
-	"errors"
-)
-
-var (
-	ErrNotImplmeneted = errors.New("not implemented")
-)
-
 type Object interface {
 	Repr() string
 	String() string

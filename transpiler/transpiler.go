@@ -1,7 +1,6 @@
 package transpiler
 
 import (
-	"errors"
 	"fmt"
 	"io"
 
@@ -15,8 +14,6 @@ const (
 	pathObject  = pathBase + "/object"
 	pathBuiltin = pathBase + "/builtin"
 )
-
-var ErrNotImplemented = errors.New("not implemented")
 
 var localNameCounter = 0
 
@@ -72,7 +69,7 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 		s := jen.Qual(pathObject, "String").Call(jen.Lit(string(v)))
 		return s, nil
 	}
-	return nil, ErrNotImplemented
+	return nil, object.NotImplementedError
 }
 
 func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -115,7 +112,7 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 	case *ast.ListLiteral:
 		return transpileListLiteral(v, onError)
 	}
-	return nil, nil, ErrNotImplemented
+	return nil, nil, object.NotImplementedError
 }
 
 func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
@@ -419,7 +416,7 @@ func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, err
 		pre, _, err := transpileUnaryOperation(v, onError)
 		return pre, err
 	}
-	return nil, ErrNotImplemented
+	return nil, object.NotImplementedError
 }
 
 func transpileStatements(stmts []ast.Statement, onError errHandler) ([]jen.Code, error) {
