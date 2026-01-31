@@ -6540,7 +6540,7 @@ var actionTab = actionTable{
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(75), // ␚, reduce: Return
+			reduce(79), // ␚, reduce: Return
 			nil,        // empty
 			nil,        // &&
 			nil,        // ||
@@ -6554,31 +6554,31 @@ var actionTab = actionTable{
 			nil,        // -
 			nil,        // *
 			nil,        // /
-			reduce(75), // !, reduce: Return
-			reduce(75), // (, reduce: Return
+			reduce(79), // !, reduce: Return
+			reduce(79), // (, reduce: Return
 			nil,        // )
-			reduce(75), // id, reduce: Return
-			reduce(75), // int_lit, reduce: Return
-			reduce(75), // float_lit, reduce: Return
-			reduce(75), // string_lit, reduce: Return
-			reduce(75), // true, reduce: Return
-			reduce(75), // false, reduce: Return
-			reduce(75), // nil, reduce: Return
-			reduce(75), // [, reduce: Return
+			reduce(79), // id, reduce: Return
+			reduce(79), // int_lit, reduce: Return
+			reduce(79), // float_lit, reduce: Return
+			reduce(79), // string_lit, reduce: Return
+			reduce(79), // true, reduce: Return
+			reduce(79), // false, reduce: Return
+			reduce(79), // nil, reduce: Return
+			reduce(79), // [, reduce: Return
 			nil,        // ]
 			nil,        // ,
-			reduce(75), // var, reduce: Return
+			reduce(79), // var, reduce: Return
 			nil,        // =
 			nil,        // {
 			nil,        // }
-			reduce(75), // if, reduce: Return
+			reduce(79), // if, reduce: Return
 			nil,        // else
-			reduce(75), // while, reduce: Return
-			reduce(75), // for, reduce: Return
+			reduce(79), // while, reduce: Return
+			reduce(79), // for, reduce: Return
 			nil,        // in
-			reduce(75), // break, reduce: Return
-			reduce(75), // func, reduce: Return
-			reduce(75), // return, reduce: Return
+			reduce(79), // break, reduce: Return
+			reduce(79), // func, reduce: Return
+			reduce(79), // return, reduce: Return
 		},
 	},
 	actionRow{ // S146
@@ -10966,8 +10966,8 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(356), // )
-			nil,        // id
+			reduce(74), // ), reduce: Parameters
+			shift(356), // id
 			nil,        // int_lit
 			nil,        // float_lit
 			nil,        // string_lit
@@ -11596,7 +11596,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(357), // )
+			shift(359), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -12271,7 +12271,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(370), // )
+			shift(372), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -12370,7 +12370,7 @@ var actionTab = actionTable{
 			nil,        // false
 			nil,        // nil
 			nil,        // [
-			shift(372), // ]
+			shift(374), // ]
 			nil,        // ,
 			nil,        // var
 			nil,        // =
@@ -13081,7 +13081,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(374), // )
+			shift(376), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -13846,7 +13846,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(375), // )
+			shift(377), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -13995,7 +13995,7 @@ var actionTab = actionTable{
 			nil,        // var
 			nil,        // =
 			nil,        // {
-			shift(379), // }
+			shift(381), // }
 			nil,        // if
 			nil,        // else
 			nil,        // while
@@ -14552,8 +14552,8 @@ var actionTab = actionTable{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
-			shift(381), // &&
-			shift(382), // ||
+			shift(383), // &&
+			shift(384), // ||
 			nil,        // ==
 			nil,        // !=
 			nil,        // <=
@@ -14599,12 +14599,12 @@ var actionTab = actionTable{
 			nil,        // empty
 			reduce(19), // &&, reduce: Expression1
 			reduce(19), // ||, reduce: Expression1
-			shift(383), // ==
-			shift(384), // !=
-			shift(385), // <=
-			shift(386), // >=
-			shift(387), // <
-			shift(388), // >
+			shift(385), // ==
+			shift(386), // !=
+			shift(387), // <=
+			shift(388), // >=
+			shift(389), // <
+			shift(390), // >
 			nil,        // +
 			nil,        // -
 			nil,        // *
@@ -14650,8 +14650,8 @@ var actionTab = actionTable{
 			reduce(22), // >=, reduce: Expression2
 			reduce(22), // <, reduce: Expression2
 			reduce(22), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(22), // !, reduce: Expression2
@@ -14697,8 +14697,8 @@ var actionTab = actionTable{
 			reduce(29), // >, reduce: Expression3
 			reduce(29), // +, reduce: Expression3
 			reduce(29), // -, reduce: Expression3
-			shift(391), // *
-			shift(392), // /
+			shift(393), // *
+			shift(394), // /
 			reduce(29), // !, reduce: Expression3
 			reduce(29), // (, reduce: Expression3
 			nil,        // )
@@ -15197,7 +15197,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -15285,7 +15285,7 @@ var actionTab = actionTable{
 			reduce(46), // *, reduce: Identifier
 			reduce(46), // /, reduce: Identifier
 			reduce(46), // !, reduce: Identifier
-			shift(396), // (
+			shift(398), // (
 			nil,        // )
 			reduce(46), // id, reduce: Identifier
 			reduce(46), // int_lit, reduce: Identifier
@@ -15298,7 +15298,7 @@ var actionTab = actionTable{
 			nil,        // ]
 			nil,        // ,
 			reduce(46), // var, reduce: Identifier
-			shift(397), // =
+			shift(399), // =
 			nil,        // {
 			reduce(46), // }, reduce: Identifier
 			reduce(46), // if, reduce: Identifier
@@ -15647,7 +15647,7 @@ var actionTab = actionTable{
 			nil,        // !
 			nil,        // (
 			nil,        // )
-			shift(399), // id
+			shift(401), // id
 			nil,        // int_lit
 			nil,        // float_lit
 			nil,        // string_lit
@@ -15782,7 +15782,7 @@ var actionTab = actionTable{
 			nil,        // !
 			nil,        // (
 			nil,        // )
-			shift(402), // id
+			shift(404), // id
 			nil,        // int_lit
 			nil,        // float_lit
 			nil,        // string_lit
@@ -15872,7 +15872,7 @@ var actionTab = actionTable{
 			nil,        // !
 			nil,        // (
 			nil,        // )
-			shift(403), // id
+			shift(405), // id
 			nil,        // int_lit
 			nil,        // float_lit
 			nil,        // string_lit
@@ -15917,7 +15917,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -15975,7 +15975,7 @@ var actionTab = actionTable{
 			nil,        // var
 			nil,        // =
 			nil,        // {
-			shift(405), // }
+			shift(407), // }
 			nil,        // if
 			nil,        // else
 			nil,        // while
@@ -16051,7 +16051,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			nil,        // )
+			reduce(76), // ), reduce: ParameterList
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -16061,10 +16061,10 @@ var actionTab = actionTable{
 			nil,        // nil
 			nil,        // [
 			nil,        // ]
-			nil,        // ,
+			reduce(76), // ,, reduce: ParameterList
 			nil,        // var
 			nil,        // =
-			shift(241), // {
+			nil,        // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -16077,6 +16077,96 @@ var actionTab = actionTable{
 		},
 	},
 	actionRow{ // S357
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			nil,        // !
+			nil,        // (
+			shift(409), // )
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
+			nil,        // ]
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S358
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			nil,        // !
+			nil,        // (
+			reduce(75), // ), reduce: Parameters
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
+			nil,        // ]
+			shift(410), // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S359
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16121,7 +16211,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S358
+	actionRow{ // S360
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16166,7 +16256,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S359
+	actionRow{ // S361
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16211,7 +16301,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S360
+	actionRow{ // S362
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16256,7 +16346,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S361
+	actionRow{ // S363
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16301,7 +16391,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S362
+	actionRow{ // S364
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16346,7 +16436,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S363
+	actionRow{ // S365
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16391,7 +16481,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S364
+	actionRow{ // S366
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16436,7 +16526,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S365
+	actionRow{ // S367
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16481,7 +16571,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S366
+	actionRow{ // S368
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16526,7 +16616,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S367
+	actionRow{ // S369
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16571,7 +16661,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S368
+	actionRow{ // S370
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16616,7 +16706,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S369
+	actionRow{ // S371
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16661,7 +16751,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S370
+	actionRow{ // S372
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16706,7 +16796,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S371
+	actionRow{ // S373
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16726,7 +16816,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(408), // )
+			shift(411), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -16751,7 +16841,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S372
+	actionRow{ // S374
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16796,7 +16886,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S373
+	actionRow{ // S375
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16841,7 +16931,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S374
+	actionRow{ // S376
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16886,7 +16976,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S375
+	actionRow{ // S377
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16931,7 +17021,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S376
+	actionRow{ // S378
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -16976,7 +17066,7 @@ var actionTab = actionTable{
 			reduce(69), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S377
+	actionRow{ // S379
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17021,7 +17111,7 @@ var actionTab = actionTable{
 			reduce(70), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S378
+	actionRow{ // S380
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17066,7 +17156,7 @@ var actionTab = actionTable{
 			reduce(68), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S379
+	actionRow{ // S381
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17111,7 +17201,7 @@ var actionTab = actionTable{
 			reduce(65), // return, reduce: Block
 		},
 	},
-	actionRow{ // S380
+	actionRow{ // S382
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,       // INVALID
@@ -17156,96 +17246,6 @@ var actionTab = actionTable{
 			reduce(5), // return, reduce: StatementList
 		},
 	},
-	actionRow{ // S381
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // &&
-			nil,        // ||
-			nil,        // ==
-			nil,        // !=
-			nil,        // <=
-			nil,        // >=
-			nil,        // <
-			nil,        // >
-			nil,        // +
-			nil,        // -
-			nil,        // *
-			nil,        // /
-			shift(337), // !
-			shift(338), // (
-			nil,        // )
-			shift(394), // id
-			shift(340), // int_lit
-			shift(341), // float_lit
-			shift(342), // string_lit
-			shift(343), // true
-			shift(344), // false
-			shift(345), // nil
-			shift(346), // [
-			nil,        // ]
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-			nil,        // while
-			nil,        // for
-			nil,        // in
-			nil,        // break
-			nil,        // func
-			nil,        // return
-		},
-	},
-	actionRow{ // S382
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // &&
-			nil,        // ||
-			nil,        // ==
-			nil,        // !=
-			nil,        // <=
-			nil,        // >=
-			nil,        // <
-			nil,        // >
-			nil,        // +
-			nil,        // -
-			nil,        // *
-			nil,        // /
-			shift(337), // !
-			shift(338), // (
-			nil,        // )
-			shift(394), // id
-			shift(340), // int_lit
-			shift(341), // float_lit
-			shift(342), // string_lit
-			shift(343), // true
-			shift(344), // false
-			shift(345), // nil
-			shift(346), // [
-			nil,        // ]
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-			nil,        // while
-			nil,        // for
-			nil,        // in
-			nil,        // break
-			nil,        // func
-			nil,        // return
-		},
-	},
 	actionRow{ // S383
 		canRecover: false,
 		actions: [numSymbols]action{
@@ -17267,7 +17267,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17312,7 +17312,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17357,7 +17357,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17402,7 +17402,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17447,7 +17447,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17492,7 +17492,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17537,7 +17537,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17582,7 +17582,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17627,7 +17627,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17672,7 +17672,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17702,6 +17702,96 @@ var actionTab = actionTable{
 			nil,        // INVALID
 			nil,        // ␚
 			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			shift(337), // !
+			shift(338), // (
+			nil,        // )
+			shift(396), // id
+			shift(340), // int_lit
+			shift(341), // float_lit
+			shift(342), // string_lit
+			shift(343), // true
+			shift(344), // false
+			shift(345), // nil
+			shift(346), // [
+			nil,        // ]
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S394
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			shift(337), // !
+			shift(338), // (
+			nil,        // )
+			shift(396), // id
+			shift(340), // int_lit
+			shift(341), // float_lit
+			shift(342), // string_lit
+			shift(343), // true
+			shift(344), // false
+			shift(345), // nil
+			shift(346), // [
+			nil,        // ]
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S395
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
 			reduce(44), // &&, reduce: Expression5
 			reduce(44), // ||, reduce: Expression5
 			reduce(44), // ==, reduce: Expression5
@@ -17712,8 +17802,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(391), // *
-			shift(392), // /
+			shift(393), // *
+			shift(394), // /
 			reduce(44), // !, reduce: Expression5
 			reduce(44), // (, reduce: Expression5
 			nil,        // )
@@ -17741,7 +17831,7 @@ var actionTab = actionTable{
 			reduce(44), // return, reduce: Expression5
 		},
 	},
-	actionRow{ // S394
+	actionRow{ // S396
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17760,7 +17850,7 @@ var actionTab = actionTable{
 			reduce(46), // *, reduce: Identifier
 			reduce(46), // /, reduce: Identifier
 			reduce(46), // !, reduce: Identifier
-			shift(396), // (
+			shift(398), // (
 			nil,        // )
 			reduce(46), // id, reduce: Identifier
 			reduce(46), // int_lit, reduce: Identifier
@@ -17786,7 +17876,7 @@ var actionTab = actionTable{
 			reduce(46), // return, reduce: Identifier
 		},
 	},
-	actionRow{ // S395
+	actionRow{ // S397
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17806,7 +17896,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(421), // )
+			shift(424), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -17831,7 +17921,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S396
+	actionRow{ // S398
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17876,7 +17966,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S397
+	actionRow{ // S399
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -17897,7 +17987,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -17909,96 +17999,6 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-			nil,        // while
-			nil,        // for
-			nil,        // in
-			nil,        // break
-			nil,        // func
-			nil,        // return
-		},
-	},
-	actionRow{ // S398
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // &&
-			nil,        // ||
-			nil,        // ==
-			nil,        // !=
-			nil,        // <=
-			nil,        // >=
-			nil,        // <
-			nil,        // >
-			nil,        // +
-			nil,        // -
-			nil,        // *
-			nil,        // /
-			nil,        // !
-			nil,        // (
-			nil,        // )
-			nil,        // id
-			nil,        // int_lit
-			nil,        // float_lit
-			nil,        // string_lit
-			nil,        // true
-			nil,        // false
-			nil,        // nil
-			nil,        // [
-			shift(424), // ]
-			nil,        // ,
-			nil,        // var
-			nil,        // =
-			nil,        // {
-			nil,        // }
-			nil,        // if
-			nil,        // else
-			nil,        // while
-			nil,        // for
-			nil,        // in
-			nil,        // break
-			nil,        // func
-			nil,        // return
-		},
-	},
-	actionRow{ // S399
-		canRecover: false,
-		actions: [numSymbols]action{
-			nil,        // INVALID
-			nil,        // ␚
-			nil,        // empty
-			nil,        // &&
-			nil,        // ||
-			nil,        // ==
-			nil,        // !=
-			nil,        // <=
-			nil,        // >=
-			nil,        // <
-			nil,        // >
-			nil,        // +
-			nil,        // -
-			nil,        // *
-			nil,        // /
-			nil,        // !
-			nil,        // (
-			nil,        // )
-			nil,        // id
-			nil,        // int_lit
-			nil,        // float_lit
-			nil,        // string_lit
-			nil,        // true
-			nil,        // false
-			nil,        // nil
-			nil,        // [
-			nil,        // ]
-			nil,        // ,
-			nil,        // var
-			shift(425), // =
 			nil,        // {
 			nil,        // }
 			nil,        // if
@@ -18040,11 +18040,11 @@ var actionTab = actionTable{
 			nil,        // false
 			nil,        // nil
 			nil,        // [
-			nil,        // ]
+			shift(427), // ]
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			shift(427), // {
+			nil,        // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -18088,8 +18088,8 @@ var actionTab = actionTable{
 			nil,        // ]
 			nil,        // ,
 			nil,        // var
-			nil,        // =
-			shift(429), // {
+			shift(428), // =
+			nil,        // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -18134,13 +18134,13 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			nil,        // {
+			shift(430), // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
 			nil,        // while
 			nil,        // for
-			shift(430), // in
+			nil,        // in
 			nil,        // break
 			nil,        // func
 			nil,        // return
@@ -18165,7 +18165,7 @@ var actionTab = actionTable{
 			nil,        // *
 			nil,        // /
 			nil,        // !
-			shift(431), // (
+			nil,        // (
 			nil,        // )
 			nil,        // id
 			nil,        // int_lit
@@ -18179,7 +18179,7 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			nil,        // {
+			shift(432), // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -18209,34 +18209,124 @@ var actionTab = actionTable{
 			nil,        // -
 			nil,        // *
 			nil,        // /
-			reduce(75), // !, reduce: Return
-			reduce(75), // (, reduce: Return
+			nil,        // !
+			nil,        // (
 			nil,        // )
-			reduce(75), // id, reduce: Return
-			reduce(75), // int_lit, reduce: Return
-			reduce(75), // float_lit, reduce: Return
-			reduce(75), // string_lit, reduce: Return
-			reduce(75), // true, reduce: Return
-			reduce(75), // false, reduce: Return
-			reduce(75), // nil, reduce: Return
-			reduce(75), // [, reduce: Return
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
 			nil,        // ]
 			nil,        // ,
-			reduce(75), // var, reduce: Return
+			nil,        // var
 			nil,        // =
 			nil,        // {
-			reduce(75), // }, reduce: Return
-			reduce(75), // if, reduce: Return
+			nil,        // }
+			nil,        // if
 			nil,        // else
-			reduce(75), // while, reduce: Return
-			reduce(75), // for, reduce: Return
-			nil,        // in
-			reduce(75), // break, reduce: Return
-			reduce(75), // func, reduce: Return
-			reduce(75), // return, reduce: Return
+			nil,        // while
+			nil,        // for
+			shift(433), // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
 		},
 	},
 	actionRow{ // S405
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			nil,        // !
+			shift(434), // (
+			nil,        // )
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
+			nil,        // ]
+			nil,        // ,
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S406
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			reduce(79), // !, reduce: Return
+			reduce(79), // (, reduce: Return
+			nil,        // )
+			reduce(79), // id, reduce: Return
+			reduce(79), // int_lit, reduce: Return
+			reduce(79), // float_lit, reduce: Return
+			reduce(79), // string_lit, reduce: Return
+			reduce(79), // true, reduce: Return
+			reduce(79), // false, reduce: Return
+			reduce(79), // nil, reduce: Return
+			reduce(79), // [, reduce: Return
+			nil,        // ]
+			nil,        // ,
+			reduce(79), // var, reduce: Return
+			nil,        // =
+			nil,        // {
+			reduce(79), // }, reduce: Return
+			reduce(79), // if, reduce: Return
+			nil,        // else
+			reduce(79), // while, reduce: Return
+			reduce(79), // for, reduce: Return
+			nil,        // in
+			reduce(79), // break, reduce: Return
+			reduce(79), // func, reduce: Return
+			reduce(79), // return, reduce: Return
+		},
+	},
+	actionRow{ // S407
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18281,7 +18371,7 @@ var actionTab = actionTable{
 			reduce(65), // return, reduce: Block
 		},
 	},
-	actionRow{ // S406
+	actionRow{ // S408
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18326,11 +18416,11 @@ var actionTab = actionTable{
 			reduce(72), // return, reduce: For
 		},
 	},
-	actionRow{ // S407
+	actionRow{ // S409
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
-			reduce(74), // ␚, reduce: FunctionDefine
+			nil,        // ␚
 			nil,        // empty
 			nil,        // &&
 			nil,        // ||
@@ -18344,34 +18434,79 @@ var actionTab = actionTable{
 			nil,        // -
 			nil,        // *
 			nil,        // /
-			reduce(74), // !, reduce: FunctionDefine
-			reduce(74), // (, reduce: FunctionDefine
+			nil,        // !
+			nil,        // (
 			nil,        // )
-			reduce(74), // id, reduce: FunctionDefine
-			reduce(74), // int_lit, reduce: FunctionDefine
-			reduce(74), // float_lit, reduce: FunctionDefine
-			reduce(74), // string_lit, reduce: FunctionDefine
-			reduce(74), // true, reduce: FunctionDefine
-			reduce(74), // false, reduce: FunctionDefine
-			reduce(74), // nil, reduce: FunctionDefine
-			reduce(74), // [, reduce: FunctionDefine
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
 			nil,        // ]
 			nil,        // ,
-			reduce(74), // var, reduce: FunctionDefine
+			nil,        // var
+			nil,        // =
+			shift(241), // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S410
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			nil,        // !
+			nil,        // (
+			nil,        // )
+			shift(436), // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
+			nil,        // ]
+			nil,        // ,
+			nil,        // var
 			nil,        // =
 			nil,        // {
 			nil,        // }
-			reduce(74), // if, reduce: FunctionDefine
+			nil,        // if
 			nil,        // else
-			reduce(74), // while, reduce: FunctionDefine
-			reduce(74), // for, reduce: FunctionDefine
+			nil,        // while
+			nil,        // for
 			nil,        // in
-			reduce(74), // break, reduce: FunctionDefine
-			reduce(74), // func, reduce: FunctionDefine
-			reduce(74), // return, reduce: FunctionDefine
+			nil,        // break
+			nil,        // func
+			nil,        // return
 		},
 	},
-	actionRow{ // S408
+	actionRow{ // S411
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18416,7 +18551,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S409
+	actionRow{ // S412
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18424,12 +18559,12 @@ var actionTab = actionTable{
 			nil,        // empty
 			reduce(20), // &&, reduce: Expression1
 			reduce(20), // ||, reduce: Expression1
-			shift(383), // ==
-			shift(384), // !=
-			shift(385), // <=
-			shift(386), // >=
-			shift(387), // <
-			shift(388), // >
+			shift(385), // ==
+			shift(386), // !=
+			shift(387), // <=
+			shift(388), // >=
+			shift(389), // <
+			shift(390), // >
 			nil,        // +
 			nil,        // -
 			nil,        // *
@@ -18461,7 +18596,7 @@ var actionTab = actionTable{
 			reduce(20), // return, reduce: Expression1
 		},
 	},
-	actionRow{ // S410
+	actionRow{ // S413
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18469,12 +18604,12 @@ var actionTab = actionTable{
 			nil,        // empty
 			reduce(21), // &&, reduce: Expression1
 			reduce(21), // ||, reduce: Expression1
-			shift(383), // ==
-			shift(384), // !=
-			shift(385), // <=
-			shift(386), // >=
-			shift(387), // <
-			shift(388), // >
+			shift(385), // ==
+			shift(386), // !=
+			shift(387), // <=
+			shift(388), // >=
+			shift(389), // <
+			shift(390), // >
 			nil,        // +
 			nil,        // -
 			nil,        // *
@@ -18506,7 +18641,7 @@ var actionTab = actionTable{
 			reduce(21), // return, reduce: Expression1
 		},
 	},
-	actionRow{ // S411
+	actionRow{ // S414
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18520,8 +18655,8 @@ var actionTab = actionTable{
 			reduce(23), // >=, reduce: Expression2
 			reduce(23), // <, reduce: Expression2
 			reduce(23), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(23), // !, reduce: Expression2
@@ -18551,7 +18686,7 @@ var actionTab = actionTable{
 			reduce(23), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S412
+	actionRow{ // S415
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18565,8 +18700,8 @@ var actionTab = actionTable{
 			reduce(24), // >=, reduce: Expression2
 			reduce(24), // <, reduce: Expression2
 			reduce(24), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(24), // !, reduce: Expression2
@@ -18596,7 +18731,7 @@ var actionTab = actionTable{
 			reduce(24), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S413
+	actionRow{ // S416
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18610,8 +18745,8 @@ var actionTab = actionTable{
 			reduce(25), // >=, reduce: Expression2
 			reduce(25), // <, reduce: Expression2
 			reduce(25), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(25), // !, reduce: Expression2
@@ -18641,7 +18776,7 @@ var actionTab = actionTable{
 			reduce(25), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S414
+	actionRow{ // S417
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18655,8 +18790,8 @@ var actionTab = actionTable{
 			reduce(26), // >=, reduce: Expression2
 			reduce(26), // <, reduce: Expression2
 			reduce(26), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(26), // !, reduce: Expression2
@@ -18686,7 +18821,7 @@ var actionTab = actionTable{
 			reduce(26), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S415
+	actionRow{ // S418
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18700,8 +18835,8 @@ var actionTab = actionTable{
 			reduce(27), // >=, reduce: Expression2
 			reduce(27), // <, reduce: Expression2
 			reduce(27), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(27), // !, reduce: Expression2
@@ -18731,7 +18866,7 @@ var actionTab = actionTable{
 			reduce(27), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S416
+	actionRow{ // S419
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18745,8 +18880,8 @@ var actionTab = actionTable{
 			reduce(28), // >=, reduce: Expression2
 			reduce(28), // <, reduce: Expression2
 			reduce(28), // >, reduce: Expression2
-			shift(389), // +
-			shift(390), // -
+			shift(391), // +
+			shift(392), // -
 			nil,        // *
 			nil,        // /
 			reduce(28), // !, reduce: Expression2
@@ -18776,7 +18911,7 @@ var actionTab = actionTable{
 			reduce(28), // return, reduce: Expression2
 		},
 	},
-	actionRow{ // S417
+	actionRow{ // S420
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18792,8 +18927,8 @@ var actionTab = actionTable{
 			reduce(30), // >, reduce: Expression3
 			reduce(30), // +, reduce: Expression3
 			reduce(30), // -, reduce: Expression3
-			shift(391), // *
-			shift(392), // /
+			shift(393), // *
+			shift(394), // /
 			reduce(30), // !, reduce: Expression3
 			reduce(30), // (, reduce: Expression3
 			nil,        // )
@@ -18821,7 +18956,7 @@ var actionTab = actionTable{
 			reduce(30), // return, reduce: Expression3
 		},
 	},
-	actionRow{ // S418
+	actionRow{ // S421
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18837,8 +18972,8 @@ var actionTab = actionTable{
 			reduce(31), // >, reduce: Expression3
 			reduce(31), // +, reduce: Expression3
 			reduce(31), // -, reduce: Expression3
-			shift(391), // *
-			shift(392), // /
+			shift(393), // *
+			shift(394), // /
 			reduce(31), // !, reduce: Expression3
 			reduce(31), // (, reduce: Expression3
 			nil,        // )
@@ -18866,7 +19001,7 @@ var actionTab = actionTable{
 			reduce(31), // return, reduce: Expression3
 		},
 	},
-	actionRow{ // S419
+	actionRow{ // S422
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18911,7 +19046,7 @@ var actionTab = actionTable{
 			reduce(33), // return, reduce: Expression4
 		},
 	},
-	actionRow{ // S420
+	actionRow{ // S423
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -18956,7 +19091,7 @@ var actionTab = actionTable{
 			reduce(34), // return, reduce: Expression4
 		},
 	},
-	actionRow{ // S421
+	actionRow{ // S424
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19001,7 +19136,7 @@ var actionTab = actionTable{
 			reduce(45), // return, reduce: Expression5
 		},
 	},
-	actionRow{ // S422
+	actionRow{ // S425
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19021,7 +19156,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(432), // )
+			shift(437), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -19046,7 +19181,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S423
+	actionRow{ // S426
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19091,7 +19226,7 @@ var actionTab = actionTable{
 			reduce(64), // return, reduce: Assign
 		},
 	},
-	actionRow{ // S424
+	actionRow{ // S427
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19136,7 +19271,7 @@ var actionTab = actionTable{
 			reduce(53), // return, reduce: ListLiteral
 		},
 	},
-	actionRow{ // S425
+	actionRow{ // S428
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19157,7 +19292,7 @@ var actionTab = actionTable{
 			shift(337), // !
 			shift(338), // (
 			nil,        // )
-			shift(394), // id
+			shift(396), // id
 			shift(340), // int_lit
 			shift(341), // float_lit
 			shift(342), // string_lit
@@ -19181,7 +19316,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S426
+	actionRow{ // S429
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19217,7 +19352,7 @@ var actionTab = actionTable{
 			nil,        // {
 			reduce(67), // }, reduce: If
 			reduce(67), // if, reduce: If
-			shift(434), // else
+			shift(439), // else
 			reduce(67), // while, reduce: If
 			reduce(67), // for, reduce: If
 			nil,        // in
@@ -19226,7 +19361,7 @@ var actionTab = actionTable{
 			reduce(67), // return, reduce: If
 		},
 	},
-	actionRow{ // S427
+	actionRow{ // S430
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19271,7 +19406,7 @@ var actionTab = actionTable{
 			shift(353), // return
 		},
 	},
-	actionRow{ // S428
+	actionRow{ // S431
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19316,7 +19451,7 @@ var actionTab = actionTable{
 			reduce(71), // return, reduce: While
 		},
 	},
-	actionRow{ // S429
+	actionRow{ // S432
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19361,7 +19496,7 @@ var actionTab = actionTable{
 			shift(353), // return
 		},
 	},
-	actionRow{ // S430
+	actionRow{ // S433
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19406,7 +19541,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S431
+	actionRow{ // S434
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19426,8 +19561,8 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			shift(438), // )
-			nil,        // id
+			reduce(74), // ), reduce: Parameters
+			shift(356), // id
 			nil,        // int_lit
 			nil,        // float_lit
 			nil,        // string_lit
@@ -19451,7 +19586,97 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S432
+	actionRow{ // S435
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			reduce(78), // ␚, reduce: FunctionDefine
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			reduce(78), // !, reduce: FunctionDefine
+			reduce(78), // (, reduce: FunctionDefine
+			nil,        // )
+			reduce(78), // id, reduce: FunctionDefine
+			reduce(78), // int_lit, reduce: FunctionDefine
+			reduce(78), // float_lit, reduce: FunctionDefine
+			reduce(78), // string_lit, reduce: FunctionDefine
+			reduce(78), // true, reduce: FunctionDefine
+			reduce(78), // false, reduce: FunctionDefine
+			reduce(78), // nil, reduce: FunctionDefine
+			reduce(78), // [, reduce: FunctionDefine
+			nil,        // ]
+			nil,        // ,
+			reduce(78), // var, reduce: FunctionDefine
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			reduce(78), // if, reduce: FunctionDefine
+			nil,        // else
+			reduce(78), // while, reduce: FunctionDefine
+			reduce(78), // for, reduce: FunctionDefine
+			nil,        // in
+			reduce(78), // break, reduce: FunctionDefine
+			reduce(78), // func, reduce: FunctionDefine
+			reduce(78), // return, reduce: FunctionDefine
+		},
+	},
+	actionRow{ // S436
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			nil,        // !
+			nil,        // (
+			reduce(77), // ), reduce: ParameterList
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
+			nil,        // ]
+			reduce(77), // ,, reduce: ParameterList
+			nil,        // var
+			nil,        // =
+			nil,        // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S437
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19496,7 +19721,7 @@ var actionTab = actionTable{
 			reduce(58), // return, reduce: FunctionCall
 		},
 	},
-	actionRow{ // S433
+	actionRow{ // S438
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19541,7 +19766,7 @@ var actionTab = actionTable{
 			reduce(63), // return, reduce: Declare
 		},
 	},
-	actionRow{ // S434
+	actionRow{ // S439
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19574,7 +19799,7 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			shift(429), // {
+			shift(432), // {
 			nil,        // }
 			shift(348), // if
 			nil,        // else
@@ -19586,7 +19811,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S435
+	actionRow{ // S440
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19620,7 +19845,7 @@ var actionTab = actionTable{
 			nil,        // var
 			nil,        // =
 			nil,        // {
-			shift(442), // }
+			shift(447), // }
 			nil,        // if
 			nil,        // else
 			nil,        // while
@@ -19631,7 +19856,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S436
+	actionRow{ // S441
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19665,7 +19890,7 @@ var actionTab = actionTable{
 			nil,        // var
 			nil,        // =
 			nil,        // {
-			shift(443), // }
+			shift(448), // }
 			nil,        // if
 			nil,        // else
 			nil,        // while
@@ -19676,7 +19901,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S437
+	actionRow{ // S442
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19709,7 +19934,7 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			shift(429), // {
+			shift(432), // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -19721,7 +19946,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S438
+	actionRow{ // S443
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19741,7 +19966,7 @@ var actionTab = actionTable{
 			nil,        // /
 			nil,        // !
 			nil,        // (
-			nil,        // )
+			shift(450), // )
 			nil,        // id
 			nil,        // int_lit
 			nil,        // float_lit
@@ -19754,7 +19979,7 @@ var actionTab = actionTable{
 			nil,        // ,
 			nil,        // var
 			nil,        // =
-			shift(429), // {
+			nil,        // {
 			nil,        // }
 			nil,        // if
 			nil,        // else
@@ -19766,7 +19991,7 @@ var actionTab = actionTable{
 			nil,        // return
 		},
 	},
-	actionRow{ // S439
+	actionRow{ // S444
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19811,7 +20036,7 @@ var actionTab = actionTable{
 			reduce(69), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S440
+	actionRow{ // S445
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19856,7 +20081,7 @@ var actionTab = actionTable{
 			reduce(70), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S441
+	actionRow{ // S446
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19901,7 +20126,7 @@ var actionTab = actionTable{
 			reduce(68), // return, reduce: IfElse
 		},
 	},
-	actionRow{ // S442
+	actionRow{ // S447
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19946,7 +20171,7 @@ var actionTab = actionTable{
 			reduce(65), // return, reduce: Block
 		},
 	},
-	actionRow{ // S443
+	actionRow{ // S448
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -19991,7 +20216,7 @@ var actionTab = actionTable{
 			reduce(65), // return, reduce: Block
 		},
 	},
-	actionRow{ // S444
+	actionRow{ // S449
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -20036,7 +20261,7 @@ var actionTab = actionTable{
 			reduce(72), // return, reduce: For
 		},
 	},
-	actionRow{ // S445
+	actionRow{ // S450
 		canRecover: false,
 		actions: [numSymbols]action{
 			nil,        // INVALID
@@ -20054,31 +20279,76 @@ var actionTab = actionTable{
 			nil,        // -
 			nil,        // *
 			nil,        // /
-			reduce(74), // !, reduce: FunctionDefine
-			reduce(74), // (, reduce: FunctionDefine
+			nil,        // !
+			nil,        // (
 			nil,        // )
-			reduce(74), // id, reduce: FunctionDefine
-			reduce(74), // int_lit, reduce: FunctionDefine
-			reduce(74), // float_lit, reduce: FunctionDefine
-			reduce(74), // string_lit, reduce: FunctionDefine
-			reduce(74), // true, reduce: FunctionDefine
-			reduce(74), // false, reduce: FunctionDefine
-			reduce(74), // nil, reduce: FunctionDefine
-			reduce(74), // [, reduce: FunctionDefine
+			nil,        // id
+			nil,        // int_lit
+			nil,        // float_lit
+			nil,        // string_lit
+			nil,        // true
+			nil,        // false
+			nil,        // nil
+			nil,        // [
 			nil,        // ]
 			nil,        // ,
-			reduce(74), // var, reduce: FunctionDefine
+			nil,        // var
+			nil,        // =
+			shift(432), // {
+			nil,        // }
+			nil,        // if
+			nil,        // else
+			nil,        // while
+			nil,        // for
+			nil,        // in
+			nil,        // break
+			nil,        // func
+			nil,        // return
+		},
+	},
+	actionRow{ // S451
+		canRecover: false,
+		actions: [numSymbols]action{
+			nil,        // INVALID
+			nil,        // ␚
+			nil,        // empty
+			nil,        // &&
+			nil,        // ||
+			nil,        // ==
+			nil,        // !=
+			nil,        // <=
+			nil,        // >=
+			nil,        // <
+			nil,        // >
+			nil,        // +
+			nil,        // -
+			nil,        // *
+			nil,        // /
+			reduce(78), // !, reduce: FunctionDefine
+			reduce(78), // (, reduce: FunctionDefine
+			nil,        // )
+			reduce(78), // id, reduce: FunctionDefine
+			reduce(78), // int_lit, reduce: FunctionDefine
+			reduce(78), // float_lit, reduce: FunctionDefine
+			reduce(78), // string_lit, reduce: FunctionDefine
+			reduce(78), // true, reduce: FunctionDefine
+			reduce(78), // false, reduce: FunctionDefine
+			reduce(78), // nil, reduce: FunctionDefine
+			reduce(78), // [, reduce: FunctionDefine
+			nil,        // ]
+			nil,        // ,
+			reduce(78), // var, reduce: FunctionDefine
 			nil,        // =
 			nil,        // {
-			reduce(74), // }, reduce: FunctionDefine
-			reduce(74), // if, reduce: FunctionDefine
+			reduce(78), // }, reduce: FunctionDefine
+			reduce(78), // if, reduce: FunctionDefine
 			nil,        // else
-			reduce(74), // while, reduce: FunctionDefine
-			reduce(74), // for, reduce: FunctionDefine
+			reduce(78), // while, reduce: FunctionDefine
+			reduce(78), // for, reduce: FunctionDefine
 			nil,        // in
-			reduce(74), // break, reduce: FunctionDefine
-			reduce(74), // func, reduce: FunctionDefine
-			reduce(74), // return, reduce: FunctionDefine
+			reduce(78), // break, reduce: FunctionDefine
+			reduce(78), // func, reduce: FunctionDefine
+			reduce(78), // return, reduce: FunctionDefine
 		},
 	},
 }

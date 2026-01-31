@@ -1,0 +1,11 @@
+func greet(name) {
+    print("hello", name)
+}
+
+greet("world")
+
+func add(a, b) {
+    return a + b
+}
+
+print(add(1, 2))

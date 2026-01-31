@@ -205,8 +205,18 @@ Break
     : "break"                                << ast.NewBreak() >>
 ;
 
+Parameters
+    : empty
+    | ParameterList
+;
+
+ParameterList
+    : id                                     << ast.NewParameterList($0) >>
+    | ParameterList "," id                   << ast.AppendParameterList($0, $2) >>
+;
+
 FunctionDefine
-    : "func" id "(" ")" Block                << ast.NewFunctionDefine($1, $4) >>
+    : "func" id "(" Parameters ")" Block     << ast.NewFunctionDefine($1, $3, $5) >>
 ;
 
 Return
