@@ -245,8 +245,22 @@ type FunctionDefine struct {
 	Body       []Statement
 }
 
-func NewFunctionDefine(x, y any) (any, error) {
+func NewParameterList(x any) (any, error) {
 	name := string(x.(*token.Token).Lit)
+	return []string{name}, nil
+}
+
+func AppendParameterList(l any, x any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	return append(l.([]string), name), nil
+}
+
+func NewFunctionDefine(x, params, y any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	var parameters []string
+	if params != nil {
+		parameters = params.([]string)
+	}
 	var body []Statement
 	if y != nil {
 		body = y.([]Statement)
@@ -255,7 +269,7 @@ func NewFunctionDefine(x, y any) (any, error) {
 	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionDefine{
 		Name:       name,
-		Parameters: []string{},
+		Parameters: parameters,
 		Body:       body,
 	}, nil
 }

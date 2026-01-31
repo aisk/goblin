@@ -762,20 +762,60 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `FunctionDefine : "func" id "(" ")" Block	<< ast.NewFunctionDefine(X[1], X[4]) >>`,
-		Id:         "FunctionDefine",
+		String: `Parameters : empty	<<  >>`,
+		Id:         "Parameters",
 		NTType:     34,
 		Index:      74,
-		NumSymbols: 5,
+		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewFunctionDefine(X[1], X[4])
+			return nil, nil
+		},
+	},
+	ProdTabEntry{
+		String: `Parameters : ParameterList	<<  >>`,
+		Id:         "Parameters",
+		NTType:     34,
+		Index:      75,
+		NumSymbols: 1,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return X[0], nil
+		},
+	},
+	ProdTabEntry{
+		String: `ParameterList : id	<< ast.NewParameterList(X[0]) >>`,
+		Id:         "ParameterList",
+		NTType:     35,
+		Index:      76,
+		NumSymbols: 1,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewParameterList(X[0])
+		},
+	},
+	ProdTabEntry{
+		String: `ParameterList : ParameterList "," id	<< ast.AppendParameterList(X[0], X[2]) >>`,
+		Id:         "ParameterList",
+		NTType:     35,
+		Index:      77,
+		NumSymbols: 3,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.AppendParameterList(X[0], X[2])
+		},
+	},
+	ProdTabEntry{
+		String: `FunctionDefine : "func" id "(" Parameters ")" Block	<< ast.NewFunctionDefine(X[1], X[3], X[5]) >>`,
+		Id:         "FunctionDefine",
+		NTType:     36,
+		Index:      78,
+		NumSymbols: 6,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewFunctionDefine(X[1], X[3], X[5])
 		},
 	},
 	ProdTabEntry{
 		String: `Return : "return" Expression	<< ast.NewReturn(X[1]) >>`,
 		Id:         "Return",
-		NTType:     35,
-		Index:      75,
+		NTType:     37,
+		Index:      79,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturn(X[1])
