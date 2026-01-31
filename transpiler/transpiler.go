@@ -83,6 +83,41 @@ func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code
 	), nil
 }
 
+func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	var preStmts []jen.Code
+	var entries []jen.Code
+
+	for _, elem := range dict.Elements {
+		keyPre, key, err := transpileExpression(elem.Key, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		valuePre, value, err := transpileExpression(elem.Value, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		preStmts = append(preStmts, keyPre...)
+		preStmts = append(preStmts, valuePre...)
+		entries = append(entries, jen.Values(jen.Id("Key").Op(":").Add(key), jen.Id("Value").Op(":").Add(value)))
+	}
+
+	dictVar := localName("dict")
+	preStmts = append(preStmts,
+		jen.Id(dictVar).Op(":=").Op("&").Qual(pathObject, "Dict").Values(
+			jen.Id("Entries").Op(":").Index().Qual(pathObject, "DictEntry").Values(entries...),
+			jen.Id("Index").Op(":").Make(jen.Map(jen.String()).Int()),
+		),
+	)
+
+	for i := range dict.Elements {
+		preStmts = append(preStmts,
+			jen.Id(dictVar).Dot("Index").Index(jen.Id(dictVar).Dot("Entries").Index(jen.Lit(i)).Dot("Key").Dot("String").Call()).Op("=").Lit(i),
+		)
+	}
+
+	return preStmts, jen.Id(dictVar), nil
+}
+
 func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
@@ -111,6 +146,8 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 		return transpileUnaryOperation(v, onError)
 	case *ast.ListLiteral:
 		return transpileListLiteral(v, onError)
+	case *ast.DictLiteral:
+		return transpileDictLiteral(v, onError)
 	}
 	return nil, nil, object.NotImplementedError
 }

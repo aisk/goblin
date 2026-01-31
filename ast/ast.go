@@ -238,6 +238,41 @@ func NewListLiteral(x any) (any, error) {
 	}, nil
 }
 
+type DictElement struct {
+	Key   Expression
+	Value Expression
+}
+
+func NewDictElement(key, value any) (any, error) {
+	return &DictElement{
+		Key:   key.(Expression),
+		Value: value.(Expression),
+	}, nil
+}
+
+func NewDictElementList(x any) (any, error) {
+	return []*DictElement{x.(*DictElement)}, nil
+}
+
+func AppendDictElementList(l any, x any) (any, error) {
+	return append(l.([]*DictElement), x.(*DictElement)), nil
+}
+
+type DictLiteral struct {
+	expressionMixin
+	Elements []*DictElement
+}
+
+func NewDictLiteral(x any) (any, error) {
+	var elements []*DictElement
+	if x != nil {
+		elements = x.([]*DictElement)
+	}
+	return &DictLiteral{
+		Elements: elements,
+	}, nil
+}
+
 type FunctionDefine struct {
 	statementMixin
 	Name       string
