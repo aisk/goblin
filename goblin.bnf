@@ -106,6 +106,7 @@ Expression5
     | FalseLiteral
     | NilLiteral
     | ListLiteral
+    | DictLiteral
     | FunctionCall
     | Identifier
     | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
@@ -151,6 +152,24 @@ ListElements
 ListElementList
     : Expression                             << ast.NewExpressionList($0) >>
     | ListElementList "," Expression        << ast.AppendExpressionList($0, $2) >>
+;
+
+DictLiteral
+    : "{" DictElements "}"                   << ast.NewDictLiteral($1) >>
+;
+
+DictElements
+    : empty
+    | DictElementList
+;
+
+DictElementList
+    : DictElement                            << ast.NewDictElementList($0) >>
+    | DictElementList "," DictElement        << ast.AppendDictElementList($0, $2) >>
+;
+
+DictElement
+    : Expression ":" Expression              << ast.NewDictElement($0, $2) >>
 ;
 
 FunctionCall

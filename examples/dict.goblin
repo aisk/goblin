@@ -1,0 +1,11 @@
+# Dict basic test
+var empty = {}
+print(empty)
+
+var d = {"name": "Alice", "age": 30}
+print(d)
+
+# Iterate over dict keys
+for key in d {
+    print(key)
+}
