@@ -108,7 +108,7 @@ Expression5
     | ListLiteral
     | FunctionCall
     | Identifier
-    | "!" Expression4                        << ast.NewUnaryOperation("!", $1) >>
+    | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
     | "(" Expression ")"                     << $1, nil >>
 ;
 

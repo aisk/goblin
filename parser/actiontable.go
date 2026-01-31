@@ -2682,8 +2682,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(57),  // *
-			shift(58),  // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			reduce(44), // !, reduce: Expression5
 			reduce(44), // (, reduce: Expression5
 			nil,        // )
@@ -7722,8 +7722,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(169), // *
-			shift(170), // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			nil,        // !
 			nil,        // (
 			reduce(44), // ), reduce: Expression5
@@ -9702,8 +9702,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(213), // *
-			shift(214), // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			nil,        // !
 			nil,        // (
 			nil,        // )
@@ -10557,8 +10557,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(232), // *
-			shift(233), // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			nil,        // !
 			nil,        // (
 			nil,        // )
@@ -12222,8 +12222,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(269), // *
-			shift(270), // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			nil,        // !
 			nil,        // (
 			reduce(44), // ), reduce: Expression5
@@ -17802,8 +17802,8 @@ var actionTab = actionTable{
 			reduce(44), // >, reduce: Expression5
 			reduce(44), // +, reduce: Expression5
 			reduce(44), // -, reduce: Expression5
-			shift(393), // *
-			shift(394), // /
+			reduce(44), // *, reduce: Expression5
+			reduce(44), // /, reduce: Expression5
 			reduce(44), // !, reduce: Expression5
 			reduce(44), // (, reduce: Expression5
 			nil,        // )

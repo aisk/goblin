@@ -19,3 +19,8 @@ false || false: false
 true && (0 || 1): true
 !false && true: true
 !true || false: false
+Testing ! operator priority:
+!!true: true
+!!!true: false
+!!false: false
+!true || !false: true

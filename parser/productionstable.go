@@ -462,7 +462,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression5 : "!" Expression4	<< ast.NewUnaryOperation("!", X[1]) >>`,
+		String: `Expression5 : "!" Expression5	<< ast.NewUnaryOperation("!", X[1]) >>`,
 		Id:         "Expression5",
 		NTType:     11,
 		Index:      44,

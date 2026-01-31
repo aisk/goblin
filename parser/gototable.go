@@ -1181,8 +1181,8 @@ var gotoTab = gotoTable{
 		-1, // Expression1
 		-1, // Expression2
 		-1, // Expression3
-		59, // Expression4
-		19, // Expression5
+		-1, // Expression4
+		59, // Expression5
 		28, // Identifier
 		20, // IntegerLiteral
 		21, // FloatLiteral
@@ -3061,8 +3061,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		171, // Expression4
-		66,  // Expression5
+		-1,  // Expression4
+		171, // Expression5
 		75,  // Identifier
 		67,  // IntegerLiteral
 		68,  // FloatLiteral
@@ -4141,8 +4141,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		215, // Expression4
-		93,  // Expression5
+		-1,  // Expression4
+		215, // Expression5
 		102, // Identifier
 		94,  // IntegerLiteral
 		95,  // FloatLiteral
@@ -5261,8 +5261,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		234, // Expression4
-		121, // Expression5
+		-1,  // Expression4
+		234, // Expression5
 		130, // Identifier
 		122, // IntegerLiteral
 		123, // FloatLiteral
@@ -7621,8 +7621,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		271, // Expression4
-		180, // Expression5
+		-1,  // Expression4
+		271, // Expression5
 		189, // Identifier
 		181, // IntegerLiteral
 		182, // FloatLiteral
@@ -13501,8 +13501,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		395, // Expression4
-		327, // Expression5
+		-1,  // Expression4
+		395, // Expression5
 		336, // Identifier
 		328, // IntegerLiteral
 		329, // FloatLiteral
