@@ -1,6 +1,6 @@
 # goblin
 
-![logo](https://repository-images.githubusercontent.com/650676396/21de79b8-27e8-4269-a4ad-d4c3b3b743f7)
+![logo](https://repository-images.githubusercontent.com/650676396/467e8cc2-8df2-445a-a477-b7bb399394a2)
 
 Toy language built for fun.
 
