@@ -83,6 +83,26 @@ func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code
 	), nil
 }
 
+func transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	objPre, obj, err := transpileExpression(expr.Object, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	idxPre, idx, err := transpileExpression(expr.Index, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tmpVar := localName("tmp")
+	errVar := localName("err")
+	preStmts := append(objPre, idxPre...)
+	preStmts = append(preStmts,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("Index").Call(idx),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
 func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	var preStmts []jen.Code
 	var entries []jen.Code
@@ -105,13 +125,13 @@ func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code
 	preStmts = append(preStmts,
 		jen.Id(dictVar).Op(":=").Op("&").Qual(pathObject, "Dict").Values(
 			jen.Id("Entries").Op(":").Index().Qual(pathObject, "DictEntry").Values(entries...),
-			jen.Id("Index").Op(":").Make(jen.Map(jen.String()).Int()),
+			jen.Id("KeyIndex").Op(":").Make(jen.Map(jen.String()).Int()),
 		),
 	)
 
 	for i := range dict.Elements {
 		preStmts = append(preStmts,
-			jen.Id(dictVar).Dot("Index").Index(jen.Id(dictVar).Dot("Entries").Index(jen.Lit(i)).Dot("Key").Dot("String").Call()).Op("=").Lit(i),
+			jen.Id(dictVar).Dot("KeyIndex").Index(jen.Id(dictVar).Dot("Entries").Index(jen.Lit(i)).Dot("Key").Dot("String").Call()).Op("=").Lit(i),
 		)
 	}
 
@@ -148,6 +168,8 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 		return transpileListLiteral(v, onError)
 	case *ast.DictLiteral:
 		return transpileDictLiteral(v, onError)
+	case *ast.IndexExpression:
+		return transpileIndexExpression(v, onError)
 	}
 	return nil, nil, object.NotImplementedError
 }

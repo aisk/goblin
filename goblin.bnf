@@ -99,6 +99,16 @@ Expression4
 ;
 
 Expression5
+    : Expression6
+    | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
+;
+
+Expression6
+    : Expression7
+    | Expression6 "[" Expression "]"         << ast.NewIndexExpression($0, $2) >>
+;
+
+Expression7
     : IntegerLiteral
     | FloatLiteral
     | StringLiteral
@@ -109,7 +119,6 @@ Expression5
     | DictLiteral
     | FunctionCall
     | Identifier
-    | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
     | "(" Expression ")"                     << $1, nil >>
 ;
 

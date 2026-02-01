@@ -113,4 +113,8 @@ func (f Float) Iter() ([]Object, error) {
 	return nil, fmt.Errorf("Float does not support iteration")
 }
 
+func (f Float) Index(index Object) (Object, error) {
+	return nil, fmt.Errorf("Float is not indexable")
+}
+
 var _ Object = Float(0)

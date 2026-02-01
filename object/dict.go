@@ -11,30 +11,30 @@ type DictEntry struct {
 }
 
 type Dict struct {
-	Entries []DictEntry
-	Index   map[string]int
+	Entries  []DictEntry
+	KeyIndex map[string]int
 }
 
 func NewDict() *Dict {
 	return &Dict{
-		Entries: []DictEntry{},
-		Index:   make(map[string]int),
+		Entries:  []DictEntry{},
+		KeyIndex: make(map[string]int),
 	}
 }
 
 func (d *Dict) Set(key, value Object) {
 	keyStr := key.String()
-	if idx, ok := d.Index[keyStr]; ok {
+	if idx, ok := d.KeyIndex[keyStr]; ok {
 		d.Entries[idx].Value = value
 	} else {
-		d.Index[keyStr] = len(d.Entries)
+		d.KeyIndex[keyStr] = len(d.Entries)
 		d.Entries = append(d.Entries, DictEntry{Key: key, Value: value})
 	}
 }
 
 func (d *Dict) Get(key Object) (Object, bool) {
 	keyStr := key.String()
-	if idx, ok := d.Index[keyStr]; ok {
+	if idx, ok := d.KeyIndex[keyStr]; ok {
 		return d.Entries[idx].Value, true
 	}
 	return nil, false
@@ -98,6 +98,13 @@ func (d *Dict) Iter() ([]Object, error) {
 		keys[i] = entry.Key
 	}
 	return keys, nil
+}
+
+func (d *Dict) Index(index Object) (Object, error) {
+	if val, ok := d.Get(index); ok {
+		return val, nil
+	}
+	return nil, fmt.Errorf("key not found: %s", index.String())
 }
 
 var _ Object = &Dict{}

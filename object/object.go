@@ -13,6 +13,7 @@ type Object interface {
 	Or(other Object) (Object, error)
 	Not() (Object, error)
 	Iter() ([]Object, error)
+	Index(index Object) (Object, error)
 }
 
 type Args []Object
