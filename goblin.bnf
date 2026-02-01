@@ -99,16 +99,17 @@ Expression4
 ;
 
 Expression5
-    : Expression6
+    : PostfixExpression
     | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
 ;
 
-Expression6
-    : Expression7
-    | Expression6 "[" Expression "]"         << ast.NewIndexExpression($0, $2) >>
+PostfixExpression
+    : PrimaryExpression
+    | PostfixExpression "[" Expression "]"   << ast.NewIndexExpression($0, $2) >>
+    | PostfixExpression "(" Arguments ")"    << ast.NewCallExpression($0, $2) >>
 ;
 
-Expression7
+PrimaryExpression
     : IntegerLiteral
     | FloatLiteral
     | StringLiteral
@@ -117,13 +118,8 @@ Expression7
     | NilLiteral
     | ListLiteral
     | DictLiteral
-    | FunctionCall
-    | Identifier
+    | id                                     << ast.NewIdentifier($0) >>
     | "(" Expression ")"                     << $1, nil >>
-;
-
-Identifier
-    : id                                     << ast.NewIdentifier($0) >>
 ;
 
 IntegerLiteral
@@ -179,10 +175,6 @@ DictElementList
 
 DictElement
     : Expression ":" Expression              << ast.NewDictElement($0, $2) >>
-;
-
-FunctionCall
-    : id "(" Arguments ")"                   << ast.NewFunctionCall($0, $2) >>
 ;
 
 Arguments

@@ -68,6 +68,23 @@ func NewFunctionCall(x, y any) (any, error) {
 	}, nil
 }
 
+type CallExpression struct {
+	expressionMixin
+	Callee Expression
+	Args   []Expression
+}
+
+func NewCallExpression(callee, args any) (any, error) {
+	var argList []Expression
+	if args != nil {
+		argList = args.([]Expression)
+	}
+	return &CallExpression{
+		Callee: callee.(Expression),
+		Args:   argList,
+	}, nil
+}
+
 type Declare struct {
 	statementMixin
 	Name  string

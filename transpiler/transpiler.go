@@ -160,6 +160,18 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return preStmts, jen.Id(tmpVar), nil
+	case *ast.CallExpression:
+		argPreStmts, call, err := transpileCallExpression(v, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		tmpVar := localName("tmp")
+		errVar := localName("err")
+		preStmts := append(argPreStmts,
+			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return preStmts, jen.Id(tmpVar), nil
 	case *ast.BinaryOperation:
 		return transpileBinaryOperation(v, onError)
 	case *ast.UnaryOperation:
@@ -298,6 +310,28 @@ func transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Co
 	args := jen.Qual(pathObject, "Args").Values(l...)
 	kwargs := jen.Nil()
 	return argPreStmts, resolveFunctionName(call.Name).Call(args, kwargs), nil
+}
+
+func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	argPreStmts, l, err := transpileExpressions(call.Args, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	args := jen.Qual(pathObject, "Args").Values(l...)
+	kwargs := jen.Nil()
+
+	// If callee is an identifier, use resolveFunctionName for builtin support
+	if ident, ok := call.Callee.(*ast.Identifier); ok {
+		return argPreStmts, resolveFunctionName(ident.Name).Call(args, kwargs), nil
+	}
+
+	// Otherwise, transpile the callee expression and call it
+	calleePre, callee, err := transpileExpression(call.Callee, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	preStmts := append(calleePre, argPreStmts...)
+	return preStmts, callee.Call(args, kwargs), nil
 }
 
 func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
@@ -447,6 +481,17 @@ func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, err
 		return transpileAssign(v, onError)
 	case *ast.FunctionCall:
 		argPreStmts, call, err := transpileFunctionCall(v, onError)
+		if err != nil {
+			return nil, err
+		}
+		errVar := localName("err")
+		stmts := append(argPreStmts,
+			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return stmts, nil
+	case *ast.CallExpression:
+		argPreStmts, call, err := transpileCallExpression(v, onError)
 		if err != nil {
 			return nil, err
 		}

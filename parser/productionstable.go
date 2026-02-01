@@ -372,7 +372,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression5 : Expression6	<<  >>`,
+		String: `Expression5 : PostfixExpression	<<  >>`,
 		Id:         "Expression5",
 		NTType:     11,
 		Index:      35,
@@ -392,8 +392,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression6 : Expression7	<<  >>`,
-		Id:         "Expression6",
+		String: `PostfixExpression : PrimaryExpression	<<  >>`,
+		Id:         "PostfixExpression",
 		NTType:     12,
 		Index:      37,
 		NumSymbols: 1,
@@ -402,8 +402,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression6 : Expression6 "[" Expression "]"	<< ast.NewIndexExpression(X[0], X[2]) >>`,
-		Id:         "Expression6",
+		String: `PostfixExpression : PostfixExpression "[" Expression "]"	<< ast.NewIndexExpression(X[0], X[2]) >>`,
+		Id:         "PostfixExpression",
 		NTType:     12,
 		Index:      38,
 		NumSymbols: 4,
@@ -412,18 +412,18 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : IntegerLiteral	<<  >>`,
-		Id:         "Expression7",
-		NTType:     13,
+		String: `PostfixExpression : PostfixExpression "(" Arguments ")"	<< ast.NewCallExpression(X[0], X[2]) >>`,
+		Id:         "PostfixExpression",
+		NTType:     12,
 		Index:      39,
-		NumSymbols: 1,
+		NumSymbols: 4,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return X[0], nil
+			return ast.NewCallExpression(X[0], X[2])
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : FloatLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : IntegerLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      40,
 		NumSymbols: 1,
@@ -432,8 +432,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : StringLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : FloatLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      41,
 		NumSymbols: 1,
@@ -442,8 +442,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : TrueLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : StringLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      42,
 		NumSymbols: 1,
@@ -452,8 +452,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : FalseLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : TrueLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      43,
 		NumSymbols: 1,
@@ -462,8 +462,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : NilLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : FalseLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      44,
 		NumSymbols: 1,
@@ -472,8 +472,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : ListLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : NilLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      45,
 		NumSymbols: 1,
@@ -482,8 +482,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : DictLiteral	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : ListLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      46,
 		NumSymbols: 1,
@@ -492,8 +492,8 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : FunctionCall	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : DictLiteral	<<  >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      47,
 		NumSymbols: 1,
@@ -502,18 +502,18 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : Identifier	<<  >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : id	<< ast.NewIdentifier(X[0]) >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      48,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return X[0], nil
+			return ast.NewIdentifier(X[0])
 		},
 	},
 	ProdTabEntry{
-		String: `Expression7 : "(" Expression ")"	<< X[1], nil >>`,
-		Id:         "Expression7",
+		String: `PrimaryExpression : "(" Expression ")"	<< X[1], nil >>`,
+		Id:         "PrimaryExpression",
 		NTType:     13,
 		Index:      49,
 		NumSymbols: 3,
@@ -522,20 +522,10 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Identifier : id	<< ast.NewIdentifier(X[0]) >>`,
-		Id:         "Identifier",
-		NTType:     14,
-		Index:      50,
-		NumSymbols: 1,
-		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewIdentifier(X[0])
-		},
-	},
-	ProdTabEntry{
 		String: `IntegerLiteral : int_lit	<< ast.NewIntegerLiteral(X[0]) >>`,
 		Id:         "IntegerLiteral",
-		NTType:     15,
-		Index:      51,
+		NTType:     14,
+		Index:      50,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewIntegerLiteral(X[0])
@@ -544,8 +534,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `FloatLiteral : float_lit	<< ast.NewFloatLiteral(X[0]) >>`,
 		Id:         "FloatLiteral",
-		NTType:     16,
-		Index:      52,
+		NTType:     15,
+		Index:      51,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFloatLiteral(X[0])
@@ -554,8 +544,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `StringLiteral : string_lit	<< ast.NewStringLiteral(X[0]) >>`,
 		Id:         "StringLiteral",
-		NTType:     17,
-		Index:      53,
+		NTType:     16,
+		Index:      52,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewStringLiteral(X[0])
@@ -564,8 +554,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `TrueLiteral : "true"	<< ast.NewTrueLiteral() >>`,
 		Id:         "TrueLiteral",
-		NTType:     18,
-		Index:      54,
+		NTType:     17,
+		Index:      53,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewTrueLiteral()
@@ -574,8 +564,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `FalseLiteral : "false"	<< ast.NewFalseLiteral() >>`,
 		Id:         "FalseLiteral",
-		NTType:     19,
-		Index:      55,
+		NTType:     18,
+		Index:      54,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFalseLiteral()
@@ -584,8 +574,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `NilLiteral : "nil"	<< ast.NewNilLiteral() >>`,
 		Id:         "NilLiteral",
-		NTType:     20,
-		Index:      56,
+		NTType:     19,
+		Index:      55,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewNilLiteral()
@@ -594,8 +584,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ListLiteral : "[" ListElements "]"	<< ast.NewListLiteral(X[1]) >>`,
 		Id:         "ListLiteral",
-		NTType:     21,
-		Index:      57,
+		NTType:     20,
+		Index:      56,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewListLiteral(X[1])
@@ -604,8 +594,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ListElements : empty	<<  >>`,
 		Id:         "ListElements",
-		NTType:     22,
-		Index:      58,
+		NTType:     21,
+		Index:      57,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -614,8 +604,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ListElements : ListElementList	<<  >>`,
 		Id:         "ListElements",
-		NTType:     22,
-		Index:      59,
+		NTType:     21,
+		Index:      58,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -624,8 +614,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ListElementList : Expression	<< ast.NewExpressionList(X[0]) >>`,
 		Id:         "ListElementList",
-		NTType:     23,
-		Index:      60,
+		NTType:     22,
+		Index:      59,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExpressionList(X[0])
@@ -634,8 +624,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ListElementList : ListElementList "," Expression	<< ast.AppendExpressionList(X[0], X[2]) >>`,
 		Id:         "ListElementList",
-		NTType:     23,
-		Index:      61,
+		NTType:     22,
+		Index:      60,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendExpressionList(X[0], X[2])
@@ -644,8 +634,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictLiteral : "{" DictElements "}"	<< ast.NewDictLiteral(X[1]) >>`,
 		Id:         "DictLiteral",
-		NTType:     24,
-		Index:      62,
+		NTType:     23,
+		Index:      61,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewDictLiteral(X[1])
@@ -654,8 +644,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictElements : empty	<<  >>`,
 		Id:         "DictElements",
-		NTType:     25,
-		Index:      63,
+		NTType:     24,
+		Index:      62,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -664,8 +654,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictElements : DictElementList	<<  >>`,
 		Id:         "DictElements",
-		NTType:     25,
-		Index:      64,
+		NTType:     24,
+		Index:      63,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -674,8 +664,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictElementList : DictElement	<< ast.NewDictElementList(X[0]) >>`,
 		Id:         "DictElementList",
-		NTType:     26,
-		Index:      65,
+		NTType:     25,
+		Index:      64,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewDictElementList(X[0])
@@ -684,8 +674,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictElementList : DictElementList "," DictElement	<< ast.AppendDictElementList(X[0], X[2]) >>`,
 		Id:         "DictElementList",
-		NTType:     26,
-		Index:      66,
+		NTType:     25,
+		Index:      65,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendDictElementList(X[0], X[2])
@@ -694,28 +684,18 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `DictElement : Expression ":" Expression	<< ast.NewDictElement(X[0], X[2]) >>`,
 		Id:         "DictElement",
-		NTType:     27,
-		Index:      67,
+		NTType:     26,
+		Index:      66,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewDictElement(X[0], X[2])
 		},
 	},
 	ProdTabEntry{
-		String: `FunctionCall : id "(" Arguments ")"	<< ast.NewFunctionCall(X[0], X[2]) >>`,
-		Id:         "FunctionCall",
-		NTType:     28,
-		Index:      68,
-		NumSymbols: 4,
-		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewFunctionCall(X[0], X[2])
-		},
-	},
-	ProdTabEntry{
 		String: `Arguments : empty	<<  >>`,
 		Id:         "Arguments",
-		NTType:     29,
-		Index:      69,
+		NTType:     27,
+		Index:      67,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -724,8 +704,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Arguments : ArgumentList	<<  >>`,
 		Id:         "Arguments",
-		NTType:     29,
-		Index:      70,
+		NTType:     27,
+		Index:      68,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -734,8 +714,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ArgumentList : Expression	<< ast.NewExpressionList(X[0]) >>`,
 		Id:         "ArgumentList",
-		NTType:     30,
-		Index:      71,
+		NTType:     28,
+		Index:      69,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExpressionList(X[0])
@@ -744,8 +724,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ArgumentList : ArgumentList "," Expression	<< ast.AppendExpressionList(X[0], X[2]) >>`,
 		Id:         "ArgumentList",
-		NTType:     30,
-		Index:      72,
+		NTType:     28,
+		Index:      70,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendExpressionList(X[0], X[2])
@@ -754,8 +734,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Declare : "var" id "=" Expression	<< ast.NewDeclare(X[1], X[3]) >>`,
 		Id:         "Declare",
-		NTType:     31,
-		Index:      73,
+		NTType:     29,
+		Index:      71,
 		NumSymbols: 4,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewDeclare(X[1], X[3])
@@ -764,8 +744,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Assign : id "=" Expression	<< ast.NewAssign(X[0], X[2]) >>`,
 		Id:         "Assign",
-		NTType:     32,
-		Index:      74,
+		NTType:     30,
+		Index:      72,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewAssign(X[0], X[2])
@@ -774,8 +754,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Block : "{" Statements "}"	<< X[1], nil >>`,
 		Id:         "Block",
-		NTType:     33,
-		Index:      75,
+		NTType:     31,
+		Index:      73,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[1], nil
@@ -784,8 +764,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Condition : Expression	<<  >>`,
 		Id:         "Condition",
-		NTType:     34,
-		Index:      76,
+		NTType:     32,
+		Index:      74,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -794,8 +774,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `If : "if" Condition Block	<< ast.NewIf(X[1], X[2], nil) >>`,
 		Id:         "If",
-		NTType:     35,
-		Index:      77,
+		NTType:     33,
+		Index:      75,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewIf(X[1], X[2], nil)
@@ -804,8 +784,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `IfElse : "if" Condition Block "else" Block	<< ast.NewIf(X[1], X[2], X[4]) >>`,
 		Id:         "IfElse",
-		NTType:     36,
-		Index:      78,
+		NTType:     34,
+		Index:      76,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewIf(X[1], X[2], X[4])
@@ -814,8 +794,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `IfElse : "if" Condition Block "else" If	<< ast.NewIf(X[1], X[2], X[4]) >>`,
 		Id:         "IfElse",
-		NTType:     36,
-		Index:      79,
+		NTType:     34,
+		Index:      77,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewIf(X[1], X[2], X[4])
@@ -824,8 +804,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `IfElse : "if" Condition Block "else" IfElse	<< ast.NewIf(X[1], X[2], X[4]) >>`,
 		Id:         "IfElse",
-		NTType:     36,
-		Index:      80,
+		NTType:     34,
+		Index:      78,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewIf(X[1], X[2], X[4])
@@ -834,8 +814,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `While : "while" Condition Block	<< ast.NewWhile(X[1], X[2]) >>`,
 		Id:         "While",
-		NTType:     37,
-		Index:      81,
+		NTType:     35,
+		Index:      79,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewWhile(X[1], X[2])
@@ -844,8 +824,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `For : "for" id "in" Expression Block	<< ast.NewFor(X[1], X[3], X[4]) >>`,
 		Id:         "For",
-		NTType:     38,
-		Index:      82,
+		NTType:     36,
+		Index:      80,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFor(X[1], X[3], X[4])
@@ -854,8 +834,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Break : "break"	<< ast.NewBreak() >>`,
 		Id:         "Break",
-		NTType:     39,
-		Index:      83,
+		NTType:     37,
+		Index:      81,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewBreak()
@@ -864,8 +844,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Parameters : empty	<<  >>`,
 		Id:         "Parameters",
-		NTType:     40,
-		Index:      84,
+		NTType:     38,
+		Index:      82,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -874,8 +854,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Parameters : ParameterList	<<  >>`,
 		Id:         "Parameters",
-		NTType:     40,
-		Index:      85,
+		NTType:     38,
+		Index:      83,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -884,8 +864,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ParameterList : id	<< ast.NewParameterList(X[0]) >>`,
 		Id:         "ParameterList",
-		NTType:     41,
-		Index:      86,
+		NTType:     39,
+		Index:      84,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewParameterList(X[0])
@@ -894,8 +874,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `ParameterList : ParameterList "," id	<< ast.AppendParameterList(X[0], X[2]) >>`,
 		Id:         "ParameterList",
-		NTType:     41,
-		Index:      87,
+		NTType:     39,
+		Index:      85,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendParameterList(X[0], X[2])
@@ -904,8 +884,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `FunctionDefine : "func" id "(" Parameters ")" Block	<< ast.NewFunctionDefine(X[1], X[3], X[5]) >>`,
 		Id:         "FunctionDefine",
-		NTType:     42,
-		Index:      88,
+		NTType:     40,
+		Index:      86,
 		NumSymbols: 6,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFunctionDefine(X[1], X[3], X[5])
@@ -914,8 +894,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Return : "return" Expression	<< ast.NewReturn(X[1]) >>`,
 		Id:         "Return",
-		NTType:     43,
-		Index:      89,
+		NTType:     41,
+		Index:      87,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturn(X[1])
