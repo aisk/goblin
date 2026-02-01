@@ -92,4 +92,8 @@ func (s String) Iter() ([]Object, error) {
 	return result, nil
 }
 
+func (s String) Index(index Object) (Object, error) {
+	return nil, fmt.Errorf("String is not indexable")
+}
+
 var _ Object = String("")

@@ -61,4 +61,8 @@ func (n Unit) Iter() ([]Object, error) {
 	return nil, fmt.Errorf("Nil does not support iteration")
 }
 
+func (n Unit) Index(index Object) (Object, error) {
+	return nil, fmt.Errorf("Nil is not indexable")
+}
+
 var _ Object = Unit{}

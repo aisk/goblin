@@ -85,4 +85,16 @@ func (l *List) Iter() ([]Object, error) {
 	return l.Elements, nil
 }
 
+func (l *List) Index(index Object) (Object, error) {
+	idx, ok := index.(Integer)
+	if !ok {
+		return nil, fmt.Errorf("list index must be integer, got %T", index)
+	}
+	i := int(idx)
+	if i < 0 || i >= len(l.Elements) {
+		return nil, fmt.Errorf("list index out of range: %d", i)
+	}
+	return l.Elements[i], nil
+}
+
 var _ Object = &List{}

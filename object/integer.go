@@ -113,4 +113,8 @@ func (i Integer) Iter() ([]Object, error) {
 	return nil, fmt.Errorf("Integer does not support iteration")
 }
 
+func (i Integer) Index(index Object) (Object, error) {
+	return nil, fmt.Errorf("Integer is not indexable")
+}
+
 var _ Object = Integer(0)

@@ -58,6 +58,10 @@ func (e *Error) Iter() ([]Object, error) {
 	return nil, fmt.Errorf("Error does not support iteration")
 }
 
+func (e *Error) Index(index Object) (Object, error) {
+	return nil, fmt.Errorf("Error is not indexable")
+}
+
 func (e *Error) Error() string {
 	return e.Value
 }

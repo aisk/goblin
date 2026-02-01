@@ -1,0 +1,15 @@
+# Test list indexing
+var list = [1, 2, 3]
+print(list[0])
+print(list[1])
+print(list[2])
+
+# Test dict indexing
+var dict = {"name": "Alice", "age": 30}
+print(dict["name"])
+print(dict["age"])
+
+# Test nested indexing
+var nested = [[1, 2], [3, 4]]
+print(nested[0][1])
+print(nested[1][0])

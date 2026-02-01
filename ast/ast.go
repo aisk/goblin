@@ -373,3 +373,16 @@ func NewUnaryOperation(operator, operand any) (any, error) {
 		Operator: operator.(string),
 	}, nil
 }
+
+type IndexExpression struct {
+	expressionMixin
+	Object Expression
+	Index  Expression
+}
+
+func NewIndexExpression(obj, idx any) (any, error) {
+	return &IndexExpression{
+		Object: obj.(Expression),
+		Index:  idx.(Expression),
+	}, nil
+}
