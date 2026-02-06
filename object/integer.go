@@ -117,4 +117,8 @@ func (i Integer) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("Integer is not indexable")
 }
 
+func (i Integer) GetAttr(name string) (Object, error) {
+	return nil, fmt.Errorf("Integer has no attribute '%s'", name)
+}
+
 var _ Object = Integer(0)

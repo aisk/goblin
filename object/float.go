@@ -117,4 +117,8 @@ func (f Float) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("Float is not indexable")
 }
 
+func (f Float) GetAttr(name string) (Object, error) {
+	return nil, fmt.Errorf("Float has no attribute '%s'", name)
+}
+
 var _ Object = Float(0)

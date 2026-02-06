@@ -403,3 +403,16 @@ func NewIndexExpression(obj, idx any) (any, error) {
 		Index:  idx.(Expression),
 	}, nil
 }
+
+type MemberExpression struct {
+	expressionMixin
+	Object   Expression
+	Property string
+}
+
+func NewMemberExpression(obj, prop any) (any, error) {
+	return &MemberExpression{
+		Object:   obj.(Expression),
+		Property: string(prop.(*token.Token).Lit),
+	}, nil
+}

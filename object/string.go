@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"strings"
 )
 
 type String string
@@ -94,6 +95,23 @@ func (s String) Iter() ([]Object, error) {
 
 func (s String) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("String is not indexable")
+}
+
+func (s String) GetAttr(name string) (Object, error) {
+	switch name {
+	case "size":
+		return Integer(len([]rune(string(s)))), nil
+	case "upper":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			return String(strings.ToUpper(string(s))), nil
+		}}, nil
+	case "lower":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			return String(strings.ToLower(string(s))), nil
+		}}, nil
+	default:
+		return nil, fmt.Errorf("String has no attribute '%s'", name)
+	}
 }
 
 var _ Object = String("")

@@ -138,6 +138,21 @@ func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code
 	return preStmts, jen.Id(dictVar), nil
 }
 
+func transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	objPre, obj, err := transpileExpression(expr.Object, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tmpVar := localName("attr")
+	errVar := localName("err")
+	preStmts := append(objPre,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(expr.Property)),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
 func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
@@ -182,6 +197,8 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 		return transpileDictLiteral(v, onError)
 	case *ast.IndexExpression:
 		return transpileIndexExpression(v, onError)
+	case *ast.MemberExpression:
+		return transpileMemberExpression(v, onError)
 	}
 	return nil, nil, object.NotImplementedError
 }
@@ -323,6 +340,22 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 	// If callee is an identifier, use resolveFunctionName for builtin support
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
 		return argPreStmts, resolveFunctionName(ident.Name).Call(args, kwargs), nil
+	}
+
+	// If callee is a MemberExpression, use GetAttr + Method.Call
+	if member, ok := call.Callee.(*ast.MemberExpression); ok {
+		objPre, obj, err := transpileExpression(member.Object, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		attrVar := localName("attr")
+		errVar := localName("err")
+		preStmts := append(objPre, argPreStmts...)
+		preStmts = append(preStmts,
+			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(member.Property)),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return preStmts, jen.Id(attrVar).Assert(jen.Op("*").Qual(pathObject, "Method")).Dot("Call").Call(args, kwargs), nil
 	}
 
 	// Otherwise, transpile the callee expression and call it
@@ -518,6 +551,9 @@ func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, err
 		return pre, err
 	case *ast.UnaryOperation:
 		pre, _, err := transpileUnaryOperation(v, onError)
+		return pre, err
+	case *ast.MemberExpression:
+		pre, _, err := transpileMemberExpression(v, onError)
 		return pre, err
 	}
 	return nil, object.NotImplementedError

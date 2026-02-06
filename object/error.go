@@ -66,6 +66,10 @@ func (e *Error) Error() string {
 	return e.Value
 }
 
+func (e *Error) GetAttr(name string) (Object, error) {
+	return nil, fmt.Errorf("Error has no attribute '%s'", name)
+}
+
 var _ Object = (*Error)(nil)
 var _ error = (*Error)(nil)
 

@@ -14,6 +14,7 @@ type Object interface {
 	Not() (Object, error)
 	Iter() ([]Object, error)
 	Index(index Object) (Object, error)
+	GetAttr(name string) (Object, error)
 }
 
 type Args []Object

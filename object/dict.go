@@ -107,4 +107,29 @@ func (d *Dict) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("key not found: %s", index.String())
 }
 
+func (d *Dict) GetAttr(name string) (Object, error) {
+	switch name {
+	case "size":
+		return Integer(len(d.Entries)), nil
+	case "keys":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			keys := make([]Object, len(d.Entries))
+			for i, entry := range d.Entries {
+				keys[i] = entry.Key
+			}
+			return &List{Elements: keys}, nil
+		}}, nil
+	case "values":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			values := make([]Object, len(d.Entries))
+			for i, entry := range d.Entries {
+				values[i] = entry.Value
+			}
+			return &List{Elements: values}, nil
+		}}, nil
+	default:
+		return nil, fmt.Errorf("Dict has no attribute '%s'", name)
+	}
+}
+
 var _ Object = &Dict{}
