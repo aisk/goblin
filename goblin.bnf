@@ -107,6 +107,7 @@ PostfixExpression
     : PrimaryExpression
     | PostfixExpression "[" Expression "]"   << ast.NewIndexExpression($0, $2) >>
     | PostfixExpression "(" Arguments ")"    << ast.NewCallExpression($0, $2) >>
+    | PostfixExpression "." id               << ast.NewMemberExpression($0, $2) >>
 ;
 
 PrimaryExpression

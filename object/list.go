@@ -97,4 +97,27 @@ func (l *List) Index(index Object) (Object, error) {
 	return l.Elements[i], nil
 }
 
+func (l *List) GetAttr(name string) (Object, error) {
+	switch name {
+	case "size":
+		return Integer(len(l.Elements)), nil
+	case "push":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			l.Elements = append(l.Elements, args...)
+			return l, nil
+		}}, nil
+	case "pop":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(l.Elements) == 0 {
+				return nil, fmt.Errorf("pop from empty list")
+			}
+			last := l.Elements[len(l.Elements)-1]
+			l.Elements = l.Elements[:len(l.Elements)-1]
+			return last, nil
+		}}, nil
+	default:
+		return nil, fmt.Errorf("List has no attribute '%s'", name)
+	}
+}
+
 var _ Object = &List{}

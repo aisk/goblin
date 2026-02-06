@@ -1,0 +1,16 @@
+var items = [1, 2, 3]
+print(items.size)
+items.push(4)
+print(items.size)
+print(items.pop())
+print(items)
+
+var d = {"a": 1, "b": 2}
+print(d.size)
+print(d.keys())
+print(d.values())
+
+var s = "hello"
+print(s.size)
+print(s.upper())
+print(s.lower())

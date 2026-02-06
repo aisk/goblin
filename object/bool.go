@@ -93,4 +93,8 @@ func (b Bool) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("Bool is not indexable")
 }
 
+func (b Bool) GetAttr(name string) (Object, error) {
+	return nil, fmt.Errorf("Bool has no attribute '%s'", name)
+}
+
 var _ Object = Bool(true)

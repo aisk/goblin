@@ -65,4 +65,8 @@ func (n Unit) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("Nil is not indexable")
 }
 
+func (n Unit) GetAttr(name string) (Object, error) {
+	return nil, fmt.Errorf("Nil has no attribute '%s'", name)
+}
+
 var _ Object = Unit{}
