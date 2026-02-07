@@ -1,0 +1,30 @@
+# if
+if true {
+    print("if works")
+}
+
+# if/else
+if false {
+    print("wrong")
+} else {
+    print("else works")
+}
+
+# if/else if/else
+if false {
+    print("wrong")
+} else if true {
+    print("else if works")
+} else {
+    print("wrong")
+}
+
+# while + break
+var count = 0
+while true {
+    print(count)
+    count = count + 1
+    if count == 3 {
+        break
+    }
+}

@@ -1,11 +1,20 @@
-# Dict basic test
+# Dict creation
 var empty = {}
 print(empty)
 
 var d = {"name": "Alice", "age": 30}
 print(d)
 
-# Iterate over dict keys
+# Dict indexing
+print(d["name"])
+print(d["age"])
+
+# Dict methods
+print(d.size)
+print(d.keys())
+print(d.values())
+
+# Dict iteration
 for key in d {
     print(key)
 }

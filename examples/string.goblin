@@ -1,0 +1,16 @@
+# String concatenation
+print("hello" + " " + "world")
+
+# String methods
+var s = "hello"
+print(s.size)
+print(s.upper())
+print(s.lower())
+
+# String iteration
+for ch in "abc" {
+    print(ch)
+}
+
+# String multiplication
+print("ha" * 3)

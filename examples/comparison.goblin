@@ -1,46 +1,33 @@
 # Integer comparisons
-print("1 == 1:", 1 == 1)
-print("1 == 2:", 1 == 2)
-print("1 != 2:", 1 != 2)
-print("1 != 1:", 1 != 1)
-print("1 < 2:", 1 < 2)
-print("2 < 1:", 2 < 1)
-print("2 > 1:", 2 > 1)
-print("1 > 2:", 1 > 2)
-print("1 <= 1:", 1 <= 1)
-print("1 <= 2:", 1 <= 2)
-print("2 <= 1:", 2 <= 1)
-print("1 >= 1:", 1 >= 1)
-print("2 >= 1:", 2 >= 1)
-print("1 >= 2:", 1 >= 2)
+print(1 == 1)
+print(1 == 2)
+print(1 != 2)
+print(1 < 2)
+print(2 > 1)
+print(1 <= 1)
+print(1 >= 1)
 
 # Float comparisons
-print("1.5 < 2.5:", 1.5 < 2.5)
-print("2.5 > 1.5:", 2.5 > 1.5)
-print("1.0 == 1.0:", 1.0 == 1.0)
+print(1.5 < 2.5)
+print(1.0 == 1.0)
 
-# Cross-type Integer/Float
-print("1 < 1.5:", 1 < 1.5)
-print("1.5 > 1:", 1.5 > 1)
+# Cross-type int/float
+print(1 < 1.5)
+print(1.5 > 1)
 
 # String comparisons
-print("\"abc\" == \"abc\":", "abc" == "abc")
-print("\"abc\" != \"def\":", "abc" != "def")
-print("\"abc\" < \"def\":", "abc" < "def")
+print("abc" == "abc")
+print("abc" != "def")
+print("abc" < "def")
 
 # Bool comparisons
-print("true == true:", true == true)
-print("true != false:", true != false)
-print("false < true:", false < true)
+print(true == true)
+print(true != false)
 
-# Nil comparisons
-print("nil == nil:", nil == nil)
-
-# Comparison with logical operators
-print("1 < 2 && 3 > 2:", 1 < 2 && 3 > 2)
-print("1 > 2 || 3 > 2:", 1 > 2 || 3 > 2)
+# Nil comparison
+print(nil == nil)
 
 # Comparison in if
 if 10 > 5 {
-    print("10 > 5: yes")
+    print("10 is greater")
 }

@@ -1,0 +1,15 @@
+# Variable declaration and assignment
+var a = 123
+print(a)
+a = 456
+print(a)
+
+# Different types
+var s = "hello"
+print(s)
+var b = true
+print(b)
+var f = 3.14
+print(f)
+var n = nil
+print(n)

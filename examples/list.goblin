@@ -1,0 +1,18 @@
+# List creation and indexing
+var list = [1, 2, 3]
+print(list)
+print(list[0])
+print(list[1])
+print(list[2])
+
+# Nested list indexing
+var nested = [[1, 2], [3, 4]]
+print(nested[0][1])
+print(nested[1][0])
+
+# List methods
+print(list.size)
+list.push(4)
+print(list.size)
+print(list.pop())
+print(list)
