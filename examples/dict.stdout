@@ -1,4 +1,9 @@
 {}
 {name: Alice, age: 30}
+Alice
+30
+2
+[name, age]
+[Alice, 30]
 name
 age

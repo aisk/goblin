@@ -1,0 +1,19 @@
+# Integer arithmetic
+print(1 + 2)
+print(10 - 3)
+print(4 * 5)
+print(10 / 2)
+
+# Operator precedence
+print(1 + 2 * 3)
+print((1 + 2) * 3)
+
+# Float arithmetic
+print(3.14)
+print(2.5 + 1.5)
+print(5.0 * 2.0)
+print(10.0 / 2.0)
+
+# Mixed int/float
+print(3.5 + 2)
+print(10 / 2.5)

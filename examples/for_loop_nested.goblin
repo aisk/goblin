@@ -1,6 +1,0 @@
-var list = [[1, 2], [3, 4]]
-for inner in list {
-    for x in inner {
-        print(x)
-    }
-}

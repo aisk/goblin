@@ -1,0 +1,23 @@
+# Basic function
+func hello() {
+    print("hello!")
+}
+hello()
+
+# Function with params and return
+func add(a, b) {
+    return a + b
+}
+print(add(1, 2))
+
+# Function with string param
+func greet(name) {
+    print("hello", name)
+}
+greet("world")
+
+# First-class function
+func apply(f, a, b) {
+    return f(a, b)
+}
+print(apply(add, 3, 4))

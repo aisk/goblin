@@ -1,0 +1,25 @@
+# Basic AND/OR
+print(true && true)
+print(true && false)
+print(false || true)
+print(false || false)
+
+# NOT operator
+print(!true)
+print(!false)
+print(!!true)
+print(!!!true)
+
+# Truthiness with integers
+print(1 && 0)
+print(1 || 0)
+print(0 || 1)
+
+# Truthiness with strings
+print("hello" && "")
+print("" || "hello")
+
+# Compound expressions
+print((1 && 0) || true)
+print(!false && true)
+print(!true || !false)
