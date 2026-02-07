@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Object interface {
 	Repr() string
 	String() string
@@ -19,3 +21,13 @@ type Object interface {
 
 type Args []Object
 type KwArgs map[string]Object
+
+func Call(obj Object, args Args, kwargs KwArgs) (Object, error) {
+	switch v := obj.(type) {
+	case *Function:
+		return v.Call(args, kwargs)
+	case *Method:
+		return v.Call(args, kwargs)
+	}
+	return nil, fmt.Errorf("%s is not callable", obj.Repr())
+}

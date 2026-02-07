@@ -217,14 +217,22 @@ func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Cod
 	return allPreStmts, results, nil
 }
 
-func resolveFunctionName(name string) *jen.Statement {
+func isBuiltinFunction(name string) bool {
+	switch name {
+	case "print", "range":
+		return true
+	}
+	return false
+}
+
+func resolveBuiltinName(name string) *jen.Statement {
 	switch name {
 	case "print":
 		return jen.Qual(pathBuiltin, "Print")
 	case "range":
 		return jen.Qual(pathBuiltin, "Range")
 	}
-	return jen.Id(name)
+	return nil
 }
 
 func transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
@@ -326,7 +334,10 @@ func transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Co
 	}
 	args := jen.Qual(pathObject, "Args").Values(l...)
 	kwargs := jen.Nil()
-	return argPreStmts, resolveFunctionName(call.Name).Call(args, kwargs), nil
+	if isBuiltinFunction(call.Name) {
+		return argPreStmts, resolveBuiltinName(call.Name).Call(args, kwargs), nil
+	}
+	return argPreStmts, jen.Qual(pathObject, "Call").Call(jen.Id(call.Name), args, kwargs), nil
 }
 
 func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -337,12 +348,15 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 	args := jen.Qual(pathObject, "Args").Values(l...)
 	kwargs := jen.Nil()
 
-	// If callee is an identifier, use resolveFunctionName for builtin support
+	// If callee is an identifier, check for builtins first
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
-		return argPreStmts, resolveFunctionName(ident.Name).Call(args, kwargs), nil
+		if isBuiltinFunction(ident.Name) {
+			return argPreStmts, resolveBuiltinName(ident.Name).Call(args, kwargs), nil
+		}
+		return argPreStmts, jen.Qual(pathObject, "Call").Call(jen.Id(ident.Name), args, kwargs), nil
 	}
 
-	// If callee is a MemberExpression, use GetAttr + Method.Call
+	// If callee is a MemberExpression, use GetAttr + object.Call
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
 		objPre, obj, err := transpileExpression(member.Object, onError)
 		if err != nil {
@@ -355,16 +369,16 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(member.Property)),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
-		return preStmts, jen.Id(attrVar).Assert(jen.Op("*").Qual(pathObject, "Method")).Dot("Call").Call(args, kwargs), nil
+		return preStmts, jen.Qual(pathObject, "Call").Call(jen.Id(attrVar), args, kwargs), nil
 	}
 
-	// Otherwise, transpile the callee expression and call it
+	// Otherwise, transpile the callee expression and call via object.Call
 	calleePre, callee, err := transpileExpression(call.Callee, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 	preStmts := append(calleePre, argPreStmts...)
-	return preStmts, callee.Call(args, kwargs), nil
+	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args, kwargs), nil
 }
 
 func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
@@ -389,11 +403,16 @@ func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.
 
 	body = append(argsDefine, body...)
 
-	result := jen.Id(fn.Name).Op(":=").Func().Params(
+	closure := jen.Func().Params(
 		jen.Id(argsName).Qual(pathObject, "Args"), jen.Id(kwargsName).Qual(pathObject, "KwArgs"),
 	).Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Id("error")),
 	).Block(body...)
+
+	result := jen.Var().Id(fn.Name).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
+		jen.Id("Name").Op(":").Lit(fn.Name),
+		jen.Id("Fn").Op(":").Add(closure),
+	)
 
 	result.Op(";").Id("_").Op("=").Id(fn.Name)
 
