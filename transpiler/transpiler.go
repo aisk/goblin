@@ -32,17 +32,35 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	localNameCounter = 0
 	f := jen.NewFile(mod.Name)
 
+	exportsVar := localName("exports")
+
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Id(errVar))
 	}
 
-	stmts, err := transpileStatements(mod.Body, onError)
+	stmts, err := transpileStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
 	}
-	f.Func().Id("Execute").Params().Error().Block(append(stmts, jen.Return(jen.Nil()))...)
+
+	body := []jen.Code{
+		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
+	}
+	body = append(body, stmts...)
+	body = append(body,
+		jen.Return(
+			jen.Op("&").Qual(pathObject, "Module").Values(
+				jen.Id("Members").Op(":").Id(exportsVar),
+			),
+			jen.Nil(),
+		),
+	)
+
+	f.Func().Id("Execute").Params().Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Error(),
+	)).Block(body...)
 	f.Func().Id("main").Params().Block(
-		jen.Id("err").Op(":=").Id("Execute").Call(),
+		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
 			jen.Panic(jen.Id("err")),
 		),
@@ -260,11 +278,11 @@ func transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(ifelse.IfBody, onError)
+	body, err := transpileStatements(ifelse.IfBody, onError, "")
 	if err != nil {
 		return nil, err
 	}
-	elseBody, err := transpileStatements(ifelse.ElseBody, onError)
+	elseBody, err := transpileStatements(ifelse.ElseBody, onError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +295,7 @@ func transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(while_.Body, onError)
+	body, err := transpileStatements(while_.Body, onError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +321,7 @@ func transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(for_.Body, onError)
+	body, err := transpileStatements(for_.Body, onError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -396,7 +414,7 @@ func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 	}
 
-	body, err := transpileStatements(fn.Body, fnOnError)
+	body, err := transpileStatements(fn.Body, fnOnError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -525,7 +543,13 @@ func transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) 
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, error) {
+func transpileExport(export *ast.Export, exportsVar string) ([]jen.Code, error) {
+	return []jen.Code{
+		jen.Id(exportsVar).Index(jen.Lit(export.Name)).Op("=").Id(export.Name),
+	}, nil
+}
+
+func transpileStatement(stmt ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
 		return transpileDeclare(v, onError)
@@ -565,6 +589,8 @@ func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, err
 		return transpileBreak(v)
 	case *ast.Return:
 		return transpileReturn(v, onError)
+	case *ast.Export:
+		return transpileExport(v, exportsVar)
 	case *ast.BinaryOperation:
 		pre, _, err := transpileBinaryOperation(v, onError)
 		return pre, err
@@ -578,10 +604,10 @@ func transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, err
 	return nil, object.NotImplementedError
 }
 
-func transpileStatements(stmts []ast.Statement, onError errHandler) ([]jen.Code, error) {
+func transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	var result []jen.Code
 	for _, stmt := range stmts {
-		codes, err := transpileStatement(stmt, onError)
+		codes, err := transpileStatement(stmt, onError, exportsVar)
 		if err != nil {
 			return nil, err
 		}
