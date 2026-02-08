@@ -1,0 +1,21 @@
+# Test os.getenv
+print("getenv works")
+os.getenv("HOME")
+print("getenv done")
+
+# Test os.getpid
+print("getpid works")
+os.getpid()
+print("getpid done")
+
+# Test os.getppid
+print("getppid works")
+os.getppid()
+print("getppid done")
+
+# Test os.getuid
+print("getuid works")
+os.getuid()
+print("getuid done")
+
+# Note: os.exit() is tested separately to avoid terminating the test runner
