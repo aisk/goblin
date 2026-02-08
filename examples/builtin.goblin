@@ -1,0 +1,41 @@
+# Test print
+print("hello, world!")
+print(42)
+print(3.14)
+
+# Test range
+var numbers = range(0, 5)
+print(numbers)
+for i in range(0, 3) {
+    print(i)
+}
+
+# Test max - basic integers
+print(max(1, 2, 3))
+
+# Test max - floats
+print(max(1.5, 2.5, 3.5))
+
+# Test max - mixed int/float
+print(max(1, 2.5))
+print(max(2.5, 1))
+print(max(1, 2, 3.5))
+
+# Test max - single argument
+print(max(42))
+print(max(3.14))
+
+# Test min - basic integers
+print(min(1, 2, 3))
+
+# Test min - floats
+print(min(1.5, 2.5, 3.5))
+
+# Test min - mixed int/float
+print(min(1, 2.5))
+print(min(2.5, 1))
+print(min(1, 2, 3.5))
+
+# Test min - single argument
+print(min(42))
+print(min(3.14))

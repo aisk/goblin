@@ -5,16 +5,20 @@ import (
 	"io"
 
 	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/builtin"
+	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
 	"github.com/dave/jennifer/jen"
 )
 
 const (
-	pathBase    = "github.com/aisk/goblin"
-	pathObject  = pathBase + "/object"
-	pathBuiltin = pathBase + "/builtin"
+	pathBase      = "github.com/aisk/goblin"
+	pathObject    = pathBase + "/object"
+	pathExtension = pathBase + "/extension"
 )
+
+var moduleImports = map[string]string{
+	"os": "os_module",
+}
 
 var localNameCounter = 0
 
@@ -45,8 +49,10 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	}
 
 	body := []jen.Code{
-		jen.Id("builtin").Op(":=").Qual(pathBuiltin, "BuiltinsModule"),
+		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
+		jen.Id("os_module").Op(":=").Qual(pathExtension, "OsModule"),
+		jen.Id(exportsVar).Index(jen.Lit("os")).Op("=").Id("os_module"),
 	}
 	body = append(body, stmts...)
 	body = append(body,
@@ -182,6 +188,9 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 		}
 		return nil, obj, nil
 	case *ast.Identifier:
+		if moduleVar, ok := moduleImports[v.Name]; ok {
+			return nil, jen.Id(moduleVar), nil
+		}
 		return nil, jen.Id(v.Name), nil
 	case *ast.FunctionCall:
 		argPreStmts, call, err := transpileFunctionCall(v, onError)
@@ -238,7 +247,7 @@ func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Cod
 }
 
 func isBuiltinFunction(name string) bool {
-	_, ok := builtin.BuiltinsModule.Members[name]
+	_, ok := extension.BuiltinsModule.Members[name]
 	return ok
 }
 
