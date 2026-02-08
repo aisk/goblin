@@ -1,0 +1,11 @@
+var x = 42
+func add(a, b) {
+    return a + b
+}
+var internal = 100
+
+print(x)
+print(add(1, 2))
+
+export x
+export add

@@ -416,3 +416,13 @@ func NewMemberExpression(obj, prop any) (any, error) {
 		Property: string(prop.(*token.Token).Lit),
 	}, nil
 }
+
+type Export struct {
+	statementMixin
+	Name string
+}
+
+func NewExport(x any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	return &Export{Name: name}, nil
+}

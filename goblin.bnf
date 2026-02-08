@@ -59,6 +59,7 @@ Statement
     | Break
     | FunctionDefine
     | Return
+    | Export
 ;
 
 ExpressionList
@@ -242,4 +243,8 @@ FunctionDefine
 
 Return
     : "return" Expression                    << ast.NewReturn($1) >>
+;
+
+Export
+    : "export" id                            << ast.NewExport($1) >>
 ;
