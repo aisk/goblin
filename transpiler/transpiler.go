@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/builtin"
 	"github.com/aisk/goblin/object"
 	"github.com/dave/jennifer/jen"
 )
@@ -237,11 +238,8 @@ func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Cod
 }
 
 func isBuiltinFunction(name string) bool {
-	switch name {
-	case "print", "range":
-		return true
-	}
-	return false
+	_, ok := builtin.BuiltinsModule.Members[name]
+	return ok
 }
 
 func transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {

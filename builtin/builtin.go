@@ -10,6 +10,8 @@ var BuiltinsModule = &object.Module{
 	Members: map[string]object.Object{
 		"print": &object.Function{Name: "print", Fn: Print},
 		"range": &object.Function{Name: "range", Fn: Range},
+		"max":   &object.Function{Name: "max", Fn: Max},
+		"min":   &object.Function{Name: "min", Fn: Min},
 	},
 }
 
@@ -49,4 +51,94 @@ func Range(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	}
 
 	return &object.List{Elements: elements}, nil
+}
+
+func Max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+	if len(args) == 0 {
+		return nil, fmt.Errorf("max() requires at least 1 argument")
+	}
+
+	var hasFloat bool
+	for _, arg := range args {
+		if _, ok := arg.(object.Float); ok {
+			hasFloat = true
+			break
+		}
+	}
+
+	var maxValue float64
+	if hasFloat {
+		for i, arg := range args {
+			switch v := arg.(type) {
+			case object.Float:
+				if i == 0 || float64(v) > maxValue {
+					maxValue = float64(v)
+				}
+			case object.Integer:
+				if i == 0 || float64(v) > maxValue {
+					maxValue = float64(v)
+				}
+			default:
+				return nil, fmt.Errorf("max() argument %d: invalid type %T", i, arg)
+			}
+		}
+		return object.Float(maxValue), nil
+	}
+
+	maxIntValue := int64(0)
+	for i, arg := range args {
+		if v, ok := arg.(object.Integer); ok {
+			if i == 0 || int64(v) > maxIntValue {
+				maxIntValue = int64(v)
+			}
+		} else {
+			return nil, fmt.Errorf("max() argument %d: invalid type %T", i, arg)
+		}
+	}
+	return object.Integer(maxIntValue), nil
+}
+
+func Min(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+	if len(args) == 0 {
+		return nil, fmt.Errorf("min() requires at least 1 argument")
+	}
+
+	var hasFloat bool
+	for _, arg := range args {
+		if _, ok := arg.(object.Float); ok {
+			hasFloat = true
+			break
+		}
+	}
+
+	var minValue float64
+	if hasFloat {
+		for i, arg := range args {
+			switch v := arg.(type) {
+			case object.Float:
+				if i == 0 || float64(v) < minValue {
+					minValue = float64(v)
+				}
+			case object.Integer:
+				if i == 0 || float64(v) < minValue {
+					minValue = float64(v)
+				}
+			default:
+				return nil, fmt.Errorf("min() argument %d: invalid type %T", i, arg)
+			}
+		}
+		return object.Float(minValue), nil
+	}
+
+	minIntValue := int64(0)
+	for i, arg := range args {
+		if v, ok := arg.(object.Integer); ok {
+			if i == 0 || int64(v) < minIntValue {
+				minIntValue = int64(v)
+			}
+		} else {
+			return nil, fmt.Errorf("min() argument %d: invalid type %T", i, arg)
+		}
+	}
+	return object.Integer(minIntValue), nil
 }
