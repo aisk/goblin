@@ -6,7 +6,14 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-func Print(args []object.Object, kwargs map[string]object.Object) (object.Object, error) {
+var BuiltinsModule = &object.Module{
+	Members: map[string]object.Object{
+		"print": &object.Function{Name: "print", Fn: Print},
+		"range": &object.Function{Name: "range", Fn: Range},
+	},
+}
+
+func Print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	for i, arg := range args {
 		if i > 0 {
 			fmt.Print(" ")
@@ -17,7 +24,7 @@ func Print(args []object.Object, kwargs map[string]object.Object) (object.Object
 	return nil, nil
 }
 
-func Range(args []object.Object, kwargs map[string]object.Object) (object.Object, error) {
+func Range(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 2 {
 		return nil, fmt.Errorf("range() takes exactly 2 arguments, got %d", len(args))
 	}
