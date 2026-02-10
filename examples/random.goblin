@@ -1,0 +1,15 @@
+# Test random.int
+print("random.int works")
+random.int()
+print("random.int done")
+
+# Test random.intn
+print("random.intn works")
+random.intn(100)
+random.intn(10)
+print("random.intn done")
+
+# Test random.float
+print("random.float works")
+random.float()
+print("random.float done")

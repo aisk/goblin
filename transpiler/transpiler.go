@@ -17,7 +17,8 @@ const (
 )
 
 var moduleImports = map[string]string{
-	"os": "os_module",
+	"os":     "os_module",
+	"random": "random_module",
 }
 
 var localNameCounter = 0
@@ -53,6 +54,8 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 		jen.Id("os_module").Op(":=").Qual(pathExtension, "OsModule"),
 		jen.Id(exportsVar).Index(jen.Lit("os")).Op("=").Id("os_module"),
+		jen.Id("random_module").Op(":=").Qual(pathExtension, "RandomModule"),
+		jen.Id(exportsVar).Index(jen.Lit("random")).Op("=").Id("random_module"),
 	}
 	body = append(body, stmts...)
 	body = append(body,
