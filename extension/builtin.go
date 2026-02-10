@@ -8,14 +8,14 @@ import (
 
 var BuiltinsModule = &object.Module{
 	Members: map[string]object.Object{
-		"print": &object.Function{Name: "print", Fn: Print},
-		"range": &object.Function{Name: "range", Fn: Range},
-		"max":   &object.Function{Name: "max", Fn: Max},
-		"min":   &object.Function{Name: "min", Fn: Min},
+		"print": &object.Function{Name: "print", Fn: print},
+		"range": &object.Function{Name: "range", Fn: range_},
+		"max":   &object.Function{Name: "max", Fn: max},
+		"min":   &object.Function{Name: "min", Fn: min},
 	},
 }
 
-func Print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	for i, arg := range args {
 		if i > 0 {
 			fmt.Print(" ")
@@ -26,7 +26,7 @@ func Print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return nil, nil
 }
 
-func Range(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func range_(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 2 {
 		return nil, fmt.Errorf("range() takes exactly 2 arguments, got %d", len(args))
 	}
@@ -53,7 +53,7 @@ func Range(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return &object.List{Elements: elements}, nil
 }
 
-func Max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) == 0 {
 		return nil, fmt.Errorf("max() requires at least 1 argument")
 	}
@@ -98,7 +98,7 @@ func Max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(maxIntValue), nil
 }
 
-func Min(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func min(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) == 0 {
 		return nil, fmt.Errorf("min() requires at least 1 argument")
 	}

@@ -10,9 +10,9 @@ import (
 
 var RandomModule = &object.Module{
 	Members: map[string]object.Object{
-		"int":   &object.Function{Name: "int", Fn: RandInt},
-		"intn":  &object.Function{Name: "intn", Fn: RandIntn},
-		"float": &object.Function{Name: "float", Fn: RandFloat},
+		"int":   &object.Function{Name: "int", Fn: randInt},
+		"intn":  &object.Function{Name: "intn", Fn: randIntn},
+		"float": &object.Function{Name: "float", Fn: randFloat},
 	},
 }
 
@@ -20,14 +20,14 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func RandInt(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randInt(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("int() requires no arguments")
 	}
 	return object.Integer(rand.Int63()), nil
 }
 
-func RandIntn(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randIntn(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("intn() requires exactly 1 argument")
 	}
@@ -41,7 +41,7 @@ func RandIntn(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(rand.Int63n(int64(n))), nil
 }
 
-func RandFloat(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randFloat(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("float() requires no arguments")
 	}

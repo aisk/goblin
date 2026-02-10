@@ -9,15 +9,15 @@ import (
 
 var OsModule = &object.Module{
 	Members: map[string]object.Object{
-		"exit":    &object.Function{Name: "exit", Fn: Exit},
-		"getenv":  &object.Function{Name: "getenv", Fn: Getenv},
-		"getpid":  &object.Function{Name: "getpid", Fn: Getpid},
-		"getppid": &object.Function{Name: "getppid", Fn: Getppid},
-		"getuid":  &object.Function{Name: "getuid", Fn: Getuid},
+		"exit":    &object.Function{Name: "exit", Fn: exit},
+		"getenv":  &object.Function{Name: "getenv", Fn: getenv},
+		"getpid":  &object.Function{Name: "getpid", Fn: getpid},
+		"getppid": &object.Function{Name: "getppid", Fn: getppid},
+		"getuid":  &object.Function{Name: "getuid", Fn: getuid},
 	},
 }
 
-func Exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("exit() requires exactly 1 argument")
 	}
@@ -29,7 +29,7 @@ func Exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return nil, nil
 }
 
-func Getenv(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getenv(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("getenv() requires exactly 1 argument")
 	}
@@ -41,7 +41,7 @@ func Getenv(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.String(value), nil
 }
 
-func Getpid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getpid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getpid() requires no arguments")
 	}
@@ -49,7 +49,7 @@ func Getpid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(pid), nil
 }
 
-func Getppid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getppid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getppid() requires no arguments")
 	}
@@ -57,7 +57,7 @@ func Getppid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(ppid), nil
 }
 
-func Getuid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getuid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getuid() requires no arguments")
 	}
