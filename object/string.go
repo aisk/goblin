@@ -109,6 +109,54 @@ func (s String) GetAttr(name string) (Object, error) {
 		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			return String(strings.ToLower(string(s))), nil
 		}}, nil
+	case "has_prefix":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("has_prefix() takes exactly 1 argument, got %d", len(args))
+			}
+			prefix, ok := args[0].(String)
+			if !ok {
+				return nil, fmt.Errorf("has_prefix() argument must be a string, got %T", args[0])
+			}
+			return Bool(strings.HasPrefix(string(s), string(prefix))), nil
+		}}, nil
+	case "has_suffix":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("has_suffix() takes exactly 1 argument, got %d", len(args))
+			}
+			suffix, ok := args[0].(String)
+			if !ok {
+				return nil, fmt.Errorf("has_suffix() argument must be a string, got %T", args[0])
+			}
+			return Bool(strings.HasSuffix(string(s), string(suffix))), nil
+		}}, nil
+	case "trim":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("trim() takes exactly 1 argument, got %d", len(args))
+			}
+			cutset, ok := args[0].(String)
+			if !ok {
+				return nil, fmt.Errorf("trim() argument must be a string, got %T", args[0])
+			}
+			return String(strings.Trim(string(s), string(cutset))), nil
+		}}, nil
+	case "trim_space":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			return String(strings.TrimSpace(string(s))), nil
+		}}, nil
+	case "contains":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("contains() takes exactly 1 argument, got %d", len(args))
+			}
+			substr, ok := args[0].(String)
+			if !ok {
+				return nil, fmt.Errorf("contains() argument must be a string, got %T", args[0])
+			}
+			return Bool(strings.Contains(string(s), string(substr))), nil
+		}}, nil
 	default:
 		return nil, fmt.Errorf("String has no attribute '%s'", name)
 	}

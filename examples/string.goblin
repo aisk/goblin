@@ -14,3 +14,17 @@ for ch in "abc" {
 
 # String multiplication
 print("ha" * 3)
+
+# has_prefix / has_suffix
+print("hello".has_prefix("he"))
+print("hello".has_prefix("lo"))
+print("hello".has_suffix("lo"))
+print("hello".has_suffix("he"))
+
+# trim / trim_space
+print("  hello  ".trim_space())
+print("xyhelloxy".trim("xy"))
+
+# contains
+print("hello".contains("ell"))
+print("hello".contains("world"))
