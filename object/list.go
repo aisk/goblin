@@ -115,6 +115,35 @@ func (l *List) GetAttr(name string) (Object, error) {
 			l.Elements = l.Elements[:len(l.Elements)-1]
 			return last, nil
 		}}, nil
+	case "first":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(l.Elements) == 0 {
+				return nil, fmt.Errorf("first() called on empty list")
+			}
+			return l.Elements[0], nil
+		}}, nil
+	case "last":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(l.Elements) == 0 {
+				return nil, fmt.Errorf("last() called on empty list")
+			}
+			return l.Elements[len(l.Elements)-1], nil
+		}}, nil
+	case "join":
+		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+			if len(args) != 1 {
+				return nil, fmt.Errorf("join() takes exactly 1 argument, got %d", len(args))
+			}
+			sep, ok := args[0].(String)
+			if !ok {
+				return nil, fmt.Errorf("join() argument must be a string, got %T", args[0])
+			}
+			elements := make([]string, len(l.Elements))
+			for i, elem := range l.Elements {
+				elements[i] = elem.String()
+			}
+			return String(strings.Join(elements, string(sep))), nil
+		}}, nil
 	default:
 		return nil, fmt.Errorf("List has no attribute '%s'", name)
 	}

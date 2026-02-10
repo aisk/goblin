@@ -16,3 +16,26 @@ list.push(4)
 print(list.size)
 print(list.pop())
 print(list)
+
+# Test first() and last()
+var nums = [1, 2, 3, 4, 5]
+print(nums.first())
+print(nums.last())
+
+# Test first() and last() on single element
+var single = [42]
+print(single.first())
+print(single.last())
+
+# Test join()
+var words = ["hello", "world"]
+print(words.join(" "))
+print(words.join("-"))
+
+# Test join() on mixed types
+var mixed = [1, "a", true]
+print(mixed.join(","))
+
+# Test join() on empty list
+var empty2 = []
+print(empty2.join(","))
