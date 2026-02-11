@@ -60,6 +60,11 @@ Statement
     | FunctionDefine
     | Return
     | Export
+    | Import
+;
+
+Import
+    : "import" id     << ast.NewImport($1) >>
 ;
 
 ExpressionList

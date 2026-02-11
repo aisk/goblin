@@ -426,3 +426,13 @@ func NewExport(x any) (any, error) {
 	name := string(x.(*token.Token).Lit)
 	return &Export{Name: name}, nil
 }
+
+type Import struct {
+	statementMixin
+	Name string
+}
+
+func NewImport(x any) (any, error) {
+	name := string(x.(*token.Token).Lit)
+	return &Import{Name: name}, nil
+}

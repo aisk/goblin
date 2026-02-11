@@ -16,10 +16,17 @@ const (
 	pathExtension = pathBase + "/extension"
 )
 
-var moduleImports = map[string]string{
-	"os":     "os_module",
-	"random": "random_module",
+type moduleInfo struct {
+	varName     string
+	extensionID string
 }
+
+var knownModules = map[string]moduleInfo{
+	"os":     {varName: "os_module", extensionID: "OsModule"},
+	"random": {varName: "random_module", extensionID: "RandomModule"},
+}
+
+var moduleImports = map[string]string{}
 
 var localNameCounter = 0
 
@@ -36,6 +43,19 @@ type errHandler func(errVar string) jen.Code
 
 func Transpile(mod *ast.Module, output io.Writer) error {
 	localNameCounter = 0
+	moduleImports = make(map[string]string)
+
+	// Collect imports
+	for _, stmt := range mod.Body {
+		if imp, ok := stmt.(*ast.Import); ok {
+			info, exists := knownModules[imp.Name]
+			if !exists {
+				return fmt.Errorf("unknown module: %s", imp.Name)
+			}
+			moduleImports[imp.Name] = info.varName
+		}
+	}
+
 	f := jen.NewFile(mod.Name)
 
 	exportsVar := localName("exports")
@@ -52,10 +72,14 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	body := []jen.Code{
 		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
-		jen.Id("os_module").Op(":=").Qual(pathExtension, "OsModule"),
-		jen.Id(exportsVar).Index(jen.Lit("os")).Op("=").Id("os_module"),
-		jen.Id("random_module").Op(":=").Qual(pathExtension, "RandomModule"),
-		jen.Id(exportsVar).Index(jen.Lit("random")).Op("=").Id("random_module"),
+	}
+	for name, info := range knownModules {
+		if _, ok := moduleImports[name]; ok {
+			body = append(body,
+				jen.Id(info.varName).Op(":=").Qual(pathExtension, info.extensionID),
+				jen.Id(exportsVar).Index(jen.Lit(name)).Op("=").Id(info.varName),
+			)
+		}
 	}
 	body = append(body, stmts...)
 	body = append(body,
@@ -597,6 +621,8 @@ func transpileStatement(stmt ast.Statement, onError errHandler, exportsVar strin
 		return transpileReturn(v, onError)
 	case *ast.Export:
 		return transpileExport(v, exportsVar)
+	case *ast.Import:
+		return nil, nil
 	case *ast.BinaryOperation:
 		pre, _, err := transpileBinaryOperation(v, onError)
 		return pre, err

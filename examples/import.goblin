@@ -1,0 +1,5 @@
+import os
+
+print("import works")
+os.getenv("HOME")
+print("import done")
