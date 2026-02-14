@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/aisk/goblin/ast"
@@ -128,22 +128,26 @@ func main() {
 	}
 	input, err := os.ReadFile(os.Args[1])
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "error: failed to read file %s: %v\n", os.Args[1], err)
+		os.Exit(1)
 	}
 
 	l := lexer.NewLexer(input)
 	p := parser.NewParser()
 	st, err := p.Parse(l)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
 	}
 	m, ok := st.(*ast.Module)
 	if !ok {
-		panic("not ok!")
+		fmt.Fprintf(os.Stderr, "error: internal error: unexpected AST type\n")
+		os.Exit(1)
 	}
 
 	err = transpiler.Transpile(m, os.Stdout)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
 	}
 }
