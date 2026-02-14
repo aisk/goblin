@@ -71,6 +71,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 
 	body := []jen.Code{
 		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
+		jen.Id("_").Op("=").Id("builtin"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 	}
 	for name, info := range knownModules {
