@@ -1,4 +1,4 @@
-import random
+import "random"
 
 # Test random.int
 print("random.int works")

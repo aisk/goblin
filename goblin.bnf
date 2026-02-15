@@ -64,7 +64,7 @@ Statement
 ;
 
 Import
-    : "import" id     << ast.NewImport($1) >>
+    : "import" string_lit  << ast.NewImport($1) >>
 ;
 
 ExpressionList

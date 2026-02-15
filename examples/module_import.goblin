@@ -1,0 +1,4 @@
+import "./modules/greeter"
+
+print(greeter.greeting)
+greeter.greet("world")

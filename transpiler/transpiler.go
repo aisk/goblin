@@ -3,10 +3,15 @@ package transpiler
 import (
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
+	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/parser"
 	"github.com/dave/jennifer/jen"
 )
 
@@ -26,45 +31,102 @@ var knownModules = map[string]moduleInfo{
 	"random": {varName: "random_module", extensionID: "RandomModule"},
 }
 
-var moduleImports = map[string]string{}
+// transpileContext holds state for a single Transpile call.
+type transpileContext struct {
+	localNameCounter int
+	moduleImports    map[string]string      // module name -> Go variable name
+	importing        map[string]struct{}     // paths currently being transpiled (cycle detection)
+	imported         map[string]struct{}     // paths already transpiled (dedup)
+	moduleFuncs      []jen.Code             // top-level module executor functions
+}
 
-var localNameCounter = 0
+func newTranspileContext() *transpileContext {
+	return &transpileContext{
+		localNameCounter: 0,
+		moduleImports:    make(map[string]string),
+		importing:        make(map[string]struct{}),
+		imported:         make(map[string]struct{}),
+		moduleFuncs:      nil,
+	}
+}
 
-func localName(prefix string) string {
-	name := fmt.Sprintf("_%s_%d", prefix, localNameCounter)
-	localNameCounter++
+func (ctx *transpileContext) localName(prefix string) string {
+	name := fmt.Sprintf("_%s_%d", prefix, ctx.localNameCounter)
+	ctx.localNameCounter++
 	return name
 }
 
 // errHandler generates the error-handling code for a given error variable name.
-// In Execute(), it generates: return errVar
-// In user-defined functions, it generates: return nil, errVar
 type errHandler func(errVar string) jen.Code
 
+func isPathImport(path string) bool {
+	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
+}
+
+func pathToFuncName(path string) string {
+	s := strings.TrimPrefix(path, "./")
+	s = strings.TrimPrefix(s, "../")
+	s = strings.ReplaceAll(s, "/", "_")
+	s = strings.ReplaceAll(s, ".", "_")
+	s = strings.ReplaceAll(s, "-", "_")
+	return "_execute_" + s
+}
+
 func Transpile(mod *ast.Module, output io.Writer) error {
-	localNameCounter = 0
-	moduleImports = make(map[string]string)
+	ctx := newTranspileContext()
 
 	// Collect imports
 	for _, stmt := range mod.Body {
 		if imp, ok := stmt.(*ast.Import); ok {
-			info, exists := knownModules[imp.Name]
-			if !exists {
-				return fmt.Errorf("unknown module: %s", imp.Name)
+			if isPathImport(imp.Path) {
+				ctx.moduleImports[imp.Name] = imp.Name
+			} else {
+				info, exists := knownModules[imp.Path]
+				if !exists {
+					return fmt.Errorf("unknown module: %s", imp.Path)
+				}
+				ctx.moduleImports[imp.Name] = info.varName
 			}
-			moduleImports[imp.Name] = info.varName
+		}
+	}
+
+	// Process path imports: parse and transpile each .goblin module
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || !isPathImport(imp.Path) {
+			continue
+		}
+		if err := ctx.transpilePathModule(imp.Path); err != nil {
+			return err
 		}
 	}
 
 	f := jen.NewFile(mod.Name)
 
-	exportsVar := localName("exports")
+	// Emit registry global variable
+	hasPathImports := false
+	for _, stmt := range mod.Body {
+		if imp, ok := stmt.(*ast.Import); ok && isPathImport(imp.Path) {
+			hasPathImports = true
+			break
+		}
+	}
+	if hasPathImports {
+		f.Var().Id("_registry").Op("=").Qual(pathObject, "NewRegistry").Call()
+	}
+
+	// Emit module executor functions
+	for _, fn := range ctx.moduleFuncs {
+		f.Add(fn)
+	}
+
+	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
 		return jen.Return(jen.Nil(), jen.Id(errVar))
 	}
 
-	stmts, err := transpileStatements(mod.Body, onError, exportsVar)
+	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
 	}
@@ -74,14 +136,34 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		jen.Id("_").Op("=").Id("builtin"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 	}
+
+	// Builtin module imports
 	for name, info := range knownModules {
-		if _, ok := moduleImports[name]; ok {
+		if _, ok := ctx.moduleImports[name]; ok {
 			body = append(body,
 				jen.Id(info.varName).Op(":=").Qual(pathExtension, info.extensionID),
 				jen.Id(exportsVar).Index(jen.Lit(name)).Op("=").Id(info.varName),
 			)
 		}
 	}
+
+	// Path module imports via registry
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || !isPathImport(imp.Path) {
+			continue
+		}
+		errVar := ctx.localName("err")
+		body = append(body,
+			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Id(pathToFuncName(imp.Path)),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(imp.Name),
+		)
+	}
+
 	body = append(body, stmts...)
 	body = append(body,
 		jen.Return(
@@ -102,6 +184,131 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		),
 	)
 	return f.Render(output)
+}
+
+// transpilePathModule parses and transpiles a .goblin file at the given path,
+// generating a top-level executor function.
+func (ctx *transpileContext) transpilePathModule(importPath string) error {
+	absPath, err := filepath.Abs(importPath + ".goblin")
+	if err != nil {
+		return fmt.Errorf("failed to resolve path %s: %v", importPath, err)
+	}
+
+	// Skip already transpiled modules
+	if _, ok := ctx.imported[absPath]; ok {
+		return nil
+	}
+
+	// Circular import detection
+	if _, ok := ctx.importing[absPath]; ok {
+		return fmt.Errorf("circular import detected: %s", importPath)
+	}
+	ctx.importing[absPath] = struct{}{}
+	defer delete(ctx.importing, absPath)
+
+	source, err := os.ReadFile(absPath)
+	if err != nil {
+		return fmt.Errorf("failed to read module %s: %v", importPath, err)
+	}
+
+	l := lexer.NewLexer(source)
+	p := parser.NewParser()
+	st, err := p.Parse(l)
+	if err != nil {
+		return fmt.Errorf("parse error in module %s: %v", importPath, err)
+	}
+
+	mod, ok := st.(*ast.Module)
+	if !ok {
+		return fmt.Errorf("internal error: unexpected AST type for module %s", importPath)
+	}
+
+	// Collect sub-module imports
+	subModuleImports := make(map[string]string)
+	for _, stmt := range mod.Body {
+		if imp, ok := stmt.(*ast.Import); ok {
+			if isPathImport(imp.Path) {
+				subModuleImports[imp.Name] = imp.Name
+				if err := ctx.transpilePathModule(imp.Path); err != nil {
+					return err
+				}
+			} else {
+				info, exists := knownModules[imp.Path]
+				if !exists {
+					return fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
+				}
+				subModuleImports[imp.Name] = info.varName
+			}
+		}
+	}
+
+	// Save and restore module imports for this scope
+	savedImports := ctx.moduleImports
+	ctx.moduleImports = subModuleImports
+	defer func() { ctx.moduleImports = savedImports }()
+
+	exportsVar := ctx.localName("exports")
+
+	onError := func(errVar string) jen.Code {
+		return jen.Return(jen.Nil(), jen.Id(errVar))
+	}
+
+	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
+	if err != nil {
+		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
+	}
+
+	funcBody := []jen.Code{
+		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
+		jen.Id("_").Op("=").Id("builtin"),
+		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
+	}
+
+	// Builtin module imports for this sub-module
+	for name, info := range knownModules {
+		if _, ok := subModuleImports[name]; ok {
+			funcBody = append(funcBody,
+				jen.Id(info.varName).Op(":=").Qual(pathExtension, info.extensionID),
+				jen.Id(exportsVar).Index(jen.Lit(name)).Op("=").Id(info.varName),
+			)
+		}
+	}
+
+	// Path module imports for this sub-module
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || !isPathImport(imp.Path) {
+			continue
+		}
+		errVar := ctx.localName("err")
+		funcBody = append(funcBody,
+			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Id(pathToFuncName(imp.Path)),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(imp.Name),
+		)
+	}
+
+	funcBody = append(funcBody, stmts...)
+	funcBody = append(funcBody,
+		jen.Return(
+			jen.Op("&").Qual(pathObject, "Module").Values(
+				jen.Id("Members").Op(":").Id(exportsVar),
+			),
+			jen.Nil(),
+		),
+	)
+
+	funcName := pathToFuncName(importPath)
+	fn := jen.Func().Id(funcName).Params().Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Error(),
+	)).Block(funcBody...)
+
+	ctx.moduleFuncs = append(ctx.moduleFuncs, fn)
+	ctx.imported[absPath] = struct{}{}
+	return nil
 }
 
 func transpileObject(obj object.Object) (*jen.Statement, error) {
@@ -126,8 +333,8 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 	return nil, object.NotImplementedError
 }
 
-func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	preStmts, elements, err := transpileExpressions(list.Elements, onError)
+func (ctx *transpileContext) transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, elements, err := ctx.transpileExpressions(list.Elements, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -137,18 +344,18 @@ func transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code
 	), nil
 }
 
-func transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	objPre, obj, err := transpileExpression(expr.Object, onError)
+func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	idxPre, idx, err := transpileExpression(expr.Index, onError)
+	idxPre, idx, err := ctx.transpileExpression(expr.Index, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	tmpVar := localName("tmp")
-	errVar := localName("err")
+	tmpVar := ctx.localName("tmp")
+	errVar := ctx.localName("err")
 	preStmts := append(objPre, idxPre...)
 	preStmts = append(preStmts,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("Index").Call(idx),
@@ -157,16 +364,16 @@ func transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	var preStmts []jen.Code
 	var entries []jen.Code
 
 	for _, elem := range dict.Elements {
-		keyPre, key, err := transpileExpression(elem.Key, onError)
+		keyPre, key, err := ctx.transpileExpression(elem.Key, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		valuePre, value, err := transpileExpression(elem.Value, onError)
+		valuePre, value, err := ctx.transpileExpression(elem.Value, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -175,7 +382,7 @@ func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code
 		entries = append(entries, jen.Values(jen.Id("Key").Op(":").Add(key), jen.Id("Value").Op(":").Add(value)))
 	}
 
-	dictVar := localName("dict")
+	dictVar := ctx.localName("dict")
 	preStmts = append(preStmts,
 		jen.Id(dictVar).Op(":=").Op("&").Qual(pathObject, "Dict").Values(
 			jen.Id("Entries").Op(":").Index().Qual(pathObject, "DictEntry").Values(entries...),
@@ -192,14 +399,14 @@ func transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code
 	return preStmts, jen.Id(dictVar), nil
 }
 
-func transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	objPre, obj, err := transpileExpression(expr.Object, onError)
+func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	tmpVar := localName("attr")
-	errVar := localName("err")
+	tmpVar := ctx.localName("attr")
+	errVar := ctx.localName("err")
 	preStmts := append(objPre,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(expr.Property)),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -207,7 +414,7 @@ func transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) (
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch v := expr.(type) {
 	case *ast.Literal:
 		obj, err := transpileObject(v.Value)
@@ -216,55 +423,55 @@ func transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *
 		}
 		return nil, obj, nil
 	case *ast.Identifier:
-		if moduleVar, ok := moduleImports[v.Name]; ok {
+		if moduleVar, ok := ctx.moduleImports[v.Name]; ok {
 			return nil, jen.Id(moduleVar), nil
 		}
 		return nil, jen.Id(v.Name), nil
 	case *ast.FunctionCall:
-		argPreStmts, call, err := transpileFunctionCall(v, onError)
+		argPreStmts, call, err := ctx.transpileFunctionCall(v, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		tmpVar := localName("tmp")
-		errVar := localName("err")
+		tmpVar := ctx.localName("tmp")
+		errVar := ctx.localName("err")
 		preStmts := append(argPreStmts,
 			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return preStmts, jen.Id(tmpVar), nil
 	case *ast.CallExpression:
-		argPreStmts, call, err := transpileCallExpression(v, onError)
+		argPreStmts, call, err := ctx.transpileCallExpression(v, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		tmpVar := localName("tmp")
-		errVar := localName("err")
+		tmpVar := ctx.localName("tmp")
+		errVar := ctx.localName("err")
 		preStmts := append(argPreStmts,
 			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return preStmts, jen.Id(tmpVar), nil
 	case *ast.BinaryOperation:
-		return transpileBinaryOperation(v, onError)
+		return ctx.transpileBinaryOperation(v, onError)
 	case *ast.UnaryOperation:
-		return transpileUnaryOperation(v, onError)
+		return ctx.transpileUnaryOperation(v, onError)
 	case *ast.ListLiteral:
-		return transpileListLiteral(v, onError)
+		return ctx.transpileListLiteral(v, onError)
 	case *ast.DictLiteral:
-		return transpileDictLiteral(v, onError)
+		return ctx.transpileDictLiteral(v, onError)
 	case *ast.IndexExpression:
-		return transpileIndexExpression(v, onError)
+		return ctx.transpileIndexExpression(v, onError)
 	case *ast.MemberExpression:
-		return transpileMemberExpression(v, onError)
+		return ctx.transpileMemberExpression(v, onError)
 	}
 	return nil, nil, object.NotImplementedError
 }
 
-func transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
+func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
 	var allPreStmts []jen.Code
 	var results []jen.Code
 	for _, expr := range exprs {
-		pre, r, err := transpileExpression(expr, onError)
+		pre, r, err := ctx.transpileExpression(expr, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -279,8 +486,8 @@ func isBuiltinFunction(name string) bool {
 	return ok
 }
 
-func transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
-	preStmts, value, err := transpileExpression(decl.Value, onError)
+func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
+	preStmts, value, err := ctx.transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -289,8 +496,8 @@ func transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error)
 	return append(preStmts, declStmt), nil
 }
 
-func transpileAssign(decl *ast.Assign, onError errHandler) ([]jen.Code, error) {
-	preStmts, value, err := transpileExpression(decl.Value, onError)
+func (ctx *transpileContext) transpileAssign(decl *ast.Assign, onError errHandler) ([]jen.Code, error) {
+	preStmts, value, err := ctx.transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -299,16 +506,16 @@ func transpileAssign(decl *ast.Assign, onError errHandler) ([]jen.Code, error) {
 	return append(preStmts, assignStmt), nil
 }
 
-func transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
-	condPreStmts, cond, err := transpileExpression(ifelse.Condition, onError)
+func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
+	condPreStmts, cond, err := ctx.transpileExpression(ifelse.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(ifelse.IfBody, onError, "")
+	body, err := ctx.transpileStatements(ifelse.IfBody, onError, "")
 	if err != nil {
 		return nil, err
 	}
-	elseBody, err := transpileStatements(ifelse.ElseBody, onError, "")
+	elseBody, err := ctx.transpileStatements(ifelse.ElseBody, onError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -316,18 +523,17 @@ func transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error)
 	return append(condPreStmts, ifStmt), nil
 }
 
-func transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
-	condPreStmts, cond, err := transpileExpression(while_.Condition, onError)
+func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
+	condPreStmts, cond, err := ctx.transpileExpression(while_.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(while_.Body, onError, "")
+	body, err := ctx.transpileStatements(while_.Body, onError, "")
 	if err != nil {
 		return nil, err
 	}
 
 	if len(condPreStmts) > 0 {
-		// Complex condition with preStmts: convert to for { preStmts; if !cond { break }; body }
 		loopBody := append(condPreStmts,
 			jen.If(jen.Op("!").Add(cond).Dot("Bool").Call()).Block(jen.Break()),
 		)
@@ -338,23 +544,23 @@ func transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
 	return []jen.Code{jen.For(cond.Dot("Bool").Call()).Block(body...)}, nil
 }
 
-func transpileBreak(break_ *ast.Break) ([]jen.Code, error) {
+func (ctx *transpileContext) transpileBreak(break_ *ast.Break) ([]jen.Code, error) {
 	return []jen.Code{jen.Break()}, nil
 }
 
-func transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
-	iterPreStmts, iterator, err := transpileExpression(for_.Iterator, onError)
+func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
+	iterPreStmts, iterator, err := ctx.transpileExpression(for_.Iterator, onError)
 	if err != nil {
 		return nil, err
 	}
-	body, err := transpileStatements(for_.Body, onError, "")
+	body, err := ctx.transpileStatements(for_.Body, onError, "")
 	if err != nil {
 		return nil, err
 	}
 
-	iterVar := localName("iter")
-	elementsVar := localName("elements")
-	errVar := localName("err")
+	iterVar := ctx.localName("iter")
+	elementsVar := ctx.localName("elements")
+	errVar := ctx.localName("err")
 
 	forLoopBody := []jen.Code{
 		jen.Id(for_.Variable).Op(":=").Id(iterVar),
@@ -371,8 +577,8 @@ func transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
 	return []jen.Code{jen.Block(result...)}, nil
 }
 
-func transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argPreStmts, l, err := transpileExpressions(call.Args, onError)
+func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	argPreStmts, l, err := ctx.transpileExpressions(call.Args, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -389,8 +595,8 @@ func transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Co
 	return argPreStmts, jen.Qual(pathObject, "Call").Call(callee, args, kwargs), nil
 }
 
-func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argPreStmts, l, err := transpileExpressions(call.Args, onError)
+func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	argPreStmts, l, err := ctx.transpileExpressions(call.Args, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -408,12 +614,12 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 	}
 
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
-		objPre, obj, err := transpileExpression(member.Object, onError)
+		objPre, obj, err := ctx.transpileExpression(member.Object, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		attrVar := localName("attr")
-		errVar := localName("err")
+		attrVar := ctx.localName("attr")
+		errVar := ctx.localName("err")
 		preStmts := append(objPre, argPreStmts...)
 		preStmts = append(preStmts,
 			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(member.Property)),
@@ -422,7 +628,7 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 		return preStmts, jen.Qual(pathObject, "Call").Call(jen.Id(attrVar), args, kwargs), nil
 	}
 
-	calleePre, callee, err := transpileExpression(call.Callee, onError)
+	calleePre, callee, err := ctx.transpileExpression(call.Callee, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -430,9 +636,9 @@ func transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]je
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args, kwargs), nil
 }
 
-func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
-	argsName := localName("args")
-	kwargsName := localName("kwargs")
+func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
+	argsName := ctx.localName("args")
+	kwargsName := ctx.localName("kwargs")
 
 	argsDefine := []jen.Code{}
 	for i, param := range fn.Parameters {
@@ -445,7 +651,7 @@ func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 	}
 
-	body, err := transpileStatements(fn.Body, fnOnError, "")
+	body, err := ctx.transpileStatements(fn.Body, fnOnError, "")
 	if err != nil {
 		return nil, err
 	}
@@ -468,8 +674,8 @@ func transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.
 	return []jen.Code{result}, nil
 }
 
-func transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
-	preStmts, r, err := transpileExpression(return_.Value, onError)
+func (ctx *transpileContext) transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
+	preStmts, r, err := ctx.transpileExpression(return_.Value, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -484,19 +690,19 @@ func isComparisonOperator(op string) bool {
 	return false
 }
 
-func transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	lhsPre, lhs, err := transpileExpression(operation.LHS, onError)
+func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, err := transpileExpression(operation.RHS, onError)
+	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	cmpVar := localName("cmp")
-	errVar := localName("err")
-	tmpVar := localName("tmp")
+	cmpVar := ctx.localName("cmp")
+	errVar := ctx.localName("err")
+	tmpVar := ctx.localName("tmp")
 
 	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
@@ -509,16 +715,16 @@ func transpileComparisonOperation(operation *ast.BinaryOperation, onError errHan
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	if isComparisonOperator(operation.Operator) {
-		return transpileComparisonOperation(operation, onError)
+		return ctx.transpileComparisonOperation(operation, onError)
 	}
 
-	lhsPre, lhs, err := transpileExpression(operation.LHS, onError)
+	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, err := transpileExpression(operation.RHS, onError)
+	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -541,8 +747,8 @@ func transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler
 		return nil, nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}
 
-	tmpVar := localName("tmp")
-	errVar := localName("err")
+	tmpVar := ctx.localName("tmp")
+	errVar := ctx.localName("err")
 	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
@@ -551,8 +757,8 @@ func transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	operandPre, operand, err := transpileExpression(operation.Operand, onError)
+func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	operandPre, operand, err := ctx.transpileExpression(operation.Operand, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -565,8 +771,8 @@ func transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) 
 		return nil, nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
 	}
 
-	tmpVar := localName("tmp")
-	errVar := localName("err")
+	tmpVar := ctx.localName("tmp")
+	errVar := ctx.localName("err")
 	preStmts := append(operandPre,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(operand).Dot(methodName).Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -574,73 +780,73 @@ func transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) 
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func transpileExport(export *ast.Export, exportsVar string) ([]jen.Code, error) {
+func (ctx *transpileContext) transpileExport(export *ast.Export, exportsVar string) ([]jen.Code, error) {
 	return []jen.Code{
 		jen.Id(exportsVar).Index(jen.Lit(export.Name)).Op("=").Id(export.Name),
 	}, nil
 }
 
-func transpileStatement(stmt ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	switch v := stmt.(type) {
 	case *ast.Declare:
-		return transpileDeclare(v, onError)
+		return ctx.transpileDeclare(v, onError)
 	case *ast.Assign:
-		return transpileAssign(v, onError)
+		return ctx.transpileAssign(v, onError)
 	case *ast.FunctionCall:
-		argPreStmts, call, err := transpileFunctionCall(v, onError)
+		argPreStmts, call, err := ctx.transpileFunctionCall(v, onError)
 		if err != nil {
 			return nil, err
 		}
-		errVar := localName("err")
+		errVar := ctx.localName("err")
 		stmts := append(argPreStmts,
 			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return stmts, nil
 	case *ast.CallExpression:
-		argPreStmts, call, err := transpileCallExpression(v, onError)
+		argPreStmts, call, err := ctx.transpileCallExpression(v, onError)
 		if err != nil {
 			return nil, err
 		}
-		errVar := localName("err")
+		errVar := ctx.localName("err")
 		stmts := append(argPreStmts,
 			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return stmts, nil
 	case *ast.FunctionDefine:
-		return transpileFunctionDefine(v, onError)
+		return ctx.transpileFunctionDefine(v, onError)
 	case *ast.IfElse:
-		return transpileIfElse(v, onError)
+		return ctx.transpileIfElse(v, onError)
 	case *ast.While:
-		return transpileWhile(v, onError)
+		return ctx.transpileWhile(v, onError)
 	case *ast.For:
-		return transpileFor(v, onError)
+		return ctx.transpileFor(v, onError)
 	case *ast.Break:
-		return transpileBreak(v)
+		return ctx.transpileBreak(v)
 	case *ast.Return:
-		return transpileReturn(v, onError)
+		return ctx.transpileReturn(v, onError)
 	case *ast.Export:
-		return transpileExport(v, exportsVar)
+		return ctx.transpileExport(v, exportsVar)
 	case *ast.Import:
 		return nil, nil
 	case *ast.BinaryOperation:
-		pre, _, err := transpileBinaryOperation(v, onError)
+		pre, _, err := ctx.transpileBinaryOperation(v, onError)
 		return pre, err
 	case *ast.UnaryOperation:
-		pre, _, err := transpileUnaryOperation(v, onError)
+		pre, _, err := ctx.transpileUnaryOperation(v, onError)
 		return pre, err
 	case *ast.MemberExpression:
-		pre, _, err := transpileMemberExpression(v, onError)
+		pre, _, err := ctx.transpileMemberExpression(v, onError)
 		return pre, err
 	}
 	return nil, object.NotImplementedError
 }
 
-func transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	var result []jen.Code
 	for _, stmt := range stmts {
-		codes, err := transpileStatement(stmt, onError, exportsVar)
+		codes, err := ctx.transpileStatement(stmt, onError, exportsVar)
 		if err != nil {
 			return nil, err
 		}

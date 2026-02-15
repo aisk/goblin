@@ -3,6 +3,7 @@ package ast
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/token"
@@ -429,10 +430,14 @@ func NewExport(x any) (any, error) {
 
 type Import struct {
 	statementMixin
-	Name string
+	Name string // variable name: builtin uses name directly ("os"), path takes last segment ("bar")
+	Path string // original path string ("os", "./foo/bar")
 }
 
 func NewImport(x any) (any, error) {
-	name := string(x.(*token.Token).Lit)
-	return &Import{Name: name}, nil
+	raw := string(x.(*token.Token).Lit)
+	path := raw[1 : len(raw)-1] // strip quotes
+	parts := strings.Split(path, "/")
+	name := parts[len(parts)-1]
+	return &Import{Name: name, Path: path}, nil
 }

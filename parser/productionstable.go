@@ -202,7 +202,7 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Import : "import" id	<< ast.NewImport(X[1]) >>`,
+		String: `Import : "import" string_lit	<< ast.NewImport(X[1]) >>`,
 		Id:         "Import",
 		NTType:     5,
 		Index:      18,
