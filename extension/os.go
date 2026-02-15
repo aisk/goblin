@@ -7,14 +7,16 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-var OsModule = &object.Module{
-	Members: map[string]object.Object{
-		"exit":    &object.Function{Name: "exit", Fn: exit},
-		"getenv":  &object.Function{Name: "getenv", Fn: getenv},
-		"getpid":  &object.Function{Name: "getpid", Fn: getpid},
-		"getppid": &object.Function{Name: "getppid", Fn: getppid},
-		"getuid":  &object.Function{Name: "getuid", Fn: getuid},
-	},
+func ExecuteOs() (object.Object, error) {
+	return &object.Module{
+		Members: map[string]object.Object{
+			"exit":    &object.Function{Name: "exit", Fn: exit},
+			"getenv":  &object.Function{Name: "getenv", Fn: getenv},
+			"getpid":  &object.Function{Name: "getpid", Fn: getpid},
+			"getppid": &object.Function{Name: "getppid", Fn: getppid},
+			"getuid":  &object.Function{Name: "getuid", Fn: getuid},
+		},
+	}, nil
 }
 
 func exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {

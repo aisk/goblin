@@ -8,12 +8,14 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-var RandomModule = &object.Module{
-	Members: map[string]object.Object{
-		"int":   &object.Function{Name: "int", Fn: randInt},
-		"intn":  &object.Function{Name: "intn", Fn: randIntn},
-		"float": &object.Function{Name: "float", Fn: randFloat},
-	},
+func ExecuteRandom() (object.Object, error) {
+	return &object.Module{
+		Members: map[string]object.Object{
+			"int":   &object.Function{Name: "int", Fn: randInt},
+			"intn":  &object.Function{Name: "intn", Fn: randIntn},
+			"float": &object.Function{Name: "float", Fn: randFloat},
+		},
+	}, nil
 }
 
 func init() {

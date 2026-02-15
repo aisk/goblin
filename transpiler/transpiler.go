@@ -22,22 +22,22 @@ const (
 )
 
 type moduleInfo struct {
-	varName     string
-	extensionID string
+	varName      string
+	executorFunc string
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":     {varName: "os_module", extensionID: "OsModule"},
-	"random": {varName: "random_module", extensionID: "RandomModule"},
+	"os":     {varName: "os_module", executorFunc: "ExecuteOs"},
+	"random": {varName: "random_module", executorFunc: "ExecuteRandom"},
 }
 
 // transpileContext holds state for a single Transpile call.
 type transpileContext struct {
 	localNameCounter int
-	moduleImports    map[string]string      // module name -> Go variable name
-	importing        map[string]struct{}     // paths currently being transpiled (cycle detection)
-	imported         map[string]struct{}     // paths already transpiled (dedup)
-	moduleFuncs      []jen.Code             // top-level module executor functions
+	moduleImports    map[string]string   // module name -> Go variable name
+	importing        map[string]struct{} // paths currently being transpiled (cycle detection)
+	imported         map[string]struct{} // paths already transpiled (dedup)
+	moduleFuncs      []jen.Code          // top-level module executor functions
 }
 
 func newTranspileContext() *transpileContext {
@@ -104,14 +104,14 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	f := jen.NewFile(mod.Name)
 
 	// Emit registry global variable
-	hasPathImports := false
+	hasImports := false
 	for _, stmt := range mod.Body {
-		if imp, ok := stmt.(*ast.Import); ok && isPathImport(imp.Path) {
-			hasPathImports = true
+		if _, ok := stmt.(*ast.Import); ok {
+			hasImports = true
 			break
 		}
 	}
-	if hasPathImports {
+	if hasImports {
 		f.Var().Id("_registry").Op("=").Qual(pathObject, "NewRegistry").Call()
 	}
 
@@ -137,12 +137,17 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 	}
 
-	// Builtin module imports
+	// Builtin module imports via registry
 	for name, info := range knownModules {
 		if _, ok := ctx.moduleImports[name]; ok {
+			errVar := ctx.localName("err")
 			body = append(body,
-				jen.Id(info.varName).Op(":=").Qual(pathExtension, info.extensionID),
-				jen.Id(exportsVar).Index(jen.Lit(name)).Op("=").Id(info.varName),
+				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+					jen.Lit(name),
+					jen.Qual(pathExtension, info.executorFunc),
+				),
+				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+				jen.Id("_").Op("=").Id(info.varName),
 			)
 		}
 	}
@@ -264,12 +269,17 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 	}
 
-	// Builtin module imports for this sub-module
+	// Builtin module imports for this sub-module via registry
 	for name, info := range knownModules {
 		if _, ok := subModuleImports[name]; ok {
+			errVar := ctx.localName("err")
 			funcBody = append(funcBody,
-				jen.Id(info.varName).Op(":=").Qual(pathExtension, info.extensionID),
-				jen.Id(exportsVar).Index(jen.Lit(name)).Op("=").Id(info.varName),
+				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+					jen.Lit(name),
+					jen.Qual(pathExtension, info.executorFunc),
+				),
+				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+				jen.Id("_").Op("=").Id(info.varName),
 			)
 		}
 	}
