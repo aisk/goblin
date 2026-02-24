@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/lexer"
@@ -36,10 +39,37 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = transpiler.TranspileToDir(m, os.Args[1], "output")
+	tmpDir, err := os.MkdirTemp("", "goblin-*")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: failed to create temp dir: %v\n", err)
+		os.Exit(1)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	err = transpiler.TranspileToDir(m, os.Args[1], tmpDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
-	fmt.Fprintf(os.Stderr, "output written to output/\n")
+
+	base := filepath.Base(os.Args[1])
+	binaryName := strings.TrimSuffix(base, ".goblin")
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: failed to get working directory: %v\n", err)
+		os.Exit(1)
+	}
+	outputBin := filepath.Join(cwd, binaryName)
+
+	cmd := exec.Command("go", "build", "-o", outputBin, ".")
+	cmd.Dir = tmpDir
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err = cmd.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "error: go build failed: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Fprintf(os.Stderr, "built: %s\n", outputBin)
 }
