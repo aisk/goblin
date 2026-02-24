@@ -9,7 +9,7 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 ## Development Commands
 
 ### Building and Running
-- `go build ./command/goblin` - Build the goblin compiler
+- `go build .` - Build the goblin compiler
 - `goblin <file.goblin>` - Transpile Goblin source to Go (outputs to stdout)
 - Typical workflow: `goblin hello.goblin > hello.go && go run hello.go`
 
@@ -39,7 +39,7 @@ The transpiler wraps all generated code inside an `Execute()` function and a `ma
 - `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `range`) are resolved here.
 - `object/*.go` — Runtime type system: Integer (int64), Float (float64), String, Bool, List, Unit (nil), Error. Each type implements the `Object` interface for arithmetic, logic, and iteration.
 - `builtin/builtin.go` — Built-in function implementations. Signature: `func([]Object, map[string]Object) (Object, error)`.
-- `command/goblin/goblin.go` — CLI entry point. Also contains a hardcoded `hello` AST variable useful for testing the transpiler without parsing.
+- `main.go` — CLI entry point.
 
 ### Generated Code (do not edit)
 

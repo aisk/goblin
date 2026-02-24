@@ -6,7 +6,6 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/lexer"
-	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/transpiler"
 )
