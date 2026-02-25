@@ -62,7 +62,7 @@ func main() {
 	}
 	outputBin := filepath.Join(cwd, binaryName)
 
-	cmd := exec.Command("go", "build", "-o", outputBin, ".")
+	cmd := exec.Command("go", "build", "-mod=mod", "-o", outputBin, ".")
 	cmd.Dir = tmpDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
