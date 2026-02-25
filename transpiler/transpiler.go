@@ -16,9 +16,10 @@ import (
 )
 
 const (
-	pathBase      = "github.com/aisk/goblin"
-	pathObject    = pathBase + "/object"
-	pathExtension = pathBase + "/extension"
+	pathBase                    = "github.com/aisk/goblin"
+	pathObject                  = pathBase + "/object"
+	pathExtension               = pathBase + "/extension"
+	defaultGoblinRuntimeVersion = "v0.0.0-20260224172520-e2bc1cc1d8a5"
 )
 
 type moduleInfo struct {
@@ -921,19 +922,21 @@ func detectGoblinRoot() string {
 // generateGoMod writes the go.mod file for the output directory.
 func generateGoMod(outputDir, moduleName string) error {
 	goblinRoot := detectGoblinRoot()
-	var content string
+	content := generateGoModContent(moduleName, defaultGoblinRuntimeVersion, goblinRoot)
+	return os.WriteFile(filepath.Join(outputDir, "go.mod"), []byte(content), 0644)
+}
+
+func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string {
 	if goblinRoot != "" {
-		content = fmt.Sprintf(
-			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin v0.0.0-00010101000000-000000000000\n\nreplace github.com/aisk/goblin => %s\n",
-			moduleName, goblinRoot,
-		)
-	} else {
-		content = fmt.Sprintf(
-			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin v0.0.0-00010101000000-000000000000\n",
-			moduleName,
+		return fmt.Sprintf(
+			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n\nreplace github.com/aisk/goblin => %s\n",
+			moduleName, runtimeVersion, goblinRoot,
 		)
 	}
-	return os.WriteFile(filepath.Join(outputDir, "go.mod"), []byte(content), 0644)
+	return fmt.Sprintf(
+		"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n",
+		moduleName, runtimeVersion,
+	)
 }
 
 // TranspileToDir transpiles a goblin module into a Go module directory structure.
