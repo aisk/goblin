@@ -102,15 +102,15 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "size":
 		return Integer(len([]rune(string(s)))), nil
 	case "upper":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "upper", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			return String(strings.ToUpper(string(s))), nil
 		}}, nil
 	case "lower":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "lower", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			return String(strings.ToLower(string(s))), nil
 		}}, nil
 	case "has_prefix":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "has_prefix", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			if len(args) != 1 {
 				return nil, fmt.Errorf("has_prefix() takes exactly 1 argument, got %d", len(args))
 			}
@@ -121,7 +121,7 @@ func (s String) GetAttr(name string) (Object, error) {
 			return Bool(strings.HasPrefix(string(s), string(prefix))), nil
 		}}, nil
 	case "has_suffix":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "has_suffix", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			if len(args) != 1 {
 				return nil, fmt.Errorf("has_suffix() takes exactly 1 argument, got %d", len(args))
 			}
@@ -132,7 +132,7 @@ func (s String) GetAttr(name string) (Object, error) {
 			return Bool(strings.HasSuffix(string(s), string(suffix))), nil
 		}}, nil
 	case "trim":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "trim", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			if len(args) != 1 {
 				return nil, fmt.Errorf("trim() takes exactly 1 argument, got %d", len(args))
 			}
@@ -143,11 +143,11 @@ func (s String) GetAttr(name string) (Object, error) {
 			return String(strings.Trim(string(s), string(cutset))), nil
 		}}, nil
 	case "trim_space":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "trim_space", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			return String(strings.TrimSpace(string(s))), nil
 		}}, nil
 	case "contains":
-		return &Method{Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "contains", Fn: func(args Args, kwargs KwArgs) (Object, error) {
 			if len(args) != 1 {
 				return nil, fmt.Errorf("contains() takes exactly 1 argument, got %d", len(args))
 			}

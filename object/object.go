@@ -26,8 +26,6 @@ func Call(obj Object, args Args, kwargs KwArgs) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:
 		return v.Call(args, kwargs)
-	case *Method:
-		return v.Call(args, kwargs)
 	}
 	return nil, fmt.Errorf("%s is not callable", obj.Repr())
 }
