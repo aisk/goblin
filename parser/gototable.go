@@ -2,7 +2,7 @@
 
 package parser
 
-const numNTSymbols = 44
+const numNTSymbols = 45
 
 type (
 	gotoTable [numStates]gotoRow
@@ -16,26 +16,27 @@ var gotoTab = gotoTable{
 		2,  // Statements
 		3,  // StatementList
 		4,  // Statement
+		5,  // ExpressionStatement
 		16, // Import
 		-1, // ExpressionList
-		5,  // Expression
-		19, // Expression1
-		20, // Expression2
-		21, // Expression3
-		22, // Expression4
-		23, // Expression5
-		24, // PostfixExpression
-		26, // PrimaryExpression
-		30, // IntegerLiteral
-		31, // FloatLiteral
-		32, // StringLiteral
-		33, // TrueLiteral
-		34, // FalseLiteral
-		35, // NilLiteral
-		36, // ListLiteral
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
 		-1, // ListElements
 		-1, // ListElementList
-		37, // DictLiteral
+		-1, // DictLiteral
 		-1, // DictElements
 		-1, // DictElementList
 		-1, // DictElement
@@ -62,6 +63,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -108,6 +110,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -153,27 +156,28 @@ var gotoTab = gotoTable{
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
-		52, // Statement
+		27, // Statement
+		5,  // ExpressionStatement
 		16, // Import
 		-1, // ExpressionList
-		5,  // Expression
-		19, // Expression1
-		20, // Expression2
-		21, // Expression3
-		22, // Expression4
-		23, // Expression5
-		24, // PostfixExpression
-		26, // PrimaryExpression
-		30, // IntegerLiteral
-		31, // FloatLiteral
-		32, // StringLiteral
-		33, // TrueLiteral
-		34, // FalseLiteral
-		35, // NilLiteral
-		36, // ListLiteral
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
 		-1, // ListElements
 		-1, // ListElementList
-		37, // DictLiteral
+		-1, // DictLiteral
 		-1, // DictElements
 		-1, // DictElementList
 		-1, // DictElement
@@ -200,6 +204,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -246,6 +251,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -292,6 +298,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -338,6 +345,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -384,6 +392,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -430,6 +439,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -476,6 +486,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -522,6 +533,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -568,6 +580,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -614,6 +627,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -660,6 +674,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -706,6 +721,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -752,6 +768,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -798,6 +815,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -844,6 +862,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -890,6 +909,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -936,26 +956,27 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
+		39, // Expression
+		42, // Expression1
+		43, // Expression2
+		44, // Expression3
+		45, // Expression4
+		46, // Expression5
+		47, // PostfixExpression
+		49, // PrimaryExpression
+		50, // IntegerLiteral
+		51, // FloatLiteral
+		52, // StringLiteral
+		53, // TrueLiteral
+		54, // FalseLiteral
+		55, // NilLiteral
+		56, // ListLiteral
 		-1, // ListElements
 		-1, // ListElementList
-		-1, // DictLiteral
+		57, // DictLiteral
 		-1, // DictElements
 		-1, // DictElementList
 		-1, // DictElement
@@ -964,7 +985,7 @@ var gotoTab = gotoTable{
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
-		-1, // Condition
+		64, // Condition
 		-1, // If
 		-1, // IfElse
 		-1, // While
@@ -982,26 +1003,27 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
+		39, // Expression
+		42, // Expression1
+		43, // Expression2
+		44, // Expression3
+		45, // Expression4
+		46, // Expression5
+		47, // PostfixExpression
+		49, // PrimaryExpression
+		50, // IntegerLiteral
+		51, // FloatLiteral
+		52, // StringLiteral
+		53, // TrueLiteral
+		54, // FalseLiteral
+		55, // NilLiteral
+		56, // ListLiteral
 		-1, // ListElements
 		-1, // ListElementList
-		-1, // DictLiteral
+		57, // DictLiteral
 		-1, // DictElements
 		-1, // DictElementList
 		-1, // DictElement
@@ -1010,7 +1032,7 @@ var gotoTab = gotoTable{
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
-		-1, // Condition
+		65, // Condition
 		-1, // If
 		-1, // IfElse
 		-1, // While
@@ -1028,6 +1050,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1074,6 +1097,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1120,6 +1144,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1166,26 +1191,27 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		69, // Expression5
-		24, // PostfixExpression
-		26, // PrimaryExpression
-		30, // IntegerLiteral
-		31, // FloatLiteral
-		32, // StringLiteral
-		33, // TrueLiteral
-		34, // FalseLiteral
-		35, // NilLiteral
-		36, // ListLiteral
+		70, // Expression
+		73, // Expression1
+		74, // Expression2
+		75, // Expression3
+		76, // Expression4
+		77, // Expression5
+		78, // PostfixExpression
+		80, // PrimaryExpression
+		81, // IntegerLiteral
+		82, // FloatLiteral
+		83, // StringLiteral
+		84, // TrueLiteral
+		85, // FalseLiteral
+		86, // NilLiteral
+		87, // ListLiteral
 		-1, // ListElements
 		-1, // ListElementList
-		37, // DictLiteral
+		88, // DictLiteral
 		-1, // DictElements
 		-1, // DictElementList
 		-1, // DictElement
@@ -1212,6 +1238,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1258,98 +1285,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		71, // Expression
-		73, // Expression1
-		74, // Expression2
-		75, // Expression3
-		76, // Expression4
-		77, // Expression5
-		78, // PostfixExpression
-		80, // PrimaryExpression
-		84, // IntegerLiteral
-		85, // FloatLiteral
-		86, // StringLiteral
-		87, // TrueLiteral
-		88, // FalseLiteral
-		89, // NilLiteral
-		90, // ListLiteral
-		97, // ListElements
-		98, // ListElementList
-		91, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S28
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		100, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S29
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1390,12 +1326,107 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
+	gotoRow{ // S28
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		98,  // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S29
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		127, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
 	gotoRow{ // S30
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1437,96 +1468,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S31
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		153, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S32
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		154, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S33
 		-1, // S'
@@ -1534,6 +1567,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1575,50 +1609,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S34
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		156, // Expression
+		73,  // Expression1
+		74,  // Expression2
+		75,  // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S35
 		-1, // S'
@@ -1626,6 +1661,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1672,6 +1708,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1718,6 +1755,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1759,50 +1797,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S38
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		184, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S39
 		-1, // S'
@@ -1810,6 +1849,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1851,50 +1891,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S40
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		189, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S41
 		-1, // S'
@@ -1902,6 +1943,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1948,6 +1990,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -1989,50 +2032,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S43
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		155, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S44
 		-1, // S'
@@ -2040,6 +2084,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2081,96 +2126,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S45
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		159, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		186, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S46
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		159, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		187, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S47
 		-1, // S'
@@ -2178,6 +2225,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2219,50 +2267,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S48
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		229, // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S49
 		-1, // S'
@@ -2270,6 +2319,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2311,50 +2361,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S50
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		190, // Expression
-		19,  // Expression1
-		20,  // Expression2
-		21,  // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S51
 		-1, // S'
@@ -2362,6 +2413,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2408,6 +2460,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2454,6 +2507,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -2495,418 +2549,427 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S54
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		192, // Expression2
-		21,  // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S55
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		193, // Expression2
-		21,  // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S56
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		194, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S57
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		195, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S58
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		196, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S59
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		197, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S60
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		198, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S61
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		199, // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S62
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		200, // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S63
 		-1,  // S'
@@ -2914,29 +2977,30 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		201, // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		37,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		250, // DictLiteral
+		257, // DictElements
+		258, // DictElementList
+		259, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
@@ -2960,6 +3024,7 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
@@ -2967,19 +3032,19 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		202, // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		37,  // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -2987,7 +3052,7 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		-1,  // Block
+		261, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3006,6 +3071,7 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
@@ -3013,19 +3079,19 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		203, // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		37,  // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -3033,7 +3099,7 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		-1,  // Block
+		263, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3047,96 +3113,98 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S66
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		204, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S67
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		243, // Arguments
-		259, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S68
 		-1, // S'
@@ -3144,6 +3212,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3185,50 +3254,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S69
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		266, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S70
 		-1, // S'
@@ -3236,6 +3306,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3277,50 +3348,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S71
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		267, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S72
 		-1, // S'
@@ -3328,6 +3400,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3374,6 +3447,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3420,6 +3494,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3466,6 +3541,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3512,6 +3588,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3558,6 +3635,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3604,6 +3682,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3650,6 +3729,7 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
@@ -3657,19 +3737,19 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		276, // Expression5
+		283, // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -3696,6 +3776,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3737,96 +3818,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S81
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		277, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S82
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		278, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S83
 		-1, // S'
@@ -3834,6 +3917,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3880,6 +3964,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3926,6 +4011,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -3972,6 +4058,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4018,6 +4105,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4064,6 +4152,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4110,6 +4199,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4156,6 +4246,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4202,6 +4293,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4248,6 +4340,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4294,6 +4387,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4335,50 +4429,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S94
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		284, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S95
 		-1, // S'
@@ -4386,6 +4481,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4432,6 +4528,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4473,50 +4570,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S97
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		285, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S98
 		-1, // S'
@@ -4524,6 +4622,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4570,29 +4669,30 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		287, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
-		281, // DictElements
-		156, // DictElementList
-		157, // DictElement
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
@@ -4616,6 +4716,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4662,6 +4763,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4708,6 +4810,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4754,6 +4857,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4800,6 +4904,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4846,6 +4951,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4892,6 +4998,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4933,11 +5040,59 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S107
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		303, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S108
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -4978,58 +5133,13 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S108
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		298, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
 	gotoRow{ // S109
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5071,96 +5181,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S110
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		299, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S111
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		300, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S112
 		-1, // S'
@@ -5168,6 +5280,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5214,6 +5327,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5260,6 +5374,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5306,6 +5421,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5352,6 +5468,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5398,6 +5515,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5444,6 +5562,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5490,6 +5609,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5536,6 +5656,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5582,6 +5703,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5623,50 +5745,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S122
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		304, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S123
 		-1, // S'
@@ -5674,6 +5797,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5715,50 +5839,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S124
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		305, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S125
 		-1, // S'
@@ -5766,6 +5891,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5812,72 +5938,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		306, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
-		301, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S127
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		302, // Expression
-		19,  // Expression1
-		20,  // Expression2
-		21,  // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		37,  // DictLiteral
+		207, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -5898,12 +5979,60 @@ var gotoTab = gotoTable{
 		-1,  // Return
 		-1,  // Export
 	},
+	gotoRow{ // S127
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
 	gotoRow{ // S128
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5950,6 +6079,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -5996,6 +6126,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6042,6 +6173,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6088,6 +6220,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6134,6 +6267,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6180,6 +6314,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6221,11 +6356,59 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S135
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		323, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S136
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6266,58 +6449,13 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S136
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		319, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
 	gotoRow{ // S137
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6359,96 +6497,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S138
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		320, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S139
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		321, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S140
 		-1, // S'
@@ -6456,6 +6596,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6502,6 +6643,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6548,6 +6690,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6594,6 +6737,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6640,6 +6784,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6686,6 +6831,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6732,6 +6878,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6778,6 +6925,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6824,6 +6972,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6870,6 +7019,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -6911,50 +7061,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S150
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		324, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S151
 		-1, // S'
@@ -6962,6 +7113,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7008,6 +7160,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7054,6 +7207,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7095,50 +7249,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S154
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		322, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S155
 		-1, // S'
@@ -7146,6 +7301,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7192,6 +7348,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7233,50 +7390,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S157
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		328, // Expression
+		73,  // Expression1
+		74,  // Expression2
+		75,  // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S158
 		-1, // S'
@@ -7284,6 +7442,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7325,50 +7484,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S159
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		329, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S160
 		-1, // S'
@@ -7376,6 +7536,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7417,50 +7578,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S161
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		330, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S162
 		-1, // S'
@@ -7468,6 +7630,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7514,6 +7677,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7560,6 +7724,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7606,6 +7771,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7652,6 +7818,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7693,50 +7860,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S167
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		341, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S168
 		-1, // S'
@@ -7744,6 +7912,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7790,26 +7959,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		342, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		346, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -7831,50 +8001,51 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S170
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		343, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S171
 		-1, // S'
@@ -7882,6 +8053,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7928,6 +8100,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -7974,6 +8147,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8020,6 +8194,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8066,6 +8241,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8112,6 +8288,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8158,6 +8335,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8204,6 +8382,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8250,6 +8429,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8296,6 +8476,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8342,6 +8523,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8388,6 +8570,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8434,6 +8617,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8480,6 +8664,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8521,149 +8706,12 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S185
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		344, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S186
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		346, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S187
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		348, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S188
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8704,12 +8752,154 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
+	gotoRow{ // S186
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		349, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S187
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S188
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		350, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
 	gotoRow{ // S189
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8751,50 +8941,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S190
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		352, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S191
 		-1, // S'
@@ -8802,6 +8993,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8848,6 +9040,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8894,6 +9087,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8940,6 +9134,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -8986,6 +9181,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9032,6 +9228,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9078,6 +9275,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9119,50 +9317,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S198
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		368, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S199
 		-1, // S'
@@ -9170,6 +9369,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9216,6 +9416,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9262,6 +9463,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9308,6 +9510,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9354,6 +9557,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9400,6 +9604,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9446,6 +9651,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9492,6 +9698,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9538,6 +9745,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9584,6 +9792,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9630,6 +9839,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9676,6 +9886,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9722,6 +9933,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9763,57 +9975,12 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S212
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		367, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S213
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -9854,32 +10021,80 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
+	gotoRow{ // S213
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		369, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
 	gotoRow{ // S214
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		368, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		370, // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -9906,26 +10121,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		369, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		371, // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -9947,556 +10163,568 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S216
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		372, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S217
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		373, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S218
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		374, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S219
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		375, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S220
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		376, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S221
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		377, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S222
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		378, // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S223
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		379, // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S224
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		380, // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S225
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		381, // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S226
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		382, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S227
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		383, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S228
 		-1, // S'
@@ -10504,6 +10732,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10550,6 +10779,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10591,57 +10821,12 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S230
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		370, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S231
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10682,12 +10867,60 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
+	gotoRow{ // S231
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		385, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
 	gotoRow{ // S232
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10729,50 +10962,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S233
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		387, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S234
 		-1, // S'
@@ -10780,6 +11014,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10826,6 +11061,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10872,6 +11108,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10918,6 +11155,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -10964,6 +11202,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11005,50 +11244,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S239
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		386, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S240
 		-1, // S'
@@ -11056,6 +11296,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11102,26 +11343,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		387, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		403, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -11143,50 +11385,51 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S242
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		388, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S243
 		-1, // S'
@@ -11194,6 +11437,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11240,6 +11484,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11286,6 +11531,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11332,6 +11578,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11378,6 +11625,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11424,6 +11672,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11470,6 +11719,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11516,6 +11766,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11562,6 +11813,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11608,6 +11860,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11654,6 +11907,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11700,6 +11954,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11746,6 +12001,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11787,50 +12043,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S256
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		404, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S257
 		-1, // S'
@@ -11838,6 +12095,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11879,50 +12137,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S258
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		390, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S259
 		-1, // S'
@@ -11930,6 +12189,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -11971,11 +12231,59 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S260
+		-1,  // S'
+		-1,  // Module
+		407, // Statements
+		408, // StatementList
+		409, // Statement
+		410, // ExpressionStatement
+		421, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		411, // Declare
+		412, // Assign
+		-1,  // Block
+		-1,  // Condition
+		413, // If
+		414, // IfElse
+		415, // While
+		416, // For
+		417, // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		418, // FunctionDefine
+		419, // Return
+		420, // Export
+	},
+	gotoRow{ // S261
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -12016,143 +12324,99 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S261
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		392, // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
 	gotoRow{ // S262
 		-1,  // S'
 		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		393, // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S263
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
+		433, // Statements
+		408, // StatementList
+		409, // Statement
+		410, // ExpressionStatement
+		421, // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		394, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
+		411, // Declare
+		412, // Assign
 		-1,  // Block
 		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
+		413, // If
+		414, // IfElse
+		415, // While
+		416, // For
+		417, // Break
 		-1,  // Parameters
 		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		418, // FunctionDefine
+		419, // Return
+		420, // Export
+	},
+	gotoRow{ // S263
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S264
 		-1,  // S'
@@ -12160,26 +12424,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		395, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		434, // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12206,26 +12471,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		396, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12240,103 +12506,105 @@ var gotoTab = gotoTable{
 		-1,  // While
 		-1,  // For
 		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
+		436, // Parameters
+		437, // ParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S266
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		397, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S267
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		398, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S268
 		-1,  // S'
@@ -12344,26 +12612,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		399, // Expression3
+		440, // Expression2
+		75,  // Expression3
 		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12390,26 +12659,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		400, // Expression4
+		441, // Expression2
+		75,  // Expression3
+		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12436,26 +12706,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		401, // Expression4
+		442, // Expression3
+		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12482,26 +12753,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		402, // Expression5
+		443, // Expression3
+		76,  // Expression4
+		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12528,26 +12800,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		403, // Expression5
+		444, // Expression3
+		76,  // Expression4
+		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12574,26 +12847,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		404, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		445, // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		224, // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12620,31 +12894,32 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		446, // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		405, // Arguments
-		259, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -12661,234 +12936,239 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S275
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		447, // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S276
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		448, // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S277
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		449, // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S278
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		450, // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S279
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		451, // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S280
 		-1,  // S'
@@ -12896,26 +13176,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		409, // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
+		452, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		91,  // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -12937,50 +13218,51 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S281
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		453, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S282
 		-1, // S'
@@ -12988,6 +13270,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -13029,234 +13312,239 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S283
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		411, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S284
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		412, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S285
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		413, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S286
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		414, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S287
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		415, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S288
 		-1,  // S'
@@ -13264,26 +13552,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		416, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		458, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13310,26 +13599,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		417, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		459, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13356,26 +13646,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		418, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		460, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13402,26 +13693,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		419, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		461, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13448,26 +13740,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		420, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		462, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13494,26 +13787,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		421, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		463, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13540,26 +13834,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		422, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
+		464, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		120, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13586,26 +13881,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		423, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		465, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		224, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -13632,31 +13928,32 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		466, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		424, // Arguments
-		259, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13673,234 +13970,239 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S297
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		467, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S298
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		468, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S299
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		469, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S300
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		470, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S301
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		471, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S302
 		-1, // S'
@@ -13908,6 +14210,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -13949,234 +14252,239 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S303
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		429, // Expression
-		431, // Expression1
-		432, // Expression2
-		433, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S304
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		456, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S305
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		457, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S306
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		458, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S307
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		459, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S308
 		-1,  // S'
@@ -14184,26 +14492,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		460, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		476, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14230,26 +14539,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		461, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		477, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14276,26 +14586,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		462, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		478, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14322,26 +14633,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		463, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		479, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14368,26 +14680,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		464, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		480, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14414,26 +14727,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		465, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		481, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14460,26 +14774,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		466, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		482, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14506,26 +14821,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		467, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
+		483, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		148, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14552,26 +14868,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		468, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		484, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		224, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -14598,31 +14915,32 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		485, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		469, // Arguments
-		259, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14639,188 +14957,192 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S318
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		486, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S319
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		487, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S320
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		488, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S321
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		489, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S322
 		-1, // S'
@@ -14828,6 +15150,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -14874,6 +15197,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -14915,50 +15239,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S324
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		474, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S325
 		-1,  // S'
@@ -14966,26 +15291,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		475, // Expression
-		19,  // Expression1
-		20,  // Expression2
-		21,  // Expression3
-		22,  // Expression4
-		23,  // Expression5
-		24,  // PostfixExpression
-		26,  // PrimaryExpression
-		30,  // IntegerLiteral
-		31,  // FloatLiteral
-		32,  // StringLiteral
-		33,  // TrueLiteral
-		34,  // FalseLiteral
-		35,  // NilLiteral
-		36,  // ListLiteral
+		492, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		37,  // DictLiteral
+		144, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15007,234 +15333,239 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S326
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		476, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S327
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		477, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S328
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		478, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S329
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		479, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S330
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		480, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S331
 		-1,  // S'
@@ -15242,26 +15573,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		481, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		495, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15288,26 +15620,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		482, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		496, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15334,26 +15667,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		483, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		497, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15380,26 +15714,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		484, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		498, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15426,26 +15761,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		485, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		499, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15472,26 +15808,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		486, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		500, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15518,26 +15855,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		487, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		501, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15564,26 +15902,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		488, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		502, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		224, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -15610,31 +15949,32 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		503, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		489, // Arguments
-		259, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15651,280 +15991,286 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S340
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S341
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S342
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S343
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S344
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S345
 		-1,  // S'
 		-1,  // Module
-		494, // Statements
-		495, // StatementList
-		496, // Statement
-		508, // Import
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
 		-1,  // ExpressionList
-		497, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		504, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		529, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		498, // Declare
-		499, // Assign
+		-1,  // Declare
+		-1,  // Assign
 		-1,  // Block
 		-1,  // Condition
-		500, // If
-		501, // IfElse
-		502, // While
-		503, // For
-		504, // Break
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
 		-1,  // Parameters
 		-1,  // ParameterList
-		505, // FunctionDefine
-		506, // Return
-		507, // Export
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S341
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		505, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S342
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		506, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S343
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		507, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S344
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		508, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S345
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S346
 		-1, // S'
@@ -15932,6 +16278,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -15973,57 +16320,12 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S347
-		-1,  // S'
-		-1,  // Module
-		545, // Statements
-		495, // StatementList
-		496, // Statement
-		508, // Import
-		-1,  // ExpressionList
-		497, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		498, // Declare
-		499, // Assign
-		-1,  // Block
-		-1,  // Condition
-		500, // If
-		501, // IfElse
-		502, // While
-		503, // For
-		504, // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		505, // FunctionDefine
-		506, // Return
-		507, // Export
-	},
-	gotoRow{ // S348
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -16064,32 +16366,33 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S349
+	gotoRow{ // S348
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		546, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		510, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -16110,51 +16413,99 @@ var gotoTab = gotoTable{
 		-1,  // Return
 		-1,  // Export
 	},
+	gotoRow{ // S349
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
 	gotoRow{ // S350
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		548, // Parameters
-		549, // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S351
 		-1, // S'
@@ -16162,6 +16513,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -16203,655 +16555,12 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S352
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		550, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S353
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		551, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S354
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		552, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S355
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		553, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S356
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		554, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S357
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		555, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S358
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		556, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S359
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		557, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S360
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		558, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S361
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		559, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S362
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		560, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S363
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		561, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S364
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		562, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S365
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		563, // Arguments
-		259, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S366
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -16892,12 +16601,671 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
+	gotoRow{ // S353
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		514, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S354
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		515, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S355
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		516, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S356
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		517, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S357
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		518, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S358
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		519, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S359
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		520, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S360
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		521, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S361
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		522, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S362
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		523, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S363
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		524, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S364
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		525, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		207, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S365
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		526, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S366
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		527, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
 	gotoRow{ // S367
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -16944,6 +17312,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -16990,6 +17359,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -17036,6 +17406,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -17077,648 +17448,662 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S371
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		568, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S372
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		569, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S373
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		570, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S374
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		571, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S375
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		572, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S376
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		573, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S377
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		574, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S378
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		575, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S379
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		576, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S380
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		577, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S381
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		578, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S382
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		579, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S383
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		580, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S384
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		581, // Arguments
-		259, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S385
 		-1, // S'
@@ -17726,6 +18111,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -17767,50 +18153,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S386
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		535, // Expression
+		538, // Expression1
+		539, // Expression2
+		540, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S387
 		-1, // S'
@@ -17818,6 +18205,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -17859,142 +18247,145 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S388
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		561, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S389
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		562, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S390
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		563, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S391
 		-1,  // S'
@@ -18002,26 +18393,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		586, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		564, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		250, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -18043,464 +18435,474 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S392
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		565, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S393
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		566, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S394
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		567, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S395
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		568, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S396
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		569, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S397
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		570, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S398
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		571, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S399
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		572, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S400
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		573, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S401
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		574, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S402
 		-1, // S'
@@ -18508,6 +18910,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18554,6 +18957,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18600,6 +19004,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18646,6 +19051,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18687,50 +19093,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S406
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		577, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S407
 		-1, // S'
@@ -18738,6 +19145,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18779,50 +19187,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S408
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		579, // Statement
+		410, // ExpressionStatement
+		421, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		411, // Declare
+		412, // Assign
+		-1,  // Block
+		-1,  // Condition
+		413, // If
+		414, // IfElse
+		415, // While
+		416, // For
+		417, // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		418, // FunctionDefine
+		419, // Return
+		420, // Export
 	},
 	gotoRow{ // S409
 		-1, // S'
@@ -18830,6 +19239,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18876,6 +19286,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18922,6 +19333,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -18968,6 +19380,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19014,6 +19427,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19060,6 +19474,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19106,6 +19521,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19152,6 +19568,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19198,6 +19615,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19244,6 +19662,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19290,6 +19709,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19336,6 +19756,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19382,6 +19803,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19428,6 +19850,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19474,6 +19897,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19520,6 +19944,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19561,96 +19986,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S425
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		39,  // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		589, // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S426
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		39,  // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		590, // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S427
 		-1, // S'
@@ -19658,6 +20085,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19704,6 +20132,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19750,6 +20179,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19791,50 +20221,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S430
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		595, // Expression
+		598, // Expression1
+		599, // Expression2
+		600, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S431
 		-1, // S'
@@ -19842,6 +20273,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19883,50 +20315,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S432
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		623, // Block
+		-1,  // Condition
+		621, // If
+		622, // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S433
 		-1, // S'
@@ -19934,6 +20367,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -19975,50 +20409,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S434
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		625, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S435
 		-1, // S'
@@ -20026,6 +20461,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20072,6 +20508,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20113,50 +20550,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S437
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		606, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S438
 		-1, // S'
@@ -20164,6 +20602,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20205,96 +20644,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S439
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		607, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S440
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		608, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S441
 		-1, // S'
@@ -20302,6 +20743,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20348,6 +20790,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20394,6 +20837,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20440,6 +20884,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20486,6 +20931,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20532,6 +20978,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20578,6 +21025,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20624,6 +21072,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20670,6 +21119,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20716,6 +21166,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20762,6 +21213,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20808,6 +21260,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20854,6 +21307,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20900,6 +21354,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -20941,50 +21396,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S455
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		609, // DictElements
-		156, // DictElementList
-		157, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S456
 		-1, // S'
@@ -20992,6 +21448,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21038,6 +21495,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21084,6 +21542,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21130,6 +21589,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21176,6 +21636,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21222,6 +21683,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21268,6 +21730,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21314,6 +21777,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21360,6 +21824,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21406,6 +21871,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21452,6 +21918,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21498,6 +21965,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21544,6 +22012,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21590,6 +22059,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21636,6 +22106,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21682,6 +22153,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21728,6 +22200,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21774,6 +22247,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21820,6 +22294,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21866,6 +22341,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21912,6 +22388,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -21958,6 +22435,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22004,6 +22482,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22050,6 +22529,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22096,6 +22576,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22142,6 +22623,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22188,6 +22670,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22234,6 +22717,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22280,6 +22764,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22326,6 +22811,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22372,6 +22858,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22418,6 +22905,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22464,6 +22952,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22510,6 +22999,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22556,6 +23046,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22602,6 +23093,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22648,6 +23140,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22694,6 +23187,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22740,6 +23234,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22781,50 +23276,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S495
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		615, // Statement
-		508, // Import
-		-1,  // ExpressionList
-		497, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		498, // Declare
-		499, // Assign
-		-1,  // Block
-		-1,  // Condition
-		500, // If
-		501, // IfElse
-		502, // While
-		503, // For
-		504, // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		505, // FunctionDefine
-		506, // Return
-		507, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S496
 		-1, // S'
@@ -22832,6 +23328,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22878,6 +23375,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22924,6 +23422,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -22970,6 +23469,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23016,6 +23516,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23062,6 +23563,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23108,6 +23610,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23154,6 +23657,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23200,6 +23704,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23246,6 +23751,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23292,6 +23798,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23338,6 +23845,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23384,6 +23892,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23430,6 +23939,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23476,6 +23986,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23522,6 +24033,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23568,6 +24080,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23614,6 +24127,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23660,6 +24174,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23706,6 +24221,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23752,6 +24268,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23793,50 +24310,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S517
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		632, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S518
 		-1, // S'
@@ -23844,6 +24362,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -23885,96 +24404,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S519
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		71,  // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		84,  // IntegerLiteral
-		85,  // FloatLiteral
-		86,  // StringLiteral
-		87,  // TrueLiteral
-		88,  // FalseLiteral
-		89,  // NilLiteral
-		90,  // ListLiteral
-		634, // ListElements
-		98,  // ListElementList
-		91,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S520
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		635, // Expression
-		102, // Expression1
-		103, // Expression2
-		104, // Expression3
-		105, // Expression4
-		106, // Expression5
-		107, // PostfixExpression
-		109, // PrimaryExpression
-		113, // IntegerLiteral
-		114, // FloatLiteral
-		115, // StringLiteral
-		116, // TrueLiteral
-		117, // FalseLiteral
-		118, // NilLiteral
-		119, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		120, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S521
 		-1, // S'
@@ -23982,6 +24503,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24028,6 +24550,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24074,6 +24597,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24120,6 +24644,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24166,6 +24691,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24212,6 +24738,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24258,6 +24785,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24304,6 +24832,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24350,6 +24879,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24396,6 +24926,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24442,6 +24973,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24488,6 +25020,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24534,6 +25067,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24575,80 +25109,35 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S534
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S535
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		128, // Expression
-		130, // Expression1
-		131, // Expression2
-		132, // Expression3
-		133, // Expression4
-		134, // Expression5
-		135, // PostfixExpression
-		137, // PrimaryExpression
-		141, // IntegerLiteral
-		142, // FloatLiteral
-		143, // StringLiteral
-		144, // TrueLiteral
-		145, // FalseLiteral
-		146, // NilLiteral
-		147, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		148, // DictLiteral
-		637, // DictElements
-		156, // DictElementList
-		157, // DictElement
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		638, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
@@ -24666,12 +25155,13 @@ var gotoTab = gotoTable{
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S536
+	gotoRow{ // S535
 		-1, // S'
 		-1, // Module
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24712,32 +25202,33 @@ var gotoTab = gotoTable{
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S537
+	gotoRow{ // S536
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		159, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
+		639, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		179, // DictLiteral
+		207, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -24746,7 +25237,7 @@ var gotoTab = gotoTable{
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
-		639, // Condition
+		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
 		-1,  // While
@@ -24758,51 +25249,99 @@ var gotoTab = gotoTable{
 		-1,  // Return
 		-1,  // Export
 	},
+	gotoRow{ // S537
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
 	gotoRow{ // S538
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		159, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		640, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S539
 		-1, // S'
@@ -24810,6 +25349,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24856,6 +25396,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24902,6 +25443,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -24943,50 +25485,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S542
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		643, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S543
 		-1, // S'
@@ -24994,6 +25537,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25040,6 +25584,7 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
@@ -25047,19 +25592,19 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		655, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
+		553, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -25067,10 +25612,10 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		647, // Block
+		-1,  // Block
 		-1,  // Condition
-		645, // If
-		646, // IfElse
+		-1,  // If
+		-1,  // IfElse
 		-1,  // While
 		-1,  // For
 		-1,  // Break
@@ -25086,6 +25631,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25127,50 +25673,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S546
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		649, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S547
 		-1, // S'
@@ -25178,6 +25725,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25224,6 +25772,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25270,6 +25819,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25316,6 +25866,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25362,6 +25913,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25408,6 +25960,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25454,6 +26007,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25500,6 +26054,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25546,6 +26101,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25592,6 +26148,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25638,6 +26195,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25684,6 +26242,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25725,50 +26284,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S559
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		250, // DictLiteral
+		656, // DictElements
+		258, // DictElementList
+		259, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S560
 		-1, // S'
@@ -25776,6 +26336,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25822,6 +26383,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25868,6 +26430,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25914,6 +26477,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -25960,6 +26524,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26006,6 +26571,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26052,6 +26618,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26098,6 +26665,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26144,6 +26712,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26190,6 +26759,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26236,6 +26806,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26282,6 +26853,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26328,6 +26900,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26374,6 +26947,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26420,6 +26994,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26466,6 +27041,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26512,6 +27088,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26558,6 +27135,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26604,6 +27182,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26650,6 +27229,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26691,96 +27271,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S580
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		659, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S581
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		660, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S582
 		-1, // S'
@@ -26788,6 +27370,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26829,96 +27412,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S583
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		662, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S584
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		663, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S585
 		-1, // S'
@@ -26926,6 +27511,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -26967,50 +27553,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S586
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		665, // Expression
+		598, // Expression1
+		599, // Expression2
+		600, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S587
 		-1, // S'
@@ -27018,6 +27605,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -27064,6 +27652,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -27105,215 +27694,32 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S589
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S590
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S591
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		656, // Expression2
-		433, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S592
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		657, // Expression2
-		433, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S593
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		658, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		449, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -27321,7 +27727,7 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		-1,  // Block
+		668, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -27333,6 +27739,194 @@ var gotoTab = gotoTable{
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
+	},
+	gotoRow{ // S590
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		670, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S591
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S592
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S593
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S594
 		-1,  // S'
@@ -27340,26 +27934,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		659, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
+		160, // Expression
+		163, // Expression1
+		164, // Expression2
+		165, // Expression3
+		166, // Expression4
+		167, // Expression5
+		168, // PostfixExpression
+		170, // PrimaryExpression
+		171, // IntegerLiteral
+		172, // FloatLiteral
+		173, // StringLiteral
+		174, // TrueLiteral
+		175, // FalseLiteral
+		176, // NilLiteral
+		177, // ListLiteral
+		673, // ListElements
+		185, // ListElementList
+		178, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -27381,50 +27976,51 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S595
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		660, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S596
 		-1,  // S'
@@ -27432,26 +28028,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		661, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
+		674, // Expression
+		192, // Expression1
+		193, // Expression2
+		194, // Expression3
+		195, // Expression4
+		196, // Expression5
+		197, // PostfixExpression
+		199, // PrimaryExpression
+		200, // IntegerLiteral
+		201, // FloatLiteral
+		202, // StringLiteral
+		203, // TrueLiteral
+		204, // FalseLiteral
+		205, // NilLiteral
+		206, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		449, // DictLiteral
+		207, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -27473,326 +28070,333 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S597
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		662, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S598
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		663, // Expression3
-		434, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S599
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		664, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S600
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		665, // Expression4
-		435, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S601
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		666, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S602
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		667, // Expression5
-		436, // PostfixExpression
-		438, // PrimaryExpression
-		442, // IntegerLiteral
-		443, // FloatLiteral
-		444, // StringLiteral
-		445, // TrueLiteral
-		446, // FalseLiteral
-		447, // NilLiteral
-		448, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		449, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S603
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		668, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S604
 		-1,  // S'
@@ -27800,31 +28404,32 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		690, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		252, // DictLiteral
+		613, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		669, // Arguments
-		259, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -27846,6 +28451,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -27892,6 +28498,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -27938,6 +28545,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -27984,6 +28592,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28030,6 +28639,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28076,6 +28686,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28122,6 +28733,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28168,6 +28780,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28214,6 +28827,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28260,6 +28874,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28306,6 +28921,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28352,6 +28968,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -28393,96 +29010,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S617
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		674, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S618
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		675, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S619
 		-1,  // S'
@@ -28490,29 +29109,30 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		676, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
+		232, // Expression
+		235, // Expression1
+		236, // Expression2
+		237, // Expression3
+		238, // Expression4
+		239, // Expression5
+		240, // PostfixExpression
+		242, // PrimaryExpression
+		243, // IntegerLiteral
+		244, // FloatLiteral
+		245, // StringLiteral
+		246, // TrueLiteral
+		247, // FalseLiteral
+		248, // NilLiteral
+		249, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		250, // DictLiteral
+		691, // DictElements
+		258, // DictElementList
+		259, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
 		-1,  // Declare
@@ -28531,280 +29151,286 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S620
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		677, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S621
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		678, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S622
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		679, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S623
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		680, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S624
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		681, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S625
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		682, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S626
 		-1,  // S'
@@ -28812,26 +29438,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
 		-1,  // Expression3
-		683, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		529, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -28839,7 +29466,7 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		-1,  // Block
+		692, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -28853,188 +29480,192 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S627
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		684, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S628
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		685, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S629
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		686, // Expression
-		206, // Expression1
-		207, // Expression2
-		208, // Expression3
-		209, // Expression4
-		210, // Expression5
-		211, // PostfixExpression
-		213, // PrimaryExpression
-		217, // IntegerLiteral
-		218, // FloatLiteral
-		219, // StringLiteral
-		220, // TrueLiteral
-		221, // FalseLiteral
-		222, // NilLiteral
-		223, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		224, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S630
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		231, // Expression
-		233, // Expression1
-		234, // Expression2
-		235, // Expression3
-		236, // Expression4
-		237, // Expression5
-		238, // PostfixExpression
-		240, // PrimaryExpression
-		245, // IntegerLiteral
-		246, // FloatLiteral
-		247, // StringLiteral
-		248, // TrueLiteral
-		249, // FalseLiteral
-		250, // NilLiteral
-		251, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		252, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		687, // Arguments
-		259, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S631
 		-1, // S'
@@ -29042,6 +29673,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29088,6 +29720,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29134,6 +29767,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29180,6 +29814,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29226,6 +29861,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29267,50 +29903,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S636
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		691, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S637
 		-1, // S'
@@ -29318,6 +29955,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29364,6 +30002,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -29405,50 +30044,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S639
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		695, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S640
 		-1,  // S'
@@ -29456,26 +30096,27 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		696, // Expression2
+		540, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
+		553, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -29483,7 +30124,7 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		697, // Block
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -29497,445 +30138,32 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S641
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S642
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S643
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S644
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S645
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S646
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S647
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S648
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S649
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S650
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		697, // Expression2
+		540, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
+		553, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
@@ -29943,7 +30171,430 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		700, // Block
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S642
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		698, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S643
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		699, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S644
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		700, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S645
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		701, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S646
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		702, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S647
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		703, // Expression3
+		541, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S648
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		704, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S649
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		705, // Expression4
+		542, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S650
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		706, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -29957,142 +30608,145 @@ var gotoTab = gotoTable{
 		-1,  // Export
 	},
 	gotoRow{ // S651
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		707, // Expression5
+		543, // PostfixExpression
+		545, // PrimaryExpression
+		546, // IntegerLiteral
+		547, // FloatLiteral
+		548, // StringLiteral
+		549, // TrueLiteral
+		550, // FalseLiteral
+		551, // NilLiteral
+		552, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		553, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S652
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		708, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S653
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		709, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S654
 		-1, // S'
@@ -30100,6 +30754,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30146,6 +30801,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30192,6 +30848,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30238,6 +30895,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30284,6 +30942,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30330,6 +30989,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30376,6 +31036,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30422,6 +31083,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30468,6 +31130,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30514,6 +31177,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30560,6 +31224,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30606,6 +31271,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30647,96 +31313,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S666
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		716, // Expression
+		598, // Expression1
+		599, // Expression2
+		600, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S667
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		717, // Statements
+		408, // StatementList
+		409, // Statement
+		410, // ExpressionStatement
+		421, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		411, // Declare
+		412, // Assign
+		-1,  // Block
+		-1,  // Condition
+		413, // If
+		414, // IfElse
+		415, // While
+		416, // For
+		417, // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		418, // FunctionDefine
+		419, // Return
+		420, // Export
 	},
 	gotoRow{ // S668
 		-1, // S'
@@ -30744,6 +31412,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30785,50 +31454,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S669
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		719, // Statements
+		408, // StatementList
+		409, // Statement
+		410, // ExpressionStatement
+		421, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		411, // Declare
+		412, // Assign
+		-1,  // Block
+		-1,  // Condition
+		413, // If
+		414, // IfElse
+		415, // While
+		416, // For
+		417, // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		418, // FunctionDefine
+		419, // Return
+		420, // Export
 	},
 	gotoRow{ // S670
 		-1, // S'
@@ -30836,6 +31506,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -30877,96 +31548,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S671
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		720, // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S672
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		721, // Parameters
+		437, // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S673
 		-1, // S'
@@ -30974,6 +31647,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31020,6 +31694,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31061,648 +31736,662 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S675
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		724, // Expression2
+		600, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S676
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		725, // Expression2
+		600, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S677
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		726, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S678
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		727, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S679
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		728, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S680
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		729, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S681
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		730, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S682
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		731, // Expression3
+		601, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S683
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		732, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S684
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		733, // Expression4
+		602, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S685
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		734, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S686
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		735, // Expression5
+		603, // PostfixExpression
+		605, // PrimaryExpression
+		606, // IntegerLiteral
+		607, // FloatLiteral
+		608, // StringLiteral
+		609, // TrueLiteral
+		610, // FalseLiteral
+		611, // NilLiteral
+		612, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		613, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S687
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		736, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S688
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		134, // PostfixExpression
+		136, // PrimaryExpression
+		137, // IntegerLiteral
+		138, // FloatLiteral
+		139, // StringLiteral
+		140, // TrueLiteral
+		141, // FalseLiteral
+		142, // NilLiteral
+		143, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		144, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		737, // Arguments
+		151, // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S689
 		-1, // S'
@@ -31710,6 +32399,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31756,6 +32446,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31802,6 +32493,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31848,6 +32540,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -31889,96 +32582,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S693
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		706, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S694
-		-1,  // S'
-		-1,  // Module
-		707, // Statements
-		495, // StatementList
-		496, // Statement
-		508, // Import
-		-1,  // ExpressionList
-		497, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		498, // Declare
-		499, // Assign
-		-1,  // Block
-		-1,  // Condition
-		500, // If
-		501, // IfElse
-		502, // While
-		503, // For
-		504, // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		505, // FunctionDefine
-		506, // Return
-		507, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S695
 		-1, // S'
@@ -31986,6 +32681,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32027,50 +32723,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S696
-		-1,  // S'
-		-1,  // Module
-		709, // Statements
-		495, // StatementList
-		496, // Statement
-		508, // Import
-		-1,  // ExpressionList
-		497, // Expression
-		511, // Expression1
-		512, // Expression2
-		513, // Expression3
-		514, // Expression4
-		515, // Expression5
-		516, // PostfixExpression
-		518, // PrimaryExpression
-		522, // IntegerLiteral
-		523, // FloatLiteral
-		524, // StringLiteral
-		525, // TrueLiteral
-		526, // FalseLiteral
-		527, // NilLiteral
-		528, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		529, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		498, // Declare
-		499, // Assign
-		-1,  // Block
-		-1,  // Condition
-		500, // If
-		501, // IfElse
-		502, // While
-		503, // For
-		504, // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		505, // FunctionDefine
-		506, // Return
-		507, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S697
 		-1, // S'
@@ -32078,6 +32775,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32119,96 +32817,98 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S698
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		710, // Expression
-		161, // Expression1
-		162, // Expression2
-		163, // Expression3
-		164, // Expression4
-		165, // Expression5
-		166, // PostfixExpression
-		168, // PrimaryExpression
-		172, // IntegerLiteral
-		173, // FloatLiteral
-		174, // StringLiteral
-		175, // TrueLiteral
-		176, // FalseLiteral
-		177, // NilLiteral
-		178, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		179, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S699
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		711, // Parameters
-		549, // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S700
 		-1, // S'
@@ -32216,6 +32916,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32262,6 +32963,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32308,6 +33010,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32354,6 +33057,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32400,6 +33104,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32446,6 +33151,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32492,6 +33198,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32538,6 +33245,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32579,50 +33287,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S708
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		715, // Block
-		-1,  // Condition
-		713, // If
-		714, // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S709
 		-1, // S'
@@ -32630,6 +33339,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32671,50 +33381,51 @@ var gotoTab = gotoTable{
 		-1, // Export
 	},
 	gotoRow{ // S710
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		717, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S711
 		-1, // S'
@@ -32722,6 +33433,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32768,6 +33480,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32814,6 +33527,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32860,6 +33574,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32906,6 +33621,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32952,6 +33668,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -32998,6 +33715,7 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression
@@ -33044,6 +33762,7 @@ var gotoTab = gotoTable{
 		-1,  // Statements
 		-1,  // StatementList
 		-1,  // Statement
+		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
 		-1,  // Expression
@@ -33071,10 +33790,10 @@ var gotoTab = gotoTable{
 		-1,  // ArgumentList
 		-1,  // Declare
 		-1,  // Assign
-		719, // Block
+		745, // Block
 		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
+		743, // If
+		744, // IfElse
 		-1,  // While
 		-1,  // For
 		-1,  // Break
@@ -33090,6 +33809,1511 @@ var gotoTab = gotoTable{
 		-1, // Statements
 		-1, // StatementList
 		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S720
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		747, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S721
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S722
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S723
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S724
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S725
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S726
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S727
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S728
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S729
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S730
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S731
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S732
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S733
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S734
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S735
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S736
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S737
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S738
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S739
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S740
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S741
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S742
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S743
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S744
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S745
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S746
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S747
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S748
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // Declare
+		-1,  // Assign
+		751, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // ParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S749
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S750
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // ParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S751
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
 		-1, // Import
 		-1, // ExpressionList
 		-1, // Expression

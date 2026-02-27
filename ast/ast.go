@@ -111,6 +111,30 @@ func NewIdentifier(x any) (any, error) {
 	return &Identifier{Name: s}, nil
 }
 
+func NewIndexExpressionFromIdentifier(id, idx any) (any, error) {
+	identifier, err := NewIdentifier(id)
+	if err != nil {
+		return nil, err
+	}
+	return NewIndexExpression(identifier, idx)
+}
+
+func NewCallExpressionFromIdentifier(id, args any) (any, error) {
+	identifier, err := NewIdentifier(id)
+	if err != nil {
+		return nil, err
+	}
+	return NewCallExpression(identifier, args)
+}
+
+func NewMemberExpressionFromIdentifier(id, prop any) (any, error) {
+	identifier, err := NewIdentifier(id)
+	if err != nil {
+		return nil, err
+	}
+	return NewMemberExpression(identifier, prop)
+}
+
 type Assign struct {
 	statementMixin
 	Target string
