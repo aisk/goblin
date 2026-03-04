@@ -1,0 +1,22 @@
+func add(a, b=2) {
+    return a + b
+}
+
+print(add(1))
+print(add(1, 4))
+print(add(a=1))
+
+var prefix = "hi"
+func greet(name=prefix) {
+    return name
+}
+
+print(greet())
+prefix = "hey"
+print(greet())
+
+func show(v="fallback") {
+    return v
+}
+
+print(show(nil))

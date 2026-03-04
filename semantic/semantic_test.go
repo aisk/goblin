@@ -62,6 +62,23 @@ func TestCheckModule(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:        "required parameter follows default parameter",
+			source:      "func f(a=1, b) { return b }\n",
+			wantErr:     true,
+			errContains: "required parameter follows default parameter: b",
+		},
+		{
+			name:        "default parameter cannot reference current function params",
+			source:      "func f(a, b=a) { return b }\n",
+			wantErr:     true,
+			errContains: "undefined identifier: a",
+		},
+		{
+			name:    "default parameter can reference outer scope",
+			source:  "var outer = 1\nfunc f(a=outer) { return a }\nprint(f())\n",
+			wantErr: false,
+		},
+		{
 			name:        "import name conflict",
 			source:      "import \"os\"\nvar os = 1\n",
 			wantErr:     true,

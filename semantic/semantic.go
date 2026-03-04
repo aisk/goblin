@@ -127,9 +127,28 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			c.funcDepth++
 			defer func() { c.funcDepth-- }()
 
+			seen := make(map[string]struct{}, len(v.Parameters))
+			seenDefault := false
 			for _, param := range v.Parameters {
-				if !c.currentScope.declare(param) {
-					return c.newError(v.Position(), "duplicate parameter name: %s", param)
+				if _, ok := seen[param.Name]; ok {
+					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+				}
+				seen[param.Name] = struct{}{}
+				if param.Default != nil {
+					seenDefault = true
+					if err := c.checkExpression(param.Default); err != nil {
+						return err
+					}
+					continue
+				}
+				if seenDefault {
+					return c.newError(param.Pos, "required parameter follows default parameter: %s", param.Name)
+				}
+			}
+
+			for _, param := range v.Parameters {
+				if !c.currentScope.declare(param.Name) {
+					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 				}
 			}
 

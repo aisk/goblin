@@ -261,9 +261,14 @@ Parameters
     | ParameterList
 ;
 
+Parameter
+    : id                                     << ast.NewRequiredParameter($0) >>
+    | id "=" Expression                      << ast.NewDefaultParameter($0, $2) >>
+;
+
 ParameterList
-    : id                                     << ast.NewParameterList($0) >>
-    | ParameterList "," id                   << ast.AppendParameterList($0, $2) >>
+    : Parameter                              << ast.NewParameterList($0) >>
+    | ParameterList "," Parameter            << ast.AppendParameterList($0, $2) >>
 ;
 
 FunctionDefine

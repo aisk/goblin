@@ -417,26 +417,47 @@ func NewDictLiteral(x any) (any, error) {
 type FunctionDefine struct {
 	statementMixin
 	Name       string
-	Parameters []string
+	Parameters []*Parameter
 	Body       []Statement
 }
 
+type Parameter struct {
+	Name    string
+	Default Expression
+	Pos     token.Pos
+}
+
+func NewRequiredParameter(x any) (any, error) {
+	tok := x.(*token.Token)
+	return &Parameter{
+		Name: string(tok.Lit),
+		Pos:  tok.Pos,
+	}, nil
+}
+
+func NewDefaultParameter(x, y any) (any, error) {
+	tok := x.(*token.Token)
+	return &Parameter{
+		Name:    string(tok.Lit),
+		Default: y.(Expression),
+		Pos:     tok.Pos,
+	}, nil
+}
+
 func NewParameterList(x any) (any, error) {
-	name := string(x.(*token.Token).Lit)
-	return []string{name}, nil
+	return []*Parameter{x.(*Parameter)}, nil
 }
 
 func AppendParameterList(l any, x any) (any, error) {
-	name := string(x.(*token.Token).Lit)
-	return append(l.([]string), name), nil
+	return append(l.([]*Parameter), x.(*Parameter)), nil
 }
 
 func NewFunctionDefine(x, params, y any) (any, error) {
 	tok := x.(*token.Token)
 	name := string(tok.Lit)
-	var parameters []string
+	var parameters []*Parameter
 	if params != nil {
-		parameters = params.([]string)
+		parameters = params.([]*Parameter)
 	}
 	var body []Statement
 	if y != nil {

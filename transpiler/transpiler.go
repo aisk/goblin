@@ -690,11 +690,11 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 
 	params := make([]jen.Code, 0, len(fn.Parameters))
 	for _, param := range fn.Parameters {
-		params = append(params, jen.Lit(param))
+		params = append(params, jen.Lit(param.Name))
 	}
 
 	argsDefine := []jen.Code{
-		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArgumentsPartial").Call(
 			jen.Lit(fn.Name),
 			jen.Index().String().Values(params...),
 			jen.Id(argsName),
@@ -703,10 +703,52 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
 		jen.Id("_").Op("=").Id(boundName),
 	}
+
 	for _, param := range fn.Parameters {
-		def := jen.Var().Id(param).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param))
-		def.Op(";").Id("_").Op("=").Id(param)
-		argsDefine = append(argsDefine, def)
+		valueVar := ctx.localName("value")
+		okVar := ctx.localName("ok")
+
+		argsDefine = append(argsDefine,
+			jen.Var().Id(param.Name).Qual(pathObject, "Object"),
+		)
+
+		if param.Default == nil {
+			argsDefine = append(argsDefine,
+				jen.If(
+					jen.List(jen.Id(valueVar), jen.Id(okVar)).Op(":=").Id(boundName).Index(jen.Lit(param.Name)),
+					jen.Op("!").Id(okVar),
+				).Block(
+					jen.Return(jen.List(
+						jen.Nil(),
+						jen.Qual("fmt", "Errorf").Call(
+							jen.Lit("%s() missing required argument '%s'"),
+							jen.Lit(fn.Name),
+							jen.Lit(param.Name),
+						),
+					)),
+				).Else().Block(
+					jen.Id(param.Name).Op("=").Id(valueVar),
+				),
+			)
+		} else {
+			defaultPre, defaultValue, err := ctx.transpileExpression(param.Default, fnOnError)
+			if err != nil {
+				return nil, err
+			}
+			elseBody := make([]jen.Code, 0, len(defaultPre)+1)
+			elseBody = append(elseBody, defaultPre...)
+			elseBody = append(elseBody, jen.Id(param.Name).Op("=").Add(defaultValue))
+			argsDefine = append(argsDefine,
+				jen.If(
+					jen.List(jen.Id(valueVar), jen.Id(okVar)).Op(":=").Id(boundName).Index(jen.Lit(param.Name)),
+					jen.Id(okVar),
+				).Block(
+					jen.Id(param.Name).Op("=").Id(valueVar),
+				).Else().Block(elseBody...),
+			)
+		}
+
+		argsDefine = append(argsDefine, jen.Id("_").Op("=").Id(param.Name))
 	}
 
 	body, err := ctx.transpileStatements(fn.Body, fnOnError, "")

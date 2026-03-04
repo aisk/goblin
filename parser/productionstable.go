@@ -1022,20 +1022,40 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `ParameterList : id	<< ast.NewParameterList(X[0]) >>`,
-		Id:         "ParameterList",
+		String: `Parameter : id	<< ast.NewRequiredParameter(X[0]) >>`,
+		Id:         "Parameter",
 		NTType:     44,
 		Index:      100,
+		NumSymbols: 1,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewRequiredParameter(X[0])
+		},
+	},
+	ProdTabEntry{
+		String: `Parameter : id "=" Expression	<< ast.NewDefaultParameter(X[0], X[2]) >>`,
+		Id:         "Parameter",
+		NTType:     44,
+		Index:      101,
+		NumSymbols: 3,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewDefaultParameter(X[0], X[2])
+		},
+	},
+	ProdTabEntry{
+		String: `ParameterList : Parameter	<< ast.NewParameterList(X[0]) >>`,
+		Id:         "ParameterList",
+		NTType:     45,
+		Index:      102,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewParameterList(X[0])
 		},
 	},
 	ProdTabEntry{
-		String: `ParameterList : ParameterList "," id	<< ast.AppendParameterList(X[0], X[2]) >>`,
+		String: `ParameterList : ParameterList "," Parameter	<< ast.AppendParameterList(X[0], X[2]) >>`,
 		Id:         "ParameterList",
-		NTType:     44,
-		Index:      101,
+		NTType:     45,
+		Index:      103,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendParameterList(X[0], X[2])
@@ -1044,8 +1064,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `FunctionDefine : "func" id "(" Parameters ")" Block	<< ast.NewFunctionDefine(X[1], X[3], X[5]) >>`,
 		Id:         "FunctionDefine",
-		NTType:     45,
-		Index:      102,
+		NTType:     46,
+		Index:      104,
 		NumSymbols: 6,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFunctionDefine(X[1], X[3], X[5])
@@ -1054,8 +1074,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Return : "return" Expression	<< ast.NewReturn(X[1]) >>`,
 		Id:         "Return",
-		NTType:     46,
-		Index:      103,
+		NTType:     47,
+		Index:      105,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturn(X[1])
@@ -1064,8 +1084,8 @@ var productionsTable = ProdTab{
 	ProdTabEntry{
 		String: `Export : "export" id	<< ast.NewExport(X[1]) >>`,
 		Id:         "Export",
-		NTType:     47,
-		Index:      104,
+		NTType:     48,
+		Index:      106,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExport(X[1])

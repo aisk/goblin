@@ -5,8 +5,9 @@ import "fmt"
 type Args []Object
 type KwArgs map[string]Object
 
-// BindArguments binds positional and keyword arguments to parameter names.
-func BindArguments(funcName string, params []string, args Args, kwargs KwArgs) (map[string]Object, error) {
+// BindArgumentsPartial binds positional and keyword arguments to parameter names
+// without checking for missing parameters.
+func BindArgumentsPartial(funcName string, params []string, args Args, kwargs KwArgs) (map[string]Object, error) {
 	if len(args) > len(params) {
 		return nil, fmt.Errorf("%s() takes at most %d positional arguments, got %d", funcName, len(params), len(args))
 	}
@@ -29,6 +30,16 @@ func BindArguments(funcName string, params []string, args Args, kwargs KwArgs) (
 			return nil, fmt.Errorf("%s() got multiple values for argument '%s'", funcName, name)
 		}
 		bound[name] = value
+	}
+
+	return bound, nil
+}
+
+// BindArguments binds positional and keyword arguments to parameter names.
+func BindArguments(funcName string, params []string, args Args, kwargs KwArgs) (map[string]Object, error) {
+	bound, err := BindArgumentsPartial(funcName, params, args, kwargs)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, param := range params {
