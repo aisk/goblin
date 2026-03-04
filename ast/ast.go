@@ -56,24 +56,81 @@ func AppendExpressionList(l any, x any) (any, error) {
 	return append(l.([]Expression), x.(Expression)), nil
 }
 
+type NamedArgument struct {
+	Name  string
+	Value Expression
+}
+
+type CallArgument struct {
+	Name  string
+	Value Expression
+}
+
+func NewPositionalArgument(x any) (any, error) {
+	return &CallArgument{
+		Name:  "",
+		Value: x.(Expression),
+	}, nil
+}
+
+func NewNamedArgument(name, value any) (any, error) {
+	tok := name.(*token.Token)
+	return &CallArgument{
+		Name:  string(tok.Lit),
+		Value: value.(Expression),
+	}, nil
+}
+
+func NewArgumentList(x any) (any, error) {
+	return []*CallArgument{x.(*CallArgument)}, nil
+}
+
+func AppendArgumentList(l any, x any) (any, error) {
+	return append(l.([]*CallArgument), x.(*CallArgument)), nil
+}
+
+func MergeArgumentLists(l, r any) (any, error) {
+	left := l.([]*CallArgument)
+	right := r.([]*CallArgument)
+	merged := make([]*CallArgument, 0, len(left)+len(right))
+	merged = append(merged, left...)
+	merged = append(merged, right...)
+	return merged, nil
+}
+
+func splitCallArguments(args any) ([]Expression, []*NamedArgument) {
+	if args == nil {
+		return nil, nil
+	}
+	items := args.([]*CallArgument)
+	positional := make([]Expression, 0, len(items))
+	named := make([]*NamedArgument, 0, len(items))
+	for _, arg := range items {
+		if arg.Name == "" {
+			positional = append(positional, arg.Value)
+			continue
+		}
+		named = append(named, &NamedArgument{Name: arg.Name, Value: arg.Value})
+	}
+	return positional, named
+}
+
 type FunctionCall struct {
 	expressionMixin
 	Name   string
 	Args   []Expression
-	KwArgs map[string]Expression
+	KwArgs []*NamedArgument
 }
 
 func NewFunctionCall(x, y any) (any, error) {
 	tok := x.(*token.Token)
 	name := string(tok.Lit)
-	var args []Expression = nil
-	if y != nil {
-		args = y.([]Expression)
-	}
+	args, kwargs := splitCallArguments(y)
 	return &FunctionCall{
 		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
 		Name:            name,
 		Args:            args,
+		KwArgs:          kwargs,
 	}, nil
 }
 
@@ -81,17 +138,16 @@ type CallExpression struct {
 	expressionMixin
 	Callee Expression
 	Args   []Expression
+	KwArgs []*NamedArgument
 }
 
 func NewCallExpression(callee, args any) (any, error) {
-	var argList []Expression
-	if args != nil {
-		argList = args.([]Expression)
-	}
+	argList, kwargList := splitCallArguments(args)
 	return &CallExpression{
 		expressionMixin: expressionMixin{statementMixin{Pos: PositionOf(callee)}},
 		Callee:          callee.(Expression),
 		Args:            argList,
+		KwArgs:          kwargList,
 	}, nil
 }
 

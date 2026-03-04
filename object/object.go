@@ -19,9 +19,6 @@ type Object interface {
 	GetAttr(name string) (Object, error)
 }
 
-type Args []Object
-type KwArgs map[string]Object
-
 func Call(obj Object, args Args, kwargs KwArgs) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:

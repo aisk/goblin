@@ -501,6 +501,32 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 	return allPreStmts, results, nil
 }
 
+func (ctx *transpileContext) transpileCallArguments(args []ast.Expression, kwargs []*ast.NamedArgument, onError errHandler) ([]jen.Code, *jen.Statement, *jen.Statement, error) {
+	argPreStmts, l, err := ctx.transpileExpressions(args, onError)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	kwDict := jen.Dict{}
+	var kwPreStmts []jen.Code
+	for _, kwarg := range kwargs {
+		pre, value, err := ctx.transpileExpression(kwarg.Value, onError)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		kwPreStmts = append(kwPreStmts, pre...)
+		kwDict[jen.Lit(kwarg.Name)] = value
+	}
+
+	preStmts := append(argPreStmts, kwPreStmts...)
+	argsExpr := jen.Qual(pathObject, "Args").Values(l...)
+	kwargsExpr := jen.Nil()
+	if len(kwargs) > 0 {
+		kwargsExpr = jen.Qual(pathObject, "KwArgs").Values(kwDict)
+	}
+	return preStmts, argsExpr, kwargsExpr, nil
+}
+
 func isBuiltinFunction(name string) bool {
 	_, ok := extension.BuiltinsModule.Members[name]
 	return ok
@@ -598,12 +624,10 @@ func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]
 }
 
 func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argPreStmts, l, err := ctx.transpileExpressions(call.Args, onError)
+	argPreStmts, args, kwargs, err := ctx.transpileCallArguments(call.Args, call.KwArgs, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	args := jen.Qual(pathObject, "Args").Values(l...)
-	kwargs := jen.Nil()
 
 	var callee *jen.Statement
 	if isBuiltinFunction(call.Name) {
@@ -616,12 +640,10 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 }
 
 func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argPreStmts, l, err := ctx.transpileExpressions(call.Args, onError)
+	argPreStmts, args, kwargs, err := ctx.transpileCallArguments(call.Args, call.KwArgs, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	args := jen.Qual(pathObject, "Args").Values(l...)
-	kwargs := jen.Nil()
 
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
 		var callee *jen.Statement
@@ -659,16 +681,32 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
 	argsName := ctx.localName("args")
 	kwargsName := ctx.localName("kwargs")
-
-	argsDefine := []jen.Code{}
-	for i, param := range fn.Parameters {
-		def := jen.Var().Id(param).Op("=").Id(argsName).Index(jen.Lit(i))
-		def.Op(";").Id("_").Op("=").Id(param)
-		argsDefine = append(argsDefine, def)
-	}
+	boundName := ctx.localName("bound")
+	errVar := ctx.localName("err")
 
 	fnOnError := func(errVar string) jen.Code {
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+	}
+
+	params := make([]jen.Code, 0, len(fn.Parameters))
+	for _, param := range fn.Parameters {
+		params = append(params, jen.Lit(param))
+	}
+
+	argsDefine := []jen.Code{
+		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+			jen.Lit(fn.Name),
+			jen.Index().String().Values(params...),
+			jen.Id(argsName),
+			jen.Id(kwargsName),
+		),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
+		jen.Id("_").Op("=").Id(boundName),
+	}
+	for _, param := range fn.Parameters {
+		def := jen.Var().Id(param).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param))
+		def.Op(";").Id("_").Op("=").Id(param)
+		argsDefine = append(argsDefine, def)
 	}
 
 	body, err := ctx.transpileStatements(fn.Body, fnOnError, "")

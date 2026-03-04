@@ -15,7 +15,18 @@ var BuiltinsModule = &object.Module{
 	},
 }
 
+func ensureNoKwArgs(name string, kwargs object.KwArgs) error {
+	if len(kwargs) > 0 {
+		return fmt.Errorf("%s() does not support keyword arguments", name)
+	}
+	return nil
+}
+
 func print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+	if err := ensureNoKwArgs("print", kwargs); err != nil {
+		return nil, err
+	}
+
 	for i, arg := range args {
 		if i > 0 {
 			fmt.Print(" ")
@@ -27,18 +38,19 @@ func print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 }
 
 func range_(args object.Args, kwargs object.KwArgs) (object.Object, error) {
-	if len(args) != 2 {
-		return nil, fmt.Errorf("range() takes exactly 2 arguments, got %d", len(args))
+	bound, err := object.BindArguments("range", []string{"start", "end"}, args, kwargs)
+	if err != nil {
+		return nil, err
 	}
 
-	start, ok := args[0].(object.Integer)
+	start, ok := bound["start"].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("range() first argument must be an integer, got %T", args[0])
+		return nil, fmt.Errorf("range() start argument must be an integer, got %T", bound["start"])
 	}
 
-	end, ok := args[1].(object.Integer)
+	end, ok := bound["end"].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("range() second argument must be an integer, got %T", args[1])
+		return nil, fmt.Errorf("range() end argument must be an integer, got %T", bound["end"])
 	}
 
 	if int64(start) >= int64(end) {
@@ -54,6 +66,10 @@ func range_(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 }
 
 func max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+	if err := ensureNoKwArgs("max", kwargs); err != nil {
+		return nil, err
+	}
+
 	if len(args) == 0 {
 		return nil, fmt.Errorf("max() requires at least 1 argument")
 	}
@@ -99,6 +115,10 @@ func max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 }
 
 func min(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+	if err := ensureNoKwArgs("min", kwargs); err != nil {
+		return nil, err
+	}
+
 	if len(args) == 0 {
 		return nil, fmt.Errorf("min() requires at least 1 argument")
 	}

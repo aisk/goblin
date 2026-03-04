@@ -204,30 +204,15 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
 		}
-		for _, arg := range v.Args {
-			if err := c.checkExpression(arg); err != nil {
-				return err
-			}
-		}
-		return nil
+		return c.checkCallArguments(v.Args, v.KwArgs)
 	case *ast.CallExpression:
 		if id, ok := v.Callee.(*ast.Identifier); ok && isBuiltin(id.Name) {
-			for _, arg := range v.Args {
-				if err := c.checkExpression(arg); err != nil {
-					return err
-				}
-			}
-			return nil
+			return c.checkCallArguments(v.Args, v.KwArgs)
 		}
 		if err := c.checkExpression(v.Callee); err != nil {
 			return err
 		}
-		for _, arg := range v.Args {
-			if err := c.checkExpression(arg); err != nil {
-				return err
-			}
-		}
-		return nil
+		return c.checkCallArguments(v.Args, v.KwArgs)
 	case *ast.BinaryOperation:
 		if err := c.checkExpression(v.LHS); err != nil {
 			return err
@@ -287,4 +272,24 @@ func formatPos(pos token.Pos) string {
 func isBuiltin(name string) bool {
 	_, ok := extension.BuiltinsModule.Members[name]
 	return ok
+}
+
+func (c *checker) checkCallArguments(args []ast.Expression, kwargs []*ast.NamedArgument) error {
+	for _, arg := range args {
+		if err := c.checkExpression(arg); err != nil {
+			return err
+		}
+	}
+
+	seen := make(map[string]struct{}, len(kwargs))
+	for _, kwarg := range kwargs {
+		if err := c.checkExpression(kwarg.Value); err != nil {
+			return err
+		}
+		if _, ok := seen[kwarg.Name]; ok {
+			return c.newError(kwarg.Value.Position(), "duplicate keyword argument: %s", kwarg.Name)
+		}
+		seen[kwarg.Name] = struct{}{}
+	}
+	return nil
 }
