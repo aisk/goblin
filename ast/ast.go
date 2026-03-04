@@ -12,12 +12,18 @@ import (
 // The NewXxx constructors and XxxList structs are shims for gocc.
 
 type Statement interface {
+	Position() token.Pos
 	IsStatement()
 }
 
-type statementMixin struct{}
+type statementMixin struct {
+	Pos token.Pos
+}
 
 func (statementMixin) IsStatement() {}
+func (s statementMixin) Position() token.Pos {
+	return s.Pos
+}
 
 type StatementList []Statement
 
@@ -58,14 +64,16 @@ type FunctionCall struct {
 }
 
 func NewFunctionCall(x, y any) (any, error) {
-	name := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	name := string(tok.Lit)
 	var args []Expression = nil
 	if y != nil {
 		args = y.([]Expression)
 	}
 	return &FunctionCall{
-		Name: name,
-		Args: args,
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Name:            name,
+		Args:            args,
 	}, nil
 }
 
@@ -81,8 +89,9 @@ func NewCallExpression(callee, args any) (any, error) {
 		argList = args.([]Expression)
 	}
 	return &CallExpression{
-		Callee: callee.(Expression),
-		Args:   argList,
+		expressionMixin: expressionMixin{statementMixin{Pos: PositionOf(callee)}},
+		Callee:          callee.(Expression),
+		Args:            argList,
 	}, nil
 }
 
@@ -93,11 +102,13 @@ type Declare struct {
 }
 
 func NewDeclare(x, y any) (any, error) {
-	name := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	name := string(tok.Lit)
 	value := y.(Expression)
 	return &Declare{
-		Name:  name,
-		Value: value,
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           name,
+		Value:          value,
 	}, nil
 }
 
@@ -107,8 +118,12 @@ type Identifier struct {
 }
 
 func NewIdentifier(x any) (any, error) {
-	s := string(x.(*token.Token).Lit)
-	return &Identifier{Name: s}, nil
+	tok := x.(*token.Token)
+	s := string(tok.Lit)
+	return &Identifier{
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Name:            s,
+	}, nil
 }
 
 func NewIndexExpressionFromIdentifier(id, idx any) (any, error) {
@@ -142,11 +157,13 @@ type Assign struct {
 }
 
 func NewAssign(x, y any) (any, error) {
-	name := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	name := string(tok.Lit)
 	value := y.(Expression)
 	return &Assign{
-		Target: name,
-		Value:  value,
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Target:         name,
+		Value:          value,
 	}, nil
 }
 
@@ -167,9 +184,10 @@ func NewIf(x, y, z any) (any, error) {
 		elseBody = z.([]Statement)
 	}
 	return &IfElse{
-		Condition: condition,
-		IfBody:    ifBody,
-		ElseBody:  elseBody,
+		statementMixin: statementMixin{Pos: PositionOf(x)},
+		Condition:      condition,
+		IfBody:         ifBody,
+		ElseBody:       elseBody,
 	}, nil
 }
 
@@ -183,8 +201,9 @@ func NewWhile(x, y any) (any, error) {
 	condition := x.(Expression)
 	body := y.([]Statement)
 	return &While{
-		Condition: condition,
-		Body:      body,
+		statementMixin: statementMixin{Pos: PositionOf(x)},
+		Condition:      condition,
+		Body:           body,
 	}, nil
 }
 
@@ -196,13 +215,15 @@ type For struct {
 }
 
 func NewFor(x, y, z any) (any, error) {
-	variable := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	variable := string(tok.Lit)
 	iterator := y.(Expression)
 	body := z.([]Statement)
 	return &For{
-		Variable: variable,
-		Iterator: iterator,
-		Body:     body,
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Variable:       variable,
+		Iterator:       iterator,
+		Body:           body,
 	}, nil
 }
 
@@ -232,25 +253,37 @@ type Literal struct {
 }
 
 func NewIntegerLiteral(x any) (any, error) {
-	d, err := strconv.Atoi(string(x.(*token.Token).Lit))
+	tok := x.(*token.Token)
+	d, err := strconv.Atoi(string(tok.Lit))
 	if err != nil {
 		return nil, err
 	}
-	return &Literal{Value: object.Integer(d)}, nil
+	return &Literal{
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Value:           object.Integer(d),
+	}, nil
 }
 
 func NewFloatLiteral(x any) (any, error) {
-	f, err := strconv.ParseFloat(string(x.(*token.Token).Lit), 64)
+	tok := x.(*token.Token)
+	f, err := strconv.ParseFloat(string(tok.Lit), 64)
 	if err != nil {
 		return nil, err
 	}
-	return &Literal{Value: object.Float(f)}, nil
+	return &Literal{
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Value:           object.Float(f),
+	}, nil
 }
 
 func NewStringLiteral(x any) (any, error) {
-	s := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	s := string(tok.Lit)
 	s = s[1 : len(s)-1]
-	return &Literal{Value: object.String(s)}, nil
+	return &Literal{
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Value:           object.String(s),
+	}, nil
 }
 
 func NewTrueLiteral() (any, error) {
@@ -275,8 +308,13 @@ func NewListLiteral(x any) (any, error) {
 	if x != nil {
 		elements = x.([]Expression)
 	}
+	pos := token.Pos{}
+	if len(elements) > 0 {
+		pos = elements[0].Position()
+	}
 	return &ListLiteral{
-		Elements: elements,
+		expressionMixin: expressionMixin{statementMixin{Pos: pos}},
+		Elements:        elements,
 	}, nil
 }
 
@@ -310,8 +348,13 @@ func NewDictLiteral(x any) (any, error) {
 	if x != nil {
 		elements = x.([]*DictElement)
 	}
+	pos := token.Pos{}
+	if len(elements) > 0 {
+		pos = elements[0].Key.Position()
+	}
 	return &DictLiteral{
-		Elements: elements,
+		expressionMixin: expressionMixin{statementMixin{Pos: pos}},
+		Elements:        elements,
 	}, nil
 }
 
@@ -333,7 +376,8 @@ func AppendParameterList(l any, x any) (any, error) {
 }
 
 func NewFunctionDefine(x, params, y any) (any, error) {
-	name := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	name := string(tok.Lit)
 	var parameters []string
 	if params != nil {
 		parameters = params.([]string)
@@ -345,9 +389,10 @@ func NewFunctionDefine(x, params, y any) (any, error) {
 	// Always insert a return block at the end of function define.
 	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionDefine{
-		Name:       name,
-		Parameters: parameters,
-		Body:       body,
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           name,
+		Parameters:     parameters,
+		Body:           body,
 	}, nil
 }
 
@@ -358,7 +403,8 @@ type Return struct {
 
 func NewReturn(x any) (any, error) {
 	return &Return{
-		Value: x.(Expression),
+		statementMixin: statementMixin{Pos: PositionOf(x)},
+		Value:          x.(Expression),
 	}, nil
 }
 
@@ -392,9 +438,10 @@ func NewBinaryOperation(lhs, operator, rhs any) (any, error) {
 		return nil, fmt.Errorf("invalid operator: '%s'", operator)
 	}
 	return &BinaryOperation{
-		LHS:      lhs.(Expression),
-		RHS:      rhs.(Expression),
-		Operator: operator.(string),
+		expressionMixin: expressionMixin{statementMixin{Pos: lhs.(Expression).Position()}},
+		LHS:             lhs.(Expression),
+		RHS:             rhs.(Expression),
+		Operator:        operator.(string),
 	}, nil
 }
 
@@ -411,8 +458,9 @@ func NewUnaryOperation(operator, operand any) (any, error) {
 		return nil, fmt.Errorf("invalid unary operator: '%s'", operator)
 	}
 	return &UnaryOperation{
-		Operand:  operand.(Expression),
-		Operator: operator.(string),
+		expressionMixin: expressionMixin{statementMixin{Pos: operand.(Expression).Position()}},
+		Operand:         operand.(Expression),
+		Operator:        operator.(string),
 	}, nil
 }
 
@@ -424,8 +472,9 @@ type IndexExpression struct {
 
 func NewIndexExpression(obj, idx any) (any, error) {
 	return &IndexExpression{
-		Object: obj.(Expression),
-		Index:  idx.(Expression),
+		expressionMixin: expressionMixin{statementMixin{Pos: obj.(Expression).Position()}},
+		Object:          obj.(Expression),
+		Index:           idx.(Expression),
 	}, nil
 }
 
@@ -436,9 +485,11 @@ type MemberExpression struct {
 }
 
 func NewMemberExpression(obj, prop any) (any, error) {
+	propTok := prop.(*token.Token)
 	return &MemberExpression{
-		Object:   obj.(Expression),
-		Property: string(prop.(*token.Token).Lit),
+		expressionMixin: expressionMixin{statementMixin{Pos: propTok.Pos}},
+		Object:          obj.(Expression),
+		Property:        string(propTok.Lit),
 	}, nil
 }
 
@@ -448,8 +499,12 @@ type Export struct {
 }
 
 func NewExport(x any) (any, error) {
-	name := string(x.(*token.Token).Lit)
-	return &Export{Name: name}, nil
+	tok := x.(*token.Token)
+	name := string(tok.Lit)
+	return &Export{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           name,
+	}, nil
 }
 
 type Import struct {
@@ -459,9 +514,32 @@ type Import struct {
 }
 
 func NewImport(x any) (any, error) {
-	raw := string(x.(*token.Token).Lit)
+	tok := x.(*token.Token)
+	raw := string(tok.Lit)
 	path := raw[1 : len(raw)-1] // strip quotes
 	parts := strings.Split(path, "/")
 	name := parts[len(parts)-1]
-	return &Import{Name: name, Path: path}, nil
+	return &Import{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           name,
+		Path:           path,
+	}, nil
+}
+
+func PositionOf(v any) token.Pos {
+	if v == nil {
+		return token.Pos{}
+	}
+	switch n := v.(type) {
+	case Statement:
+		return n.Position()
+	case Expression:
+		return n.Position()
+	case interface{ Position() token.Pos }:
+		return n.Position()
+	case *token.Token:
+		return n.Pos
+	default:
+		return token.Pos{}
+	}
 }

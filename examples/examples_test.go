@@ -11,6 +11,7 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/parser"
+	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/transpiler"
 )
 
@@ -46,12 +47,11 @@ func TestExamples(t *testing.T) {
 func parseAndTranspile(t *testing.T, goblinFile string) string {
 	t.Helper()
 
-	source, err := os.ReadFile(goblinFile)
+	l, err := lexer.NewLexerFile(goblinFile)
 	if err != nil {
 		t.Fatalf("failed to read file: %v", err)
 	}
 
-	l := lexer.NewLexer(source)
 	p := parser.NewParser()
 	st, err := p.Parse(l)
 	if err != nil {
@@ -61,6 +61,9 @@ func parseAndTranspile(t *testing.T, goblinFile string) string {
 	module, ok := st.(*ast.Module)
 	if !ok {
 		t.Fatalf("failed to convert AST to Module")
+	}
+	if err := semantic.CheckModule(module); err != nil {
+		t.Fatalf("semantic error: %v", err)
 	}
 
 	var buf bytes.Buffer

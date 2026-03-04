@@ -12,6 +12,7 @@ import (
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
+	"github.com/aisk/goblin/semantic"
 	"github.com/dave/jennifer/jen"
 )
 
@@ -77,6 +78,10 @@ func pathToFuncName(path string) string {
 }
 
 func Transpile(mod *ast.Module, output io.Writer) error {
+	if err := semantic.CheckModule(mod); err != nil {
+		return err
+	}
+
 	ctx := newTranspileContext()
 
 	// Collect imports
@@ -215,12 +220,10 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	ctx.importing[absPath] = struct{}{}
 	defer delete(ctx.importing, absPath)
 
-	source, err := os.ReadFile(absPath)
+	l, err := lexer.NewLexerFile(absPath)
 	if err != nil {
 		return fmt.Errorf("failed to read module %s: %v", importPath, err)
 	}
-
-	l := lexer.NewLexer(source)
 	p := parser.NewParser()
 	st, err := p.Parse(l)
 	if err != nil {
@@ -230,6 +233,9 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	mod, ok := st.(*ast.Module)
 	if !ok {
 		return fmt.Errorf("internal error: unexpected AST type for module %s", importPath)
+	}
+	if err := semantic.CheckModule(mod); err != nil {
+		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
 	}
 
 	// Collect sub-module imports
@@ -943,6 +949,10 @@ func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string 
 // The entry-point module becomes output/main.go; each imported path module becomes
 // its own package under outputDir.
 func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
+	if err := semantic.CheckModule(mod); err != nil {
+		return err
+	}
+
 	base := filepath.Base(sourceFile)
 	moduleName := strings.TrimSuffix(base, ".goblin")
 
@@ -989,12 +999,10 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	ctx.importing[absPath] = struct{}{}
 	defer delete(ctx.importing, absPath)
 
-	source, err := os.ReadFile(absPath)
+	l, err := lexer.NewLexerFile(absPath)
 	if err != nil {
 		return fmt.Errorf("failed to read module %s: %v", importPath, err)
 	}
-
-	l := lexer.NewLexer(source)
 	p := parser.NewParser()
 	st, err := p.Parse(l)
 	if err != nil {
@@ -1004,6 +1012,9 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	mod, ok := st.(*ast.Module)
 	if !ok {
 		return fmt.Errorf("internal error: unexpected AST type for module %s", importPath)
+	}
+	if err := semantic.CheckModule(mod); err != nil {
+		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
 	}
 
 	// Process sub-imports first (depth-first).
