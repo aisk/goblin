@@ -100,8 +100,14 @@ func apply(f, a, b) {
 }
 print(apply(add, 3, 4))  # 7
 
-# Function calls use positional arguments only
+# Function calls: positional arguments + trailing spread
 print(add(5, 6))  # 11
+
+func collect(prefix, *args) {
+    print(prefix, args.size)
+}
+collect("n=", 1, 2, 3)
+collect("n=", *range(0, 2))
 
 # Built-in functions: print, range, max, min
 print(max(1, 2, 3))  # 3

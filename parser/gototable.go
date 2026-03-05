@@ -2,7 +2,7 @@
 
 package parser
 
-const numNTSymbols = 46
+const numNTSymbols = 50
 
 type (
 	gotoTable [numStates]gotoRow
@@ -42,6 +42,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		6,  // Declare
 		7,  // Assign
 		-1, // Block
@@ -52,8 +55,9 @@ var gotoTab = gotoTable{
 		11, // For
 		12, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		13, // FunctionDefine
 		14, // Return
 		15, // Export
@@ -90,6 +94,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -100,8 +107,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -138,6 +146,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -148,8 +159,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -186,6 +198,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		6,  // Declare
 		7,  // Assign
 		-1, // Block
@@ -196,8 +211,9 @@ var gotoTab = gotoTable{
 		11, // For
 		12, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		13, // FunctionDefine
 		14, // Return
 		15, // Export
@@ -234,6 +250,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -244,8 +263,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -282,6 +302,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -292,8 +315,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -330,6 +354,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -340,8 +367,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -378,6 +406,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -388,8 +419,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -426,6 +458,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -436,8 +471,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -474,6 +510,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -484,8 +523,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -522,6 +562,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -532,8 +575,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -570,6 +614,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -580,8 +627,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -618,6 +666,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -628,8 +679,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -666,6 +718,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -676,8 +731,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -714,6 +770,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -724,8 +783,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -762,6 +822,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -772,8 +835,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -810,6 +874,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -820,8 +887,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -858,6 +926,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -868,8 +939,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -906,6 +978,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -916,8 +991,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -954,6 +1030,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -964,8 +1043,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1002,6 +1082,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1012,8 +1095,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1050,6 +1134,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1060,8 +1147,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1098,6 +1186,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1108,8 +1199,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1146,6 +1238,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1156,8 +1251,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1194,6 +1290,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1204,8 +1303,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1242,6 +1342,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1252,8 +1355,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1290,6 +1394,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1300,8 +1407,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1338,6 +1446,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1348,8 +1459,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1386,6 +1498,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1396,8 +1511,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1417,23 +1533,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		127, // Arguments
-		151, // ArgumentList
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1444,8 +1563,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1482,6 +1602,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1492,8 +1615,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1507,7 +1631,7 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		153, // Expression
+		157, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -1530,6 +1654,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1540,8 +1667,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1561,23 +1689,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		154, // Arguments
-		151, // ArgumentList
+		158, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1588,8 +1719,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1626,6 +1758,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1636,8 +1771,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1651,7 +1787,7 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		156, // Expression
+		160, // Expression
 		73,  // Expression1
 		74,  // Expression2
 		75,  // Expression3
@@ -1674,6 +1810,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1684,8 +1823,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1722,6 +1862,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1732,8 +1875,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1770,6 +1914,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1780,8 +1927,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1818,6 +1966,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1828,8 +1979,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1843,29 +1995,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		184, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		188, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1876,8 +2031,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -1914,6 +2070,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -1924,8 +2083,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -1939,29 +2099,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		189, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		193, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -1972,8 +2135,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -2010,6 +2174,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2020,8 +2187,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2058,6 +2226,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2068,8 +2239,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2106,6 +2278,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2116,8 +2291,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2154,6 +2330,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2164,8 +2343,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2202,6 +2382,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2212,8 +2395,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2250,6 +2434,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2260,8 +2447,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2298,6 +2486,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2308,8 +2499,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2328,7 +2520,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		229, // Expression5
+		233, // Expression5
 		47,  // PostfixExpression
 		49,  // PrimaryExpression
 		50,  // IntegerLiteral
@@ -2346,6 +2538,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -2356,8 +2551,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -2394,6 +2590,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2404,8 +2603,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2442,6 +2642,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2452,8 +2655,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2490,6 +2694,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2500,8 +2707,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2538,6 +2746,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2548,8 +2759,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2586,6 +2798,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2596,8 +2811,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2634,6 +2850,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2644,8 +2863,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2682,6 +2902,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2692,8 +2915,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2730,6 +2954,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2740,8 +2967,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2778,6 +3006,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2788,8 +3019,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2826,6 +3058,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2836,8 +3071,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2874,6 +3110,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2884,8 +3123,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2922,6 +3162,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2932,8 +3175,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -2970,6 +3214,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -2980,8 +3227,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3018,6 +3266,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3028,8 +3279,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3043,29 +3295,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
-		257, // DictElements
-		258, // DictElementList
-		259, // DictElement
+		254, // DictLiteral
+		261, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -3076,8 +3331,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3114,9 +3370,12 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
-		261, // Block
+		265, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3124,8 +3383,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3162,9 +3422,12 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
-		263, // Block
+		267, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -3172,8 +3435,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3210,6 +3474,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3220,8 +3487,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3258,6 +3526,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3268,8 +3539,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3306,6 +3578,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3316,8 +3591,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3331,29 +3607,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		266, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		270, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -3364,8 +3643,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3402,6 +3682,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3412,8 +3695,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3427,29 +3711,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		267, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		271, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -3460,8 +3747,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3498,6 +3786,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3508,8 +3799,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3546,6 +3838,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3556,8 +3851,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3594,6 +3890,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3604,8 +3903,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3642,6 +3942,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3652,8 +3955,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3690,6 +3994,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3700,8 +4007,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3738,6 +4046,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3748,8 +4059,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3786,6 +4098,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3796,8 +4111,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3816,7 +4132,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		283, // Expression5
+		287, // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
 		81,  // IntegerLiteral
@@ -3834,6 +4150,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -3844,8 +4163,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -3882,6 +4202,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3892,8 +4215,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3930,6 +4254,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3940,8 +4267,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -3978,6 +4306,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -3988,8 +4319,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4026,6 +4358,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4036,8 +4371,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4074,6 +4410,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4084,8 +4423,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4122,6 +4462,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4132,8 +4475,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4170,6 +4514,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4180,8 +4527,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4218,6 +4566,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4228,8 +4579,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4266,6 +4618,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4276,8 +4631,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4314,6 +4670,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4324,8 +4683,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4362,6 +4722,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4372,8 +4735,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4410,6 +4774,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4420,8 +4787,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4458,6 +4826,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4468,8 +4839,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4506,6 +4878,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4516,8 +4891,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4531,29 +4907,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
-		284, // DictElements
-		258, // DictElementList
-		259, // DictElement
+		254, // DictLiteral
+		288, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -4564,8 +4943,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -4602,6 +4982,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4612,8 +4995,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4650,6 +5034,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4660,8 +5047,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4675,29 +5063,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		285, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		289, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -4708,8 +5099,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -4746,6 +5138,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4756,8 +5151,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4771,29 +5167,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		287, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		291, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -4804,8 +5203,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -4842,6 +5242,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4852,8 +5255,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4890,6 +5294,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4900,8 +5307,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4938,6 +5346,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4948,8 +5359,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -4986,6 +5398,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -4996,8 +5411,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5034,6 +5450,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5044,8 +5463,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5082,6 +5502,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5092,8 +5515,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5130,6 +5554,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5140,8 +5567,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5160,7 +5588,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		303, // Expression5
+		307, // Expression5
 		106, // PostfixExpression
 		108, // PrimaryExpression
 		109, // IntegerLiteral
@@ -5178,6 +5606,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -5188,8 +5619,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -5226,6 +5658,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5236,8 +5671,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5274,6 +5710,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5284,8 +5723,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5322,6 +5762,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5332,8 +5775,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5370,6 +5814,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5380,8 +5827,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5418,6 +5866,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5428,8 +5879,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5466,6 +5918,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5476,8 +5931,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5514,6 +5970,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5524,8 +5983,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5562,6 +6022,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5572,8 +6035,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5610,6 +6074,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5620,8 +6087,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5658,6 +6126,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5668,8 +6139,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5706,6 +6178,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5716,8 +6191,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5754,6 +6230,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5764,8 +6243,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5802,6 +6282,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5812,8 +6295,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5850,6 +6334,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5860,8 +6347,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5875,29 +6363,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
-		304, // DictElements
-		258, // DictElementList
-		259, // DictElement
+		254, // DictLiteral
+		308, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -5908,8 +6399,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -5946,6 +6438,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -5956,8 +6451,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -5971,29 +6467,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		305, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		309, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -6004,8 +6503,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -6042,6 +6542,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6052,8 +6555,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6067,29 +6571,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		306, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		310, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -6100,8 +6607,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -6138,6 +6646,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6148,8 +6659,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6186,6 +6698,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6196,8 +6711,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6234,6 +6750,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6244,8 +6763,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6282,6 +6802,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6292,8 +6815,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6330,6 +6854,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6340,8 +6867,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6378,6 +6906,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6388,8 +6919,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6426,6 +6958,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6436,13 +6971,66 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S134
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		324, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S135
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -6474,6 +7062,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6484,13 +7075,14 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S135
+	gotoRow{ // S136
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -6504,24 +7096,27 @@ var gotoTab = gotoTable{
 		-1,  // Expression2
 		-1,  // Expression3
 		-1,  // Expression4
-		323, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		328, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -6532,59 +7127,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S136
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S137
 		-1, // S'
@@ -6618,6 +7166,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6628,8 +7179,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6666,6 +7218,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6676,8 +7231,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6714,6 +7270,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6724,8 +7283,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6762,6 +7322,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6772,8 +7335,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6810,6 +7374,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6820,8 +7387,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6858,6 +7426,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6868,8 +7439,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6906,6 +7478,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6916,8 +7491,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -6954,6 +7530,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -6964,8 +7543,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7002,6 +7582,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7012,8 +7595,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7050,6 +7634,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7060,8 +7647,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7098,6 +7686,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7108,8 +7699,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7146,6 +7738,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7156,8 +7751,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7194,6 +7790,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7204,61 +7803,14 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S150
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		324, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S151
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -7290,6 +7842,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7300,11 +7855,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
+	},
+	gotoRow{ // S151
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		329, // DictElements
+		262, // DictElementList
+		263, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S152
 		-1, // S'
@@ -7338,6 +7946,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7348,8 +7959,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7386,6 +7998,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7396,8 +8011,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7434,6 +8050,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7444,8 +8063,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7482,6 +8102,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7492,8 +8115,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7530,6 +8154,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7540,59 +8167,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S157
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		328, // Expression
-		73,  // Expression1
-		74,  // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		81,  // IntegerLiteral
-		82,  // FloatLiteral
-		83,  // StringLiteral
-		84,  // TrueLiteral
-		85,  // FalseLiteral
-		86,  // NilLiteral
-		87,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		88,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S158
 		-1, // S'
@@ -7626,6 +8258,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7636,59 +8271,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S159
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		329, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S160
 		-1, // S'
@@ -7722,6 +8362,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7732,8 +8375,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -7747,29 +8391,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		330, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		333, // Expression
+		73,  // Expression1
+		74,  // Expression2
+		75,  // Expression3
+		76,  // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		88,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -7780,8 +8427,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -7818,6 +8466,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7828,59 +8479,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S163
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		334, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S164
 		-1, // S'
@@ -7914,6 +8570,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -7924,59 +8583,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S165
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		335, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S166
 		-1, // S'
@@ -8010,6 +8674,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8020,8 +8687,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8058,6 +8726,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8068,8 +8739,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8106,6 +8778,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8116,59 +8791,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S169
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		346, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S170
 		-1, // S'
@@ -8202,6 +8882,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8212,8 +8895,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8250,6 +8934,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8260,8 +8947,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8298,6 +8986,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8308,59 +8999,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S173
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		351, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S174
 		-1, // S'
@@ -8394,6 +9090,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8404,8 +9103,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8442,6 +9142,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8452,8 +9155,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8490,6 +9194,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8500,8 +9207,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8538,6 +9246,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8548,8 +9259,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8586,6 +9298,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8596,8 +9311,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8634,6 +9350,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8644,8 +9363,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8682,6 +9402,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8692,8 +9415,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8730,6 +9454,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8740,8 +9467,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8778,6 +9506,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8788,8 +9519,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8826,6 +9558,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8836,8 +9571,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8874,6 +9610,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8884,8 +9623,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -8922,6 +9662,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -8932,59 +9675,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S186
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		349, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S187
 		-1, // S'
@@ -9018,6 +9766,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9028,59 +9779,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S188
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		350, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S189
 		-1, // S'
@@ -9114,6 +9870,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9124,8 +9883,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9139,29 +9899,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		352, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		254, // DictLiteral
+		354, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -9172,8 +9935,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -9210,6 +9974,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9220,59 +9987,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S192
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		355, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S193
 		-1, // S'
@@ -9306,6 +10078,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9316,59 +10091,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S194
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		357, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S195
 		-1, // S'
@@ -9402,6 +10182,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9412,8 +10195,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9450,6 +10234,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9460,8 +10247,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9498,6 +10286,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9508,59 +10299,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S198
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		368, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S199
 		-1, // S'
@@ -9594,6 +10390,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9604,8 +10403,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9642,6 +10442,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9652,8 +10455,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9690,6 +10494,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9700,59 +10507,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S202
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		373, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S203
 		-1, // S'
@@ -9786,6 +10598,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9796,8 +10611,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9834,6 +10650,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9844,8 +10663,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9882,6 +10702,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9892,8 +10715,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9930,6 +10754,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9940,8 +10767,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -9978,6 +10806,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -9988,8 +10819,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -10026,6 +10858,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -10036,8 +10871,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -10074,6 +10910,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -10084,8 +10923,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -10122,6 +10962,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -10132,8 +10975,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -10170,6 +11014,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -10180,8 +11027,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -10218,6 +11066,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -10228,203 +11079,220 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S213
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		369, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S214
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		370, // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S215
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		371, // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S216
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		372, // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S217
 		-1,  // S'
@@ -10435,29 +11303,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		373, // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		254, // DictLiteral
+		374, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10468,8 +11339,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10485,8 +11357,8 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		374, // Expression3
+		375, // Expression2
+		44,  // Expression3
 		45,  // Expression4
 		46,  // Expression5
 		47,  // PostfixExpression
@@ -10506,6 +11378,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10516,8 +11391,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10533,8 +11409,8 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		375, // Expression3
+		376, // Expression2
+		44,  // Expression3
 		45,  // Expression4
 		46,  // Expression5
 		47,  // PostfixExpression
@@ -10554,6 +11430,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10564,61 +11443,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S220
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		376, // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S221
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -10650,6 +11482,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10660,8 +11495,61 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S221
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		378, // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10678,8 +11566,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		378, // Expression4
+		379, // Expression3
+		45,  // Expression4
 		46,  // Expression5
 		47,  // PostfixExpression
 		49,  // PrimaryExpression
@@ -10698,6 +11586,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10708,8 +11599,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10726,8 +11618,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		379, // Expression4
+		380, // Expression3
+		45,  // Expression4
 		46,  // Expression5
 		47,  // PostfixExpression
 		49,  // PrimaryExpression
@@ -10746,6 +11638,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10756,8 +11651,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10774,9 +11670,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		380, // Expression5
+		381, // Expression3
+		45,  // Expression4
+		46,  // Expression5
 		47,  // PostfixExpression
 		49,  // PrimaryExpression
 		50,  // IntegerLiteral
@@ -10794,6 +11690,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10804,8 +11703,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10822,9 +11722,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		381, // Expression5
+		382, // Expression3
+		45,  // Expression4
+		46,  // Expression5
 		47,  // PostfixExpression
 		49,  // PrimaryExpression
 		50,  // IntegerLiteral
@@ -10842,6 +11742,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10852,8 +11755,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -10867,7 +11771,215 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		382, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		383, // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S227
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		384, // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S228
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		385, // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S229
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		386, // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S230
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		387, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -10890,6 +12002,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10900,13 +12015,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S227
+	gotoRow{ // S231
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -10921,23 +12037,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		383, // Arguments
-		151, // ArgumentList
+		388, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -10948,200 +12067,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S228
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S229
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S230
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S231
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		385, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -11178,6 +12106,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11188,59 +12119,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S233
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		387, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S234
 		-1, // S'
@@ -11274,6 +12210,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11284,59 +12223,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S235
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		390, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S236
 		-1, // S'
@@ -11370,6 +12314,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11380,59 +12327,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S237
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		392, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S238
 		-1, // S'
@@ -11466,6 +12418,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11476,8 +12431,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11514,6 +12470,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11524,8 +12483,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11562,6 +12522,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11572,59 +12535,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S241
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		403, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S242
 		-1, // S'
@@ -11658,6 +12626,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11668,8 +12639,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11706,6 +12678,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11716,8 +12691,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11754,6 +12730,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11764,59 +12743,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S245
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		408, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S246
 		-1, // S'
@@ -11850,6 +12834,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11860,8 +12847,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11898,6 +12886,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11908,8 +12899,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11946,6 +12938,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -11956,8 +12951,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -11994,6 +12990,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12004,8 +13003,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12042,6 +13042,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12052,8 +13055,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12090,6 +13094,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12100,8 +13107,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12138,6 +13146,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12148,8 +13159,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12186,6 +13198,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12196,8 +13211,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12234,6 +13250,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12244,8 +13263,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12282,6 +13302,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12292,59 +13315,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S256
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		404, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S257
 		-1, // S'
@@ -12378,6 +13406,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12388,8 +13419,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12426,6 +13458,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12436,8 +13471,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12474,6 +13510,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12484,8 +13523,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12493,50 +13533,54 @@ var gotoTab = gotoTable{
 	gotoRow{ // S260
 		-1,  // S'
 		-1,  // Module
-		407, // Statements
-		408, // StatementList
-		409, // Statement
-		410, // ExpressionStatement
-		421, // Import
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		254, // DictLiteral
+		409, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		411, // Declare
-		412, // Assign
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
 		-1,  // Block
 		-1,  // Condition
-		413, // If
-		414, // IfElse
-		415, // While
-		416, // For
-		417, // Break
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		418, // FunctionDefine
-		419, // Return
-		420, // Export
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S261
 		-1, // S'
@@ -12570,6 +13614,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12580,59 +13627,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S262
-		-1,  // S'
-		-1,  // Module
-		433, // Statements
-		408, // StatementList
-		409, // Statement
-		410, // ExpressionStatement
-		421, // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		411, // Declare
-		412, // Assign
-		-1,  // Block
-		-1,  // Condition
-		413, // If
-		414, // IfElse
-		415, // While
-		416, // For
-		417, // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		418, // FunctionDefine
-		419, // Return
-		420, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S263
 		-1, // S'
@@ -12666,6 +13718,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12676,8 +13731,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12685,59 +13741,11 @@ var gotoTab = gotoTable{
 	gotoRow{ // S264
 		-1,  // S'
 		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		434, // Expression
-		42,  // Expression1
-		43,  // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S265
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
+		412, // Statements
+		413, // StatementList
+		414, // Statement
+		415, // ExpressionStatement
+		426, // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
@@ -12762,23 +13770,27 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		416, // Declare
+		417, // Assign
 		-1,  // Block
 		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		436, // Parameters
-		438, // Parameter
-		437, // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		418, // If
+		419, // IfElse
+		420, // While
+		421, // For
+		422, // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		423, // FunctionDefine
+		424, // Return
+		425, // Export
 	},
-	gotoRow{ // S266
+	gotoRow{ // S265
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -12810,6 +13822,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12820,11 +13835,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
+	},
+	gotoRow{ // S266
+		-1,  // S'
+		-1,  // Module
+		438, // Statements
+		413, // StatementList
+		414, // Statement
+		415, // ExpressionStatement
+		426, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		416, // Declare
+		417, // Assign
+		-1,  // Block
+		-1,  // Condition
+		418, // If
+		419, // IfElse
+		420, // While
+		421, // For
+		422, // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		423, // FunctionDefine
+		424, // Return
+		425, // Export
 	},
 	gotoRow{ // S267
 		-1, // S'
@@ -12858,6 +13926,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -12868,8 +13939,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -12883,29 +13955,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		441, // Expression2
-		75,  // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		81,  // IntegerLiteral
-		82,  // FloatLiteral
-		83,  // StringLiteral
-		84,  // TrueLiteral
-		85,  // FalseLiteral
-		86,  // NilLiteral
-		87,  // ListLiteral
+		439, // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		88,  // DictLiteral
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -12916,8 +13991,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -12933,7 +14009,163 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		442, // Expression2
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		442, // Parameters
+		445, // RequiredParameter
+		444, // VariadicParameter
+		443, // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S270
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S271
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S272
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		448, // Expression2
 		75,  // Expression3
 		76,  // Expression4
 		77,  // Expression5
@@ -12954,6 +14186,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -12964,152 +14199,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S270
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		443, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		81,  // IntegerLiteral
-		82,  // FloatLiteral
-		83,  // StringLiteral
-		84,  // TrueLiteral
-		85,  // FalseLiteral
-		86,  // NilLiteral
-		87,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		88,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S271
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		444, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		81,  // IntegerLiteral
-		82,  // FloatLiteral
-		83,  // StringLiteral
-		84,  // TrueLiteral
-		85,  // FalseLiteral
-		86,  // NilLiteral
-		87,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		88,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S272
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		445, // Expression3
-		76,  // Expression4
-		77,  // Expression5
-		78,  // PostfixExpression
-		80,  // PrimaryExpression
-		81,  // IntegerLiteral
-		82,  // FloatLiteral
-		83,  // StringLiteral
-		84,  // TrueLiteral
-		85,  // FalseLiteral
-		86,  // NilLiteral
-		87,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		88,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13125,8 +14217,8 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		446, // Expression3
+		449, // Expression2
+		75,  // Expression3
 		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
@@ -13146,6 +14238,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13156,8 +14251,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13174,7 +14270,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		447, // Expression3
+		450, // Expression3
 		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
@@ -13194,6 +14290,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13204,8 +14303,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13222,7 +14322,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		448, // Expression3
+		451, // Expression3
 		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
@@ -13242,6 +14342,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13252,8 +14355,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13270,8 +14374,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		449, // Expression4
+		452, // Expression3
+		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
@@ -13290,6 +14394,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13300,8 +14407,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13318,8 +14426,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		450, // Expression4
+		453, // Expression3
+		76,  // Expression4
 		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
@@ -13338,6 +14446,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13348,8 +14459,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13366,9 +14478,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		451, // Expression5
+		454, // Expression3
+		76,  // Expression4
+		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
 		81,  // IntegerLiteral
@@ -13386,6 +14498,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13396,8 +14511,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13414,9 +14530,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		452, // Expression5
+		455, // Expression3
+		76,  // Expression4
+		77,  // Expression5
 		78,  // PostfixExpression
 		80,  // PrimaryExpression
 		81,  // IntegerLiteral
@@ -13434,6 +14550,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13444,8 +14563,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -13459,7 +14579,215 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		453, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		456, // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S281
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		457, // Expression4
+		77,  // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S282
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		458, // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S283
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		459, // Expression5
+		78,  // PostfixExpression
+		80,  // PrimaryExpression
+		81,  // IntegerLiteral
+		82,  // FloatLiteral
+		83,  // StringLiteral
+		84,  // TrueLiteral
+		85,  // FalseLiteral
+		86,  // NilLiteral
+		87,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		88,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S284
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		460, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -13482,6 +14810,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13492,13 +14823,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S281
+	gotoRow{ // S285
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -13513,23 +14845,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		454, // Arguments
-		151, // ArgumentList
+		461, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -13540,203 +14875,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S282
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S283
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S284
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S285
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S286
 		-1, // S'
@@ -13770,6 +14914,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -13780,8 +14927,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -13818,6 +14966,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -13828,203 +14979,220 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S288
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		459, // Expression2
-		103, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S289
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		460, // Expression2
-		103, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S290
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		461, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S291
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		462, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S292
 		-1,  // S'
@@ -14037,8 +15205,8 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		463, // Expression3
+		466, // Expression2
+		103, // Expression3
 		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
@@ -14058,6 +15226,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14068,8 +15239,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14085,8 +15257,8 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		464, // Expression3
+		467, // Expression2
+		103, // Expression3
 		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
@@ -14106,6 +15278,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14116,8 +15291,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14134,7 +15310,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		465, // Expression3
+		468, // Expression3
 		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
@@ -14154,6 +15330,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14164,8 +15343,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14182,7 +15362,7 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		466, // Expression3
+		469, // Expression3
 		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
@@ -14202,6 +15382,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14212,8 +15395,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14230,8 +15414,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		467, // Expression4
+		470, // Expression3
+		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
 		108, // PrimaryExpression
@@ -14250,6 +15434,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14260,8 +15447,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14278,8 +15466,8 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		468, // Expression4
+		471, // Expression3
+		104, // Expression4
 		105, // Expression5
 		106, // PostfixExpression
 		108, // PrimaryExpression
@@ -14298,6 +15486,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14308,8 +15499,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14326,9 +15518,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		469, // Expression5
+		472, // Expression3
+		104, // Expression4
+		105, // Expression5
 		106, // PostfixExpression
 		108, // PrimaryExpression
 		109, // IntegerLiteral
@@ -14346,6 +15538,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14356,8 +15551,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14374,9 +15570,9 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		470, // Expression5
+		473, // Expression3
+		104, // Expression4
+		105, // Expression5
 		106, // PostfixExpression
 		108, // PrimaryExpression
 		109, // IntegerLiteral
@@ -14394,6 +15590,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14404,8 +15603,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -14419,7 +15619,215 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		471, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		474, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S301
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		475, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S302
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		476, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S303
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		477, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S304
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		478, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -14442,6 +15850,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14452,13 +15863,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S301
+	gotoRow{ // S305
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -14473,23 +15885,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		472, // Arguments
-		151, // ArgumentList
+		479, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -14500,203 +15915,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S302
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S303
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S304
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S305
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S306
 		-1, // S'
@@ -14730,6 +15954,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -14740,8 +15967,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -14778,6 +16006,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -14788,203 +16019,220 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S308
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		477, // Expression2
-		131, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S309
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		478, // Expression2
-		131, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S310
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		479, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S311
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		480, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S312
 		-1,  // S'
@@ -14997,27 +16245,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		481, // Expression3
+		484, // Expression2
+		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15028,8 +16279,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15045,27 +16297,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		482, // Expression3
+		485, // Expression2
+		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15076,8 +16331,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15094,26 +16350,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		483, // Expression3
+		486, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15124,8 +16383,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15142,26 +16402,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		484, // Expression3
+		487, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15172,8 +16435,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15190,26 +16454,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		485, // Expression4
+		488, // Expression3
+		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15220,8 +16487,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15238,26 +16506,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		486, // Expression4
+		489, // Expression3
+		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15268,8 +16539,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15286,26 +16558,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		487, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		490, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15316,8 +16591,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15334,26 +16610,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		488, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		491, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15364,8 +16643,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15379,29 +16659,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		489, // Expression
-		101, // Expression1
-		102, // Expression2
-		103, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		492, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		116, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15412,8 +16695,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -15427,29 +16711,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		125, // Expression
-		129, // Expression1
-		130, // Expression2
-		131, // Expression3
-		132, // Expression4
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		493, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		490, // Arguments
-		151, // ArgumentList
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15460,107 +16747,116 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S322
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		494, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		145, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S323
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		495, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		145, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S324
 		-1, // S'
@@ -15594,6 +16890,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -15604,8 +16903,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -15619,29 +16919,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		493, // Expression
-		129, // Expression1
-		130, // Expression2
-		131, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		496, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -15652,59 +16955,64 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S326
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		145, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		497, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S327
 		-1, // S'
@@ -15738,6 +17046,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -15748,8 +17059,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -15786,6 +17098,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -15796,8 +17111,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -15834,6 +17150,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -15844,13 +17163,66 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S330
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		145, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		501, // PositionalArgument
+		500, // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S331
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -15882,6 +17254,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -15892,251 +17267,220 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
-	gotoRow{ // S331
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		496, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
 	gotoRow{ // S332
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		497, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S333
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		498, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S334
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		499, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S335
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		500, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S336
 		-1,  // S'
@@ -16149,27 +17493,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		501, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		504, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16180,8 +17527,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16197,27 +17545,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		502, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		505, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16228,8 +17579,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16246,26 +17598,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		503, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		506, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16276,8 +17631,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16294,26 +17650,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		504, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		507, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16324,8 +17683,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16342,26 +17702,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		505, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		508, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16372,8 +17735,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16390,26 +17754,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		506, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		509, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16420,8 +17787,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16438,26 +17806,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		507, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
+		510, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		178, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16468,8 +17839,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -16483,7 +17855,267 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		508, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		511, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S344
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		512, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S345
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		513, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S346
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		514, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S347
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		515, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S348
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		516, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -16506,6 +18138,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16516,13 +18151,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S344
+	gotoRow{ // S349
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -16537,23 +18173,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		509, // Arguments
-		151, // ArgumentList
+		517, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16564,251 +18203,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S345
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S346
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S347
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S348
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		511, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S349
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S350
 		-1, // S'
@@ -16842,6 +18242,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -16852,8 +18255,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -16890,6 +18294,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -16900,8 +18307,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -16938,6 +18346,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -16948,8 +18359,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -16963,29 +18375,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		515, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		519, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		182, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -16996,203 +18411,220 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S354
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		516, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S355
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		517, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S356
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		518, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S357
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		519, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S358
 		-1,  // S'
@@ -17205,27 +18637,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		520, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		523, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17236,8 +18671,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17253,27 +18689,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		521, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		524, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17284,8 +18723,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17302,26 +18742,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		522, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		525, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17332,8 +18775,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17350,26 +18794,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		523, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		526, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17380,8 +18827,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17398,26 +18846,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		524, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		527, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17428,8 +18879,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17446,26 +18898,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		525, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		528, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17476,8 +18931,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17494,26 +18950,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		526, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		529, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17524,8 +18983,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -17539,7 +18999,267 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		527, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		530, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S366
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		531, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S367
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		532, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S368
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		533, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S369
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		534, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		211, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S370
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		535, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -17562,6 +19282,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17572,13 +19295,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S366
+	gotoRow{ // S371
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -17593,23 +19317,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		528, // Arguments
-		151, // ArgumentList
+		536, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -17620,251 +19347,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S367
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S368
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S369
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S370
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S371
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S372
 		-1, // S'
@@ -17898,6 +19386,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -17908,8 +19399,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -17946,6 +19438,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -17956,8 +19451,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -17994,6 +19490,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18004,8 +19503,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18042,6 +19542,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18052,8 +19555,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18090,6 +19594,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18100,8 +19607,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18138,6 +19646,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18148,8 +19659,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18186,6 +19698,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18196,8 +19711,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18234,6 +19750,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18244,8 +19763,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18282,6 +19802,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18292,8 +19815,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18330,6 +19854,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18340,8 +19867,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18378,6 +19906,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18388,8 +19919,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18426,6 +19958,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18436,8 +19971,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18474,6 +20010,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18484,8 +20023,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -18522,6 +20062,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18532,59 +20075,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S386
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		536, // Expression
-		539, // Expression1
-		540, // Expression2
-		541, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S387
 		-1, // S'
@@ -18618,6 +20166,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -18628,155 +20179,168 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S388
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		562, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S389
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		563, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S390
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		564, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S391
 		-1,  // S'
@@ -18787,29 +20351,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		565, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		544, // Expression
+		547, // Expression1
+		548, // Expression2
+		549, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		562, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -18820,59 +20387,64 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S392
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		566, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S393
 		-1,  // S'
@@ -18885,27 +20457,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		567, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		570, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -18916,8 +20491,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -18933,27 +20509,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		568, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		571, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -18964,8 +20543,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -18982,26 +20562,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		569, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		572, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19012,8 +20595,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19030,26 +20614,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		570, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		573, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19060,8 +20647,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19078,26 +20666,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		571, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		574, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19108,8 +20699,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19126,26 +20718,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		572, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		575, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19156,8 +20751,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19174,26 +20770,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		573, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
+		576, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		250, // DictLiteral
+		254, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19204,8 +20803,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19219,7 +20819,267 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		574, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		577, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S401
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		578, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S402
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		579, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S403
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		580, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S404
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		581, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S405
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		582, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -19242,6 +21102,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19252,13 +21115,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S401
+	gotoRow{ // S406
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -19273,23 +21137,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		575, // Arguments
-		151, // ArgumentList
+		583, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -19300,248 +21167,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S402
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S403
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S404
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S405
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S406
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		578, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -19578,6 +21206,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19588,59 +21219,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S408
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		580, // Statement
-		410, // ExpressionStatement
-		421, // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		411, // Declare
-		412, // Assign
-		-1,  // Block
-		-1,  // Condition
-		413, // If
-		414, // IfElse
-		415, // While
-		416, // For
-		417, // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		418, // FunctionDefine
-		419, // Return
-		420, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S409
 		-1, // S'
@@ -19674,6 +21310,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19684,8 +21323,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -19722,6 +21362,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19732,59 +21375,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S411
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		586, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S412
 		-1, // S'
@@ -19818,6 +21466,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19828,59 +21479,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S413
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		588, // Statement
+		415, // ExpressionStatement
+		426, // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		416, // Declare
+		417, // Assign
+		-1,  // Block
+		-1,  // Condition
+		418, // If
+		419, // IfElse
+		420, // While
+		421, // For
+		422, // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		423, // FunctionDefine
+		424, // Return
+		425, // Export
 	},
 	gotoRow{ // S414
 		-1, // S'
@@ -19914,6 +21570,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19924,8 +21583,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -19962,6 +21622,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -19972,8 +21635,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20010,6 +21674,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20020,8 +21687,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20058,6 +21726,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20068,8 +21739,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20106,6 +21778,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20116,8 +21791,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20154,6 +21830,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20164,8 +21843,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20202,6 +21882,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20212,8 +21895,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20250,6 +21934,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20260,8 +21947,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20298,6 +21986,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20308,8 +21999,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20346,6 +22038,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20356,8 +22051,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20394,6 +22090,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20404,107 +22103,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S425
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		39,  // Expression
-		42,  // Expression1
-		43,  // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		590, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S426
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		39,  // Expression
-		42,  // Expression1
-		43,  // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		591, // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S427
 		-1, // S'
@@ -20538,6 +22246,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20548,8 +22259,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20586,6 +22298,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20596,8 +22311,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20634,6 +22350,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20644,8 +22363,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -20659,46 +22379,102 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		596, // Expression
-		599, // Expression1
-		600, // Expression2
-		601, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		39,  // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
-		-1,  // Condition
+		598, // Condition
 		-1,  // If
 		-1,  // IfElse
 		-1,  // While
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S431
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		39,  // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		57,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		599, // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S432
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -20730,6 +22506,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20740,59 +22519,12 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
-	},
-	gotoRow{ // S432
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		624, // Block
-		-1,  // Condition
-		622, // If
-		623, // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
 	},
 	gotoRow{ // S433
 		-1, // S'
@@ -20826,6 +22558,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20836,61 +22571,14 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S434
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		626, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S435
 		-1, // S'
 		-1, // Module
 		-1, // Statements
@@ -20922,6 +22610,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20932,11 +22623,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
+	},
+	gotoRow{ // S435
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		604, // Expression
+		607, // Expression1
+		608, // Expression2
+		609, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S436
 		-1, // S'
@@ -20970,6 +22714,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -20980,59 +22727,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S437
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		632, // Block
+		-1,  // Condition
+		630, // If
+		631, // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S438
 		-1, // S'
@@ -21066,6 +22818,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21076,59 +22831,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S439
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		634, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S440
 		-1, // S'
@@ -21162,6 +22922,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21172,8 +22935,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21210,6 +22974,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21220,8 +22987,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21258,6 +23026,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21268,8 +23039,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21306,6 +23078,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21316,8 +23091,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21354,6 +23130,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21364,8 +23143,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21402,6 +23182,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21412,8 +23195,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21450,6 +23234,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21460,8 +23247,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21498,6 +23286,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21508,8 +23299,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21546,6 +23338,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21556,8 +23351,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21594,6 +23390,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21604,8 +23403,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21642,6 +23442,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21652,8 +23455,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21690,6 +23494,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21700,8 +23507,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21738,6 +23546,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21748,8 +23559,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21786,6 +23598,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21796,8 +23611,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21834,6 +23650,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21844,8 +23663,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21882,6 +23702,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21892,8 +23715,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21930,6 +23754,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21940,8 +23767,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -21978,6 +23806,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -21988,8 +23819,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22026,6 +23858,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22036,8 +23871,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22074,6 +23910,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22084,8 +23923,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22122,6 +23962,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22132,8 +23975,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22170,6 +24014,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22180,8 +24027,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22218,6 +24066,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22228,8 +24079,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22266,6 +24118,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22276,8 +24131,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22314,6 +24170,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22324,8 +24183,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22362,6 +24222,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22372,8 +24235,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22410,6 +24274,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22420,8 +24287,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22458,6 +24326,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22468,8 +24339,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22506,6 +24378,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22516,8 +24391,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22554,6 +24430,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22564,8 +24443,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22602,6 +24482,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22612,8 +24495,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22650,6 +24534,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22660,8 +24547,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22698,6 +24586,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22708,8 +24599,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22746,6 +24638,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22756,8 +24651,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22794,6 +24690,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22804,8 +24703,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22842,6 +24742,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22852,8 +24755,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22890,6 +24794,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22900,8 +24807,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22938,6 +24846,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22948,8 +24859,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -22986,6 +24898,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -22996,8 +24911,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23034,6 +24950,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23044,8 +24963,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23082,6 +25002,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23092,8 +25015,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23130,6 +25054,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23140,8 +25067,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23178,6 +25106,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23188,8 +25119,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23226,6 +25158,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23236,8 +25171,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23274,6 +25210,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23284,8 +25223,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23322,6 +25262,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23332,8 +25275,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23370,6 +25314,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23380,8 +25327,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23418,6 +25366,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23428,8 +25379,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23466,6 +25418,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23476,8 +25431,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23514,6 +25470,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23524,8 +25483,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23562,6 +25522,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23572,8 +25535,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23610,6 +25574,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23620,8 +25587,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23658,6 +25626,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23668,8 +25639,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23706,6 +25678,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23716,8 +25691,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23754,6 +25730,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23764,8 +25743,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23802,6 +25782,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23812,8 +25795,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23850,6 +25834,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23860,8 +25847,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23898,6 +25886,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23908,8 +25899,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23946,6 +25938,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -23956,8 +25951,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -23994,6 +25990,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24004,8 +26003,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24042,6 +26042,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24052,8 +26055,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24090,6 +26094,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24100,8 +26107,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24138,6 +26146,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24148,8 +26159,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24186,6 +26198,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24196,8 +26211,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24234,6 +26250,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24244,8 +26263,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24282,6 +26302,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24292,8 +26315,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24330,6 +26354,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24340,8 +26367,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24378,6 +26406,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24388,8 +26419,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24426,6 +26458,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24436,8 +26471,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24474,6 +26510,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24484,8 +26523,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24522,6 +26562,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24532,8 +26575,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24570,6 +26614,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24580,8 +26627,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24618,6 +26666,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24628,8 +26679,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24666,6 +26718,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24676,8 +26731,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24714,6 +26770,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24724,8 +26783,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24762,6 +26822,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24772,8 +26835,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24810,6 +26874,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24820,8 +26887,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24858,6 +26926,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24868,8 +26939,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24906,6 +26978,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24916,8 +26991,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -24954,6 +27030,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -24964,8 +27043,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25002,6 +27082,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25012,8 +27095,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25050,6 +27134,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25060,8 +27147,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25098,6 +27186,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25108,8 +27199,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25146,6 +27238,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25156,8 +27251,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25194,6 +27290,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25204,8 +27303,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25242,6 +27342,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25252,8 +27355,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25290,6 +27394,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25300,8 +27407,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25338,6 +27446,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25348,8 +27459,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25386,6 +27498,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25396,8 +27511,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25434,6 +27550,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25444,8 +27563,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25482,6 +27602,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25492,8 +27615,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25530,6 +27654,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25540,8 +27667,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25578,6 +27706,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25588,8 +27719,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25626,6 +27758,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25636,8 +27771,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25674,6 +27810,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25684,59 +27823,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S535
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		639, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S536
 		-1, // S'
@@ -25770,6 +27914,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25780,59 +27927,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S537
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		640, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		207, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S538
 		-1, // S'
@@ -25866,6 +28018,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25876,8 +28031,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25914,6 +28070,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25924,8 +28083,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -25962,6 +28122,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -25972,8 +28135,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26010,6 +28174,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26020,8 +28187,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26058,6 +28226,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26068,59 +28239,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S543
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		648, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S544
 		-1, // S'
@@ -26154,6 +28330,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26164,8 +28343,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26179,29 +28359,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		656, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
+		649, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		554, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -26212,8 +28395,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -26250,6 +28434,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26260,8 +28447,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26298,6 +28486,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26308,8 +28499,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26346,6 +28538,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26356,8 +28551,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26394,6 +28590,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26404,8 +28603,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26442,6 +28642,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26452,8 +28655,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26490,6 +28694,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26500,8 +28707,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26538,6 +28746,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26548,59 +28759,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S553
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		665, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S554
 		-1, // S'
@@ -26634,6 +28850,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26644,8 +28863,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26682,6 +28902,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26692,8 +28915,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26730,6 +28954,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26740,8 +28967,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26778,6 +29006,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26788,8 +29019,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26826,6 +29058,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26836,8 +29071,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -26874,6 +29110,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26884,59 +29123,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S560
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		657, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S561
 		-1, // S'
@@ -26970,6 +29214,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -26980,8 +29227,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27018,6 +29266,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27028,8 +29279,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27066,6 +29318,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27076,8 +29331,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27114,6 +29370,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27124,8 +29383,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27162,6 +29422,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27172,8 +29435,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27210,6 +29474,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27220,8 +29487,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27258,6 +29526,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27268,59 +29539,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S568
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		254, // DictLiteral
+		666, // DictElements
+		262, // DictElementList
+		263, // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S569
 		-1, // S'
@@ -27354,6 +29630,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27364,8 +29643,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27402,6 +29682,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27412,8 +29695,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27450,6 +29734,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27460,8 +29747,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27498,6 +29786,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27508,8 +29799,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27546,6 +29838,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27556,8 +29851,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27594,6 +29890,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27604,8 +29903,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27642,6 +29942,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27652,8 +29955,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27690,6 +29994,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27700,8 +30007,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27738,6 +30046,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27748,8 +30059,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27786,6 +30098,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27796,8 +30111,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27834,6 +30150,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27844,8 +30163,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -27882,6 +30202,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -27892,107 +30215,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S581
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		660, // Expression
-		101, // Expression1
-		102, // Expression2
-		103, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S582
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		125, // Expression
-		129, // Expression1
-		130, // Expression2
-		131, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		661, // Arguments
-		151, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S583
 		-1, // S'
@@ -28026,6 +30358,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28036,107 +30371,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S584
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		663, // Expression
-		101, // Expression1
-		102, // Expression2
-		103, // Expression3
-		104, // Expression4
-		105, // Expression5
-		106, // PostfixExpression
-		108, // PrimaryExpression
-		109, // IntegerLiteral
-		110, // FloatLiteral
-		111, // StringLiteral
-		112, // TrueLiteral
-		113, // FalseLiteral
-		114, // NilLiteral
-		115, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		116, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S585
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		125, // Expression
-		129, // Expression1
-		130, // Expression2
-		131, // Expression3
-		132, // Expression4
-		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		144, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		664, // Arguments
-		151, // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S586
 		-1, // S'
@@ -28170,6 +30514,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28180,59 +30527,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S587
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		666, // Expression
-		599, // Expression1
-		600, // Expression2
-		601, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S588
 		-1, // S'
@@ -28266,6 +30618,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28276,59 +30631,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S589
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		669, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		116, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S590
 		-1,  // S'
@@ -28339,32 +30699,35 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
+		670, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
-		669, // Block
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -28372,13 +30735,66 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S591
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S592
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -28387,32 +30803,35 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		672, // Expression
+		101, // Expression1
+		102, // Expression2
+		103, // Expression3
+		104, // Expression4
+		105, // Expression5
+		106, // PostfixExpression
+		108, // PrimaryExpression
+		109, // IntegerLiteral
+		110, // FloatLiteral
+		111, // StringLiteral
+		112, // TrueLiteral
+		113, // FalseLiteral
+		114, // NilLiteral
+		115, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
+		116, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
-		671, // Block
+		-1,  // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -28420,107 +30839,64 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S592
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
 	gotoRow{ // S593
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		125, // Expression
+		129, // Expression1
+		130, // Expression2
+		131, // Expression3
+		132, // Expression4
+		133, // Expression5
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		145, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		673, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S594
 		-1, // S'
@@ -28554,6 +30930,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28564,8 +30943,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -28579,29 +30959,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		160, // Expression
-		163, // Expression1
-		164, // Expression2
-		165, // Expression3
-		166, // Expression4
-		167, // Expression5
-		168, // PostfixExpression
-		170, // PrimaryExpression
-		171, // IntegerLiteral
-		172, // FloatLiteral
-		173, // StringLiteral
-		174, // TrueLiteral
-		175, // FalseLiteral
-		176, // NilLiteral
-		177, // ListLiteral
-		674, // ListElements
-		185, // ListElementList
-		178, // DictLiteral
+		675, // Expression
+		607, // Expression1
+		608, // Expression2
+		609, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -28612,8 +30995,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -28650,6 +31034,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28660,13 +31047,66 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S597
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S598
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -28675,32 +31115,35 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		675, // Expression
-		192, // Expression1
-		193, // Expression2
-		194, // Expression3
-		195, // Expression4
-		196, // Expression5
-		197, // PostfixExpression
-		199, // PrimaryExpression
-		200, // IntegerLiteral
-		201, // FloatLiteral
-		202, // StringLiteral
-		203, // TrueLiteral
-		204, // FalseLiteral
-		205, // NilLiteral
-		206, // ListLiteral
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		207, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
-		-1,  // Block
+		678, // Block
 		-1,  // Condition
 		-1,  // If
 		-1,  // IfElse
@@ -28708,107 +31151,64 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S598
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
 	gotoRow{ // S599
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		680, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S600
 		-1, // S'
@@ -28842,6 +31242,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28852,8 +31255,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -28890,6 +31294,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28900,8 +31307,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -28938,6 +31346,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -28948,59 +31359,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S603
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		164, // Expression
+		167, // Expression1
+		168, // Expression2
+		169, // Expression3
+		170, // Expression4
+		171, // Expression5
+		172, // PostfixExpression
+		174, // PrimaryExpression
+		175, // IntegerLiteral
+		176, // FloatLiteral
+		177, // StringLiteral
+		178, // TrueLiteral
+		179, // FalseLiteral
+		180, // NilLiteral
+		181, // ListLiteral
+		683, // ListElements
+		189, // ListElementList
+		182, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S604
 		-1, // S'
@@ -29034,6 +31450,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29044,8 +31463,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29059,29 +31479,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		691, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		684, // Expression
+		196, // Expression1
+		197, // Expression2
+		198, // Expression3
+		199, // Expression4
+		200, // Expression5
+		201, // PostfixExpression
+		203, // PrimaryExpression
+		204, // IntegerLiteral
+		205, // FloatLiteral
+		206, // StringLiteral
+		207, // TrueLiteral
+		208, // FalseLiteral
+		209, // NilLiteral
+		210, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		211, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -29092,8 +31515,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -29130,6 +31554,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29140,8 +31567,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29178,6 +31606,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29188,8 +31619,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29226,6 +31658,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29236,8 +31671,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29274,6 +31710,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29284,8 +31723,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29322,6 +31762,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29332,8 +31775,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29370,6 +31814,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29380,8 +31827,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29418,6 +31866,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29428,59 +31879,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S613
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		700, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S614
 		-1, // S'
@@ -29514,6 +31970,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29524,8 +31983,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29562,6 +32022,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29572,8 +32035,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29610,6 +32074,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29620,8 +32087,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29658,6 +32126,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29668,8 +32139,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29706,6 +32178,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29716,8 +32191,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29754,6 +32230,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29764,59 +32243,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S620
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		232, // Expression
-		235, // Expression1
-		236, // Expression2
-		237, // Expression3
-		238, // Expression4
-		239, // Expression5
-		240, // PostfixExpression
-		242, // PrimaryExpression
-		243, // IntegerLiteral
-		244, // FloatLiteral
-		245, // StringLiteral
-		246, // TrueLiteral
-		247, // FalseLiteral
-		248, // NilLiteral
-		249, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		250, // DictLiteral
-		692, // DictElements
-		258, // DictElementList
-		259, // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S621
 		-1, // S'
@@ -29850,6 +32334,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29860,8 +32347,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29898,6 +32386,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29908,8 +32399,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29946,6 +32438,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -29956,8 +32451,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -29994,6 +32490,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30004,8 +32503,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30042,6 +32542,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30052,8 +32555,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30090,6 +32594,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30100,59 +32607,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S627
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		693, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S628
 		-1,  // S'
@@ -30163,29 +32675,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
+		236, // Expression
+		239, // Expression1
+		240, // Expression2
+		241, // Expression3
+		242, // Expression4
+		243, // Expression5
+		244, // PostfixExpression
+		246, // PrimaryExpression
+		247, // IntegerLiteral
+		248, // FloatLiteral
+		249, // StringLiteral
+		250, // TrueLiteral
+		251, // FalseLiteral
+		252, // NilLiteral
+		253, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
+		254, // DictLiteral
+		701, // DictElements
+		262, // DictElementList
+		263, // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -30196,8 +32711,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		694, // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -30234,6 +32750,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30244,8 +32763,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30282,6 +32802,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30292,8 +32815,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30330,6 +32854,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30340,8 +32867,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30378,6 +32906,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30388,8 +32919,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30426,6 +32958,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30436,8 +32971,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30474,6 +33010,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30484,8 +33023,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30522,6 +33062,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30532,107 +33075,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S636
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		702, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S637
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		704, // RequiredParameter
+		703, // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S638
 		-1, // S'
@@ -30666,6 +33218,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30676,8 +33231,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30714,6 +33270,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30724,8 +33283,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -30762,6 +33322,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -30772,443 +33335,480 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S641
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		697, // Expression2
-		541, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S642
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		698, // Expression2
-		541, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S643
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		699, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S644
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		700, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S645
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		701, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S646
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		702, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S647
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		703, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S648
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		704, // Expression3
-		542, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S649
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		705, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		554, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S650
 		-1,  // S'
@@ -31221,27 +33821,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		706, // Expression4
-		543, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
+		707, // Expression2
+		549, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		554, // DictLiteral
+		562, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -31252,8 +33855,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -31269,27 +33873,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		707, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
+		708, // Expression2
+		549, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		554, // DictLiteral
+		562, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -31300,8 +33907,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -31318,26 +33926,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		708, // Expression5
-		544, // PostfixExpression
-		546, // PrimaryExpression
-		547, // IntegerLiteral
-		548, // FloatLiteral
-		549, // StringLiteral
-		550, // TrueLiteral
-		551, // FalseLiteral
-		552, // NilLiteral
-		553, // ListLiteral
+		709, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		554, // DictLiteral
+		562, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -31348,8 +33959,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -31363,7 +33975,475 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		709, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		710, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S654
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		711, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S655
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		712, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S656
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		713, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S657
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		714, // Expression3
+		550, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S658
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		715, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S659
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		716, // Expression4
+		551, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S660
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		717, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S661
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		718, // Expression5
+		552, // PostfixExpression
+		554, // PrimaryExpression
+		555, // IntegerLiteral
+		556, // FloatLiteral
+		557, // StringLiteral
+		558, // TrueLiteral
+		559, // FalseLiteral
+		560, // NilLiteral
+		561, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		562, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S662
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		719, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -31386,6 +34466,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -31396,13 +34479,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S654
+	gotoRow{ // S663
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -31417,23 +34501,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		710, // Arguments
-		151, // ArgumentList
+		720, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -31444,443 +34531,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S655
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S656
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S657
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S658
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S659
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S660
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S661
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S662
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S663
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S664
 		-1, // S'
@@ -31914,6 +34570,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -31924,8 +34583,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -31962,6 +34622,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -31972,8 +34635,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -32010,6 +34674,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -32020,107 +34687,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S667
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		717, // Expression
-		599, // Expression1
-		600, // Expression2
-		601, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S668
-		-1,  // S'
-		-1,  // Module
-		718, // Statements
-		408, // StatementList
-		409, // Statement
-		410, // ExpressionStatement
-		421, // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		411, // Declare
-		412, // Assign
-		-1,  // Block
-		-1,  // Condition
-		413, // If
-		414, // IfElse
-		415, // While
-		416, // For
-		417, // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		418, // FunctionDefine
-		419, // Return
-		420, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S669
 		-1, // S'
@@ -32154,6 +34830,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -32164,59 +34843,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S670
-		-1,  // S'
-		-1,  // Module
-		720, // Statements
-		408, // StatementList
-		409, // Statement
-		410, // ExpressionStatement
-		421, // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		411, // Declare
-		412, // Assign
-		-1,  // Block
-		-1,  // Condition
-		413, // If
-		414, // IfElse
-		415, // While
-		416, // For
-		417, // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		418, // FunctionDefine
-		419, // Return
-		420, // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S671
 		-1, // S'
@@ -32250,6 +34934,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -32260,107 +34947,116 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S672
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		721, // Expression
-		42,  // Expression1
-		43,  // Expression2
-		44,  // Expression3
-		45,  // Expression4
-		46,  // Expression5
-		47,  // PostfixExpression
-		49,  // PrimaryExpression
-		50,  // IntegerLiteral
-		51,  // FloatLiteral
-		52,  // StringLiteral
-		53,  // TrueLiteral
-		54,  // FalseLiteral
-		55,  // NilLiteral
-		56,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		57,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S673
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		722, // Parameters
-		438, // Parameter
-		437, // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S674
 		-1, // S'
@@ -32394,6 +35090,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -32404,8 +35103,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -32442,6 +35142,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -32452,8 +35155,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -32467,29 +35171,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		725, // Expression2
-		601, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		727, // Expression
+		607, // Expression1
+		608, // Expression2
+		609, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		622, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -32500,8 +35207,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -32509,194 +35217,210 @@ var gotoTab = gotoTable{
 	gotoRow{ // S677
 		-1,  // S'
 		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		726, // Expression2
-		601, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
-	},
-	gotoRow{ // S678
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
+		728, // Statements
+		413, // StatementList
+		414, // Statement
+		415, // ExpressionStatement
+		426, // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		727, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		416, // Declare
+		417, // Assign
 		-1,  // Block
 		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
+		418, // If
+		419, // IfElse
+		420, // While
+		421, // For
+		422, // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		423, // FunctionDefine
+		424, // Return
+		425, // Export
+	},
+	gotoRow{ // S678
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S679
 		-1,  // S'
 		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
+		730, // Statements
+		413, // StatementList
+		414, // Statement
+		415, // ExpressionStatement
+		426, // Import
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		728, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		416, // Declare
+		417, // Assign
 		-1,  // Block
 		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
+		418, // If
+		419, // IfElse
+		420, // While
+		421, // For
+		422, // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		423, // FunctionDefine
+		424, // Return
+		425, // Export
 	},
 	gotoRow{ // S680
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		729, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S681
 		-1,  // S'
@@ -32707,29 +35431,32 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		730, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		731, // Expression
+		42,  // Expression1
+		43,  // Expression2
+		44,  // Expression3
+		45,  // Expression4
+		46,  // Expression5
+		47,  // PostfixExpression
+		49,  // PrimaryExpression
+		50,  // IntegerLiteral
+		51,  // FloatLiteral
+		52,  // StringLiteral
+		53,  // TrueLiteral
+		54,  // FalseLiteral
+		55,  // NilLiteral
+		56,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		57,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -32740,8 +35467,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -32758,26 +35486,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		731, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		-1,  // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -32787,108 +35518,117 @@ var gotoTab = gotoTable{
 		-1,  // While
 		-1,  // For
 		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		732, // Parameters
+		445, // RequiredParameter
+		444, // VariadicParameter
+		443, // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
 	gotoRow{ // S683
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		732, // Expression3
-		602, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S684
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		733, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		614, // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		-1,  // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S685
 		-1,  // S'
@@ -32901,27 +35641,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		734, // Expression4
-		603, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		735, // Expression2
+		609, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		622, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -32932,8 +35675,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -32949,27 +35693,30 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionList
 		-1,  // Expression
 		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		735, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		736, // Expression2
+		609, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		622, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -32980,8 +35727,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -32998,26 +35746,29 @@ var gotoTab = gotoTable{
 		-1,  // Expression
 		-1,  // Expression1
 		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		736, // Expression5
-		604, // PostfixExpression
-		606, // PrimaryExpression
-		607, // IntegerLiteral
-		608, // FloatLiteral
-		609, // StringLiteral
-		610, // TrueLiteral
-		611, // FalseLiteral
-		612, // NilLiteral
-		613, // ListLiteral
+		737, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		614, // DictLiteral
+		622, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -33028,8 +35779,9 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
@@ -33043,7 +35795,475 @@ var gotoTab = gotoTable{
 		-1,  // ExpressionStatement
 		-1,  // Import
 		-1,  // ExpressionList
-		737, // Expression
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		738, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S689
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		739, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S690
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		740, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S691
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		741, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S692
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		742, // Expression3
+		610, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S693
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		743, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S694
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		744, // Expression4
+		611, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S695
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		745, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S696
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		746, // Expression5
+		612, // PostfixExpression
+		614, // PrimaryExpression
+		615, // IntegerLiteral
+		616, // FloatLiteral
+		617, // StringLiteral
+		618, // TrueLiteral
+		619, // FalseLiteral
+		620, // NilLiteral
+		621, // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		622, // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		-1,  // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S697
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		747, // Expression
 		101, // Expression1
 		102, // Expression2
 		103, // Expression3
@@ -33066,6 +36286,9 @@ var gotoTab = gotoTable{
 		-1,  // DictElement
 		-1,  // Arguments
 		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -33076,13 +36299,14 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
 	},
-	gotoRow{ // S689
+	gotoRow{ // S698
 		-1,  // S'
 		-1,  // Module
 		-1,  // Statements
@@ -33097,23 +36321,26 @@ var gotoTab = gotoTable{
 		131, // Expression3
 		132, // Expression4
 		133, // Expression5
-		134, // PostfixExpression
-		136, // PrimaryExpression
-		137, // IntegerLiteral
-		138, // FloatLiteral
-		139, // StringLiteral
-		140, // TrueLiteral
-		141, // FalseLiteral
-		142, // NilLiteral
-		143, // ListLiteral
+		135, // PostfixExpression
+		137, // PrimaryExpression
+		138, // IntegerLiteral
+		139, // FloatLiteral
+		140, // StringLiteral
+		141, // TrueLiteral
+		142, // FalseLiteral
+		143, // NilLiteral
+		144, // ListLiteral
 		-1,  // ListElements
 		-1,  // ListElementList
-		144, // DictLiteral
+		145, // DictLiteral
 		-1,  // DictElements
 		-1,  // DictElementList
 		-1,  // DictElement
-		738, // Arguments
-		151, // ArgumentList
+		748, // Arguments
+		152, // ArgumentList
+		153, // PositionalArgumentList
+		155, // PositionalArgument
+		154, // SpreadArgument
 		-1,  // Declare
 		-1,  // Assign
 		-1,  // Block
@@ -33124,443 +36351,12 @@ var gotoTab = gotoTable{
 		-1,  // For
 		-1,  // Break
 		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
 		-1,  // FunctionDefine
 		-1,  // Return
 		-1,  // Export
-	},
-	gotoRow{ // S690
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S691
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S692
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S693
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S694
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S695
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S696
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S697
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
-	},
-	gotoRow{ // S698
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
 	},
 	gotoRow{ // S699
 		-1, // S'
@@ -33594,6 +36390,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33604,8 +36403,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33642,6 +36442,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33652,8 +36455,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33690,6 +36494,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33700,8 +36507,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33738,6 +36546,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33748,8 +36559,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33786,6 +36598,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33796,8 +36611,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33834,6 +36650,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33844,8 +36663,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33882,6 +36702,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33892,8 +36715,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33930,6 +36754,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33940,8 +36767,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -33978,6 +36806,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -33988,8 +36819,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34026,6 +36858,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34036,8 +36871,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34074,6 +36910,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34084,8 +36923,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34122,6 +36962,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34132,8 +36975,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34170,6 +37014,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34180,8 +37027,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34218,6 +37066,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34228,8 +37079,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34266,6 +37118,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34276,8 +37131,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34314,6 +37170,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34324,8 +37183,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34362,6 +37222,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34372,8 +37235,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34410,6 +37274,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34420,8 +37287,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34458,6 +37326,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34468,8 +37339,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34506,6 +37378,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34516,59 +37391,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S719
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		746, // Block
-		-1,  // Condition
-		744, // If
-		745, // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S720
 		-1, // S'
@@ -34602,6 +37482,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34612,59 +37495,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S721
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		748, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S722
 		-1, // S'
@@ -34698,6 +37586,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34708,8 +37599,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34746,6 +37638,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34756,8 +37651,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34794,6 +37690,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34804,8 +37703,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34842,6 +37742,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34852,8 +37755,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34890,6 +37794,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34900,8 +37807,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34938,6 +37846,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34948,8 +37859,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -34986,6 +37898,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -34996,59 +37911,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S729
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		756, // Block
+		-1,  // Condition
+		754, // If
+		755, // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S730
 		-1, // S'
@@ -35082,6 +38002,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35092,59 +38015,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S731
-		-1, // S'
-		-1, // Module
-		-1, // Statements
-		-1, // StatementList
-		-1, // Statement
-		-1, // ExpressionStatement
-		-1, // Import
-		-1, // ExpressionList
-		-1, // Expression
-		-1, // Expression1
-		-1, // Expression2
-		-1, // Expression3
-		-1, // Expression4
-		-1, // Expression5
-		-1, // PostfixExpression
-		-1, // PrimaryExpression
-		-1, // IntegerLiteral
-		-1, // FloatLiteral
-		-1, // StringLiteral
-		-1, // TrueLiteral
-		-1, // FalseLiteral
-		-1, // NilLiteral
-		-1, // ListLiteral
-		-1, // ListElements
-		-1, // ListElementList
-		-1, // DictLiteral
-		-1, // DictElements
-		-1, // DictElementList
-		-1, // DictElement
-		-1, // Arguments
-		-1, // ArgumentList
-		-1, // Declare
-		-1, // Assign
-		-1, // Block
-		-1, // Condition
-		-1, // If
-		-1, // IfElse
-		-1, // While
-		-1, // For
-		-1, // Break
-		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
-		-1, // FunctionDefine
-		-1, // Return
-		-1, // Export
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		758, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
 	},
 	gotoRow{ // S732
 		-1, // S'
@@ -35178,6 +38106,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35188,8 +38119,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35226,6 +38158,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35236,8 +38171,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35274,6 +38210,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35284,8 +38223,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35322,6 +38262,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35332,8 +38275,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35370,6 +38314,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35380,8 +38327,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35418,6 +38366,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35428,8 +38379,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35466,6 +38418,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35476,8 +38431,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35514,6 +38470,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35524,8 +38483,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35562,6 +38522,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35572,8 +38535,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35610,6 +38574,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35620,8 +38587,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35658,6 +38626,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35668,8 +38639,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35706,6 +38678,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35716,8 +38691,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35754,6 +38730,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35764,8 +38743,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35802,6 +38782,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35812,8 +38795,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35850,6 +38834,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35860,8 +38847,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35898,6 +38886,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35908,8 +38899,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -35946,6 +38938,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -35956,59 +38951,64 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
 	},
 	gotoRow{ // S749
-		-1,  // S'
-		-1,  // Module
-		-1,  // Statements
-		-1,  // StatementList
-		-1,  // Statement
-		-1,  // ExpressionStatement
-		-1,  // Import
-		-1,  // ExpressionList
-		-1,  // Expression
-		-1,  // Expression1
-		-1,  // Expression2
-		-1,  // Expression3
-		-1,  // Expression4
-		-1,  // Expression5
-		-1,  // PostfixExpression
-		-1,  // PrimaryExpression
-		-1,  // IntegerLiteral
-		-1,  // FloatLiteral
-		-1,  // StringLiteral
-		-1,  // TrueLiteral
-		-1,  // FalseLiteral
-		-1,  // NilLiteral
-		-1,  // ListLiteral
-		-1,  // ListElements
-		-1,  // ListElementList
-		-1,  // DictLiteral
-		-1,  // DictElements
-		-1,  // DictElementList
-		-1,  // DictElement
-		-1,  // Arguments
-		-1,  // ArgumentList
-		-1,  // Declare
-		-1,  // Assign
-		752, // Block
-		-1,  // Condition
-		-1,  // If
-		-1,  // IfElse
-		-1,  // While
-		-1,  // For
-		-1,  // Break
-		-1,  // Parameters
-		-1,  // Parameter
-		-1,  // ParameterList
-		-1,  // FunctionDefine
-		-1,  // Return
-		-1,  // Export
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
 	},
 	gotoRow{ // S750
 		-1, // S'
@@ -36042,6 +39042,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -36052,8 +39055,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -36090,6 +39094,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -36100,8 +39107,9 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export
@@ -36138,6 +39146,9 @@ var gotoTab = gotoTable{
 		-1, // DictElement
 		-1, // Arguments
 		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
 		-1, // Declare
 		-1, // Assign
 		-1, // Block
@@ -36148,8 +39159,529 @@ var gotoTab = gotoTable{
 		-1, // For
 		-1, // Break
 		-1, // Parameters
-		-1, // Parameter
-		-1, // ParameterList
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S753
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S754
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S755
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S756
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S757
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S758
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S759
+		-1,  // S'
+		-1,  // Module
+		-1,  // Statements
+		-1,  // StatementList
+		-1,  // Statement
+		-1,  // ExpressionStatement
+		-1,  // Import
+		-1,  // ExpressionList
+		-1,  // Expression
+		-1,  // Expression1
+		-1,  // Expression2
+		-1,  // Expression3
+		-1,  // Expression4
+		-1,  // Expression5
+		-1,  // PostfixExpression
+		-1,  // PrimaryExpression
+		-1,  // IntegerLiteral
+		-1,  // FloatLiteral
+		-1,  // StringLiteral
+		-1,  // TrueLiteral
+		-1,  // FalseLiteral
+		-1,  // NilLiteral
+		-1,  // ListLiteral
+		-1,  // ListElements
+		-1,  // ListElementList
+		-1,  // DictLiteral
+		-1,  // DictElements
+		-1,  // DictElementList
+		-1,  // DictElement
+		-1,  // Arguments
+		-1,  // ArgumentList
+		-1,  // PositionalArgumentList
+		-1,  // PositionalArgument
+		-1,  // SpreadArgument
+		-1,  // Declare
+		-1,  // Assign
+		762, // Block
+		-1,  // Condition
+		-1,  // If
+		-1,  // IfElse
+		-1,  // While
+		-1,  // For
+		-1,  // Break
+		-1,  // Parameters
+		-1,  // RequiredParameter
+		-1,  // VariadicParameter
+		-1,  // RequiredParameterList
+		-1,  // FunctionDefine
+		-1,  // Return
+		-1,  // Export
+	},
+	gotoRow{ // S760
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S761
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
+		-1, // FunctionDefine
+		-1, // Return
+		-1, // Export
+	},
+	gotoRow{ // S762
+		-1, // S'
+		-1, // Module
+		-1, // Statements
+		-1, // StatementList
+		-1, // Statement
+		-1, // ExpressionStatement
+		-1, // Import
+		-1, // ExpressionList
+		-1, // Expression
+		-1, // Expression1
+		-1, // Expression2
+		-1, // Expression3
+		-1, // Expression4
+		-1, // Expression5
+		-1, // PostfixExpression
+		-1, // PrimaryExpression
+		-1, // IntegerLiteral
+		-1, // FloatLiteral
+		-1, // StringLiteral
+		-1, // TrueLiteral
+		-1, // FalseLiteral
+		-1, // NilLiteral
+		-1, // ListLiteral
+		-1, // ListElements
+		-1, // ListElementList
+		-1, // DictLiteral
+		-1, // DictElements
+		-1, // DictElementList
+		-1, // DictElement
+		-1, // Arguments
+		-1, // ArgumentList
+		-1, // PositionalArgumentList
+		-1, // PositionalArgument
+		-1, // SpreadArgument
+		-1, // Declare
+		-1, // Assign
+		-1, // Block
+		-1, // Condition
+		-1, // If
+		-1, // IfElse
+		-1, // While
+		-1, // For
+		-1, // Break
+		-1, // Parameters
+		-1, // RequiredParameter
+		-1, // VariadicParameter
+		-1, // RequiredParameterList
 		-1, // FunctionDefine
 		-1, // Return
 		-1, // Export

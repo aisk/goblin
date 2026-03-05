@@ -56,18 +56,45 @@ func AppendExpressionList(l any, x any) (any, error) {
 	return append(l.([]Expression), x.(Expression)), nil
 }
 
+type CallArgument struct {
+	Expr   Expression
+	Spread bool
+}
+
+func NewPositionalArgument(x any) (any, error) {
+	return &CallArgument{
+		Expr:   x.(Expression),
+		Spread: false,
+	}, nil
+}
+
+func NewSpreadArgument(x any) (any, error) {
+	return &CallArgument{
+		Expr:   x.(Expression),
+		Spread: true,
+	}, nil
+}
+
+func NewCallArgumentList(x any) (any, error) {
+	return []CallArgument{*x.(*CallArgument)}, nil
+}
+
+func AppendCallArgumentList(l any, x any) (any, error) {
+	return append(l.([]CallArgument), *x.(*CallArgument)), nil
+}
+
 type FunctionCall struct {
 	expressionMixin
 	Name string
-	Args []Expression
+	Args []CallArgument
 }
 
 func NewFunctionCall(x, y any) (any, error) {
 	tok := x.(*token.Token)
 	name := string(tok.Lit)
-	var args []Expression
+	var args []CallArgument
 	if y != nil {
-		args = y.([]Expression)
+		args = y.([]CallArgument)
 	}
 	return &FunctionCall{
 		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
@@ -79,13 +106,13 @@ func NewFunctionCall(x, y any) (any, error) {
 type CallExpression struct {
 	expressionMixin
 	Callee Expression
-	Args   []Expression
+	Args   []CallArgument
 }
 
 func NewCallExpression(callee, args any) (any, error) {
-	var argList []Expression
+	var argList []CallArgument
 	if args != nil {
-		argList = args.([]Expression)
+		argList = args.([]CallArgument)
 	}
 	return &CallExpression{
 		expressionMixin: expressionMixin{statementMixin{Pos: PositionOf(callee)}},
@@ -365,15 +392,26 @@ type FunctionDefine struct {
 }
 
 type Parameter struct {
-	Name string
-	Pos  token.Pos
+	Name     string
+	Pos      token.Pos
+	Variadic bool
 }
 
 func NewRequiredParameter(x any) (any, error) {
 	tok := x.(*token.Token)
 	return &Parameter{
-		Name: string(tok.Lit),
-		Pos:  tok.Pos,
+		Name:     string(tok.Lit),
+		Pos:      tok.Pos,
+		Variadic: false,
+	}, nil
+}
+
+func NewVariadicParameter(x any) (any, error) {
+	tok := x.(*token.Token)
+	return &Parameter{
+		Name:     string(tok.Lit),
+		Pos:      tok.Pos,
+		Variadic: true,
 	}, nil
 }
 

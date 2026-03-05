@@ -128,11 +128,14 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			defer func() { c.funcDepth-- }()
 
 			seen := make(map[string]struct{}, len(v.Parameters))
-			for _, param := range v.Parameters {
+			for i, param := range v.Parameters {
 				if _, ok := seen[param.Name]; ok {
 					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 				}
 				seen[param.Name] = struct{}{}
+				if param.Variadic && i != len(v.Parameters)-1 {
+					return c.newError(param.Pos, "variadic parameter must be the last parameter")
+				}
 			}
 
 			for _, param := range v.Parameters {
@@ -282,9 +285,12 @@ func isBuiltin(name string) bool {
 	return ok
 }
 
-func (c *checker) checkCallArguments(args []ast.Expression) error {
-	for _, arg := range args {
-		if err := c.checkExpression(arg); err != nil {
+func (c *checker) checkCallArguments(args []ast.CallArgument) error {
+	for i, arg := range args {
+		if arg.Spread && i != len(args)-1 {
+			return c.newError(arg.Expr.Position(), "spread argument must be the last argument")
+		}
+		if err := c.checkExpression(arg.Expr); err != nil {
 			return err
 		}
 	}

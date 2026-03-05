@@ -1,0 +1,28 @@
+func collect(*args) {
+    print(args.size)
+    for x in args {
+        print(x)
+    }
+}
+
+collect()
+collect(1, 2, 3)
+
+func mix(a, *rest) {
+    print(a)
+    print(rest.size)
+    for x in rest {
+        print(x)
+    }
+}
+
+mix(10)
+mix(10, 20, 30)
+
+func sum3(a, b, c) {
+    return a + b + c
+}
+
+var xs = [2, 3]
+print(sum3(1, *xs))
+print(sum3(*range(1, 4)))

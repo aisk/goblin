@@ -199,8 +199,22 @@ Arguments
 ;
 
 ArgumentList
-    : Expression                             << ast.NewExpressionList($0) >>
-    | ArgumentList "," Expression            << ast.AppendExpressionList($0, $2) >>
+    : PositionalArgumentList
+    | SpreadArgument                         << ast.NewCallArgumentList($0) >>
+    | PositionalArgumentList "," SpreadArgument << ast.AppendCallArgumentList($0, $2) >>
+;
+
+PositionalArgumentList
+    : PositionalArgument                     << ast.NewCallArgumentList($0) >>
+    | PositionalArgumentList "," PositionalArgument << ast.AppendCallArgumentList($0, $2) >>
+;
+
+PositionalArgument
+    : Expression                             << ast.NewPositionalArgument($0) >>
+;
+
+SpreadArgument
+    : "*" Expression                         << ast.NewSpreadArgument($1) >>
 ;
 
 Declare
@@ -243,16 +257,22 @@ Break
 
 Parameters
     : empty
-    | ParameterList
+    | RequiredParameterList
+    | VariadicParameter                      << ast.NewParameterList($0) >>
+    | RequiredParameterList "," VariadicParameter << ast.AppendParameterList($0, $2) >>
 ;
 
-Parameter
+RequiredParameter
     : id                                     << ast.NewRequiredParameter($0) >>
 ;
 
-ParameterList
-    : Parameter                              << ast.NewParameterList($0) >>
-    | ParameterList "," Parameter            << ast.AppendParameterList($0, $2) >>
+VariadicParameter
+    : "*" id                                 << ast.NewVariadicParameter($1) >>
+;
+
+RequiredParameterList
+    : RequiredParameter                      << ast.NewParameterList($0) >>
+    | RequiredParameterList "," RequiredParameter << ast.AppendParameterList($0, $2) >>
 ;
 
 FunctionDefine

@@ -501,13 +501,36 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 	return allPreStmts, results, nil
 }
 
-func (ctx *transpileContext) transpileCallArguments(args []ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argPreStmts, l, err := ctx.transpileExpressions(args, onError)
-	if err != nil {
-		return nil, nil, err
+func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	argsVar := ctx.localName("args")
+	allPreStmts := []jen.Code{
+		jen.Id(argsVar).Op(":=").Qual(pathObject, "Args").Values(),
 	}
-	argsExpr := jen.Qual(pathObject, "Args").Values(l...)
-	return argPreStmts, argsExpr, nil
+
+	for _, arg := range args {
+		argPreStmts, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		allPreStmts = append(allPreStmts, argPreStmts...)
+
+		if !arg.Spread {
+			allPreStmts = append(allPreStmts,
+				jen.Id(argsVar).Op("=").Append(jen.Id(argsVar), argExpr),
+			)
+			continue
+		}
+
+		iterVar := ctx.localName("iter")
+		errVar := ctx.localName("err")
+		allPreStmts = append(allPreStmts,
+			jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id(argsVar).Op("=").Append(jen.Id(argsVar), jen.Id(iterVar).Op("...")),
+		)
+	}
+
+	return allPreStmts, jen.Id(argsVar), nil
 }
 
 func isBuiltinFunction(name string) bool {
@@ -668,24 +691,67 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 	}
 
-	argsDefine := []jen.Code{
-		jen.If(jen.Len(jen.Id(argsName)).Op("!=").Lit(len(fn.Parameters))).Block(
-			jen.Return(jen.List(
-				jen.Nil(),
-				jen.Qual("fmt", "Errorf").Call(
-					jen.Lit("%s() takes %d positional arguments, got %d"),
-					jen.Lit(fn.Name),
-					jen.Lit(len(fn.Parameters)),
-					jen.Len(jen.Id(argsName)),
-				),
-			)),
-		),
+	fixedParams := fn.Parameters
+	var variadicParam *ast.Parameter
+	if len(fn.Parameters) > 0 && fn.Parameters[len(fn.Parameters)-1].Variadic {
+		fixedParams = fn.Parameters[:len(fn.Parameters)-1]
+		variadicParam = fn.Parameters[len(fn.Parameters)-1]
 	}
 
-	for i, param := range fn.Parameters {
+	var argsDefine []jen.Code
+	if variadicParam == nil {
+		argsDefine = append(argsDefine,
+			jen.If(jen.Len(jen.Id(argsName)).Op("!=").Lit(len(fixedParams))).Block(
+				jen.Return(jen.List(
+					jen.Nil(),
+					jen.Qual("fmt", "Errorf").Call(
+						jen.Lit("%s() takes %d positional arguments, got %d"),
+						jen.Lit(fn.Name),
+						jen.Lit(len(fixedParams)),
+						jen.Len(jen.Id(argsName)),
+					),
+				)),
+			),
+		)
+	} else {
+		argsDefine = append(argsDefine,
+			jen.If(jen.Len(jen.Id(argsName)).Op("<").Lit(len(fixedParams))).Block(
+				jen.Return(jen.List(
+					jen.Nil(),
+					jen.Qual("fmt", "Errorf").Call(
+						jen.Lit("%s() takes at least %d positional arguments, got %d"),
+						jen.Lit(fn.Name),
+						jen.Lit(len(fixedParams)),
+						jen.Len(jen.Id(argsName)),
+					),
+				)),
+			),
+		)
+	}
+
+	for i, param := range fixedParams {
 		argsDefine = append(argsDefine,
 			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(argsName).Index(jen.Lit(i)),
 			jen.Id("_").Op("=").Id(param.Name),
+		)
+	}
+
+	if variadicParam != nil {
+		restVar := ctx.localName("rest")
+		iVar := ctx.localName("i")
+		argsDefine = append(argsDefine,
+			jen.Id(restVar).Op(":=").Index().Qual(pathObject, "Object").Values(),
+			jen.For(
+				jen.Id(iVar).Op(":=").Lit(len(fixedParams)),
+				jen.Id(iVar).Op("<").Len(jen.Id(argsName)),
+				jen.Id(iVar).Op("++"),
+			).Block(
+				jen.Id(restVar).Op("=").Append(jen.Id(restVar), jen.Id(argsName).Index(jen.Id(iVar))),
+			),
+			jen.Var().Id(variadicParam.Name).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "List").Values(
+				jen.Id("Elements").Op(":").Id(restVar),
+			),
+			jen.Id("_").Op("=").Id(variadicParam.Name),
 		)
 	}
 

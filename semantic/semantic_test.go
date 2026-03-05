@@ -68,6 +68,22 @@ func TestCheckModule(t *testing.T) {
 			errContains: "duplicate parameter name: a",
 		},
 		{
+			name: "variadic function and spread call",
+			source: "func f(a, *rest) {\n" +
+				"  print(a)\n" +
+				"  print(rest.size)\n" +
+				"}\n" +
+				"var xs = [2, 3]\n" +
+				"f(1, *xs)\n",
+			wantErr: false,
+		},
+		{
+			name:        "undefined identifier in spread argument",
+			source:      "func f(*args) { return nil }\nf(*missing)\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
 			name:        "import name conflict",
 			source:      "import \"os\"\nvar os = 1\n",
 			wantErr:     true,
