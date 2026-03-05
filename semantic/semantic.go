@@ -128,22 +128,11 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			defer func() { c.funcDepth-- }()
 
 			seen := make(map[string]struct{}, len(v.Parameters))
-			seenDefault := false
 			for _, param := range v.Parameters {
 				if _, ok := seen[param.Name]; ok {
 					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 				}
 				seen[param.Name] = struct{}{}
-				if param.Default != nil {
-					seenDefault = true
-					if err := c.checkExpression(param.Default); err != nil {
-						return err
-					}
-					continue
-				}
-				if seenDefault {
-					return c.newError(param.Pos, "required parameter follows default parameter: %s", param.Name)
-				}
 			}
 
 			for _, param := range v.Parameters {
@@ -223,15 +212,15 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
 		}
-		return c.checkCallArguments(v.Args, v.KwArgs)
+		return c.checkCallArguments(v.Args)
 	case *ast.CallExpression:
 		if id, ok := v.Callee.(*ast.Identifier); ok && isBuiltin(id.Name) {
-			return c.checkCallArguments(v.Args, v.KwArgs)
+			return c.checkCallArguments(v.Args)
 		}
 		if err := c.checkExpression(v.Callee); err != nil {
 			return err
 		}
-		return c.checkCallArguments(v.Args, v.KwArgs)
+		return c.checkCallArguments(v.Args)
 	case *ast.BinaryOperation:
 		if err := c.checkExpression(v.LHS); err != nil {
 			return err
@@ -293,22 +282,11 @@ func isBuiltin(name string) bool {
 	return ok
 }
 
-func (c *checker) checkCallArguments(args []ast.Expression, kwargs []*ast.NamedArgument) error {
+func (c *checker) checkCallArguments(args []ast.Expression) error {
 	for _, arg := range args {
 		if err := c.checkExpression(arg); err != nil {
 			return err
 		}
-	}
-
-	seen := make(map[string]struct{}, len(kwargs))
-	for _, kwarg := range kwargs {
-		if err := c.checkExpression(kwarg.Value); err != nil {
-			return err
-		}
-		if _, ok := seen[kwarg.Name]; ok {
-			return c.newError(kwarg.Value.Position(), "duplicate keyword argument: %s", kwarg.Name)
-		}
-		seen[kwarg.Name] = struct{}{}
 	}
 	return nil
 }

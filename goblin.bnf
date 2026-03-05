@@ -195,27 +195,12 @@ DictElement
 
 Arguments
     : empty
-    | PositionalArgumentList
-    | NamedArgumentList
-    | PositionalArgumentList "," NamedArgumentList  << ast.MergeArgumentLists($0, $2) >>
+    | ArgumentList
 ;
 
-PositionalArgument
-    : Expression                             << ast.NewPositionalArgument($0) >>
-;
-
-PositionalArgumentList
-    : PositionalArgument                     << ast.NewArgumentList($0) >>
-    | PositionalArgumentList "," PositionalArgument << ast.AppendArgumentList($0, $2) >>
-;
-
-NamedArgument
-    : id "=" Expression                      << ast.NewNamedArgument($0, $2) >>
-;
-
-NamedArgumentList
-    : NamedArgument                          << ast.NewArgumentList($0) >>
-    | NamedArgumentList "," NamedArgument    << ast.AppendArgumentList($0, $2) >>
+ArgumentList
+    : Expression                             << ast.NewExpressionList($0) >>
+    | ArgumentList "," Expression            << ast.AppendExpressionList($0, $2) >>
 ;
 
 Declare
@@ -263,7 +248,6 @@ Parameters
 
 Parameter
     : id                                     << ast.NewRequiredParameter($0) >>
-    | id "=" Expression                      << ast.NewDefaultParameter($0, $2) >>
 ;
 
 ParameterList

@@ -100,17 +100,8 @@ func apply(f, a, b) {
 }
 print(apply(add, 3, 4))  # 7
 
-# Named arguments
-print(add(a=1, b=2))       # 3
-print(add(1, b=2))         # 3 (mixed, positional first)
-print(range(start=1, end=4)) # [1, 2, 3]
-
-# Default arguments
-func greet(name, prefix="hello") {
-    print(prefix, name)
-}
-greet("Goblin")            # hello Goblin
-greet("Goblin", "hi")      # hi Goblin
+# Function calls use positional arguments only
+print(add(5, 6))  # 11
 
 # Built-in functions: print, range, max, min
 print(max(1, 2, 3))  # 3

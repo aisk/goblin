@@ -1,8 +1,0 @@
-func add(a, b) {
-    return a + b
-}
-
-print(add(a=1, b=2))
-print(add(1, b=2))
-print(range(start=1, end=4))
-print(range(1, end=4))

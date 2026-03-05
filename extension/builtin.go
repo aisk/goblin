@@ -15,18 +15,7 @@ var BuiltinsModule = &object.Module{
 	},
 }
 
-func ensureNoKwArgs(name string, kwargs object.KwArgs) error {
-	if len(kwargs) > 0 {
-		return fmt.Errorf("%s() does not support keyword arguments", name)
-	}
-	return nil
-}
-
-func print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
-	if err := ensureNoKwArgs("print", kwargs); err != nil {
-		return nil, err
-	}
-
+func print(args object.Args) (object.Object, error) {
 	for i, arg := range args {
 		if i > 0 {
 			fmt.Print(" ")
@@ -37,8 +26,8 @@ func print(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return nil, nil
 }
 
-func range_(args object.Args, kwargs object.KwArgs) (object.Object, error) {
-	bound, err := object.BindArguments("range", []string{"start", "end"}, args, kwargs)
+func range_(args object.Args) (object.Object, error) {
+	bound, err := object.BindArguments("range", []string{"start", "end"}, args)
 	if err != nil {
 		return nil, err
 	}
@@ -65,11 +54,7 @@ func range_(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return &object.List{Elements: elements}, nil
 }
 
-func max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
-	if err := ensureNoKwArgs("max", kwargs); err != nil {
-		return nil, err
-	}
-
+func max(args object.Args) (object.Object, error) {
 	if len(args) == 0 {
 		return nil, fmt.Errorf("max() requires at least 1 argument")
 	}
@@ -114,11 +99,7 @@ func max(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(maxIntValue), nil
 }
 
-func min(args object.Args, kwargs object.KwArgs) (object.Object, error) {
-	if err := ensureNoKwArgs("min", kwargs); err != nil {
-		return nil, err
-	}
-
+func min(args object.Args) (object.Object, error) {
 	if len(args) == 0 {
 		return nil, fmt.Errorf("min() requires at least 1 argument")
 	}

@@ -19,10 +19,10 @@ type Object interface {
 	GetAttr(name string) (Object, error)
 }
 
-func Call(obj Object, args Args, kwargs KwArgs) (Object, error) {
+func Call(obj Object, args Args) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:
-		return v.Call(args, kwargs)
+		return v.Call(args)
 	}
 	return nil, fmt.Errorf("%s is not callable", obj.Repr())
 }

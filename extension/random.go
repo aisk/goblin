@@ -22,14 +22,14 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func randInt(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randInt(args object.Args) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("int() requires no arguments")
 	}
 	return object.Integer(rand.Int63()), nil
 }
 
-func randIntn(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randIntn(args object.Args) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("intn() requires exactly 1 argument")
 	}
@@ -43,7 +43,7 @@ func randIntn(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(rand.Int63n(int64(n))), nil
 }
 
-func randFloat(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func randFloat(args object.Args) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("float() requires no arguments")
 	}

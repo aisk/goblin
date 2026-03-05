@@ -19,7 +19,7 @@ func ExecuteOs() (object.Object, error) {
 	}, nil
 }
 
-func exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func exit(args object.Args) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("exit() requires exactly 1 argument")
 	}
@@ -31,7 +31,7 @@ func exit(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return nil, nil
 }
 
-func getenv(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getenv(args object.Args) (object.Object, error) {
 	if len(args) != 1 {
 		return nil, fmt.Errorf("getenv() requires exactly 1 argument")
 	}
@@ -43,7 +43,7 @@ func getenv(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.String(value), nil
 }
 
-func getpid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getpid(args object.Args) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getpid() requires no arguments")
 	}
@@ -51,7 +51,7 @@ func getpid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(pid), nil
 }
 
-func getppid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getppid(args object.Args) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getppid() requires no arguments")
 	}
@@ -59,7 +59,7 @@ func getppid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
 	return object.Integer(ppid), nil
 }
 
-func getuid(args object.Args, kwargs object.KwArgs) (object.Object, error) {
+func getuid(args object.Args) (object.Object, error) {
 	if len(args) != 0 {
 		return nil, fmt.Errorf("getuid() requires no arguments")
 	}

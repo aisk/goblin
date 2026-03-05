@@ -102,12 +102,12 @@ func (l *List) GetAttr(name string) (Object, error) {
 	case "size":
 		return Integer(len(l.Elements)), nil
 	case "push":
-		return &Function{Name: "push", Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "push", Fn: func(args Args) (Object, error) {
 			l.Elements = append(l.Elements, args...)
 			return l, nil
 		}}, nil
 	case "pop":
-		return &Function{Name: "pop", Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "pop", Fn: func(args Args) (Object, error) {
 			if len(l.Elements) == 0 {
 				return nil, fmt.Errorf("pop from empty list")
 			}
@@ -116,21 +116,21 @@ func (l *List) GetAttr(name string) (Object, error) {
 			return last, nil
 		}}, nil
 	case "first":
-		return &Function{Name: "first", Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "first", Fn: func(args Args) (Object, error) {
 			if len(l.Elements) == 0 {
 				return nil, fmt.Errorf("first() called on empty list")
 			}
 			return l.Elements[0], nil
 		}}, nil
 	case "last":
-		return &Function{Name: "last", Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "last", Fn: func(args Args) (Object, error) {
 			if len(l.Elements) == 0 {
 				return nil, fmt.Errorf("last() called on empty list")
 			}
 			return l.Elements[len(l.Elements)-1], nil
 		}}, nil
 	case "join":
-		return &Function{Name: "join", Fn: func(args Args, kwargs KwArgs) (Object, error) {
+		return &Function{Name: "join", Fn: func(args Args) (Object, error) {
 			if len(args) != 1 {
 				return nil, fmt.Errorf("join() takes exactly 1 argument, got %d", len(args))
 			}
