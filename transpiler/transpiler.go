@@ -428,7 +428,7 @@ func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpressio
 	tmpVar := ctx.localName("attr")
 	errVar := ctx.localName("err")
 	preStmts := append(objPre,
-		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(expr.Property)),
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(obj)).Dot("GetAttr").Call(jen.Lit(expr.Property)),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil
@@ -502,9 +502,12 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 }
 
 func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	argsVar := ctx.localName("args")
+	positionalVar := ctx.localName("positional")
+	keywordVar := ctx.localName("keyword")
+	callArgsVar := ctx.localName("callArgs")
 	allPreStmts := []jen.Code{
-		jen.Id(argsVar).Op(":=").Qual(pathObject, "Args").Values(),
+		jen.Id(positionalVar).Op(":=").Qual(pathObject, "Args").Values(),
+		jen.Id(keywordVar).Op(":=").Qual(pathObject, "Kwargs").Values(),
 	}
 
 	for _, arg := range args {
@@ -514,23 +517,85 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		}
 		allPreStmts = append(allPreStmts, argPreStmts...)
 
-		if !arg.Spread {
+		switch arg.Kind {
+		case ast.CallArgumentPositional:
 			allPreStmts = append(allPreStmts,
-				jen.Id(argsVar).Op("=").Append(jen.Id(argsVar), argExpr),
+				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), argExpr),
 			)
-			continue
-		}
+		case ast.CallArgumentSpread:
+			iterVar := ctx.localName("iter")
+			errVar := ctx.localName("err")
+			allPreStmts = append(allPreStmts,
+				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
+				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), jen.Id(iterVar).Op("...")),
+			)
+		case ast.CallArgumentKeyword:
+			okVar := ctx.localName("ok")
+			errVar := ctx.localName("err")
+			allPreStmts = append(allPreStmts,
+				jen.List(jen.Id("_"), jen.Id(okVar)).Op(":=").Id(keywordVar).Index(jen.Lit(arg.Name)),
+				jen.If(jen.Id(okVar)).Block(
+					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+						jen.Lit("got multiple values for argument '%s'"),
+						jen.Lit(arg.Name),
+					),
+					onError(errVar),
+				),
+				jen.Id(keywordVar).Index(jen.Lit(arg.Name)).Op("=").Add(argExpr),
+			)
+		case ast.CallArgumentKeywordSpread:
+			spreadObjVar := ctx.localName("spreadObj")
+			dictVar := ctx.localName("dict")
+			okVar := ctx.localName("ok")
+			entryVar := ctx.localName("entry")
+			keyVar := ctx.localName("key")
+			keyObjVar := ctx.localName("keyObj")
+			existsVar := ctx.localName("exists")
+			errVar := ctx.localName("err")
 
-		iterVar := ctx.localName("iter")
-		errVar := ctx.localName("err")
-		allPreStmts = append(allPreStmts,
-			jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id(argsVar).Op("=").Append(jen.Id(argsVar), jen.Id(iterVar).Op("...")),
-		)
+			allPreStmts = append(allPreStmts,
+				jen.Id(spreadObjVar).Op(":=").Add(argExpr),
+				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(spreadObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
+				jen.If(jen.Op("!").Id(okVar)).Block(
+					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+						jen.Lit("keyword spread argument must be a dict, got %T"),
+						jen.Id(spreadObjVar),
+					),
+					onError(errVar),
+				),
+				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries")).Block(
+					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
+					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
+					jen.If(jen.Op("!").Id(okVar)).Block(
+						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+							jen.Lit("keyword argument name must be a string, got %T"),
+							jen.Id(keyObjVar),
+						),
+						onError(errVar),
+					),
+					jen.List(jen.Id("_"), jen.Id(existsVar)).Op(":=").Id(keywordVar).Index(jen.String().Call(jen.Id(keyVar))),
+					jen.If(jen.Id(existsVar)).Block(
+						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+							jen.Lit("got multiple values for argument '%s'"),
+							jen.Id(keyVar),
+						),
+						onError(errVar),
+					),
+					jen.Id(keywordVar).Index(jen.String().Call(jen.Id(keyVar))).Op("=").Id(entryVar).Dot("Value"),
+				),
+			)
+		}
 	}
 
-	return allPreStmts, jen.Id(argsVar), nil
+	allPreStmts = append(allPreStmts,
+		jen.Id(callArgsVar).Op(":=").Qual(pathObject, "CallArgs").Values(jen.Dict{
+			jen.Id("Positional"): jen.Id(positionalVar),
+			jen.Id("Keyword"):    jen.Id(keywordVar),
+		}),
+	)
+
+	return allPreStmts, jen.Id(callArgsVar), nil
 }
 
 func isBuiltinFunction(name string) bool {
@@ -670,7 +735,7 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		errVar := ctx.localName("err")
 		preStmts := append(objPre, argPreStmts...)
 		preStmts = append(preStmts,
-			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("GetAttr").Call(jen.Lit(member.Property)),
+			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(obj)).Dot("GetAttr").Call(jen.Lit(member.Property)),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return preStmts, jen.Qual(pathObject, "Call").Call(jen.Id(attrVar), args), nil
@@ -685,73 +750,70 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 }
 
 func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
-	argsName := ctx.localName("args")
+	callArgsName := ctx.localName("callArgs")
 
 	fnOnError := func(errVar string) jen.Code {
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 	}
 
-	fixedParams := fn.Parameters
 	var variadicParam *ast.Parameter
-	if len(fn.Parameters) > 0 && fn.Parameters[len(fn.Parameters)-1].Variadic {
-		fixedParams = fn.Parameters[:len(fn.Parameters)-1]
-		variadicParam = fn.Parameters[len(fn.Parameters)-1]
+	var kwVariadicParam *ast.Parameter
+	fixedParams := make([]*ast.Parameter, 0, len(fn.Parameters))
+	for _, param := range fn.Parameters {
+		switch {
+		case param.Variadic:
+			variadicParam = param
+		case param.KwVariadic:
+			kwVariadicParam = param
+		default:
+			fixedParams = append(fixedParams, param)
+		}
 	}
 
-	var argsDefine []jen.Code
-	if variadicParam == nil {
-		argsDefine = append(argsDefine,
-			jen.If(jen.Len(jen.Id(argsName)).Op("!=").Lit(len(fixedParams))).Block(
-				jen.Return(jen.List(
-					jen.Nil(),
-					jen.Qual("fmt", "Errorf").Call(
-						jen.Lit("%s() takes %d positional arguments, got %d"),
-						jen.Lit(fn.Name),
-						jen.Lit(len(fixedParams)),
-						jen.Len(jen.Id(argsName)),
-					),
-				)),
-			),
-		)
-	} else {
-		argsDefine = append(argsDefine,
-			jen.If(jen.Len(jen.Id(argsName)).Op("<").Lit(len(fixedParams))).Block(
-				jen.Return(jen.List(
-					jen.Nil(),
-					jen.Qual("fmt", "Errorf").Call(
-						jen.Lit("%s() takes at least %d positional arguments, got %d"),
-						jen.Lit(fn.Name),
-						jen.Lit(len(fixedParams)),
-						jen.Len(jen.Id(argsName)),
-					),
-				)),
-			),
-		)
+	fixedParamNames := make([]jen.Code, 0, len(fixedParams))
+	for _, param := range fixedParams {
+		fixedParamNames = append(fixedParamNames, jen.Lit(param.Name))
 	}
 
-	for i, param := range fixedParams {
+	boundName := ctx.localName("bound")
+	errVar := ctx.localName("err")
+	variadicName := ""
+	if variadicParam != nil {
+		variadicName = variadicParam.Name
+	}
+	kwVariadicName := ""
+	if kwVariadicParam != nil {
+		kwVariadicName = kwVariadicParam.Name
+	}
+	argsDefine := []jen.Code{
+		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+			jen.Lit(fn.Name),
+			jen.Index().String().Values(fixedParamNames...),
+			jen.Lit(variadicName),
+			jen.Lit(kwVariadicName),
+			jen.Id(callArgsName),
+		),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
+		jen.Id("_").Op("=").Id(boundName),
+	}
+
+	for _, param := range fixedParams {
 		argsDefine = append(argsDefine,
-			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(argsName).Index(jen.Lit(i)),
+			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param.Name)),
 			jen.Id("_").Op("=").Id(param.Name),
 		)
 	}
 
 	if variadicParam != nil {
-		restVar := ctx.localName("rest")
-		iVar := ctx.localName("i")
 		argsDefine = append(argsDefine,
-			jen.Id(restVar).Op(":=").Index().Qual(pathObject, "Object").Values(),
-			jen.For(
-				jen.Id(iVar).Op(":=").Lit(len(fixedParams)),
-				jen.Id(iVar).Op("<").Len(jen.Id(argsName)),
-				jen.Id(iVar).Op("++"),
-			).Block(
-				jen.Id(restVar).Op("=").Append(jen.Id(restVar), jen.Id(argsName).Index(jen.Id(iVar))),
-			),
-			jen.Var().Id(variadicParam.Name).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "List").Values(
-				jen.Id("Elements").Op(":").Id(restVar),
-			),
+			jen.Var().Id(variadicParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(variadicParam.Name)),
 			jen.Id("_").Op("=").Id(variadicParam.Name),
+		)
+	}
+	if kwVariadicParam != nil {
+		argsDefine = append(argsDefine,
+			jen.Var().Id(kwVariadicParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwVariadicParam.Name)),
+			jen.Id("_").Op("=").Id(kwVariadicParam.Name),
 		)
 	}
 
@@ -763,7 +825,7 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 	body = append(argsDefine, body...)
 
 	closure := jen.Func().Params(
-		jen.Id(argsName).Qual(pathObject, "Args"),
+		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
 	).Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Id("error")),
 	).Block(body...)

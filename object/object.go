@@ -19,7 +19,7 @@ type Object interface {
 	GetAttr(name string) (Object, error)
 }
 
-func Call(obj Object, args Args) (Object, error) {
+func Call(obj Object, args CallArgs) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:
 		return v.Call(args)

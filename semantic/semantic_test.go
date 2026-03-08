@@ -84,6 +84,46 @@ func TestCheckModule(t *testing.T) {
 			errContains: "undefined identifier: missing",
 		},
 		{
+			name: "keyword arguments call",
+			source: "func f(a, b) {\n" +
+				"  return a\n" +
+				"}\n" +
+				"f(a=1, b=2)\n",
+			wantErr: false,
+		},
+		{
+			name:        "positional after keyword argument",
+			source:      "func f(a, b) { return a }\nf(a=1, 2)\n",
+			wantErr:     true,
+			errContains: "positional argument cannot appear after keyword arguments",
+		},
+		{
+			name:        "duplicate keyword argument",
+			source:      "func f(a) { return a }\nf(a=1, a=2)\n",
+			wantErr:     true,
+			errContains: "duplicate keyword argument: a",
+		},
+		{
+			name: "variadic and keyword variadic parameters",
+			source: "func f(a, *args, **kwargs) {\n" +
+				"  return a\n" +
+				"}\n" +
+				"f(1, b=2)\n",
+			wantErr: false,
+		},
+		{
+			name:        "required parameter after variadic",
+			source:      "func f(*args, a) { return a }\n",
+			wantErr:     true,
+			errContains: "variadic parameter must be the last parameter or followed by keyword variadic parameter",
+		},
+		{
+			name:        "keyword variadic must be last",
+			source:      "func f(**kwargs, a) { return a }\n",
+			wantErr:     true,
+			errContains: "keyword variadic parameter must be the last parameter",
+		},
+		{
 			name:        "import name conflict",
 			source:      "import \"os\"\nvar os = 1\n",
 			wantErr:     true,

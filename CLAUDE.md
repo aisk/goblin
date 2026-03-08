@@ -38,7 +38,7 @@ The transpiler wraps all generated code inside an `Execute()` function and a `ma
 - `ast/ast.go` — AST node types and `New*`/`Append*` constructors required by gocc reduce actions.
 - `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `range`, `max`, `min`) are resolved here.
 - `object/*.go` — Runtime type system: Integer (int64), Float (float64), String, Bool, List, Unit (nil), Error. Each type implements the `Object` interface for arithmetic, logic, and iteration.
-- `extension/builtin.go` — Built-in function implementations. Signature: `func(object.Args) (object.Object, error)`.
+- `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.
 - `main.go` — CLI entry point.
 
 ### Generated Code (do not edit)

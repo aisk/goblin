@@ -199,22 +199,15 @@ Arguments
 ;
 
 ArgumentList
-    : PositionalArgumentList
-    | SpreadArgument                         << ast.NewCallArgumentList($0) >>
-    | PositionalArgumentList "," SpreadArgument << ast.AppendCallArgumentList($0, $2) >>
+    : Argument                               << ast.NewCallArgumentList($0) >>
+    | ArgumentList "," Argument              << ast.AppendCallArgumentList($0, $2) >>
 ;
 
-PositionalArgumentList
-    : PositionalArgument                     << ast.NewCallArgumentList($0) >>
-    | PositionalArgumentList "," PositionalArgument << ast.AppendCallArgumentList($0, $2) >>
-;
-
-PositionalArgument
+Argument
     : Expression                             << ast.NewPositionalArgument($0) >>
-;
-
-SpreadArgument
-    : "*" Expression                         << ast.NewSpreadArgument($1) >>
+    | id "=" Expression                      << ast.NewKeywordArgument($0, $2) >>
+    | "**" Expression                        << ast.NewKeywordSpreadArgument($1) >>
+    | "*" Expression                         << ast.NewSpreadArgument($1) >>
 ;
 
 Declare
@@ -257,22 +250,18 @@ Break
 
 Parameters
     : empty
-    | RequiredParameterList
-    | VariadicParameter                      << ast.NewParameterList($0) >>
-    | RequiredParameterList "," VariadicParameter << ast.AppendParameterList($0, $2) >>
+    | ParameterList
 ;
 
-RequiredParameter
+ParameterList
+    : Parameter                              << ast.NewParameterList($0) >>
+    | ParameterList "," Parameter            << ast.AppendParameterList($0, $2) >>
+;
+
+Parameter
     : id                                     << ast.NewRequiredParameter($0) >>
-;
-
-VariadicParameter
-    : "*" id                                 << ast.NewVariadicParameter($1) >>
-;
-
-RequiredParameterList
-    : RequiredParameter                      << ast.NewParameterList($0) >>
-    | RequiredParameterList "," RequiredParameter << ast.AppendParameterList($0, $2) >>
+    | "*" id                                 << ast.NewVariadicParameter($1) >>
+    | "**" id                                << ast.NewKwVariadicParameter($1) >>
 ;
 
 FunctionDefine

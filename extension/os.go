@@ -19,11 +19,14 @@ func ExecuteOs() (object.Object, error) {
 	}, nil
 }
 
-func exit(args object.Args) (object.Object, error) {
-	if len(args) != 1 {
+func exit(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("exit", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("exit() requires exactly 1 argument")
 	}
-	code, ok := args[0].(object.Integer)
+	code, ok := args.Positional[0].(object.Integer)
 	if !ok {
 		return nil, fmt.Errorf("exit() argument must be an integer")
 	}
@@ -31,11 +34,14 @@ func exit(args object.Args) (object.Object, error) {
 	return nil, nil
 }
 
-func getenv(args object.Args) (object.Object, error) {
-	if len(args) != 1 {
+func getenv(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getenv", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("getenv() requires exactly 1 argument")
 	}
-	key, ok := args[0].(object.String)
+	key, ok := args.Positional[0].(object.String)
 	if !ok {
 		return nil, fmt.Errorf("getenv() argument must be a string")
 	}
@@ -43,24 +49,33 @@ func getenv(args object.Args) (object.Object, error) {
 	return object.String(value), nil
 }
 
-func getpid(args object.Args) (object.Object, error) {
-	if len(args) != 0 {
+func getpid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getpid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
 		return nil, fmt.Errorf("getpid() requires no arguments")
 	}
 	pid := os.Getpid()
 	return object.Integer(pid), nil
 }
 
-func getppid(args object.Args) (object.Object, error) {
-	if len(args) != 0 {
+func getppid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getppid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
 		return nil, fmt.Errorf("getppid() requires no arguments")
 	}
 	ppid := os.Getppid()
 	return object.Integer(ppid), nil
 }
 
-func getuid(args object.Args) (object.Object, error) {
-	if len(args) != 0 {
+func getuid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getuid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
 		return nil, fmt.Errorf("getuid() requires no arguments")
 	}
 	uid := os.Getuid()

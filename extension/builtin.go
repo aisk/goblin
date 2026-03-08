@@ -15,8 +15,11 @@ var BuiltinsModule = &object.Module{
 	},
 }
 
-func print(args object.Args) (object.Object, error) {
-	for i, arg := range args {
+func print(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("print", args); err != nil {
+		return nil, err
+	}
+	for i, arg := range args.Positional {
 		if i > 0 {
 			fmt.Print(" ")
 		}
@@ -26,8 +29,8 @@ func print(args object.Args) (object.Object, error) {
 	return nil, nil
 }
 
-func range_(args object.Args) (object.Object, error) {
-	bound, err := object.BindArguments("range", []string{"start", "end"}, args)
+func range_(args object.CallArgs) (object.Object, error) {
+	bound, err := object.BindArguments("range", []string{"start", "end"}, "", "", args)
 	if err != nil {
 		return nil, err
 	}
@@ -54,13 +57,16 @@ func range_(args object.Args) (object.Object, error) {
 	return &object.List{Elements: elements}, nil
 }
 
-func max(args object.Args) (object.Object, error) {
-	if len(args) == 0 {
+func max(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("max", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
 		return nil, fmt.Errorf("max() requires at least 1 argument")
 	}
 
 	var hasFloat bool
-	for _, arg := range args {
+	for _, arg := range args.Positional {
 		if _, ok := arg.(object.Float); ok {
 			hasFloat = true
 			break
@@ -69,7 +75,7 @@ func max(args object.Args) (object.Object, error) {
 
 	var maxValue float64
 	if hasFloat {
-		for i, arg := range args {
+		for i, arg := range args.Positional {
 			switch v := arg.(type) {
 			case object.Float:
 				if i == 0 || float64(v) > maxValue {
@@ -87,7 +93,7 @@ func max(args object.Args) (object.Object, error) {
 	}
 
 	maxIntValue := int64(0)
-	for i, arg := range args {
+	for i, arg := range args.Positional {
 		if v, ok := arg.(object.Integer); ok {
 			if i == 0 || int64(v) > maxIntValue {
 				maxIntValue = int64(v)
@@ -99,13 +105,16 @@ func max(args object.Args) (object.Object, error) {
 	return object.Integer(maxIntValue), nil
 }
 
-func min(args object.Args) (object.Object, error) {
-	if len(args) == 0 {
+func min(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("min", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
 		return nil, fmt.Errorf("min() requires at least 1 argument")
 	}
 
 	var hasFloat bool
-	for _, arg := range args {
+	for _, arg := range args.Positional {
 		if _, ok := arg.(object.Float); ok {
 			hasFloat = true
 			break
@@ -114,7 +123,7 @@ func min(args object.Args) (object.Object, error) {
 
 	var minValue float64
 	if hasFloat {
-		for i, arg := range args {
+		for i, arg := range args.Positional {
 			switch v := arg.(type) {
 			case object.Float:
 				if i == 0 || float64(v) < minValue {
@@ -132,7 +141,7 @@ func min(args object.Args) (object.Object, error) {
 	}
 
 	minIntValue := int64(0)
-	for i, arg := range args {
+	for i, arg := range args.Positional {
 		if v, ok := arg.(object.Integer); ok {
 			if i == 0 || int64(v) < minIntValue {
 				minIntValue = int64(v)

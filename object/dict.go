@@ -112,7 +112,13 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 	case "size":
 		return Integer(len(d.Entries)), nil
 	case "keys":
-		return &Function{Name: "keys", Fn: func(args Args) (Object, error) {
+		return &Function{Name: "keys", Fn: func(args CallArgs) (Object, error) {
+			if err := RequireNoKeyword("keys", args); err != nil {
+				return nil, err
+			}
+			if len(args.Positional) != 0 {
+				return nil, fmt.Errorf("keys() takes exactly 0 arguments, got %d", len(args.Positional))
+			}
 			keys := make([]Object, len(d.Entries))
 			for i, entry := range d.Entries {
 				keys[i] = entry.Key
@@ -120,7 +126,13 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 			return &List{Elements: keys}, nil
 		}}, nil
 	case "values":
-		return &Function{Name: "values", Fn: func(args Args) (Object, error) {
+		return &Function{Name: "values", Fn: func(args CallArgs) (Object, error) {
+			if err := RequireNoKeyword("values", args); err != nil {
+				return nil, err
+			}
+			if len(args.Positional) != 0 {
+				return nil, fmt.Errorf("values() takes exactly 0 arguments, got %d", len(args.Positional))
+			}
 			values := make([]Object, len(d.Entries))
 			for i, entry := range d.Entries {
 				values[i] = entry.Value

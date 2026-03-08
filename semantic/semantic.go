@@ -133,8 +133,23 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 				}
 				seen[param.Name] = struct{}{}
-				if param.Variadic && i != len(v.Parameters)-1 {
-					return c.newError(param.Pos, "variadic parameter must be the last parameter")
+				if param.KwVariadic {
+					if i != len(v.Parameters)-1 {
+						return c.newError(param.Pos, "keyword variadic parameter must be the last parameter")
+					}
+					continue
+				}
+				if param.Variadic {
+					if i < len(v.Parameters)-1 && !(i == len(v.Parameters)-2 && v.Parameters[len(v.Parameters)-1].KwVariadic) {
+						return c.newError(param.Pos, "variadic parameter must be the last parameter or followed by keyword variadic parameter")
+					}
+					continue
+				}
+				if i > 0 {
+					prev := v.Parameters[i-1]
+					if prev.Variadic || prev.KwVariadic {
+						return c.newError(param.Pos, "required parameter cannot appear after variadic parameters")
+					}
 				}
 			}
 
@@ -286,9 +301,26 @@ func isBuiltin(name string) bool {
 }
 
 func (c *checker) checkCallArguments(args []ast.CallArgument) error {
+	seenKeyword := false
+	seenKeywordNames := make(map[string]struct{})
 	for i, arg := range args {
-		if arg.Spread && i != len(args)-1 {
-			return c.newError(arg.Expr.Position(), "spread argument must be the last argument")
+		switch arg.Kind {
+		case ast.CallArgumentSpread:
+			if i != len(args)-1 {
+				return c.newError(arg.Expr.Position(), "spread argument must be the last argument")
+			}
+		case ast.CallArgumentKeyword, ast.CallArgumentKeywordSpread:
+			seenKeyword = true
+			if arg.Kind == ast.CallArgumentKeyword {
+				if _, ok := seenKeywordNames[arg.Name]; ok {
+					return c.newError(arg.NamePos, "duplicate keyword argument: %s", arg.Name)
+				}
+				seenKeywordNames[arg.Name] = struct{}{}
+			}
+		case ast.CallArgumentPositional:
+			if seenKeyword {
+				return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
+			}
 		}
 		if err := c.checkExpression(arg.Expr); err != nil {
 			return err

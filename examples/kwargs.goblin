@@ -1,0 +1,14 @@
+func inspect(a, b, *rest, **kwargs) {
+    print(a)
+    print(b)
+    print(rest.size)
+    print(kwargs["x"])
+    print(kwargs["y"])
+}
+
+var extra = {"y": 20}
+inspect(1, b=2, x=10, **extra)
+
+print(range(start=0, end=3))
+print("hello".contains(substr="ell"))
+print(["a", "b"].join(sep="-"))

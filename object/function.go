@@ -4,10 +4,10 @@ import "fmt"
 
 type Function struct {
 	Name string
-	Fn   func(Args) (Object, error)
+	Fn   func(CallArgs) (Object, error)
 }
 
-func (f *Function) Call(args Args) (Object, error) {
+func (f *Function) Call(args CallArgs) (Object, error) {
 	return f.Fn(args)
 }
 
