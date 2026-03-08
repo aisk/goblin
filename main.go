@@ -70,6 +70,8 @@ func main() {
 	cmd.Dir = tmpDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	fmt.Fprintf(os.Stderr, "build dir: %s\n", tmpDir)
+	fmt.Fprintf(os.Stderr, "run: (cd %s && %s)\n", tmpDir, strings.Join(cmd.Args, " "))
 	if err = cmd.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: go build failed: %v\n", err)
 		os.Exit(1)
