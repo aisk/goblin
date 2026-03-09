@@ -68,7 +68,7 @@ func TestCheckModule(t *testing.T) {
 			errContains: "duplicate parameter name: a",
 		},
 		{
-			name: "variadic function and spread call",
+			name: "varargs function and starred call",
 			source: "func f(a, *rest) {\n" +
 				"  print(a)\n" +
 				"  print(rest.size)\n" +
@@ -78,7 +78,7 @@ func TestCheckModule(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name:        "undefined identifier in spread argument",
+			name:        "undefined identifier in starred argument",
 			source:      "func f(*args) { return nil }\nf(*missing)\n",
 			wantErr:     true,
 			errContains: "undefined identifier: missing",
@@ -97,31 +97,39 @@ func TestCheckModule(t *testing.T) {
 			wantErr:     true,
 			errContains: "positional argument cannot appear after keyword arguments",
 		},
-		{
-			name:        "duplicate keyword argument",
-			source:      "func f(a) { return a }\nf(a=1, a=2)\n",
-			wantErr:     true,
-			errContains: "duplicate keyword argument: a",
-		},
-		{
-			name: "variadic and keyword variadic parameters",
-			source: "func f(a, *args, **kwargs) {\n" +
-				"  return a\n" +
-				"}\n" +
+			{
+				name:        "duplicate keyword argument",
+				source:      "func f(a) { return a }\nf(a=1, a=2)\n",
+				wantErr:     true,
+				errContains: "duplicate keyword argument: a",
+			},
+			{
+				name: "starred argument after keyword argument",
+				source: "func f(a, b) { return a }\n" +
+					"var xs = [2]\n" +
+					"f(a=1, *xs)\n",
+				wantErr:     true,
+				errContains: "positional argument cannot appear after keyword arguments",
+			},
+			{
+			name: "args and kwargs parameters",
+				source: "func f(a, *args, **kwargs) {\n" +
+					"  return a\n" +
+					"}\n" +
 				"f(1, b=2)\n",
 			wantErr: false,
 		},
 		{
-			name:        "required parameter after variadic",
+			name:        "required parameter after args",
 			source:      "func f(*args, a) { return a }\n",
 			wantErr:     true,
-			errContains: "variadic parameter must be the last parameter or followed by keyword variadic parameter",
+			errContains: "args parameter must be the last parameter or followed by kwargs",
 		},
 		{
-			name:        "keyword variadic must be last",
+			name:        "kwargs must be last",
 			source:      "func f(**kwargs, a) { return a }\n",
 			wantErr:     true,
-			errContains: "keyword variadic parameter must be the last parameter",
+			errContains: "kwargs parameter must be the last parameter",
 		},
 		{
 			name:        "import name conflict",

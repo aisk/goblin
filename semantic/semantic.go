@@ -133,22 +133,22 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 				}
 				seen[param.Name] = struct{}{}
-				if param.KwVariadic {
+				if param.KwArgs {
 					if i != len(v.Parameters)-1 {
-						return c.newError(param.Pos, "keyword variadic parameter must be the last parameter")
+						return c.newError(param.Pos, "kwargs parameter must be the last parameter")
 					}
 					continue
 				}
-				if param.Variadic {
-					if i < len(v.Parameters)-1 && !(i == len(v.Parameters)-2 && v.Parameters[len(v.Parameters)-1].KwVariadic) {
-						return c.newError(param.Pos, "variadic parameter must be the last parameter or followed by keyword variadic parameter")
+				if param.VarArgs {
+					if i < len(v.Parameters)-1 && !(i == len(v.Parameters)-2 && v.Parameters[len(v.Parameters)-1].KwArgs) {
+						return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
 					}
 					continue
 				}
 				if i > 0 {
 					prev := v.Parameters[i-1]
-					if prev.Variadic || prev.KwVariadic {
-						return c.newError(param.Pos, "required parameter cannot appear after variadic parameters")
+					if prev.VarArgs || prev.KwArgs {
+						return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
 					}
 				}
 			}
@@ -305,11 +305,14 @@ func (c *checker) checkCallArguments(args []ast.CallArgument) error {
 	seenKeywordNames := make(map[string]struct{})
 	for i, arg := range args {
 		switch arg.Kind {
-		case ast.CallArgumentSpread:
-			if i != len(args)-1 {
-				return c.newError(arg.Expr.Position(), "spread argument must be the last argument")
-			}
-		case ast.CallArgumentKeyword, ast.CallArgumentKeywordSpread:
+			case ast.CallArgumentStarred:
+				if seenKeyword {
+					return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
+				}
+				if i != len(args)-1 {
+					return c.newError(arg.Expr.Position(), "starred argument must be the last argument")
+				}
+			case ast.CallArgumentKeyword, ast.CallArgumentKeywordUnpack:
 			seenKeyword = true
 			if arg.Kind == ast.CallArgumentKeyword {
 				if _, ok := seenKeywordNames[arg.Name]; ok {

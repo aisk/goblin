@@ -522,10 +522,10 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 			allPreStmts = append(allPreStmts,
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), argExpr),
 			)
-		case ast.CallArgumentSpread:
-			iterVar := ctx.localName("iter")
-			errVar := ctx.localName("err")
-			allPreStmts = append(allPreStmts,
+			case ast.CallArgumentStarred:
+				iterVar := ctx.localName("iter")
+				errVar := ctx.localName("err")
+				allPreStmts = append(allPreStmts,
 				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), jen.Id(iterVar).Op("...")),
@@ -544,26 +544,26 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				),
 				jen.Id(keywordVar).Index(jen.Lit(arg.Name)).Op("=").Add(argExpr),
 			)
-		case ast.CallArgumentKeywordSpread:
-			spreadObjVar := ctx.localName("spreadObj")
-			dictVar := ctx.localName("dict")
-			okVar := ctx.localName("ok")
-			entryVar := ctx.localName("entry")
+			case ast.CallArgumentKeywordUnpack:
+				unpackObjVar := ctx.localName("unpackObj")
+				dictVar := ctx.localName("dict")
+				okVar := ctx.localName("ok")
+				entryVar := ctx.localName("entry")
 			keyVar := ctx.localName("key")
 			keyObjVar := ctx.localName("keyObj")
 			existsVar := ctx.localName("exists")
 			errVar := ctx.localName("err")
 
-			allPreStmts = append(allPreStmts,
-				jen.Id(spreadObjVar).Op(":=").Add(argExpr),
-				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(spreadObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
-				jen.If(jen.Op("!").Id(okVar)).Block(
-					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-						jen.Lit("keyword spread argument must be a dict, got %T"),
-						jen.Id(spreadObjVar),
+				allPreStmts = append(allPreStmts,
+					jen.Id(unpackObjVar).Op(":=").Add(argExpr),
+					jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
+					jen.If(jen.Op("!").Id(okVar)).Block(
+						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+							jen.Lit("keyword unpack argument must be a dict, got %T"),
+							jen.Id(unpackObjVar),
+						),
+						onError(errVar),
 					),
-					onError(errVar),
-				),
 				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries")).Block(
 					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
 					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
@@ -756,15 +756,15 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 	}
 
-	var variadicParam *ast.Parameter
-	var kwVariadicParam *ast.Parameter
+	var varArgsParam *ast.Parameter
+	var kwArgsParam *ast.Parameter
 	fixedParams := make([]*ast.Parameter, 0, len(fn.Parameters))
 	for _, param := range fn.Parameters {
 		switch {
-		case param.Variadic:
-			variadicParam = param
-		case param.KwVariadic:
-			kwVariadicParam = param
+		case param.VarArgs:
+			varArgsParam = param
+		case param.KwArgs:
+			kwArgsParam = param
 		default:
 			fixedParams = append(fixedParams, param)
 		}
@@ -777,20 +777,20 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 
 	boundName := ctx.localName("bound")
 	errVar := ctx.localName("err")
-	variadicName := ""
-	if variadicParam != nil {
-		variadicName = variadicParam.Name
+	varArgsName := ""
+	if varArgsParam != nil {
+		varArgsName = varArgsParam.Name
 	}
-	kwVariadicName := ""
-	if kwVariadicParam != nil {
-		kwVariadicName = kwVariadicParam.Name
+	kwArgsName := ""
+	if kwArgsParam != nil {
+		kwArgsName = kwArgsParam.Name
 	}
 	argsDefine := []jen.Code{
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(fn.Name),
 			jen.Index().String().Values(fixedParamNames...),
-			jen.Lit(variadicName),
-			jen.Lit(kwVariadicName),
+			jen.Lit(varArgsName),
+			jen.Lit(kwArgsName),
 			jen.Id(callArgsName),
 		),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
@@ -804,16 +804,16 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		)
 	}
 
-	if variadicParam != nil {
+	if varArgsParam != nil {
 		argsDefine = append(argsDefine,
-			jen.Var().Id(variadicParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(variadicParam.Name)),
-			jen.Id("_").Op("=").Id(variadicParam.Name),
+			jen.Var().Id(varArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(varArgsParam.Name)),
+			jen.Id("_").Op("=").Id(varArgsParam.Name),
 		)
 	}
-	if kwVariadicParam != nil {
+	if kwArgsParam != nil {
 		argsDefine = append(argsDefine,
-			jen.Var().Id(kwVariadicParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwVariadicParam.Name)),
-			jen.Id("_").Op("=").Id(kwVariadicParam.Name),
+			jen.Var().Id(kwArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwArgsParam.Name)),
+			jen.Id("_").Op("=").Id(kwArgsParam.Name),
 		)
 	}
 

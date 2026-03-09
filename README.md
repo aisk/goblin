@@ -100,7 +100,7 @@ func apply(f, a, b) {
 }
 print(apply(add, 3, 4))  # 7
 
-# Function calls: positional, keyword, trailing spread
+# Function calls: positional, keyword, trailing starred argument
 print(add(5, 6))  # 11
 print(add(a=5, b=6))  # 11
 

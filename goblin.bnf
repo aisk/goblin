@@ -206,8 +206,8 @@ ArgumentList
 Argument
     : Expression                             << ast.NewPositionalArgument($0) >>
     | id "=" Expression                      << ast.NewKeywordArgument($0, $2) >>
-    | "**" Expression                        << ast.NewKeywordSpreadArgument($1) >>
-    | "*" Expression                         << ast.NewSpreadArgument($1) >>
+    | "**" Expression                        << ast.NewKeywordUnpackArgument($1) >>
+    | "*" Expression                         << ast.NewStarredArgument($1) >>
 ;
 
 Declare
@@ -260,8 +260,8 @@ ParameterList
 
 Parameter
     : id                                     << ast.NewRequiredParameter($0) >>
-    | "*" id                                 << ast.NewVariadicParameter($1) >>
-    | "**" id                                << ast.NewKwVariadicParameter($1) >>
+    | "*" id                                 << ast.NewVarArgsParameter($1) >>
+    | "**" id                                << ast.NewKwArgsParameter($1) >>
 ;
 
 FunctionDefine

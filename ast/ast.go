@@ -68,9 +68,9 @@ type CallArgumentKind int
 
 const (
 	CallArgumentPositional CallArgumentKind = iota
-	CallArgumentSpread
+	CallArgumentStarred
 	CallArgumentKeyword
-	CallArgumentKeywordSpread
+	CallArgumentKeywordUnpack
 )
 
 func NewPositionalArgument(x any) (any, error) {
@@ -80,12 +80,16 @@ func NewPositionalArgument(x any) (any, error) {
 	}, nil
 }
 
-func NewSpreadArgument(x any) (any, error) {
+func NewStarredArgument(x any) (any, error) {
 	return &CallArgument{
 		Expr:      x.(Expression),
-		Kind:      CallArgumentSpread,
+		Kind:      CallArgumentStarred,
 		MarkerPos: PositionOf(x),
 	}, nil
+}
+
+func NewSpreadArgument(x any) (any, error) {
+	return NewStarredArgument(x)
 }
 
 func NewKeywordArgument(name, expr any) (any, error) {
@@ -98,12 +102,16 @@ func NewKeywordArgument(name, expr any) (any, error) {
 	}, nil
 }
 
-func NewKeywordSpreadArgument(x any) (any, error) {
+func NewKeywordUnpackArgument(x any) (any, error) {
 	return &CallArgument{
 		Expr:      x.(Expression),
-		Kind:      CallArgumentKeywordSpread,
+		Kind:      CallArgumentKeywordUnpack,
 		MarkerPos: PositionOf(x),
 	}, nil
+}
+
+func NewKeywordSpreadArgument(x any) (any, error) {
+	return NewKeywordUnpackArgument(x)
 }
 
 func NewCallArgumentList(x any) (any, error) {
@@ -423,40 +431,48 @@ type FunctionDefine struct {
 }
 
 type Parameter struct {
-	Name       string
-	Pos        token.Pos
-	Variadic   bool
-	KwVariadic bool
+	Name    string
+	Pos     token.Pos
+	VarArgs bool
+	KwArgs  bool
 }
 
 func NewRequiredParameter(x any) (any, error) {
 	tok := x.(*token.Token)
 	return &Parameter{
-		Name:       string(tok.Lit),
-		Pos:        tok.Pos,
-		Variadic:   false,
-		KwVariadic: false,
+		Name:    string(tok.Lit),
+		Pos:     tok.Pos,
+		VarArgs: false,
+		KwArgs:  false,
+	}, nil
+}
+
+func NewVarArgsParameter(x any) (any, error) {
+	tok := x.(*token.Token)
+	return &Parameter{
+		Name:    string(tok.Lit),
+		Pos:     tok.Pos,
+		VarArgs: true,
+		KwArgs:  false,
 	}, nil
 }
 
 func NewVariadicParameter(x any) (any, error) {
+	return NewVarArgsParameter(x)
+}
+
+func NewKwArgsParameter(x any) (any, error) {
 	tok := x.(*token.Token)
 	return &Parameter{
-		Name:       string(tok.Lit),
-		Pos:        tok.Pos,
-		Variadic:   true,
-		KwVariadic: false,
+		Name:    string(tok.Lit),
+		Pos:     tok.Pos,
+		VarArgs: false,
+		KwArgs:  true,
 	}, nil
 }
 
 func NewKwVariadicParameter(x any) (any, error) {
-	tok := x.(*token.Token)
-	return &Parameter{
-		Name:       string(tok.Lit),
-		Pos:        tok.Pos,
-		Variadic:   false,
-		KwVariadic: true,
-	}, nil
+	return NewKwArgsParameter(x)
 }
 
 func NewParameterList(x any) (any, error) {

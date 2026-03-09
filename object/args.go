@@ -28,9 +28,9 @@ func RequireNoKeyword(funcName string, call CallArgs) error {
 }
 
 // BindArguments binds positional and keyword arguments to parameter names.
-// variadicParam and kwVariadicParam are optional capture parameter names.
-func BindArguments(funcName string, params []string, variadicParam, kwVariadicParam string, call CallArgs) (map[string]Object, error) {
-	if variadicParam == "" && len(call.Positional) > len(params) {
+// varArgsParam and kwArgsParam are optional capture parameter names.
+func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam string, call CallArgs) (map[string]Object, error) {
+	if varArgsParam == "" && len(call.Positional) > len(params) {
 		return nil, fmt.Errorf("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
 	}
 
@@ -58,10 +58,10 @@ func BindArguments(funcName string, params []string, variadicParam, kwVariadicPa
 			bound[key] = value
 			continue
 		}
-		if kwVariadicParam == "" {
-			return nil, fmt.Errorf("%s() got an unexpected keyword argument '%s'", funcName, key)
-		}
-		kwExtras[key] = value
+			if kwArgsParam == "" {
+				return nil, fmt.Errorf("%s() got an unexpected keyword argument '%s'", funcName, key)
+			}
+			kwExtras[key] = value
 	}
 
 	for _, param := range params {
@@ -70,15 +70,15 @@ func BindArguments(funcName string, params []string, variadicParam, kwVariadicPa
 		}
 	}
 
-	if variadicParam != "" {
+	if varArgsParam != "" {
 		rest := []Object{}
 		if len(call.Positional) > len(params) {
 			rest = append(rest, call.Positional[len(params):]...)
 		}
-		bound[variadicParam] = &List{Elements: rest}
+		bound[varArgsParam] = &List{Elements: rest}
 	}
 
-	if kwVariadicParam != "" {
+	if kwArgsParam != "" {
 		keys := make([]string, 0, len(kwExtras))
 		for key := range kwExtras {
 			keys = append(keys, key)
@@ -89,7 +89,7 @@ func BindArguments(funcName string, params []string, variadicParam, kwVariadicPa
 		for _, key := range keys {
 			d.Set(String(key), kwExtras[key])
 		}
-		bound[kwVariadicParam] = d
+		bound[kwArgsParam] = d
 	}
 
 	return bound, nil

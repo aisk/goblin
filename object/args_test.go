@@ -92,7 +92,7 @@ func TestBindArgumentsUnexpectedKeyword(t *testing.T) {
 	}
 }
 
-func TestBindArgumentsVariadicAndKwVariadic(t *testing.T) {
+func TestBindArgumentsVarArgsAndKwArgs(t *testing.T) {
 	bound, err := BindArguments("f", []string{"a"}, "args", "kwargs", CallArgs{
 		Positional: Args{Integer(1), Integer(2), Integer(3)},
 		Keyword: Kwargs{
@@ -105,7 +105,7 @@ func TestBindArgumentsVariadicAndKwVariadic(t *testing.T) {
 
 	args, ok := bound["args"].(*List)
 	if !ok || len(args.Elements) != 2 {
-		t.Fatalf("expected variadic args list, got %#v", bound["args"])
+		t.Fatalf("expected args list, got %#v", bound["args"])
 	}
 	kwargs, ok := bound["kwargs"].(*Dict)
 	if !ok {
