@@ -11,9 +11,10 @@ import (
 func ExecuteRandom() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"int":   &object.Function{Name: "int", Fn: randInt},
-			"intn":  &object.Function{Name: "intn", Fn: randIntn},
-			"float": &object.Function{Name: "float", Fn: randFloat},
+			"int":    &object.Function{Name: "int", Fn: randInt},
+			"intn":   &object.Function{Name: "intn", Fn: randIntn},
+			"float":  &object.Function{Name: "float", Fn: randFloat},
+			"choice": &object.Function{Name: "choice", Fn: randChoice},
 		},
 	}, nil
 }
@@ -57,4 +58,21 @@ func randFloat(args object.CallArgs) (object.Object, error) {
 		return nil, fmt.Errorf("float() requires no arguments")
 	}
 	return object.Float(rand.Float64()), nil
+}
+
+func randChoice(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("choice", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("choice() requires exactly 1 argument")
+	}
+	list, ok := args.Positional[0].(*object.List)
+	if !ok {
+		return nil, fmt.Errorf("choice() argument must be a list, got %T", args.Positional[0])
+	}
+	if len(list.Elements) == 0 {
+		return nil, fmt.Errorf("choice() argument cannot be empty")
+	}
+	return list.Elements[rand.Intn(len(list.Elements))], nil
 }
