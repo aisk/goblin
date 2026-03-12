@@ -113,13 +113,14 @@ func mathPow(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 2 {
 		return nil, fmt.Errorf("pow() requires exactly 2 arguments")
 	}
-	base, ok1 := args.Positional[0].(object.Object)
-	exp, ok2 := args.Positional[1].(object.Object)
-	if !ok1 || !ok2 {
-		return nil, fmt.Errorf("pow() arguments must be numbers")
+	baseFloat, err := toFloat("pow", args.Positional[0])
+	if err != nil {
+		return nil, err
 	}
-	baseFloat := toFloat(base)
-	expFloat := toFloat(exp)
+	expFloat, err := toFloat("pow", args.Positional[1])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Pow(baseFloat, expFloat)), nil
 }
 
@@ -130,7 +131,10 @@ func mathSqrt(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("sqrt() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("sqrt", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Sqrt(f)), nil
 }
 
@@ -141,7 +145,10 @@ func mathSin(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("sin() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("sin", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Sin(f)), nil
 }
 
@@ -152,7 +159,10 @@ func mathCos(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("cos() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("cos", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Cos(f)), nil
 }
 
@@ -163,7 +173,10 @@ func mathTan(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("tan() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("tan", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Tan(f)), nil
 }
 
@@ -174,7 +187,10 @@ func mathAsin(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("asin() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("asin", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Asin(f)), nil
 }
 
@@ -185,7 +201,10 @@ func mathAcos(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("acos() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("acos", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Acos(f)), nil
 }
 
@@ -196,7 +215,10 @@ func mathAtan(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("atan() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("atan", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Atan(f)), nil
 }
 
@@ -207,7 +229,10 @@ func mathLog(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("log() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("log", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Log(f)), nil
 }
 
@@ -218,7 +243,10 @@ func mathLog10(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("log10() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("log10", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Log10(f)), nil
 }
 
@@ -229,7 +257,10 @@ func mathExp(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("exp() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("exp", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Float(math.Exp(f)), nil
 }
 
@@ -240,9 +271,15 @@ func mathMax(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) < 2 {
 		return nil, fmt.Errorf("max() requires at least 2 arguments")
 	}
-	maxVal := toFloat(args.Positional[0])
+	maxVal, err := toFloat("max", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	for _, arg := range args.Positional[1:] {
-		f := toFloat(arg)
+		f, err := toFloat("max", arg)
+		if err != nil {
+			return nil, err
+		}
 		if f > maxVal {
 			maxVal = f
 		}
@@ -257,9 +294,15 @@ func mathMin(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) < 2 {
 		return nil, fmt.Errorf("min() requires at least 2 arguments")
 	}
-	minVal := toFloat(args.Positional[0])
+	minVal, err := toFloat("min", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	for _, arg := range args.Positional[1:] {
-		f := toFloat(arg)
+		f, err := toFloat("min", arg)
+		if err != nil {
+			return nil, err
+		}
 		if f < minVal {
 			minVal = f
 		}
@@ -274,7 +317,10 @@ func mathIsNaN(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, fmt.Errorf("is_nan() requires exactly 1 argument")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("is_nan", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	return object.Bool(math.IsNaN(f)), nil
 }
 
@@ -285,7 +331,10 @@ func mathIsInf(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 1 && len(args.Positional) != 2 {
 		return nil, fmt.Errorf("is_inf() requires 1 or 2 arguments")
 	}
-	f := toFloat(args.Positional[0])
+	f, err := toFloat("is_inf", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
 	var dir int = 0
 	if len(args.Positional) == 2 {
 		dirInt, ok := args.Positional[1].(object.Integer)
@@ -297,13 +346,13 @@ func mathIsInf(args object.CallArgs) (object.Object, error) {
 	return object.Bool(math.IsInf(f, dir)), nil
 }
 
-func toFloat(v object.Object) float64 {
+func toFloat(funcName string, v object.Object) (float64, error) {
 	switch n := v.(type) {
 	case object.Integer:
-		return float64(int64(n))
+		return float64(int64(n)), nil
 	case object.Float:
-		return float64(n)
+		return float64(n), nil
 	default:
-		return 0
+		return 0, fmt.Errorf("%s() argument must be a number, got %T", funcName, v)
 	}
 }
