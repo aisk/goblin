@@ -2,7 +2,7 @@ package extension
 
 import (
 	"fmt"
-	stdmime "mime"
+	"mime"
 
 	"github.com/aisk/goblin/object"
 )
@@ -29,7 +29,7 @@ func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {
 		return nil, fmt.Errorf("type_by_extension() argument must be a string")
 	}
 
-	return object.String(stdmime.TypeByExtension(string(ext))), nil
+	return object.String(mime.TypeByExtension(string(ext))), nil
 }
 
 func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
@@ -45,7 +45,7 @@ func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
 		return nil, fmt.Errorf("extensions_by_type() argument must be a string")
 	}
 
-	extensions, err := stdmime.ExtensionsByType(string(mimeType))
+	extensions, err := mime.ExtensionsByType(string(mimeType))
 	if err != nil {
 		return nil, err
 	}
