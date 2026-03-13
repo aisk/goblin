@@ -32,6 +32,7 @@ var knownModules = map[string]moduleInfo{
 	"os":     {varName: "os_module", executorFunc: "ExecuteOs"},
 	"random": {varName: "random_module", executorFunc: "ExecuteRandom"},
 	"math":   {varName: "math_module", executorFunc: "ExecuteMath"},
+	"mime":   {varName: "mime_module", executorFunc: "ExecuteMime"},
 }
 
 // transpileContext holds state for a single Transpile call.
