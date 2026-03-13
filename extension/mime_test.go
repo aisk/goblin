@@ -34,32 +34,32 @@ func mimeFunction(t *testing.T, name string) *object.Function {
 }
 
 func TestMimeTypeByExtension(t *testing.T) {
-	out, err := mimeFunction(t, "TypeByExtension").Call(object.CallArgs{Positional: object.Args{object.String(".json")}})
+	out, err := mimeFunction(t, "type_by_extension").Call(object.CallArgs{Positional: object.Args{object.String(".json")}})
 	if err != nil {
-		t.Fatalf("TypeByExtension() error = %v", err)
+		t.Fatalf("type_by_extension() error = %v", err)
 	}
 
 	s, ok := out.(object.String)
 	if !ok {
-		t.Fatalf("TypeByExtension() returned %T", out)
+		t.Fatalf("type_by_extension() returned %T", out)
 	}
 	if !strings.Contains(string(s), "application/json") {
-		t.Fatalf("TypeByExtension() = %q, want contains %q", string(s), "application/json")
+		t.Fatalf("type_by_extension() = %q, want contains %q", string(s), "application/json")
 	}
 }
 
 func TestMimeExtensionsByType(t *testing.T) {
-	out, err := mimeFunction(t, "ExtensionsByType").Call(object.CallArgs{Positional: object.Args{object.String("application/json")}})
+	out, err := mimeFunction(t, "extensions_by_type").Call(object.CallArgs{Positional: object.Args{object.String("application/json")}})
 	if err != nil {
-		t.Fatalf("ExtensionsByType() error = %v", err)
+		t.Fatalf("extensions_by_type() error = %v", err)
 	}
 
 	list, ok := out.(*object.List)
 	if !ok {
-		t.Fatalf("ExtensionsByType() returned %T", out)
+		t.Fatalf("extensions_by_type() returned %T", out)
 	}
 	if len(list.Elements) == 0 {
-		t.Fatalf("ExtensionsByType() returned empty list")
+		t.Fatalf("extensions_by_type() returned empty list")
 	}
 }
 
@@ -69,8 +69,8 @@ func TestMimeFunctionsRejectNonStringArgs(t *testing.T) {
 		args    object.Args
 		wantErr string
 	}{
-		{name: "TypeByExtension", args: object.Args{object.Integer(1)}, wantErr: "TypeByExtension() argument must be a string"},
-		{name: "ExtensionsByType", args: object.Args{object.Integer(1)}, wantErr: "ExtensionsByType() argument must be a string"},
+		{name: "type_by_extension", args: object.Args{object.Integer(1)}, wantErr: "type_by_extension() argument must be a string"},
+		{name: "extensions_by_type", args: object.Args{object.Integer(1)}, wantErr: "extensions_by_type() argument must be a string"},
 	}
 
 	for _, tt := range tests {

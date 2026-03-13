@@ -1,4 +1,0 @@
-import "mime"
-
-print(mime.TypeByExtension(".wasm"))
-print(mime.ExtensionsByType("application/wasm"))

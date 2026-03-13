@@ -10,39 +10,39 @@ import (
 func ExecuteMime() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"TypeByExtension":  &object.Function{Name: "TypeByExtension", Fn: mimeTypeByExtension},
-			"ExtensionsByType": &object.Function{Name: "ExtensionsByType", Fn: mimeExtensionsByType},
+			"type_by_extension":  &object.Function{Name: "type_by_extension", Fn: mimeTypeByExtension},
+			"extensions_by_type": &object.Function{Name: "extensions_by_type", Fn: mimeExtensionsByType},
 		},
 	}, nil
 }
 
 func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("TypeByExtension", args); err != nil {
+	if err := object.RequireNoKeyword("type_by_extension", args); err != nil {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("TypeByExtension() requires exactly 1 argument")
+		return nil, fmt.Errorf("type_by_extension() requires exactly 1 argument")
 	}
 
 	ext, ok := args.Positional[0].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("TypeByExtension() argument must be a string")
+		return nil, fmt.Errorf("type_by_extension() argument must be a string")
 	}
 
 	return object.String(stdmime.TypeByExtension(string(ext))), nil
 }
 
 func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("ExtensionsByType", args); err != nil {
+	if err := object.RequireNoKeyword("extensions_by_type", args); err != nil {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("ExtensionsByType() requires exactly 1 argument")
+		return nil, fmt.Errorf("extensions_by_type() requires exactly 1 argument")
 	}
 
 	mimeType, ok := args.Positional[0].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("ExtensionsByType() argument must be a string")
+		return nil, fmt.Errorf("extensions_by_type() argument must be a string")
 	}
 
 	extensions, err := stdmime.ExtensionsByType(string(mimeType))
