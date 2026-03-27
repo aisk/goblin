@@ -1,0 +1,212 @@
+package main
+
+import (
+	extension "github.com/aisk/goblin/extension"
+	object "github.com/aisk/goblin/object"
+)
+
+func Execute() (object.Object, error) {
+	builtin := extension.BuiltinsModule
+	_ = builtin
+	_exports_0 := map[string]object.Object{}
+	_positional_1 := object.Args{}
+	_keyword_2 := object.Kwargs{}
+	_positional_4 := object.Args{}
+	_keyword_5 := object.Kwargs{}
+	_positional_4 = append(_positional_4, object.Integer(int64(3)))
+	_callArgs_6 := object.CallArgs{
+		Keyword:    _keyword_5,
+		Positional: _positional_4,
+	}
+	_tmp_7, _err_8 := (&object.List{Elements: []object.Object{object.Integer(int64(1)), object.Integer(int64(2))}}).Push(_callArgs_6)
+	if _err_8 != nil {
+		return nil, _err_8
+	}
+	_positional_1 = append(_positional_1, _tmp_7)
+	_callArgs_3 := object.CallArgs{
+		Keyword:    _keyword_2,
+		Positional: _positional_1,
+	}
+	_, _err_9 := object.Call(builtin.Members["print"], _callArgs_3)
+	if _err_9 != nil {
+		return nil, _err_9
+	}
+	_positional_10 := object.Args{}
+	_keyword_11 := object.Kwargs{}
+	_positional_13 := object.Args{}
+	_keyword_14 := object.Kwargs{}
+	_positional_13 = append(_positional_13, object.String("-"))
+	_callArgs_15 := object.CallArgs{
+		Keyword:    _keyword_14,
+		Positional: _positional_13,
+	}
+	_tmp_16, _err_17 := (&object.List{Elements: []object.Object{object.Integer(int64(1)), object.Integer(int64(2))}}).Join(_callArgs_15)
+	if _err_17 != nil {
+		return nil, _err_17
+	}
+	_positional_10 = append(_positional_10, _tmp_16)
+	_callArgs_12 := object.CallArgs{
+		Keyword:    _keyword_11,
+		Positional: _positional_10,
+	}
+	_, _err_18 := object.Call(builtin.Members["print"], _callArgs_12)
+	if _err_18 != nil {
+		return nil, _err_18
+	}
+	_positional_19 := object.Args{}
+	_keyword_20 := object.Kwargs{}
+	_dict_25 := &object.Dict{Entries: []object.DictEntry{{Key: object.String("a"), Value: object.Integer(int64(1))}}, KeyIndex: make(map[string]int)}
+	_dict_25.KeyIndex[_dict_25.Entries[0].Key.String()] = 0
+	_positional_22 := object.Args{}
+	_keyword_23 := object.Kwargs{}
+	_callArgs_24 := object.CallArgs{
+		Keyword:    _keyword_23,
+		Positional: _positional_22,
+	}
+	_tmp_26, _err_27 := (_dict_25).Keys(_callArgs_24)
+	if _err_27 != nil {
+		return nil, _err_27
+	}
+	_positional_19 = append(_positional_19, _tmp_26)
+	_callArgs_21 := object.CallArgs{
+		Keyword:    _keyword_20,
+		Positional: _positional_19,
+	}
+	_, _err_28 := object.Call(builtin.Members["print"], _callArgs_21)
+	if _err_28 != nil {
+		return nil, _err_28
+	}
+	_positional_29 := object.Args{}
+	_keyword_30 := object.Kwargs{}
+	_positional_32 := object.Args{}
+	_keyword_33 := object.Kwargs{}
+	_callArgs_34 := object.CallArgs{
+		Keyword:    _keyword_33,
+		Positional: _positional_32,
+	}
+	_tmp_35, _err_36 := (object.String("abc")).Upper(_callArgs_34)
+	if _err_36 != nil {
+		return nil, _err_36
+	}
+	_positional_29 = append(_positional_29, _tmp_35)
+	_callArgs_31 := object.CallArgs{
+		Keyword:    _keyword_30,
+		Positional: _positional_29,
+	}
+	_, _err_37 := object.Call(builtin.Members["print"], _callArgs_31)
+	if _err_37 != nil {
+		return nil, _err_37
+	}
+	_positional_38 := object.Args{}
+	_keyword_39 := object.Kwargs{}
+	_positional_41 := object.Args{}
+	_keyword_42 := object.Kwargs{}
+	_callArgs_43 := object.CallArgs{
+		Keyword:    _keyword_42,
+		Positional: _positional_41,
+	}
+	_tmp_44, _err_45 := (object.String(" x ")).TrimSpace(_callArgs_43)
+	if _err_45 != nil {
+		return nil, _err_45
+	}
+	_positional_38 = append(_positional_38, _tmp_44)
+	_callArgs_40 := object.CallArgs{
+		Keyword:    _keyword_39,
+		Positional: _positional_38,
+	}
+	_, _err_46 := object.Call(builtin.Members["print"], _callArgs_40)
+	if _err_46 != nil {
+		return nil, _err_46
+	}
+	var xs object.Object = &object.List{Elements: []object.Object{object.Integer(int64(1)), object.Integer(int64(2))}}
+	_ = xs
+	_positional_47 := object.Args{}
+	_keyword_48 := object.Kwargs{}
+	_positional_50 := object.Args{}
+	_keyword_51 := object.Kwargs{}
+	_positional_50 = append(_positional_50, object.Integer(int64(3)))
+	_callArgs_52 := object.CallArgs{
+		Keyword:    _keyword_51,
+		Positional: _positional_50,
+	}
+	_attr_53, _err_54 := (xs).GetAttr("push")
+	if _err_54 != nil {
+		return nil, _err_54
+	}
+	_tmp_55, _err_56 := object.Call(_attr_53, _callArgs_52)
+	if _err_56 != nil {
+		return nil, _err_56
+	}
+	_positional_47 = append(_positional_47, _tmp_55)
+	_callArgs_49 := object.CallArgs{
+		Keyword:    _keyword_48,
+		Positional: _positional_47,
+	}
+	_, _err_57 := object.Call(builtin.Members["print"], _callArgs_49)
+	if _err_57 != nil {
+		return nil, _err_57
+	}
+	_dict_58 := &object.Dict{Entries: []object.DictEntry{{Key: object.String("a"), Value: object.Integer(int64(1))}}, KeyIndex: make(map[string]int)}
+	_dict_58.KeyIndex[_dict_58.Entries[0].Key.String()] = 0
+	var d object.Object = _dict_58
+	_ = d
+	_positional_59 := object.Args{}
+	_keyword_60 := object.Kwargs{}
+	_positional_62 := object.Args{}
+	_keyword_63 := object.Kwargs{}
+	_callArgs_64 := object.CallArgs{
+		Keyword:    _keyword_63,
+		Positional: _positional_62,
+	}
+	_attr_65, _err_66 := (d).GetAttr("keys")
+	if _err_66 != nil {
+		return nil, _err_66
+	}
+	_tmp_67, _err_68 := object.Call(_attr_65, _callArgs_64)
+	if _err_68 != nil {
+		return nil, _err_68
+	}
+	_positional_59 = append(_positional_59, _tmp_67)
+	_callArgs_61 := object.CallArgs{
+		Keyword:    _keyword_60,
+		Positional: _positional_59,
+	}
+	_, _err_69 := object.Call(builtin.Members["print"], _callArgs_61)
+	if _err_69 != nil {
+		return nil, _err_69
+	}
+	var s object.Object = object.String("abc")
+	_ = s
+	_positional_70 := object.Args{}
+	_keyword_71 := object.Kwargs{}
+	_positional_73 := object.Args{}
+	_keyword_74 := object.Kwargs{}
+	_callArgs_75 := object.CallArgs{
+		Keyword:    _keyword_74,
+		Positional: _positional_73,
+	}
+	_attr_76, _err_77 := (s).GetAttr("upper")
+	if _err_77 != nil {
+		return nil, _err_77
+	}
+	_tmp_78, _err_79 := object.Call(_attr_76, _callArgs_75)
+	if _err_79 != nil {
+		return nil, _err_79
+	}
+	_positional_70 = append(_positional_70, _tmp_78)
+	_callArgs_72 := object.CallArgs{
+		Keyword:    _keyword_71,
+		Positional: _positional_70,
+	}
+	_, _err_80 := object.Call(builtin.Members["print"], _callArgs_72)
+	if _err_80 != nil {
+		return nil, _err_80
+	}
+	return &object.Module{Members: _exports_0}, nil
+}
+func main() {
+	_, err := Execute()
+	if err != nil {
+		panic(err)
+	}
+}

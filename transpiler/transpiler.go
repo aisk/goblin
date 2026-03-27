@@ -523,10 +523,10 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 			allPreStmts = append(allPreStmts,
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), argExpr),
 			)
-			case ast.CallArgumentStarred:
-				iterVar := ctx.localName("iter")
-				errVar := ctx.localName("err")
-				allPreStmts = append(allPreStmts,
+		case ast.CallArgumentStarred:
+			iterVar := ctx.localName("iter")
+			errVar := ctx.localName("err")
+			allPreStmts = append(allPreStmts,
 				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), jen.Id(iterVar).Op("...")),
@@ -545,26 +545,26 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				),
 				jen.Id(keywordVar).Index(jen.Lit(arg.Name)).Op("=").Add(argExpr),
 			)
-			case ast.CallArgumentKeywordUnpack:
-				unpackObjVar := ctx.localName("unpackObj")
-				dictVar := ctx.localName("dict")
-				okVar := ctx.localName("ok")
-				entryVar := ctx.localName("entry")
+		case ast.CallArgumentKeywordUnpack:
+			unpackObjVar := ctx.localName("unpackObj")
+			dictVar := ctx.localName("dict")
+			okVar := ctx.localName("ok")
+			entryVar := ctx.localName("entry")
 			keyVar := ctx.localName("key")
 			keyObjVar := ctx.localName("keyObj")
 			existsVar := ctx.localName("exists")
 			errVar := ctx.localName("err")
 
-				allPreStmts = append(allPreStmts,
-					jen.Id(unpackObjVar).Op(":=").Add(argExpr),
-					jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
-					jen.If(jen.Op("!").Id(okVar)).Block(
-						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-							jen.Lit("keyword unpack argument must be a dict, got %T"),
-							jen.Id(unpackObjVar),
-						),
-						onError(errVar),
+			allPreStmts = append(allPreStmts,
+				jen.Id(unpackObjVar).Op(":=").Add(argExpr),
+				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
+				jen.If(jen.Op("!").Id(okVar)).Block(
+					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+						jen.Lit("keyword unpack argument must be a dict, got %T"),
+						jen.Id(unpackObjVar),
 					),
+					onError(errVar),
+				),
 				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries")).Block(
 					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
 					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
@@ -597,6 +597,66 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 	)
 
 	return allPreStmts, jen.Id(callArgsVar), nil
+}
+
+func staticReceiverMethodName(expr ast.Expression, property string) (string, bool) {
+	switch v := expr.(type) {
+	case *ast.ListLiteral:
+		switch property {
+		case "push":
+			return "Push", true
+		case "pop":
+			return "Pop", true
+		case "first":
+			return "First", true
+		case "last":
+			return "Last", true
+		case "join":
+			return "Join", true
+		}
+	case *ast.DictLiteral:
+		switch property {
+		case "keys":
+			return "Keys", true
+		case "values":
+			return "Values", true
+		}
+	case *ast.Literal:
+		if _, ok := v.Value.(object.String); !ok {
+			return "", false
+		}
+		switch property {
+		case "upper":
+			return "Upper", true
+		case "lower":
+			return "Lower", true
+		case "has_prefix":
+			return "HasPrefix", true
+		case "has_suffix":
+			return "HasSuffix", true
+		case "trim":
+			return "Trim", true
+		case "trim_space":
+			return "TrimSpace", true
+		case "contains":
+			return "Contains", true
+		}
+	}
+	return "", false
+}
+
+func (ctx *transpileContext) transpileStaticMemberCall(member *ast.MemberExpression, args *jen.Statement, onError errHandler) ([]jen.Code, *jen.Statement, bool, error) {
+	methodName, ok := staticReceiverMethodName(member.Object, member.Property)
+	if !ok {
+		return nil, nil, false, nil
+	}
+
+	objPre, obj, err := ctx.transpileExpression(member.Object, onError)
+	if err != nil {
+		return nil, nil, false, err
+	}
+
+	return objPre, jen.Parens(jen.Add(obj)).Dot(methodName).Call(args), true, nil
 }
 
 func isBuiltinFunction(name string) bool {
@@ -728,6 +788,12 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	}
 
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
+		if objPre, directCall, ok, err := ctx.transpileStaticMemberCall(member, args, onError); err != nil {
+			return nil, nil, err
+		} else if ok {
+			return append(objPre, argPreStmts...), directCall, nil
+		}
+
 		objPre, obj, err := ctx.transpileExpression(member.Object, onError)
 		if err != nil {
 			return nil, nil, err

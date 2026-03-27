@@ -36,6 +36,9 @@ func TestExamples(t *testing.T) {
 		baseName := strings.TrimSuffix(filepath.Base(file), ".goblin")
 		t.Run(baseName, func(t *testing.T) {
 			goCode := parseAndTranspile(t, file)
+			if baseName == "static_member_dispatch" {
+				checkOutput(t, examplesDir, baseName, ".transpiled.go.txt", goCode, true)
+			}
 			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode)
 			checkOutput(t, examplesDir, baseName, ".stdout", stdout, true)
 			checkOutput(t, examplesDir, baseName, ".stderr", stderr, false)
