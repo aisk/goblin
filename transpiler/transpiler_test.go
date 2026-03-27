@@ -85,3 +85,21 @@ func TestTranspileDynamicMemberCallFallsBackToGetAttr(t *testing.T) {
 		t.Fatalf("expected transpiled code to call object.Call fallback\n%s", code)
 	}
 }
+
+func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
+	code := transpileSource(t, "type User(name, age=18) {\n  func hello(self) { print(self.name) }\n}\nvar user = User(\"alice\")\nuser.hello()\n")
+
+	for _, want := range []string{
+		"type _goblin_type_User_0 struct",
+		"func (u *_goblin_type_User_0) Hello(",
+		"func (u *_goblin_type_User_0) GetAttr(",
+		`case "name":`,
+		`case "hello":`,
+		`var User object.Object = &object.Function{`,
+		`_instance._method_hello = _instance.Hello`,
+	} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
+		}
+	}
+}

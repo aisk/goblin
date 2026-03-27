@@ -1,0 +1,20 @@
+type User(name, age=18) {
+    func hello(self) {
+        print(self.name)
+    }
+}
+
+var alice = User("alice")
+print(alice.name)
+print(alice.age)
+alice.hello()
+
+var bob = User(name="bob", age=20)
+print(bob.name)
+print(bob.age)
+bob.hello()
+
+var carol = User("carol", age=21)
+print(carol.name)
+print(carol.age)
+carol.hello()

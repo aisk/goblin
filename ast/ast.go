@@ -430,6 +430,16 @@ type FunctionDefine struct {
 	Body       []Statement
 }
 
+type TypeField struct {
+	Name         string
+	Pos          token.Pos
+	DefaultValue Expression
+}
+
+func (f *TypeField) HasDefault() bool {
+	return f.DefaultValue != nil
+}
+
 type Parameter struct {
 	Name    string
 	Pos     token.Pos
@@ -483,6 +493,31 @@ func AppendParameterList(l any, x any) (any, error) {
 	return append(l.([]*Parameter), x.(*Parameter)), nil
 }
 
+func NewRequiredTypeField(x any) (any, error) {
+	tok := x.(*token.Token)
+	return &TypeField{
+		Name: string(tok.Lit),
+		Pos:  tok.Pos,
+	}, nil
+}
+
+func NewDefaultTypeField(name, value any) (any, error) {
+	tok := name.(*token.Token)
+	return &TypeField{
+		Name:         string(tok.Lit),
+		Pos:          tok.Pos,
+		DefaultValue: value.(Expression),
+	}, nil
+}
+
+func NewTypeFieldList(x any) (any, error) {
+	return []*TypeField{x.(*TypeField)}, nil
+}
+
+func AppendTypeFieldList(l any, x any) (any, error) {
+	return append(l.([]*TypeField), x.(*TypeField)), nil
+}
+
 func NewFunctionDefine(x, params, y any) (any, error) {
 	tok := x.(*token.Token)
 	name := string(tok.Lit)
@@ -501,6 +536,42 @@ func NewFunctionDefine(x, params, y any) (any, error) {
 		Name:           name,
 		Parameters:     parameters,
 		Body:           body,
+	}, nil
+}
+
+type TypeDefine struct {
+	statementMixin
+	Name    string
+	Fields  []*TypeField
+	Methods []*FunctionDefine
+}
+
+func NewTypeMethodList(x any) (any, error) {
+	return []*FunctionDefine{x.(*FunctionDefine)}, nil
+}
+
+func AppendTypeMethodList(l any, x any) (any, error) {
+	return append(l.([]*FunctionDefine), x.(*FunctionDefine)), nil
+}
+
+func NewTypeDefine(name, fields, methods any) (any, error) {
+	tok := name.(*token.Token)
+
+	var typeFields []*TypeField
+	if fields != nil {
+		typeFields = fields.([]*TypeField)
+	}
+
+	var typeMethods []*FunctionDefine
+	if methods != nil {
+		typeMethods = methods.([]*FunctionDefine)
+	}
+
+	return &TypeDefine{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           string(tok.Lit),
+		Fields:         typeFields,
+		Methods:        typeMethods,
 	}, nil
 }
 

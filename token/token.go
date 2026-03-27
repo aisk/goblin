@@ -179,6 +179,7 @@ var TokMap = TokenMap{
 		"in",
 		"break",
 		"func",
+		"type",
 		"return",
 		"export",
 	},
@@ -227,7 +228,8 @@ var TokMap = TokenMap{
 		"in":         40,
 		"break":      41,
 		"func":       42,
-		"return":     43,
-		"export":     44,
+		"type":       43,
+		"return":     44,
+		"export":     45,
 	},
 }

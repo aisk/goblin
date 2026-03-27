@@ -58,6 +58,7 @@ Statement
     | For
     | Break
     | FunctionDefine
+    | TypeDefine
     | Return
     | Export
     | Import
@@ -264,8 +265,37 @@ Parameter
     | "**" id                                << ast.NewKwArgsParameter($1) >>
 ;
 
+TypeFields
+    : empty
+    | TypeFieldList
+;
+
+TypeFieldList
+    : TypeField                              << ast.NewTypeFieldList($0) >>
+    | TypeFieldList "," TypeField            << ast.AppendTypeFieldList($0, $2) >>
+;
+
+TypeField
+    : id                                     << ast.NewRequiredTypeField($0) >>
+    | id "=" Expression                      << ast.NewDefaultTypeField($0, $2) >>
+;
+
 FunctionDefine
     : "func" id "(" Parameters ")" Block     << ast.NewFunctionDefine($1, $3, $5) >>
+;
+
+TypeMethods
+    : empty
+    | TypeMethodList
+;
+
+TypeMethodList
+    : FunctionDefine                         << ast.NewTypeMethodList($0) >>
+    | TypeMethodList FunctionDefine          << ast.AppendTypeMethodList($0, $1) >>
+;
+
+TypeDefine
+    : "type" id "(" TypeFields ")" "{" TypeMethods "}" << ast.NewTypeDefine($1, $3, $6) >>
 ;
 
 Return
