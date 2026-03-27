@@ -7,6 +7,88 @@ import (
 
 type String string
 
+func (s String) Size() Integer {
+	return Integer(len([]rune(string(s))))
+}
+
+func (s String) Upper(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("upper", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("upper() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return String(strings.ToUpper(string(s))), nil
+}
+
+func (s String) Lower(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("lower", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("lower() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return String(strings.ToLower(string(s))), nil
+}
+
+func (s String) HasPrefix(args CallArgs) (Object, error) {
+	bound, err := BindArguments("has_prefix", []string{"prefix"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	prefix, ok := bound["prefix"].(String)
+	if !ok {
+		return nil, fmt.Errorf("has_prefix() argument must be a string, got %T", bound["prefix"])
+	}
+	return Bool(strings.HasPrefix(string(s), string(prefix))), nil
+}
+
+func (s String) HasSuffix(args CallArgs) (Object, error) {
+	bound, err := BindArguments("has_suffix", []string{"suffix"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	suffix, ok := bound["suffix"].(String)
+	if !ok {
+		return nil, fmt.Errorf("has_suffix() argument must be a string, got %T", bound["suffix"])
+	}
+	return Bool(strings.HasSuffix(string(s), string(suffix))), nil
+}
+
+func (s String) Trim(args CallArgs) (Object, error) {
+	bound, err := BindArguments("trim", []string{"cutset"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	cutset, ok := bound["cutset"].(String)
+	if !ok {
+		return nil, fmt.Errorf("trim() argument must be a string, got %T", bound["cutset"])
+	}
+	return String(strings.Trim(string(s), string(cutset))), nil
+}
+
+func (s String) TrimSpace(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("trim_space", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("trim_space() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return String(strings.TrimSpace(string(s))), nil
+}
+
+func (s String) Contains(args CallArgs) (Object, error) {
+	bound, err := BindArguments("contains", []string{"substr"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	substr, ok := bound["substr"].(String)
+	if !ok {
+		return nil, fmt.Errorf("contains() argument must be a string, got %T", bound["substr"])
+	}
+	return Bool(strings.Contains(string(s), string(substr))), nil
+}
+
 func (s String) Repr() string {
 	return fmt.Sprintf("object.String(`%s`)", s.String())
 }
@@ -100,85 +182,21 @@ func (s String) Index(index Object) (Object, error) {
 func (s String) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
-		return Integer(len([]rune(string(s)))), nil
+		return s.Size(), nil
 	case "upper":
-		return &Function{Name: "upper", Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoKeyword("upper", args); err != nil {
-				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, fmt.Errorf("upper() takes exactly 0 arguments, got %d", len(args.Positional))
-			}
-			return String(strings.ToUpper(string(s))), nil
-		}}, nil
+		return &Function{Name: "upper", Fn: s.Upper}, nil
 	case "lower":
-		return &Function{Name: "lower", Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoKeyword("lower", args); err != nil {
-				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, fmt.Errorf("lower() takes exactly 0 arguments, got %d", len(args.Positional))
-			}
-			return String(strings.ToLower(string(s))), nil
-		}}, nil
+		return &Function{Name: "lower", Fn: s.Lower}, nil
 	case "has_prefix":
-		return &Function{Name: "has_prefix", Fn: func(args CallArgs) (Object, error) {
-			bound, err := BindArguments("has_prefix", []string{"prefix"}, "", "", args)
-			if err != nil {
-				return nil, err
-			}
-			prefix, ok := bound["prefix"].(String)
-			if !ok {
-				return nil, fmt.Errorf("has_prefix() argument must be a string, got %T", bound["prefix"])
-			}
-			return Bool(strings.HasPrefix(string(s), string(prefix))), nil
-		}}, nil
+		return &Function{Name: "has_prefix", Fn: s.HasPrefix}, nil
 	case "has_suffix":
-		return &Function{Name: "has_suffix", Fn: func(args CallArgs) (Object, error) {
-			bound, err := BindArguments("has_suffix", []string{"suffix"}, "", "", args)
-			if err != nil {
-				return nil, err
-			}
-			suffix, ok := bound["suffix"].(String)
-			if !ok {
-				return nil, fmt.Errorf("has_suffix() argument must be a string, got %T", bound["suffix"])
-			}
-			return Bool(strings.HasSuffix(string(s), string(suffix))), nil
-		}}, nil
+		return &Function{Name: "has_suffix", Fn: s.HasSuffix}, nil
 	case "trim":
-		return &Function{Name: "trim", Fn: func(args CallArgs) (Object, error) {
-			bound, err := BindArguments("trim", []string{"cutset"}, "", "", args)
-			if err != nil {
-				return nil, err
-			}
-			cutset, ok := bound["cutset"].(String)
-			if !ok {
-				return nil, fmt.Errorf("trim() argument must be a string, got %T", bound["cutset"])
-			}
-			return String(strings.Trim(string(s), string(cutset))), nil
-		}}, nil
+		return &Function{Name: "trim", Fn: s.Trim}, nil
 	case "trim_space":
-		return &Function{Name: "trim_space", Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoKeyword("trim_space", args); err != nil {
-				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, fmt.Errorf("trim_space() takes exactly 0 arguments, got %d", len(args.Positional))
-			}
-			return String(strings.TrimSpace(string(s))), nil
-		}}, nil
+		return &Function{Name: "trim_space", Fn: s.TrimSpace}, nil
 	case "contains":
-		return &Function{Name: "contains", Fn: func(args CallArgs) (Object, error) {
-			bound, err := BindArguments("contains", []string{"substr"}, "", "", args)
-			if err != nil {
-				return nil, err
-			}
-			substr, ok := bound["substr"].(String)
-			if !ok {
-				return nil, fmt.Errorf("contains() argument must be a string, got %T", bound["substr"])
-			}
-			return Bool(strings.Contains(string(s), string(substr))), nil
-		}}, nil
+		return &Function{Name: "contains", Fn: s.Contains}, nil
 	default:
 		return nil, fmt.Errorf("String has no attribute '%s'", name)
 	}
