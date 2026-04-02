@@ -24,14 +24,16 @@ const (
 )
 
 type moduleInfo struct {
+	executorPath string
 	varName      string
 	executorFunc string
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":     {varName: "os_module", executorFunc: "ExecuteOs"},
-	"random": {varName: "random_module", executorFunc: "ExecuteRandom"},
-	"math":   {varName: "math_module", executorFunc: "ExecuteMath"},
+	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
+	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
+	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
 }
 
 // transpileContext holds state for a single Transpile call.
@@ -173,7 +175,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 			body = append(body,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -306,7 +308,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 			funcBody = append(funcBody,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -1635,7 +1637,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 			funcBody = append(funcBody,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -1774,7 +1776,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 			body = append(body,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),

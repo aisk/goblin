@@ -1,0 +1,8 @@
+import "fs"
+
+var file = fs.open("fs_fixture.txt")
+print("fs open works")
+print(file.name)
+print(file.read())
+file.close()
+print(file.closed)

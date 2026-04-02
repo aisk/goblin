@@ -1,0 +1,5 @@
+fs open works
+fs_fixture.txt
+hello from fs fixture
+
+true
