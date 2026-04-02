@@ -186,3 +186,93 @@ func TestFsHelpers(t *testing.T) {
 		t.Fatalf("read_dir() names = %q, %q; want %q, %q", first.Info.Name(), second.Info.Name(), fileName, dirName)
 	}
 }
+
+func TestFsWriteCreateAppendMkdirRemove(t *testing.T) {
+	tempDir := t.TempDir()
+
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("os.Getwd() error = %v", err)
+	}
+	defer func() {
+		if err := os.Chdir(wd); err != nil {
+			t.Fatalf("restore cwd: %v", err)
+		}
+	}()
+	if err := os.Chdir(tempDir); err != nil {
+		t.Fatalf("os.Chdir() error = %v", err)
+	}
+
+	fileObj, err := fsFunction(t, "create").Call(object.CallArgs{
+		Positional: object.Args{object.String("created.txt")},
+	})
+	if err != nil {
+		t.Fatalf("create() error = %v", err)
+	}
+	file, ok := fileObj.(*File)
+	if !ok {
+		t.Fatalf("create() returned %T", fileObj)
+	}
+	if _, err := file.Write(object.CallArgs{Positional: object.Args{object.String("hello")}}); err != nil {
+		t.Fatalf("file.write() error = %v", err)
+	}
+	if _, err := file.Close(object.CallArgs{}); err != nil {
+		t.Fatalf("file.close() error = %v", err)
+	}
+	content, err := os.ReadFile("created.txt")
+	if err != nil {
+		t.Fatalf("os.ReadFile(created.txt) error = %v", err)
+	}
+	if got := string(content); got != "hello" {
+		t.Fatalf("created.txt = %q, want %q", got, "hello")
+	}
+
+	if _, err := fsFunction(t, "write").Call(object.CallArgs{
+		Positional: object.Args{object.String("written.txt"), object.String("abc")},
+	}); err != nil {
+		t.Fatalf("write() error = %v", err)
+	}
+	if _, err := fsFunction(t, "append").Call(object.CallArgs{
+		Positional: object.Args{object.String("written.txt"), object.String("def")},
+	}); err != nil {
+		t.Fatalf("append() error = %v", err)
+	}
+	content, err = os.ReadFile("written.txt")
+	if err != nil {
+		t.Fatalf("os.ReadFile(written.txt) error = %v", err)
+	}
+	if got := string(content); got != "abcdef" {
+		t.Fatalf("written.txt = %q, want %q", got, "abcdef")
+	}
+
+	if _, err := fsFunction(t, "mkdir").Call(object.CallArgs{
+		Positional: object.Args{object.String("made_dir")},
+	}); err != nil {
+		t.Fatalf("mkdir() error = %v", err)
+	}
+	info, err := os.Stat("made_dir")
+	if err != nil {
+		t.Fatalf("os.Stat(made_dir) error = %v", err)
+	}
+	if !info.IsDir() {
+		t.Fatalf("made_dir should be a directory")
+	}
+
+	if _, err := fsFunction(t, "remove").Call(object.CallArgs{
+		Positional: object.Args{object.String("written.txt")},
+	}); err != nil {
+		t.Fatalf("remove(file) error = %v", err)
+	}
+	if _, err := os.Stat("written.txt"); !os.IsNotExist(err) {
+		t.Fatalf("written.txt should be removed, stat err = %v", err)
+	}
+
+	if _, err := fsFunction(t, "remove").Call(object.CallArgs{
+		Positional: object.Args{object.String("made_dir")},
+	}); err != nil {
+		t.Fatalf("remove(dir) error = %v", err)
+	}
+	if _, err := os.Stat("made_dir"); !os.IsNotExist(err) {
+		t.Fatalf("made_dir should be removed, stat err = %v", err)
+	}
+}

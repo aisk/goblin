@@ -13,3 +13,9 @@ true
 2
 alpha.txt
 beta.txt
+fs_created.txt
+hello
+reset-tail
+true
+false
+false

@@ -3,18 +3,18 @@ package fs
 import (
 	"fmt"
 	"io"
-	stdfs "io/fs"
+	"os"
 
 	"github.com/aisk/goblin/object"
 )
 
 type File struct {
 	Name   string
-	File   stdfs.File
+	File   *os.File
 	closed bool
 }
 
-func NewFile(name string, file stdfs.File) *File {
+func NewFile(name string, file *os.File) *File {
 	return &File{Name: name, File: file}
 }
 
@@ -41,6 +41,27 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 		return nil, fmt.Errorf("read() failed: %w", err)
 	}
 	return object.String(data), nil
+}
+
+func (f *File) Write(args object.CallArgs) (object.Object, error) {
+	bound, err := object.BindArguments("write", []string{"content"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	if err := f.ensureOpen("write"); err != nil {
+		return nil, err
+	}
+
+	content, ok := bound["content"].(object.String)
+	if !ok {
+		return nil, fmt.Errorf("write() argument must be a string, got %T", bound["content"])
+	}
+
+	n, err := f.File.WriteString(string(content))
+	if err != nil {
+		return nil, fmt.Errorf("write() failed: %w", err)
+	}
+	return object.Integer(n), nil
 }
 
 func (f *File) Close(args object.CallArgs) (object.Object, error) {
@@ -126,6 +147,8 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 		return object.Bool(f.closed), nil
 	case "read":
 		return &object.Function{Name: "read", Fn: f.Read}, nil
+	case "write":
+		return &object.Function{Name: "write", Fn: f.Write}, nil
 	case "stat":
 		return &object.Function{Name: "stat", Fn: f.Stat}, nil
 	case "close":
