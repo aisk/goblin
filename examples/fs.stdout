@@ -1,5 +1,15 @@
 fs open works
 fs_fixture.txt
+22
 hello from fs fixture
 
 true
+true
+false
+hello from fs fixture
+
+fs_dir_fixture
+true
+2
+alpha.txt
+beta.txt

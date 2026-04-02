@@ -60,6 +60,24 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 	return object.Nil, nil
 }
 
+func (f *File) Stat(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("stat", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("stat() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	if err := f.ensureOpen("stat"); err != nil {
+		return nil, err
+	}
+
+	info, err := f.File.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("stat() failed: %w", err)
+	}
+	return NewFileInfo(info), nil
+}
+
 func (f *File) Repr() string {
 	return fmt.Sprintf("fs.File(%q)", f.Name)
 }
@@ -108,6 +126,8 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 		return object.Bool(f.closed), nil
 	case "read":
 		return &object.Function{Name: "read", Fn: f.Read}, nil
+	case "stat":
+		return &object.Function{Name: "stat", Fn: f.Stat}, nil
 	case "close":
 		return &object.Function{Name: "close", Fn: f.Close}, nil
 	default:
