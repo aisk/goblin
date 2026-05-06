@@ -935,18 +935,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		receiverName = "self"
 	}
 
-	structFields := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods))
+	structFields := make([]jen.Code, 0, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
 		structFields = append(structFields, jen.Id(field.Name).Qual(pathObject, "Object"))
-	}
-	for _, method := range typeDef.Methods {
-		structFields = append(structFields,
-			jen.Id("_method_"+method.Name).Func().Params(
-				jen.Qual(pathObject, "CallArgs"),
-			).Parens(
-				jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
-			),
-		)
 	}
 
 	ctx.topDecls = append(ctx.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
@@ -1053,10 +1044,8 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		),
 	)
 
-	methodAssignments := make([]jen.Code, 0, len(typeDef.Methods))
 	for _, method := range typeDef.Methods {
 		wrapperName := exportedName(method.Name)
-		methodFieldName := "_method_" + method.Name
 
 		callArgsName := ctx.localName("callArgs")
 		fnOnError := func(errVar string) jen.Code {
@@ -1140,10 +1129,6 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 				append(bodyPrefix, methodBody...)...,
 			),
 		)
-
-		methodAssignments = append(methodAssignments,
-			jen.Id("_instance").Dot(methodFieldName).Op("=").Id("_instance").Dot(wrapperName),
-		)
 	}
 
 	callArgsName := ctx.localName("callArgs")
@@ -1214,9 +1199,6 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	constructorBody := append(constructorSetup,
 		jen.Id("_instance").Op(":=").Op("&").Id(goTypeName).Values(instanceValues...),
-	)
-	constructorBody = append(constructorBody, methodAssignments...)
-	constructorBody = append(constructorBody,
 		jen.Return(jen.Id("_instance"), jen.Nil()),
 	)
 

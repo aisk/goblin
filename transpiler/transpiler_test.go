@@ -96,10 +96,12 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 		`case "name":`,
 		`case "hello":`,
 		`var User object.Object = &object.Function{`,
-		`_instance._method_hello = _instance.Hello`,
 	} {
 		if !strings.Contains(code, want) {
 			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
 		}
+	}
+	if strings.Contains(code, "_method_") {
+		t.Fatalf("expected transpiled code to no longer reference _method_ slots\n%s", code)
 	}
 }
