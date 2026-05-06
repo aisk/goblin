@@ -39,50 +39,44 @@ func transpileSource(t *testing.T, source string) string {
 	return buf.String()
 }
 
-func TestTranspileStaticMemberCallUsesDirectReceiverMethod(t *testing.T) {
+func TestTranspileMemberCallUsesGetAttr(t *testing.T) {
 	cases := []struct {
-		name       string
-		source     string
-		wantMethod string
+		name     string
+		source   string
+		wantAttr string
 	}{
 		{
-			name:       "list literal",
-			source:     "print([1, 2].push(3))\n",
-			wantMethod: ".Push(",
+			name:     "list literal",
+			source:   "print([1, 2].push(3))\n",
+			wantAttr: `.GetAttr("push")`,
 		},
 		{
-			name:       "dict literal",
-			source:     "print({\"a\": 1}.keys())\n",
-			wantMethod: ".Keys(",
+			name:     "dict literal",
+			source:   "print({\"a\": 1}.keys())\n",
+			wantAttr: `.GetAttr("keys")`,
 		},
 		{
-			name:       "string literal",
-			source:     "print(\" x \".trim_space())\n",
-			wantMethod: ".TrimSpace(",
+			name:     "string literal",
+			source:   "print(\" x \".trim_space())\n",
+			wantAttr: `.GetAttr("trim_space")`,
+		},
+		{
+			name:     "variable receiver",
+			source:   "var xs = [1, 2]\nprint(xs.push(3))\n",
+			wantAttr: `.GetAttr("push")`,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			code := transpileSource(t, tc.source)
-			if !strings.Contains(code, tc.wantMethod) {
-				t.Fatalf("expected transpiled code to contain %q\n%s", tc.wantMethod, code)
+			if !strings.Contains(code, tc.wantAttr) {
+				t.Fatalf("expected transpiled code to contain %q\n%s", tc.wantAttr, code)
 			}
-			if strings.Contains(code, ".GetAttr(") {
-				t.Fatalf("expected static member call to skip GetAttr\n%s", code)
+			if !strings.Contains(code, "object.Call") {
+				t.Fatalf("expected transpiled code to call object.Call fallback\n%s", code)
 			}
 		})
-	}
-}
-
-func TestTranspileDynamicMemberCallFallsBackToGetAttr(t *testing.T) {
-	code := transpileSource(t, "var xs = [1, 2]\nprint(xs.push(3))\n")
-
-	if !strings.Contains(code, ".GetAttr(") {
-		t.Fatalf("expected transpiled code to use GetAttr fallback\n%s", code)
-	}
-	if !strings.Contains(code, "object.Call") {
-		t.Fatalf("expected transpiled code to call object.Call fallback\n%s", code)
 	}
 }
 

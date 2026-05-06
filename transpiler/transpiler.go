@@ -617,66 +617,6 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 	return allPreStmts, jen.Id(callArgsVar), nil
 }
 
-func staticReceiverMethodName(expr ast.Expression, property string) (string, bool) {
-	switch v := expr.(type) {
-	case *ast.ListLiteral:
-		switch property {
-		case "push":
-			return "Push", true
-		case "pop":
-			return "Pop", true
-		case "first":
-			return "First", true
-		case "last":
-			return "Last", true
-		case "join":
-			return "Join", true
-		}
-	case *ast.DictLiteral:
-		switch property {
-		case "keys":
-			return "Keys", true
-		case "values":
-			return "Values", true
-		}
-	case *ast.Literal:
-		if _, ok := v.Value.(object.String); !ok {
-			return "", false
-		}
-		switch property {
-		case "upper":
-			return "Upper", true
-		case "lower":
-			return "Lower", true
-		case "has_prefix":
-			return "HasPrefix", true
-		case "has_suffix":
-			return "HasSuffix", true
-		case "trim":
-			return "Trim", true
-		case "trim_space":
-			return "TrimSpace", true
-		case "contains":
-			return "Contains", true
-		}
-	}
-	return "", false
-}
-
-func (ctx *transpileContext) transpileStaticMemberCall(member *ast.MemberExpression, args *jen.Statement, onError errHandler) ([]jen.Code, *jen.Statement, bool, error) {
-	methodName, ok := staticReceiverMethodName(member.Object, member.Property)
-	if !ok {
-		return nil, nil, false, nil
-	}
-
-	objPre, obj, err := ctx.transpileExpression(member.Object, onError)
-	if err != nil {
-		return nil, nil, false, err
-	}
-
-	return objPre, jen.Parens(jen.Add(obj)).Dot(methodName).Call(args), true, nil
-}
-
 func isBuiltinFunction(name string) bool {
 	_, ok := extension.BuiltinsModule.Members[name]
 	return ok
@@ -810,12 +750,6 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	}
 
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
-		if objPre, directCall, ok, err := ctx.transpileStaticMemberCall(member, args, onError); err != nil {
-			return nil, nil, err
-		} else if ok {
-			return append(objPre, argPreStmts...), directCall, nil
-		}
-
 		objPre, obj, err := ctx.transpileExpression(member.Object, onError)
 		if err != nil {
 			return nil, nil, err
