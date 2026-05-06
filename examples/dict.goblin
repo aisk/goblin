@@ -18,3 +18,7 @@ print(d.values())
 for key in d {
     print(key)
 }
+
+# Dict constructor
+print(Dict(a=1))
+print(Dict())

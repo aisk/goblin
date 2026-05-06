@@ -39,3 +39,8 @@ print(mixed.join(","))
 # Test join() on empty list
 var empty2 = []
 print(empty2.join(","))
+
+# List constructor
+print(List([1, 2, 3]))
+print(List("abc"))
+print(List())
