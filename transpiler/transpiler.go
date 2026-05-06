@@ -39,7 +39,6 @@ var knownModules = map[string]moduleInfo{
 // transpileContext holds state for a single Transpile call.
 type transpileContext struct {
 	localNameCounter int
-	typeNameCounter  int
 	moduleImports    map[string]string   // module name -> Go variable name
 	importing        map[string]struct{} // paths currently being transpiled (cycle detection)
 	imported         map[string]struct{} // paths already transpiled (dedup)
@@ -68,9 +67,7 @@ func (ctx *transpileContext) localName(prefix string) string {
 }
 
 func (ctx *transpileContext) goTypeName(name string) string {
-	goName := fmt.Sprintf("_goblin_type_%s_%d", name, ctx.typeNameCounter)
-	ctx.typeNameCounter++
-	return goName
+	return name
 }
 
 func exportedName(name string) string {
@@ -785,6 +782,8 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 	var callee *jen.Statement
 	if isBuiltinFunction(call.Name) {
 		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
+	} else if mapped, ok := ctx.moduleImports[call.Name]; ok {
+		callee = jen.Id(mapped)
 	} else {
 		callee = jen.Id(call.Name)
 	}
@@ -802,6 +801,8 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		var callee *jen.Statement
 		if isBuiltinFunction(ident.Name) {
 			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
+		} else if mapped, ok := ctx.moduleImports[ident.Name]; ok {
+			callee = jen.Id(mapped)
 		} else {
 			callee = jen.Id(ident.Name)
 		}
@@ -929,6 +930,8 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 }
 
 func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHandler) ([]jen.Code, error) {
+	ctorVarName := typeDef.Name + "Constructor"
+	ctx.moduleImports[typeDef.Name] = ctorVarName
 	goTypeName := ctx.goTypeName(typeDef.Name)
 	receiverName := strings.ToLower(typeDef.Name[:1])
 	if receiverName == "_" {
@@ -1208,11 +1211,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
 	).Block(constructorBody...)
 
-	constructor := jen.Var().Id(typeDef.Name).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
+	constructor := jen.Var().Id(ctorVarName).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
 		jen.Id("Name").Op(":").Lit(typeDef.Name),
 		jen.Id("Fn").Op(":").Add(constructorClosure),
 	)
-	constructor.Op(";").Id("_").Op("=").Id(typeDef.Name)
+	constructor.Op(";").Id("_").Op("=").Id(ctorVarName)
 
 	return []jen.Code{constructor}, nil
 }
