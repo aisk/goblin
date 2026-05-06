@@ -143,7 +143,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -213,7 +213,8 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	f.Func().Id("main").Params().Block(
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err")),
+			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
+			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
 	)
 	return f.Render(output)
@@ -284,7 +285,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -1394,12 +1395,12 @@ func generateGoMod(outputDir, moduleName string) error {
 func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string {
 	if goblinRoot != "" {
 		return fmt.Sprintf(
-			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n\nreplace github.com/aisk/goblin => %s\n",
+			"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n\nreplace github.com/aisk/goblin => %s\n",
 			moduleName, runtimeVersion, goblinRoot,
 		)
 	}
 	return fmt.Sprintf(
-		"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n",
+		"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n",
 		moduleName, runtimeVersion,
 	)
 }
@@ -1528,7 +1529,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -1667,7 +1668,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -1739,7 +1740,8 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	f.Func().Id("main").Params().Block(
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err")),
+			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
+			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
 	)
 
