@@ -99,10 +99,6 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 	return NewFileInfo(info), nil
 }
 
-func (f *File) Repr() string {
-	return fmt.Sprintf("fs.File(%q)", f.Name)
-}
-
 func (f *File) String() string {
 	return fmt.Sprintf("<file %s>", f.Name)
 }

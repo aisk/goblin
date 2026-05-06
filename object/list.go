@@ -80,14 +80,6 @@ func (l *List) Join(args CallArgs) (Object, error) {
 	return String(strings.Join(elements, string(sep))), nil
 }
 
-func (l *List) Repr() string {
-	elements := make([]string, len(l.Elements))
-	for i, elem := range l.Elements {
-		elements[i] = elem.Repr()
-	}
-	return fmt.Sprintf("object.List([%s])", strings.Join(elements, ", "))
-}
-
 func (l *List) String() string {
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {

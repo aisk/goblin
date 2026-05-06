@@ -10,10 +10,6 @@ type Unit struct{}
 
 var _ Object = Unit{}
 
-func (n Unit) Repr() string {
-	return "object.None"
-}
-
 func (n Unit) String() string {
 	return "none"
 }

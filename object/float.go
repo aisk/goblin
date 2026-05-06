@@ -9,10 +9,6 @@ type Float float64
 
 var _ Object = Float(0)
 
-func (f Float) Repr() string {
-	return fmt.Sprintf("object.Float(%s)", f.String())
-}
-
 func (f Float) Bool() bool {
 	if f == 0 {
 		return false

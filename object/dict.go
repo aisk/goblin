@@ -74,14 +74,6 @@ func (d *Dict) Get(key Object) (Object, bool) {
 	return nil, false
 }
 
-func (d *Dict) Repr() string {
-	elements := make([]string, len(d.Entries))
-	for i, entry := range d.Entries {
-		elements[i] = fmt.Sprintf("%s: %s", entry.Key.Repr(), entry.Value.Repr())
-	}
-	return fmt.Sprintf("object.Dict({%s})", strings.Join(elements, ", "))
-}
-
 func (d *Dict) String() string {
 	elements := make([]string, len(d.Entries))
 	for i, entry := range d.Entries {

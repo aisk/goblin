@@ -9,10 +9,6 @@ type Integer int64
 
 var _ Object = Integer(0)
 
-func (i Integer) Repr() string {
-	return fmt.Sprintf("object.Integer(%s)", i.String())
-}
-
 func (i Integer) Bool() bool {
 	if i == 0 {
 		return false

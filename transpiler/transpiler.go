@@ -879,13 +879,10 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	ctx.topDecls = append(ctx.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
 
-	reprText := fmt.Sprintf("<%s>", typeDef.Name)
+	reprFormat := fmt.Sprintf("<%s@%%p>", typeDef.Name)
 	ctx.topDecls = append(ctx.topDecls,
 		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("String").Params().String().Block(
-			jen.Return(jen.Lit(reprText)),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Repr").Params().String().Block(
-			jen.Return(jen.Lit(reprText)),
+			jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName))),
 		),
 		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Bool").Params().Bool().Block(
 			jen.Return(jen.True()),

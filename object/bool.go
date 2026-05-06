@@ -13,10 +13,6 @@ type Bool bool
 
 var _ Object = Bool(true)
 
-func (b Bool) Repr() string {
-	return fmt.Sprintf("object.Bool(%s)", b.String())
-}
-
 func (b Bool) String() string {
 	switch b {
 	case true:

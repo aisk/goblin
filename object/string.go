@@ -91,10 +91,6 @@ func (s String) Contains(args CallArgs) (Object, error) {
 	return Bool(strings.Contains(string(s), string(substr))), nil
 }
 
-func (s String) Repr() string {
-	return fmt.Sprintf("object.String(`%s`)", s.String())
-}
-
 func (s String) String() string {
 	return string(s)
 }

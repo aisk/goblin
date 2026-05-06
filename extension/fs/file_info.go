@@ -15,10 +15,6 @@ func NewFileInfo(info stdfs.FileInfo) *FileInfo {
 	return &FileInfo{Info: info}
 }
 
-func (f *FileInfo) Repr() string {
-	return fmt.Sprintf("fs.FileInfo(%q)", f.Info.Name())
-}
-
 func (f *FileInfo) String() string {
 	return fmt.Sprintf("<file_info %s>", f.Info.Name())
 }
