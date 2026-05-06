@@ -6,6 +6,8 @@ type Error struct {
 	Value string
 }
 
+var _ Object = (*Error)(nil)
+
 func NewError(value string) *Error {
 	return &Error{Value: value}
 }
@@ -69,8 +71,6 @@ func (e *Error) Error() string {
 func (e *Error) GetAttr(name string) (Object, error) {
 	return nil, fmt.Errorf("Error has no attribute '%s'", name)
 }
-
-var _ Object = (*Error)(nil)
 var _ error = (*Error)(nil)
 
 var NotImplementedError = NewError("not implemented")

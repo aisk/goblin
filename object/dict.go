@@ -15,6 +15,8 @@ type Dict struct {
 	KeyIndex map[string]int
 }
 
+var _ Object = &Dict{}
+
 func (d *Dict) Size() Integer {
 	return Integer(len(d.Entries))
 }
@@ -152,4 +154,13 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 	}
 }
 
-var _ Object = &Dict{}
+func DictConstructor(args CallArgs) (Object, error) {
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("Dict() takes no positional arguments, got %d", len(args.Positional))
+	}
+	result := NewDict()
+	for k, v := range args.Keyword {
+		result.Set(String(k), v)
+	}
+	return result, nil
+}

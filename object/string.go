@@ -7,6 +7,8 @@ import (
 
 type String string
 
+var _ Object = String("")
+
 func (s String) Size() Integer {
 	return Integer(len([]rune(string(s))))
 }
@@ -202,4 +204,15 @@ func (s String) GetAttr(name string) (Object, error) {
 	}
 }
 
-var _ Object = String("")
+func StrConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Str", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return String(""), nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Str() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	return String(args.Positional[0].String()), nil
+}

@@ -9,6 +9,8 @@ type List struct {
 	Elements []Object
 }
 
+var _ Object = &List{}
+
 func (l *List) Size() Integer {
 	return Integer(len(l.Elements))
 }
@@ -185,4 +187,19 @@ func (l *List) GetAttr(name string) (Object, error) {
 	}
 }
 
-var _ Object = &List{}
+func ListConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("List", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return &List{Elements: []Object{}}, nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("List() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	elements, err := args.Positional[0].Iter()
+	if err != nil {
+		return nil, fmt.Errorf("List() argument is not iterable: %s", err)
+	}
+	return &List{Elements: elements}, nil
+}

@@ -6,6 +6,8 @@ type Module struct {
 	Members map[string]Object
 }
 
+var _ Object = (*Module)(nil)
+
 func (m *Module) String() string            { return fmt.Sprintf("<module>") }
 func (m *Module) Repr() string              { return fmt.Sprintf("<module>") }
 func (m *Module) Bool() bool                { return true }
