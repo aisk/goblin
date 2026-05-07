@@ -34,13 +34,32 @@ func TestExamples(t *testing.T) {
 
 	for _, file := range files {
 		baseName := strings.TrimSuffix(filepath.Base(file), ".goblin")
+
+		// Quick scan: if this example imports "http", it's a long-running server
+		// and shouldn't be run directly.
+		isServer := isHTTPServerExample(t, file)
+
 		t.Run(baseName, func(t *testing.T) {
+			if isServer {
+				t.Skip("skipping HTTP server example (blocks forever)")
+			}
 			goCode := parseAndTranspile(t, file)
 			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode)
 			checkOutput(t, examplesDir, baseName, ".stdout", stdout, true)
 			checkOutput(t, examplesDir, baseName, ".stderr", stderr, false)
 		})
 	}
+}
+
+// isHTTPServerExample scans a .goblin file to check if it imports the "http" module.
+func isHTTPServerExample(t *testing.T, goblinFile string) bool {
+	t.Helper()
+
+	data, err := os.ReadFile(goblinFile)
+	if err != nil {
+		return false
+	}
+	return strings.Contains(string(data), `import "http"`)
 }
 
 // parseAndTranspile reads a .goblin file, parses and transpiles it to Go code.
