@@ -1,0 +1,8 @@
+import "http"
+
+func handler(req) {
+    return "<h1>Hello World from Goblin 🦎</h1>"
+}
+
+http.handle_func("/", handler)
+http.listen_and_serve(":8080")
