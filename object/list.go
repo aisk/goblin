@@ -11,8 +11,14 @@ type List struct {
 
 var _ Object = &List{}
 
-func (l *List) Size() Integer {
-	return Integer(len(l.Elements))
+func (l *List) Size(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("size", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return Integer(len(l.Elements)), nil
 }
 
 func (l *List) Push(args CallArgs) (Object, error) {
@@ -163,7 +169,7 @@ func (l *List) Index(index Object) (Object, error) {
 func (l *List) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
-		return l.Size(), nil
+		return &Function{Name: "size", Fn: l.Size}, nil
 	case "push":
 		return &Function{Name: "push", Fn: l.Push}, nil
 	case "pop":

@@ -1,5 +1,5 @@
 func collect(*args) {
-    print(args.size)
+    print(args.size())
     for x in args {
         print(x)
     }
@@ -10,7 +10,7 @@ collect(1, 2, 3)
 
 func mix(a, *rest) {
     print(a)
-    print(rest.size)
+    print(rest.size())
     for x in rest {
         print(x)
     }

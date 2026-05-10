@@ -14,7 +14,7 @@ var info = fs.stat("fs_dir_fixture")
 print(info.name)
 print(info.is_dir)
 var entries = fs.read_dir("fs_dir_fixture")
-print(entries.size)
+print(entries.size())
 print(entries[0].name)
 print(entries[1].name)
 

@@ -3,7 +3,7 @@ print("hello" + " " + "world")
 
 # String methods
 var s = "hello"
-print(s.size)
+print(s.size())
 print(s.upper())
 print(s.lower())
 

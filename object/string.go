@@ -9,8 +9,14 @@ type String string
 
 var _ Object = String("")
 
-func (s String) Size() Integer {
-	return Integer(len([]rune(string(s))))
+func (s String) Size(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("size", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return Integer(len([]rune(string(s)))), nil
 }
 
 func (s String) Upper(args CallArgs) (Object, error) {
@@ -180,7 +186,7 @@ func (s String) Index(index Object) (Object, error) {
 func (s String) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
-		return s.Size(), nil
+		return &Function{Name: "size", Fn: s.Size}, nil
 	case "upper":
 		return &Function{Name: "upper", Fn: s.Upper}, nil
 	case "lower":

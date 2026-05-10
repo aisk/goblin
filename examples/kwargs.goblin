@@ -1,7 +1,7 @@
 func inspect(a, b, *rest, **kwargs) {
     print(a)
     print(b)
-    print(rest.size)
+    print(rest.size())
     print(kwargs["x"])
     print(kwargs["y"])
 }

@@ -17,8 +17,14 @@ type Dict struct {
 
 var _ Object = &Dict{}
 
-func (d *Dict) Size() Integer {
-	return Integer(len(d.Entries))
+func (d *Dict) Size(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("size", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	return Integer(len(d.Entries)), nil
 }
 
 func (d *Dict) Keys(args CallArgs) (Object, error) {
@@ -136,7 +142,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 func (d *Dict) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
-		return d.Size(), nil
+		return &Function{Name: "size", Fn: d.Size}, nil
 	case "keys":
 		return &Function{Name: "keys", Fn: d.Keys}, nil
 	case "values":

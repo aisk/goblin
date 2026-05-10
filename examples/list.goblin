@@ -11,9 +11,9 @@ print(nested[0][1])
 print(nested[1][0])
 
 # List methods
-print(list.size)
+print(list.size())
 list.push(4)
-print(list.size)
+print(list.size())
 print(list.pop())
 print(list)
 

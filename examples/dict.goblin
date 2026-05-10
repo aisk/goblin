@@ -10,7 +10,7 @@ print(d["name"])
 print(d["age"])
 
 # Dict methods
-print(d.size)
+print(d.size())
 print(d.keys())
 print(d.values())
 

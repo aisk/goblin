@@ -74,7 +74,7 @@ for i in range(0, 5) {
 
 # Strings
 var s = "hello"
-print(s.size)     # 5
+print(s.size())   # 5
 print(s.upper())  # "HELLO"
 
 # Lists
@@ -82,7 +82,7 @@ var list = [1, 2, 3]
 print(list[0])    # 1
 list.push(4)
 list.pop()
-print(list.size)  # 3
+print(list.size())  # 3
 
 # Dictionaries
 var d = {"name": "Alice", "age": 30}
@@ -105,7 +105,7 @@ print(add(5, 6))  # 11
 print(add(a=5, b=6))  # 11
 
 func collect(prefix, *args, **kwargs) {
-    print(prefix, args.size, kwargs.size)
+    print(prefix, args.size(), kwargs.size())
 }
 collect("n=", 1, 2, 3)
 collect("n=", *range(0, 2))
