@@ -466,6 +466,9 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 		if moduleVar, ok := ctx.moduleImports[v.Name]; ok {
 			return nil, jen.Id(moduleVar), nil
 		}
+		if isBuiltinFunction(v.Name) {
+			return nil, jen.Id("builtin").Dot("Members").Index(jen.Lit(v.Name)), nil
+		}
 		return nil, jen.Id(v.Name), nil
 	case *ast.FunctionCall:
 		argPreStmts, call, err := ctx.transpileFunctionCall(v, onError)
@@ -962,6 +965,28 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			),
 		)
 	}
+	userDefinedConstructor := false
+	for _, field := range typeDef.Fields {
+		if field.Name == "constructor" {
+			userDefinedConstructor = true
+			break
+		}
+	}
+	if !userDefinedConstructor {
+		for _, method := range typeDef.Methods {
+			if method.Name == "constructor" {
+				userDefinedConstructor = true
+				break
+			}
+		}
+	}
+	if !userDefinedConstructor {
+		getAttrCases = append(getAttrCases,
+			jen.Case(jen.Lit("constructor")).Block(
+				jen.Return(jen.Id(ctorVarName), jen.Nil()),
+			),
+		)
+	}
 	getAttrCases = append(getAttrCases,
 		jen.Default().Block(
 			jen.Return(
@@ -1120,6 +1145,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.Lit(""),
 			jen.Id(enrichedCallArgsName),
 		),
+		jen.Id("_").Op("=").Id(boundName),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(
 			jen.Return(jen.Nil(), jen.Id(errVar)),
 		),
@@ -1143,11 +1169,14 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
 	).Block(constructorBody...)
 
-	constructor := jen.Var().Id(ctorVarName).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Var().Id(ctorVarName).Qual(pathObject, "Object"),
+	)
+
+	constructor := jen.Id(ctorVarName).Op("=").Op("&").Qual(pathObject, "Function").Values(
 		jen.Id("Name").Op(":").Lit(typeDef.Name),
 		jen.Id("Fn").Op(":").Add(constructorClosure),
 	)
-	constructor.Op(";").Id("_").Op("=").Id(ctorVarName)
 
 	return []jen.Code{constructor}, nil
 }

@@ -13,8 +13,14 @@ func (f *Function) Call(args CallArgs) (Object, error) {
 
 func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name) }
 func (f *Function) Bool() bool     { return true }
-func (f *Function) Compare(Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare Function")
+func (f *Function) Compare(other Object) (int, error) {
+	if g, ok := other.(*Function); ok {
+		if f == g {
+			return 0, nil
+		}
+		return 1, nil
+	}
+	return 0, fmt.Errorf("cannot compare Function and %T", other)
 }
 func (f *Function) Add(Object) (Object, error)   { return nil, fmt.Errorf("cannot add Function") }
 func (f *Function) Minus(Object) (Object, error) { return nil, fmt.Errorf("cannot subtract Function") }

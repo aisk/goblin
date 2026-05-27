@@ -180,10 +180,14 @@ func (l *List) GetAttr(name string) (Object, error) {
 		return &Function{Name: "last", Fn: l.Last}, nil
 	case "join":
 		return &Function{Name: "join", Fn: l.Join}, nil
+	case "constructor":
+		return ListConstructorFn, nil
 	default:
 		return nil, fmt.Errorf("List has no attribute '%s'", name)
 	}
 }
+
+var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}
 
 func ListConstructor(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("List", args); err != nil {

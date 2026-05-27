@@ -116,8 +116,15 @@ func (i Integer) Index(index Object) (Object, error) {
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {
-	return nil, fmt.Errorf("Integer has no attribute '%s'", name)
+	switch name {
+	case "constructor":
+		return IntConstructorFn, nil
+	default:
+		return nil, fmt.Errorf("Integer has no attribute '%s'", name)
+	}
 }
+
+var IntConstructorFn = &Function{Name: "Int", Fn: IntConstructor}
 
 func IntConstructor(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("Int", args); err != nil {

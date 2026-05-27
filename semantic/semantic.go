@@ -306,7 +306,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 func (c *checker) checkExpression(expr ast.Expression) error {
 	switch v := expr.(type) {
 	case *ast.Identifier:
-		if !c.currentScope.lookup(v.Name) {
+		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
 		}
 		return nil

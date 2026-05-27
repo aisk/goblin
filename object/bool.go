@@ -92,8 +92,15 @@ func (b Bool) Index(index Object) (Object, error) {
 }
 
 func (b Bool) GetAttr(name string) (Object, error) {
-	return nil, fmt.Errorf("Bool has no attribute '%s'", name)
+	switch name {
+	case "constructor":
+		return BoolConstructorFn, nil
+	default:
+		return nil, fmt.Errorf("Bool has no attribute '%s'", name)
+	}
 }
+
+var BoolConstructorFn = &Function{Name: "Bool", Fn: BoolConstructor}
 
 func BoolConstructor(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("Bool", args); err != nil {
