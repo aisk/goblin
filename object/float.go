@@ -116,8 +116,15 @@ func (f Float) Index(index Object) (Object, error) {
 }
 
 func (f Float) GetAttr(name string) (Object, error) {
-	return nil, fmt.Errorf("Float has no attribute '%s'", name)
+	switch name {
+	case "constructor":
+		return FloatConstructorFn, nil
+	default:
+		return nil, fmt.Errorf("Float has no attribute '%s'", name)
+	}
 }
+
+var FloatConstructorFn = &Function{Name: "Float", Fn: FloatConstructor}
 
 func FloatConstructor(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("Float", args); err != nil {

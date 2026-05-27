@@ -147,10 +147,14 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 		return &Function{Name: "keys", Fn: d.Keys}, nil
 	case "values":
 		return &Function{Name: "values", Fn: d.Values}, nil
+	case "constructor":
+		return DictConstructorFn, nil
 	default:
 		return nil, fmt.Errorf("Dict has no attribute '%s'", name)
 	}
 }
+
+var DictConstructorFn = &Function{Name: "Dict", Fn: DictConstructor}
 
 func DictConstructor(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {

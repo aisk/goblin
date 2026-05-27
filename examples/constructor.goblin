@@ -1,0 +1,52 @@
+type Point(x, y) {
+    func sum(self) {
+        return self.x + self.y
+    }
+}
+
+type Box(w, h) {
+}
+
+var p = Point(1, 2)
+print(p.x)
+print(p.y)
+print(p.sum())
+
+var q = p.constructor(10, 20)
+print(q.x)
+print(q.y)
+print(q.sum())
+
+print(p.constructor == Point)
+print(p.constructor == Box)
+print(p.constructor != Box)
+
+var b = Box(3, 4)
+print(p.constructor == b.constructor)
+print(p.constructor == q.constructor)
+
+var xs = [1, 2, 3]
+print(xs.constructor == List)
+
+var name = "hi"
+print(name.constructor == Str)
+
+var n = 42
+print(n.constructor == Int)
+
+var flag = true
+print(flag.constructor == Bool)
+
+var d = {"a": 1}
+print(d.constructor == Dict)
+
+print(xs.constructor == Str)
+
+# Shadowing: a user-defined `constructor` method wins over the built-in attribute
+type Shadow() {
+    func constructor(self) {
+        return "shadowed"
+    }
+}
+var s = Shadow()
+print(s.constructor())

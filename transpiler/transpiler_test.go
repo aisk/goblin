@@ -90,7 +90,9 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 		`fmt.Sprintf("<User@%p>", u)`,
 		`case "name":`,
 		`case "hello":`,
-		`var UserConstructor object.Object = &object.Function{`,
+		`case "constructor":`,
+		`var UserConstructor object.Object`,
+		`UserConstructor = &object.Function{`,
 	} {
 		if !strings.Contains(code, want) {
 			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)

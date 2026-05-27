@@ -201,10 +201,14 @@ func (s String) GetAttr(name string) (Object, error) {
 		return &Function{Name: "trim_space", Fn: s.TrimSpace}, nil
 	case "contains":
 		return &Function{Name: "contains", Fn: s.Contains}, nil
+	case "constructor":
+		return StrConstructorFn, nil
 	default:
 		return nil, fmt.Errorf("String has no attribute '%s'", name)
 	}
 }
+
+var StrConstructorFn = &Function{Name: "Str", Fn: StrConstructor}
 
 func StrConstructor(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("Str", args); err != nil {
