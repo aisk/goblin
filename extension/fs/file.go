@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/aisk/goblin/object"
+	"github.com/pkg/errors"
 )
 
 type File struct {
@@ -38,7 +39,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 
 	data, err := io.ReadAll(f.File)
 	if err != nil {
-		return nil, fmt.Errorf("read() failed: %w", err)
+		return nil, errors.Wrap(err, "read() failed")
 	}
 	return object.String(data), nil
 }
@@ -59,7 +60,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 
 	n, err := f.File.WriteString(string(content))
 	if err != nil {
-		return nil, fmt.Errorf("write() failed: %w", err)
+		return nil, errors.Wrap(err, "write() failed")
 	}
 	return object.Integer(n), nil
 }
@@ -75,7 +76,7 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 		return object.Nil, nil
 	}
 	if err := f.File.Close(); err != nil {
-		return nil, fmt.Errorf("close() failed: %w", err)
+		return nil, errors.Wrap(err, "close() failed")
 	}
 	f.closed = true
 	return object.Nil, nil
@@ -94,7 +95,7 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 
 	info, err := f.File.Stat()
 	if err != nil {
-		return nil, fmt.Errorf("stat() failed: %w", err)
+		return nil, errors.Wrap(err, "stat() failed")
 	}
 	return NewFileInfo(info), nil
 }
