@@ -13,6 +13,7 @@ import (
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
 )
 
@@ -1293,63 +1294,106 @@ func (ctx *transpileContext) transpileExport(export *ast.Export, exportsVar stri
 	}, nil
 }
 
+// lineDirective returns a jen.Code that renders as a Go `//line` directive
+// pointing back to the original .goblin source location. Returns nil if the
+// position lacks file context (zero-value Pos, synthetic nodes), in which
+// case jen will skip it during rendering.
+func lineDirective(pos token.Pos) jen.Code {
+	src, ok := pos.Context.(token.Sourcer)
+	if !ok || src == nil {
+		return nil
+	}
+	path := src.Source()
+	if path == "" || pos.Line <= 0 {
+		return nil
+	}
+	// `go build` runs in a temp dir; absolutize so diagnostics resolve.
+	if abs, err := filepath.Abs(path); err == nil {
+		path = abs
+	}
+	col := pos.Column
+	if col <= 0 {
+		col = 1
+	}
+	return jen.Comment(fmt.Sprintf("//line %s:%d:%d", path, pos.Line, col))
+}
+
 func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+	// Import produces no output; attaching a //line directive would orphan
+	// it onto the following statement and skew its mapped line number.
+	if _, isImport := stmt.(*ast.Import); isImport {
+		return nil, nil
+	}
+
+	var prelude []jen.Code
+	if d := lineDirective(stmt.Position()); d != nil {
+		prelude = append(prelude, d)
+	}
+
+	var codes []jen.Code
+	var err error
 	switch v := stmt.(type) {
 	case *ast.Declare:
-		return ctx.transpileDeclare(v, onError)
+		codes, err = ctx.transpileDeclare(v, onError)
 	case *ast.Assign:
-		return ctx.transpileAssign(v, onError)
+		codes, err = ctx.transpileAssign(v, onError)
 	case *ast.FunctionCall:
-		argPreStmts, call, err := ctx.transpileFunctionCall(v, onError)
-		if err != nil {
-			return nil, err
+		var argPreStmts []jen.Code
+		var call *jen.Statement
+		argPreStmts, call, err = ctx.transpileFunctionCall(v, onError)
+		if err == nil {
+			errVar := ctx.localName("err")
+			codes = append(argPreStmts,
+				jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
+				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			)
 		}
-		errVar := ctx.localName("err")
-		stmts := append(argPreStmts,
-			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		)
-		return stmts, nil
 	case *ast.CallExpression:
-		argPreStmts, call, err := ctx.transpileCallExpression(v, onError)
-		if err != nil {
-			return nil, err
+		var argPreStmts []jen.Code
+		var call *jen.Statement
+		argPreStmts, call, err = ctx.transpileCallExpression(v, onError)
+		if err == nil {
+			errVar := ctx.localName("err")
+			codes = append(argPreStmts,
+				jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
+				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			)
 		}
-		errVar := ctx.localName("err")
-		stmts := append(argPreStmts,
-			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		)
-		return stmts, nil
 	case *ast.FunctionDefine:
-		return ctx.transpileFunctionDefine(v, onError)
+		codes, err = ctx.transpileFunctionDefine(v, onError)
 	case *ast.TypeDefine:
-		return ctx.transpileTypeDefine(v, onError)
+		codes, err = ctx.transpileTypeDefine(v, onError)
 	case *ast.IfElse:
-		return ctx.transpileIfElse(v, onError)
+		codes, err = ctx.transpileIfElse(v, onError)
 	case *ast.While:
-		return ctx.transpileWhile(v, onError)
+		codes, err = ctx.transpileWhile(v, onError)
 	case *ast.For:
-		return ctx.transpileFor(v, onError)
+		codes, err = ctx.transpileFor(v, onError)
 	case *ast.Break:
-		return ctx.transpileBreak(v)
+		codes, err = ctx.transpileBreak(v)
 	case *ast.Return:
-		return ctx.transpileReturn(v, onError)
+		codes, err = ctx.transpileReturn(v, onError)
 	case *ast.Export:
-		return ctx.transpileExport(v, exportsVar)
-	case *ast.Import:
-		return nil, nil
+		codes, err = ctx.transpileExport(v, exportsVar)
 	case *ast.BinaryOperation:
-		pre, _, err := ctx.transpileBinaryOperation(v, onError)
-		return pre, err
+		var pre []jen.Code
+		pre, _, err = ctx.transpileBinaryOperation(v, onError)
+		codes = pre
 	case *ast.UnaryOperation:
-		pre, _, err := ctx.transpileUnaryOperation(v, onError)
-		return pre, err
+		var pre []jen.Code
+		pre, _, err = ctx.transpileUnaryOperation(v, onError)
+		codes = pre
 	case *ast.MemberExpression:
-		pre, _, err := ctx.transpileMemberExpression(v, onError)
-		return pre, err
+		var pre []jen.Code
+		pre, _, err = ctx.transpileMemberExpression(v, onError)
+		codes = pre
+	default:
+		return nil, object.NotImplementedError
 	}
-	return nil, object.NotImplementedError
+	if err != nil {
+		return nil, err
+	}
+	return append(prelude, codes...), nil
 }
 
 func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
