@@ -36,6 +36,7 @@ var knownModules = map[string]moduleInfo{
 	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
 	"http":   {executorPath: pathExtension, varName: "http_module", executorFunc: "ExecuteHttp"},
 	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
+	"mime":   {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
 }
 
 // transpileContext holds state for a single Transpile call.
