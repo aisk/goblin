@@ -34,6 +34,7 @@ var knownModules = map[string]moduleInfo{
 	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
 	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
 	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"http":   {executorPath: pathExtension, varName: "http_module", executorFunc: "ExecuteHttp"},
 	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
 }
 
