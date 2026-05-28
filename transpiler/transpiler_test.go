@@ -80,6 +80,19 @@ func TestTranspileMemberCallUsesGetAttr(t *testing.T) {
 	}
 }
 
+func TestTranspileKnownHTTPModuleImport(t *testing.T) {
+	code := transpileSource(t, "import \"http\"\n")
+
+	for _, want := range []string{
+		`_registry.Load("http", extension.ExecuteHttp)`,
+		`http_module`,
+	} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
+		}
+	}
+}
+
 func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 	code := transpileSource(t, "type User(name, age=18) {\n  func hello(self) { print(self.name) }\n}\nvar user = User(\"alice\")\nuser.hello()\n")
 
