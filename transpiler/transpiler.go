@@ -1273,10 +1273,14 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 		return nil, nil, err
 	}
 
-	var methodName string
+	var call *jen.Statement
 	switch operation.Operator {
 	case "!":
-		methodName = "Not"
+		call = operand.Dot("Not").Call()
+	case "+":
+		call = jen.Qual(pathObject, "Integer").Call(jen.Lit(0)).Dot("Add").Call(operand)
+	case "-":
+		call = jen.Qual(pathObject, "Integer").Call(jen.Lit(0)).Dot("Minus").Call(operand)
 	default:
 		return nil, nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
 	}
@@ -1284,7 +1288,7 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 	tmpVar := ctx.localName("tmp")
 	errVar := ctx.localName("err")
 	preStmts := append(operandPre,
-		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(operand).Dot(methodName).Call(),
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil

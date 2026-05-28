@@ -117,6 +117,8 @@ Expression4
 Expression5
     : PostfixExpression
     | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
+    | "+" Expression5                        << ast.NewUnaryOperation("+", $1) >>
+    | "-" Expression5                        << ast.NewUnaryOperation("-", $1) >>
 ;
 
 PostfixExpression

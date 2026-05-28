@@ -632,7 +632,7 @@ type UnaryOperation struct {
 
 func NewUnaryOperation(operator, operand any) (any, error) {
 	switch operator.(string) {
-	case Not:
+	case Add, Minus, Not:
 	default:
 		return nil, fmt.Errorf("invalid unary operator: '%s'", operator)
 	}
