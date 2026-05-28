@@ -3,7 +3,6 @@ package object
 import "fmt"
 
 type Object interface {
-	Repr() string
 	String() string
 	Bool() bool
 	Compare(other Object) (int, error)
@@ -24,5 +23,5 @@ func Call(obj Object, args CallArgs) (Object, error) {
 	case *Function:
 		return v.Call(args)
 	}
-	return nil, fmt.Errorf("%s is not callable", obj.Repr())
+	return nil, fmt.Errorf("%s is not callable", obj.String())
 }

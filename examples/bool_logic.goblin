@@ -23,3 +23,11 @@ print("" || "hello")
 print((1 && 0) || true)
 print(!false && true)
 print(!true || !false)
+
+# Bool constructor
+print(Bool(1))
+print(Bool(0))
+print(Bool("hello"))
+print(Bool(""))
+print(Bool(nil))
+print(Bool())

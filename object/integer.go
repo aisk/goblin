@@ -7,9 +7,7 @@ import (
 
 type Integer int64
 
-func (i Integer) Repr() string {
-	return fmt.Sprintf("object.Integer(%s)", i.String())
-}
+var _ Object = Integer(0)
 
 func (i Integer) Bool() bool {
 	if i == 0 {
@@ -121,4 +119,33 @@ func (i Integer) GetAttr(name string) (Object, error) {
 	return nil, fmt.Errorf("Integer has no attribute '%s'", name)
 }
 
-var _ Object = Integer(0)
+func IntConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Int", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return Integer(0), nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Int() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	switch v := args.Positional[0].(type) {
+	case Integer:
+		return v, nil
+	case Float:
+		return Integer(int64(v)), nil
+	case String:
+		n, err := strconv.ParseInt(string(v), 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("Int() invalid literal for Int: %q", string(v))
+		}
+		return Integer(n), nil
+	case Bool:
+		if bool(v) {
+			return Integer(1), nil
+		}
+		return Integer(0), nil
+	default:
+		return nil, fmt.Errorf("Int() argument must be a string or a number, not %T", args.Positional[0])
+	}
+}

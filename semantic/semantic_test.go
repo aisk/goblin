@@ -97,25 +97,25 @@ func TestCheckModule(t *testing.T) {
 			wantErr:     true,
 			errContains: "positional argument cannot appear after keyword arguments",
 		},
-			{
-				name:        "duplicate keyword argument",
-				source:      "func f(a) { return a }\nf(a=1, a=2)\n",
-				wantErr:     true,
-				errContains: "duplicate keyword argument: a",
-			},
-			{
-				name: "starred argument after keyword argument",
-				source: "func f(a, b) { return a }\n" +
-					"var xs = [2]\n" +
-					"f(a=1, *xs)\n",
-				wantErr:     true,
-				errContains: "positional argument cannot appear after keyword arguments",
-			},
-			{
+		{
+			name:        "duplicate keyword argument",
+			source:      "func f(a) { return a }\nf(a=1, a=2)\n",
+			wantErr:     true,
+			errContains: "duplicate keyword argument: a",
+		},
+		{
+			name: "starred argument after keyword argument",
+			source: "func f(a, b) { return a }\n" +
+				"var xs = [2]\n" +
+				"f(a=1, *xs)\n",
+			wantErr:     true,
+			errContains: "positional argument cannot appear after keyword arguments",
+		},
+		{
 			name: "args and kwargs parameters",
-				source: "func f(a, *args, **kwargs) {\n" +
-					"  return a\n" +
-					"}\n" +
+			source: "func f(a, *args, **kwargs) {\n" +
+				"  return a\n" +
+				"}\n" +
 				"f(1, b=2)\n",
 			wantErr: false,
 		},
@@ -142,6 +142,41 @@ func TestCheckModule(t *testing.T) {
 			source:      "export missing\n",
 			wantErr:     true,
 			errContains: "export of undefined identifier: missing",
+		},
+		{
+			name: "type with self method",
+			source: "type User(name, age=18) {\n" +
+				"  func hello(self) {\n" +
+				"    print(self.name)\n" +
+				"  }\n" +
+				"}\n" +
+				"var user = User(\"alice\")\n" +
+				"user.hello()\n",
+			wantErr: false,
+		},
+		{
+			name: "type duplicate field",
+			source: "type User(name, name) {\n" +
+				"  func hello(self) { return nil }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "duplicate type field name: name",
+		},
+		{
+			name: "type method requires self",
+			source: "type User(name) {\n" +
+				"  func hello(name) { print(name) }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "type method must declare 'self' as the first parameter",
+		},
+		{
+			name: "required type field after default",
+			source: "type User(age=18, name) {\n" +
+				"  func hello(self) { print(self.name) }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "required type field cannot appear after default field: name",
 		},
 	}
 

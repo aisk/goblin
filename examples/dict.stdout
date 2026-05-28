@@ -7,3 +7,5 @@ Alice
 [Alice, 30]
 name
 age
+{a: 1}
+{}

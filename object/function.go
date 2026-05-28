@@ -12,7 +12,6 @@ func (f *Function) Call(args CallArgs) (Object, error) {
 }
 
 func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name) }
-func (f *Function) Repr() string   { return fmt.Sprintf("<function %s>", f.Name) }
 func (f *Function) Bool() bool     { return true }
 func (f *Function) Compare(Object) (int, error) {
 	return 0, fmt.Errorf("cannot compare Function")

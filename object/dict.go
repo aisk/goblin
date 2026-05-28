@@ -15,6 +15,40 @@ type Dict struct {
 	KeyIndex map[string]int
 }
 
+var _ Object = &Dict{}
+
+func (d *Dict) Size() Integer {
+	return Integer(len(d.Entries))
+}
+
+func (d *Dict) Keys(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("keys", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("keys() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	keys := make([]Object, len(d.Entries))
+	for i, entry := range d.Entries {
+		keys[i] = entry.Key
+	}
+	return &List{Elements: keys}, nil
+}
+
+func (d *Dict) Values(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("values", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("values() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	values := make([]Object, len(d.Entries))
+	for i, entry := range d.Entries {
+		values[i] = entry.Value
+	}
+	return &List{Elements: values}, nil
+}
+
 func NewDict() *Dict {
 	return &Dict{
 		Entries:  []DictEntry{},
@@ -38,14 +72,6 @@ func (d *Dict) Get(key Object) (Object, bool) {
 		return d.Entries[idx].Value, true
 	}
 	return nil, false
-}
-
-func (d *Dict) Repr() string {
-	elements := make([]string, len(d.Entries))
-	for i, entry := range d.Entries {
-		elements[i] = fmt.Sprintf("%s: %s", entry.Key.Repr(), entry.Value.Repr())
-	}
-	return fmt.Sprintf("object.Dict({%s})", strings.Join(elements, ", "))
 }
 
 func (d *Dict) String() string {
@@ -110,38 +136,23 @@ func (d *Dict) Index(index Object) (Object, error) {
 func (d *Dict) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
-		return Integer(len(d.Entries)), nil
+		return d.Size(), nil
 	case "keys":
-		return &Function{Name: "keys", Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoKeyword("keys", args); err != nil {
-				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, fmt.Errorf("keys() takes exactly 0 arguments, got %d", len(args.Positional))
-			}
-			keys := make([]Object, len(d.Entries))
-			for i, entry := range d.Entries {
-				keys[i] = entry.Key
-			}
-			return &List{Elements: keys}, nil
-		}}, nil
+		return &Function{Name: "keys", Fn: d.Keys}, nil
 	case "values":
-		return &Function{Name: "values", Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoKeyword("values", args); err != nil {
-				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, fmt.Errorf("values() takes exactly 0 arguments, got %d", len(args.Positional))
-			}
-			values := make([]Object, len(d.Entries))
-			for i, entry := range d.Entries {
-				values[i] = entry.Value
-			}
-			return &List{Elements: values}, nil
-		}}, nil
+		return &Function{Name: "values", Fn: d.Values}, nil
 	default:
 		return nil, fmt.Errorf("Dict has no attribute '%s'", name)
 	}
 }
 
-var _ Object = &Dict{}
+func DictConstructor(args CallArgs) (Object, error) {
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("Dict() takes no positional arguments, got %d", len(args.Positional))
+	}
+	result := NewDict()
+	for k, v := range args.Keyword {
+		result.Set(String(k), v)
+	}
+	return result, nil
+}

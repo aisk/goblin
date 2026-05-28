@@ -24,15 +24,17 @@ const (
 )
 
 type moduleInfo struct {
+	executorPath string
 	varName      string
 	executorFunc string
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":     {varName: "os_module", executorFunc: "ExecuteOs"},
-	"random": {varName: "random_module", executorFunc: "ExecuteRandom"},
-	"math":   {varName: "math_module", executorFunc: "ExecuteMath"},
-	"mime":   {varName: "mime_module", executorFunc: "ExecuteMime"},
+	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
+	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
+	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
+	"mime":   {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
 }
 
 // transpileContext holds state for a single Transpile call.
@@ -42,6 +44,7 @@ type transpileContext struct {
 	importing        map[string]struct{} // paths currently being transpiled (cycle detection)
 	imported         map[string]struct{} // paths already transpiled (dedup)
 	moduleFuncs      []jen.Code          // top-level module executor functions (single-file mode)
+	topDecls         []jen.Code          // top-level type declarations and methods
 	// For directory mode:
 	goModuleName string
 	outputDir    string
@@ -54,6 +57,7 @@ func newTranspileContext() *transpileContext {
 		importing:        make(map[string]struct{}),
 		imported:         make(map[string]struct{}),
 		moduleFuncs:      nil,
+		topDecls:         nil,
 	}
 }
 
@@ -61,6 +65,17 @@ func (ctx *transpileContext) localName(prefix string) string {
 	name := fmt.Sprintf("_%s_%d", prefix, ctx.localNameCounter)
 	ctx.localNameCounter++
 	return name
+}
+
+func (ctx *transpileContext) goTypeName(name string) string {
+	return name
+}
+
+func exportedName(name string) string {
+	if name == "" {
+		return ""
+	}
+	return strings.ToUpper(name[:1]) + name[1:]
 }
 
 // errHandler generates the error-handling code for a given error variable name.
@@ -126,20 +141,23 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		f.Var().Id("_registry").Op("=").Qual(pathObject, "NewRegistry").Call()
 	}
 
-	// Emit module executor functions
-	for _, fn := range ctx.moduleFuncs {
-		f.Add(fn)
-	}
-
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
+	}
+
+	for _, decl := range ctx.topDecls {
+		f.Add(decl)
+	}
+
+	for _, fn := range ctx.moduleFuncs {
+		f.Add(fn)
 	}
 
 	body := []jen.Code{
@@ -155,7 +173,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 			body = append(body,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -196,7 +214,8 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	f.Func().Id("main").Params().Block(
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err")),
+			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
+			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
 	)
 	return f.Render(output)
@@ -267,7 +286,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -288,7 +307,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 			funcBody = append(funcBody,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -524,10 +543,10 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 			allPreStmts = append(allPreStmts,
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), argExpr),
 			)
-			case ast.CallArgumentStarred:
-				iterVar := ctx.localName("iter")
-				errVar := ctx.localName("err")
-				allPreStmts = append(allPreStmts,
+		case ast.CallArgumentStarred:
+			iterVar := ctx.localName("iter")
+			errVar := ctx.localName("err")
+			allPreStmts = append(allPreStmts,
 				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), jen.Id(iterVar).Op("...")),
@@ -546,26 +565,26 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				),
 				jen.Id(keywordVar).Index(jen.Lit(arg.Name)).Op("=").Add(argExpr),
 			)
-			case ast.CallArgumentKeywordUnpack:
-				unpackObjVar := ctx.localName("unpackObj")
-				dictVar := ctx.localName("dict")
-				okVar := ctx.localName("ok")
-				entryVar := ctx.localName("entry")
+		case ast.CallArgumentKeywordUnpack:
+			unpackObjVar := ctx.localName("unpackObj")
+			dictVar := ctx.localName("dict")
+			okVar := ctx.localName("ok")
+			entryVar := ctx.localName("entry")
 			keyVar := ctx.localName("key")
 			keyObjVar := ctx.localName("keyObj")
 			existsVar := ctx.localName("exists")
 			errVar := ctx.localName("err")
 
-				allPreStmts = append(allPreStmts,
-					jen.Id(unpackObjVar).Op(":=").Add(argExpr),
-					jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
-					jen.If(jen.Op("!").Id(okVar)).Block(
-						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-							jen.Lit("keyword unpack argument must be a dict, got %T"),
-							jen.Id(unpackObjVar),
-						),
-						onError(errVar),
+			allPreStmts = append(allPreStmts,
+				jen.Id(unpackObjVar).Op(":=").Add(argExpr),
+				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
+				jen.If(jen.Op("!").Id(okVar)).Block(
+					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
+						jen.Lit("keyword unpack argument must be a dict, got %T"),
+						jen.Id(unpackObjVar),
 					),
+					onError(errVar),
+				),
 				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries")).Block(
 					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
 					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
@@ -705,6 +724,8 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 	var callee *jen.Statement
 	if isBuiltinFunction(call.Name) {
 		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
+	} else if mapped, ok := ctx.moduleImports[call.Name]; ok {
+		callee = jen.Id(mapped)
 	} else {
 		callee = jen.Id(call.Name)
 	}
@@ -722,6 +743,8 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		var callee *jen.Statement
 		if isBuiltinFunction(ident.Name) {
 			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
+		} else if mapped, ok := ctx.moduleImports[ident.Name]; ok {
+			callee = jen.Id(mapped)
 		} else {
 			callee = jen.Id(ident.Name)
 		}
@@ -840,6 +863,294 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 	result.Op(";").Id("_").Op("=").Id(fn.Name)
 
 	return []jen.Code{result}, nil
+}
+
+func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHandler) ([]jen.Code, error) {
+	ctorVarName := typeDef.Name + "Constructor"
+	ctx.moduleImports[typeDef.Name] = ctorVarName
+	goTypeName := ctx.goTypeName(typeDef.Name)
+	receiverName := strings.ToLower(typeDef.Name[:1])
+	if receiverName == "_" {
+		receiverName = "self"
+	}
+
+	structFields := make([]jen.Code, 0, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		structFields = append(structFields, jen.Id(field.Name).Qual(pathObject, "Object"))
+	}
+
+	ctx.topDecls = append(ctx.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
+
+	reprFormat := fmt.Sprintf("<%s@%%p>", typeDef.Name)
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("String").Params().String().Block(
+			jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Bool").Params().Bool().Block(
+			jen.Return(jen.True()),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Compare").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Int(), jen.Error())).Block(
+			jen.Return(jen.Lit(0), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot compare %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Add").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot add %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Minus").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot subtract %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Multiply").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot multiply %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Divide").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot divide %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("And").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform AND on %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Or").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform OR on %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Not").Params().Parens(
+			jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
+		).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform NOT on %s"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Iter").Params().Parens(
+			jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
+		).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("%s does not support iteration"), jen.Lit(typeDef.Name))),
+		),
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Index").Params(
+			jen.Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("%s is not indexable"), jen.Lit(typeDef.Name))),
+		),
+	)
+
+	getAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+1)
+	for _, field := range typeDef.Fields {
+		getAttrCases = append(getAttrCases,
+			jen.Case(jen.Lit(field.Name)).Block(
+				jen.Return(jen.Id(receiverName).Dot(field.Name), jen.Nil()),
+			),
+		)
+	}
+	for _, method := range typeDef.Methods {
+		wrapperName := exportedName(method.Name)
+		getAttrCases = append(getAttrCases,
+			jen.Case(jen.Lit(method.Name)).Block(
+				jen.Return(
+					jen.Op("&").Qual(pathObject, "Function").Values(
+						jen.Id("Name").Op(":").Lit(method.Name),
+						jen.Id("Fn").Op(":").Id(receiverName).Dot(wrapperName),
+					),
+					jen.Nil(),
+				),
+			),
+		)
+	}
+	getAttrCases = append(getAttrCases,
+		jen.Default().Block(
+			jen.Return(
+				jen.Nil(),
+				jen.Qual("fmt", "Errorf").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
+			),
+		),
+	)
+
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("GetAttr").Params(
+			jen.Id("name").String(),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+			jen.Switch(jen.Id("name")).Block(getAttrCases...),
+		),
+	)
+
+	for _, method := range typeDef.Methods {
+		wrapperName := exportedName(method.Name)
+
+		callArgsName := ctx.localName("callArgs")
+		fnOnError := func(errVar string) jen.Code {
+			return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+		}
+
+		var varArgsParam *ast.Parameter
+		var kwArgsParam *ast.Parameter
+		fixedParams := make([]*ast.Parameter, 0, len(method.Parameters))
+		for _, param := range method.Parameters[1:] {
+			switch {
+			case param.VarArgs:
+				varArgsParam = param
+			case param.KwArgs:
+				kwArgsParam = param
+			default:
+				fixedParams = append(fixedParams, param)
+			}
+		}
+
+		fixedParamNames := make([]jen.Code, 0, len(fixedParams))
+		for _, param := range fixedParams {
+			fixedParamNames = append(fixedParamNames, jen.Lit(param.Name))
+		}
+
+		boundName := ctx.localName("bound")
+		errVar := ctx.localName("err")
+		varArgsName := ""
+		if varArgsParam != nil {
+			varArgsName = varArgsParam.Name
+		}
+		kwArgsName := ""
+		if kwArgsParam != nil {
+			kwArgsName = kwArgsParam.Name
+		}
+
+		bodyPrefix := []jen.Code{
+			jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
+			jen.Id("_").Op("=").Id("builtin"),
+			jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+				jen.Lit(typeDef.Name+"."+method.Name),
+				jen.Index().String().Values(fixedParamNames...),
+				jen.Lit(varArgsName),
+				jen.Lit(kwArgsName),
+				jen.Id(callArgsName),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
+			jen.Id("_").Op("=").Id(boundName),
+			jen.Var().Id("self").Qual(pathObject, "Object").Op("=").Id(receiverName),
+			jen.Id("_").Op("=").Id("self"),
+		}
+
+		for _, param := range fixedParams {
+			bodyPrefix = append(bodyPrefix,
+				jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param.Name)),
+				jen.Id("_").Op("=").Id(param.Name),
+			)
+		}
+		if varArgsParam != nil {
+			bodyPrefix = append(bodyPrefix,
+				jen.Var().Id(varArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(varArgsParam.Name)),
+				jen.Id("_").Op("=").Id(varArgsParam.Name),
+			)
+		}
+		if kwArgsParam != nil {
+			bodyPrefix = append(bodyPrefix,
+				jen.Var().Id(kwArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwArgsParam.Name)),
+				jen.Id("_").Op("=").Id(kwArgsParam.Name),
+			)
+		}
+
+		methodBody, err := ctx.transpileStatements(method.Body, fnOnError, "")
+		if err != nil {
+			return nil, err
+		}
+
+		ctx.topDecls = append(ctx.topDecls,
+			jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id(wrapperName).Params(
+				jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
+			).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
+				append(bodyPrefix, methodBody...)...,
+			),
+		)
+	}
+
+	callArgsName := ctx.localName("callArgs")
+	shadowPositionalName := ctx.localName("positional")
+	shadowKeywordName := ctx.localName("keyword")
+	enrichedCallArgsName := ctx.localName("enriched")
+	boundName := ctx.localName("bound")
+	errVar := ctx.localName("err")
+
+	constructorSetup := []jen.Code{
+		jen.Id(shadowPositionalName).Op(":=").Append(jen.Qual(pathObject, "Args").Values(), jen.Id(callArgsName).Dot("Positional").Op("...")),
+		jen.Id(shadowKeywordName).Op(":=").Qual(pathObject, "Kwargs").Values(),
+	}
+	constructorSetup = append(constructorSetup,
+		jen.For(jen.List(jen.Id("_key"), jen.Id("_value")).Op(":=").Op("range").Id(callArgsName).Dot("Keyword")).Block(
+			jen.Id(shadowKeywordName).Index(jen.Id("_key")).Op("=").Id("_value"),
+		),
+	)
+
+	for index, field := range typeDef.Fields {
+		if !field.HasDefault() {
+			continue
+		}
+		defaultPre, defaultValue, err := ctx.transpileExpression(field.DefaultValue, onError)
+		if err != nil {
+			return nil, err
+		}
+		constructorSetup = append(constructorSetup,
+			jen.If(
+				jen.Len(jen.Id(shadowPositionalName)).Op("<=").Lit(index),
+			).BlockFunc(func(group *jen.Group) {
+				group.List(jen.Id("_"), jen.Id("_has_"+field.Name)).Op(":=").Id(shadowKeywordName).Index(jen.Lit(field.Name))
+				group.If(jen.Op("!").Id("_has_" + field.Name)).Block(append(defaultPre,
+					jen.Id(shadowKeywordName).Index(jen.Lit(field.Name)).Op("=").Add(defaultValue),
+				)...)
+			}),
+		)
+	}
+
+	fieldNames := make([]jen.Code, 0, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		fieldNames = append(fieldNames, jen.Lit(field.Name))
+	}
+
+	constructorSetup = append(constructorSetup,
+		jen.Id(enrichedCallArgsName).Op(":=").Qual(pathObject, "CallArgs").Values(jen.Dict{
+			jen.Id("Positional"): jen.Id(shadowPositionalName),
+			jen.Id("Keyword"):    jen.Id(shadowKeywordName),
+		}),
+		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+			jen.Lit(typeDef.Name),
+			jen.Index().String().Values(fieldNames...),
+			jen.Lit(""),
+			jen.Lit(""),
+			jen.Id(enrichedCallArgsName),
+		),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(
+			jen.Return(jen.Nil(), jen.Id(errVar)),
+		),
+	)
+
+	instanceValues := make([]jen.Code, 0, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		instanceValues = append(instanceValues,
+			jen.Id(field.Name).Op(":").Id(boundName).Index(jen.Lit(field.Name)),
+		)
+	}
+
+	constructorBody := append(constructorSetup,
+		jen.Id("_instance").Op(":=").Op("&").Id(goTypeName).Values(instanceValues...),
+		jen.Return(jen.Id("_instance"), jen.Nil()),
+	)
+
+	constructorClosure := jen.Func().Params(
+		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
+	).Parens(
+		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
+	).Block(constructorBody...)
+
+	constructor := jen.Var().Id(ctorVarName).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
+		jen.Id("Name").Op(":").Lit(typeDef.Name),
+		jen.Id("Fn").Op(":").Add(constructorClosure),
+	)
+	constructor.Op(";").Id("_").Op("=").Id(ctorVarName)
+
+	return []jen.Code{constructor}, nil
 }
 
 func (ctx *transpileContext) transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
@@ -984,6 +1295,8 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		return stmts, nil
 	case *ast.FunctionDefine:
 		return ctx.transpileFunctionDefine(v, onError)
+	case *ast.TypeDefine:
+		return ctx.transpileTypeDefine(v, onError)
 	case *ast.IfElse:
 		return ctx.transpileIfElse(v, onError)
 	case *ast.While:
@@ -1083,12 +1396,12 @@ func generateGoMod(outputDir, moduleName string) error {
 func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string {
 	if goblinRoot != "" {
 		return fmt.Sprintf(
-			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n\nreplace github.com/aisk/goblin => %s\n",
+			"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n\nreplace github.com/aisk/goblin => %s\n",
 			moduleName, runtimeVersion, goblinRoot,
 		)
 	}
 	return fmt.Sprintf(
-		"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n",
+		"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n",
 		moduleName, runtimeVersion,
 	)
 }
@@ -1211,14 +1524,22 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	ctx.moduleImports = subModuleImports
 	defer func() { ctx.moduleImports = savedImports }()
 
+	savedTopDecls := ctx.topDecls
+	ctx.topDecls = nil
+	defer func() { ctx.topDecls = savedTopDecls }()
+
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
+	}
+
+	for _, decl := range ctx.topDecls {
+		f.Add(decl)
 	}
 
 	funcBody := []jen.Code{
@@ -1234,7 +1555,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 			funcBody = append(funcBody,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -1342,14 +1663,22 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	ctx.moduleImports = mainModuleImports
 	defer func() { ctx.moduleImports = savedImports }()
 
+	savedTopDecls := ctx.topDecls
+	ctx.topDecls = nil
+	defer func() { ctx.topDecls = savedTopDecls }()
+
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Id(errVar))
+		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
+	}
+
+	for _, decl := range ctx.topDecls {
+		f.Add(decl)
 	}
 
 	body := []jen.Code{
@@ -1365,7 +1694,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 			body = append(body,
 				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 					jen.Lit(name),
-					jen.Qual(pathExtension, info.executorFunc),
+					jen.Qual(info.executorPath, info.executorFunc),
 				),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id("_").Op("=").Id(info.varName),
@@ -1412,7 +1741,8 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	f.Func().Id("main").Params().Block(
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Panic(jen.Id("err")),
+			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
+			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
 	)
 

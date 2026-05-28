@@ -111,6 +111,21 @@ collect("n=", 1, 2, 3)
 collect("n=", *range(0, 2))
 collect(prefix="n=", **{"flag": true})
 
+# Custom Types
+type User(name, age=18) {
+    func hello(self) {
+        print(self.name)
+    }
+}
+
+var alice = User("alice")
+print(alice.name)   # "alice"
+print(alice.age)    # 18
+alice.hello()
+
+var bob = User(name="bob", age=20)
+print(bob.age)      # 20
+
 # Built-in functions: print, range, max, min
 print(max(1, 2, 3))  # 3
 print(min(1, 2.5))   # 1

@@ -1,0 +1,16 @@
+# Member dispatch on literal receivers
+print([1, 2].push(3))
+print([1, 2].join("-"))
+print({"a": 1}.keys())
+print("abc".upper())
+print(" x ".trim_space())
+
+# Member dispatch on non-literal receivers
+var xs = [1, 2]
+print(xs.push(3))
+
+var d = {"a": 1}
+print(d.keys())
+
+var s = "abc"
+print(s.upper())

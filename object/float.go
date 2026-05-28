@@ -7,9 +7,7 @@ import (
 
 type Float float64
 
-func (f Float) Repr() string {
-	return fmt.Sprintf("object.Float(%s)", f.String())
-}
+var _ Object = Float(0)
 
 func (f Float) Bool() bool {
 	if f == 0 {
@@ -121,4 +119,33 @@ func (f Float) GetAttr(name string) (Object, error) {
 	return nil, fmt.Errorf("Float has no attribute '%s'", name)
 }
 
-var _ Object = Float(0)
+func FloatConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Float", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return Float(0), nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Float() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	switch v := args.Positional[0].(type) {
+	case Float:
+		return v, nil
+	case Integer:
+		return Float(float64(int64(v))), nil
+	case String:
+		n, err := strconv.ParseFloat(string(v), 64)
+		if err != nil {
+			return nil, fmt.Errorf("Float() invalid literal for Float: %q", string(v))
+		}
+		return Float(n), nil
+	case Bool:
+		if bool(v) {
+			return Float(1), nil
+		}
+		return Float(0), nil
+	default:
+		return nil, fmt.Errorf("Float() argument must be a string or a number, not %T", args.Positional[0])
+	}
+}

@@ -11,9 +11,7 @@ var (
 
 type Bool bool
 
-func (b Bool) Repr() string {
-	return fmt.Sprintf("object.Bool(%s)", b.String())
-}
+var _ Object = Bool(true)
 
 func (b Bool) String() string {
 	switch b {
@@ -97,4 +95,18 @@ func (b Bool) GetAttr(name string) (Object, error) {
 	return nil, fmt.Errorf("Bool has no attribute '%s'", name)
 }
 
-var _ Object = Bool(true)
+func BoolConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Bool", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return False, nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Bool() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	if args.Positional[0].Bool() {
+		return True, nil
+	}
+	return False, nil
+}

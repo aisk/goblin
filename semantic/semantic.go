@@ -106,6 +106,92 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.newError(v.Position(), "import is only allowed at module scope")
 		}
 		return nil
+	case *ast.TypeDefine:
+		if !isModuleScope {
+			return c.newError(v.Position(), "type is only allowed at module scope")
+		}
+		if !c.currentScope.declare(v.Name) {
+			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
+		}
+
+		seenFields := make(map[string]struct{}, len(v.Fields))
+		seenDefault := false
+		for _, field := range v.Fields {
+			if _, ok := seenFields[field.Name]; ok {
+				return c.newError(field.Pos, "duplicate type field name: %s", field.Name)
+			}
+			seenFields[field.Name] = struct{}{}
+
+			if field.HasDefault() {
+				seenDefault = true
+				if err := c.checkExpression(field.DefaultValue); err != nil {
+					return err
+				}
+				continue
+			}
+			if seenDefault {
+				return c.newError(field.Pos, "required type field cannot appear after default field: %s", field.Name)
+			}
+		}
+
+		seenMethods := make(map[string]struct{}, len(v.Methods))
+		for _, method := range v.Methods {
+			if _, ok := seenMethods[method.Name]; ok {
+				return c.newError(method.Position(), "duplicate type method name: %s", method.Name)
+			}
+			seenMethods[method.Name] = struct{}{}
+
+			if len(method.Parameters) == 0 || method.Parameters[0].Name != "self" || method.Parameters[0].VarArgs || method.Parameters[0].KwArgs {
+				return c.newError(method.Position(), "type method must declare 'self' as the first parameter")
+			}
+
+			if err := c.withScope(func() error {
+				c.funcDepth++
+				defer func() { c.funcDepth-- }()
+
+				seen := make(map[string]struct{}, len(method.Parameters))
+				for i, param := range method.Parameters {
+					if _, ok := seen[param.Name]; ok {
+						return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+					}
+					seen[param.Name] = struct{}{}
+					if param.KwArgs {
+						if i != len(method.Parameters)-1 {
+							return c.newError(param.Pos, "kwargs parameter must be the last parameter")
+						}
+						continue
+					}
+					if param.VarArgs {
+						if i < len(method.Parameters)-1 && !(i == len(method.Parameters)-2 && method.Parameters[len(method.Parameters)-1].KwArgs) {
+							return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
+						}
+						continue
+					}
+					if i > 0 {
+						prev := method.Parameters[i-1]
+						if prev.VarArgs || prev.KwArgs {
+							return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
+						}
+					}
+				}
+
+				for _, field := range v.Fields {
+					if !c.currentScope.declare(field.Name) {
+						return c.newError(field.Pos, "duplicate declaration in same scope: %s", field.Name)
+					}
+				}
+				for _, param := range method.Parameters {
+					if !c.currentScope.declare(param.Name) {
+						return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+					}
+				}
+
+				return c.checkStatements(method.Body, false)
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
 	case *ast.Declare:
 		if err := c.checkExpression(v.Value); err != nil {
 			return err
@@ -305,14 +391,14 @@ func (c *checker) checkCallArguments(args []ast.CallArgument) error {
 	seenKeywordNames := make(map[string]struct{})
 	for i, arg := range args {
 		switch arg.Kind {
-			case ast.CallArgumentStarred:
-				if seenKeyword {
-					return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
-				}
-				if i != len(args)-1 {
-					return c.newError(arg.Expr.Position(), "starred argument must be the last argument")
-				}
-			case ast.CallArgumentKeyword, ast.CallArgumentKeywordUnpack:
+		case ast.CallArgumentStarred:
+			if seenKeyword {
+				return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
+			}
+			if i != len(args)-1 {
+				return c.newError(arg.Expr.Position(), "starred argument must be the last argument")
+			}
+		case ast.CallArgumentKeyword, ast.CallArgumentKeywordUnpack:
 			seenKeyword = true
 			if arg.Kind == ast.CallArgumentKeyword {
 				if _, ok := seenKeywordNames[arg.Name]; ok {

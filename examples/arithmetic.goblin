@@ -17,3 +17,18 @@ print(10.0 / 2.0)
 # Mixed int/float
 print(3.5 + 2)
 print(10 / 2.5)
+
+# Int constructor
+print(Int(42))
+print(Int(3.7))
+print(Int("100"))
+print(Int(true))
+print(Int(false))
+print(Int())
+
+# Float constructor
+print(Float(3))
+print(Float(3.14))
+print(Float("2.5"))
+print(Float(true))
+print(Float())
