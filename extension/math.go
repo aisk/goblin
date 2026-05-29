@@ -10,27 +10,40 @@ import (
 func ExecuteMath() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"pi":      object.Float(math.Pi),
-			"e":       object.Float(math.E),
-			"abs":     &object.Function{Name: "abs", Fn: mathAbs},
-			"ceil":    &object.Function{Name: "ceil", Fn: mathCeil},
-			"floor":   &object.Function{Name: "floor", Fn: mathFloor},
-			"round":   &object.Function{Name: "round", Fn: mathRound},
-			"pow":     &object.Function{Name: "pow", Fn: mathPow},
-			"sqrt":    &object.Function{Name: "sqrt", Fn: mathSqrt},
-			"sin":     &object.Function{Name: "sin", Fn: mathSin},
-			"cos":     &object.Function{Name: "cos", Fn: mathCos},
-			"tan":     &object.Function{Name: "tan", Fn: mathTan},
-			"asin":    &object.Function{Name: "asin", Fn: mathAsin},
-			"acos":    &object.Function{Name: "acos", Fn: mathAcos},
-			"atan":    &object.Function{Name: "atan", Fn: mathAtan},
-			"log":     &object.Function{Name: "log", Fn: mathLog},
-			"log10":   &object.Function{Name: "log10", Fn: mathLog10},
-			"exp":     &object.Function{Name: "exp", Fn: mathExp},
-			"max":     &object.Function{Name: "max", Fn: mathMax},
-			"min":     &object.Function{Name: "min", Fn: mathMin},
-			"is_nan":  &object.Function{Name: "is_nan", Fn: mathIsNaN},
-			"is_inf":  &object.Function{Name: "is_inf", Fn: mathIsInf},
+			"pi":     object.Float(math.Pi),
+			"e":      object.Float(math.E),
+			"abs":    &object.Function{Name: "abs", Fn: mathAbs},
+			"ceil":   &object.Function{Name: "ceil", Fn: mathCeil},
+			"floor":  &object.Function{Name: "floor", Fn: mathFloor},
+			"round":  &object.Function{Name: "round", Fn: mathRound},
+			"pow":    &object.Function{Name: "pow", Fn: mathPow},
+			"sqrt":   &object.Function{Name: "sqrt", Fn: mathSqrt},
+			"sin":    &object.Function{Name: "sin", Fn: mathSin},
+			"cos":    &object.Function{Name: "cos", Fn: mathCos},
+			"tan":    &object.Function{Name: "tan", Fn: mathTan},
+			"asin":   &object.Function{Name: "asin", Fn: mathAsin},
+			"acos":   &object.Function{Name: "acos", Fn: mathAcos},
+			"atan":   &object.Function{Name: "atan", Fn: mathAtan},
+			"log":    &object.Function{Name: "log", Fn: mathLog},
+			"log10":  &object.Function{Name: "log10", Fn: mathLog10},
+			"exp":    &object.Function{Name: "exp", Fn: mathExp},
+			"max":    &object.Function{Name: "max", Fn: mathMax},
+			"min":    &object.Function{Name: "min", Fn: mathMin},
+			"is_nan": &object.Function{Name: "is_nan", Fn: mathIsNaN},
+			"is_inf": &object.Function{Name: "is_inf", Fn: mathIsInf},
+			"inf":    object.Float(math.Inf(1)),
+			"nan":    object.Float(math.NaN()),
+			"cbrt":   &object.Function{Name: "cbrt", Fn: mathCbrt},
+			"trunc":  &object.Function{Name: "trunc", Fn: mathTrunc},
+			"log2":   &object.Function{Name: "log2", Fn: mathLog2},
+			"sinh":   &object.Function{Name: "sinh", Fn: mathSinh},
+			"cosh":   &object.Function{Name: "cosh", Fn: mathCosh},
+			"tanh":   &object.Function{Name: "tanh", Fn: mathTanh},
+			"asinh":  &object.Function{Name: "asinh", Fn: mathAsinh},
+			"acosh":  &object.Function{Name: "acosh", Fn: mathAcosh},
+			"atanh":  &object.Function{Name: "atanh", Fn: mathAtanh},
+			"atan2":  &object.Function{Name: "atan2", Fn: mathAtan2},
+			"hypot":  &object.Function{Name: "hypot", Fn: mathHypot},
 		},
 	}, nil
 }
@@ -346,6 +359,170 @@ func mathIsInf(args object.CallArgs) (object.Object, error) {
 	return object.Bool(math.IsInf(f, dir)), nil
 }
 
+func mathCbrt(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("cbrt", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("cbrt() requires exactly 1 argument")
+	}
+	f, err := toFloat("cbrt", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Cbrt(f)), nil
+}
+
+func mathTrunc(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("trunc", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("trunc() requires exactly 1 argument")
+	}
+	switch v := args.Positional[0].(type) {
+	case object.Integer:
+		return v, nil
+	case object.Float:
+		return object.Float(math.Trunc(float64(v))), nil
+	default:
+		return nil, fmt.Errorf("trunc() argument must be a number, got %T", args.Positional[0])
+	}
+}
+
+func mathLog2(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("log2", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("log2() requires exactly 1 argument")
+	}
+	f, err := toFloat("log2", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Log2(f)), nil
+}
+
+func mathSinh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("sinh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("sinh() requires exactly 1 argument")
+	}
+	f, err := toFloat("sinh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Sinh(f)), nil
+}
+
+func mathCosh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("cosh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("cosh() requires exactly 1 argument")
+	}
+	f, err := toFloat("cosh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Cosh(f)), nil
+}
+
+func mathTanh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("tanh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("tanh() requires exactly 1 argument")
+	}
+	f, err := toFloat("tanh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Tanh(f)), nil
+}
+
+func mathAsinh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("asinh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("asinh() requires exactly 1 argument")
+	}
+	f, err := toFloat("asinh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Asinh(f)), nil
+}
+
+func mathAcosh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("acosh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("acosh() requires exactly 1 argument")
+	}
+	f, err := toFloat("acosh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Acosh(f)), nil
+}
+
+func mathAtanh(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("atanh", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("atanh() requires exactly 1 argument")
+	}
+	f, err := toFloat("atanh", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Atanh(f)), nil
+}
+
+func mathAtan2(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("atan2", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 2 {
+		return nil, fmt.Errorf("atan2() requires exactly 2 arguments")
+	}
+	y, err := toFloat("atan2", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	x, err := toFloat("atan2", args.Positional[1])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Atan2(y, x)), nil
+}
+
+func mathHypot(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("hypot", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 2 {
+		return nil, fmt.Errorf("hypot() requires exactly 2 arguments")
+	}
+	p, err := toFloat("hypot", args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	q, err := toFloat("hypot", args.Positional[1])
+	if err != nil {
+		return nil, err
+	}
+	return object.Float(math.Hypot(p, q)), nil
+}
 func toFloat(funcName string, v object.Object) (float64, error) {
 	switch n := v.(type) {
 	case object.Integer:
