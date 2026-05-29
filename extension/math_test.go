@@ -45,6 +45,17 @@ func TestMathFunctionsRejectNonNumericArgs(t *testing.T) {
 		{name: "min", args: object.Args{object.String("x"), object.Integer(1)}, wantErr: "min() argument must be a number, got object.String"},
 		{name: "is_nan", args: object.Args{object.Bool(true)}, wantErr: "is_nan() argument must be a number, got object.Bool"},
 		{name: "is_inf", args: object.Args{object.Bool(true)}, wantErr: "is_inf() argument must be a number, got object.Bool"},
+		{name: "cbrt", args: object.Args{object.String("x")}, wantErr: "cbrt() argument must be a number, got object.String"},
+		{name: "trunc", args: object.Args{object.String("x")}, wantErr: "trunc() argument must be a number, got object.String"},
+		{name: "log2", args: object.Args{object.String("x")}, wantErr: "log2() argument must be a number, got object.String"},
+		{name: "sinh", args: object.Args{object.String("x")}, wantErr: "sinh() argument must be a number, got object.String"},
+		{name: "cosh", args: object.Args{object.String("x")}, wantErr: "cosh() argument must be a number, got object.String"},
+		{name: "tanh", args: object.Args{object.String("x")}, wantErr: "tanh() argument must be a number, got object.String"},
+		{name: "asinh", args: object.Args{object.String("x")}, wantErr: "asinh() argument must be a number, got object.String"},
+		{name: "acosh", args: object.Args{object.String("x")}, wantErr: "acosh() argument must be a number, got object.String"},
+		{name: "atanh", args: object.Args{object.String("x")}, wantErr: "atanh() argument must be a number, got object.String"},
+		{name: "atan2", args: object.Args{object.Integer(1), object.String("x")}, wantErr: "atan2() argument must be a number, got object.String"},
+		{name: "hypot", args: object.Args{object.String("x"), object.Integer(1)}, wantErr: "hypot() argument must be a number, got object.String"},
 	}
 
 	for _, tt := range tests {
