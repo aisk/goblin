@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -10,6 +12,7 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/interpreter"
 	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/transpiler"
@@ -114,10 +117,115 @@ var runCmd = &cobra.Command{
 	},
 }
 
+var replCmd = &cobra.Command{
+	Use:   "repl",
+	Short: "Start an interactive Goblin REPL",
+	Args:  cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runREPL(os.Stdin, os.Stdout)
+	},
+}
+
+// runREPL drives a read-eval-print loop, accumulating lines until brackets are
+// balanced so multi-line constructs (functions, types, blocks) can be entered.
+func runREPL(in io.Reader, out io.Writer) error {
+	session := interpreter.NewSession(".")
+	reader := bufio.NewReader(in)
+
+	fmt.Fprintln(out, "Goblin REPL. Press Ctrl-D to exit.")
+	var buf strings.Builder
+	for {
+		if buf.Len() == 0 {
+			fmt.Fprint(out, ">>> ")
+		} else {
+			fmt.Fprint(out, "... ")
+		}
+
+		line, err := reader.ReadString('\n')
+		if err == io.EOF {
+			if strings.TrimSpace(line) != "" {
+				buf.WriteString(line)
+			}
+			if buf.Len() > 0 {
+				evalLine(out, session, buf.String())
+			}
+			fmt.Fprintln(out)
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		buf.WriteString(line)
+		// Keep reading until brackets balance, unless the line is blank (which
+		// forces evaluation so the user can recover from a typo).
+		if !bracketsBalanced(buf.String()) && strings.TrimSpace(line) != "" {
+			continue
+		}
+
+		src := buf.String()
+		buf.Reset()
+		if strings.TrimSpace(src) == "" {
+			continue
+		}
+		evalLine(out, session, src)
+	}
+}
+
+func evalLine(out io.Writer, session *interpreter.Session, src string) {
+	result, err := session.Eval(src)
+	if err != nil {
+		fmt.Fprintf(out, "Error: %v\n", err)
+		return
+	}
+	// Display the value of an expression, but stay quiet for statements and
+	// for `none` (e.g. the result of print()).
+	if result == nil {
+		return
+	}
+	if _, isUnit := result.(object.Unit); isUnit {
+		return
+	}
+	fmt.Fprintln(out, result.String())
+}
+
+// bracketsBalanced reports whether all (), [], {} are closed, ignoring those
+// inside string literals and # comments.
+func bracketsBalanced(src string) bool {
+	depth := 0
+	inString := false
+	for i := 0; i < len(src); i++ {
+		c := src[i]
+		if inString {
+			switch c {
+			case '\\':
+				i++
+			case '"':
+				inString = false
+			}
+			continue
+		}
+		switch c {
+		case '"':
+			inString = true
+		case '#':
+			for i < len(src) && src[i] != '\n' {
+				i++
+			}
+		case '{', '(', '[':
+			depth++
+		case '}', ')', ']':
+			depth--
+		}
+	}
+	return depth <= 0
+}
+
 func init() {
 	buildExeCmd.Flags().StringP("output", "o", "", "output binary path (default: <source_name> in current directory)")
 	rootCmd.AddCommand(buildExeCmd)
 	rootCmd.AddCommand(runCmd)
+	rootCmd.AddCommand(replCmd)
 }
 
 func main() {
