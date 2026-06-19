@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/interpreter"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
@@ -84,9 +85,39 @@ var buildExeCmd = &cobra.Command{
 	},
 }
 
+var runCmd = &cobra.Command{
+	Use:   "run <source.goblin>",
+	Short: "Interpret a Goblin source file directly (tree-walking interpreter)",
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		sourceFile := args[0]
+
+		l, err := lexer.NewLexerFile(sourceFile)
+		if err != nil {
+			return fmt.Errorf("failed to read file %s: %w", sourceFile, err)
+		}
+
+		p := parser.NewParser()
+		st, err := p.Parse(l)
+		if err != nil {
+			return err
+		}
+		m, ok := st.(*ast.Module)
+		if !ok {
+			return fmt.Errorf("internal error: unexpected AST type")
+		}
+		if err := semantic.CheckModule(m); err != nil {
+			return err
+		}
+
+		return interpreter.Run(m, sourceFile)
+	},
+}
+
 func init() {
 	buildExeCmd.Flags().StringP("output", "o", "", "output binary path (default: <source_name> in current directory)")
 	rootCmd.AddCommand(buildExeCmd)
+	rootCmd.AddCommand(runCmd)
 }
 
 func main() {
