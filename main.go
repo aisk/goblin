@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -16,6 +15,7 @@ import (
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/transpiler"
+	"github.com/chzyer/readline"
 	"github.com/spf13/cobra"
 )
 
@@ -122,30 +122,55 @@ var replCmd = &cobra.Command{
 	Short: "Start an interactive Goblin REPL",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runREPL(os.Stdin, os.Stdout)
+		return runREPL()
 	},
+}
+
+// goblinHistoryPath returns the path to the persistent REPL history file,
+// defaulting to ~/.goblin_history.
+func goblinHistoryPath() string {
+	if home, err := os.UserHomeDir(); err == nil {
+		return filepath.Join(home, ".goblin_history")
+	}
+	return ""
 }
 
 // runREPL drives a read-eval-print loop, accumulating lines until brackets are
 // balanced so multi-line constructs (functions, types, blocks) can be entered.
-func runREPL(in io.Reader, out io.Writer) error {
+// It uses readline for line editing, history, and Ctrl-C/Ctrl-D handling.
+func runREPL() error {
 	session := interpreter.NewSession(".")
-	reader := bufio.NewReader(in)
 
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:          ">>> ",
+		HistoryFile:     goblinHistoryPath(),
+		HistoryLimit:    1000,
+		InterruptPrompt: "^C",
+		EOFPrompt:       "exit",
+	})
+	if err != nil {
+		return err
+	}
+	defer rl.Close()
+
+	out := rl.Stdout()
 	fmt.Fprintln(out, "Goblin REPL. Press Ctrl-D to exit.")
 	var buf strings.Builder
 	for {
 		if buf.Len() == 0 {
-			fmt.Fprint(out, ">>> ")
+			rl.SetPrompt(">>> ")
 		} else {
-			fmt.Fprint(out, "... ")
+			rl.SetPrompt("... ")
 		}
 
-		line, err := reader.ReadString('\n')
+		line, err := rl.Readline()
+		if err == readline.ErrInterrupt {
+			// On Ctrl-C: drop any in-progress multi-line input; exit if buffer
+			// was already empty and the user confirms by sending EOF.
+			buf.Reset()
+			continue
+		}
 		if err == io.EOF {
-			if strings.TrimSpace(line) != "" {
-				buf.WriteString(line)
-			}
 			if buf.Len() > 0 {
 				evalLine(out, session, buf.String())
 			}
@@ -157,6 +182,7 @@ func runREPL(in io.Reader, out io.Writer) error {
 		}
 
 		buf.WriteString(line)
+		buf.WriteByte('\n')
 		// Keep reading until brackets balance, unless the line is blank (which
 		// forces evaluation so the user can recover from a typo).
 		if !bracketsBalanced(buf.String()) && strings.TrimSpace(line) != "" {
