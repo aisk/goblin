@@ -138,8 +138,13 @@ PrimaryExpression
     | NilLiteral
     | ListLiteral
     | DictLiteral
+    | FunctionLiteral
     | id                                     << ast.NewIdentifier($0) >>
     | "(" Expression ")"                     << $1, nil >>
+;
+
+FunctionLiteral
+    : "func" "(" Parameters ")" Block        << ast.NewFunctionLiteral($0, $2, $4) >>
 ;
 
 IntegerLiteral

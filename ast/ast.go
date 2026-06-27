@@ -587,6 +587,33 @@ func NewFunctionDefine(x, params, y any) (any, error) {
 	}, nil
 }
 
+// FunctionLiteral is an anonymous function used as an expression, e.g.
+// `var f = func(x) { return x + 1 }`. It captures its defining scope (closure).
+type FunctionLiteral struct {
+	expressionMixin
+	Parameters []*Parameter
+	Body       []Statement
+}
+
+func NewFunctionLiteral(fn, params, y any) (any, error) {
+	tok := fn.(*token.Token)
+	var parameters []*Parameter
+	if params != nil {
+		parameters = params.([]*Parameter)
+	}
+	var body []Statement
+	if y != nil {
+		body = y.([]Statement)
+	}
+	// Always insert a return block at the end, mirroring NewFunctionDefine.
+	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
+	return &FunctionLiteral{
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
+		Parameters:      parameters,
+		Body:            body,
+	}, nil
+}
+
 type TypeDefine struct {
 	statementMixin
 	Name    string
