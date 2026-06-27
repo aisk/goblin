@@ -293,6 +293,9 @@ func evalExpr(expr ast.Expression, env *Environment) (object.Object, error) {
 		}
 		return obj.GetAttr(e.Property)
 
+	case *ast.FunctionLiteral:
+		return makeClosure("<lambda>", e.Parameters, e.Body, env), nil
+
 	case *ast.FunctionCall:
 		callee, err := resolveName(e.Name, env)
 		if err != nil {
@@ -448,9 +451,16 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 // makeFunction wraps a Goblin function definition as a callable object.Function,
 // capturing the defining environment for closures.
 func makeFunction(def *ast.FunctionDefine, env *Environment) *object.Function {
+	return makeClosure(def.Name, def.Parameters, def.Body, env)
+}
+
+// makeClosure builds a callable object.Function from parameters and a body,
+// capturing env for closures. It backs both named definitions and anonymous
+// function literals. name is used for repr and BindArguments diagnostics.
+func makeClosure(name string, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
 	var fixed []string
 	var varArgs, kwArgs string
-	for _, p := range def.Parameters {
+	for _, p := range params {
 		switch {
 		case p.VarArgs:
 			varArgs = p.Name
@@ -462,17 +472,17 @@ func makeFunction(def *ast.FunctionDefine, env *Environment) *object.Function {
 	}
 
 	return &object.Function{
-		Name: def.Name,
+		Name: name,
 		Fn: func(args object.CallArgs) (object.Object, error) {
-			bound, err := object.BindArguments(def.Name, fixed, varArgs, kwArgs, args)
+			bound, err := object.BindArguments(name, fixed, varArgs, kwArgs, args)
 			if err != nil {
 				return nil, err
 			}
 			local := NewEnvironment(env)
-			for name, val := range bound {
-				local.Define(name, val)
+			for n, val := range bound {
+				local.Define(n, val)
 			}
-			err = evalStatements(def.Body, local)
+			err = evalStatements(body, local)
 			if rs, ok := err.(returnSignal); ok {
 				if rs.value == nil {
 					return object.Nil, nil

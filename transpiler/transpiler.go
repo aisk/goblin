@@ -509,6 +509,8 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 		return ctx.transpileIndexExpression(v, onError)
 	case *ast.MemberExpression:
 		return ctx.transpileMemberExpression(v, onError)
+	case *ast.FunctionLiteral:
+		return ctx.transpileFunctionLiteral(v)
 	}
 	return nil, nil, object.NotImplementedError
 }
@@ -826,7 +828,11 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
 }
 
-func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
+// buildFunctionValue emits an `&object.Function{...}` expression that wraps a
+// closure binding the given parameters and running the given body. It is shared
+// by named function definitions and anonymous function literals. name is used
+// only for the runtime function's repr and for BindArguments diagnostics.
+func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
 	callArgsName := ctx.localName("callArgs")
 
 	fnOnError := func(errVar string) jen.Code {
@@ -835,8 +841,8 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 
 	var varArgsParam *ast.Parameter
 	var kwArgsParam *ast.Parameter
-	fixedParams := make([]*ast.Parameter, 0, len(fn.Parameters))
-	for _, param := range fn.Parameters {
+	fixedParams := make([]*ast.Parameter, 0, len(params))
+	for _, param := range params {
 		switch {
 		case param.VarArgs:
 			varArgsParam = param
@@ -864,7 +870,7 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 	}
 	argsDefine := []jen.Code{
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
-			jen.Lit(fn.Name),
+			jen.Lit(name),
 			jen.Index().String().Values(fixedParamNames...),
 			jen.Lit(varArgsName),
 			jen.Lit(kwArgsName),
@@ -894,27 +900,43 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		)
 	}
 
-	body, err := ctx.transpileStatements(fn.Body, fnOnError, "")
+	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
 	if err != nil {
 		return nil, err
 	}
 
-	body = append(argsDefine, body...)
+	bodyCode = append(argsDefine, bodyCode...)
 
 	closure := jen.Func().Params(
 		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
 	).Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Id("error")),
-	).Block(body...)
+	).Block(bodyCode...)
 
-	result := jen.Var().Id(fn.Name).Qual(pathObject, "Object").Op("=").Op("&").Qual(pathObject, "Function").Values(
-		jen.Id("Name").Op(":").Lit(fn.Name),
+	return jen.Op("&").Qual(pathObject, "Function").Values(
+		jen.Id("Name").Op(":").Lit(name),
 		jen.Id("Fn").Op(":").Add(closure),
-	)
+	), nil
+}
 
+func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
+	funcValue, err := ctx.buildFunctionValue(fn.Name, fn.Parameters, fn.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	result := jen.Var().Id(fn.Name).Qual(pathObject, "Object").Op("=").Add(funcValue)
 	result.Op(";").Id("_").Op("=").Id(fn.Name)
 
 	return []jen.Code{result}, nil
+}
+
+func (ctx *transpileContext) transpileFunctionLiteral(fn *ast.FunctionLiteral) ([]jen.Code, *jen.Statement, error) {
+	funcValue, err := ctx.buildFunctionValue("<lambda>", fn.Parameters, fn.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nil, funcValue, nil
 }
 
 func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHandler) ([]jen.Code, error) {

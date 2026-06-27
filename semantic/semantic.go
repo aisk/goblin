@@ -222,44 +222,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		if !c.currentScope.declare(v.Name) {
 			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
 		}
-		return c.withScope(func() error {
-			c.funcDepth++
-			defer func() { c.funcDepth-- }()
-
-			seen := make(map[string]struct{}, len(v.Parameters))
-			for i, param := range v.Parameters {
-				if _, ok := seen[param.Name]; ok {
-					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
-				}
-				seen[param.Name] = struct{}{}
-				if param.KwArgs {
-					if i != len(v.Parameters)-1 {
-						return c.newError(param.Pos, "kwargs parameter must be the last parameter")
-					}
-					continue
-				}
-				if param.VarArgs {
-					if i < len(v.Parameters)-1 && !(i == len(v.Parameters)-2 && v.Parameters[len(v.Parameters)-1].KwArgs) {
-						return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
-					}
-					continue
-				}
-				if i > 0 {
-					prev := v.Parameters[i-1]
-					if prev.VarArgs || prev.KwArgs {
-						return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
-					}
-				}
-			}
-
-			for _, param := range v.Parameters {
-				if !c.currentScope.declare(param.Name) {
-					return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
-				}
-			}
-
-			return c.checkStatements(v.Body, false)
-		})
+		return c.checkFunction(v.Parameters, v.Body)
 	case *ast.IfElse:
 		if err := c.checkExpression(v.Condition); err != nil {
 			return err
@@ -321,8 +284,54 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 	}
 }
 
+// checkFunction validates a function's parameter list and body in a fresh
+// scope. It backs both named function definitions and anonymous function
+// literals.
+func (c *checker) checkFunction(params []*ast.Parameter, body []ast.Statement) error {
+	return c.withScope(func() error {
+		c.funcDepth++
+		defer func() { c.funcDepth-- }()
+
+		seen := make(map[string]struct{}, len(params))
+		for i, param := range params {
+			if _, ok := seen[param.Name]; ok {
+				return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+			}
+			seen[param.Name] = struct{}{}
+			if param.KwArgs {
+				if i != len(params)-1 {
+					return c.newError(param.Pos, "kwargs parameter must be the last parameter")
+				}
+				continue
+			}
+			if param.VarArgs {
+				if i < len(params)-1 && !(i == len(params)-2 && params[len(params)-1].KwArgs) {
+					return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
+				}
+				continue
+			}
+			if i > 0 {
+				prev := params[i-1]
+				if prev.VarArgs || prev.KwArgs {
+					return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
+				}
+			}
+		}
+
+		for _, param := range params {
+			if !c.currentScope.declare(param.Name) {
+				return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+			}
+		}
+
+		return c.checkStatements(body, false)
+	})
+}
+
 func (c *checker) checkExpression(expr ast.Expression) error {
 	switch v := expr.(type) {
+	case *ast.FunctionLiteral:
+		return c.checkFunction(v.Parameters, v.Body)
 	case *ast.Identifier:
 		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
