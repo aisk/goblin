@@ -530,6 +530,34 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 }
 
 func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	// Fast path: when every argument is a plain positional (no *, **, or keyword
+	// argument), the result is a simple slice literal. This avoids emitting the
+	// positional/keyword/callArgs temporaries and per-argument append statements
+	// that the general path below needs, which is the common case for most calls.
+	allPositional := true
+	for _, arg := range args {
+		if arg.Kind != ast.CallArgumentPositional {
+			allPositional = false
+			break
+		}
+	}
+	if allPositional {
+		var preStmts []jen.Code
+		argExprs := make([]jen.Code, 0, len(args))
+		for _, arg := range args {
+			argPreStmts, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
+			if err != nil {
+				return nil, nil, err
+			}
+			preStmts = append(preStmts, argPreStmts...)
+			argExprs = append(argExprs, argExpr)
+		}
+		callArgs := jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
+			jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(argExprs...),
+		})
+		return preStmts, callArgs, nil
+	}
+
 	positionalVar := ctx.localName("positional")
 	keywordVar := ctx.localName("keyword")
 	callArgsVar := ctx.localName("callArgs")
@@ -828,17 +856,13 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
 }
 
-// buildFunctionValue emits an `&object.Function{...}` expression that wraps a
-// closure binding the given parameters and running the given body. It is shared
-// by named function definitions and anonymous function literals. name is used
-// only for the runtime function's repr and for BindArguments diagnostics.
-func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
-	callArgsName := ctx.localName("callArgs")
-
-	fnOnError := func(errVar string) jen.Code {
-		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
-	}
-
+// emitParameterBinding emits the statements that bind a CallArgs value (the
+// local named callArgsName) to one Go variable per parameter. It splits params
+// into fixed / *varargs / **kwargs, calls object.BindArguments, and unpacks the
+// resulting map. name is used only for BindArguments diagnostics, and fnOnError
+// builds the error-return emitted when binding fails. It is shared by named
+// functions, anonymous literals, and type methods.
+func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Parameter, callArgsName string, fnOnError errHandler) []jen.Code {
 	var varArgsParam *ast.Parameter
 	var kwArgsParam *ast.Parameter
 	fixedParams := make([]*ast.Parameter, 0, len(params))
@@ -868,7 +892,8 @@ func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Param
 	if kwArgsParam != nil {
 		kwArgsName = kwArgsParam.Name
 	}
-	argsDefine := []jen.Code{
+
+	stmts := []jen.Code{
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(name),
 			jen.Index().String().Values(fixedParamNames...),
@@ -880,25 +905,37 @@ func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Param
 		jen.Id("_").Op("=").Id(boundName),
 	}
 
-	for _, param := range fixedParams {
-		argsDefine = append(argsDefine,
+	emit := func(param *ast.Parameter) {
+		stmts = append(stmts,
 			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param.Name)),
 			jen.Id("_").Op("=").Id(param.Name),
 		)
 	}
-
+	for _, param := range fixedParams {
+		emit(param)
+	}
 	if varArgsParam != nil {
-		argsDefine = append(argsDefine,
-			jen.Var().Id(varArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(varArgsParam.Name)),
-			jen.Id("_").Op("=").Id(varArgsParam.Name),
-		)
+		emit(varArgsParam)
 	}
 	if kwArgsParam != nil {
-		argsDefine = append(argsDefine,
-			jen.Var().Id(kwArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwArgsParam.Name)),
-			jen.Id("_").Op("=").Id(kwArgsParam.Name),
-		)
+		emit(kwArgsParam)
 	}
+
+	return stmts
+}
+
+// buildFunctionValue emits an `&object.Function{...}` expression that wraps a
+// closure binding the given parameters and running the given body. It is shared
+// by named function definitions and anonymous function literals. name is used
+// only for the runtime function's repr and for BindArguments diagnostics.
+func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
+	callArgsName := ctx.localName("callArgs")
+
+	fnOnError := func(errVar string) jen.Code {
+		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+	}
+
+	argsDefine := ctx.emitParameterBinding(name, params, callArgsName, fnOnError)
 
 	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
 	if err != nil {
@@ -1108,70 +1145,17 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
 		}
 
-		var varArgsParam *ast.Parameter
-		var kwArgsParam *ast.Parameter
-		fixedParams := make([]*ast.Parameter, 0, len(method.Parameters))
-		for _, param := range method.Parameters[1:] {
-			switch {
-			case param.VarArgs:
-				varArgsParam = param
-			case param.KwArgs:
-				kwArgsParam = param
-			default:
-				fixedParams = append(fixedParams, param)
-			}
-		}
-
-		fixedParamNames := make([]jen.Code, 0, len(fixedParams))
-		for _, param := range fixedParams {
-			fixedParamNames = append(fixedParamNames, jen.Lit(param.Name))
-		}
-
-		boundName := ctx.localName("bound")
-		errVar := ctx.localName("err")
-		varArgsName := ""
-		if varArgsParam != nil {
-			varArgsName = varArgsParam.Name
-		}
-		kwArgsName := ""
-		if kwArgsParam != nil {
-			kwArgsName = kwArgsParam.Name
-		}
-
 		bodyPrefix := []jen.Code{
 			jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
 			jen.Id("_").Op("=").Id("builtin"),
-			jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
-				jen.Lit(typeDef.Name+"."+method.Name),
-				jen.Index().String().Values(fixedParamNames...),
-				jen.Lit(varArgsName),
-				jen.Lit(kwArgsName),
-				jen.Id(callArgsName),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
-			jen.Id("_").Op("=").Id(boundName),
+		}
+		bodyPrefix = append(bodyPrefix,
+			ctx.emitParameterBinding(typeDef.Name+"."+method.Name, method.Parameters[1:], callArgsName, fnOnError)...,
+		)
+		bodyPrefix = append(bodyPrefix,
 			jen.Var().Id("self").Qual(pathObject, "Object").Op("=").Id(receiverName),
 			jen.Id("_").Op("=").Id("self"),
-		}
-
-		for _, param := range fixedParams {
-			bodyPrefix = append(bodyPrefix,
-				jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param.Name)),
-				jen.Id("_").Op("=").Id(param.Name),
-			)
-		}
-		if varArgsParam != nil {
-			bodyPrefix = append(bodyPrefix,
-				jen.Var().Id(varArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(varArgsParam.Name)),
-				jen.Id("_").Op("=").Id(varArgsParam.Name),
-			)
-		}
-		if kwArgsParam != nil {
-			bodyPrefix = append(bodyPrefix,
-				jen.Var().Id(kwArgsParam.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(kwArgsParam.Name)),
-				jen.Id("_").Op("=").Id(kwArgsParam.Name),
-			)
-		}
+		)
 
 		methodBody, err := ctx.transpileStatements(method.Body, fnOnError, "")
 		if err != nil {
