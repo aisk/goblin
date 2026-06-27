@@ -1,17 +1,13 @@
 import "random"
 
-# Test random.int
-print("random.int works")
-random.int()
-print("random.int done")
+# int / intn return integers, float returns a float
+print(random.int().constructor == Int)
+print(random.intn(100).constructor == Int)
+print(random.float().constructor == Float)
 
-# Test random.intn
-print("random.intn works")
-random.intn(100)
-random.intn(10)
-print("random.intn done")
+# intn(1) can only ever be 0
+print(random.intn(1))
 
-# Test random.float
-print("random.float works")
-random.float()
-print("random.float done")
+# float() is always within [0.0, 1.0)
+print(random.float() >= 0.0)
+print(random.float() < 1.0)

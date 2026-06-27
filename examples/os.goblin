@@ -1,23 +1,14 @@
 import "os"
 
-# Test os.getenv
-print("getenv works")
-os.getenv("HOME")
-print("getenv done")
+# getenv returns a string (empty when the variable is unset)
+print(os.getenv("HOME").constructor == Str)
 
-# Test os.getpid
-print("getpid works")
-os.getpid()
-print("getpid done")
+# pid / uid accessors return integers
+print(os.getpid().constructor == Int)
+print(os.getppid().constructor == Int)
+print(os.getuid().constructor == Int)
 
-# Test os.getppid
-print("getppid works")
-os.getppid()
-print("getppid done")
-
-# Test os.getuid
-print("getuid works")
-os.getuid()
-print("getuid done")
+# A live process always has a positive pid
+print(os.getpid() > 0)
 
 # Note: os.exit() is tested separately to avoid terminating the test runner

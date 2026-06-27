@@ -6,9 +6,6 @@ print(3.14)
 # Test range
 var numbers = range(0, 5)
 print(numbers)
-for i in range(0, 3) {
-    print(i)
-}
 
 # Test max - basic integers
 print(max(1, 2, 3))

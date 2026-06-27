@@ -1,8 +1,5 @@
-getenv works
-getenv done
-getpid works
-getpid done
-getppid works
-getppid done
-getuid works
-getuid done
+true
+true
+true
+true
+true
