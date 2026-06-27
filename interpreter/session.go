@@ -27,19 +27,15 @@ func NewSession(baseDir string) *Session {
 	}
 }
 
-// replResultVar holds the value of a bare expression entered at the REPL. The
-// grammar only accepts identifier-led expression statements, so a fragment like
-// `1 + 2` is evaluated by wrapping it as an assignment to this variable.
-const replResultVar = "__repl_result__"
-
 // Eval parses and evaluates a source fragment against the session's scope. If
 // the fragment's last statement is an expression, its value is returned (for
 // REPL display); otherwise it returns nil.
 func (s *Session) Eval(src string) (object.Object, error) {
 	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(src)))
 	if err != nil {
-		// The fragment isn't a valid statement; try evaluating it as a bare
-		// expression by binding it to a throwaway variable.
+		// The grammar only accepts identifier-led expression statements, so a
+		// fragment like `1 + 2` fails to parse as a statement. Retry it as a
+		// bare expression for REPL display.
 		if v, evalErr, parsed := s.evalAsExpression(src); parsed {
 			return v, evalErr
 		}
@@ -76,24 +72,26 @@ func (s *Session) Eval(src string) (object.Object, error) {
 	return result, nil
 }
 
-// evalAsExpression evaluates src as a bare expression by wrapping it in an
-// assignment. The parsed return value reports whether the wrapped form parsed;
+// evalAsExpression evaluates src as a bare expression. Because the grammar
+// rejects most bare expressions in statement position, we coerce parsing by
+// wrapping the fragment in a `return` statement — which accepts any
+// expression — then evaluate the extracted expression against the live scope.
+// This leaves no trace in the session's scope (unlike binding to a throwaway
+// variable). The parsed return value reports whether the wrapped form parsed;
 // when false, callers should surface the original error instead.
 func (s *Session) evalAsExpression(src string) (value object.Object, evalErr error, parsed bool) {
-	wrapped := replResultVar + " = " + src
-	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(wrapped)))
+	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte("return " + src)))
 	if err != nil {
 		return nil, nil, false
 	}
 	mod, ok := st.(*ast.Module)
+	if !ok || len(mod.Body) != 1 {
+		return nil, nil, false
+	}
+	ret, ok := mod.Body[0].(*ast.Return)
 	if !ok {
 		return nil, nil, false
 	}
-	for _, stmt := range mod.Body {
-		if err := evalStatement(stmt, s.global); err != nil {
-			return nil, err, true
-		}
-	}
-	v, _ := s.global.Get(replResultVar)
-	return v, nil, true
+	v, evalErr := evalExpr(ret.Value, s.global)
+	return v, evalErr, true
 }
