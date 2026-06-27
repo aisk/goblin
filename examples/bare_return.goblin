@@ -1,0 +1,31 @@
+# Bare `return` (no expression) returns nil and exits the function early.
+
+# Early exit guarded by a condition
+func describe(x) {
+    if x > 0 {
+        print("positive")
+        return
+    }
+    print("not positive")
+}
+describe(5)
+describe(-1)
+
+# Bare return as the final statement
+func greet() {
+    print("hi")
+    return
+}
+greet()
+
+# A bare return's value is nil
+func nothing() {
+    return
+}
+print(nothing())
+
+# Value-returning return is unaffected
+func double(x) {
+    return x * 2
+}
+print(double(21))

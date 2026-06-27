@@ -313,6 +313,7 @@ TypeDefine
 
 Return
     : "return" Expression                    << ast.NewReturn($1) >>
+    | "return"                               << ast.NewReturnNil($0) >>
 ;
 
 Export

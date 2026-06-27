@@ -1262,10 +1262,20 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
+		String: `Return : "return"	<< ast.NewReturnNil(X[0]) >>`,
+		Id:         "Return",
+		NTType:     53,
+		Index:      124,
+		NumSymbols: 1,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewReturnNil(X[0])
+		},
+	},
+	ProdTabEntry{
 		String: `Export : "export" id	<< ast.NewExport(X[1]) >>`,
 		Id:         "Export",
 		NTType:     54,
-		Index:      124,
+		Index:      125,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExport(X[1])
