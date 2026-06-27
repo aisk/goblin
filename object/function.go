@@ -40,7 +40,32 @@ func (f *Function) Iter() ([]Object, error) {
 }
 func (f *Function) Index(Object) (Object, error) { return nil, fmt.Errorf("Function is not indexable") }
 func (f *Function) GetAttr(name string) (Object, error) {
-	return nil, fmt.Errorf("Function has no attribute '%s'", name)
+	switch name {
+	case "constructor":
+		return FunctionConstructorFn, nil
+	default:
+		return nil, fmt.Errorf("Function has no attribute '%s'", name)
+	}
 }
 
 var _ Object = (*Function)(nil)
+
+// FunctionConstructorFn is the constructor shared by every callable, including
+// the built-in type objects (Int, Str, ...) and user-defined type
+// constructors. It is its own constructor, so `Function.constructor` returns
+// itself, mirroring how a metaclass is its own type.
+var FunctionConstructorFn = &Function{Name: "Function", Fn: FunctionConstructor}
+
+func FunctionConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Function", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Function() takes exactly 1 argument, got %d", len(args.Positional))
+	}
+	f, ok := args.Positional[0].(*Function)
+	if !ok {
+		return nil, fmt.Errorf("Function() argument must be a function, not %T", args.Positional[0])
+	}
+	return f, nil
+}

@@ -8,16 +8,17 @@ import (
 
 var BuiltinsModule = &object.Module{
 	Members: map[string]object.Object{
-		"print": &object.Function{Name: "print", Fn: print},
-		"range": &object.Function{Name: "range", Fn: range_},
-		"max":   &object.Function{Name: "max", Fn: max},
-		"min":   &object.Function{Name: "min", Fn: min},
-		"Int":   object.IntConstructorFn,
-		"Float": object.FloatConstructorFn,
-		"Str":   object.StrConstructorFn,
-		"Bool":  object.BoolConstructorFn,
-		"List":  object.ListConstructorFn,
-		"Dict":  object.DictConstructorFn,
+		"print":    &object.Function{Name: "print", Fn: print},
+		"range":    &object.Function{Name: "range", Fn: range_},
+		"max":      &object.Function{Name: "max", Fn: max},
+		"min":      &object.Function{Name: "min", Fn: min},
+		"Int":      object.IntConstructorFn,
+		"Float":    object.FloatConstructorFn,
+		"Str":      object.StrConstructorFn,
+		"Bool":     object.BoolConstructorFn,
+		"List":     object.ListConstructorFn,
+		"Dict":     object.DictConstructorFn,
+		"Function": object.FunctionConstructorFn,
 	},
 }
 

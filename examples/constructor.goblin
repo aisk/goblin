@@ -42,6 +42,13 @@ print(d.constructor == Dict)
 
 print(xs.constructor == Str)
 
+# Type objects are themselves callables, so their constructor is Function.
+print(Int.constructor == Function)
+print(Str.constructor == Function)
+print(Int.constructor == Str.constructor)
+print(Point.constructor == Function)
+print(Function.constructor == Function)
+
 # Shadowing: a user-defined `constructor` method wins over the built-in attribute
 type Shadow() {
     func constructor(self) {
