@@ -219,6 +219,7 @@ Declare
 
 Assign
     : id "=" Expression                      << ast.NewAssign($0, $2) >>
+    | ExpressionStatement "=" Expression      << ast.NewSetAssign($0, $2) >>
 ;
 
 Block

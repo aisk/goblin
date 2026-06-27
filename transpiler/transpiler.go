@@ -649,6 +649,49 @@ func (ctx *transpileContext) transpileAssign(decl *ast.Assign, onError errHandle
 	return append(preStmts, assignStmt), nil
 }
 
+func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandler) ([]jen.Code, error) {
+	objPre, obj, err := ctx.transpileExpression(s.Object, onError)
+	if err != nil {
+		return nil, err
+	}
+	idxPre, idx, err := ctx.transpileExpression(s.Index, onError)
+	if err != nil {
+		return nil, err
+	}
+	valPre, val, err := ctx.transpileExpression(s.Value, onError)
+	if err != nil {
+		return nil, err
+	}
+
+	errVar := ctx.localName("err")
+	stmts := append(objPre, idxPre...)
+	stmts = append(stmts, valPre...)
+	stmts = append(stmts,
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetItem").Call(obj, idx, val),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return stmts, nil
+}
+
+func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler) ([]jen.Code, error) {
+	objPre, obj, err := ctx.transpileExpression(s.Object, onError)
+	if err != nil {
+		return nil, err
+	}
+	valPre, val, err := ctx.transpileExpression(s.Value, onError)
+	if err != nil {
+		return nil, err
+	}
+
+	errVar := ctx.localName("err")
+	stmts := append(objPre, valPre...)
+	stmts = append(stmts,
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttribute").Call(obj, jen.Lit(s.Property), val),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return stmts, nil
+}
+
 func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
 	condPreStmts, cond, err := ctx.transpileExpression(ifelse.Condition, onError)
 	if err != nil {
@@ -1007,6 +1050,30 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		),
 	)
 
+	setAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+1)
+	for _, field := range typeDef.Fields {
+		setAttrCases = append(setAttrCases,
+			jen.Case(jen.Lit(field.Name)).Block(
+				jen.Id(receiverName).Dot(field.Name).Op("=").Id("value"),
+				jen.Return(jen.Nil()),
+			),
+		)
+	}
+	setAttrCases = append(setAttrCases,
+		jen.Default().Block(
+			jen.Return(
+				jen.Qual("fmt", "Errorf").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
+			),
+		),
+	)
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("SetAttr").Params(
+			jen.Id("name").String(), jen.Id("value").Qual(pathObject, "Object"),
+		).Error().Block(
+			jen.Switch(jen.Id("name")).Block(setAttrCases...),
+		),
+	)
+
 	for _, method := range typeDef.Methods {
 		wrapperName := exportedName(method.Name)
 
@@ -1343,6 +1410,10 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		codes, err = ctx.transpileDeclare(v, onError)
 	case *ast.Assign:
 		codes, err = ctx.transpileAssign(v, onError)
+	case *ast.SetIndex:
+		codes, err = ctx.transpileSetIndex(v, onError)
+	case *ast.SetAttr:
+		codes, err = ctx.transpileSetAttr(v, onError)
 	case *ast.FunctionCall:
 		var argPreStmts []jen.Code
 		var call *jen.Statement

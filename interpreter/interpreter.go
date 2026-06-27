@@ -106,6 +106,32 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		env.Assign(s.Target, v)
 		return nil
 
+	case *ast.SetIndex:
+		obj, err := evalExpr(s.Object, env)
+		if err != nil {
+			return err
+		}
+		idx, err := evalExpr(s.Index, env)
+		if err != nil {
+			return err
+		}
+		v, err := evalExpr(s.Value, env)
+		if err != nil {
+			return err
+		}
+		return object.SetItem(obj, idx, v)
+
+	case *ast.SetAttr:
+		obj, err := evalExpr(s.Object, env)
+		if err != nil {
+			return err
+		}
+		v, err := evalExpr(s.Value, env)
+		if err != nil {
+			return err
+		}
+		return object.SetAttribute(obj, s.Property, v)
+
 	case *ast.IfElse:
 		cond, err := evalExpr(s.Condition, env)
 		if err != nil {

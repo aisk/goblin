@@ -139,6 +139,11 @@ func (d *Dict) Index(index Object) (Object, error) {
 	return nil, fmt.Errorf("key not found: %s", index.String())
 }
 
+func (d *Dict) SetIndex(index Object, value Object) error {
+	d.Set(index, value)
+	return nil
+}
+
 func (d *Dict) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
