@@ -662,6 +662,17 @@ func NewReturn(x any) (any, error) {
 	}, nil
 }
 
+// NewReturnNil builds a bare `return` (no expression), which returns nil.
+// The synthesized nil literal lets the transpiler and interpreter treat it
+// like any other return without special-casing a missing value.
+func NewReturnNil(x any) (any, error) {
+	tok := x.(*token.Token)
+	return &Return{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Value:          &Literal{Value: object.Nil},
+	}, nil
+}
+
 var (
 	Add            = "+"
 	Minus          = "-"
