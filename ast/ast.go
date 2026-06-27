@@ -340,6 +340,14 @@ func NewBreak() (any, error) {
 	return &Break{}, nil
 }
 
+type Continue struct {
+	statementMixin
+}
+
+func NewContinue() (any, error) {
+	return &Continue{}, nil
+}
+
 type Module struct {
 	Name string
 	Body []Statement
