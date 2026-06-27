@@ -28,3 +28,16 @@ while true {
         break
     }
 }
+
+# while + continue (condition is re-evaluated after continue)
+var i = 0
+while i < 10 {
+    i = i + 1
+    if i == 3 {
+        continue
+    }
+    if i == 7 {
+        break
+    }
+    print(i)
+}

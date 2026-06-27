@@ -21,3 +21,99 @@ func apply(f, a, b) {
     return f(a, b)
 }
 print(apply(add, 3, 4))
+
+# Bare return for early exit (returns nil)
+func describe(x) {
+    if x > 0 {
+        print("positive")
+        return
+    }
+    print("not positive")
+}
+describe(5)
+describe(-1)
+
+# Bare return as the final statement, and its value is nil
+func nothing() {
+    return
+}
+print(nothing())
+
+# Anonymous function (lambda) assigned to a variable
+var inc = func(x) { return x + 1 }
+print(inc(10))
+
+# Lambda passed directly as an argument (higher-order)
+func call_with(f, v) {
+    return f(v)
+}
+print(call_with(func(x) { return x * x }, 5))
+
+# Closure capturing a variable from the enclosing scope
+func adder(n) {
+    return func(x) { return x + n }
+}
+var add5 = adder(5)
+var add10 = adder(10)
+print(add5(100))
+print(add10(100))
+
+# Lambda stored in a list and invoked via indexing
+var ops = [func(a, b) { return a + b }, func(a, b) { return a * b }]
+print(ops[0](3, 4))
+print(ops[1](3, 4))
+
+# Varargs (*args)
+func collect(*args) {
+    print(args.size())
+    for x in args {
+        print(x)
+    }
+}
+collect()
+collect(1, 2, 3)
+
+# Varargs after a positional parameter
+func mix(a, *rest) {
+    print(a)
+    print(rest.size())
+    for x in rest {
+        print(x)
+    }
+}
+mix(10)
+mix(10, 20, 30)
+
+# Argument spread at the call site
+func sum3(a, b, c) {
+    return a + b + c
+}
+var xs = [2, 3]
+print(sum3(1, *xs))
+print(sum3(*range(1, 4)))
+
+# Lambda with varargs
+var total = func(*nums) {
+    var sum = 0
+    for n in nums {
+        sum = sum + n
+    }
+    return sum
+}
+print(total(1, 2, 3, 4))
+
+# Keyword arguments and **kwargs
+func inspect(a, b, *rest, **kwargs) {
+    print(a)
+    print(b)
+    print(rest.size())
+    print(kwargs["x"])
+    print(kwargs["y"])
+}
+var extra = {"y": 20}
+inspect(1, b=2, x=10, **extra)
+
+# Keyword arguments to builtins and methods
+print(range(start=0, end=3))
+print("hello".contains(substr="ell"))
+print(["a", "b"].join(sep="-"))

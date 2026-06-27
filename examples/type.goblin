@@ -18,3 +18,18 @@ var carol = User("carol", age=21)
 print(carol.name)
 print(carol.age)
 carol.hello()
+
+# Member assignment on a type instance, directly and via a method
+type Point(x, y) {
+    func move(self, dx, dy) {
+        self.x = self.x + dx
+        self.y = self.y + dy
+    }
+}
+var p = Point(1, 2)
+p.x = 5
+print(p.x)
+print(p.y)
+p.move(10, 20)
+print(p.x)
+print(p.y)

@@ -10,6 +10,17 @@ var nested = [[1, 2], [3, 4]]
 print(nested[0][1])
 print(nested[1][0])
 
+# List element assignment
+var ms = [1, 2, 3]
+ms[0] = 10
+ms[2] = 30
+print(ms)
+
+# Nested list assignment
+var grid = [[1, 2], [3, 4]]
+grid[0][1] = 99
+print(grid)
+
 # List methods
 print(list.size())
 list.push(4)

@@ -18,6 +18,16 @@ print(10.0 / 2.0)
 print(3.5 + 2)
 print(10 / 2.5)
 
+# Unary plus/minus
+print(+1)
+print(-1)
+print(+1.5)
+print(-1.5)
+print(--1)
+print(+-1)
+print(-1 * 2)
+print(-(1 + 2))
+
 # Int constructor
 print(Int(42))
 print(Int(3.7))

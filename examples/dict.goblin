@@ -9,6 +9,15 @@ print(d)
 print(d["name"])
 print(d["age"])
 
+# Dict value assignment: update existing and insert new key
+var scores = {"a": 1, "b": 2}
+scores["a"] = 100
+scores["c"] = 3
+print(scores["a"])
+print(scores["b"])
+print(scores["c"])
+print(scores.size())
+
 # Dict methods
 print(d.size())
 print(d.keys())

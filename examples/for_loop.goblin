@@ -20,3 +20,11 @@ for inner in list {
 for i in range(0, 3) {
     print(i)
 }
+
+# for-in with continue
+for x in [1, 2, 3, 4, 5] {
+    if x == 3 {
+        continue
+    }
+    print(x)
+}
