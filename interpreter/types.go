@@ -126,6 +126,14 @@ func (in *instance) GetAttr(name string) (object.Object, error) {
 	return nil, fmt.Errorf("%s has no attribute '%s'", in.typ.name, name)
 }
 
+func (in *instance) SetAttr(name string, value object.Object) error {
+	if in.typ.hasField(name) {
+		in.fields[name] = value
+		return nil
+	}
+	return fmt.Errorf("%s has no attribute '%s'", in.typ.name, name)
+}
+
 func (in *instance) String() string { return fmt.Sprintf("<%s@%p>", in.typ.name, in) }
 func (in *instance) Bool() bool     { return true }
 

@@ -25,3 +25,33 @@ func Call(obj Object, args CallArgs) (Object, error) {
 	}
 	return nil, fmt.Errorf("%s is not callable", obj.String())
 }
+
+// IndexSetter is implemented by objects that support index assignment,
+// e.g. `list[0] = x` or `dict["k"] = v`.
+type IndexSetter interface {
+	SetIndex(index Object, value Object) error
+}
+
+// AttrSetter is implemented by objects that support member assignment,
+// e.g. `obj.field = x`.
+type AttrSetter interface {
+	SetAttr(name string, value Object) error
+}
+
+// SetItem performs an index assignment, dispatching to the object's SetIndex
+// method when available.
+func SetItem(obj Object, index Object, value Object) error {
+	if s, ok := obj.(IndexSetter); ok {
+		return s.SetIndex(index, value)
+	}
+	return fmt.Errorf("%s does not support index assignment", obj.String())
+}
+
+// SetAttribute performs a member assignment, dispatching to the object's
+// SetAttr method when available.
+func SetAttribute(obj Object, name string, value Object) error {
+	if s, ok := obj.(AttrSetter); ok {
+		return s.SetAttr(name, value)
+	}
+	return fmt.Errorf("%s does not support attribute assignment", obj.String())
+}

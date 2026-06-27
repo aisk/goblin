@@ -166,6 +166,19 @@ func (l *List) Index(index Object) (Object, error) {
 	return l.Elements[i], nil
 }
 
+func (l *List) SetIndex(index Object, value Object) error {
+	idx, ok := index.(Integer)
+	if !ok {
+		return fmt.Errorf("list index must be integer, got %T", index)
+	}
+	i := int(idx)
+	if i < 0 || i >= len(l.Elements) {
+		return fmt.Errorf("list index out of range: %d", i)
+	}
+	l.Elements[i] = value
+	return nil
+}
+
 func (l *List) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":

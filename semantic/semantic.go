@@ -205,6 +205,19 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.newError(v.Position(), "assignment to undefined identifier: %s", v.Target)
 		}
 		return c.checkExpression(v.Value)
+	case *ast.SetIndex:
+		if err := c.checkExpression(v.Object); err != nil {
+			return err
+		}
+		if err := c.checkExpression(v.Index); err != nil {
+			return err
+		}
+		return c.checkExpression(v.Value)
+	case *ast.SetAttr:
+		if err := c.checkExpression(v.Object); err != nil {
+			return err
+		}
+		return c.checkExpression(v.Value)
 	case *ast.FunctionDefine:
 		if !c.currentScope.declare(v.Name) {
 			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)

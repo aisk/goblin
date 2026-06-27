@@ -232,6 +232,46 @@ func NewAssign(x, y any) (any, error) {
 	}, nil
 }
 
+// SetIndex assigns to an index target, e.g. `list[0] = x` or `dict["k"] = v`.
+type SetIndex struct {
+	statementMixin
+	Object Expression
+	Index  Expression
+	Value  Expression
+}
+
+// SetAttr assigns to a member target, e.g. `obj.field = x`.
+type SetAttr struct {
+	statementMixin
+	Object   Expression
+	Property string
+	Value    Expression
+}
+
+// NewSetAssign builds a SetIndex or SetAttr from an assignment whose target is
+// an index or member expression. Other expression targets are rejected.
+func NewSetAssign(target, value any) (any, error) {
+	v := value.(Expression)
+	switch t := target.(type) {
+	case *IndexExpression:
+		return &SetIndex{
+			statementMixin: statementMixin{Pos: t.Position()},
+			Object:         t.Object,
+			Index:          t.Index,
+			Value:          v,
+		}, nil
+	case *MemberExpression:
+		return &SetAttr{
+			statementMixin: statementMixin{Pos: t.Position()},
+			Object:         t.Object,
+			Property:       t.Property,
+			Value:          v,
+		}, nil
+	default:
+		return nil, fmt.Errorf("cannot assign to this expression")
+	}
+}
+
 type IfElse struct {
 	statementMixin
 	Condition Expression
