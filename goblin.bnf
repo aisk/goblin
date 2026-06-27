@@ -57,6 +57,7 @@ Statement
     | While
     | For
     | Break
+    | Continue
     | FunctionDefine
     | TypeDefine
     | Return
@@ -250,6 +251,10 @@ For
 
 Break
     : "break"                                << ast.NewBreak() >>
+;
+
+Continue
+    : "continue"                             << ast.NewContinue() >>
 ;
 
 Parameters

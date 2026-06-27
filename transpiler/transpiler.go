@@ -734,6 +734,10 @@ func (ctx *transpileContext) transpileBreak(break_ *ast.Break) ([]jen.Code, erro
 	return []jen.Code{jen.Break()}, nil
 }
 
+func (ctx *transpileContext) transpileContinue(continue_ *ast.Continue) ([]jen.Code, error) {
+	return []jen.Code{jen.Continue()}, nil
+}
+
 func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
 	iterPreStmts, iterator, err := ctx.transpileExpression(for_.Iterator, onError)
 	if err != nil {
@@ -1448,6 +1452,8 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		codes, err = ctx.transpileFor(v, onError)
 	case *ast.Break:
 		codes, err = ctx.transpileBreak(v)
+	case *ast.Continue:
+		codes, err = ctx.transpileContinue(v)
 	case *ast.Return:
 		codes, err = ctx.transpileReturn(v, onError)
 	case *ast.Export:

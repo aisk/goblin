@@ -59,6 +59,10 @@ type breakSignal struct{}
 
 func (breakSignal) Error() string { return "break outside loop" }
 
+type continueSignal struct{}
+
+func (continueSignal) Error() string { return "continue outside loop" }
+
 type returnSignal struct{ value object.Object }
 
 func (returnSignal) Error() string { return "return outside function" }
@@ -158,6 +162,9 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 				if _, ok := err.(breakSignal); ok {
 					return nil
 				}
+				if _, ok := err.(continueSignal); ok {
+					continue
+				}
 				return err
 			}
 		}
@@ -177,6 +184,9 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 				if _, ok := err.(breakSignal); ok {
 					return nil
 				}
+				if _, ok := err.(continueSignal); ok {
+					continue
+				}
 				return err
 			}
 		}
@@ -184,6 +194,9 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 
 	case *ast.Break:
 		return breakSignal{}
+
+	case *ast.Continue:
+		return continueSignal{}
 
 	case *ast.Return:
 		v, err := evalExpr(s.Value, env)

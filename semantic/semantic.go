@@ -299,6 +299,11 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.newError(v.Position(), "break used outside loop")
 		}
 		return nil
+	case *ast.Continue:
+		if c.loopDepth == 0 {
+			return c.newError(v.Position(), "continue used outside loop")
+		}
+		return nil
 	case *ast.Return:
 		if c.funcDepth == 0 {
 			return c.newError(v.Position(), "return used outside function")
