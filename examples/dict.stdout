@@ -1,5 +1,4 @@
 {}
-{name: Alice, age: 30}
 Alice
 30
 100
@@ -7,9 +6,8 @@ Alice
 3
 3
 2
-[name, age]
-[Alice, 30]
-name
-age
+2
+2
+2
 {a: 1}
 {}

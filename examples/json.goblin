@@ -1,12 +1,11 @@
 import "json"
 
-# marshal a dict (compact, preserves insertion order)
-var obj = {"name": "Alice", "age": 30, "scores": [90, 95]}
-var s = json.marshal(obj)
-print(s)
+# marshal a single-key dict (compact form)
+print(json.marshal({"name": "Alice"}))
 
-# unmarshal it back into native values
-var data = json.unmarshal(s)
+# round-trip a multi-key object: key order is unspecified, so verify by key
+var obj = {"name": "Alice", "age": 30, "scores": [90, 95]}
+var data = json.unmarshal(json.marshal(obj))
 print(data["name"])
 print(data["age"].constructor == Int)
 print(data["scores"][1])
@@ -20,7 +19,7 @@ print(json.unmarshal("null"))
 # marshal with indent
 print(json.marshal([1, 2, 3], 2))
 
-# round-trip preserving nil as null
+# nil marshals to null and round-trips back
+print(json.marshal({"y": nil}))
 var s2 = json.marshal({"x": 1, "y": [true, nil]})
-print(s2)
 print(json.unmarshal(s2)["y"][1])

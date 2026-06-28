@@ -11,8 +11,9 @@ type DictEntry struct {
 }
 
 type Dict struct {
-	Entries  []DictEntry
-	KeyIndex map[string]int
+	// Entries maps the string form of each key to its entry. Iteration order is
+	// unspecified, mirroring Go's map semantics.
+	Entries map[string]DictEntry
 }
 
 var _ Object = &Dict{}
@@ -34,9 +35,9 @@ func (d *Dict) Keys(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, fmt.Errorf("keys() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	keys := make([]Object, len(d.Entries))
-	for i, entry := range d.Entries {
-		keys[i] = entry.Key
+	keys := make([]Object, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		keys = append(keys, entry.Key)
 	}
 	return &List{Elements: keys}, nil
 }
@@ -48,42 +49,37 @@ func (d *Dict) Values(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, fmt.Errorf("values() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	values := make([]Object, len(d.Entries))
-	for i, entry := range d.Entries {
-		values[i] = entry.Value
+	values := make([]Object, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		values = append(values, entry.Value)
 	}
 	return &List{Elements: values}, nil
 }
 
 func NewDict() *Dict {
 	return &Dict{
-		Entries:  []DictEntry{},
-		KeyIndex: make(map[string]int),
+		Entries: make(map[string]DictEntry),
 	}
 }
 
 func (d *Dict) Set(key, value Object) {
-	keyStr := key.String()
-	if idx, ok := d.KeyIndex[keyStr]; ok {
-		d.Entries[idx].Value = value
-	} else {
-		d.KeyIndex[keyStr] = len(d.Entries)
-		d.Entries = append(d.Entries, DictEntry{Key: key, Value: value})
+	if d.Entries == nil {
+		d.Entries = make(map[string]DictEntry)
 	}
+	d.Entries[key.String()] = DictEntry{Key: key, Value: value}
 }
 
 func (d *Dict) Get(key Object) (Object, bool) {
-	keyStr := key.String()
-	if idx, ok := d.KeyIndex[keyStr]; ok {
-		return d.Entries[idx].Value, true
+	if entry, ok := d.Entries[key.String()]; ok {
+		return entry.Value, true
 	}
 	return nil, false
 }
 
 func (d *Dict) String() string {
-	elements := make([]string, len(d.Entries))
-	for i, entry := range d.Entries {
-		elements[i] = fmt.Sprintf("%s: %s", entry.Key.String(), entry.Value.String())
+	elements := make([]string, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		elements = append(elements, fmt.Sprintf("%s: %s", entry.Key.String(), entry.Value.String()))
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }
@@ -125,9 +121,9 @@ func (d *Dict) Not() (Object, error) {
 }
 
 func (d *Dict) Iter() ([]Object, error) {
-	keys := make([]Object, len(d.Entries))
-	for i, entry := range d.Entries {
-		keys[i] = entry.Key
+	keys := make([]Object, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		keys = append(keys, entry.Key)
 	}
 	return keys, nil
 }

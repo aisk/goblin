@@ -410,7 +410,11 @@ func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression,
 
 func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	var preStmts []jen.Code
-	var entries []jen.Code
+
+	dictVar := ctx.localName("dict")
+	preStmts = append(preStmts,
+		jen.Id(dictVar).Op(":=").Qual(pathObject, "NewDict").Call(),
+	)
 
 	for _, elem := range dict.Elements {
 		keyPre, key, err := ctx.transpileExpression(elem.Key, onError)
@@ -423,21 +427,7 @@ func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError
 		}
 		preStmts = append(preStmts, keyPre...)
 		preStmts = append(preStmts, valuePre...)
-		entries = append(entries, jen.Values(jen.Id("Key").Op(":").Add(key), jen.Id("Value").Op(":").Add(value)))
-	}
-
-	dictVar := ctx.localName("dict")
-	preStmts = append(preStmts,
-		jen.Id(dictVar).Op(":=").Op("&").Qual(pathObject, "Dict").Values(
-			jen.Id("Entries").Op(":").Index().Qual(pathObject, "DictEntry").Values(entries...),
-			jen.Id("KeyIndex").Op(":").Make(jen.Map(jen.String()).Int()),
-		),
-	)
-
-	for i := range dict.Elements {
-		preStmts = append(preStmts,
-			jen.Id(dictVar).Dot("KeyIndex").Index(jen.Id(dictVar).Dot("Entries").Index(jen.Lit(i)).Dot("Key").Dot("String").Call()).Op("=").Lit(i),
-		)
+		preStmts = append(preStmts, jen.Id(dictVar).Dot("Set").Call(key, value))
 	}
 
 	return preStmts, jen.Id(dictVar), nil

@@ -146,7 +146,7 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 	case *object.List:
 		return goblinListToJSON(v.Elements, buf, indent, level)
 	case *object.Dict:
-		return goblinDictToJSON(v.Entries, buf, indent, level)
+		return goblinDictToJSON(v, buf, indent, level)
 	default:
 		return fmt.Errorf("marshal() unsupported type: %T", obj)
 	}
@@ -179,17 +179,19 @@ func goblinListToJSON(elements []object.Object, buf *bytes.Buffer, indent, level
 	return nil
 }
 
-func goblinDictToJSON(entries []object.DictEntry, buf *bytes.Buffer, indent, level int) error {
-	if len(entries) == 0 {
+func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) error {
+	if len(d.Entries) == 0 {
 		buf.WriteString("{}")
 		return nil
 	}
 	pretty := indent > 0
 	buf.WriteByte('{')
-	for i, entry := range entries {
+	i := 0
+	for _, entry := range d.Entries {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
+		i++
 		if pretty {
 			buf.WriteByte('\n')
 			writeSpaces(buf, indent*(level+1))

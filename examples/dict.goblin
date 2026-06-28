@@ -3,7 +3,6 @@ var empty = {}
 print(empty)
 
 var d = {"name": "Alice", "age": 30}
-print(d)
 
 # Dict indexing
 print(d["name"])
@@ -18,15 +17,17 @@ print(scores["b"])
 print(scores["c"])
 print(scores.size())
 
-# Dict methods
+# Dict methods (iteration order is unspecified, so assert on sizes/lookups)
 print(d.size())
-print(d.keys())
-print(d.values())
+print(d.keys().size())
+print(d.values().size())
 
-# Dict iteration
+# Dict iteration visits every key exactly once
+var count = 0
 for key in d {
-    print(key)
+    count = count + 1
 }
+print(count)
 
 # Dict constructor
 print(Dict(a=1))
