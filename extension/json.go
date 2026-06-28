@@ -36,6 +36,9 @@ func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
 	if err := dec.Decode(&v); err != nil {
 		return nil, err
 	}
+	if dec.More() {
+		return nil, fmt.Errorf("unmarshal() unexpected trailing data after JSON value")
+	}
 	return jsonToGoblin(v)
 }
 

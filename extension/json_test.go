@@ -79,6 +79,11 @@ func TestJsonUnmarshalRejectsBadInput(t *testing.T) {
 	if _, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String("{bad")}}); err == nil {
 		t.Fatalf("expected error for invalid JSON")
 	}
+	for _, in := range []string{"42 43", "42 hello", "{} {}", "[1] [2]"} {
+		if _, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String(in)}}); err == nil {
+			t.Fatalf("expected error for trailing data: %q", in)
+		}
+	}
 }
 
 func TestJsonMarshalCompact(t *testing.T) {
