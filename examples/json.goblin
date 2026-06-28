@@ -1,0 +1,26 @@
+import "json"
+
+# marshal a dict (compact, preserves insertion order)
+var obj = {"name": "Alice", "age": 30, "scores": [90, 95]}
+var s = json.marshal(obj)
+print(s)
+
+# unmarshal it back into native values
+var data = json.unmarshal(s)
+print(data["name"])
+print(data["age"].constructor == Int)
+print(data["scores"][1])
+
+# scalar unmarshal
+print(json.unmarshal("42"))
+print(json.unmarshal("3.14").constructor == Float)
+print(json.unmarshal("true"))
+print(json.unmarshal("null"))
+
+# marshal with indent
+print(json.marshal([1, 2, 3], 2))
+
+# round-trip preserving nil as null
+var s2 = json.marshal({"x": 1, "y": [true, nil]})
+print(s2)
+print(json.unmarshal(s2)["y"][1])

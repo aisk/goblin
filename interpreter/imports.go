@@ -23,6 +23,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"http":   extension.ExecuteHttp,
 	"fs":     fs.Execute,
 	"mime":   extension.ExecuteMime,
+	"json":   extension.ExecuteJson,
 }
 
 func isPathImport(path string) bool {
