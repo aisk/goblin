@@ -1,0 +1,6 @@
+# String escape sequences
+print("he said \"hi\"")
+print("a\\b")
+print("line1\nline2")
+print("tab\there")
+print("no escapes here")

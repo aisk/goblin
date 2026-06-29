@@ -392,11 +392,45 @@ func NewFloatLiteral(x any) (any, error) {
 func NewStringLiteral(x any) (any, error) {
 	tok := x.(*token.Token)
 	s := string(tok.Lit)
-	s = s[1 : len(s)-1]
+	s = unescapeString(s[1 : len(s)-1])
 	return &Literal{
 		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
 		Value:           object.String(s),
 	}, nil
+}
+
+// unescapeString interprets backslash escape sequences in a string literal's
+// raw body (quotes already stripped). The lexer accepts the escapes but keeps
+// them verbatim, so we resolve them here. Unknown escapes drop the backslash
+// and keep the following character literally.
+func unescapeString(s string) string {
+	if !strings.Contains(s, "\\") {
+		return s
+	}
+	var b strings.Builder
+	b.Grow(len(s))
+	for i := 0; i < len(s); i++ {
+		if s[i] == '\\' && i+1 < len(s) {
+			i++
+			switch s[i] {
+			case 'n':
+				b.WriteByte('\n')
+			case 't':
+				b.WriteByte('\t')
+			case 'r':
+				b.WriteByte('\r')
+			case '"':
+				b.WriteByte('"')
+			case '\\':
+				b.WriteByte('\\')
+			default:
+				b.WriteByte(s[i])
+			}
+			continue
+		}
+		b.WriteByte(s[i])
+	}
+	return b.String()
 }
 
 func NewTrueLiteral() (any, error) {
