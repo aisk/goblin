@@ -1,0 +1,10 @@
+caught: boom
+message: with detail
+no error here
+runtime error caught
+caught: from function
+returned
+inner caught: inner
+after inner
+rethrowing
+outer caught: original

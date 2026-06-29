@@ -12,6 +12,7 @@ var BuiltinsModule = &object.Module{
 		"range":    &object.Function{Name: "range", Fn: range_},
 		"max":      &object.Function{Name: "max", Fn: max},
 		"min":      &object.Function{Name: "min", Fn: min},
+		"Error":    object.ErrorConstructorFn,
 		"Int":      object.IntConstructorFn,
 		"Float":    object.FloatConstructorFn,
 		"Str":      object.StrConstructorFn,

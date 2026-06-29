@@ -61,6 +61,8 @@ Statement
     | FunctionDefine
     | TypeDefine
     | Return
+    | Raise
+    | Try
     | Export
     | Import
 ;
@@ -314,6 +316,14 @@ TypeDefine
 Return
     : "return" Expression                    << ast.NewReturn($1) >>
     | "return"                               << ast.NewReturnNil($0) >>
+;
+
+Raise
+    : "raise" Expression                     << ast.NewRaise($1) >>
+;
+
+Try
+    : "try" Block "catch" id Block           << ast.NewTryCatch($0, $1, $3, $4) >>
 ;
 
 Export

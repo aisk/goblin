@@ -182,6 +182,9 @@ var TokMap = TokenMap{
 		"continue",
 		"type",
 		"return",
+		"raise",
+		"try",
+		"catch",
 		"export",
 	},
 
@@ -232,6 +235,9 @@ var TokMap = TokenMap{
 		"continue":   43,
 		"type":       44,
 		"return":     45,
-		"export":     46,
+		"raise":      46,
+		"try":        47,
+		"catch":      48,
+		"export":     49,
 	},
 }
