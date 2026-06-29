@@ -272,6 +272,18 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.newError(v.Position(), "return used outside function")
 		}
 		return c.checkExpression(v.Value)
+	case *ast.Raise:
+		return c.checkExpression(v.Value)
+	case *ast.TryCatch:
+		if err := c.withScope(func() error {
+			return c.checkStatements(v.TryBody, false)
+		}); err != nil {
+			return err
+		}
+		return c.withScope(func() error {
+			c.currentScope.declare(v.CatchVar)
+			return c.checkStatements(v.CatchBody, false)
+		})
 	case *ast.Export:
 		if !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "export of undefined identifier: %s", v.Name)

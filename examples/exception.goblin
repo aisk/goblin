@@ -1,0 +1,72 @@
+# Basic raise and catch
+try {
+    raise Error("boom")
+} catch e {
+    print("caught:", e)
+}
+
+# The caught Error exposes its message as a string attribute
+try {
+    raise Error("with detail")
+} catch e {
+    print("message:", e.message)
+}
+
+# No exception: the catch block is skipped
+try {
+    print("no error here")
+} catch e {
+    print("should not print")
+}
+
+# Exceptions are not limited to `raise`: runtime errors are caught too
+try {
+    var x = 1 / 0
+    print(x)
+} catch e {
+    print("runtime error caught")
+}
+
+# A raise inside a called function propagates to the caller's try
+func boom() {
+    raise Error("from function")
+}
+try {
+    boom()
+} catch e {
+    print("caught:", e)
+}
+
+# `return` inside try still returns from the enclosing function
+func try_return() {
+    try {
+        return "returned"
+    } catch e {
+        return "caught"
+    }
+}
+print(try_return())
+
+# Nested try: the inner catch handles it, the outer one is untouched
+try {
+    try {
+        raise Error("inner")
+    } catch e {
+        print("inner caught:", e)
+    }
+    print("after inner")
+} catch e {
+    print("outer should not print")
+}
+
+# Re-raise: a catch block can rethrow to an outer try
+try {
+    try {
+        raise Error("original")
+    } catch e {
+        print("rethrowing")
+        raise e
+    }
+} catch e {
+    print("outer caught:", e)
+}

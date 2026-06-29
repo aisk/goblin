@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type Error struct {
 	Value string
@@ -65,9 +68,54 @@ func (e *Error) Error() string {
 }
 
 func (e *Error) GetAttr(name string) (Object, error) {
+	switch name {
+	case "message":
+		return String(e.Value), nil
+	case "constructor":
+		return ErrorConstructorFn, nil
+	}
 	return nil, fmt.Errorf("Error has no attribute '%s'", name)
 }
 
 var _ error = (*Error)(nil)
 
 var NotImplementedError = NewError("not implemented")
+
+var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
+
+func ErrorConstructor(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("Error", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return NewError(""), nil
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("Error() takes at most 1 argument, got %d", len(args.Positional))
+	}
+	return NewError(args.Positional[0].String()), nil
+}
+
+// Raise validates the value thrown by a `raise` statement. Only Error values
+// may be raised; raising anything else is itself an error. It returns the
+// error to propagate through the Go error channel that both backends use.
+func Raise(v Object) error {
+	if e, ok := v.(*Error); ok {
+		return e
+	}
+	return NewError("raise expects an Error, got: " + v.String())
+}
+
+// ExcValue extracts the Goblin exception value carried by err, unwrapping any
+// stack/cause wrappers (e.g. github.com/pkg/errors) added while the error
+// propagated up the call stack. Errors that did not originate from `raise`
+// (such as a runtime "division by zero") are surfaced as an *Error, so `catch`
+// always binds an Error.
+func ExcValue(err error) Object {
+	for e := err; e != nil; e = errors.Unwrap(e) {
+		if obj, ok := e.(Object); ok {
+			return obj
+		}
+	}
+	return NewError(err.Error())
+}

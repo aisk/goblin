@@ -673,6 +673,36 @@ func NewReturnNil(x any) (any, error) {
 	}, nil
 }
 
+type Raise struct {
+	statementMixin
+	Value Expression
+}
+
+func NewRaise(x any) (any, error) {
+	return &Raise{
+		statementMixin: statementMixin{Pos: PositionOf(x)},
+		Value:          x.(Expression),
+	}, nil
+}
+
+type TryCatch struct {
+	statementMixin
+	TryBody   []Statement
+	CatchVar  string
+	CatchBody []Statement
+}
+
+func NewTryCatch(tryTok, tryBody, catchVar, catchBody any) (any, error) {
+	tok := tryTok.(*token.Token)
+	varTok := catchVar.(*token.Token)
+	return &TryCatch{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		TryBody:        tryBody.([]Statement),
+		CatchVar:       string(varTok.Lit),
+		CatchBody:      catchBody.([]Statement),
+	}, nil
+}
+
 var (
 	Add            = "+"
 	Minus          = "-"

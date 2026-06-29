@@ -1262,6 +1262,68 @@ func (ctx *transpileContext) transpileReturn(return_ *ast.Return, onError errHan
 	return append(preStmts, jen.Return(jen.List(r, jen.Nil()))), nil
 }
 
+// transpileRaise turns `raise expr` into an error (the raised Error value, or a
+// type error if expr is not an Error) that is then routed through the active
+// error handler (a top-level `return`, or a jump to the enclosing `try`'s catch
+// label).
+func (ctx *transpileContext) transpileRaise(raise *ast.Raise, onError errHandler) ([]jen.Code, error) {
+	preStmts, val, err := ctx.transpileExpression(raise.Value, onError)
+	if err != nil {
+		return nil, err
+	}
+	errVar := ctx.localName("err")
+	code := append(preStmts,
+		jen.Id(errVar).Op(":=").Qual(pathObject, "Raise").Call(val),
+		onError(errVar),
+	)
+	return code, nil
+}
+
+// transpileTryCatch lowers `try { ... } catch e { ... }` using goto/labels so
+// that `return`/`break`/`continue` inside the try body still target the real
+// enclosing function/loop (a closure or defer/recover boundary would capture
+// them). Inside the try body the error handler stores the error and jumps to
+// the catch label; the unconditional post-block check guarantees the label is
+// referenced even when the body has no fallible operation.
+func (ctx *transpileContext) transpileTryCatch(tc *ast.TryCatch, onError errHandler) ([]jen.Code, error) {
+	excVar := ctx.localName("exc")
+	catchLabel := ctx.localName("catch")
+	doneLabel := ctx.localName("done")
+
+	tryOnError := func(errVar string) jen.Code {
+		return jen.Block(
+			jen.Id(excVar).Op("=").Id(errVar),
+			jen.Goto().Id(catchLabel),
+		)
+	}
+
+	tryBody, err := ctx.transpileStatements(tc.TryBody, tryOnError, "")
+	if err != nil {
+		return nil, err
+	}
+	catchBody, err := ctx.transpileStatements(tc.CatchBody, onError, "")
+	if err != nil {
+		return nil, err
+	}
+
+	catchBlock := []jen.Code{
+		jen.Id(tc.CatchVar).Op(":=").Qual(pathObject, "ExcValue").Call(jen.Id(excVar)),
+		jen.Id("_").Op("=").Id(tc.CatchVar),
+	}
+	catchBlock = append(catchBlock, catchBody...)
+
+	return []jen.Code{
+		jen.Var().Id(excVar).Error(),
+		jen.Block(tryBody...),
+		jen.If(jen.Id(excVar).Op("!=").Nil()).Block(jen.Goto().Id(catchLabel)),
+		jen.Goto().Id(doneLabel),
+		jen.Id(catchLabel).Op(":"),
+		jen.Block(catchBlock...),
+		jen.Id(doneLabel).Op(":"),
+		jen.Id("_").Op("=").Id(excVar),
+	}, nil
+}
+
 func isComparisonOperator(op string) bool {
 	switch op {
 	case "==", "!=", "<", ">", "<=", ">=":
@@ -1455,6 +1517,10 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		codes, err = ctx.transpileContinue(v)
 	case *ast.Return:
 		codes, err = ctx.transpileReturn(v, onError)
+	case *ast.Raise:
+		codes, err = ctx.transpileRaise(v, onError)
+	case *ast.TryCatch:
+		codes, err = ctx.transpileTryCatch(v, onError)
 	case *ast.Export:
 		codes, err = ctx.transpileExport(v, exportsVar)
 	case *ast.BinaryOperation:
