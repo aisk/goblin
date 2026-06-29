@@ -12,3 +12,17 @@ print(os.getuid().constructor == Int)
 print(os.getpid() > 0)
 
 # Note: os.exit() is tested separately to avoid terminating the test runner
+
+# tempdir / tempfile mirror Go's os.MkdirTemp / os.CreateTemp.
+# Both dir and pattern are optional.
+var d1 = os.tempdir()
+print(d1 != "")
+
+var d2 = os.tempdir("", "goblin-*")
+print(d2 != "")
+
+var f1 = os.tempfile()
+print(f1 != "")
+
+var f2 = os.tempfile("", "goblin-*")
+print(f2 != "")
