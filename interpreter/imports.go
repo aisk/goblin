@@ -9,6 +9,7 @@ import (
 	"github.com/aisk/goblin/extension"
 	filepathExt "github.com/aisk/goblin/extension/filepath"
 	"github.com/aisk/goblin/extension/fs"
+	pathExt "github.com/aisk/goblin/extension/path"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
@@ -26,6 +27,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"mime":     extension.ExecuteMime,
 	"json":     extension.ExecuteJson,
 	"filepath": filepathExt.Execute,
+	"path":     pathExt.Execute,
 }
 
 func isPathImport(path string) bool {
