@@ -1,0 +1,15 @@
+import "path"
+
+print(path.base("/home/user/file.txt") == "file.txt")
+print(path.dir("/home/user/file.txt") == "/home/user")
+print(path.ext("/home/user/file.txt") == ".txt")
+print(path.clean("/home/user/../user/./file.txt") == "/home/user/file.txt")
+print(path.join("a", "b", "c") == "a/b/c")
+print(path.is_abs("/home/user") == true)
+print(path.is_abs("home/user") == false)
+print(path.match("*.txt", "file.txt") == true)
+print(path.match("*.txt", "file.go") == false)
+
+var parts = path.split("/home/user/file.txt")
+print(parts[0] == "/home/user/")
+print(parts[1] == "file.txt")
