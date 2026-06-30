@@ -31,14 +31,18 @@ func exit(args object.CallArgs) (object.Object, error) {
 	if err := object.RequireNoKeyword("exit", args); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("exit() requires exactly 1 argument")
+	if len(args.Positional) > 1 {
+		return nil, fmt.Errorf("exit() takes at most 1 argument")
 	}
-	code, ok := args.Positional[0].(object.Integer)
-	if !ok {
-		return nil, fmt.Errorf("exit() argument must be an integer")
+	code := 0
+	if len(args.Positional) == 1 {
+		c, ok := args.Positional[0].(object.Integer)
+		if !ok {
+			return nil, fmt.Errorf("exit() argument must be an integer")
+		}
+		code = int(c)
 	}
-	os.Exit(int(code))
+	os.Exit(code)
 	return nil, nil
 }
 
