@@ -9,6 +9,7 @@ import (
 var BuiltinsModule = &object.Module{
 	Members: map[string]object.Object{
 		"print":    &object.Function{Name: "print", Fn: print},
+		"spawn":    &object.Function{Name: "spawn", Fn: spawn},
 		"range":    &object.Function{Name: "range", Fn: range_},
 		"max":      &object.Function{Name: "max", Fn: max},
 		"min":      &object.Function{Name: "min", Fn: min},
@@ -36,6 +37,26 @@ func print(args object.CallArgs) (object.Object, error) {
 	}
 	fmt.Print("\n")
 	return nil, nil
+}
+
+// spawn launches a goblin function in a new goroutine, passing any extra
+// positional arguments along to it. Goroutines are fire-and-forget: the
+// function's return value and error are discarded, mirroring Go's `go`
+// statement. Use a Chan to communicate results back.
+func spawn(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("spawn", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) == 0 {
+		return nil, fmt.Errorf("spawn() requires at least 1 argument")
+	}
+	fn, ok := args.Positional[0].(*object.Function)
+	if !ok {
+		return nil, fmt.Errorf("spawn() first argument must be a function, not %T", args.Positional[0])
+	}
+	callArgs := object.CallArgs{Positional: args.Positional[1:]}
+	go fn.Call(callArgs)
+	return object.Nil, nil
 }
 
 func range_(args object.CallArgs) (object.Object, error) {
