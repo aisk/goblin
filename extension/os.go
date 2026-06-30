@@ -11,10 +11,16 @@ func ExecuteOs() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
 			"exit":         &object.Function{Name: "exit", Fn: exit},
+			"getegid":      &object.Function{Name: "getegid", Fn: getegid},
 			"getenv":       &object.Function{Name: "getenv", Fn: getenv},
+			"geteuid":      &object.Function{Name: "geteuid", Fn: geteuid},
+			"getgid":       &object.Function{Name: "getgid", Fn: getgid},
+			"getgroups":    &object.Function{Name: "getgroups", Fn: getgroups},
+			"getpagesize":  &object.Function{Name: "getpagesize", Fn: getpagesize},
 			"getpid":       &object.Function{Name: "getpid", Fn: getpid},
 			"getppid":      &object.Function{Name: "getppid", Fn: getppid},
 			"getuid":       &object.Function{Name: "getuid", Fn: getuid},
+			"getwd":        &object.Function{Name: "getwd", Fn: getwd},
 			"tempdir":  &object.Function{Name: "tempdir", Fn: tempDir},
 			"tempfile": &object.Function{Name: "tempfile", Fn: tempFile},
 		},
@@ -82,6 +88,81 @@ func getuid(args object.CallArgs) (object.Object, error) {
 	}
 	uid := os.Getuid()
 	return object.Integer(uid), nil
+}
+
+func getegid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getegid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("getegid() requires no arguments")
+	}
+	egid := os.Getegid()
+	return object.Integer(egid), nil
+}
+
+func geteuid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("geteuid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("geteuid() requires no arguments")
+	}
+	euid := os.Geteuid()
+	return object.Integer(euid), nil
+}
+
+func getgid(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getgid", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("getgid() requires no arguments")
+	}
+	gid := os.Getgid()
+	return object.Integer(gid), nil
+}
+
+func getgroups(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getgroups", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("getgroups() requires no arguments")
+	}
+	gids, err := os.Getgroups()
+	if err != nil {
+		return nil, err
+	}
+	elems := make([]object.Object, len(gids))
+	for i, g := range gids {
+		elems[i] = object.Integer(g)
+	}
+	return &object.List{Elements: elems}, nil
+}
+
+func getpagesize(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getpagesize", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("getpagesize() requires no arguments")
+	}
+	return object.Integer(os.Getpagesize()), nil
+}
+
+func getwd(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("getwd", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("getwd() requires no arguments")
+	}
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	return object.String(wd), nil
 }
 
 // tempDir creates a new temporary directory, mirroring Go's os.MkdirTemp.
