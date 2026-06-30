@@ -19,6 +19,7 @@ var BuiltinsModule = &object.Module{
 		"Bool":     object.BoolConstructorFn,
 		"List":     object.ListConstructorFn,
 		"Dict":     object.DictConstructorFn,
+		"Chan":     object.ChanConstructorFn,
 		"Function": object.FunctionConstructorFn,
 	},
 }
