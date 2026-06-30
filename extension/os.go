@@ -3,6 +3,7 @@ package extension
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aisk/goblin/object"
 )
@@ -10,6 +11,7 @@ import (
 func ExecuteOs() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
+			"environ":      &object.Function{Name: "environ", Fn: environ},
 			"exit":         &object.Function{Name: "exit", Fn: exit},
 			"getegid":      &object.Function{Name: "getegid", Fn: getegid},
 			"getenv":       &object.Function{Name: "getenv", Fn: getenv},
@@ -21,6 +23,9 @@ func ExecuteOs() (object.Object, error) {
 			"getppid":      &object.Function{Name: "getppid", Fn: getppid},
 			"getuid":       &object.Function{Name: "getuid", Fn: getuid},
 			"getwd":        &object.Function{Name: "getwd", Fn: getwd},
+			"hostname":     &object.Function{Name: "hostname", Fn: hostname},
+			"setenv":       &object.Function{Name: "setenv", Fn: setenv},
+			"unsetenv":     &object.Function{Name: "unsetenv", Fn: unsetenv},
 			"tempdir":  &object.Function{Name: "tempdir", Fn: tempDir},
 			"tempfile": &object.Function{Name: "tempfile", Fn: tempFile},
 		},
@@ -59,6 +64,80 @@ func getenv(args object.CallArgs) (object.Object, error) {
 	}
 	value := os.Getenv(string(key))
 	return object.String(value), nil
+}
+
+func setenv(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("setenv", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 2 {
+		return nil, fmt.Errorf("setenv() requires exactly 2 arguments")
+	}
+	key, ok := args.Positional[0].(object.String)
+	if !ok {
+		return nil, fmt.Errorf("setenv() first argument must be a string")
+	}
+	value, ok := args.Positional[1].(object.String)
+	if !ok {
+		return nil, fmt.Errorf("setenv() second argument must be a string")
+	}
+	if err := os.Setenv(string(key), string(value)); err != nil {
+		return nil, err
+	}
+	return object.Nil, nil
+}
+
+func unsetenv(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("unsetenv", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, fmt.Errorf("unsetenv() requires exactly 1 argument")
+	}
+	key, ok := args.Positional[0].(object.String)
+	if !ok {
+		return nil, fmt.Errorf("unsetenv() argument must be a string")
+	}
+	if err := os.Unsetenv(string(key)); err != nil {
+		return nil, err
+	}
+	return object.Nil, nil
+}
+
+func environ(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("environ", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("environ() requires no arguments")
+	}
+	env := os.Environ()
+	entries := make(map[string]object.DictEntry, len(env))
+	for _, e := range env {
+		key, value, found := strings.Cut(e, "=")
+		if !found {
+			continue
+		}
+		entries[key] = object.DictEntry{
+			Key:   object.String(key),
+			Value: object.String(value),
+		}
+	}
+	return &object.Dict{Entries: entries}, nil
+}
+
+func hostname(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("hostname", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("hostname() requires no arguments")
+	}
+	name, err := os.Hostname()
+	if err != nil {
+		return nil, err
+	}
+	return object.String(name), nil
 }
 
 func getpid(args object.CallArgs) (object.Object, error) {
