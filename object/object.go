@@ -1,7 +1,5 @@
 package object
 
-import "fmt"
-
 type Object interface {
 	String() string
 	Bool() bool
@@ -23,7 +21,7 @@ func Call(obj Object, args CallArgs) (Object, error) {
 	case *Function:
 		return v.Call(args)
 	}
-	return nil, fmt.Errorf("%s is not callable", obj.String())
+	return nil, NewTypeError("%s is not callable", obj.String())
 }
 
 // IndexSetter is implemented by objects that support index assignment,
@@ -44,7 +42,7 @@ func SetItem(obj Object, index Object, value Object) error {
 	if s, ok := obj.(IndexSetter); ok {
 		return s.SetIndex(index, value)
 	}
-	return fmt.Errorf("%s does not support index assignment", obj.String())
+	return NewTypeError("%s does not support index assignment", obj.String())
 }
 
 // SetAttribute performs a member assignment, dispatching to the object's
@@ -53,5 +51,5 @@ func SetAttribute(obj Object, name string, value Object) error {
 	if s, ok := obj.(AttrSetter); ok {
 		return s.SetAttr(name, value)
 	}
-	return fmt.Errorf("%s does not support attribute assignment", obj.String())
+	return NewTypeError("%s does not support attribute assignment", obj.String())
 }

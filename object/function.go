@@ -20,25 +20,29 @@ func (f *Function) Compare(other Object) (int, error) {
 		}
 		return 1, nil
 	}
-	return 0, fmt.Errorf("cannot compare Function and %T", other)
+	return 0, NewTypeError("cannot compare Function and %T", other)
 }
-func (f *Function) Add(Object) (Object, error)   { return nil, fmt.Errorf("cannot add Function") }
-func (f *Function) Minus(Object) (Object, error) { return nil, fmt.Errorf("cannot subtract Function") }
+func (f *Function) Add(Object) (Object, error) { return nil, NewTypeError("cannot add Function") }
+func (f *Function) Minus(Object) (Object, error) {
+	return nil, NewTypeError("cannot subtract Function")
+}
 func (f *Function) Multiply(Object) (Object, error) {
-	return nil, fmt.Errorf("cannot multiply Function")
+	return nil, NewTypeError("cannot multiply Function")
 }
-func (f *Function) Divide(Object) (Object, error) { return nil, fmt.Errorf("cannot divide Function") }
+func (f *Function) Divide(Object) (Object, error) { return nil, NewTypeError("cannot divide Function") }
 func (f *Function) And(Object) (Object, error) {
-	return nil, fmt.Errorf("cannot perform AND on Function")
+	return nil, NewTypeError("cannot perform AND on Function")
 }
 func (f *Function) Or(Object) (Object, error) {
-	return nil, fmt.Errorf("cannot perform OR on Function")
+	return nil, NewTypeError("cannot perform OR on Function")
 }
-func (f *Function) Not() (Object, error) { return nil, fmt.Errorf("cannot perform NOT on Function") }
+func (f *Function) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Function") }
 func (f *Function) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Function does not support iteration")
+	return nil, NewTypeError("Function does not support iteration")
 }
-func (f *Function) Index(Object) (Object, error) { return nil, fmt.Errorf("Function is not indexable") }
+func (f *Function) Index(Object) (Object, error) {
+	return nil, NewTypeError("Function is not indexable")
+}
 func (f *Function) GetAttr(name string) (Object, error) {
 	switch name {
 	case "constructor":
@@ -61,11 +65,11 @@ func FunctionConstructor(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("Function() takes exactly 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Function() takes exactly 1 argument, got %d", len(args.Positional))
 	}
 	f, ok := args.Positional[0].(*Function)
 	if !ok {
-		return nil, fmt.Errorf("Function() argument must be a function, not %T", args.Positional[0])
+		return nil, NewTypeError("Function() argument must be a function, not %T", args.Positional[0])
 	}
 	return f, nil
 }

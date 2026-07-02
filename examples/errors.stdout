@@ -7,3 +7,12 @@ true
 none
 reading file: not found
 true
+ValueError
+invalid port: abc: ValueError
+true
+false
+missing field 'name': config error: ValueError
+true
+true
+true
+true

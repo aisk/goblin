@@ -41,7 +41,7 @@ func (i Integer) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, fmt.Errorf("cannot compare Integer and %T", other)
+		return 0, NewTypeError("cannot compare Integer and %T", other)
 	}
 }
 
@@ -52,7 +52,7 @@ func (i Integer) Add(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) + float64(v)), nil
 	default:
-		return nil, fmt.Errorf("cannot add Integer and %T", other)
+		return nil, NewTypeError("cannot add Integer and %T", other)
 	}
 }
 
@@ -63,7 +63,7 @@ func (i Integer) Minus(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) - float64(v)), nil
 	default:
-		return nil, fmt.Errorf("cannot subtract Integer and %T", other)
+		return nil, NewTypeError("cannot subtract Integer and %T", other)
 	}
 }
 
@@ -74,7 +74,7 @@ func (i Integer) Multiply(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) * float64(v)), nil
 	default:
-		return nil, fmt.Errorf("cannot multiply Integer and %T", other)
+		return nil, NewTypeError("cannot multiply Integer and %T", other)
 	}
 }
 
@@ -82,16 +82,16 @@ func (i Integer) Divide(other Object) (Object, error) {
 	switch v := other.(type) {
 	case Integer:
 		if int64(v) == 0 {
-			return nil, fmt.Errorf("division by zero")
+			return nil, NewZeroDivisionError("division by zero")
 		}
 		return Integer(int64(i) / int64(v)), nil
 	case Float:
 		if float64(v) == 0 {
-			return nil, fmt.Errorf("division by zero")
+			return nil, NewZeroDivisionError("division by zero")
 		}
 		return Float(float64(i) / float64(v)), nil
 	default:
-		return nil, fmt.Errorf("cannot divide Integer and %T", other)
+		return nil, NewTypeError("cannot divide Integer and %T", other)
 	}
 }
 
@@ -108,11 +108,11 @@ func (i Integer) Not() (Object, error) {
 }
 
 func (i Integer) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Integer does not support iteration")
+	return nil, NewTypeError("Integer does not support iteration")
 }
 
 func (i Integer) Index(index Object) (Object, error) {
-	return nil, fmt.Errorf("Integer is not indexable")
+	return nil, NewTypeError("Integer is not indexable")
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {
@@ -134,7 +134,7 @@ func IntConstructor(args CallArgs) (Object, error) {
 		return Integer(0), nil
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("Int() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Int() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	switch v := args.Positional[0].(type) {
 	case Integer:
@@ -144,7 +144,7 @@ func IntConstructor(args CallArgs) (Object, error) {
 	case String:
 		n, err := strconv.ParseInt(string(v), 10, 64)
 		if err != nil {
-			return nil, fmt.Errorf("Int() invalid literal for Int: %q", string(v))
+			return nil, NewValueError("Int() invalid literal for Int: %q", string(v))
 		}
 		return Integer(n), nil
 	case Bool:
@@ -153,6 +153,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, fmt.Errorf("Int() argument must be a string or a number, not %T", args.Positional[0])
+		return nil, NewTypeError("Int() argument must be a string or a number, not %T", args.Positional[0])
 	}
 }

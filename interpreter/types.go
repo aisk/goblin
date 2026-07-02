@@ -42,7 +42,7 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 // new instance.
 func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) > len(t.fields) {
-		return nil, fmt.Errorf("%s() takes %d positional arguments, got %d", t.name, len(t.fields), len(args.Positional))
+		return nil, object.NewTypeError("%s() takes %d positional arguments, got %d", t.name, len(t.fields), len(args.Positional))
 	}
 
 	fields := make(map[string]object.Object, len(t.fields))
@@ -52,10 +52,10 @@ func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 
 	for key, value := range args.Keyword {
 		if !t.hasField(key) {
-			return nil, fmt.Errorf("%s() got an unexpected keyword argument '%s'", t.name, key)
+			return nil, object.NewTypeError("%s() got an unexpected keyword argument '%s'", t.name, key)
 		}
 		if _, exists := fields[key]; exists {
-			return nil, fmt.Errorf("%s() got multiple values for argument '%s'", t.name, key)
+			return nil, object.NewTypeError("%s() got multiple values for argument '%s'", t.name, key)
 		}
 		fields[key] = value
 	}
@@ -72,7 +72,7 @@ func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 			fields[f.Name] = dv
 			continue
 		}
-		return nil, fmt.Errorf("%s() missing required argument: '%s'", t.name, f.Name)
+		return nil, object.NewTypeError("%s() missing required argument: '%s'", t.name, f.Name)
 	}
 
 	return &instance{typ: t, fields: fields}, nil
@@ -138,32 +138,32 @@ func (in *instance) String() string { return fmt.Sprintf("<%s@%p>", in.typ.name,
 func (in *instance) Bool() bool     { return true }
 
 func (in *instance) Compare(object.Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare %s", in.typ.name)
+	return 0, object.NewTypeError("cannot compare %s", in.typ.name)
 }
 func (in *instance) Add(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot add %s", in.typ.name)
+	return nil, object.NewTypeError("cannot add %s", in.typ.name)
 }
 func (in *instance) Minus(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot subtract %s", in.typ.name)
+	return nil, object.NewTypeError("cannot subtract %s", in.typ.name)
 }
 func (in *instance) Multiply(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot multiply %s", in.typ.name)
+	return nil, object.NewTypeError("cannot multiply %s", in.typ.name)
 }
 func (in *instance) Divide(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot divide %s", in.typ.name)
+	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
 }
 func (in *instance) And(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot perform AND on %s", in.typ.name)
+	return nil, object.NewTypeError("cannot perform AND on %s", in.typ.name)
 }
 func (in *instance) Or(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot perform OR on %s", in.typ.name)
+	return nil, object.NewTypeError("cannot perform OR on %s", in.typ.name)
 }
 func (in *instance) Not() (object.Object, error) {
-	return nil, fmt.Errorf("cannot perform NOT on %s", in.typ.name)
+	return nil, object.NewTypeError("cannot perform NOT on %s", in.typ.name)
 }
 func (in *instance) Iter() ([]object.Object, error) {
-	return nil, fmt.Errorf("%s does not support iteration", in.typ.name)
+	return nil, object.NewTypeError("%s does not support iteration", in.typ.name)
 }
 func (in *instance) Index(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("%s is not indexable", in.typ.name)
+	return nil, object.NewTypeError("%s is not indexable", in.typ.name)
 }

@@ -39,7 +39,7 @@ func (b Bool) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, fmt.Errorf("cannot compare Bool and %T", other)
+		return 0, NewTypeError("cannot compare Bool and %T", other)
 	}
 }
 
@@ -55,20 +55,20 @@ func (b Bool) Add(other Object) (Object, error) {
 	case String:
 		return String(b.String() + string(v)), nil
 	default:
-		return nil, fmt.Errorf("cannot add Bool and %T", other)
+		return nil, NewTypeError("cannot add Bool and %T", other)
 	}
 }
 
 func (b Bool) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract from Bool")
+	return nil, NewTypeError("cannot subtract from Bool")
 }
 
 func (b Bool) Multiply(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot multiply Bool")
+	return nil, NewTypeError("cannot multiply Bool")
 }
 
 func (b Bool) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide Bool")
+	return nil, NewTypeError("cannot divide Bool")
 }
 
 func (b Bool) And(other Object) (Object, error) {
@@ -84,11 +84,11 @@ func (b Bool) Not() (Object, error) {
 }
 
 func (b Bool) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Bool does not support iteration")
+	return nil, NewTypeError("Bool does not support iteration")
 }
 
 func (b Bool) Index(index Object) (Object, error) {
-	return nil, fmt.Errorf("Bool is not indexable")
+	return nil, NewTypeError("Bool is not indexable")
 }
 
 func (b Bool) GetAttr(name string) (Object, error) {
@@ -110,7 +110,7 @@ func BoolConstructor(args CallArgs) (Object, error) {
 		return False, nil
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("Bool() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Bool() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	if args.Positional[0].Bool() {
 		return True, nil

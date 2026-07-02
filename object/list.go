@@ -16,7 +16,7 @@ func (l *List) Size(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(len(l.Elements)), nil
 }
@@ -34,10 +34,10 @@ func (l *List) Pop(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("pop() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("pop() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
-		return nil, fmt.Errorf("pop from empty list")
+		return nil, NewIndexError("pop from empty list")
 	}
 	last := l.Elements[len(l.Elements)-1]
 	l.Elements = l.Elements[:len(l.Elements)-1]
@@ -49,10 +49,10 @@ func (l *List) First(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("first() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("first() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
-		return nil, fmt.Errorf("first() called on empty list")
+		return nil, NewIndexError("first() called on empty list")
 	}
 	return l.Elements[0], nil
 }
@@ -62,10 +62,10 @@ func (l *List) Last(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("last() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("last() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
-		return nil, fmt.Errorf("last() called on empty list")
+		return nil, NewIndexError("last() called on empty list")
 	}
 	return l.Elements[len(l.Elements)-1], nil
 }
@@ -77,7 +77,7 @@ func (l *List) Join(args CallArgs) (Object, error) {
 	}
 	sep, ok := bound["sep"].(String)
 	if !ok {
-		return nil, fmt.Errorf("join() argument must be a string, got %T", bound["sep"])
+		return nil, NewTypeError("join() argument must be a string, got %T", bound["sep"])
 	}
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {
@@ -99,7 +99,7 @@ func (l *List) Bool() bool {
 }
 
 func (l *List) Compare(other Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare List and %T", other)
+	return 0, NewTypeError("cannot compare List and %T", other)
 }
 
 func (l *List) Add(other Object) (Object, error) {
@@ -110,19 +110,19 @@ func (l *List) Add(other Object) (Object, error) {
 		copy(newElements[len(l.Elements):], v.Elements)
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, fmt.Errorf("cannot add List and %T", other)
+		return nil, NewTypeError("cannot add List and %T", other)
 	}
 }
 
 func (l *List) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract from List")
+	return nil, NewTypeError("cannot subtract from List")
 }
 
 func (l *List) Multiply(other Object) (Object, error) {
 	switch v := other.(type) {
 	case Integer:
 		if int64(v) < 0 {
-			return nil, fmt.Errorf("cannot multiply List by negative number")
+			return nil, NewValueError("cannot multiply List by negative number")
 		}
 		newElements := make([]Object, len(l.Elements)*int(v))
 		for i := 0; i < int(v); i++ {
@@ -130,12 +130,12 @@ func (l *List) Multiply(other Object) (Object, error) {
 		}
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, fmt.Errorf("cannot multiply List and %T", other)
+		return nil, NewTypeError("cannot multiply List and %T", other)
 	}
 }
 
 func (l *List) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide List")
+	return nil, NewTypeError("cannot divide List")
 }
 
 func (l *List) And(other Object) (Object, error) {
@@ -157,11 +157,11 @@ func (l *List) Iter() ([]Object, error) {
 func (l *List) Index(index Object) (Object, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return nil, fmt.Errorf("list index must be integer, got %T", index)
+		return nil, NewTypeError("list index must be integer, got %T", index)
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
-		return nil, fmt.Errorf("list index out of range: %d", i)
+		return nil, NewIndexError("list index out of range: %d", i)
 	}
 	return l.Elements[i], nil
 }
@@ -169,11 +169,11 @@ func (l *List) Index(index Object) (Object, error) {
 func (l *List) SetIndex(index Object, value Object) error {
 	idx, ok := index.(Integer)
 	if !ok {
-		return fmt.Errorf("list index must be integer, got %T", index)
+		return NewTypeError("list index must be integer, got %T", index)
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
-		return fmt.Errorf("list index out of range: %d", i)
+		return NewIndexError("list index out of range: %d", i)
 	}
 	l.Elements[i] = value
 	return nil
@@ -210,11 +210,11 @@ func ListConstructor(args CallArgs) (Object, error) {
 		return &List{Elements: []Object{}}, nil
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("List() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("List() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	elements, err := args.Positional[0].Iter()
 	if err != nil {
-		return nil, fmt.Errorf("List() argument is not iterable: %s", err)
+		return nil, NewTypeError("List() argument is not iterable: %s", err)
 	}
 	return &List{Elements: elements}, nil
 }
