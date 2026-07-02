@@ -3,12 +3,18 @@ package object
 import "fmt"
 
 type Module struct {
+	Name    string
 	Members map[string]Object
 }
 
 var _ Object = (*Module)(nil)
 
-func (m *Module) String() string { return fmt.Sprintf("<module>") }
+func (m *Module) String() string {
+	if m.Name != "" {
+		return fmt.Sprintf("<module %q>", m.Name)
+	}
+	return "<module>"
+}
 func (m *Module) Bool() bool     { return true }
 func (m *Module) Compare(Object) (int, error) {
 	return 0, fmt.Errorf("cannot compare Module")

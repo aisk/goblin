@@ -7,6 +7,7 @@ import (
 )
 
 var BuiltinsModule = &object.Module{
+	Name: "builtin",
 	Members: map[string]object.Object{
 		"print":    &object.Function{Name: "print", Fn: print},
 		"spawn":    &object.Function{Name: "spawn", Fn: spawn},

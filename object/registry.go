@@ -25,6 +25,9 @@ func (r *Registry) Load(path string, executor ModuleExecutor) (Object, error) {
 	if err != nil {
 		return nil, err
 	}
+	if m, ok := mod.(*Module); ok && m.Name == "" {
+		m.Name = path
+	}
 	r.modules[path] = mod
 	return mod, nil
 }
