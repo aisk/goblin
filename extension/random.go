@@ -1,7 +1,6 @@
 package extension
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -28,7 +27,7 @@ func randInt(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("int() requires no arguments")
+		return nil, object.NewTypeError("int() requires no arguments")
 	}
 	return object.Integer(rand.Int63()), nil
 }
@@ -38,14 +37,14 @@ func randIntn(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("intn() requires exactly 1 argument")
+		return nil, object.NewTypeError("intn() requires exactly 1 argument")
 	}
 	n, ok := args.Positional[0].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("intn() argument must be an integer, got %T", args.Positional[0])
+		return nil, object.NewTypeError("intn() argument must be an integer, got %T", args.Positional[0])
 	}
 	if int64(n) <= 0 {
-		return nil, fmt.Errorf("intn() argument must be positive, got %d", n)
+		return nil, object.NewValueError("intn() argument must be positive, got %d", n)
 	}
 	return object.Integer(rand.Int63n(int64(n))), nil
 }
@@ -55,7 +54,7 @@ func randFloat(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("float() requires no arguments")
+		return nil, object.NewTypeError("float() requires no arguments")
 	}
 	return object.Float(rand.Float64()), nil
 }
@@ -65,14 +64,14 @@ func randChoice(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("choice() requires exactly 1 argument")
+		return nil, object.NewTypeError("choice() requires exactly 1 argument")
 	}
 	list, ok := args.Positional[0].(*object.List)
 	if !ok {
-		return nil, fmt.Errorf("choice() argument must be a list, got %T", args.Positional[0])
+		return nil, object.NewTypeError("choice() argument must be a list, got %T", args.Positional[0])
 	}
 	if len(list.Elements) == 0 {
-		return nil, fmt.Errorf("choice() argument cannot be empty")
+		return nil, object.NewValueError("choice() argument cannot be empty")
 	}
 	return list.Elements[rand.Intn(len(list.Elements))], nil
 }

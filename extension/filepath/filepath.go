@@ -1,7 +1,6 @@
 package filepath
 
 import (
-	"fmt"
 	stdpath "path/filepath"
 
 	"github.com/aisk/goblin/object"
@@ -33,11 +32,11 @@ func Execute() (object.Object, error) {
 
 func getStringArg(fnName string, args object.CallArgs, expected int, idx int) (string, error) {
 	if len(args.Positional) != expected {
-		return "", fmt.Errorf("%s() takes exactly %d argument(s), got %d", fnName, expected, len(args.Positional))
+		return "", object.NewTypeError("%s() takes exactly %d argument(s), got %d", fnName, expected, len(args.Positional))
 	}
 	s, ok := args.Positional[idx].(object.String)
 	if !ok {
-		return "", fmt.Errorf("%s() argument must be a string", fnName)
+		return "", object.NewTypeError("%s() argument must be a string", fnName)
 	}
 	return string(s), nil
 }
@@ -143,7 +142,7 @@ func join(args object.CallArgs) (object.Object, error) {
 	for i, arg := range args.Positional {
 		s, ok := arg.(object.String)
 		if !ok {
-			return nil, fmt.Errorf("join() argument %d must be a string", i)
+			return nil, object.NewTypeError("join() argument %d must be a string", i)
 		}
 		elems[i] = string(s)
 	}
@@ -160,7 +159,7 @@ func match(args object.CallArgs) (object.Object, error) {
 	}
 	name, ok := args.Positional[1].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("match() second argument must be a string")
+		return nil, object.NewTypeError("match() second argument must be a string")
 	}
 	matched, err := stdpath.Match(pattern, string(name))
 	if err != nil {
@@ -207,7 +206,7 @@ func rel(args object.CallArgs) (object.Object, error) {
 	}
 	targpath, ok := args.Positional[1].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("rel() second argument must be a string")
+		return nil, object.NewTypeError("rel() second argument must be a string")
 	}
 	relPath, err := stdpath.Rel(basepath, string(targpath))
 	if err != nil {

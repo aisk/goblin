@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -120,7 +119,7 @@ func (i Integer) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return IntConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("Integer has no attribute '%s'", name)
+		return nil, NewTypeError("Integer has no attribute '%s'", name)
 	}
 }
 

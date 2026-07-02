@@ -1,9 +1,5 @@
 package object
 
-import (
-	"fmt"
-)
-
 var (
 	True  = Bool(true)
 	False = Bool(false)
@@ -96,7 +92,7 @@ func (b Bool) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return BoolConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("Bool has no attribute '%s'", name)
+		return nil, NewTypeError("Bool has no attribute '%s'", name)
 	}
 }
 

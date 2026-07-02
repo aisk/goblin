@@ -24,20 +24,20 @@ func (f *FileInfo) Bool() bool {
 }
 
 func (f *FileInfo) Compare(object.Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare FileInfo")
+	return 0, object.NewTypeError("cannot compare FileInfo")
 }
 
 func (f *FileInfo) Add(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot add FileInfo")
+	return nil, object.NewTypeError("cannot add FileInfo")
 }
 func (f *FileInfo) Minus(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot subtract FileInfo")
+	return nil, object.NewTypeError("cannot subtract FileInfo")
 }
 func (f *FileInfo) Multiply(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot multiply FileInfo")
+	return nil, object.NewTypeError("cannot multiply FileInfo")
 }
 func (f *FileInfo) Divide(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot divide FileInfo")
+	return nil, object.NewTypeError("cannot divide FileInfo")
 }
 func (f *FileInfo) And(other object.Object) (object.Object, error) {
 	return object.Bool(f.Bool() && other.Bool()), nil
@@ -47,10 +47,10 @@ func (f *FileInfo) Or(other object.Object) (object.Object, error) {
 }
 func (f *FileInfo) Not() (object.Object, error) { return object.Bool(!f.Bool()), nil }
 func (f *FileInfo) Iter() ([]object.Object, error) {
-	return nil, fmt.Errorf("FileInfo does not support iteration")
+	return nil, object.NewTypeError("FileInfo does not support iteration")
 }
 func (f *FileInfo) Index(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("FileInfo is not indexable")
+	return nil, object.NewTypeError("FileInfo is not indexable")
 }
 
 func (f *FileInfo) GetAttr(name string) (object.Object, error) {
@@ -66,7 +66,7 @@ func (f *FileInfo) GetAttr(name string) (object.Object, error) {
 	case "mod_time":
 		return object.String(f.Info.ModTime().Format("2006-01-02T15:04:05Z07:00")), nil
 	default:
-		return nil, fmt.Errorf("FileInfo has no attribute '%s'", name)
+		return nil, object.NewTypeError("FileInfo has no attribute '%s'", name)
 	}
 }
 

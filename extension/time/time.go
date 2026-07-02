@@ -1,7 +1,6 @@
 package time
 
 import (
-	"fmt"
 	stdtime "time"
 
 	"github.com/aisk/goblin/object"
@@ -26,7 +25,7 @@ func now(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("now() requires no arguments")
+		return nil, object.NewTypeError("now() requires no arguments")
 	}
 	return NewTime(stdtime.Now()), nil
 }
@@ -37,7 +36,7 @@ func sleep(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("sleep() requires exactly 1 argument")
+		return nil, object.NewTypeError("sleep() requires exactly 1 argument")
 	}
 	switch v := args.Positional[0].(type) {
 	case object.Float:
@@ -45,7 +44,7 @@ func sleep(args object.CallArgs) (object.Object, error) {
 	case object.Integer:
 		stdtime.Sleep(stdtime.Duration(int64(v)) * stdtime.Second)
 	default:
-		return nil, fmt.Errorf("sleep() argument must be a number, got %T", args.Positional[0])
+		return nil, object.NewTypeError("sleep() argument must be a number, got %T", args.Positional[0])
 	}
 	return object.Nil, nil
 }
@@ -57,15 +56,15 @@ func parse(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 2 {
-		return nil, fmt.Errorf("parse() requires exactly 2 arguments")
+		return nil, object.NewTypeError("parse() requires exactly 2 arguments")
 	}
 	layout, ok := args.Positional[0].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("parse() first argument must be a string")
+		return nil, object.NewTypeError("parse() first argument must be a string")
 	}
 	value, ok := args.Positional[1].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("parse() second argument must be a string")
+		return nil, object.NewTypeError("parse() second argument must be a string")
 	}
 	t, err := stdtime.Parse(string(layout), string(value))
 	if err != nil {
@@ -80,11 +79,11 @@ func unix(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("unix() requires exactly 1 argument")
+		return nil, object.NewTypeError("unix() requires exactly 1 argument")
 	}
 	sec, ok := args.Positional[0].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("unix() argument must be an integer")
+		return nil, object.NewTypeError("unix() argument must be an integer")
 	}
 	return NewTime(stdtime.Unix(int64(sec), 0)), nil
 }
@@ -95,11 +94,11 @@ func since(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("since() requires exactly 1 argument")
+		return nil, object.NewTypeError("since() requires exactly 1 argument")
 	}
 	t, ok := args.Positional[0].(*Time)
 	if !ok {
-		return nil, fmt.Errorf("since() argument must be a Time")
+		return nil, object.NewTypeError("since() argument must be a Time")
 	}
 	d := stdtime.Since(t.Value)
 	return object.Float(float64(d) / float64(stdtime.Second)), nil

@@ -1,7 +1,6 @@
 package fs
 
 import (
-	"fmt"
 	"io"
 	"os"
 
@@ -34,7 +33,7 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 
 	path, ok := bound["path"].(object.String)
 	if !ok {
-		return "", fmt.Errorf("%s() argument must be a string, got %T", funcName, bound["path"])
+		return "", object.NewTypeError("%s() argument must be a string, got %T", funcName, bound["path"])
 	}
 	return string(path), nil
 }
@@ -93,11 +92,11 @@ func bindPathContentArgs(funcName string, args object.CallArgs) (string, string,
 
 	path, ok := bound["path"].(object.String)
 	if !ok {
-		return "", "", fmt.Errorf("%s() path argument must be a string, got %T", funcName, bound["path"])
+		return "", "", object.NewTypeError("%s() path argument must be a string, got %T", funcName, bound["path"])
 	}
 	content, ok := bound["content"].(object.String)
 	if !ok {
-		return "", "", fmt.Errorf("%s() content argument must be a string, got %T", funcName, bound["content"])
+		return "", "", object.NewTypeError("%s() content argument must be a string, got %T", funcName, bound["content"])
 	}
 	return string(path), string(content), nil
 }

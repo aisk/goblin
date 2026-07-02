@@ -1,6 +1,5 @@
 package object
 
-import "fmt"
 
 // Chan wraps a Go channel of Objects, exposing send/recv/close to Goblin.
 // Element typing is dynamic: any Object can flow through the channel.
@@ -46,7 +45,7 @@ func (c *Chan) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return ChanConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("Chan has no attribute '%s'", name)
+		return nil, NewTypeError("Chan has no attribute '%s'", name)
 	}
 }
 
@@ -61,7 +60,7 @@ func (c *Chan) Send(args CallArgs) (_ Object, err error) {
 	}
 	defer func() {
 		if recover() != nil {
-			err = fmt.Errorf("send on closed channel")
+			err = NewValueError("send on closed channel")
 		}
 	}()
 	c.ch <- args.Positional[0]
@@ -80,7 +79,7 @@ func (c *Chan) Recv(args CallArgs) (Object, error) {
 	}
 	value, ok := <-c.ch
 	if !ok {
-		return nil, fmt.Errorf("recv on closed channel")
+		return nil, NewValueError("recv on closed channel")
 	}
 	return value, nil
 }
@@ -96,7 +95,7 @@ func (c *Chan) Close(args CallArgs) (_ Object, err error) {
 	}
 	defer func() {
 		if recover() != nil {
-			err = fmt.Errorf("close of closed channel")
+			err = NewValueError("close of closed channel")
 		}
 	}()
 	close(c.ch)

@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -120,7 +119,7 @@ func (f Float) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return FloatConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("Float has no attribute '%s'", name)
+		return nil, NewTypeError("Float has no attribute '%s'", name)
 	}
 }
 

@@ -40,7 +40,7 @@ func (h *Header) GetAttr(name string) (object.Object, error) {
 	case "del":
 		return &object.Function{Name: "del", Fn: h.del}, nil
 	default:
-		return nil, fmt.Errorf("Header has no attribute '%s'", name)
+		return nil, object.NewTypeError("Header has no attribute '%s'", name)
 	}
 }
 
@@ -102,7 +102,7 @@ func headerKeyArg(fn string, args object.CallArgs) (string, error) {
 		return "", err
 	}
 	if len(args.Positional) != 1 {
-		return "", fmt.Errorf("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
+		return "", object.NewTypeError("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
 	}
 	return stringArg(fn, "key", args.Positional[0])
 }
@@ -112,7 +112,7 @@ func headerKeyValueArgs(fn string, args object.CallArgs) (string, string, error)
 		return "", "", err
 	}
 	if len(args.Positional) != 2 {
-		return "", "", fmt.Errorf("%s() takes exactly 2 arguments, got %d", fn, len(args.Positional))
+		return "", "", object.NewTypeError("%s() takes exactly 2 arguments, got %d", fn, len(args.Positional))
 	}
 	key, err := stringArg(fn, "key", args.Positional[0])
 	if err != nil {

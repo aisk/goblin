@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"io"
 	stdhttp "net/http"
 	"strings"
@@ -94,11 +93,11 @@ func doDo(client *stdhttp.Client, args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("do() takes exactly 1 argument, got %d", len(args.Positional))
+		return nil, object.NewTypeError("do() takes exactly 1 argument, got %d", len(args.Positional))
 	}
 	reqObj, ok := args.Positional[0].(*Request)
 	if !ok {
-		return nil, fmt.Errorf("do() argument must be a request, got %T", args.Positional[0])
+		return nil, object.NewTypeError("do() argument must be a request, got %T", args.Positional[0])
 	}
 	return doRequest(client, reqObj.Req)
 }
@@ -108,7 +107,7 @@ func bodylessRequest(client *stdhttp.Client, fn, method string, args object.Call
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
+		return nil, object.NewTypeError("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
 	}
 	rawURL, err := stringArg(fn, "url", args.Positional[0])
 	if err != nil {
@@ -126,7 +125,7 @@ func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs
 		return nil, err
 	}
 	if len(args.Positional) != 3 {
-		return nil, fmt.Errorf("%s() takes exactly 3 arguments (url, content_type, body), got %d", fn, len(args.Positional))
+		return nil, object.NewTypeError("%s() takes exactly 3 arguments (url, content_type, body), got %d", fn, len(args.Positional))
 	}
 	rawURL, err := stringArg(fn, "url", args.Positional[0])
 	if err != nil {
@@ -159,7 +158,7 @@ func newRequestObject(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 3 {
-		return nil, fmt.Errorf("Request() takes exactly 3 arguments (method, url, body), got %d", len(args.Positional))
+		return nil, object.NewTypeError("Request() takes exactly 3 arguments (method, url, body), got %d", len(args.Positional))
 	}
 	method, err := stringArg("Request", "method", args.Positional[0])
 	if err != nil {
@@ -185,7 +184,7 @@ func newRequestObject(args object.CallArgs) (object.Object, error) {
 // omitted it defaults to defaultTimeout.
 func newClientObject(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) > 1 {
-		return nil, fmt.Errorf("Client() takes at most 1 positional argument, got %d", len(args.Positional))
+		return nil, object.NewTypeError("Client() takes at most 1 positional argument, got %d", len(args.Positional))
 	}
 
 	var timeoutObj object.Object
@@ -194,10 +193,10 @@ func newClientObject(args object.CallArgs) (object.Object, error) {
 	}
 	for key, value := range args.Keyword {
 		if key != "timeout" {
-			return nil, fmt.Errorf("Client() got an unexpected keyword argument '%s'", key)
+			return nil, object.NewValueError("Client() got an unexpected keyword argument '%s'", key)
 		}
 		if timeoutObj != nil {
-			return nil, fmt.Errorf("Client() got multiple values for argument 'timeout'")
+			return nil, object.NewValueError("Client() got multiple values for argument 'timeout'")
 		}
 		timeoutObj = value
 	}
@@ -257,7 +256,7 @@ func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, err
 func stringArg(fn, name string, obj object.Object) (string, error) {
 	s, ok := obj.(object.String)
 	if !ok {
-		return "", fmt.Errorf("%s() %s argument must be a string, got %T", fn, name, obj)
+		return "", object.NewTypeError("%s() %s argument must be a string, got %T", fn, name, obj)
 	}
 	return string(s), nil
 }
@@ -270,7 +269,7 @@ func bodyArg(fn string, obj object.Object) (string, error) {
 	case object.String:
 		return string(v), nil
 	default:
-		return "", fmt.Errorf("%s() body argument must be a string or nil, got %T", fn, obj)
+		return "", object.NewTypeError("%s() body argument must be a string or nil, got %T", fn, obj)
 	}
 }
 
@@ -282,6 +281,6 @@ func durationFromObject(fn string, obj object.Object) (time.Duration, error) {
 	case object.Integer:
 		return time.Duration(int64(v)) * time.Second, nil
 	default:
-		return 0, fmt.Errorf("%s() timeout argument must be a number, got %T", fn, obj)
+		return 0, object.NewTypeError("%s() timeout argument must be a number, got %T", fn, obj)
 	}
 }
