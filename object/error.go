@@ -41,43 +41,43 @@ func (e *Error) Bool() bool {
 }
 
 func (e *Error) Compare(other Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare Error and %T", other)
+	return 0, NewTypeError("cannot compare Error and %T", other)
 }
 
 func (e *Error) Add(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot add Error and %T", other)
+	return nil, NewTypeError("cannot add Error and %T", other)
 }
 
 func (e *Error) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract Error and %T", other)
+	return nil, NewTypeError("cannot subtract Error and %T", other)
 }
 
 func (e *Error) Multiply(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot multiply Error and %T", other)
+	return nil, NewTypeError("cannot multiply Error and %T", other)
 }
 
 func (e *Error) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide Error and %T", other)
+	return nil, NewTypeError("cannot divide Error and %T", other)
 }
 
 func (e *Error) And(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot perform AND operation on Error and %T", other)
+	return nil, NewTypeError("cannot perform AND operation on Error and %T", other)
 }
 
 func (e *Error) Or(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot perform OR operation on Error and %T", other)
+	return nil, NewTypeError("cannot perform OR operation on Error and %T", other)
 }
 
 func (e *Error) Not() (Object, error) {
-	return nil, fmt.Errorf("cannot perform NOT operation on Error")
+	return nil, NewTypeError("cannot perform NOT operation on Error")
 }
 
 func (e *Error) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Error does not support iteration")
+	return nil, NewTypeError("Error does not support iteration")
 }
 
 func (e *Error) Index(index Object) (Object, error) {
-	return nil, fmt.Errorf("Error is not indexable")
+	return nil, NewTypeError("Error is not indexable")
 }
 
 func (e *Error) Error() string {
@@ -109,7 +109,7 @@ func (e *Error) Wrap(args CallArgs) (Object, error) {
 	}
 	message, ok := bound["message"].(String)
 	if !ok {
-		return nil, fmt.Errorf("wrap() argument must be a string, got %T", bound["message"])
+		return nil, NewTypeError("wrap() argument must be a string, got %T", bound["message"])
 	}
 	return NewWrappedError(string(message), e), nil
 }
@@ -121,7 +121,7 @@ func (e *Error) Unwrapped(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("unwrap() takes no arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("unwrap() takes no arguments, got %d", len(args.Positional))
 	}
 	cause := errors.Unwrap(e)
 	if cause == nil {
@@ -144,7 +144,7 @@ func (e *Error) Is(args CallArgs) (Object, error) {
 	}
 	target, ok := bound["target"].(*Error)
 	if !ok {
-		return nil, fmt.Errorf("is() argument must be an Error, got %T", bound["target"])
+		return nil, NewTypeError("is() argument must be an Error, got %T", bound["target"])
 	}
 	return Bool(errors.Is(e, target)), nil
 }
@@ -152,6 +152,40 @@ func (e *Error) Is(args CallArgs) (Object, error) {
 var _ error = (*Error)(nil)
 
 var NotImplementedError = NewError("not implemented")
+
+// Predefined error values covering the common failure kinds. Each is a distinct
+// sentinel that can be raised, given context with .wrap(), matched with .is(),
+// or used as the base for a derived error.
+var (
+	TypeError         = NewError("TypeError")
+	ValueError        = NewError("ValueError")
+	IndexError        = NewError("IndexError")
+	KeyError          = NewError("KeyError")
+	ZeroDivisionError = NewError("ZeroDivisionError")
+)
+
+// typedError builds an Error whose message is the formatted string and whose
+// cause is base, so the runtime's own failures are matchable with .is(base)
+// while the rendered message stays exactly what it was.
+func typedError(base *Error, format string, a ...any) *Error {
+	return &Error{Value: fmt.Sprintf(format, a...), Wrapped: base}
+}
+
+// NewTypeError, NewValueError, NewIndexError, NewKeyError and
+// NewZeroDivisionError create errors tagged with the matching sentinel. They are
+// used throughout the runtime in place of fmt.Errorf so that raised failures can
+// be caught by kind.
+func NewTypeError(format string, a ...any) *Error { return typedError(TypeError, format, a...) }
+func NewValueError(format string, a ...any) *Error {
+	return typedError(ValueError, format, a...)
+}
+func NewIndexError(format string, a ...any) *Error {
+	return typedError(IndexError, format, a...)
+}
+func NewKeyError(format string, a ...any) *Error { return typedError(KeyError, format, a...) }
+func NewZeroDivisionError(format string, a ...any) *Error {
+	return typedError(ZeroDivisionError, format, a...)
+}
 
 var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
 
@@ -163,7 +197,7 @@ func ErrorConstructor(args CallArgs) (Object, error) {
 		return NewError(""), nil
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("Error() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Error() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	return NewError(args.Positional[0].String()), nil
 }

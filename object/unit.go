@@ -23,24 +23,24 @@ func (n Unit) Compare(other Object) (int, error) {
 	case Unit:
 		return 0, nil
 	default:
-		return 0, fmt.Errorf("cannot compare Nil and %T", other)
+		return 0, NewTypeError("cannot compare Nil and %T", other)
 	}
 }
 
 func (n Unit) Add(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot add to Nil")
+	return nil, NewTypeError("cannot add to Nil")
 }
 
 func (n Unit) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract from Nil")
+	return nil, NewTypeError("cannot subtract from Nil")
 }
 
 func (n Unit) Multiply(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot multiply Nil")
+	return nil, NewTypeError("cannot multiply Nil")
 }
 
 func (n Unit) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide Nil")
+	return nil, NewTypeError("cannot divide Nil")
 }
 
 func (n Unit) And(other Object) (Object, error) {
@@ -56,11 +56,11 @@ func (n Unit) Not() (Object, error) {
 }
 
 func (n Unit) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Nil does not support iteration")
+	return nil, NewTypeError("Nil does not support iteration")
 }
 
 func (n Unit) Index(index Object) (Object, error) {
-	return nil, fmt.Errorf("Nil is not indexable")
+	return nil, NewTypeError("Nil is not indexable")
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {

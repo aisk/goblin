@@ -14,7 +14,7 @@ func (s String) Size(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(len([]rune(string(s)))), nil
 }
@@ -24,7 +24,7 @@ func (s String) Upper(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("upper() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("upper() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return String(strings.ToUpper(string(s))), nil
 }
@@ -34,7 +34,7 @@ func (s String) Lower(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("lower() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("lower() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return String(strings.ToLower(string(s))), nil
 }
@@ -46,7 +46,7 @@ func (s String) HasPrefix(args CallArgs) (Object, error) {
 	}
 	prefix, ok := bound["prefix"].(String)
 	if !ok {
-		return nil, fmt.Errorf("has_prefix() argument must be a string, got %T", bound["prefix"])
+		return nil, NewTypeError("has_prefix() argument must be a string, got %T", bound["prefix"])
 	}
 	return Bool(strings.HasPrefix(string(s), string(prefix))), nil
 }
@@ -58,7 +58,7 @@ func (s String) HasSuffix(args CallArgs) (Object, error) {
 	}
 	suffix, ok := bound["suffix"].(String)
 	if !ok {
-		return nil, fmt.Errorf("has_suffix() argument must be a string, got %T", bound["suffix"])
+		return nil, NewTypeError("has_suffix() argument must be a string, got %T", bound["suffix"])
 	}
 	return Bool(strings.HasSuffix(string(s), string(suffix))), nil
 }
@@ -70,7 +70,7 @@ func (s String) Trim(args CallArgs) (Object, error) {
 	}
 	cutset, ok := bound["cutset"].(String)
 	if !ok {
-		return nil, fmt.Errorf("trim() argument must be a string, got %T", bound["cutset"])
+		return nil, NewTypeError("trim() argument must be a string, got %T", bound["cutset"])
 	}
 	return String(strings.Trim(string(s), string(cutset))), nil
 }
@@ -80,7 +80,7 @@ func (s String) TrimSpace(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("trim_space() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("trim_space() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return String(strings.TrimSpace(string(s))), nil
 }
@@ -92,7 +92,7 @@ func (s String) Contains(args CallArgs) (Object, error) {
 	}
 	substr, ok := bound["substr"].(String)
 	if !ok {
-		return nil, fmt.Errorf("contains() argument must be a string, got %T", bound["substr"])
+		return nil, NewTypeError("contains() argument must be a string, got %T", bound["substr"])
 	}
 	return Bool(strings.Contains(string(s), string(substr))), nil
 }
@@ -120,7 +120,7 @@ func (s String) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, fmt.Errorf("cannot compare String and %T", other)
+		return 0, NewTypeError("cannot compare String and %T", other)
 	}
 }
 
@@ -133,12 +133,12 @@ func (s String) Add(other Object) (Object, error) {
 	case Bool:
 		return String(string(s) + v.String()), nil
 	default:
-		return nil, fmt.Errorf("cannot add String and %T", other)
+		return nil, NewTypeError("cannot add String and %T", other)
 	}
 }
 
 func (s String) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract from String")
+	return nil, NewTypeError("cannot subtract from String")
 }
 
 func (s String) Multiply(other Object) (Object, error) {
@@ -150,12 +150,12 @@ func (s String) Multiply(other Object) (Object, error) {
 		}
 		return String(result), nil
 	default:
-		return nil, fmt.Errorf("cannot multiply String and %T", other)
+		return nil, NewTypeError("cannot multiply String and %T", other)
 	}
 }
 
 func (s String) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide String")
+	return nil, NewTypeError("cannot divide String")
 }
 
 func (s String) And(other Object) (Object, error) {
@@ -180,7 +180,7 @@ func (s String) Iter() ([]Object, error) {
 }
 
 func (s String) Index(index Object) (Object, error) {
-	return nil, fmt.Errorf("String is not indexable")
+	return nil, NewTypeError("String is not indexable")
 }
 
 func (s String) GetAttr(name string) (Object, error) {
@@ -218,7 +218,7 @@ func StrConstructor(args CallArgs) (Object, error) {
 		return String(""), nil
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("Str() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Str() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	return String(args.Positional[0].String()), nil
 }

@@ -23,7 +23,7 @@ func (d *Dict) Size(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("size() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(len(d.Entries)), nil
 }
@@ -33,7 +33,7 @@ func (d *Dict) Keys(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("keys() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("keys() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	keys := make([]Object, 0, len(d.Entries))
 	for _, entry := range d.Entries {
@@ -47,7 +47,7 @@ func (d *Dict) Values(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("values() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("values() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	values := make([]Object, 0, len(d.Entries))
 	for _, entry := range d.Entries {
@@ -89,23 +89,23 @@ func (d *Dict) Bool() bool {
 }
 
 func (d *Dict) Compare(other Object) (int, error) {
-	return 0, fmt.Errorf("cannot compare Dict and %T", other)
+	return 0, NewTypeError("cannot compare Dict and %T", other)
 }
 
 func (d *Dict) Add(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot add Dict and %T", other)
+	return nil, NewTypeError("cannot add Dict and %T", other)
 }
 
 func (d *Dict) Minus(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot subtract from Dict")
+	return nil, NewTypeError("cannot subtract from Dict")
 }
 
 func (d *Dict) Multiply(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot multiply Dict and %T", other)
+	return nil, NewTypeError("cannot multiply Dict and %T", other)
 }
 
 func (d *Dict) Divide(other Object) (Object, error) {
-	return nil, fmt.Errorf("cannot divide Dict")
+	return nil, NewTypeError("cannot divide Dict")
 }
 
 func (d *Dict) And(other Object) (Object, error) {
@@ -132,7 +132,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 	if val, ok := d.Get(index); ok {
 		return val, nil
 	}
-	return nil, fmt.Errorf("key not found: %s", index.String())
+	return nil, NewKeyError("key not found: %s", index.String())
 }
 
 func (d *Dict) SetIndex(index Object, value Object) error {
@@ -159,7 +159,7 @@ var DictConstructorFn = &Function{Name: "Dict", Fn: DictConstructor}
 
 func DictConstructor(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("Dict() takes no positional arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("Dict() takes no positional arguments, got %d", len(args.Positional))
 	}
 	result := NewDict()
 	for k, v := range args.Keyword {

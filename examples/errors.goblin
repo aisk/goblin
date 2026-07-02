@@ -1,4 +1,6 @@
-# A sentinel error, reused by identity (like Go's `var ErrNotFound = errors.New(...)`)
+# Errors are values. Error() makes one; wrap/unwrap/is relate them.
+
+# A sentinel error, reused by identity (like a named error constant)
 var not_found = Error("not found")
 
 # wrap adds context while keeping the original error as the cause
@@ -29,4 +31,44 @@ try {
 } catch e {
     print(e.message)
     print(e.is(not_found))
+}
+
+# Predefined errors cover the common kinds: TypeError, ValueError, IndexError,
+# KeyError, ZeroDivisionError. Raise one directly...
+try {
+    raise ValueError
+} catch e {
+    print(e.message)
+}
+
+# ...or give it context with wrap, while staying matchable with is
+func parse_port(s) {
+    raise ValueError.wrap("invalid port: " + s)
+}
+try {
+    parse_port("abc")
+} catch e {
+    print(e.message)
+    print(e.is(ValueError))
+    print(e.is(TypeError))
+}
+
+# Build your own error on top of a builtin one: a derived error is-a its base
+var config_error = ValueError.wrap("config error")
+var missing_field = config_error.wrap("missing field 'name'")
+print(missing_field.message)
+print(missing_field.is(config_error))
+print(missing_field.is(ValueError))
+
+# The runtime raises these same errors, so its failures are matchable by kind
+try {
+    var x = 1 / 0
+} catch e {
+    print(e.is(ZeroDivisionError))
+}
+try {
+    var items = [1, 2, 3]
+    print(items[9])
+} catch e {
+    print(e.is(IndexError))
 }

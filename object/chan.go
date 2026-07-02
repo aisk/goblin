@@ -20,20 +20,20 @@ func (c *Chan) Compare(other Object) (int, error) {
 		}
 		return 1, nil
 	}
-	return 0, fmt.Errorf("cannot compare Chan and %T", other)
+	return 0, NewTypeError("cannot compare Chan and %T", other)
 }
 
-func (c *Chan) Add(Object) (Object, error)      { return nil, fmt.Errorf("cannot add Chan") }
-func (c *Chan) Minus(Object) (Object, error)    { return nil, fmt.Errorf("cannot subtract Chan") }
-func (c *Chan) Multiply(Object) (Object, error) { return nil, fmt.Errorf("cannot multiply Chan") }
-func (c *Chan) Divide(Object) (Object, error)   { return nil, fmt.Errorf("cannot divide Chan") }
-func (c *Chan) And(Object) (Object, error)      { return nil, fmt.Errorf("cannot perform AND on Chan") }
-func (c *Chan) Or(Object) (Object, error)       { return nil, fmt.Errorf("cannot perform OR on Chan") }
-func (c *Chan) Not() (Object, error)            { return nil, fmt.Errorf("cannot perform NOT on Chan") }
+func (c *Chan) Add(Object) (Object, error)      { return nil, NewTypeError("cannot add Chan") }
+func (c *Chan) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract Chan") }
+func (c *Chan) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Chan") }
+func (c *Chan) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Chan") }
+func (c *Chan) And(Object) (Object, error)      { return nil, NewTypeError("cannot perform AND on Chan") }
+func (c *Chan) Or(Object) (Object, error)       { return nil, NewTypeError("cannot perform OR on Chan") }
+func (c *Chan) Not() (Object, error)            { return nil, NewTypeError("cannot perform NOT on Chan") }
 func (c *Chan) Iter() ([]Object, error) {
-	return nil, fmt.Errorf("Chan does not support iteration")
+	return nil, NewTypeError("Chan does not support iteration")
 }
-func (c *Chan) Index(Object) (Object, error) { return nil, fmt.Errorf("Chan is not indexable") }
+func (c *Chan) Index(Object) (Object, error) { return nil, NewTypeError("Chan is not indexable") }
 
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
@@ -57,7 +57,7 @@ func (c *Chan) Send(args CallArgs) (_ Object, err error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("send() takes exactly 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("send() takes exactly 1 argument, got %d", len(args.Positional))
 	}
 	defer func() {
 		if recover() != nil {
@@ -76,7 +76,7 @@ func (c *Chan) Recv(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("recv() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("recv() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	value, ok := <-c.ch
 	if !ok {
@@ -92,7 +92,7 @@ func (c *Chan) Close(args CallArgs) (_ Object, err error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("close() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, NewTypeError("close() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	defer func() {
 		if recover() != nil {
@@ -117,14 +117,14 @@ func ChanConstructor(args CallArgs) (Object, error) {
 	case 1:
 		n, ok := args.Positional[0].(Integer)
 		if !ok {
-			return nil, fmt.Errorf("Chan() size must be an Integer, got %T", args.Positional[0])
+			return nil, NewTypeError("Chan() size must be an Integer, got %T", args.Positional[0])
 		}
 		if n < 0 {
-			return nil, fmt.Errorf("Chan() size must be non-negative, got %d", int64(n))
+			return nil, NewValueError("Chan() size must be non-negative, got %d", int64(n))
 		}
 		size = int(n)
 	default:
-		return nil, fmt.Errorf("Chan() takes at most 1 argument, got %d", len(args.Positional))
+		return nil, NewTypeError("Chan() takes at most 1 argument, got %d", len(args.Positional))
 	}
 	return &Chan{ch: make(chan Object, size)}, nil
 }

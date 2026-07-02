@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"sort"
 )
 
@@ -24,14 +23,14 @@ func RequireNoKeyword(funcName string, call CallArgs) error {
 	if len(call.Keyword) == 0 {
 		return nil
 	}
-	return fmt.Errorf("%s() does not accept keyword arguments", funcName)
+	return NewTypeError("%s() does not accept keyword arguments", funcName)
 }
 
 // BindArguments binds positional and keyword arguments to parameter names.
 // varArgsParam and kwArgsParam are optional capture parameter names.
 func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam string, call CallArgs) (map[string]Object, error) {
 	if varArgsParam == "" && len(call.Positional) > len(params) {
-		return nil, fmt.Errorf("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
+		return nil, NewTypeError("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
 	}
 
 	bound := make(map[string]Object, len(params)+2)
@@ -53,20 +52,20 @@ func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam s
 	for key, value := range call.keywordOrEmpty() {
 		if _, ok := index[key]; ok {
 			if _, exists := bound[key]; exists {
-				return nil, fmt.Errorf("%s() got multiple values for argument '%s'", funcName, key)
+				return nil, NewTypeError("%s() got multiple values for argument '%s'", funcName, key)
 			}
 			bound[key] = value
 			continue
 		}
-			if kwArgsParam == "" {
-				return nil, fmt.Errorf("%s() got an unexpected keyword argument '%s'", funcName, key)
-			}
-			kwExtras[key] = value
+		if kwArgsParam == "" {
+			return nil, NewTypeError("%s() got an unexpected keyword argument '%s'", funcName, key)
+		}
+		kwExtras[key] = value
 	}
 
 	for _, param := range params {
 		if _, ok := bound[param]; !ok {
-			return nil, fmt.Errorf("%s() missing required positional argument: '%s'", funcName, param)
+			return nil, NewTypeError("%s() missing required positional argument: '%s'", funcName, param)
 		}
 	}
 

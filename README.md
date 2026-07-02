@@ -126,6 +126,35 @@ alice.hello()
 var bob = User(name="bob", age=20)
 print(bob.age)      # 20
 
+# Error handling: raise an Error, recover it with try/catch
+func checked_div(a, b) {
+    if b == 0 {
+        raise ZeroDivisionError.wrap("checked_div")
+    }
+    return a / b
+}
+try {
+    checked_div(1, 0)
+} catch e {
+    print(e.message)               # "checked_div: ZeroDivisionError"
+    print(e.is(ZeroDivisionError)) # true
+}
+
+# Errors are values built with Error(); wrap adds context, unwrap/is inspect the chain
+var not_found = Error("not found")
+var err = not_found.wrap("loading config")
+print(err.message)          # "loading config: not found"
+print(err.unwrap().message) # "not found"
+print(err.is(not_found))    # true
+
+# Predefined kinds: TypeError, ValueError, IndexError, KeyError, ZeroDivisionError.
+# The runtime raises them too, so built-in failures are matchable by kind.
+try {
+    var x = [1, 2, 3][9]
+} catch e {
+    print(e.is(IndexError))  # true
+}
+
 # Built-in functions: print, range, max, min
 print(max(1, 2, 3))  # 3
 print(min(1, 2.5))   # 1
