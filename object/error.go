@@ -7,12 +7,29 @@ import (
 
 type Error struct {
 	Value string
+	// Wrapped is the underlying error this one wraps, or nil. Typed as the Go
+	// `error` interface so the standard library's errors.Is / errors.Unwrap can
+	// traverse the chain directly (see (*Error).Unwrap below); the `errors`
+	// module's helpers delegate to them rather than reimplementing traversal.
+	Wrapped error
 }
 
 var _ Object = (*Error)(nil)
 
 func NewError(value string) *Error {
 	return &Error{Value: value}
+}
+
+// NewWrappedError builds an error carrying message that wraps cause, following
+// Go's convention where the rendered message is "message: cause".
+func NewWrappedError(message string, cause error) *Error {
+	return &Error{Value: message + ": " + cause.Error(), Wrapped: cause}
+}
+
+// Unwrap exposes the wrapped error to the standard library's errors.Is /
+// errors.Unwrap, making *Error a first-class participant in Go error chains.
+func (e *Error) Unwrap() error {
+	return e.Wrapped
 }
 
 func (e *Error) String() string {
@@ -71,10 +88,65 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	switch name {
 	case "message":
 		return String(e.Value), nil
+	case "wrap":
+		return &Function{Name: "wrap", Fn: e.Wrap}, nil
+	case "unwrap":
+		return &Function{Name: "unwrap", Fn: e.Unwrapped}, nil
+	case "is":
+		return &Function{Name: "is", Fn: e.Is}, nil
 	case "constructor":
 		return ErrorConstructorFn, nil
 	}
 	return nil, fmt.Errorf("Error has no attribute '%s'", name)
+}
+
+// Wrap returns a new Error that carries message and wraps the receiver as its
+// cause, mirroring Go's fmt.Errorf("message: %w", err). Usage: err.wrap("msg").
+func (e *Error) Wrap(args CallArgs) (Object, error) {
+	bound, err := BindArguments("wrap", []string{"message"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	message, ok := bound["message"].(String)
+	if !ok {
+		return nil, fmt.Errorf("wrap() argument must be a string, got %T", bound["message"])
+	}
+	return NewWrappedError(string(message), e), nil
+}
+
+// Unwrapped returns the immediate cause of the receiver, or Nil if it wraps
+// nothing. Usage: err.unwrap(). Traversal is delegated to the standard library.
+func (e *Error) Unwrapped(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("unwrap", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, fmt.Errorf("unwrap() takes no arguments, got %d", len(args.Positional))
+	}
+	cause := errors.Unwrap(e)
+	if cause == nil {
+		return Nil, nil
+	}
+	if obj, ok := cause.(Object); ok {
+		return obj, nil
+	}
+	// A non-Object Go error can only appear if native code injected one; present
+	// it to Goblin as a plain Error.
+	return NewError(cause.Error()), nil
+}
+
+// Is reports whether target appears anywhere in the receiver's cause chain,
+// delegating to the standard library's errors.Is. Usage: err.is(target).
+func (e *Error) Is(args CallArgs) (Object, error) {
+	bound, err := BindArguments("is", []string{"target"}, "", "", args)
+	if err != nil {
+		return nil, err
+	}
+	target, ok := bound["target"].(*Error)
+	if !ok {
+		return nil, fmt.Errorf("is() argument must be an Error, got %T", bound["target"])
+	}
+	return Bool(errors.Is(e, target)), nil
 }
 
 var _ error = (*Error)(nil)
