@@ -1,0 +1,32 @@
+# A sentinel error, reused by identity (like Go's `var ErrNotFound = errors.New(...)`)
+var not_found = Error("not found")
+
+# wrap adds context while keeping the original error as the cause
+var err = not_found.wrap("loading config")
+print(err.message)
+
+# unwrap walks one level down the cause chain
+print(err.unwrap().message)
+
+# is reports whether a sentinel appears anywhere in the chain
+print(err.is(not_found))
+print(err.is(Error("other")))
+
+# wrapping nests, and is still finds the root cause
+var deep = err.wrap("startup")
+print(deep.message)
+print(deep.is(not_found))
+
+# unwrap at the bottom of the chain returns none
+print(not_found.unwrap())
+
+# wrap/is compose with raise and catch
+func load() {
+    raise not_found.wrap("reading file")
+}
+try {
+    load()
+} catch e {
+    print(e.message)
+    print(e.is(not_found))
+}
