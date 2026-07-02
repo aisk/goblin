@@ -31,10 +31,10 @@ type moduleInfo struct {
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
-	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
-	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
-	"http":   {executorPath: pathExtension, varName: "http_module", executorFunc: "ExecuteHttp"},
+	"os":       {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
+	"random":   {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
+	"math":     {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"http":     {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},
 	"fs":       {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
 	"mime":     {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
 	"json":     {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},

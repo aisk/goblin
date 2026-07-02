@@ -39,10 +39,13 @@ func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
 	if dec.More() {
 		return nil, fmt.Errorf("unmarshal() unexpected trailing data after JSON value")
 	}
-	return jsonToGoblin(v)
+	return JSONToGoblin(v)
 }
 
-func jsonToGoblin(v any) (object.Object, error) {
+// JSONToGoblin converts a value decoded by encoding/json (with UseNumber) into
+// the corresponding goblin object. It is exported so other modules (e.g. http)
+// can reuse it for their own JSON decoding.
+func JSONToGoblin(v any) (object.Object, error) {
 	switch x := v.(type) {
 	case nil:
 		return object.Unit{}, nil
@@ -62,7 +65,7 @@ func jsonToGoblin(v any) (object.Object, error) {
 	case []any:
 		elements := make([]object.Object, 0, len(x))
 		for _, item := range x {
-			g, err := jsonToGoblin(item)
+			g, err := JSONToGoblin(item)
 			if err != nil {
 				return nil, err
 			}
@@ -72,7 +75,7 @@ func jsonToGoblin(v any) (object.Object, error) {
 	case map[string]any:
 		d := object.NewDict()
 		for k, val := range x {
-			g, err := jsonToGoblin(val)
+			g, err := JSONToGoblin(val)
 			if err != nil {
 				return nil, err
 			}

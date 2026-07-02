@@ -9,6 +9,7 @@ import (
 	"github.com/aisk/goblin/extension"
 	filepathExt "github.com/aisk/goblin/extension/filepath"
 	"github.com/aisk/goblin/extension/fs"
+	httpExt "github.com/aisk/goblin/extension/http"
 	pathExt "github.com/aisk/goblin/extension/path"
 	timeExt "github.com/aisk/goblin/extension/time"
 	"github.com/aisk/goblin/lexer"
@@ -23,7 +24,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"os":       extension.ExecuteOs,
 	"random":   extension.ExecuteRandom,
 	"math":     extension.ExecuteMath,
-	"http":     extension.ExecuteHttp,
+	"http":     httpExt.Execute,
 	"fs":       fs.Execute,
 	"mime":     extension.ExecuteMime,
 	"json":     extension.ExecuteJson,
