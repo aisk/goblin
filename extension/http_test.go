@@ -84,20 +84,30 @@ func TestHTTPRequest(t *testing.T) {
 		t.Fatalf("X-Reply = %q, want ok", got)
 	}
 
-	readFnObj, err := resp.Body.GetAttr("read")
+	// body is now a plain string
+	bodyAttr, err := resp.GetAttr("body")
 	if err != nil {
-		t.Fatalf("body.read attr error = %v", err)
+		t.Fatalf("body attr error = %v", err)
 	}
-	readFn, ok := readFnObj.(*object.Function)
+	if got := bodyAttr.String(); got != "received:payload" {
+		t.Fatalf("body = %q, want received:payload", got)
+	}
+
+	// text() convenience method
+	textFnObj, err := resp.GetAttr("text")
+	if err != nil {
+		t.Fatalf("text attr error = %v", err)
+	}
+	textFn, ok := textFnObj.(*object.Function)
 	if !ok {
-		t.Fatalf("body.read is %T", readFnObj)
+		t.Fatalf("text is %T", textFnObj)
 	}
-	bodyObj, err := readFn.Call(object.CallArgs{})
+	textObj, err := textFn.Call(object.CallArgs{})
 	if err != nil {
-		t.Fatalf("body.read() error = %v", err)
+		t.Fatalf("text() error = %v", err)
 	}
-	if got := bodyObj.String(); got != "received:payload" {
-		t.Fatalf("body.read() = %q, want received:payload", got)
+	if got := textObj.String(); got != "received:payload" {
+		t.Fatalf("text() = %q, want received:payload", got)
 	}
 }
 
@@ -117,11 +127,59 @@ func TestHTTPRequestDefaultsToGetWithURL(t *testing.T) {
 		t.Fatalf("request() error = %v", err)
 	}
 	resp := respObj.(*HTTPResponse)
-	bodyObj, err := resp.Body.Read(object.CallArgs{})
+	bodyAttr, err := resp.GetAttr("body")
 	if err != nil {
-		t.Fatalf("body.read() error = %v", err)
+		t.Fatalf("body attr error = %v", err)
 	}
-	if got := bodyObj.String(); got != "ok" {
-		t.Fatalf("body.read() = %q, want ok", got)
+	if got := bodyAttr.String(); got != "ok" {
+		t.Fatalf("body = %q, want ok", got)
+	}
+}
+
+func TestHTTPJSON(t *testing.T) {
+	server := httptest.NewServer(stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"name": "goblin", "stars": 42}`))
+	}))
+	defer server.Close()
+
+	respObj, err := httpFunction(t, "get").Call(object.CallArgs{
+		Positional: object.Args{object.String(server.URL)},
+	})
+	if err != nil {
+		t.Fatalf("get() error = %v", err)
+	}
+	resp := respObj.(*HTTPResponse)
+
+	jsonFnObj, err := resp.GetAttr("json")
+	if err != nil {
+		t.Fatalf("json attr error = %v", err)
+	}
+	jsonFn, ok := jsonFnObj.(*object.Function)
+	if !ok {
+		t.Fatalf("json is %T", jsonFnObj)
+	}
+	result, err := jsonFn.Call(object.CallArgs{})
+	if err != nil {
+		t.Fatalf("json() error = %v", err)
+	}
+
+	dict, ok := result.(*object.Dict)
+	if !ok {
+		t.Fatalf("json() returned %T, want dict", result)
+	}
+	nameVal, err := dict.Index(object.String("name"))
+	if err != nil {
+		t.Fatalf("dict[\"name\"] error = %v", err)
+	}
+	if got := nameVal.String(); got != "goblin" {
+		t.Fatalf("name = %q, want goblin", got)
+	}
+	starsVal, err := dict.Index(object.String("stars"))
+	if err != nil {
+		t.Fatalf("dict[\"stars\"] error = %v", err)
+	}
+	if got := starsVal.(object.Integer); got != 42 {
+		t.Fatalf("stars = %d, want 42", got)
 	}
 }
