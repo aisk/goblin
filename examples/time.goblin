@@ -1,0 +1,20 @@
+import "time"
+
+# Parse a date from a string
+var t = time.parse("2006-01-02", "2026-07-02")
+print(t.year)
+print(t.month)
+print(t.day)
+print(t.weekday)
+
+# Format a time
+print(t.format("2006/01/02"))
+
+# Create time from Unix timestamp (epoch)
+var epoch = time.unix(0)
+print(epoch.year)
+
+# Compare two times
+var t1 = time.parse("2006-01-02", "2025-01-01")
+var t2 = time.parse("2006-01-02", "2026-01-01")
+print(t1 < t2)

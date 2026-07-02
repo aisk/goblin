@@ -10,6 +10,7 @@ import (
 	filepathExt "github.com/aisk/goblin/extension/filepath"
 	"github.com/aisk/goblin/extension/fs"
 	pathExt "github.com/aisk/goblin/extension/path"
+	timeExt "github.com/aisk/goblin/extension/time"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
@@ -28,6 +29,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"json":     extension.ExecuteJson,
 	"filepath": filepathExt.Execute,
 	"path":     pathExt.Execute,
+	"time":     timeExt.Execute,
 }
 
 func isPathImport(path string) bool {
