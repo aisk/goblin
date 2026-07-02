@@ -111,5 +111,15 @@ func loadModuleFile(path string, reg *object.Registry) (object.Object, error) {
 			members[exp.Name] = v
 		}
 	}
-	return &object.Module{Members: members}, nil
+	return &object.Module{Name: moduleNameFromFile(path), Members: members}, nil
+}
+
+// moduleNameFromFile extracts a clean module name from a file path,
+// e.g. "/path/to/mymod.goblin" → "mymod".
+func moduleNameFromFile(path string) string {
+	base := path
+	if i := strings.LastIndex(base, "/"); i >= 0 {
+		base = base[i+1:]
+	}
+	return strings.TrimSuffix(base, ".goblin")
 }
