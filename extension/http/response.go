@@ -41,7 +41,7 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 	// response bytes are intentionally not surfaced yet. Until then, json()
 	// is the way to read the response payload.
 	default:
-		return nil, fmt.Errorf("Response has no attribute '%s'", name)
+		return nil, object.NewTypeError("Response has no attribute '%s'", name)
 	}
 }
 
@@ -52,7 +52,7 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 0 {
-		return nil, fmt.Errorf("json() takes exactly 0 arguments, got %d", len(args.Positional))
+		return nil, object.NewTypeError("json() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	dec := json.NewDecoder(bytes.NewReader(r.body))
 	dec.UseNumber()

@@ -54,11 +54,11 @@ func spawn(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) == 0 {
-		return nil, fmt.Errorf("spawn() requires at least 1 argument")
+		return nil, object.NewTypeError("spawn() requires at least 1 argument")
 	}
 	fn, ok := args.Positional[0].(*object.Function)
 	if !ok {
-		return nil, fmt.Errorf("spawn() first argument must be a function, not %T", args.Positional[0])
+		return nil, object.NewTypeError("spawn() first argument must be a function, not %T", args.Positional[0])
 	}
 	callArgs := object.CallArgs{Positional: args.Positional[1:]}
 	go fn.Call(callArgs)
@@ -73,12 +73,12 @@ func range_(args object.CallArgs) (object.Object, error) {
 
 	start, ok := bound["start"].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("range() start argument must be an integer, got %T", bound["start"])
+		return nil, object.NewTypeError("range() start argument must be an integer, got %T", bound["start"])
 	}
 
 	end, ok := bound["end"].(object.Integer)
 	if !ok {
-		return nil, fmt.Errorf("range() end argument must be an integer, got %T", bound["end"])
+		return nil, object.NewTypeError("range() end argument must be an integer, got %T", bound["end"])
 	}
 
 	if int64(start) >= int64(end) {
@@ -98,7 +98,7 @@ func max(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) == 0 {
-		return nil, fmt.Errorf("max() requires at least 1 argument")
+		return nil, object.NewTypeError("max() requires at least 1 argument")
 	}
 
 	var hasFloat bool
@@ -122,7 +122,7 @@ func max(args object.CallArgs) (object.Object, error) {
 					maxValue = float64(v)
 				}
 			default:
-				return nil, fmt.Errorf("max() argument %d: invalid type %T", i, arg)
+				return nil, object.NewTypeError("max() argument %d: invalid type %T", i, arg)
 			}
 		}
 		return object.Float(maxValue), nil
@@ -135,7 +135,7 @@ func max(args object.CallArgs) (object.Object, error) {
 				maxIntValue = int64(v)
 			}
 		} else {
-			return nil, fmt.Errorf("max() argument %d: invalid type %T", i, arg)
+			return nil, object.NewTypeError("max() argument %d: invalid type %T", i, arg)
 		}
 	}
 	return object.Integer(maxIntValue), nil
@@ -146,7 +146,7 @@ func min(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) == 0 {
-		return nil, fmt.Errorf("min() requires at least 1 argument")
+		return nil, object.NewTypeError("min() requires at least 1 argument")
 	}
 
 	var hasFloat bool
@@ -170,7 +170,7 @@ func min(args object.CallArgs) (object.Object, error) {
 					minValue = float64(v)
 				}
 			default:
-				return nil, fmt.Errorf("min() argument %d: invalid type %T", i, arg)
+				return nil, object.NewTypeError("min() argument %d: invalid type %T", i, arg)
 			}
 		}
 		return object.Float(minValue), nil
@@ -183,7 +183,7 @@ func min(args object.CallArgs) (object.Object, error) {
 				minIntValue = int64(v)
 			}
 		} else {
-			return nil, fmt.Errorf("min() argument %d: invalid type %T", i, arg)
+			return nil, object.NewTypeError("min() argument %d: invalid type %T", i, arg)
 		}
 	}
 	return object.Integer(minIntValue), nil

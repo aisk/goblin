@@ -151,7 +151,7 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return DictConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("Dict has no attribute '%s'", name)
+		return nil, NewTypeError("Dict has no attribute '%s'", name)
 	}
 }
 

@@ -36,7 +36,7 @@ func (r *Request) GetAttr(name string) (object.Object, error) {
 	// TODO: expose "body" once goblin gains a reader/stream type;
 	// net/http.Request.Body is an io.ReadCloser with no goblin equivalent yet.
 	default:
-		return nil, fmt.Errorf("Request has no attribute '%s'", name)
+		return nil, object.NewTypeError("Request has no attribute '%s'", name)
 	}
 }
 

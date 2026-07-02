@@ -1,7 +1,6 @@
 package extension
 
 import (
-	"fmt"
 	"mime"
 
 	"github.com/aisk/goblin/object"
@@ -21,12 +20,12 @@ func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("type_by_extension() requires exactly 1 argument")
+		return nil, object.NewTypeError("type_by_extension() requires exactly 1 argument")
 	}
 
 	ext, ok := args.Positional[0].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("type_by_extension() argument must be a string")
+		return nil, object.NewTypeError("type_by_extension() argument must be a string")
 	}
 
 	return object.String(mime.TypeByExtension(string(ext))), nil
@@ -37,12 +36,12 @@ func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if len(args.Positional) != 1 {
-		return nil, fmt.Errorf("extensions_by_type() requires exactly 1 argument")
+		return nil, object.NewTypeError("extensions_by_type() requires exactly 1 argument")
 	}
 
 	mimeType, ok := args.Positional[0].(object.String)
 	if !ok {
-		return nil, fmt.Errorf("extensions_by_type() argument must be a string")
+		return nil, object.NewTypeError("extensions_by_type() argument must be a string")
 	}
 
 	extensions, err := mime.ExtensionsByType(string(mimeType))

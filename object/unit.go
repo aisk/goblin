@@ -1,9 +1,5 @@
 package object
 
-import (
-	"fmt"
-)
-
 var Nil Object = Unit{}
 
 type Unit struct{}
@@ -64,5 +60,5 @@ func (n Unit) Index(index Object) (Object, error) {
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {
-	return nil, fmt.Errorf("Nil has no attribute '%s'", name)
+	return nil, NewTypeError("Nil has no attribute '%s'", name)
 }

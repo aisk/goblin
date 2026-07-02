@@ -196,7 +196,7 @@ func (l *List) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return ListConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("List has no attribute '%s'", name)
+		return nil, NewTypeError("List has no attribute '%s'", name)
 	}
 }
 

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	stdhttp "net/http"
 
 	"github.com/aisk/goblin/object"
@@ -57,7 +56,7 @@ func (c *Client) GetAttr(name string) (object.Object, error) {
 			return doPatch(c.Client, args)
 		}}, nil
 	default:
-		return nil, fmt.Errorf("Client has no attribute '%s'", name)
+		return nil, object.NewTypeError("Client has no attribute '%s'", name)
 	}
 }
 

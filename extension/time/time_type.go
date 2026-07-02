@@ -1,7 +1,6 @@
 package time
 
 import (
-	"fmt"
 	stdtime "time"
 
 	"github.com/aisk/goblin/object"
@@ -27,7 +26,7 @@ func (t *Time) Bool() bool {
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {
-		return 0, fmt.Errorf("cannot compare Time with %T", other)
+		return 0, object.NewTypeError("cannot compare Time with %T", other)
 	}
 	if t.Value.Before(ot.Value) {
 		return -1, nil
@@ -39,16 +38,16 @@ func (t *Time) Compare(other object.Object) (int, error) {
 }
 
 func (t *Time) Add(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot add Time")
+	return nil, object.NewTypeError("cannot add Time")
 }
 func (t *Time) Minus(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot subtract Time")
+	return nil, object.NewTypeError("cannot subtract Time")
 }
 func (t *Time) Multiply(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot multiply Time")
+	return nil, object.NewTypeError("cannot multiply Time")
 }
 func (t *Time) Divide(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("cannot divide Time")
+	return nil, object.NewTypeError("cannot divide Time")
 }
 func (t *Time) And(other object.Object) (object.Object, error) {
 	return object.Bool(t.Bool() && other.Bool()), nil
@@ -58,10 +57,10 @@ func (t *Time) Or(other object.Object) (object.Object, error) {
 }
 func (t *Time) Not() (object.Object, error) { return object.Bool(!t.Bool()), nil }
 func (t *Time) Iter() ([]object.Object, error) {
-	return nil, fmt.Errorf("Time does not support iteration")
+	return nil, object.NewTypeError("Time does not support iteration")
 }
 func (t *Time) Index(object.Object) (object.Object, error) {
-	return nil, fmt.Errorf("Time is not indexable")
+	return nil, object.NewTypeError("Time is not indexable")
 }
 
 func (t *Time) GetAttr(name string) (object.Object, error) {
@@ -101,18 +100,18 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 					return nil, err
 				}
 				if len(args.Positional) != 1 {
-					return nil, fmt.Errorf("format() requires exactly 1 argument")
+					return nil, object.NewTypeError("format() requires exactly 1 argument")
 				}
 				layout, ok := args.Positional[0].(object.String)
 				if !ok {
-					return nil, fmt.Errorf("format() argument must be a string")
+					return nil, object.NewTypeError("format() argument must be a string")
 				}
 				return object.String(t.Value.Format(string(layout))), nil
 			},
 		}, nil
 
 	default:
-		return nil, fmt.Errorf("Time has no attribute '%s'", name)
+		return nil, object.NewTypeError("Time has no attribute '%s'", name)
 	}
 }
 

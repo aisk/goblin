@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -204,7 +203,7 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return StrConstructorFn, nil
 	default:
-		return nil, fmt.Errorf("String has no attribute '%s'", name)
+		return nil, NewTypeError("String has no attribute '%s'", name)
 	}
 }
 
