@@ -84,7 +84,7 @@ func TestTranspileKnownHTTPModuleImport(t *testing.T) {
 	code := transpileSource(t, "import \"http\"\n")
 
 	for _, want := range []string{
-		`_registry.Load("http", extension.ExecuteHttp)`,
+		`_registry.Load("http", http.Execute)`,
 		`http_module`,
 	} {
 		if !strings.Contains(code, want) {
