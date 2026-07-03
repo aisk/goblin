@@ -60,5 +60,5 @@ func (n Unit) Index(index Object) (Object, error) {
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {
-	return nil, NewTypeError("Nil has no attribute '%s'", name)
+	return nil, NewAttributeError("Nil has no attribute '%s'", name)
 }

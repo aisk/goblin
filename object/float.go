@@ -119,7 +119,7 @@ func (f Float) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return FloatConstructorFn, nil
 	default:
-		return nil, NewTypeError("Float has no attribute '%s'", name)
+		return nil, NewAttributeError("Float has no attribute '%s'", name)
 	}
 }
 

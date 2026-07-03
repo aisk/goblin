@@ -263,7 +263,7 @@ func evalExpr(expr ast.Expression, env *Environment) (object.Object, error) {
 		if b, ok := extension.BuiltinsModule.Members[e.Name]; ok {
 			return b, nil
 		}
-		return nil, fmt.Errorf("undefined: %s", e.Name)
+		return nil, object.NewNameError("undefined: %s", e.Name)
 
 	case *ast.ListLiteral:
 		elements := make([]object.Object, len(e.Elements))
@@ -352,7 +352,7 @@ func resolveName(name string, env *Environment) (object.Object, error) {
 	if b, ok := extension.BuiltinsModule.Members[name]; ok {
 		return b, nil
 	}
-	return nil, fmt.Errorf("undefined: %s", name)
+	return nil, object.NewNameError("undefined: %s", name)
 }
 
 func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error) {

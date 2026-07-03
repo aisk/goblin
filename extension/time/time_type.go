@@ -111,7 +111,7 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 		}, nil
 
 	default:
-		return nil, object.NewTypeError("Time has no attribute '%s'", name)
+		return nil, object.NewAttributeError("Time has no attribute '%s'", name)
 	}
 }
 

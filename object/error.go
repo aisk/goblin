@@ -97,7 +97,7 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return ErrorConstructorFn, nil
 	}
-	return nil, fmt.Errorf("Error has no attribute '%s'", name)
+	return nil, NewAttributeError("Error has no attribute '%s'", name)
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its
@@ -162,6 +162,9 @@ var (
 	IndexError        = NewError("IndexError")
 	KeyError          = NewError("KeyError")
 	ZeroDivisionError = NewError("ZeroDivisionError")
+	AttributeError    = NewError("AttributeError")
+	NameError         = NewError("NameError")
+	ImportError       = NewError("ImportError")
 )
 
 // typedError builds an Error whose message is the formatted string and whose
@@ -185,6 +188,15 @@ func NewIndexError(format string, a ...any) *Error {
 func NewKeyError(format string, a ...any) *Error { return typedError(KeyError, format, a...) }
 func NewZeroDivisionError(format string, a ...any) *Error {
 	return typedError(ZeroDivisionError, format, a...)
+}
+func NewAttributeError(format string, a ...any) *Error {
+	return typedError(AttributeError, format, a...)
+}
+func NewNameError(format string, a ...any) *Error {
+	return typedError(NameError, format, a...)
+}
+func NewImportError(format string, a ...any) *Error {
+	return typedError(ImportError, format, a...)
 }
 
 var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}

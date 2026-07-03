@@ -1094,7 +1094,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.Default().Block(
 			jen.Return(
 				jen.Nil(),
-				jen.Qual("fmt", "Errorf").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
+				jen.Qual(pathObject, "NewAttributeError").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
 			),
 		),
 	)
@@ -1119,7 +1119,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	setAttrCases = append(setAttrCases,
 		jen.Default().Block(
 			jen.Return(
-				jen.Qual("fmt", "Errorf").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
+				jen.Qual(pathObject, "NewAttributeError").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
 			),
 		),
 	)

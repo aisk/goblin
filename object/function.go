@@ -48,7 +48,7 @@ func (f *Function) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return FunctionConstructorFn, nil
 	default:
-		return nil, NewTypeError("Function has no attribute '%s'", name)
+		return nil, NewAttributeError("Function has no attribute '%s'", name)
 	}
 }
 

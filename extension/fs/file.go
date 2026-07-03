@@ -151,7 +151,7 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 	case "close":
 		return &object.Function{Name: "close", Fn: f.Close}, nil
 	default:
-		return nil, object.NewTypeError("File has no attribute '%s'", name)
+		return nil, object.NewAttributeError("File has no attribute '%s'", name)
 	}
 }
 
