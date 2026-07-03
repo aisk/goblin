@@ -46,7 +46,7 @@ func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
 
 	extensions, err := mime.ExtensionsByType(string(mimeType))
 	if err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ParseError, "extensions_by_type() failed", err)
 	}
 
 	elements := make([]object.Object, 0, len(extensions))

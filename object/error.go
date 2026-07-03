@@ -3,6 +3,8 @@ package object
 import (
 	"errors"
 	"fmt"
+	"io/fs"
+	"net"
 )
 
 type Error struct {
@@ -20,10 +22,31 @@ func NewError(value string) *Error {
 	return &Error{Value: value}
 }
 
+func NewSentinelError(value string, parent *Error) *Error {
+	return &Error{Value: value, Wrapped: parent}
+}
+
 // NewWrappedError builds an error carrying message that wraps cause, following
 // Go's convention where the rendered message is "message: cause".
 func NewWrappedError(message string, cause error) *Error {
 	return &Error{Value: message + ": " + cause.Error(), Wrapped: cause}
+}
+
+func WrapError(base *Error, message string, cause error) *Error {
+	return &Error{Value: fmt.Sprintf("%s: %s", message, cause.Error()), Wrapped: typedCause{cause: cause, base: base}}
+}
+
+type typedCause struct {
+	cause error
+	base  *Error
+}
+
+func (e typedCause) Error() string {
+	return e.cause.Error()
+}
+
+func (e typedCause) Unwrap() []error {
+	return []error{e.cause, e.base}
 }
 
 // Unwrap exposes the wrapped error to the standard library's errors.Is /
@@ -151,20 +174,32 @@ func (e *Error) Is(args CallArgs) (Object, error) {
 
 var _ error = (*Error)(nil)
 
-var NotImplementedError = NewError("not implemented")
-
 // Predefined error values covering the common failure kinds. Each is a distinct
 // sentinel that can be raised, given context with .wrap(), matched with .is(),
 // or used as the base for a derived error.
 var (
-	TypeError         = NewError("TypeError")
-	ValueError        = NewError("ValueError")
-	IndexError        = NewError("IndexError")
-	KeyError          = NewError("KeyError")
-	ZeroDivisionError = NewError("ZeroDivisionError")
-	AttributeError    = NewError("AttributeError")
-	NameError         = NewError("NameError")
-	ImportError       = NewError("ImportError")
+	BaseError       = NewError("Error")
+	TypeError       = NewSentinelError("TypeError", BaseError)
+	ValueError      = NewSentinelError("ValueError", BaseError)
+	LookupError     = NewSentinelError("LookupError", BaseError)
+	ArithmeticError = NewSentinelError("ArithmeticError", BaseError)
+	IOError         = NewSentinelError("IOError", BaseError)
+
+	ParseError        = NewSentinelError("ParseError", ValueError)
+	IndexError        = NewSentinelError("IndexError", LookupError)
+	KeyError          = NewSentinelError("KeyError", LookupError)
+	AttributeError    = NewSentinelError("AttributeError", LookupError)
+	NameError         = NewSentinelError("NameError", LookupError)
+	ImportError       = NewSentinelError("ImportError", LookupError)
+	ZeroDivisionError = NewSentinelError("ZeroDivisionError", ArithmeticError)
+
+	NotExistError   = NewSentinelError("NotExistError", IOError)
+	ExistError      = NewSentinelError("ExistError", IOError)
+	PermissionError = NewSentinelError("PermissionError", IOError)
+	TimeoutError    = NewSentinelError("TimeoutError", IOError)
+	NetworkError    = NewSentinelError("NetworkError", IOError)
+
+	NotImplementedError = NewSentinelError("NotImplementedError", BaseError)
 )
 
 // typedError builds an Error whose message is the formatted string and whose
@@ -198,6 +233,49 @@ func NewNameError(format string, a ...any) *Error {
 func NewImportError(format string, a ...any) *Error {
 	return typedError(ImportError, format, a...)
 }
+func NewParseError(format string, a ...any) *Error {
+	return typedError(ParseError, format, a...)
+}
+func NewIOError(format string, a ...any) *Error { return typedError(IOError, format, a...) }
+func NewNotExistError(format string, a ...any) *Error {
+	return typedError(NotExistError, format, a...)
+}
+func NewExistError(format string, a ...any) *Error {
+	return typedError(ExistError, format, a...)
+}
+func NewPermissionError(format string, a ...any) *Error {
+	return typedError(PermissionError, format, a...)
+}
+func NewTimeoutError(format string, a ...any) *Error {
+	return typedError(TimeoutError, format, a...)
+}
+func NewNetworkError(format string, a ...any) *Error {
+	return typedError(NetworkError, format, a...)
+}
+
+func ErrorKind(err error, fallback *Error) *Error {
+	if errors.Is(err, fs.ErrNotExist) {
+		return NotExistError
+	}
+	if errors.Is(err, fs.ErrExist) {
+		return ExistError
+	}
+	if errors.Is(err, fs.ErrPermission) {
+		return PermissionError
+	}
+	var netErr net.Error
+	if errors.As(err, &netErr) {
+		if netErr.Timeout() {
+			return TimeoutError
+		}
+		return NetworkError
+	}
+	return fallback
+}
+
+func WrapNativeError(fallback *Error, message string, err error) *Error {
+	return WrapError(ErrorKind(err, fallback), message, err)
+}
 
 var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
 
@@ -221,7 +299,7 @@ func Raise(v Object) error {
 	if e, ok := v.(*Error); ok {
 		return e
 	}
-	return NewError("raise expects an Error, got: " + v.String())
+	return NewTypeError("raise expects an Error, got: %s", v.String())
 }
 
 // ExcValue extracts the Goblin exception value carried by err, unwrapping any

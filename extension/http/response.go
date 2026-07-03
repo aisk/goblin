@@ -58,7 +58,7 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 	dec.UseNumber()
 	var v any
 	if err := dec.Decode(&v); err != nil {
-		return nil, fmt.Errorf("json() failed to parse response body: %w", err)
+		return nil, object.WrapError(object.ParseError, "json() failed to parse response body", err)
 	}
 	return extension.JSONToGoblin(v)
 }

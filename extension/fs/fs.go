@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/aisk/goblin/object"
-	"github.com/pkg/errors"
 )
 
 func Execute() (object.Object, error) {
@@ -46,7 +45,7 @@ func openFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "open() failed")
+		return nil, object.WrapNativeError(object.IOError, "open() failed", err)
 	}
 
 	return NewFile(path, file), nil
@@ -60,7 +59,7 @@ func createFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Create(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "create() failed")
+		return nil, object.WrapNativeError(object.IOError, "create() failed", err)
 	}
 	return NewFile(path, file), nil
 }
@@ -73,13 +72,13 @@ func readFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "read() failed")
+		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, errors.Wrap(err, "read() failed")
+		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
 	}
 	return object.String(data), nil
 }
@@ -108,7 +107,7 @@ func writeFile(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-		return nil, errors.Wrap(err, "write() failed")
+		return nil, object.WrapNativeError(object.IOError, "write() failed", err)
 	}
 	return object.Integer(len(content)), nil
 }
@@ -121,13 +120,13 @@ func appendFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		return nil, errors.Wrap(err, "append() failed")
+		return nil, object.WrapNativeError(object.IOError, "append() failed", err)
 	}
 	defer file.Close()
 
 	n, err := file.WriteString(content)
 	if err != nil {
-		return nil, errors.Wrap(err, "append() failed")
+		return nil, object.WrapNativeError(object.IOError, "append() failed", err)
 	}
 	return object.Integer(n), nil
 }
@@ -145,7 +144,7 @@ func exists(args object.CallArgs) (object.Object, error) {
 	if os.IsNotExist(err) {
 		return object.Bool(false), nil
 	}
-	return nil, errors.Wrap(err, "exists() failed")
+	return nil, object.WrapNativeError(object.IOError, "exists() failed", err)
 }
 
 func stat(args object.CallArgs) (object.Object, error) {
@@ -156,7 +155,7 @@ func stat(args object.CallArgs) (object.Object, error) {
 
 	info, err := os.Stat(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "stat() failed")
+		return nil, object.WrapNativeError(object.IOError, "stat() failed", err)
 	}
 	return NewFileInfo(info), nil
 }
@@ -169,14 +168,14 @@ func readDir(args object.CallArgs) (object.Object, error) {
 
 	entries, err := os.ReadDir(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "read_dir() failed")
+		return nil, object.WrapNativeError(object.IOError, "read_dir() failed", err)
 	}
 
 	items := make([]object.Object, len(entries))
 	for i, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {
-			return nil, errors.Wrap(err, "read_dir() failed")
+			return nil, object.WrapNativeError(object.IOError, "read_dir() failed", err)
 		}
 		items[i] = NewFileInfo(info)
 	}
@@ -190,7 +189,7 @@ func mkdir(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.Mkdir(path, 0755); err != nil {
-		return nil, errors.Wrap(err, "mkdir() failed")
+		return nil, object.WrapNativeError(object.IOError, "mkdir() failed", err)
 	}
 	return object.Nil, nil
 }
@@ -202,7 +201,7 @@ func remove(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.Remove(path); err != nil {
-		return nil, errors.Wrap(err, "remove() failed")
+		return nil, object.WrapNativeError(object.IOError, "remove() failed", err)
 	}
 	return object.Nil, nil
 }

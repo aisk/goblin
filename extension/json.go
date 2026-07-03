@@ -33,7 +33,7 @@ func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
 
 	var v any
 	if err := dec.Decode(&v); err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ParseError, "unmarshal() failed", err)
 	}
 	if dec.More() {
 		return nil, object.NewValueError("unmarshal() unexpected trailing data after JSON value")
@@ -58,7 +58,7 @@ func JSONToGoblin(v any) (object.Object, error) {
 		}
 		f, err := x.Float64()
 		if err != nil {
-			return nil, err
+			return nil, object.WrapError(object.ParseError, "unmarshal() failed", err)
 		}
 		return object.Float(f), nil
 	case []any:
@@ -134,14 +134,14 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 	case object.Float:
 		b, err := json.Marshal(float64(v))
 		if err != nil {
-			return err
+			return object.WrapError(object.ValueError, "marshal() failed", err)
 		}
 		buf.Write(b)
 		return nil
 	case object.String:
 		b, err := json.Marshal(string(v))
 		if err != nil {
-			return err
+			return object.WrapError(object.ValueError, "marshal() failed", err)
 		}
 		buf.Write(b)
 		return nil
@@ -200,7 +200,7 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 		}
 		kb, err := json.Marshal(entry.Key.String())
 		if err != nil {
-			return err
+			return object.WrapError(object.ValueError, "marshal() failed", err)
 		}
 		buf.Write(kb)
 		if pretty {

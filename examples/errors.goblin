@@ -1,3 +1,5 @@
+import "json"
+
 # Errors are values. Error() makes one; wrap/unwrap/is relate them.
 
 # A sentinel error, reused by identity (like a named error constant)
@@ -33,8 +35,7 @@ try {
     print(e.is(not_found))
 }
 
-# Predefined errors cover the common kinds: TypeError, ValueError, IndexError,
-# KeyError, ZeroDivisionError. Raise one directly...
+# Predefined errors are hierarchical. Raise one directly...
 try {
     raise ValueError
 } catch e {
@@ -65,10 +66,19 @@ try {
     var x = 1 / 0
 } catch e {
     print(e.is(ZeroDivisionError))
+    print(e.is(ArithmeticError))
 }
 try {
     var items = [1, 2, 3]
     print(items[9])
 } catch e {
     print(e.is(IndexError))
+    print(e.is(LookupError))
+}
+
+try {
+    json.unmarshal("{")
+} catch e {
+    print(e.is(ParseError))
+    print(e.is(ValueError))
 }

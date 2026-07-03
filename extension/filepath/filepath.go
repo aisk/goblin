@@ -51,7 +51,7 @@ func abs(args object.CallArgs) (object.Object, error) {
 	}
 	absPath, err := stdpath.Abs(path)
 	if err != nil {
-		return nil, err
+		return nil, object.WrapNativeError(object.IOError, "abs() failed", err)
 	}
 	return object.String(absPath), nil
 }
@@ -133,7 +133,6 @@ func isAbs(args object.CallArgs) (object.Object, error) {
 	return object.Bool(stdpath.IsAbs(path)), nil
 }
 
-
 func join(args object.CallArgs) (object.Object, error) {
 	if err := object.RequireNoKeyword("join", args); err != nil {
 		return nil, err
@@ -163,7 +162,7 @@ func match(args object.CallArgs) (object.Object, error) {
 	}
 	matched, err := stdpath.Match(pattern, string(name))
 	if err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ParseError, "match() failed", err)
 	}
 	return object.Bool(matched), nil
 }
@@ -210,7 +209,7 @@ func rel(args object.CallArgs) (object.Object, error) {
 	}
 	relPath, err := stdpath.Rel(basepath, string(targpath))
 	if err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ValueError, "rel() failed", err)
 	}
 	return object.String(relPath), nil
 }
@@ -236,7 +235,7 @@ func glob(args object.CallArgs) (object.Object, error) {
 	}
 	matches, err := stdpath.Glob(pattern)
 	if err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ParseError, "glob() failed", err)
 	}
 	elements := make([]object.Object, len(matches))
 	for i, m := range matches {
@@ -255,7 +254,7 @@ func evalSymlinks(args object.CallArgs) (object.Object, error) {
 	}
 	resolved, err := stdpath.EvalSymlinks(path)
 	if err != nil {
-		return nil, err
+		return nil, object.WrapNativeError(object.IOError, "eval_symlinks() failed", err)
 	}
 	return object.String(resolved), nil
 }

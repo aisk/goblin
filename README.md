@@ -147,12 +147,14 @@ print(err.message)          # "loading config: not found"
 print(err.unwrap().message) # "not found"
 print(err.is(not_found))    # true
 
-# Predefined kinds: TypeError, ValueError, IndexError, KeyError, ZeroDivisionError.
-# The runtime raises them too, so built-in failures are matchable by kind.
+# Predefined kinds are hierarchical: IndexError is a LookupError,
+# ZeroDivisionError is an ArithmeticError, ParseError is a ValueError,
+# and OS/network failures are IOError subclasses.
 try {
     var x = [1, 2, 3][9]
 } catch e {
     print(e.is(IndexError))  # true
+    print(e.is(LookupError)) # true
 }
 
 # Built-in functions: print, range, max, min

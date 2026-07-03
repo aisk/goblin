@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aisk/goblin/object"
-	"github.com/pkg/errors"
 )
 
 // defaultTimeout is used by the module-level convenience functions and by
@@ -115,7 +114,7 @@ func bodylessRequest(client *stdhttp.Client, fn, method string, args object.Call
 	}
 	req, err := buildRequest(method, rawURL, "", "")
 	if err != nil {
-		return nil, errors.Wrapf(err, "%s() failed", fn)
+		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
 	}
 	return doRequest(client, req)
 }
@@ -141,7 +140,7 @@ func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs
 	}
 	req, err := buildRequest(method, rawURL, contentType, body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "%s() failed", fn)
+		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
 	}
 	return doRequest(client, req)
 }
@@ -174,7 +173,7 @@ func newRequestObject(args object.CallArgs) (object.Object, error) {
 	}
 	req, err := buildRequest(method, rawURL, "", body)
 	if err != nil {
-		return nil, errors.Wrap(err, "Request() failed")
+		return nil, object.WrapNativeError(object.NetworkError, "Request() failed", err)
 	}
 	return NewRequest(req), nil
 }
@@ -193,10 +192,10 @@ func newClientObject(args object.CallArgs) (object.Object, error) {
 	}
 	for key, value := range args.Keyword {
 		if key != "timeout" {
-			return nil, object.NewValueError("Client() got an unexpected keyword argument '%s'", key)
+			return nil, object.NewTypeError("Client() got an unexpected keyword argument '%s'", key)
 		}
 		if timeoutObj != nil {
-			return nil, object.NewValueError("Client() got multiple values for argument 'timeout'")
+			return nil, object.NewTypeError("Client() got multiple values for argument 'timeout'")
 		}
 		timeoutObj = value
 	}
@@ -238,7 +237,7 @@ func buildRequest(method, rawURL, contentType, body string) (*stdhttp.Request, e
 func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, error) {
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, object.WrapNativeError(object.NetworkError, "request failed", err)
 	}
 	defer resp.Body.Close()
 
@@ -246,7 +245,7 @@ func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, err
 	// type, expose a streaming body and/or cap this with an io.LimitReader.
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading response body failed")
+		return nil, object.WrapNativeError(object.NetworkError, "reading response body failed", err)
 	}
 	return NewResponse(resp, data), nil
 }

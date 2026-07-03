@@ -4,7 +4,6 @@ import (
 	stdtime "time"
 
 	"github.com/aisk/goblin/object"
-	"github.com/pkg/errors"
 )
 
 func Execute() (object.Object, error) {
@@ -68,7 +67,7 @@ func parse(args object.CallArgs) (object.Object, error) {
 	}
 	t, err := stdtime.Parse(string(layout), string(value))
 	if err != nil {
-		return nil, errors.Wrap(err, "parse() failed")
+		return nil, object.WrapError(object.ParseError, "parse() failed", err)
 	}
 	return NewTime(t), nil
 }

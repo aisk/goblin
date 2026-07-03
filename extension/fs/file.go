@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/aisk/goblin/object"
-	"github.com/pkg/errors"
 )
 
 type File struct {
@@ -39,7 +38,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 
 	data, err := io.ReadAll(f.File)
 	if err != nil {
-		return nil, errors.Wrap(err, "read() failed")
+		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
 	}
 	return object.String(data), nil
 }
@@ -60,7 +59,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 
 	n, err := f.File.WriteString(string(content))
 	if err != nil {
-		return nil, errors.Wrap(err, "write() failed")
+		return nil, object.WrapNativeError(object.IOError, "write() failed", err)
 	}
 	return object.Integer(n), nil
 }
@@ -76,7 +75,7 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 		return object.Nil, nil
 	}
 	if err := f.File.Close(); err != nil {
-		return nil, errors.Wrap(err, "close() failed")
+		return nil, object.WrapNativeError(object.IOError, "close() failed", err)
 	}
 	f.closed = true
 	return object.Nil, nil
@@ -95,7 +94,7 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 
 	info, err := f.File.Stat()
 	if err != nil {
-		return nil, errors.Wrap(err, "stat() failed")
+		return nil, object.WrapNativeError(object.IOError, "stat() failed", err)
 	}
 	return NewFileInfo(info), nil
 }
@@ -112,7 +111,9 @@ func (f *File) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare File")
 }
 
-func (f *File) Add(object.Object) (object.Object, error) { return nil, object.NewTypeError("cannot add File") }
+func (f *File) Add(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot add File")
+}
 func (f *File) Minus(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot subtract File")
 }

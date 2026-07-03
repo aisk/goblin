@@ -11,14 +11,14 @@ import (
 func Execute() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"base":    &object.Function{Name: "base", Fn: base},
-			"clean":   &object.Function{Name: "clean", Fn: clean},
-			"dir":     &object.Function{Name: "dir", Fn: dir},
-			"ext":     &object.Function{Name: "ext", Fn: ext},
-			"is_abs":  &object.Function{Name: "is_abs", Fn: isAbs},
-			"join":    &object.Function{Name: "join", Fn: join},
-			"match":   &object.Function{Name: "match", Fn: match},
-			"split":   &object.Function{Name: "split", Fn: split},
+			"base":   &object.Function{Name: "base", Fn: base},
+			"clean":  &object.Function{Name: "clean", Fn: clean},
+			"dir":    &object.Function{Name: "dir", Fn: dir},
+			"ext":    &object.Function{Name: "ext", Fn: ext},
+			"is_abs": &object.Function{Name: "is_abs", Fn: isAbs},
+			"join":   &object.Function{Name: "join", Fn: join},
+			"match":  &object.Function{Name: "match", Fn: match},
+			"split":  &object.Function{Name: "split", Fn: split},
 		},
 	}, nil
 }
@@ -118,7 +118,7 @@ func match(args object.CallArgs) (object.Object, error) {
 	}
 	matched, err := stdpath.Match(pattern, string(name))
 	if err != nil {
-		return nil, err
+		return nil, object.WrapError(object.ParseError, "match() failed", err)
 	}
 	return object.Bool(matched), nil
 }
