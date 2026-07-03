@@ -92,7 +92,7 @@ func (b Bool) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return BoolConstructorFn, nil
 	default:
-		return nil, NewTypeError("Bool has no attribute '%s'", name)
+		return nil, NewAttributeError("Bool has no attribute '%s'", name)
 	}
 }
 

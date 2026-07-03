@@ -36,7 +36,7 @@ func (m *Module) GetAttr(name string) (Object, error) {
 	if val, ok := m.Members[name]; ok {
 		return val, nil
 	}
-	return nil, NewTypeError("module has no attribute '%s'", name)
+	return nil, NewAttributeError("module has no attribute '%s'", name)
 }
 
 var _ Object = (*Module)(nil)

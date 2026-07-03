@@ -41,7 +41,7 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 	// response bytes are intentionally not surfaced yet. Until then, json()
 	// is the way to read the response payload.
 	default:
-		return nil, object.NewTypeError("Response has no attribute '%s'", name)
+		return nil, object.NewAttributeError("Response has no attribute '%s'", name)
 	}
 }
 

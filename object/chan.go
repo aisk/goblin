@@ -45,7 +45,7 @@ func (c *Chan) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return ChanConstructorFn, nil
 	default:
-		return nil, NewTypeError("Chan has no attribute '%s'", name)
+		return nil, NewAttributeError("Chan has no attribute '%s'", name)
 	}
 }
 

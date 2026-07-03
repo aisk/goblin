@@ -40,7 +40,7 @@ func (h *Header) GetAttr(name string) (object.Object, error) {
 	case "del":
 		return &object.Function{Name: "del", Fn: h.del}, nil
 	default:
-		return nil, object.NewTypeError("Header has no attribute '%s'", name)
+		return nil, object.NewAttributeError("Header has no attribute '%s'", name)
 	}
 }
 

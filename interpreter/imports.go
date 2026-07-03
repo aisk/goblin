@@ -69,7 +69,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry) (objec
 	}
 	exec, ok := builtinModules[imp.Path]
 	if !ok {
-		return nil, fmt.Errorf("unknown module: %s", imp.Path)
+		return nil, object.NewImportError("unknown module: %s", imp.Path)
 	}
 	return reg.Load(imp.Path, exec)
 }
@@ -79,7 +79,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry) (objec
 func loadModuleFile(path string, reg *object.Registry) (object.Object, error) {
 	l, err := lexer.NewLexerFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read module %s: %w", path, err)
+		return nil, object.NewImportError("failed to read module %s: %v", path, err)
 	}
 	st, err := parser.NewParser().Parse(l)
 	if err != nil {

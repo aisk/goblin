@@ -66,7 +66,7 @@ func (f *FileInfo) GetAttr(name string) (object.Object, error) {
 	case "mod_time":
 		return object.String(f.Info.ModTime().Format("2006-01-02T15:04:05Z07:00")), nil
 	default:
-		return nil, object.NewTypeError("FileInfo has no attribute '%s'", name)
+		return nil, object.NewAttributeError("FileInfo has no attribute '%s'", name)
 	}
 }
 

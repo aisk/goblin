@@ -203,7 +203,7 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return StrConstructorFn, nil
 	default:
-		return nil, NewTypeError("String has no attribute '%s'", name)
+		return nil, NewAttributeError("String has no attribute '%s'", name)
 	}
 }
 

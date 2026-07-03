@@ -56,7 +56,7 @@ func (c *Client) GetAttr(name string) (object.Object, error) {
 			return doPatch(c.Client, args)
 		}}, nil
 	default:
-		return nil, object.NewTypeError("Client has no attribute '%s'", name)
+		return nil, object.NewAttributeError("Client has no attribute '%s'", name)
 	}
 }
 

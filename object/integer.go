@@ -119,7 +119,7 @@ func (i Integer) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return IntConstructorFn, nil
 	default:
-		return nil, NewTypeError("Integer has no attribute '%s'", name)
+		return nil, NewAttributeError("Integer has no attribute '%s'", name)
 	}
 }
 
