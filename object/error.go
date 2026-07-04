@@ -126,13 +126,10 @@ func (e *Error) GetAttr(name string) (Object, error) {
 // Wrap returns a new Error that carries message and wraps the receiver as its
 // cause, mirroring Go's fmt.Errorf("message: %w", err). Usage: err.wrap("msg").
 func (e *Error) Wrap(args CallArgs) (Object, error) {
-	bound, err := BindArguments("wrap", []string{"message"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("wrap", args)
+	message := ap.Str("message")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	message, ok := bound["message"].(String)
-	if !ok {
-		return nil, NewTypeError("wrap() argument must be a string, got %T", bound["message"])
 	}
 	return NewWrappedError(string(message), e), nil
 }
@@ -161,15 +158,16 @@ func (e *Error) Unwrapped(args CallArgs) (Object, error) {
 // Is reports whether target appears anywhere in the receiver's cause chain,
 // delegating to the standard library's errors.Is. Usage: err.is(target).
 func (e *Error) Is(args CallArgs) (Object, error) {
-	bound, err := BindArguments("is", []string{"target"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("is", args)
+	target := ap.Any("target")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	target, ok := bound["target"].(*Error)
+	t, ok := target.(*Error)
 	if !ok {
-		return nil, NewTypeError("is() argument must be an Error, got %T", bound["target"])
+		return nil, NewTypeError("is() argument must be an Error, got %T", target)
 	}
-	return Bool(errors.Is(e, target)), nil
+	return Bool(errors.Is(e, t)), nil
 }
 
 var _ error = (*Error)(nil)

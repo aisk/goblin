@@ -44,17 +44,18 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 }
 
 func (f *File) Write(args object.CallArgs) (object.Object, error) {
-	bound, err := object.BindArguments("write", []string{"content"}, "", "", args)
-	if err != nil {
+	ap := object.NewArgParser("write", args)
+	contentArg := ap.Any("content")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 	if err := f.ensureOpen("write"); err != nil {
 		return nil, err
 	}
 
-	content, ok := bound["content"].(object.String)
+	content, ok := contentArg.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("write() argument must be a string, got %T", bound["content"])
+		return nil, object.NewTypeError("write() argument 'content' must be a string, got %T", contentArg)
 	}
 
 	n, err := f.File.WriteString(string(content))

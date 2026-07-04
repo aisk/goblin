@@ -191,13 +191,10 @@ func (p *Path) IsAbsolute(args CallArgs) (Object, error) {
 }
 
 func (p *Path) WithName(args CallArgs) (Object, error) {
-	bound, err := BindArguments("with_name", []string{"name"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("with_name", args)
+	name := ap.Str("name")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	name, ok := bound["name"].(String)
-	if !ok {
-		return nil, NewTypeError("with_name() argument must be a string, got %T", bound["name"])
 	}
 	if name == "" || strings.ContainsRune(string(name), filepath.Separator) {
 		return nil, NewValueError("with_name() invalid name: %q", string(name))
@@ -206,13 +203,10 @@ func (p *Path) WithName(args CallArgs) (Object, error) {
 }
 
 func (p *Path) WithSuffix(args CallArgs) (Object, error) {
-	bound, err := BindArguments("with_suffix", []string{"suffix"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("with_suffix", args)
+	suffix := ap.Str("suffix")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	suffix, ok := bound["suffix"].(String)
-	if !ok {
-		return nil, NewTypeError("with_suffix() argument must be a string, got %T", bound["suffix"])
 	}
 	if suffix != "" && !strings.HasPrefix(string(suffix), ".") {
 		return nil, NewValueError("with_suffix() invalid suffix: %q", string(suffix))
@@ -238,11 +232,12 @@ func (p *Path) Join(args CallArgs) (Object, error) {
 }
 
 func (p *Path) RelativeTo(args CallArgs) (Object, error) {
-	bound, err := BindArguments("relative_to", []string{"other"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("relative_to", args)
+	other := ap.Any("other")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	base, err := pathSegment("relative_to", bound["other"])
+	base, err := pathSegment("relative_to", other)
 	if err != nil {
 		return nil, err
 	}
@@ -254,13 +249,10 @@ func (p *Path) RelativeTo(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Match(args CallArgs) (Object, error) {
-	bound, err := BindArguments("match", []string{"pattern"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("match", args)
+	pattern := ap.Str("pattern")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	pattern, ok := bound["pattern"].(String)
-	if !ok {
-		return nil, NewTypeError("match() argument must be a string, got %T", bound["pattern"])
 	}
 	matched, err := filepath.Match(string(pattern), filepath.Base(p.raw))
 	if err != nil {
@@ -359,13 +351,10 @@ func (p *Path) ReadText(args CallArgs) (Object, error) {
 }
 
 func (p *Path) WriteText(args CallArgs) (Object, error) {
-	bound, err := BindArguments("write_text", []string{"data"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("write_text", args)
+	data := ap.Str("data")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	data, ok := bound["data"].(String)
-	if !ok {
-		return nil, NewTypeError("write_text() argument must be a string, got %T", bound["data"])
 	}
 	if err := os.WriteFile(p.raw, []byte(data), 0644); err != nil {
 		return nil, WrapNativeError(IOError, "write_text() failed", err)
@@ -389,13 +378,10 @@ func (p *Path) IterDir(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Glob(args CallArgs) (Object, error) {
-	bound, err := BindArguments("glob", []string{"pattern"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("glob", args)
+	pattern := ap.Str("pattern")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	pattern, ok := bound["pattern"].(String)
-	if !ok {
-		return nil, NewTypeError("glob() argument must be a string, got %T", bound["pattern"])
 	}
 	matches, err := filepath.Glob(filepath.Join(p.raw, string(pattern)))
 	if err != nil {
@@ -409,19 +395,11 @@ func (p *Path) Glob(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Mkdir(args CallArgs) (Object, error) {
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("mkdir() takes no positional arguments, got %d", len(args.Positional))
-	}
-	parents, existOk := false, false
-	for key, value := range args.Keyword {
-		switch key {
-		case "parents":
-			parents = value.Bool()
-		case "exist_ok":
-			existOk = value.Bool()
-		default:
-			return nil, NewTypeError("mkdir() got an unexpected keyword argument '%s'", key)
-		}
+	ap := NewArgParser("mkdir", args)
+	parents := bool(ap.BoolOr("parents", false))
+	existOk := bool(ap.BoolOr("exist_ok", false))
+	if err := ap.Finish(); err != nil {
+		return nil, err
 	}
 	var err error
 	if parents {
@@ -449,18 +427,19 @@ func (p *Path) Unlink(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Rename(args CallArgs) (Object, error) {
-	bound, err := BindArguments("rename", []string{"target"}, "", "", args)
+	ap := NewArgParser("rename", args)
+	target := ap.Any("target")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	targetPath, err := pathSegment("rename", target)
 	if err != nil {
 		return nil, err
 	}
-	target, err := pathSegment("rename", bound["target"])
-	if err != nil {
-		return nil, err
-	}
-	if err := os.Rename(p.raw, target); err != nil {
+	if err := os.Rename(p.raw, targetPath); err != nil {
 		return nil, WrapNativeError(IOError, "rename() failed", err)
 	}
-	return NewPath(target), nil
+	return NewPath(targetPath), nil
 }
 
 // requireNoArgs rejects any positional or keyword arguments for the zero-arg

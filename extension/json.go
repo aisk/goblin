@@ -19,13 +19,10 @@ func ExecuteJson() (object.Object, error) {
 }
 
 func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
-	bound, err := object.BindArguments("unmarshal", []string{"s"}, "", "", args)
-	if err != nil {
+	ap := object.NewArgParser("unmarshal", args)
+	s := ap.Str("s")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	s, ok := bound["s"].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("unmarshal() argument must be a string, got %T", bound["s"])
 	}
 
 	dec := json.NewDecoder(strings.NewReader(string(s)))
@@ -86,31 +83,15 @@ func JSONToGoblin(v any) (object.Object, error) {
 }
 
 func jsonMarshal(args object.CallArgs) (object.Object, error) {
-	if len(args.Positional) < 1 || len(args.Positional) > 2 {
-		return nil, object.NewTypeError("marshal() takes 1 or 2 arguments, got %d", len(args.Positional))
-	}
-
-	indent := 0
-	if len(args.Positional) == 2 {
-		iv, ok := args.Positional[1].(object.Integer)
-		if !ok {
-			return nil, object.NewTypeError("marshal() indent must be an integer, got %T", args.Positional[1])
-		}
-		indent = int(int64(iv))
-	}
-	for k, v := range args.Keyword {
-		if k != "indent" {
-			return nil, object.NewValueError("marshal() got an unexpected keyword argument '%s'", k)
-		}
-		iv, ok := v.(object.Integer)
-		if !ok {
-			return nil, object.NewTypeError("marshal() indent must be an integer, got %T", v)
-		}
-		indent = int(int64(iv))
+	ap := object.NewArgParser("marshal", args)
+	v := ap.Any("value")
+	indent := int(int64(ap.IntOr("indent", 0)))
+	if err := ap.Finish(); err != nil {
+		return nil, err
 	}
 
 	var buf bytes.Buffer
-	if err := goblinToJSON(args.Positional[0], &buf, indent, 0); err != nil {
+	if err := goblinToJSON(v, &buf, indent, 0); err != nil {
 		return nil, err
 	}
 	return object.String(buf.String()), nil

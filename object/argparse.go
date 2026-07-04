@@ -171,6 +171,55 @@ func (p *ArgParser) BoolOr(name string, def Bool) Bool {
 // Func returns a required Function argument.
 func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "function") }
 
+// Number returns a required argument that must be an Integer or Float, as the
+// original Object so callers that need to distinguish the two kinds can
+// type-switch on it. It backs the typical "numeric" parameter of mathematical
+// builtins; once the parser has accepted the value no further type check is
+// needed.
+func (p *ArgParser) Number(name string) Object {
+	v, ok := p.required(name)
+	if !ok {
+		return nil
+	}
+	switch v.(type) {
+	case Integer, Float:
+		return v
+	default:
+		p.typeErr(name, "number", v)
+		return nil
+	}
+}
+
+// NumberOr returns an optional Integer or Float argument, or def when absent.
+func (p *ArgParser) NumberOr(name string, def Object) Object {
+	v, ok := p.optional(name)
+	if !ok {
+		return def
+	}
+	switch v.(type) {
+	case Integer, Float:
+		return v
+	default:
+		p.typeErr(name, "number", v)
+		return def
+	}
+}
+
+// Float64 returns a required numeric (Integer or Float) argument as a float64.
+// It is a convenience for mathematical builtins that do not need to distinguish
+// the two kinds; callers that must (e.g. to preserve int-ness) should use
+// Number instead.
+func (p *ArgParser) Float64(name string) float64 {
+	v := p.Number(name)
+	switch n := v.(type) {
+	case Integer:
+		return float64(int64(n))
+	case Float:
+		return float64(n)
+	}
+	return 0
+}
+
 // Rest consumes and returns all remaining positional arguments. It should be
 // called after the fixed positional accessors and captures the variadic tail.
 func (p *ArgParser) Rest() Args {

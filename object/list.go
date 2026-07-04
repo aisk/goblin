@@ -71,13 +71,10 @@ func (l *List) Last(args CallArgs) (Object, error) {
 }
 
 func (l *List) Join(args CallArgs) (Object, error) {
-	bound, err := BindArguments("join", []string{"sep"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("join", args)
+	sep := ap.Str("sep")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	sep, ok := bound["sep"].(String)
-	if !ok {
-		return nil, NewTypeError("join() argument must be a string, got %T", bound["sep"])
 	}
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {

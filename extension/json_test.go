@@ -163,7 +163,7 @@ func TestJsonRoundTrip(t *testing.T) {
 
 func TestJsonMarshalArgCount(t *testing.T) {
 	_, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{}})
-	if err == nil || !strings.Contains(err.Error(), "1 or 2") {
+	if err == nil || !strings.Contains(err.Error(), "missing required argument") {
 		t.Fatalf("expected arg-count error, got %v", err)
 	}
 }

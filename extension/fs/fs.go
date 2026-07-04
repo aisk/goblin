@@ -25,14 +25,14 @@ func Execute() (object.Object, error) {
 }
 
 func bindPathArg(funcName string, args object.CallArgs) (string, error) {
-	bound, err := object.BindArguments(funcName, []string{"path"}, "", "", args)
-	if err != nil {
+	ap := object.NewArgParser(funcName, args)
+	pathArg := ap.Any("path")
+	if err := ap.Finish(); err != nil {
 		return "", err
 	}
-
-	path, ok := object.PathString(bound["path"])
+	path, ok := object.PathString(pathArg)
 	if !ok {
-		return "", object.NewTypeError("%s() argument must be a string or Path, got %T", funcName, bound["path"])
+		return "", object.NewTypeError("%s() argument 'path' must be a string or Path, got %T", funcName, pathArg)
 	}
 	return path, nil
 }
@@ -84,18 +84,19 @@ func readFile(args object.CallArgs) (object.Object, error) {
 }
 
 func bindPathContentArgs(funcName string, args object.CallArgs) (string, string, error) {
-	bound, err := object.BindArguments(funcName, []string{"path", "content"}, "", "", args)
-	if err != nil {
+	ap := object.NewArgParser(funcName, args)
+	pathArg := ap.Any("path")
+	contentArg := ap.Any("content")
+	if err := ap.Finish(); err != nil {
 		return "", "", err
 	}
-
-	path, ok := bound["path"].(object.String)
+	path, ok := pathArg.(object.String)
 	if !ok {
-		return "", "", object.NewTypeError("%s() path argument must be a string, got %T", funcName, bound["path"])
+		return "", "", object.NewTypeError("%s() argument 'path' must be a string, got %T", funcName, pathArg)
 	}
-	content, ok := bound["content"].(object.String)
+	content, ok := contentArg.(object.String)
 	if !ok {
-		return "", "", object.NewTypeError("%s() content argument must be a string, got %T", funcName, bound["content"])
+		return "", "", object.NewTypeError("%s() argument 'content' must be a string, got %T", funcName, contentArg)
 	}
 	return string(path), string(content), nil
 }

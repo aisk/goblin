@@ -47,247 +47,178 @@ func ExecuteMath() (object.Object, error) {
 	}, nil
 }
 
-func mathAbs(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("abs", args); err != nil {
+// mathIntPreserving dispatches a function that preserves the int-ness of its
+// argument: an Integer input yields an Integer output via intFn, a Float input
+// yields a Float output via floatFn.
+func mathIntPreserving(name string, args object.CallArgs, intFn func(int64) int64, floatFn func(float64) float64) (object.Object, error) {
+	p := object.NewArgParser(name, args)
+	v := p.Number("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("abs() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
+	switch n := v.(type) {
 	case object.Integer:
-		if v < 0 {
-			return object.Integer(-int64(v)), nil
-		}
-		return v, nil
+		return object.Integer(intFn(int64(n))), nil
 	case object.Float:
-		return object.Float(math.Abs(float64(v))), nil
-	default:
-		return nil, object.NewTypeError("abs() argument must be a number, got %T", args.Positional[0])
+		return object.Float(floatFn(float64(n))), nil
 	}
+	return nil, p.Err()
+}
+
+func mathAbs(args object.CallArgs) (object.Object, error) {
+	return mathIntPreserving("abs", args,
+		func(i int64) int64 {
+			if i < 0 {
+				return -i
+			}
+			return i
+		},
+		math.Abs,
+	)
 }
 
 func mathCeil(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("ceil", args); err != nil {
-		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("ceil() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
-	case object.Integer:
-		return v, nil
-	case object.Float:
-		return object.Float(math.Ceil(float64(v))), nil
-	default:
-		return nil, object.NewTypeError("ceil() argument must be a number, got %T", args.Positional[0])
-	}
+	return mathIntPreserving("ceil", args,
+		func(i int64) int64 { return i },
+		math.Ceil,
+	)
 }
 
 func mathFloor(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("floor", args); err != nil {
-		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("floor() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
-	case object.Integer:
-		return v, nil
-	case object.Float:
-		return object.Float(math.Floor(float64(v))), nil
-	default:
-		return nil, object.NewTypeError("floor() argument must be a number, got %T", args.Positional[0])
-	}
+	return mathIntPreserving("floor", args,
+		func(i int64) int64 { return i },
+		math.Floor,
+	)
 }
 
 func mathRound(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("round", args); err != nil {
-		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("round() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
-	case object.Integer:
-		return v, nil
-	case object.Float:
-		return object.Float(math.Round(float64(v))), nil
-	default:
-		return nil, object.NewTypeError("round() argument must be a number, got %T", args.Positional[0])
-	}
+	return mathIntPreserving("round", args,
+		func(i int64) int64 { return i },
+		math.Round,
+	)
+}
+
+func mathTrunc(args object.CallArgs) (object.Object, error) {
+	return mathIntPreserving("trunc", args,
+		func(i int64) int64 { return i },
+		math.Trunc,
+	)
 }
 
 func mathPow(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("pow", args); err != nil {
+	p := object.NewArgParser("pow", args)
+	base := p.Float64("base")
+	exp := p.Float64("exp")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 2 {
-		return nil, object.NewTypeError("pow() requires exactly 2 arguments")
-	}
-	baseFloat, err := toFloat("pow", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	expFloat, err := toFloat("pow", args.Positional[1])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Pow(baseFloat, expFloat)), nil
+	return object.Float(math.Pow(base, exp)), nil
 }
 
 func mathSqrt(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("sqrt", args); err != nil {
+	p := object.NewArgParser("sqrt", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("sqrt() requires exactly 1 argument")
-	}
-	f, err := toFloat("sqrt", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sqrt(f)), nil
+	return object.Float(math.Sqrt(x)), nil
 }
 
 func mathSin(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("sin", args); err != nil {
+	p := object.NewArgParser("sin", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("sin() requires exactly 1 argument")
-	}
-	f, err := toFloat("sin", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sin(f)), nil
+	return object.Float(math.Sin(x)), nil
 }
 
 func mathCos(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("cos", args); err != nil {
+	p := object.NewArgParser("cos", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("cos() requires exactly 1 argument")
-	}
-	f, err := toFloat("cos", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cos(f)), nil
+	return object.Float(math.Cos(x)), nil
 }
 
 func mathTan(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tan", args); err != nil {
+	p := object.NewArgParser("tan", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("tan() requires exactly 1 argument")
-	}
-	f, err := toFloat("tan", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Tan(f)), nil
+	return object.Float(math.Tan(x)), nil
 }
 
 func mathAsin(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("asin", args); err != nil {
+	p := object.NewArgParser("asin", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("asin() requires exactly 1 argument")
-	}
-	f, err := toFloat("asin", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Asin(f)), nil
+	return object.Float(math.Asin(x)), nil
 }
 
 func mathAcos(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("acos", args); err != nil {
+	p := object.NewArgParser("acos", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("acos() requires exactly 1 argument")
-	}
-	f, err := toFloat("acos", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Acos(f)), nil
+	return object.Float(math.Acos(x)), nil
 }
 
 func mathAtan(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("atan", args); err != nil {
+	p := object.NewArgParser("atan", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("atan() requires exactly 1 argument")
-	}
-	f, err := toFloat("atan", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Atan(f)), nil
+	return object.Float(math.Atan(x)), nil
 }
 
 func mathLog(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("log", args); err != nil {
+	p := object.NewArgParser("log", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("log() requires exactly 1 argument")
-	}
-	f, err := toFloat("log", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log(f)), nil
+	return object.Float(math.Log(x)), nil
 }
 
 func mathLog10(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("log10", args); err != nil {
+	p := object.NewArgParser("log10", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("log10() requires exactly 1 argument")
-	}
-	f, err := toFloat("log10", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log10(f)), nil
+	return object.Float(math.Log10(x)), nil
 }
 
 func mathExp(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("exp", args); err != nil {
+	p := object.NewArgParser("exp", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("exp() requires exactly 1 argument")
-	}
-	f, err := toFloat("exp", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Exp(f)), nil
+	return object.Float(math.Exp(x)), nil
 }
 
 func mathMax(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("max", args); err != nil {
+	p := object.NewArgParser("max", args)
+	nums := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) < 2 {
+	if len(nums) < 2 {
 		return nil, object.NewTypeError("max() requires at least 2 arguments")
 	}
-	maxVal, err := toFloat("max", args.Positional[0])
+	maxVal, err := toFloat("max", nums[0])
 	if err != nil {
 		return nil, err
 	}
-	for _, arg := range args.Positional[1:] {
+	for _, arg := range nums[1:] {
 		f, err := toFloat("max", arg)
 		if err != nil {
 			return nil, err
@@ -300,17 +231,19 @@ func mathMax(args object.CallArgs) (object.Object, error) {
 }
 
 func mathMin(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("min", args); err != nil {
+	p := object.NewArgParser("min", args)
+	nums := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) < 2 {
+	if len(nums) < 2 {
 		return nil, object.NewTypeError("min() requires at least 2 arguments")
 	}
-	minVal, err := toFloat("min", args.Positional[0])
+	minVal, err := toFloat("min", nums[0])
 	if err != nil {
 		return nil, err
 	}
-	for _, arg := range args.Positional[1:] {
+	for _, arg := range nums[1:] {
 		f, err := toFloat("min", arg)
 		if err != nil {
 			return nil, err
@@ -323,205 +256,120 @@ func mathMin(args object.CallArgs) (object.Object, error) {
 }
 
 func mathIsNaN(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("is_nan", args); err != nil {
+	p := object.NewArgParser("is_nan", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("is_nan() requires exactly 1 argument")
-	}
-	f, err := toFloat("is_nan", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Bool(math.IsNaN(f)), nil
+	return object.Bool(math.IsNaN(x)), nil
 }
 
 func mathIsInf(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("is_inf", args); err != nil {
+	p := object.NewArgParser("is_inf", args)
+	x := p.Float64("x")
+	dir := int(int64(p.IntOr("sign", 0)))
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 && len(args.Positional) != 2 {
-		return nil, object.NewTypeError("is_inf() requires 1 or 2 arguments")
-	}
-	f, err := toFloat("is_inf", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	var dir int = 0
-	if len(args.Positional) == 2 {
-		dirInt, ok := args.Positional[1].(object.Integer)
-		if !ok {
-			return nil, object.NewTypeError("is_inf() second argument must be an integer")
-		}
-		dir = int(dirInt)
-	}
-	return object.Bool(math.IsInf(f, dir)), nil
+	return object.Bool(math.IsInf(x, dir)), nil
 }
 
 func mathCbrt(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("cbrt", args); err != nil {
+	p := object.NewArgParser("cbrt", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("cbrt() requires exactly 1 argument")
-	}
-	f, err := toFloat("cbrt", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cbrt(f)), nil
-}
-
-func mathTrunc(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("trunc", args); err != nil {
-		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("trunc() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
-	case object.Integer:
-		return v, nil
-	case object.Float:
-		return object.Float(math.Trunc(float64(v))), nil
-	default:
-		return nil, object.NewTypeError("trunc() argument must be a number, got %T", args.Positional[0])
-	}
+	return object.Float(math.Cbrt(x)), nil
 }
 
 func mathLog2(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("log2", args); err != nil {
+	p := object.NewArgParser("log2", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("log2() requires exactly 1 argument")
-	}
-	f, err := toFloat("log2", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log2(f)), nil
+	return object.Float(math.Log2(x)), nil
 }
 
 func mathSinh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("sinh", args); err != nil {
+	p := object.NewArgParser("sinh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("sinh() requires exactly 1 argument")
-	}
-	f, err := toFloat("sinh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sinh(f)), nil
+	return object.Float(math.Sinh(x)), nil
 }
 
 func mathCosh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("cosh", args); err != nil {
+	p := object.NewArgParser("cosh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("cosh() requires exactly 1 argument")
-	}
-	f, err := toFloat("cosh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cosh(f)), nil
+	return object.Float(math.Cosh(x)), nil
 }
 
 func mathTanh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tanh", args); err != nil {
+	p := object.NewArgParser("tanh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("tanh() requires exactly 1 argument")
-	}
-	f, err := toFloat("tanh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Tanh(f)), nil
+	return object.Float(math.Tanh(x)), nil
 }
 
 func mathAsinh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("asinh", args); err != nil {
+	p := object.NewArgParser("asinh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("asinh() requires exactly 1 argument")
-	}
-	f, err := toFloat("asinh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Asinh(f)), nil
+	return object.Float(math.Asinh(x)), nil
 }
 
 func mathAcosh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("acosh", args); err != nil {
+	p := object.NewArgParser("acosh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("acosh() requires exactly 1 argument")
-	}
-	f, err := toFloat("acosh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Acosh(f)), nil
+	return object.Float(math.Acosh(x)), nil
 }
 
 func mathAtanh(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("atanh", args); err != nil {
+	p := object.NewArgParser("atanh", args)
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("atanh() requires exactly 1 argument")
-	}
-	f, err := toFloat("atanh", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Atanh(f)), nil
+	return object.Float(math.Atanh(x)), nil
 }
 
 func mathAtan2(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("atan2", args); err != nil {
-		return nil, err
-	}
-	if len(args.Positional) != 2 {
-		return nil, object.NewTypeError("atan2() requires exactly 2 arguments")
-	}
-	y, err := toFloat("atan2", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	x, err := toFloat("atan2", args.Positional[1])
-	if err != nil {
+	p := object.NewArgParser("atan2", args)
+	y := p.Float64("y")
+	x := p.Float64("x")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	return object.Float(math.Atan2(y, x)), nil
 }
 
 func mathHypot(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("hypot", args); err != nil {
+	p := object.NewArgParser("hypot", args)
+	pv := p.Float64("p")
+	qv := p.Float64("q")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 2 {
-		return nil, object.NewTypeError("hypot() requires exactly 2 arguments")
-	}
-	p, err := toFloat("hypot", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	q, err := toFloat("hypot", args.Positional[1])
-	if err != nil {
-		return nil, err
-	}
-	return object.Float(math.Hypot(p, q)), nil
+	return object.Float(math.Hypot(pv, qv)), nil
 }
+
+// toFloat coerces an Integer or Float argument to float64. It is used for the
+// variadic math functions (max, min) where each element supplied via Rest must
+// be validated individually; single-argument functions use ArgParser.Float64
+// instead.
 func toFloat(funcName string, v object.Object) (float64, error) {
 	switch n := v.(type) {
 	case object.Integer:

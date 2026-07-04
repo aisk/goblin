@@ -127,3 +127,54 @@ func TestArgParserTypedAccessors(t *testing.T) {
 		t.Fatalf("unexpected values: f=%v s=%v b=%v", f, s, b)
 	}
 }
+
+func TestArgParserNumberAcceptsIntAndFloat(t *testing.T) {
+	// Integer positional flows through Number and preserves its type.
+	p := NewArgParser("f", CallArgs{Positional: Args{Integer(7)}})
+	v := p.Number("n")
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if i, ok := v.(Integer); !ok || i != 7 {
+		t.Fatalf("expected Integer(7), got %#v", v)
+	}
+
+	// Float works too.
+	p = NewArgParser("f", CallArgs{Positional: Args{Float(1.25)}})
+	v = p.Number("n")
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if f, ok := v.(Float); !ok || f != 1.25 {
+		t.Fatalf("expected Float(1.25), got %#v", v)
+	}
+}
+
+func TestArgParserNumberRejectsNonNumeric(t *testing.T) {
+	p := NewArgParser("f", CallArgs{Positional: Args{String("x")}})
+	p.Number("n")
+	err := p.Finish()
+	if err == nil || !strings.Contains(err.Error(), "argument 'n' must be number") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestArgParserFloat64Coerces(t *testing.T) {
+	p := NewArgParser("f", CallArgs{Positional: Args{Integer(3)}})
+	got := p.Float64("x")
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if got != 3.0 {
+		t.Fatalf("expected 3.0, got %v", got)
+	}
+
+	p = NewArgParser("f", CallArgs{Positional: Args{Float(2.5)}})
+	got = p.Float64("x")
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if got != 2.5 {
+		t.Fatalf("expected 2.5, got %v", got)
+	}
+}

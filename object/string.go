@@ -39,37 +39,28 @@ func (s String) Lower(args CallArgs) (Object, error) {
 }
 
 func (s String) HasPrefix(args CallArgs) (Object, error) {
-	bound, err := BindArguments("has_prefix", []string{"prefix"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("has_prefix", args)
+	prefix := ap.Str("prefix")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	prefix, ok := bound["prefix"].(String)
-	if !ok {
-		return nil, NewTypeError("has_prefix() argument must be a string, got %T", bound["prefix"])
 	}
 	return Bool(strings.HasPrefix(string(s), string(prefix))), nil
 }
 
 func (s String) HasSuffix(args CallArgs) (Object, error) {
-	bound, err := BindArguments("has_suffix", []string{"suffix"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("has_suffix", args)
+	suffix := ap.Str("suffix")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	suffix, ok := bound["suffix"].(String)
-	if !ok {
-		return nil, NewTypeError("has_suffix() argument must be a string, got %T", bound["suffix"])
 	}
 	return Bool(strings.HasSuffix(string(s), string(suffix))), nil
 }
 
 func (s String) Trim(args CallArgs) (Object, error) {
-	bound, err := BindArguments("trim", []string{"cutset"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("trim", args)
+	cutset := ap.Str("cutset")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	cutset, ok := bound["cutset"].(String)
-	if !ok {
-		return nil, NewTypeError("trim() argument must be a string, got %T", bound["cutset"])
 	}
 	return String(strings.Trim(string(s), string(cutset))), nil
 }
@@ -85,13 +76,10 @@ func (s String) TrimSpace(args CallArgs) (Object, error) {
 }
 
 func (s String) Contains(args CallArgs) (Object, error) {
-	bound, err := BindArguments("contains", []string{"substr"}, "", "", args)
-	if err != nil {
+	ap := NewArgParser("contains", args)
+	substr := ap.Str("substr")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	substr, ok := bound["substr"].(String)
-	if !ok {
-		return nil, NewTypeError("contains() argument must be a string, got %T", bound["substr"])
 	}
 	return Bool(strings.Contains(string(s), string(substr))), nil
 }
