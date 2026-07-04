@@ -24,6 +24,21 @@ func NewPath(s string) *Path {
 	return &Path{raw: filepath.Clean(s)}
 }
 
+// PathString extracts a filesystem path string from a String or Path,
+// mirroring Python's os.fspath(). Library functions use it as the single point
+// where a "path-like" argument is accepted, so a Path can be passed anywhere a
+// path string is expected.
+func PathString(obj Object) (string, bool) {
+	switch v := obj.(type) {
+	case String:
+		return string(v), true
+	case *Path:
+		return v.raw, true
+	default:
+		return "", false
+	}
+}
+
 func (p *Path) String() string { return p.raw }
 func (p *Path) Bool() bool     { return p.raw != "" && p.raw != "." }
 

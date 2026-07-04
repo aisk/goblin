@@ -260,11 +260,11 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	dir := ""
 	pattern := ""
 	if len(args.Positional) >= 1 {
-		d, ok := args.Positional[0].(object.String)
+		d, ok := object.PathString(args.Positional[0])
 		if !ok {
-			return nil, object.NewTypeError("tempdir() first argument (dir) must be a string")
+			return nil, object.NewTypeError("tempdir() first argument (dir) must be a string or Path")
 		}
-		dir = string(d)
+		dir = d
 	}
 	if len(args.Positional) >= 2 {
 		p, ok := args.Positional[1].(object.String)
@@ -293,11 +293,11 @@ func tempFile(args object.CallArgs) (object.Object, error) {
 	dir := ""
 	pattern := ""
 	if len(args.Positional) >= 1 {
-		d, ok := args.Positional[0].(object.String)
+		d, ok := object.PathString(args.Positional[0])
 		if !ok {
-			return nil, object.NewTypeError("tempfile() first argument (dir) must be a string")
+			return nil, object.NewTypeError("tempfile() first argument (dir) must be a string or Path")
 		}
-		dir = string(d)
+		dir = d
 	}
 	if len(args.Positional) >= 2 {
 		p, ok := args.Positional[1].(object.String)

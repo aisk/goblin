@@ -86,6 +86,36 @@ func TestFsOpenReadClose(t *testing.T) {
 	}
 }
 
+func TestFsAcceptsPath(t *testing.T) {
+	tempDir := t.TempDir()
+	filePath := filepath.Join(tempDir, "fixture.txt")
+	if err := os.WriteFile(filePath, []byte("via path"), 0644); err != nil {
+		t.Fatalf("os.WriteFile() error = %v", err)
+	}
+
+	// A Path argument must be accepted anywhere a path string is, so fs and the
+	// path module's Path type interoperate without manual string conversion.
+	readObj, err := fsFunction(t, "read").Call(object.CallArgs{
+		Positional: object.Args{object.NewPath(filePath)},
+	})
+	if err != nil {
+		t.Fatalf("read(Path) error = %v", err)
+	}
+	if got := readObj.String(); got != "via path" {
+		t.Fatalf("read(Path) = %q, want %q", got, "via path")
+	}
+
+	existsObj, err := fsFunction(t, "exists").Call(object.CallArgs{
+		Positional: object.Args{object.NewPath(filePath)},
+	})
+	if err != nil {
+		t.Fatalf("exists(Path) error = %v", err)
+	}
+	if existsObj != object.True {
+		t.Fatalf("exists(Path) = %v, want true", existsObj)
+	}
+}
+
 func TestFsHelpers(t *testing.T) {
 	tempDir := t.TempDir()
 	fileName := "fixture.txt"

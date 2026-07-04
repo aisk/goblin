@@ -30,11 +30,11 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 		return "", err
 	}
 
-	path, ok := bound["path"].(object.String)
+	path, ok := object.PathString(bound["path"])
 	if !ok {
-		return "", object.NewTypeError("%s() argument must be a string, got %T", funcName, bound["path"])
+		return "", object.NewTypeError("%s() argument must be a string or Path, got %T", funcName, bound["path"])
 	}
-	return string(path), nil
+	return path, nil
 }
 
 func openFile(args object.CallArgs) (object.Object, error) {
