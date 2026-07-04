@@ -750,8 +750,15 @@ func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHand
 	if err != nil {
 		return nil, err
 	}
-	ifStmt := jen.If(cond.Dot("Bool").Call()).Block(body...).Else().Block(elseBody...)
-	return append(condPreStmts, ifStmt), nil
+	condVar := ctx.localName("cond")
+	errVar := ctx.localName("err")
+	stmts := append([]jen.Code{}, condPreStmts...)
+	stmts = append(stmts,
+		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(cond),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		jen.If(jen.Id(condVar)).Block(body...).Else().Block(elseBody...),
+	)
+	return stmts, nil
 }
 
 func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
@@ -764,15 +771,16 @@ func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandle
 		return nil, err
 	}
 
-	if len(condPreStmts) > 0 {
-		loopBody := append(condPreStmts,
-			jen.If(jen.Op("!").Add(cond).Dot("Bool").Call()).Block(jen.Break()),
-		)
-		loopBody = append(loopBody, body...)
-		return []jen.Code{jen.For().Block(loopBody...)}, nil
-	}
-
-	return []jen.Code{jen.For(cond.Dot("Bool").Call()).Block(body...)}, nil
+	condVar := ctx.localName("cond")
+	errVar := ctx.localName("err")
+	loopBody := append([]jen.Code{}, condPreStmts...)
+	loopBody = append(loopBody,
+		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(cond),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		jen.If(jen.Op("!").Id(condVar)).Block(jen.Break()),
+	)
+	loopBody = append(loopBody, body...)
+	return []jen.Code{jen.For().Block(loopBody...)}, nil
 }
 
 func (ctx *transpileContext) transpileBreak(break_ *ast.Break) ([]jen.Code, error) {
@@ -1038,9 +1046,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	// String() string  <- "str"
 	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
 	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
-	if defined["str"] {
+	if defined["__str"] {
 		strDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("str")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
 			jen.Return(jen.Id("_res").Dot("String").Call()),
 		)
@@ -1049,11 +1057,25 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, strDecl)
 
-	// Bool() bool  <- "bool"
+	// Repr() (string, error)  <- "__str" (error-propagating; object.Represented)
+	reprReturnNil := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)), jen.Nil())
+	reprDecl := jen.Func().Params(receiverParam()).Id("Repr").Params().Parens(jen.List(jen.String(), jen.Error()))
+	if defined["__str"] {
+		reprDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
+			jen.Return(jen.Id("_res").Dot("String").Call(), jen.Nil()),
+		)
+	} else {
+		reprDecl.Block(reprReturnNil)
+	}
+	protoDecls = append(protoDecls, reprDecl)
+
+	// Bool() bool  <- "__bool"
 	boolDecl := jen.Func().Params(receiverParam()).Id("Bool").Params().Bool()
-	if defined["bool"] {
+	if defined["__bool"] {
 		boolDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("bool")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.True())),
 			jen.Return(jen.Id("_res").Dot("Bool").Call()),
 		)
@@ -1062,17 +1084,30 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, boolDecl)
 
-	// Compare(other) (int, error)  <- "compare" (returns Int -1/0/1)
+	// Truthy() (bool, error)  <- "__bool" (error-propagating; object.Truthful)
+	truthyDecl := jen.Func().Params(receiverParam()).Id("Truthy").Params().Parens(jen.List(jen.Bool(), jen.Error()))
+	if defined["__bool"] {
+		truthyDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
+			jen.Return(jen.Id("_res").Dot("Bool").Call(), jen.Nil()),
+		)
+	} else {
+		truthyDecl.Block(jen.Return(jen.True(), jen.Nil()))
+	}
+	protoDecls = append(protoDecls, truthyDecl)
+
+	// Compare(other) (int, error)  <- "__cmp" (returns Int -1/0/1)
 	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
 		jen.Id("other").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Int(), jen.Error()))
-	if defined["compare"] {
+	if defined["__cmp"] {
 		cmpDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("compare", jen.Id("other"))),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__cmp", jen.Id("other"))),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(0), jen.Id("_err"))),
 			jen.List(jen.Id("_i"), jen.Id("_ok")).Op(":=").Id("_res").Assert(jen.Qual(pathObject, "Integer")),
 			jen.If(jen.Op("!").Id("_ok")).Block(
-				jen.Return(jen.Lit(0), errorf("%s.compare must return Int")),
+				jen.Return(jen.Lit(0), errorf("%s.__cmp must return Int")),
 			),
 			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),
 		)
@@ -1083,12 +1118,12 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	// Binary operators (other) (Object, error)
 	binOps := []struct{ goMethod, goblin, errFmt string }{
-		{"Add", "add", "cannot add %s"},
-		{"Minus", "minus", "cannot subtract %s"},
-		{"Multiply", "multiply", "cannot multiply %s"},
-		{"Divide", "divide", "cannot divide %s"},
-		{"And", "and", "cannot perform AND on %s"},
-		{"Or", "or", "cannot perform OR on %s"},
+		{"Add", "__add", "cannot add %s"},
+		{"Minus", "__sub", "cannot subtract %s"},
+		{"Multiply", "__mul", "cannot multiply %s"},
+		{"Divide", "__div", "cannot divide %s"},
+		{"And", "__and", "cannot perform AND on %s"},
+		{"Or", "__or", "cannot perform OR on %s"},
 	}
 	for _, op := range binOps {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
@@ -1106,8 +1141,8 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	notDecl := jen.Func().Params(receiverParam()).Id("Not").Params().Parens(
 		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
 	)
-	if defined["not"] {
-		notDecl.Block(jen.Return(protoCall("not")))
+	if defined["__not"] {
+		notDecl.Block(jen.Return(protoCall("__not")))
 	} else {
 		notDecl.Block(jen.Return(jen.Nil(), errorf("cannot perform NOT on %s")))
 	}
@@ -1117,9 +1152,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	iterDecl := jen.Func().Params(receiverParam()).Id("Iter").Params().Parens(
 		jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
 	)
-	if defined["iter"] {
+	if defined["__iter"] {
 		iterDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("iter")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__iter")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("Iter").Call()),
 		)
@@ -1132,8 +1167,8 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	indexDecl := jen.Func().Params(receiverParam()).Id("Index").Params(
 		jen.Id("index").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
-	if defined["get_item"] {
-		indexDecl.Block(jen.Return(protoCall("get_item", jen.Id("index"))))
+	if defined["__getitem"] {
+		indexDecl.Block(jen.Return(protoCall("__getitem", jen.Id("index"))))
 	} else {
 		indexDecl.Block(jen.Return(jen.Nil(), errorf("%s is not indexable")))
 	}
@@ -1143,9 +1178,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
 		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
 	).Error()
-	if defined["set_item"] {
+	if defined["__setitem"] {
 		setIndexDecl.Block(
-			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall("set_item", jen.Id("index"), jen.Id("value"))),
+			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall("__setitem", jen.Id("index"), jen.Id("value"))),
 			jen.Return(jen.Id("_err")),
 		)
 	} else {

@@ -114,7 +114,4 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 	if strings.Contains(code, "_method_") {
 		t.Fatalf("expected transpiled code to no longer reference _method_ slots\n%s", code)
 	}
-	if strings.Contains(code, "Repr()") {
-		t.Fatalf("expected transpiled code to no longer generate Repr methods\n%s", code)
-	}
 }

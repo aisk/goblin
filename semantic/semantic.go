@@ -8,6 +8,17 @@ import (
 	"github.com/aisk/goblin/token"
 )
 
+// protocolArity maps a protocol method's conventional name to the exact number
+// of parameters it must declare, including the leading self. A user type
+// customizes built-in behavior (operators, comparison, conversion, iteration,
+// indexing) by defining a method with one of these names.
+var protocolArity = map[string]int{
+	"__add": 2, "__sub": 2, "__mul": 2, "__div": 2,
+	"__and": 2, "__or": 2, "__cmp": 2, "__getitem": 2,
+	"__not": 1, "__str": 1, "__bool": 1, "__iter": 1,
+	"__setitem": 3,
+}
+
 type Diagnostic struct {
 	Pos     token.Pos
 	Kind    string
@@ -143,6 +154,19 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 
 			if len(method.Parameters) == 0 || method.Parameters[0].Name != "self" || method.Parameters[0].VarArgs || method.Parameters[0].KwArgs {
 				return c.newError(method.Position(), "type method must declare 'self' as the first parameter")
+			}
+
+			// Protocol methods (operators, comparison, conversion, iteration,
+			// indexing) have fixed arities and no variadic/keyword parameters.
+			if arity, ok := protocolArity[method.Name]; ok {
+				if len(method.Parameters) != arity {
+					return c.newError(method.Position(), "protocol method '%s' must declare exactly %d parameters including self, got %d", method.Name, arity, len(method.Parameters))
+				}
+				for _, param := range method.Parameters {
+					if param.VarArgs || param.KwArgs {
+						return c.newError(param.Pos, "protocol method '%s' cannot use variadic or keyword parameters", method.Name)
+					}
+				}
 			}
 
 			if err := c.withScope(func() error {

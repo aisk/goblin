@@ -178,6 +178,40 @@ func TestCheckModule(t *testing.T) {
 			wantErr:     true,
 			errContains: "required type field cannot appear after default field: name",
 		},
+		{
+			name: "protocol method wrong arity",
+			source: "type V(x) {\n" +
+				"  func __add(self) { return self }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "protocol method '__add' must declare exactly 2 parameters including self, got 1",
+		},
+		{
+			name: "protocol method with varargs rejected",
+			source: "type V(x) {\n" +
+				"  func __cmp(self, *rest) { return 0 }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "protocol method '__cmp' cannot use variadic or keyword parameters",
+		},
+		{
+			name: "protocol method correct arity accepted",
+			source: "type V(x) {\n" +
+				"  func __add(self, other) { return self }\n" +
+				"  func __str(self) { return \"v\" }\n" +
+				"  func __setitem(self, i, val) { return nil }\n" +
+				"}\n" +
+				"print(V(1))\n",
+			wantErr: false,
+		},
+		{
+			name: "non-protocol method named add is unrestricted",
+			source: "type V(x) {\n" +
+				"  func add(self, a, b, c) { return self }\n" +
+				"}\n" +
+				"print(V(1))\n",
+			wantErr: false,
+		},
 	}
 
 	for _, tt := range tests {

@@ -1,17 +1,17 @@
 # User-defined types can customize built-in protocols by defining methods with
-# conventional names: operators (add/minus/...), comparison (compare), string
-# and truthiness conversion (str/bool), iteration (iter), and indexing
-# (get_item/set_item).
+# conventional __-prefixed names: operators (__add/__sub/...), comparison
+# (__cmp), string and truthiness conversion (__str/__bool), iteration (__iter),
+# and indexing (__getitem/__setitem).
 
 type Vector(x, y) {
-    func add(self, other) {
+    func __add(self, other) {
         return Vector(self.x + other.x, self.y + other.y)
     }
-    func minus(self, other) {
+    func __sub(self, other) {
         return Vector(self.x - other.x, self.y - other.y)
     }
-    # compare returns -1, 0 or 1; it powers ==, !=, <, >, <=, >=
-    func compare(self, other) {
+    # __cmp returns -1, 0 or 1; it powers ==, !=, <, >, <=, >=
+    func __cmp(self, other) {
         var a = self.x + self.y
         var b = other.x + other.y
         if a < b {
@@ -22,7 +22,7 @@ type Vector(x, y) {
         }
         return 0
     }
-    func str(self) {
+    func __str(self) {
         return "Vector(" + Str(self.x) + ", " + Str(self.y) + ")"
     }
 }
@@ -42,13 +42,13 @@ print(v <= w)
 
 # A type that opts into iteration and indexing.
 type Grid(cells) {
-    func get_item(self, i) {
+    func __getitem(self, i) {
         return self.cells[i]
     }
-    func set_item(self, i, value) {
+    func __setitem(self, i, value) {
         self.cells[i] = value
     }
-    func iter(self) {
+    func __iter(self) {
         return self.cells
     }
     func size(self) {

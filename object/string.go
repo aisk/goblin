@@ -219,5 +219,9 @@ func StrConstructor(args CallArgs) (Object, error) {
 	if len(args.Positional) != 1 {
 		return nil, NewTypeError("Str() takes at most 1 argument, got %d", len(args.Positional))
 	}
-	return String(args.Positional[0].String()), nil
+	s, err := Repr(args.Positional[0])
+	if err != nil {
+		return nil, err
+	}
+	return String(s), nil
 }

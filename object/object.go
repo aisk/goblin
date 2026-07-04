@@ -30,6 +30,38 @@ type IndexSetter interface {
 	SetIndex(index Object, value Object) error
 }
 
+// Represented is implemented by objects whose string conversion may fail, e.g.
+// a user type whose `__str` method raises. It provides an error-propagating
+// alternative to the infallible Stringer String() method.
+type Represented interface {
+	Repr() (string, error)
+}
+
+// Truthful is implemented by objects whose truthiness test may fail, e.g. a
+// user type whose `__bool` method raises. It provides an error-propagating
+// alternative to the infallible Bool() method.
+type Truthful interface {
+	Truthy() (bool, error)
+}
+
+// Repr returns an object's string representation, propagating any error from a
+// user-defined __str method. Objects that cannot fail fall back to String().
+func Repr(obj Object) (string, error) {
+	if r, ok := obj.(Represented); ok {
+		return r.Repr()
+	}
+	return obj.String(), nil
+}
+
+// Truthy returns an object's truth value, propagating any error from a
+// user-defined __bool method. Objects that cannot fail fall back to Bool().
+func Truthy(obj Object) (bool, error) {
+	if t, ok := obj.(Truthful); ok {
+		return t.Truthy()
+	}
+	return obj.Bool(), nil
+}
+
 // AttrSetter is implemented by objects that support member assignment,
 // e.g. `obj.field = x`.
 type AttrSetter interface {

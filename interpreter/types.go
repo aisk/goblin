@@ -146,28 +146,53 @@ func (in *instance) SetAttr(name string, value object.Object) error {
 	return object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
+// String satisfies fmt.Stringer; since it cannot return an error it swallows a
+// failing __str and falls back to the default repr. Callers that can propagate
+// errors should use object.Repr, which routes through Repr below.
 func (in *instance) String() string {
-	if v, ok, err := in.callProto("str"); ok && err == nil {
+	if v, ok, err := in.callProto("__str"); ok && err == nil {
 		return v.String()
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
 }
 
+func (in *instance) Repr() (string, error) {
+	if v, ok, err := in.callProto("__str"); ok {
+		if err != nil {
+			return "", err
+		}
+		return v.String(), nil
+	}
+	return fmt.Sprintf("<%s@%p>", in.typ.name, in), nil
+}
+
+// Bool satisfies the infallible Object interface; it swallows a failing __bool.
+// Callers that can propagate errors should use object.Truthy (see Truthy).
 func (in *instance) Bool() bool {
-	if v, ok, err := in.callProto("bool"); ok && err == nil {
+	if v, ok, err := in.callProto("__bool"); ok && err == nil {
 		return v.Bool()
 	}
 	return true
 }
 
+func (in *instance) Truthy() (bool, error) {
+	if v, ok, err := in.callProto("__bool"); ok {
+		if err != nil {
+			return false, err
+		}
+		return v.Bool(), nil
+	}
+	return true, nil
+}
+
 func (in *instance) Compare(other object.Object) (int, error) {
-	if v, ok, err := in.callProto("compare", other); ok {
+	if v, ok, err := in.callProto("__cmp", other); ok {
 		if err != nil {
 			return 0, err
 		}
 		i, isInt := v.(object.Integer)
 		if !isInt {
-			return 0, object.NewTypeError("%s.compare must return Int, got %s", in.typ.name, v.String())
+			return 0, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.String())
 		}
 		return int(i), nil
 	}
@@ -175,56 +200,56 @@ func (in *instance) Compare(other object.Object) (int, error) {
 }
 
 func (in *instance) Add(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("add", other); ok {
+	if v, ok, err := in.callProto("__add", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot add %s", in.typ.name)
 }
 
 func (in *instance) Minus(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("minus", other); ok {
+	if v, ok, err := in.callProto("__sub", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot subtract %s", in.typ.name)
 }
 
 func (in *instance) Multiply(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("multiply", other); ok {
+	if v, ok, err := in.callProto("__mul", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot multiply %s", in.typ.name)
 }
 
 func (in *instance) Divide(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("divide", other); ok {
+	if v, ok, err := in.callProto("__div", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
 }
 
 func (in *instance) And(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("and", other); ok {
+	if v, ok, err := in.callProto("__and", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot perform AND on %s", in.typ.name)
 }
 
 func (in *instance) Or(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("or", other); ok {
+	if v, ok, err := in.callProto("__or", other); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot perform OR on %s", in.typ.name)
 }
 
 func (in *instance) Not() (object.Object, error) {
-	if v, ok, err := in.callProto("not"); ok {
+	if v, ok, err := in.callProto("__not"); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("cannot perform NOT on %s", in.typ.name)
 }
 
 func (in *instance) Iter() ([]object.Object, error) {
-	if v, ok, err := in.callProto("iter"); ok {
+	if v, ok, err := in.callProto("__iter"); ok {
 		if err != nil {
 			return nil, err
 		}
@@ -234,16 +259,16 @@ func (in *instance) Iter() ([]object.Object, error) {
 }
 
 func (in *instance) Index(index object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("get_item", index); ok {
+	if v, ok, err := in.callProto("__getitem", index); ok {
 		return v, err
 	}
 	return nil, object.NewTypeError("%s is not indexable", in.typ.name)
 }
 
 // SetIndex implements object.IndexSetter, dispatching `obj[i] = v` to a
-// user-defined "set_item" method.
+// user-defined "__setitem" method.
 func (in *instance) SetIndex(index object.Object, value object.Object) error {
-	if _, ok, err := in.callProto("set_item", index, value); ok {
+	if _, ok, err := in.callProto("__setitem", index, value); ok {
 		return err
 	}
 	return object.NewTypeError("%s does not support index assignment", in.typ.name)

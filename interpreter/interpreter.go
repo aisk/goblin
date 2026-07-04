@@ -141,7 +141,11 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		if err != nil {
 			return err
 		}
-		if cond.Bool() {
+		truthy, err := object.Truthy(cond)
+		if err != nil {
+			return err
+		}
+		if truthy {
 			return evalStatements(s.IfBody, env)
 		}
 		if s.ElseBody != nil {
@@ -155,7 +159,11 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			if err != nil {
 				return err
 			}
-			if !cond.Bool() {
+			truthy, err := object.Truthy(cond)
+			if err != nil {
+				return err
+			}
+			if !truthy {
 				return nil
 			}
 			if err := evalStatements(s.Body, env); err != nil {
