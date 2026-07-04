@@ -1,136 +1,49 @@
 package path
 
 import (
-	stdpath "path"
+	"os"
 
 	"github.com/aisk/goblin/object"
 )
 
-// Execute returns the path module, exposing Go's path functions.
-// Unlike filepath, path always uses forward slashes regardless of OS.
+// Execute returns the path module, an object-oriented filesystem path API
+// modelled after Python's pathlib. Its centrepiece is the Path type; the
+// module-level members are only the factories that have no receiving Path to
+// call an instance method on.
 func Execute() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"base":   &object.Function{Name: "base", Fn: base},
-			"clean":  &object.Function{Name: "clean", Fn: clean},
-			"dir":    &object.Function{Name: "dir", Fn: dir},
-			"ext":    &object.Function{Name: "ext", Fn: ext},
-			"is_abs": &object.Function{Name: "is_abs", Fn: isAbs},
-			"join":   &object.Function{Name: "join", Fn: join},
-			"match":  &object.Function{Name: "match", Fn: match},
-			"split":  &object.Function{Name: "split", Fn: split},
+			"Path": object.PathConstructorFn,
+			"cwd":  &object.Function{Name: "cwd", Fn: cwd},
+			"home": &object.Function{Name: "home", Fn: home},
 		},
 	}, nil
 }
 
-func getStringArg(fnName string, args object.CallArgs, expected int, idx int) (string, error) {
-	if len(args.Positional) != expected {
-		return "", object.NewTypeError("%s() takes exactly %d argument(s), got %d", fnName, expected, len(args.Positional))
+func cwd(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("cwd", args); err != nil {
+		return nil, err
 	}
-	s, ok := args.Positional[idx].(object.String)
-	if !ok {
-		return "", object.NewTypeError("%s() argument must be a string", fnName)
+	if len(args.Positional) != 0 {
+		return nil, object.NewTypeError("cwd() takes no arguments, got %d", len(args.Positional))
 	}
-	return string(s), nil
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, object.WrapNativeError(object.IOError, "cwd() failed", err)
+	}
+	return object.NewPath(dir), nil
 }
 
-func base(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("base", args); err != nil {
+func home(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword("home", args); err != nil {
 		return nil, err
 	}
-	path, err := getStringArg("base", args, 1, 0)
+	if len(args.Positional) != 0 {
+		return nil, object.NewTypeError("home() takes no arguments, got %d", len(args.Positional))
+	}
+	dir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, err
+		return nil, object.WrapNativeError(object.IOError, "home() failed", err)
 	}
-	return object.String(stdpath.Base(path)), nil
-}
-
-func clean(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("clean", args); err != nil {
-		return nil, err
-	}
-	path, err := getStringArg("clean", args, 1, 0)
-	if err != nil {
-		return nil, err
-	}
-	return object.String(stdpath.Clean(path)), nil
-}
-
-func dir(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("dir", args); err != nil {
-		return nil, err
-	}
-	path, err := getStringArg("dir", args, 1, 0)
-	if err != nil {
-		return nil, err
-	}
-	return object.String(stdpath.Dir(path)), nil
-}
-
-func ext(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("ext", args); err != nil {
-		return nil, err
-	}
-	path, err := getStringArg("ext", args, 1, 0)
-	if err != nil {
-		return nil, err
-	}
-	return object.String(stdpath.Ext(path)), nil
-}
-
-func isAbs(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("is_abs", args); err != nil {
-		return nil, err
-	}
-	path, err := getStringArg("is_abs", args, 1, 0)
-	if err != nil {
-		return nil, err
-	}
-	return object.Bool(stdpath.IsAbs(path)), nil
-}
-
-func join(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("join", args); err != nil {
-		return nil, err
-	}
-	elems := make([]string, len(args.Positional))
-	for i, arg := range args.Positional {
-		s, ok := arg.(object.String)
-		if !ok {
-			return nil, object.NewTypeError("join() argument %d must be a string", i)
-		}
-		elems[i] = string(s)
-	}
-	return object.String(stdpath.Join(elems...)), nil
-}
-
-func match(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("match", args); err != nil {
-		return nil, err
-	}
-	pattern, err := getStringArg("match", args, 2, 0)
-	if err != nil {
-		return nil, err
-	}
-	name, ok := args.Positional[1].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("match() second argument must be a string")
-	}
-	matched, err := stdpath.Match(pattern, string(name))
-	if err != nil {
-		return nil, object.WrapError(object.ParseError, "match() failed", err)
-	}
-	return object.Bool(matched), nil
-}
-
-func split(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("split", args); err != nil {
-		return nil, err
-	}
-	path, err := getStringArg("split", args, 1, 0)
-	if err != nil {
-		return nil, err
-	}
-	d, f := stdpath.Split(path)
-	return &object.List{Elements: []object.Object{object.String(d), object.String(f)}}, nil
+	return object.NewPath(dir), nil
 }

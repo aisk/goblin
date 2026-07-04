@@ -1,15 +1,42 @@
 import "path"
 
-print(path.base("/home/user/file.txt") == "file.txt")
-print(path.dir("/home/user/file.txt") == "/home/user")
-print(path.ext("/home/user/file.txt") == ".txt")
-print(path.clean("/home/user/../user/./file.txt") == "/home/user/file.txt")
-print(path.join("a", "b", "c") == "a/b/c")
-print(path.is_abs("/home/user") == true)
-print(path.is_abs("home/user") == false)
-print(path.match("*.txt", "file.txt") == true)
-print(path.match("*.txt", "file.go") == false)
+# --- pure path components (no disk access) ---
+var p = path.Path("/home/user/file.txt")
+print(p.name == "file.txt")
+print(p.stem == "file")
+print(p.suffix == ".txt")
+print(p.parent == path.Path("/home/user"))
 
-var parts = path.split("/home/user/file.txt")
-print(parts[0] == "/home/user/")
-print(parts[1] == "file.txt")
+# parts keeps the root anchor as a single leading element
+var parts = path.Path("/home/user").parts
+print(parts[0] == "/")
+print(parts[1] == "home")
+print(parts[2] == "user")
+
+# --- joining: varargs constructor and the / operator ---
+print(path.Path("a", "b", "c") == path.Path("a/b/c"))
+print((path.Path("a") / "b" / "c") == path.Path("a/b/c"))
+print(p.join("..", "other.md") == path.Path("/home/user/other.md"))
+
+# --- pure transforms ---
+print(p.with_name("other.md") == path.Path("/home/user/other.md"))
+print(p.with_suffix(".md") == path.Path("/home/user/file.md"))
+print(path.Path("/a/b/c/d/e").relative_to("/a/b/c") == path.Path("d/e"))
+
+# --- predicates ---
+print(path.Path("/home/user").is_absolute() == true)
+print(path.Path("home/user").is_absolute() == false)
+print(p.match("*.txt") == true)
+print(p.match("*.go") == false)
+print(path.Path("a/b").as_posix() == "a/b")
+
+# --- read-only filesystem queries against known-present entries ---
+print(path.Path(".").exists() == true)
+print(path.Path(".").is_dir() == true)
+print(path.Path("path.goblin").is_file() == true)
+print(path.Path("does-not-exist-xyz").exists() == false)
+print(path.Path(".").iterdir().size() > 0 == true)
+print(path.Path(".").glob("*.goblin").size() > 0 == true)
+
+# constructor identity
+print(p.constructor == path.Path)

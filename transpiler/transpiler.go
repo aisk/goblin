@@ -31,16 +31,15 @@ type moduleInfo struct {
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":       {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
-	"random":   {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
-	"math":     {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
-	"http":     {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},
-	"fs":       {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
-	"mime":     {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
-	"json":     {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},
-	"filepath": {executorPath: pathExtension + "/filepath", varName: "filepath_module", executorFunc: "Execute"},
-	"path":     {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
-	"time":     {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
+	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
+	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
+	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"http":   {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},
+	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
+	"mime":   {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
+	"json":   {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},
+	"path":   {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
+	"time":   {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
 }
 
 // transpileContext holds state for a single Transpile call.

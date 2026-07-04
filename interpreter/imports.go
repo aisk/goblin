@@ -7,7 +7,6 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	filepathExt "github.com/aisk/goblin/extension/filepath"
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
 	pathExt "github.com/aisk/goblin/extension/path"
@@ -21,16 +20,15 @@ import (
 // builtinModules maps a built-in module name to its executor, mirroring the
 // transpiler's knownModules table.
 var builtinModules = map[string]object.ModuleExecutor{
-	"os":       extension.ExecuteOs,
-	"random":   extension.ExecuteRandom,
-	"math":     extension.ExecuteMath,
-	"http":     httpExt.Execute,
-	"fs":       fs.Execute,
-	"mime":     extension.ExecuteMime,
-	"json":     extension.ExecuteJson,
-	"filepath": filepathExt.Execute,
-	"path":     pathExt.Execute,
-	"time":     timeExt.Execute,
+	"os":     extension.ExecuteOs,
+	"random": extension.ExecuteRandom,
+	"math":   extension.ExecuteMath,
+	"http":   httpExt.Execute,
+	"fs":     fs.Execute,
+	"mime":   extension.ExecuteMime,
+	"json":   extension.ExecuteJson,
+	"path":   pathExt.Execute,
+	"time":   timeExt.Execute,
 }
 
 func isPathImport(path string) bool {
