@@ -111,6 +111,18 @@ func (in *instance) bindMethod(def *ast.FunctionDefine) *object.Function {
 	}
 }
 
+// callProto invokes a user-defined protocol method (e.g. "add", "compare",
+// "str") with the given arguments if the type defines it. ok reports whether
+// the method exists; when false the caller falls back to the default behavior.
+func (in *instance) callProto(name string, args ...object.Object) (result object.Object, ok bool, err error) {
+	m, defined := in.typ.methods[name]
+	if !defined {
+		return nil, false, nil
+	}
+	result, err = in.bindMethod(m).Fn(object.CallArgs{Positional: append(object.Args{}, args...)})
+	return result, true, err
+}
+
 func (in *instance) GetAttr(name string) (object.Object, error) {
 	// A user-defined method (including one named "constructor") shadows the
 	// built-in constructor attribute and any field.
@@ -134,36 +146,105 @@ func (in *instance) SetAttr(name string, value object.Object) error {
 	return object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
-func (in *instance) String() string { return fmt.Sprintf("<%s@%p>", in.typ.name, in) }
-func (in *instance) Bool() bool     { return true }
+func (in *instance) String() string {
+	if v, ok, err := in.callProto("str"); ok && err == nil {
+		return v.String()
+	}
+	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
+}
 
-func (in *instance) Compare(object.Object) (int, error) {
+func (in *instance) Bool() bool {
+	if v, ok, err := in.callProto("bool"); ok && err == nil {
+		return v.Bool()
+	}
+	return true
+}
+
+func (in *instance) Compare(other object.Object) (int, error) {
+	if v, ok, err := in.callProto("compare", other); ok {
+		if err != nil {
+			return 0, err
+		}
+		i, isInt := v.(object.Integer)
+		if !isInt {
+			return 0, object.NewTypeError("%s.compare must return Int, got %s", in.typ.name, v.String())
+		}
+		return int(i), nil
+	}
 	return 0, object.NewTypeError("cannot compare %s", in.typ.name)
 }
-func (in *instance) Add(object.Object) (object.Object, error) {
+
+func (in *instance) Add(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("add", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot add %s", in.typ.name)
 }
-func (in *instance) Minus(object.Object) (object.Object, error) {
+
+func (in *instance) Minus(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("minus", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot subtract %s", in.typ.name)
 }
-func (in *instance) Multiply(object.Object) (object.Object, error) {
+
+func (in *instance) Multiply(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("multiply", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot multiply %s", in.typ.name)
 }
-func (in *instance) Divide(object.Object) (object.Object, error) {
+
+func (in *instance) Divide(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("divide", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
 }
-func (in *instance) And(object.Object) (object.Object, error) {
+
+func (in *instance) And(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("and", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot perform AND on %s", in.typ.name)
 }
-func (in *instance) Or(object.Object) (object.Object, error) {
+
+func (in *instance) Or(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("or", other); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot perform OR on %s", in.typ.name)
 }
+
 func (in *instance) Not() (object.Object, error) {
+	if v, ok, err := in.callProto("not"); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("cannot perform NOT on %s", in.typ.name)
 }
+
 func (in *instance) Iter() ([]object.Object, error) {
+	if v, ok, err := in.callProto("iter"); ok {
+		if err != nil {
+			return nil, err
+		}
+		return v.Iter()
+	}
 	return nil, object.NewTypeError("%s does not support iteration", in.typ.name)
 }
-func (in *instance) Index(object.Object) (object.Object, error) {
+
+func (in *instance) Index(index object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("get_item", index); ok {
+		return v, err
+	}
 	return nil, object.NewTypeError("%s is not indexable", in.typ.name)
+}
+
+// SetIndex implements object.IndexSetter, dispatching `obj[i] = v` to a
+// user-defined "set_item" method.
+func (in *instance) SetIndex(index object.Object, value object.Object) error {
+	if _, ok, err := in.callProto("set_item", index, value); ok {
+		return err
+	}
+	return object.NewTypeError("%s does not support index assignment", in.typ.name)
 }

@@ -83,6 +83,28 @@ func exportedName(name string) string {
 	return strings.ToUpper(name[:1]) + name[1:]
 }
 
+// reservedGoMethodNames are the object.Object interface methods (plus the
+// optional setter interfaces) generated on every user type's struct. A
+// user-defined goblin method whose exported name collides with one of these
+// must be mangled so both can coexist on the same receiver.
+var reservedGoMethodNames = map[string]bool{
+	"String": true, "Bool": true, "Compare": true, "Add": true,
+	"Minus": true, "Multiply": true, "Divide": true, "And": true,
+	"Or": true, "Not": true, "Iter": true, "Index": true,
+	"GetAttr": true, "SetAttr": true, "SetIndex": true,
+}
+
+// methodWrapperName returns the Go method name for a user-defined goblin
+// method, mangled to avoid colliding with the interface methods generated on
+// the same struct (e.g. goblin `add` -> Go `Add_`).
+func methodWrapperName(name string) string {
+	n := exportedName(name)
+	if reservedGoMethodNames[n] {
+		return n + "_"
+	}
+	return n
+}
+
 // errHandler generates the error-handling code for a given error variable name.
 type errHandler func(errVar string) jen.Code
 
@@ -986,64 +1008,152 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	ctx.topDecls = append(ctx.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
 
 	reprFormat := fmt.Sprintf("<%s@%%p>", typeDef.Name)
-	ctx.topDecls = append(ctx.topDecls,
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("String").Params().String().Block(
-			jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Bool").Params().Bool().Block(
-			jen.Return(jen.True()),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Compare").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Int(), jen.Error())).Block(
-			jen.Return(jen.Lit(0), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot compare %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Add").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot add %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Minus").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot subtract %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Multiply").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot multiply %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Divide").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot divide %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("And").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform AND on %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Or").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform OR on %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Not").Params().Parens(
-			jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
-		).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("cannot perform NOT on %s"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Iter").Params().Parens(
-			jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
-		).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("%s does not support iteration"), jen.Lit(typeDef.Name))),
-		),
-		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Index").Params(
-			jen.Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
-			jen.Return(jen.Nil(), jen.Qual("fmt", "Errorf").Call(jen.Lit("%s is not indexable"), jen.Lit(typeDef.Name))),
-		),
+
+	// A user type may customize protocol behavior (operators, iteration,
+	// string/bool conversion, indexing) by defining a method with the matching
+	// conventional name. When defined, the generated interface method delegates
+	// to that method's wrapper; otherwise it falls back to a type error.
+	defined := make(map[string]bool, len(typeDef.Methods))
+	for _, m := range typeDef.Methods {
+		defined[m.Name] = true
+	}
+	receiverParam := func() jen.Code { return jen.Id(receiverName).Op("*").Id(goTypeName) }
+	errorf := func(format string) jen.Code {
+		return jen.Qual("fmt", "Errorf").Call(jen.Lit(format), jen.Lit(typeDef.Name))
+	}
+	// protoCall builds `receiver.Wrapper(object.CallArgs{Positional: {args}})`.
+	protoCall := func(goblinName string, args ...jen.Code) *jen.Statement {
+		var callArgs jen.Code
+		if len(args) == 0 {
+			callArgs = jen.Qual(pathObject, "CallArgs").Values()
+		} else {
+			callArgs = jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
+				jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(args...),
+			})
+		}
+		return jen.Id(receiverName).Dot(methodWrapperName(goblinName)).Call(callArgs)
+	}
+	protoDecls := make([]jen.Code, 0, 13)
+
+	// String() string  <- "str"
+	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
+	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
+	if defined["str"] {
+		strDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("str")),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
+			jen.Return(jen.Id("_res").Dot("String").Call()),
+		)
+	} else {
+		strDecl.Block(reprReturn)
+	}
+	protoDecls = append(protoDecls, strDecl)
+
+	// Bool() bool  <- "bool"
+	boolDecl := jen.Func().Params(receiverParam()).Id("Bool").Params().Bool()
+	if defined["bool"] {
+		boolDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("bool")),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.True())),
+			jen.Return(jen.Id("_res").Dot("Bool").Call()),
+		)
+	} else {
+		boolDecl.Block(jen.Return(jen.True()))
+	}
+	protoDecls = append(protoDecls, boolDecl)
+
+	// Compare(other) (int, error)  <- "compare" (returns Int -1/0/1)
+	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
+		jen.Id("other").Qual(pathObject, "Object"),
+	).Parens(jen.List(jen.Int(), jen.Error()))
+	if defined["compare"] {
+		cmpDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("compare", jen.Id("other"))),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(0), jen.Id("_err"))),
+			jen.List(jen.Id("_i"), jen.Id("_ok")).Op(":=").Id("_res").Assert(jen.Qual(pathObject, "Integer")),
+			jen.If(jen.Op("!").Id("_ok")).Block(
+				jen.Return(jen.Lit(0), errorf("%s.compare must return Int")),
+			),
+			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),
+		)
+	} else {
+		cmpDecl.Block(jen.Return(jen.Lit(0), errorf("cannot compare %s")))
+	}
+	protoDecls = append(protoDecls, cmpDecl)
+
+	// Binary operators (other) (Object, error)
+	binOps := []struct{ goMethod, goblin, errFmt string }{
+		{"Add", "add", "cannot add %s"},
+		{"Minus", "minus", "cannot subtract %s"},
+		{"Multiply", "multiply", "cannot multiply %s"},
+		{"Divide", "divide", "cannot divide %s"},
+		{"And", "and", "cannot perform AND on %s"},
+		{"Or", "or", "cannot perform OR on %s"},
+	}
+	for _, op := range binOps {
+		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
+			jen.Id("other").Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
+		if defined[op.goblin] {
+			d.Block(jen.Return(protoCall(op.goblin, jen.Id("other"))))
+		} else {
+			d.Block(jen.Return(jen.Nil(), errorf(op.errFmt)))
+		}
+		protoDecls = append(protoDecls, d)
+	}
+
+	// Not() (Object, error)  <- "not"
+	notDecl := jen.Func().Params(receiverParam()).Id("Not").Params().Parens(
+		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
 	)
+	if defined["not"] {
+		notDecl.Block(jen.Return(protoCall("not")))
+	} else {
+		notDecl.Block(jen.Return(jen.Nil(), errorf("cannot perform NOT on %s")))
+	}
+	protoDecls = append(protoDecls, notDecl)
+
+	// Iter() ([]Object, error)  <- "iter" (returns an iterable)
+	iterDecl := jen.Func().Params(receiverParam()).Id("Iter").Params().Parens(
+		jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
+	)
+	if defined["iter"] {
+		iterDecl.Block(
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("iter")),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
+			jen.Return(jen.Id("_res").Dot("Iter").Call()),
+		)
+	} else {
+		iterDecl.Block(jen.Return(jen.Nil(), errorf("%s does not support iteration")))
+	}
+	protoDecls = append(protoDecls, iterDecl)
+
+	// Index(index) (Object, error)  <- "get_item"
+	indexDecl := jen.Func().Params(receiverParam()).Id("Index").Params(
+		jen.Id("index").Qual(pathObject, "Object"),
+	).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
+	if defined["get_item"] {
+		indexDecl.Block(jen.Return(protoCall("get_item", jen.Id("index"))))
+	} else {
+		indexDecl.Block(jen.Return(jen.Nil(), errorf("%s is not indexable")))
+	}
+	protoDecls = append(protoDecls, indexDecl)
+
+	// SetIndex(index, value) error  <- "set_item" (object.IndexSetter)
+	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
+		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
+	).Error()
+	if defined["set_item"] {
+		setIndexDecl.Block(
+			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall("set_item", jen.Id("index"), jen.Id("value"))),
+			jen.Return(jen.Id("_err")),
+		)
+	} else {
+		setIndexDecl.Block(jen.Return(errorf("%s does not support index assignment")))
+	}
+	protoDecls = append(protoDecls, setIndexDecl)
+
+	ctx.topDecls = append(ctx.topDecls, protoDecls...)
 
 	getAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+1)
 	for _, field := range typeDef.Fields {
@@ -1054,7 +1164,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		)
 	}
 	for _, method := range typeDef.Methods {
-		wrapperName := exportedName(method.Name)
+		wrapperName := methodWrapperName(method.Name)
 		getAttrCases = append(getAttrCases,
 			jen.Case(jen.Lit(method.Name)).Block(
 				jen.Return(
@@ -1131,7 +1241,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	)
 
 	for _, method := range typeDef.Methods {
-		wrapperName := exportedName(method.Name)
+		wrapperName := methodWrapperName(method.Name)
 
 		callArgsName := ctx.localName("callArgs")
 		fnOnError := func(errVar string) jen.Code {

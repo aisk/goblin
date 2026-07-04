@@ -1,0 +1,75 @@
+# User-defined types can customize built-in protocols by defining methods with
+# conventional names: operators (add/minus/...), comparison (compare), string
+# and truthiness conversion (str/bool), iteration (iter), and indexing
+# (get_item/set_item).
+
+type Vector(x, y) {
+    func add(self, other) {
+        return Vector(self.x + other.x, self.y + other.y)
+    }
+    func minus(self, other) {
+        return Vector(self.x - other.x, self.y - other.y)
+    }
+    # compare returns -1, 0 or 1; it powers ==, !=, <, >, <=, >=
+    func compare(self, other) {
+        var a = self.x + self.y
+        var b = other.x + other.y
+        if a < b {
+            return -1
+        }
+        if a > b {
+            return 1
+        }
+        return 0
+    }
+    func str(self) {
+        return "Vector(" + Str(self.x) + ", " + Str(self.y) + ")"
+    }
+}
+
+var v = Vector(1, 2)
+var w = Vector(3, 4)
+
+print(v + w)
+print(w - v)
+print(v)
+
+print(v == v)
+print(v == w)
+print(v < w)
+print(v > w)
+print(v <= w)
+
+# A type that opts into iteration and indexing.
+type Grid(cells) {
+    func get_item(self, i) {
+        return self.cells[i]
+    }
+    func set_item(self, i, value) {
+        self.cells[i] = value
+    }
+    func iter(self) {
+        return self.cells
+    }
+    func size(self) {
+        return self.cells.size()
+    }
+}
+
+var g = Grid([10, 20, 30])
+print(g[0])
+g[1] = 99
+print(g[1])
+for x in g {
+    print(x)
+}
+print(g.size())
+
+# A type that defines none of these protocols keeps the defaults: it is always
+# truthy, so it takes the `if` branch here.
+type Opaque() {
+}
+var o = Opaque()
+if o {
+    print("opaque is truthy")
+}

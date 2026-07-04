@@ -1,0 +1,15 @@
+Vector(4, 6)
+Vector(2, 2)
+Vector(1, 2)
+true
+false
+true
+false
+true
+10
+99
+10
+99
+30
+3
+opaque is truthy
