@@ -364,6 +364,35 @@ func resolveName(name string, env *Environment) (object.Object, error) {
 }
 
 func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error) {
+	// Short-circuit logical operators: the RHS is only evaluated when the LHS
+	// does not already determine the result, so side effects (and errors) in
+	// the skipped operand never run.
+	if e.Operator == ast.And || e.Operator == ast.Or {
+		lhs, err := evalExpr(e.LHS, env)
+		if err != nil {
+			return nil, err
+		}
+		lhsTruthy, err := object.Truthy(lhs)
+		if err != nil {
+			return nil, err
+		}
+		if e.Operator == ast.And && !lhsTruthy {
+			return object.False, nil
+		}
+		if e.Operator == ast.Or && lhsTruthy {
+			return object.True, nil
+		}
+		rhs, err := evalExpr(e.RHS, env)
+		if err != nil {
+			return nil, err
+		}
+		rhsTruthy, err := object.Truthy(rhs)
+		if err != nil {
+			return nil, err
+		}
+		return object.Bool(rhsTruthy), nil
+	}
+
 	lhs, err := evalExpr(e.LHS, env)
 	if err != nil {
 		return nil, err
@@ -382,10 +411,6 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		return lhs.Multiply(rhs)
 	case ast.Divide:
 		return lhs.Divide(rhs)
-	case ast.And:
-		return lhs.And(rhs)
-	case ast.Or:
-		return lhs.Or(rhs)
 	case ast.Equal, ast.NotEqual, ast.LessThan, ast.GreaterThan, ast.LessOrEqual, ast.GreaterOrEqual:
 		c, err := lhs.Compare(rhs)
 		if err != nil {

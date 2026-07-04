@@ -1,0 +1,22 @@
+# Short-circuit evaluation: && and || skip the RHS when the LHS already
+# determines the result, so side effects in the skipped operand never run.
+
+func boom() {
+    print("boom ran")
+    return true
+}
+
+# && short-circuits on a false LHS: boom() must not run.
+print(false && boom())
+# || short-circuits on a true LHS: boom() must not run.
+print(true || boom())
+
+# When the LHS leaves the result open, the RHS is evaluated.
+print(true && boom())
+print(false || boom())
+
+# The result is still a Bool derived from truthiness.
+print(0 && 1)
+print(1 || 0)
+print("x" && "")
+print("" || "y")

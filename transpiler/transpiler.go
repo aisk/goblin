@@ -1506,6 +1506,9 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 	if isComparisonOperator(operation.Operator) {
 		return ctx.transpileComparisonOperation(operation, onError)
 	}
+	if operation.Operator == ast.And || operation.Operator == ast.Or {
+		return ctx.transpileLogicalOperation(operation, onError)
+	}
 
 	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
 	if err != nil {
@@ -1526,10 +1529,6 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 		methodName = "Multiply"
 	case "/":
 		methodName = "Divide"
-	case "&&":
-		methodName = "And"
-	case "||":
-		methodName = "Or"
 	default:
 		return nil, nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}
@@ -1541,6 +1540,60 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
+// transpileLogicalOperation lowers && and || with short-circuit evaluation: the
+// RHS is only evaluated (and may therefore only error or produce side effects)
+// when the LHS does not already fix the result. The result is always a Bool,
+// matching the previous truthiness-based behavior.
+func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Always transpile the RHS so diagnostics surface at compile time, but
+	// emit its statements inside a guarded block so it only runs at runtime
+	// when the LHS leaves the result open.
+	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	lhsTruthyVar := ctx.localName("cond")
+	errVar := ctx.localName("err")
+	tmpVar := ctx.localName("tmp")
+	rhsVar := ctx.localName("rhs")
+	rhsTruthyVar := ctx.localName("cond")
+	rhsErrVar := ctx.localName("err")
+
+	rhsBlock := append([]jen.Code{}, rhsPre...)
+	rhsBlock = append(rhsBlock,
+		jen.Id(rhsVar).Op(":=").Add(rhs),
+		jen.List(jen.Id(rhsTruthyVar), jen.Id(rhsErrVar)).Op(":=").Qual(pathObject, "Truthy").Call(jen.Id(rhsVar)),
+		jen.If(jen.Id(rhsErrVar).Op("!=").Nil()).Block(onError(rhsErrVar)),
+		jen.Id(tmpVar).Op("=").Qual(pathObject, "Bool").Call(jen.Id(rhsTruthyVar)),
+	)
+
+	preStmts := append([]jen.Code{}, lhsPre...)
+	preStmts = append(preStmts,
+		jen.List(jen.Id(lhsTruthyVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(lhs),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		jen.Var().Id(tmpVar).Qual(pathObject, "Object"),
+	)
+
+	if operation.Operator == ast.And {
+		preStmts = append(preStmts,
+			jen.Id(tmpVar).Op("=").Qual(pathObject, "False"),
+			jen.If(jen.Id(lhsTruthyVar)).Block(rhsBlock...),
+		)
+	} else { // ast.Or
+		preStmts = append(preStmts,
+			jen.Id(tmpVar).Op("=").Qual(pathObject, "True"),
+			jen.If(jen.Op("!").Id(lhsTruthyVar)).Block(rhsBlock...),
+		)
+	}
+
 	return preStmts, jen.Id(tmpVar), nil
 }
 
