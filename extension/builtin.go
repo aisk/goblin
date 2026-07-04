@@ -67,35 +67,21 @@ func print(args object.CallArgs) (object.Object, error) {
 // function's return value and error are discarded, mirroring Go's `go`
 // statement. Use a Chan to communicate results back.
 func spawn(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("spawn", args); err != nil {
+	p := object.NewArgParser("spawn", args)
+	fn := p.Func("fn")
+	rest := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return nil, object.NewTypeError("spawn() requires at least 1 argument")
-	}
-	fn, ok := args.Positional[0].(*object.Function)
-	if !ok {
-		return nil, object.NewTypeError("spawn() first argument must be a function, not %T", args.Positional[0])
-	}
-	callArgs := object.CallArgs{Positional: args.Positional[1:]}
-	go fn.Call(callArgs)
+	go fn.Call(object.CallArgs{Positional: rest})
 	return object.Nil, nil
 }
 
 func range_(args object.CallArgs) (object.Object, error) {
-	bound, err := object.BindArguments("range", []string{"start", "end"}, "", "", args)
-	if err != nil {
+	p := object.NewArgParser("range", args)
+	start, end := p.Int("start"), p.Int("end")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-
-	start, ok := bound["start"].(object.Integer)
-	if !ok {
-		return nil, object.NewTypeError("range() start argument must be an integer, got %T", bound["start"])
-	}
-
-	end, ok := bound["end"].(object.Integer)
-	if !ok {
-		return nil, object.NewTypeError("range() end argument must be an integer, got %T", bound["end"])
 	}
 
 	if int64(start) >= int64(end) {
@@ -111,15 +97,17 @@ func range_(args object.CallArgs) (object.Object, error) {
 }
 
 func max(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("max", args); err != nil {
+	p := object.NewArgParser("max", args)
+	nums := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
+	if len(nums) == 0 {
 		return nil, object.NewTypeError("max() requires at least 1 argument")
 	}
 
 	var hasFloat bool
-	for _, arg := range args.Positional {
+	for _, arg := range nums {
 		if _, ok := arg.(object.Float); ok {
 			hasFloat = true
 			break
@@ -128,7 +116,7 @@ func max(args object.CallArgs) (object.Object, error) {
 
 	var maxValue float64
 	if hasFloat {
-		for i, arg := range args.Positional {
+		for i, arg := range nums {
 			switch v := arg.(type) {
 			case object.Float:
 				if i == 0 || float64(v) > maxValue {
@@ -146,7 +134,7 @@ func max(args object.CallArgs) (object.Object, error) {
 	}
 
 	maxIntValue := int64(0)
-	for i, arg := range args.Positional {
+	for i, arg := range nums {
 		if v, ok := arg.(object.Integer); ok {
 			if i == 0 || int64(v) > maxIntValue {
 				maxIntValue = int64(v)
@@ -159,15 +147,17 @@ func max(args object.CallArgs) (object.Object, error) {
 }
 
 func min(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("min", args); err != nil {
+	p := object.NewArgParser("min", args)
+	nums := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
+	if len(nums) == 0 {
 		return nil, object.NewTypeError("min() requires at least 1 argument")
 	}
 
 	var hasFloat bool
-	for _, arg := range args.Positional {
+	for _, arg := range nums {
 		if _, ok := arg.(object.Float); ok {
 			hasFloat = true
 			break
@@ -176,7 +166,7 @@ func min(args object.CallArgs) (object.Object, error) {
 
 	var minValue float64
 	if hasFloat {
-		for i, arg := range args.Positional {
+		for i, arg := range nums {
 			switch v := arg.(type) {
 			case object.Float:
 				if i == 0 || float64(v) < minValue {
@@ -194,7 +184,7 @@ func min(args object.CallArgs) (object.Object, error) {
 	}
 
 	minIntValue := int64(0)
-	for i, arg := range args.Positional {
+	for i, arg := range nums {
 		if v, ok := arg.(object.Integer); ok {
 			if i == 0 || int64(v) < minIntValue {
 				minIntValue = int64(v)
