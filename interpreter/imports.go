@@ -15,6 +15,7 @@ import (
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/token"
 )
 
 // builtinModules maps a built-in module name to its executor, mirroring the
@@ -96,7 +97,11 @@ func loadModuleFile(path string, reg *object.Registry) (object.Object, error) {
 		return nil, err
 	}
 	if err := evalStatements(mod.Body, env); err != nil {
-		return nil, err
+		var pos token.Pos
+		if len(mod.Body) > 0 {
+			pos = mod.Body[0].Position()
+		}
+		return nil, object.WithFrame(err, stackFrame(moduleName(path), "<module>", pos))
 	}
 
 	members := make(map[string]object.Object)

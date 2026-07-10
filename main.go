@@ -20,9 +20,10 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "goblin",
-	Short: "Goblin is a programming language that transpiles to Go",
-	Long:  "Goblin is a programming language that transpiles to Go.",
+	Use:           "goblin",
+	Short:         "Goblin is a programming language that transpiles to Go",
+	Long:          "Goblin is a programming language that transpiles to Go.",
+	SilenceErrors: true,
 }
 
 var buildExeCmd = &cobra.Command{
@@ -201,7 +202,7 @@ func runREPL() error {
 func evalLine(out io.Writer, session *interpreter.Session, src string) {
 	result, err := session.Eval(src)
 	if err != nil {
-		fmt.Fprintf(out, "Error: %v\n", err)
+		fmt.Fprintf(out, "%+v\n", err)
 		return
 	}
 	// Display the value of an expression, but stay quiet for statements and
@@ -256,6 +257,7 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 }

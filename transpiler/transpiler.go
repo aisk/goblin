@@ -108,6 +108,33 @@ func methodWrapperName(name string) string {
 // errHandler generates the error-handling code for a given error variable name.
 type errHandler func(errVar string) jen.Code
 
+func frameCode(module, function string, pos token.Pos) *jen.Statement {
+	file := ""
+	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
+		file = src.Source()
+	}
+	return jen.Qual(pathObject, "Frame").Values(jen.Dict{
+		jen.Id("Module"):   jen.Lit(module),
+		jen.Id("Function"): jen.Lit(function),
+		jen.Id("File"):     jen.Lit(file),
+		jen.Id("Line"):     jen.Lit(pos.Line),
+		jen.Id("Column"):   jen.Lit(pos.Column),
+	})
+}
+
+func tracedReturn(errVar, module, function string, pos token.Pos) jen.Code {
+	return jen.Return(jen.Nil(), jen.Qual(pathObject, "WithFrame").Call(
+		jen.Id(errVar), frameCode(module, function, pos),
+	))
+}
+
+func modulePosition(mod *ast.Module) token.Pos {
+	if len(mod.Body) > 0 {
+		return mod.Body[0].Position()
+	}
+	return token.Pos{}
+}
+
 func isPathImport(path string) bool {
 	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
 }
@@ -171,7 +198,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
+		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -313,7 +340,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
+		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -951,11 +978,11 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 // closure binding the given parameters and running the given body. It is shared
 // by named function definitions and anonymous function literals. name is used
 // only for the runtime function's repr and for BindArguments diagnostics.
-func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
+func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
 	callArgsName := ctx.localName("callArgs")
 
 	fnOnError := func(errVar string) jen.Code {
-		return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+		return tracedReturn(errVar, "", name, pos)
 	}
 
 	argsDefine := ctx.emitParameterBinding(name, params, callArgsName, fnOnError)
@@ -980,7 +1007,7 @@ func (ctx *transpileContext) buildFunctionValue(name string, params []*ast.Param
 }
 
 func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
-	funcValue, err := ctx.buildFunctionValue(fn.Name, fn.Parameters, fn.Body)
+	funcValue, err := ctx.buildFunctionValue(fn.Name, fn.Position(), fn.Parameters, fn.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -992,7 +1019,7 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 }
 
 func (ctx *transpileContext) transpileFunctionLiteral(fn *ast.FunctionLiteral) ([]jen.Code, *jen.Statement, error) {
-	funcValue, err := ctx.buildFunctionValue("<lambda>", fn.Parameters, fn.Body)
+	funcValue, err := ctx.buildFunctionValue("<lambda>", fn.Position(), fn.Parameters, fn.Body)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1280,7 +1307,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 		callArgsName := ctx.localName("callArgs")
 		fnOnError := func(errVar string) jen.Code {
-			return jen.Return(jen.List(jen.Nil(), jen.Id(errVar)))
+			return tracedReturn(errVar, typeDef.Name, typeDef.Name+"."+method.Name, method.Position())
 		}
 
 		bodyPrefix := []jen.Code{
@@ -1814,12 +1841,12 @@ func generateGoMod(outputDir, moduleName string) error {
 func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string {
 	if goblinRoot != "" {
 		return fmt.Sprintf(
-			"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n\nreplace github.com/aisk/goblin => %s\n",
+			"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n\nreplace github.com/aisk/goblin => %s\n",
 			moduleName, runtimeVersion, goblinRoot,
 		)
 	}
 	return fmt.Sprintf(
-		"module %s\n\ngo 1.19\n\nrequire (\n\tgithub.com/aisk/goblin %s\n\tgithub.com/pkg/errors v0.9.1\n)\n",
+		"module %s\n\ngo 1.19\n\nrequire github.com/aisk/goblin %s\n",
 		moduleName, runtimeVersion,
 	)
 }
@@ -1948,7 +1975,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
+		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
@@ -2087,7 +2114,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return jen.Return(jen.Nil(), jen.Qual("github.com/pkg/errors", "WithStack").Call(jen.Id(errVar)))
+		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)

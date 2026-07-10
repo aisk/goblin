@@ -5,7 +5,19 @@ import (
 	"fmt"
 	"io/fs"
 	"net"
+	"strings"
 )
+
+// Frame describes one Goblin-level stack frame. It deliberately contains
+// only runtime-neutral data so both the interpreter and transpiled programs
+// can attach frames without depending on the AST or token packages.
+type Frame struct {
+	Module   string
+	Function string
+	File     string
+	Line     int
+	Column   int
+}
 
 type Error struct {
 	Value string
@@ -14,6 +26,9 @@ type Error struct {
 	// traverse the chain directly (see (*Error).Unwrap below); the `errors`
 	// module's helpers delegate to them rather than reimplementing traversal.
 	Wrapped error
+	// Frames are ordered from the point where the error was first observed to
+	// the outermost caller. WithFrame treats Error values as immutable.
+	Frames []Frame
 }
 
 var _ Object = (*Error)(nil)
@@ -107,6 +122,70 @@ func (e *Error) Error() string {
 	return e.Value
 }
 
+// WithFrame returns an Error carrying one additional Goblin stack frame while
+// retaining err in the Go error chain. In particular, errors.Is/errors.As and
+// Goblin's Error.is() continue to see the original typed or native error.
+func WithFrame(err error, frame Frame) error {
+	if err == nil {
+		return nil
+	}
+	if e, ok := err.(*Error); ok {
+		frames := append([]Frame(nil), e.Frames...)
+		frames = append(frames, frame)
+		return &Error{Value: e.Value, Wrapped: e, Frames: frames}
+	}
+	return &Error{Value: err.Error(), Wrapped: err, Frames: []Frame{frame}}
+}
+
+// Traceback renders the language-level stack without exposing generated Go
+// functions or the interpreter's own implementation stack.
+func (e *Error) Traceback() string {
+	if len(e.Frames) == 0 {
+		return e.Value
+	}
+	var b strings.Builder
+	b.WriteString("Traceback (most recent call last):\n")
+	for i := len(e.Frames) - 1; i >= 0; i-- {
+		f := e.Frames[i]
+		name := f.Function
+		if name == "" {
+			name = "<module>"
+		}
+		fmt.Fprintf(&b, "  at %s", name)
+		if f.Module != "" && f.Module != "main" {
+			fmt.Fprintf(&b, " [%s]", f.Module)
+		}
+		if f.File != "" {
+			fmt.Fprintf(&b, " (%s", f.File)
+			if f.Line > 0 {
+				fmt.Fprintf(&b, ":%d", f.Line)
+				if f.Column > 0 {
+					fmt.Fprintf(&b, ":%d", f.Column)
+				}
+			}
+			b.WriteByte(')')
+		}
+		b.WriteByte('\n')
+	}
+	b.WriteString(e.Value)
+	return b.String()
+}
+
+// Format keeps %v compatible with the historical short error message and
+// makes %+v print the complete Goblin traceback, matching generated mains.
+func (e *Error) Format(s fmt.State, verb rune) {
+	if verb == 'v' && s.Flag('+') {
+		fmt.Fprint(s, e.Traceback())
+		return
+	}
+	switch verb {
+	case 'q':
+		fmt.Fprintf(s, "%q", e.Value)
+	default:
+		fmt.Fprint(s, e.Value)
+	}
+}
+
 func (e *Error) GetAttr(name string) (Object, error) {
 	switch name {
 	case "message":
@@ -119,8 +198,21 @@ func (e *Error) GetAttr(name string) (Object, error) {
 		return &Function{Name: "is", Fn: e.Is}, nil
 	case "constructor":
 		return ErrorConstructorFn, nil
+	case "traceback":
+		return &Function{Name: "traceback", Fn: e.TracebackValue}, nil
 	}
 	return nil, NewAttributeError("Error has no attribute '%s'", name)
+}
+
+// TracebackValue exposes traceback formatting to Goblin as err.traceback().
+func (e *Error) TracebackValue(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("traceback", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, NewTypeError("traceback() takes no arguments, got %d", len(args.Positional))
+	}
+	return String(e.Traceback()), nil
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its
@@ -297,8 +389,8 @@ func Raise(v Object) error {
 }
 
 // ExcValue extracts the Goblin exception value carried by err, unwrapping any
-// stack/cause wrappers (e.g. github.com/pkg/errors) added while the error
-// propagated up the call stack. Errors that did not originate from `raise`
+// stack/cause wrappers added while the error propagated up the call stack.
+// Errors that did not originate from `raise`
 // (such as a runtime "division by zero") are surfaced as an *Error, so `catch`
 // always binds an Error.
 func ExcValue(err error) Object {

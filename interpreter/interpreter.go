@@ -13,6 +13,7 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/token"
 )
 
 // Environment is a lexical scope mapping names to values, with a parent link.
@@ -80,7 +81,15 @@ func Run(mod *ast.Module, sourcePath string) error {
 		return err
 	}
 
-	return evalStatements(mod.Body, global)
+	err := evalStatements(mod.Body, global)
+	if err != nil {
+		var pos token.Pos
+		if len(mod.Body) > 0 {
+			pos = mod.Body[0].Position()
+		}
+		return object.WithFrame(err, stackFrame(moduleName(sourcePath), "<module>", pos))
+	}
+	return nil
 }
 
 func evalStatements(stmts []ast.Statement, env *Environment) error {
@@ -324,7 +333,7 @@ func evalExpr(expr ast.Expression, env *Environment) (object.Object, error) {
 		return obj.GetAttr(e.Property)
 
 	case *ast.FunctionLiteral:
-		return makeClosure("<lambda>", e.Parameters, e.Body, env), nil
+		return makeClosure("<lambda>", e.Position(), e.Parameters, e.Body, env), nil
 
 	case *ast.FunctionCall:
 		callee, err := resolveName(e.Name, env)
@@ -506,13 +515,13 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 // makeFunction wraps a Goblin function definition as a callable object.Function,
 // capturing the defining environment for closures.
 func makeFunction(def *ast.FunctionDefine, env *Environment) *object.Function {
-	return makeClosure(def.Name, def.Parameters, def.Body, env)
+	return makeClosure(def.Name, def.Position(), def.Parameters, def.Body, env)
 }
 
 // makeClosure builds a callable object.Function from parameters and a body,
 // capturing env for closures. It backs both named definitions and anonymous
 // function literals. name is used for repr and BindArguments diagnostics.
-func makeClosure(name string, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
+func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
 	var fixed []string
 	var varArgs, kwArgs string
 	for _, p := range params {
@@ -525,13 +534,18 @@ func makeClosure(name string, params []*ast.Parameter, body []ast.Statement, env
 			fixed = append(fixed, p.Name)
 		}
 	}
+	module := ""
+	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
+		module = moduleName(src.Source())
+	}
+	frame := stackFrame(module, name, pos)
 
 	return &object.Function{
 		Name: name,
 		Fn: func(args object.CallArgs) (object.Object, error) {
 			bound, err := object.BindArguments(name, fixed, varArgs, kwArgs, args)
 			if err != nil {
-				return nil, err
+				return nil, object.WithFrame(err, frame)
 			}
 			local := NewEnvironment(env)
 			for n, val := range bound {
@@ -545,7 +559,7 @@ func makeClosure(name string, params []*ast.Parameter, body []ast.Statement, env
 				return rs.value, nil
 			}
 			if err != nil {
-				return nil, err
+				return nil, object.WithFrame(err, frame)
 			}
 			return object.Nil, nil
 		},

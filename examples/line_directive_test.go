@@ -46,7 +46,7 @@ func TestLineDirective_PanicTraceback(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	goblinSrc := "print(1 / 0)\n"
+	goblinSrc := "func inner() {\n  print(1 / 0)\n}\nfunc outer() {\n  inner()\n}\nouter()\n"
 	goblinPath := filepath.Join(tempDir, "divzero.goblin")
 	if err := os.WriteFile(goblinPath, []byte(goblinSrc), 0644); err != nil {
 		t.Fatalf("write goblin: %v", err)
@@ -72,5 +72,11 @@ func TestLineDirective_PanicTraceback(t *testing.T) {
 	}
 	if !strings.Contains(combined, "divzero.goblin") {
 		t.Errorf("expected stack trace to reference divzero.goblin, got: %s", combined)
+	}
+	moduleAt := strings.Index(combined, "at <module>")
+	outerAt := strings.Index(combined, "at outer")
+	innerAt := strings.Index(combined, "at inner")
+	if moduleAt < 0 || outerAt <= moduleAt || innerAt <= outerAt {
+		t.Errorf("expected Goblin function frames in call order, got: %s", combined)
 	}
 }

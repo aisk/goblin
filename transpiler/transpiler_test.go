@@ -93,6 +93,22 @@ func TestTranspileKnownHTTPModuleImport(t *testing.T) {
 	}
 }
 
+func TestTranspileFunctionsAttachGoblinFrames(t *testing.T) {
+	code := transpileSource(t, "func fail() { return 1 / 0 }\nfail()\n")
+	for _, want := range []string{
+		"object.WithFrame",
+		`Function: "fail"`,
+		`Function: "<module>"`,
+	} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
+		}
+	}
+	if strings.Contains(code, "errors.WithStack") {
+		t.Fatalf("generated code still uses errors.WithStack\n%s", code)
+	}
+}
+
 func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 	code := transpileSource(t, "type User(name, age=18) {\n  func hello(self) { print(self.name) }\n}\nvar user = User(\"alice\")\nuser.hello()\n")
 

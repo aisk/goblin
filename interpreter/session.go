@@ -59,12 +59,12 @@ func (s *Session) Eval(src string) (object.Object, error) {
 		if expr, ok := stmt.(ast.Expression); ok {
 			v, err := evalExpr(expr, s.global)
 			if err != nil {
-				return nil, err
+				return nil, object.WithFrame(err, stackFrame("repl", "<module>", expr.Position()))
 			}
 			result = v
 		} else {
 			if err := evalStatement(stmt, s.global); err != nil {
-				return nil, err
+				return nil, object.WithFrame(err, stackFrame("repl", "<module>", stmt.Position()))
 			}
 			result = nil
 		}
