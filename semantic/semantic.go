@@ -279,7 +279,11 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			if !c.currentScope.declare(v.Variable) {
 				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Variable)
 			}
-			return c.checkStatements(v.Body, false)
+			// The range binding is in the loop scope; the body is a nested block,
+			// so `var x` may shadow `for x` just as it can in Go.
+			return c.withScope(func() error {
+				return c.checkStatements(v.Body, false)
+			})
 		})
 	case *ast.Break:
 		if c.loopDepth == 0 {

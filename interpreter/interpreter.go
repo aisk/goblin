@@ -101,6 +101,13 @@ func evalStatements(stmts []ast.Statement, env *Environment) error {
 	return nil
 }
 
+// evalBlock evaluates a lexical block in a child environment. Goblin blocks
+// follow Go's scoping rules: declarations are visible to nested blocks, but do
+// not escape the block in which they were introduced.
+func evalBlock(stmts []ast.Statement, parent *Environment) error {
+	return evalStatements(stmts, NewEnvironment(parent))
+}
+
 func evalStatement(stmt ast.Statement, env *Environment) error {
 	switch s := stmt.(type) {
 	case *ast.Declare:
@@ -155,10 +162,10 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			return err
 		}
 		if truthy {
-			return evalStatements(s.IfBody, env)
+			return evalBlock(s.IfBody, env)
 		}
 		if s.ElseBody != nil {
-			return evalStatements(s.ElseBody, env)
+			return evalBlock(s.ElseBody, env)
 		}
 		return nil
 
@@ -175,7 +182,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			if !truthy {
 				return nil
 			}
-			if err := evalStatements(s.Body, env); err != nil {
+			if err := evalBlock(s.Body, env); err != nil {
 				if _, ok := err.(breakSignal); ok {
 					return nil
 				}
@@ -196,8 +203,12 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			return err
 		}
 		for _, item := range items {
-			env.Assign(s.Variable, item)
-			if err := evalStatements(s.Body, env); err != nil {
+			// Like a Go range clause, the iteration binding belongs to the loop,
+			// not the surrounding block. Give each iteration its own binding so
+			// closures do not all capture the final value.
+			iterationEnv := NewEnvironment(env)
+			iterationEnv.Define(s.Variable, item)
+			if err := evalBlock(s.Body, iterationEnv); err != nil {
 				if _, ok := err.(breakSignal); ok {
 					return nil
 				}
@@ -230,7 +241,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		return object.Raise(v)
 
 	case *ast.TryCatch:
-		err := evalStatements(s.TryBody, env)
+		err := evalBlock(s.TryBody, env)
 		if err == nil {
 			return nil
 		}
@@ -242,7 +253,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		}
 		catchEnv := NewEnvironment(env)
 		catchEnv.Define(s.CatchVar, object.ErrorValue(err))
-		return evalStatements(s.CatchBody, catchEnv)
+		return evalBlock(s.CatchBody, catchEnv)
 
 	case *ast.FunctionDefine:
 		// Define on encounter too (covers non-top-level definitions).

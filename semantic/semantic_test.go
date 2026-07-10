@@ -51,6 +51,17 @@ func TestCheckModule(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "loop body may shadow iteration variable",
+			source:  "for x in [1] { var x = 2 print(x) }\n",
+			wantErr: false,
+		},
+		{
+			name:        "loop variable does not escape",
+			source:      "for x in [1] { print(x) }\nprint(x)\n",
+			wantErr:     true,
+			errContains: "undefined identifier: x",
+		},
+		{
 			name:        "return outside function",
 			source:      "return 1\n",
 			wantErr:     true,
