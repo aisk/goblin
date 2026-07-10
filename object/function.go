@@ -61,15 +61,10 @@ var _ Object = (*Function)(nil)
 var FunctionConstructorFn = &Function{Name: "Function", Fn: FunctionConstructor}
 
 func FunctionConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Function", args); err != nil {
+	ap := NewArgParser("Function", args)
+	f := ap.Func("value")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Function() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	f, ok := args.Positional[0].(*Function)
-	if !ok {
-		return nil, NewTypeError("Function() argument must be a function, not %T", args.Positional[0])
 	}
 	return f, nil
 }

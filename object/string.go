@@ -510,16 +510,12 @@ func (s String) GetAttr(name string) (Object, error) {
 var StrConstructorFn = &Function{Name: "Str", Fn: StrConstructor}
 
 func StrConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Str", args); err != nil {
+	ap := NewArgParser("Str", args)
+	value := ap.AnyOr("value", String(""))
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return String(""), nil
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Str() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	s, err := Repr(args.Positional[0])
+	s, err := Repr(value)
 	if err != nil {
 		return nil, err
 	}

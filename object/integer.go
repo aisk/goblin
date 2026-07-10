@@ -126,16 +126,12 @@ func (i Integer) GetAttr(name string) (Object, error) {
 var IntConstructorFn = &Function{Name: "Int", Fn: IntConstructor}
 
 func IntConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Int", args); err != nil {
+	ap := NewArgParser("Int", args)
+	value := ap.AnyOr("value", Integer(0))
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return Integer(0), nil
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Int() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	switch v := args.Positional[0].(type) {
+	switch v := value.(type) {
 	case Integer:
 		return v, nil
 	case Float:
@@ -152,6 +148,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, NewTypeError("Int() argument must be a string or a number, not %T", args.Positional[0])
+		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %T", value)
 	}
 }

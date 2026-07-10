@@ -56,6 +56,107 @@ func (d *Dict) Values(args CallArgs) (Object, error) {
 	return &List{Elements: values}, nil
 }
 
+func (d *Dict) Items(args CallArgs) (Object, error) {
+	if err := requireNoArgs("items", args); err != nil {
+		return nil, err
+	}
+	items := make([]Object, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		items = append(items, &List{Elements: []Object{entry.Key, entry.Value}})
+	}
+	return &List{Elements: items}, nil
+}
+
+func (d *Dict) Contains(args CallArgs) (Object, error) {
+	ap := NewArgParser("contains", args)
+	key := ap.Any("key")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	_, ok := d.Get(key)
+	return Bool(ok), nil
+}
+
+func (d *Dict) GetValue(args CallArgs) (Object, error) {
+	ap := NewArgParser("get", args)
+	key := ap.Any("key")
+	def := ap.AnyOr("default", Nil)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	if value, ok := d.Get(key); ok {
+		return value, nil
+	}
+	return def, nil
+}
+
+func (d *Dict) SetDefault(args CallArgs) (Object, error) {
+	ap := NewArgParser("set_default", args)
+	key := ap.Any("key")
+	def := ap.AnyOr("default", Nil)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	if value, ok := d.Get(key); ok {
+		return value, nil
+	}
+	d.Set(key, def)
+	return def, nil
+}
+
+func (d *Dict) Pop(args CallArgs) (Object, error) {
+	ap := NewArgParser("pop", args)
+	key := ap.Any("key")
+	def, hasDefault := ap.OptionalAny("default")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	encoded := key.String()
+	if entry, ok := d.Entries[encoded]; ok {
+		delete(d.Entries, encoded)
+		return entry.Value, nil
+	}
+	if hasDefault {
+		return def, nil
+	}
+	return nil, NewKeyError("key not found: %s", key.String())
+}
+
+func (d *Dict) Update(args CallArgs) (Object, error) {
+	ap := NewArgParser("update", args)
+	other := ap.Any("other")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	source, ok := other.(*Dict)
+	if !ok {
+		return nil, NewTypeError("update() argument 'other' must be Dict, got %T", other)
+	}
+	for _, entry := range source.Entries {
+		d.Set(entry.Key, entry.Value)
+	}
+	return d, nil
+}
+
+func (d *Dict) Clear(args CallArgs) (Object, error) {
+	if err := requireNoArgs("clear", args); err != nil {
+		return nil, err
+	}
+	d.Entries = make(map[string]DictEntry)
+	return d, nil
+}
+
+func (d *Dict) Copy(args CallArgs) (Object, error) {
+	if err := requireNoArgs("copy", args); err != nil {
+		return nil, err
+	}
+	result := NewDict()
+	for _, entry := range d.Entries {
+		result.Set(entry.Key, entry.Value)
+	}
+	return result, nil
+}
+
 func NewDict() *Dict {
 	return &Dict{
 		Entries: make(map[string]DictEntry),
@@ -148,6 +249,22 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 		return &Function{Name: "keys", Fn: d.Keys}, nil
 	case "values":
 		return &Function{Name: "values", Fn: d.Values}, nil
+	case "items":
+		return &Function{Name: "items", Fn: d.Items}, nil
+	case "contains":
+		return &Function{Name: "contains", Fn: d.Contains}, nil
+	case "get":
+		return &Function{Name: "get", Fn: d.GetValue}, nil
+	case "set_default":
+		return &Function{Name: "set_default", Fn: d.SetDefault}, nil
+	case "pop":
+		return &Function{Name: "pop", Fn: d.Pop}, nil
+	case "update":
+		return &Function{Name: "update", Fn: d.Update}, nil
+	case "clear":
+		return &Function{Name: "clear", Fn: d.Clear}, nil
+	case "copy":
+		return &Function{Name: "copy", Fn: d.Copy}, nil
 	case "constructor":
 		return DictConstructorFn, nil
 	default:

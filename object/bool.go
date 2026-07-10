@@ -99,16 +99,12 @@ func (b Bool) GetAttr(name string) (Object, error) {
 var BoolConstructorFn = &Function{Name: "Bool", Fn: BoolConstructor}
 
 func BoolConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Bool", args); err != nil {
+	ap := NewArgParser("Bool", args)
+	value := ap.AnyOr("value", False)
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return False, nil
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Bool() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	if args.Positional[0].Bool() {
+	if value.Bool() {
 		return True, nil
 	}
 	return False, nil

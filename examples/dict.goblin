@@ -32,3 +32,17 @@ print(count)
 # Dict constructor
 print(Dict(a=1))
 print(Dict())
+
+var options = {"host": "localhost"}
+print(options.contains(key="host"))
+print(options.get("port", default=8080))
+print(options.set_default(key="port", default=3000))
+print(options.get("port"))
+print(options.pop(key="port"))
+print(options.get("port"))
+options.update(other={"debug": true})
+print(options.get("debug"))
+print(options.items().size())
+var options_copy = options.copy()
+options_copy.clear()
+print(options_copy.size())

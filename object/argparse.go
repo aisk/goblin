@@ -103,6 +103,12 @@ func (p *ArgParser) AnyOr(name string, def Object) Object {
 	return v
 }
 
+// OptionalAny returns an optional Object and whether it was explicitly
+// supplied. It preserves the distinction between omission and passing nil.
+func (p *ArgParser) OptionalAny(name string) (Object, bool) {
+	return p.optional(name)
+}
+
 // argValue extracts a required argument, asserting it has the concrete type T
 // and recording a type error (naming the expected type want) on mismatch. It
 // backs the typed accessor methods below; it is a package-level function only

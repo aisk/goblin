@@ -28,7 +28,7 @@ print(list.size())
 print(list.pop())
 print(list)
 
-# Test first() and last()
+# first() and last() inspect without removing; pop() removes an element.
 var nums = [1, 2, 3, 4, 5]
 print(nums.first())
 print(nums.last())
@@ -55,3 +55,20 @@ print(empty2.join(","))
 print(List([1, 2, 3]))
 print(List("abc"))
 print(List())
+print(List(iterable="xy"))
+
+# Collection operations support named/default arguments.
+var values = [1, 2, 2, 3]
+print(values.contains(value=2))
+print(values.count(2))
+print(values.index(value=2, start=2))
+print(values.remove(2))
+values.insert(index=1, value=9)
+print(values)
+print(values.pop(index=0))
+print(values.pop())
+values.reverse()
+print(values)
+var copied = values.copy()
+copied.clear()
+print(copied)

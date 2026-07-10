@@ -278,16 +278,12 @@ func WrapNativeError(fallback *Error, message string, err error) *Error {
 var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
 
 func ErrorConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Error", args); err != nil {
+	ap := NewArgParser("Error", args)
+	message := ap.AnyOr("message", String(""))
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return NewError(""), nil
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Error() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	return NewError(args.Positional[0].String()), nil
+	return NewError(message.String()), nil
 }
 
 // Raise validates the value thrown by a `raise` statement. Only Error values

@@ -30,26 +30,27 @@ func (l *List) Push(args CallArgs) (Object, error) {
 }
 
 func (l *List) Pop(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("pop", args); err != nil {
+	ap := NewArgParser("pop", args)
+	index := ap.IntOr("index", -1)
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("pop() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
 		return nil, NewIndexError("pop from empty list")
 	}
-	last := l.Elements[len(l.Elements)-1]
+	i, err := listIndex("pop", index, len(l.Elements))
+	if err != nil {
+		return nil, err
+	}
+	value := l.Elements[i]
+	copy(l.Elements[i:], l.Elements[i+1:])
 	l.Elements = l.Elements[:len(l.Elements)-1]
-	return last, nil
+	return value, nil
 }
 
 func (l *List) First(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("first", args); err != nil {
+	if err := requireNoArgs("first", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("first() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
 		return nil, NewIndexError("first() called on empty list")
@@ -58,16 +59,24 @@ func (l *List) First(args CallArgs) (Object, error) {
 }
 
 func (l *List) Last(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("last", args); err != nil {
+	if err := requireNoArgs("last", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("last() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if len(l.Elements) == 0 {
 		return nil, NewIndexError("last() called on empty list")
 	}
 	return l.Elements[len(l.Elements)-1], nil
+}
+
+func listIndex(fn string, index Integer, size int) (int, error) {
+	i := int(index)
+	if i < 0 {
+		i += size
+	}
+	if i < 0 || i >= size {
+		return 0, NewIndexError("%s() index out of range: %d", fn, int64(index))
+	}
+	return i, nil
 }
 
 func (l *List) Join(args CallArgs) (Object, error) {
@@ -81,6 +90,126 @@ func (l *List) Join(args CallArgs) (Object, error) {
 		elements[i] = elem.String()
 	}
 	return String(strings.Join(elements, string(sep))), nil
+}
+
+func (l *List) Insert(args CallArgs) (Object, error) {
+	ap := NewArgParser("insert", args)
+	index, value := ap.Int("index"), ap.Any("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	i := int(index)
+	if i < 0 {
+		i += len(l.Elements)
+	}
+	if i < 0 {
+		i = 0
+	}
+	if i > len(l.Elements) {
+		i = len(l.Elements)
+	}
+	l.Elements = append(l.Elements, nil)
+	copy(l.Elements[i+1:], l.Elements[i:])
+	l.Elements[i] = value
+	return l, nil
+}
+
+func objectsEqual(a, b Object) bool {
+	cmp, err := a.Compare(b)
+	return err == nil && cmp == 0
+}
+
+func (l *List) Contains(args CallArgs) (Object, error) {
+	ap := NewArgParser("contains", args)
+	value := ap.Any("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	for _, elem := range l.Elements {
+		if objectsEqual(elem, value) {
+			return True, nil
+		}
+	}
+	return False, nil
+}
+
+func (l *List) Count(args CallArgs) (Object, error) {
+	ap := NewArgParser("count", args)
+	value := ap.Any("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	count := 0
+	for _, elem := range l.Elements {
+		if objectsEqual(elem, value) {
+			count++
+		}
+	}
+	return Integer(count), nil
+}
+
+func (l *List) IndexOf(args CallArgs) (Object, error) {
+	ap := NewArgParser("index", args)
+	value := ap.Any("value")
+	start := ap.IntOr("start", 0)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	i := int(start)
+	if i < 0 {
+		i += len(l.Elements)
+	}
+	if i < 0 {
+		i = 0
+	}
+	for ; i < len(l.Elements); i++ {
+		if objectsEqual(l.Elements[i], value) {
+			return Integer(i), nil
+		}
+	}
+	return Integer(-1), nil
+}
+
+func (l *List) Remove(args CallArgs) (Object, error) {
+	ap := NewArgParser("remove", args)
+	value := ap.Any("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	for i, elem := range l.Elements {
+		if objectsEqual(elem, value) {
+			copy(l.Elements[i:], l.Elements[i+1:])
+			l.Elements = l.Elements[:len(l.Elements)-1]
+			return True, nil
+		}
+	}
+	return False, nil
+}
+
+func (l *List) Reverse(args CallArgs) (Object, error) {
+	if err := requireNoArgs("reverse", args); err != nil {
+		return nil, err
+	}
+	for i, j := 0, len(l.Elements)-1; i < j; i, j = i+1, j-1 {
+		l.Elements[i], l.Elements[j] = l.Elements[j], l.Elements[i]
+	}
+	return l, nil
+}
+
+func (l *List) Clear(args CallArgs) (Object, error) {
+	if err := requireNoArgs("clear", args); err != nil {
+		return nil, err
+	}
+	l.Elements = nil
+	return l, nil
+}
+
+func (l *List) Copy(args CallArgs) (Object, error) {
+	if err := requireNoArgs("copy", args); err != nil {
+		return nil, err
+	}
+	elements := append([]Object(nil), l.Elements...)
+	return &List{Elements: elements}, nil
 }
 
 func (l *List) String() string {
@@ -190,6 +319,22 @@ func (l *List) GetAttr(name string) (Object, error) {
 		return &Function{Name: "last", Fn: l.Last}, nil
 	case "join":
 		return &Function{Name: "join", Fn: l.Join}, nil
+	case "insert":
+		return &Function{Name: "insert", Fn: l.Insert}, nil
+	case "contains":
+		return &Function{Name: "contains", Fn: l.Contains}, nil
+	case "count":
+		return &Function{Name: "count", Fn: l.Count}, nil
+	case "index":
+		return &Function{Name: "index", Fn: l.IndexOf}, nil
+	case "remove":
+		return &Function{Name: "remove", Fn: l.Remove}, nil
+	case "reverse":
+		return &Function{Name: "reverse", Fn: l.Reverse}, nil
+	case "clear":
+		return &Function{Name: "clear", Fn: l.Clear}, nil
+	case "copy":
+		return &Function{Name: "copy", Fn: l.Copy}, nil
 	case "constructor":
 		return ListConstructorFn, nil
 	default:
@@ -200,16 +345,15 @@ func (l *List) GetAttr(name string) (Object, error) {
 var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}
 
 func ListConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("List", args); err != nil {
+	ap := NewArgParser("List", args)
+	iterable, supplied := ap.OptionalAny("iterable")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
+	if !supplied {
 		return &List{Elements: []Object{}}, nil
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("List() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	elements, err := args.Positional[0].Iter()
+	elements, err := iterable.Iter()
 	if err != nil {
 		return nil, NewTypeError("List() argument is not iterable: %s", err)
 	}

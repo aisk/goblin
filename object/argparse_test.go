@@ -82,6 +82,18 @@ func TestArgParserOptionalDefault(t *testing.T) {
 	}
 }
 
+func TestArgParserOptionalAnyDistinguishesOmittedAndNil(t *testing.T) {
+	p := NewArgParser("f", CallArgs{})
+	if value, ok := p.OptionalAny("value"); ok || value != nil {
+		t.Fatalf("omitted OptionalAny = (%v, %v), want (nil, false)", value, ok)
+	}
+
+	p = NewArgParser("f", CallArgs{Positional: Args{Nil}})
+	if value, ok := p.OptionalAny("value"); !ok || value != Nil {
+		t.Fatalf("explicit nil OptionalAny = (%v, %v), want (Nil, true)", value, ok)
+	}
+}
+
 func TestArgParserRest(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{Integer(1), Integer(2), Integer(3)}})
 	first := p.Int("first")

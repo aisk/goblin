@@ -126,16 +126,12 @@ func (f Float) GetAttr(name string) (Object, error) {
 var FloatConstructorFn = &Function{Name: "Float", Fn: FloatConstructor}
 
 func FloatConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Float", args); err != nil {
+	ap := NewArgParser("Float", args)
+	value := ap.AnyOr("value", Float(0))
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
-		return Float(0), nil
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("Float() takes at most 1 argument, got %d", len(args.Positional))
-	}
-	switch v := args.Positional[0].(type) {
+	switch v := value.(type) {
 	case Float:
 		return v, nil
 	case Integer:
@@ -152,6 +148,6 @@ func FloatConstructor(args CallArgs) (Object, error) {
 		}
 		return Float(0), nil
 	default:
-		return nil, NewTypeError("Float() argument must be a string or a number, not %T", args.Positional[0])
+		return nil, NewTypeError("Float() argument 'value' must be a string or a number, got %T", value)
 	}
 }

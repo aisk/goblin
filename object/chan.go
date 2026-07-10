@@ -1,6 +1,5 @@
 package object
 
-
 // Chan wraps a Go channel of Objects, exposing send/recv/close to Goblin.
 // Element typing is dynamic: any Object can flow through the channel.
 type Chan struct {
@@ -107,23 +106,13 @@ var ChanConstructorFn = &Function{Name: "Chan", Fn: ChanConstructor}
 // ChanConstructor builds a Chan. With no argument it is unbuffered; with a
 // single Integer argument that integer is the buffer size.
 func ChanConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Chan", args); err != nil {
+	ap := NewArgParser("Chan", args)
+	size := ap.IntOr("size", 0)
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	size := 0
-	switch len(args.Positional) {
-	case 0:
-	case 1:
-		n, ok := args.Positional[0].(Integer)
-		if !ok {
-			return nil, NewTypeError("Chan() size must be an Integer, got %T", args.Positional[0])
-		}
-		if n < 0 {
-			return nil, NewValueError("Chan() size must be non-negative, got %d", int64(n))
-		}
-		size = int(n)
-	default:
-		return nil, NewTypeError("Chan() takes at most 1 argument, got %d", len(args.Positional))
+	if size < 0 {
+		return nil, NewValueError("Chan() size must be non-negative, got %d", int64(size))
 	}
-	return &Chan{ch: make(chan Object, size)}, nil
+	return &Chan{ch: make(chan Object, int(size))}, nil
 }
