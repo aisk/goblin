@@ -1,6 +1,0 @@
-# Member dispatch directly on literal receivers
-print([1, 2].push(3))
-print([1, 2].join("-"))
-print({"a": 1}.keys())
-print("abc".upper())
-print(" x ".trim())

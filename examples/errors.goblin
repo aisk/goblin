@@ -82,3 +82,44 @@ try {
     print(e.is(ParseError))
     print(e.is(ValueError))
 }
+
+# If no error is raised, the catch block is skipped.
+try {
+    print("no error here")
+} catch e {
+    print("should not print")
+}
+
+# Control flow inside try still belongs to the enclosing function.
+func try_return() {
+    try {
+        return "returned"
+    } catch e {
+        return "caught"
+    }
+}
+print(try_return())
+
+# A nested catch handles its error without involving the outer catch.
+try {
+    try {
+        raise Error("inner")
+    } catch e {
+        print("inner caught:", e)
+    }
+    print("after inner")
+} catch e {
+    print("outer should not print")
+}
+
+# An error can be raised again for an outer catch.
+try {
+    try {
+        raise Error("original")
+    } catch e {
+        print("raising again")
+        raise e
+    }
+} catch e {
+    print("outer caught:", e)
+}

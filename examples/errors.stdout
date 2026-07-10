@@ -20,3 +20,9 @@ true
 true
 true
 true
+no error here
+returned
+inner caught: inner
+after inner
+raising again
+outer caught: original

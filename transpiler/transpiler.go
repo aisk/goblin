@@ -1479,7 +1479,7 @@ func (ctx *transpileContext) transpileTryCatch(tc *ast.TryCatch, onError errHand
 	}
 
 	catchBlock := []jen.Code{
-		jen.Id(tc.CatchVar).Op(":=").Qual(pathObject, "ExcValue").Call(jen.Id(excVar)),
+		jen.Id(tc.CatchVar).Op(":=").Qual(pathObject, "ErrorValue").Call(jen.Id(excVar)),
 		jen.Id("_").Op("=").Id(tc.CatchVar),
 	}
 	catchBlock = append(catchBlock, catchBody...)

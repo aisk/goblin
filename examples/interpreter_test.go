@@ -32,7 +32,7 @@ func TestInterpreterExamples(t *testing.T) {
 			expectedFile := baseName + ".stdout"
 			expected, err := os.ReadFile(expectedFile)
 			if err != nil {
-				t.Skipf("no expected stdout (%s): %v", expectedFile, err)
+				t.Fatalf("read expected stdout (%s): %v", expectedFile, err)
 			}
 
 			stdout := runInterpreter(t, file)

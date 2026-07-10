@@ -235,13 +235,13 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			return nil
 		}
 		// Control-flow signals must pass through untouched; only genuine
-		// exceptions (raised Errors and runtime errors) are caught.
+		// errors (raised Errors and runtime errors) are caught.
 		switch err.(type) {
 		case breakSignal, continueSignal, returnSignal:
 			return err
 		}
 		catchEnv := NewEnvironment(env)
-		catchEnv.Define(s.CatchVar, object.ExcValue(err))
+		catchEnv.Define(s.CatchVar, object.ErrorValue(err))
 		return evalStatements(s.CatchBody, catchEnv)
 
 	case *ast.FunctionDefine:

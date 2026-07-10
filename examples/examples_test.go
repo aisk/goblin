@@ -95,22 +95,16 @@ func writeAndRun(t *testing.T, tempDir, baseName, goCode string) (string, string
 }
 
 // checkOutput compares actual output against the expected file.
-// If autoCreate is true and the file doesn't exist, it creates the file with actual output.
-// If autoCreate is false and the file doesn't exist, it assumes expected output is empty.
-func checkOutput(t *testing.T, examplesDir, baseName, suffix, actual string, autoCreate bool) {
+// A stdout golden file is required. A missing stderr file means empty stderr.
+func checkOutput(t *testing.T, examplesDir, baseName, suffix, actual string, required bool) {
 	t.Helper()
 
 	expectedFile := filepath.Join(examplesDir, baseName+suffix)
 
 	if _, err := os.Stat(expectedFile); os.IsNotExist(err) {
-		if autoCreate {
-			if err := os.WriteFile(expectedFile, []byte(actual), 0644); err != nil {
-				t.Fatalf("failed to create %s file: %v", suffix, err)
-			}
-			t.Logf("Created %s%s with actual output", baseName, suffix)
-			return
+		if required {
+			t.Fatalf("missing expected output file: %s", expectedFile)
 		}
-		// No file and no autoCreate: expect empty output
 		if normalize(actual) != "" {
 			t.Errorf("%s mismatch (no expected file, assuming empty):\nActual:\n%s", suffix, actual)
 		}

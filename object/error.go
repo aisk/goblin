@@ -388,12 +388,12 @@ func Raise(v Object) error {
 	return NewTypeError("raise expects an Error, got: %s", v.String())
 }
 
-// ExcValue extracts the Goblin exception value carried by err, unwrapping any
+// ErrorValue extracts the Goblin Error value carried by err, unwrapping any
 // stack/cause wrappers added while the error propagated up the call stack.
 // Errors that did not originate from `raise`
 // (such as a runtime "division by zero") are surfaced as an *Error, so `catch`
 // always binds an Error.
-func ExcValue(err error) Object {
+func ErrorValue(err error) Object {
 	for e := err; e != nil; e = errors.Unwrap(e) {
 		if obj, ok := e.(Object); ok {
 			return obj
