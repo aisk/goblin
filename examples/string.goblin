@@ -21,9 +21,10 @@ print("hello".has_prefix("lo"))
 print("hello".has_suffix("lo"))
 print("hello".has_suffix("he"))
 
-# trim / trim_space
-print("  hello  ".trim_space())
+# trim defaults to trimming Unicode whitespace
 print("xyhelloxy".trim("xy"))
+print("  hello  ".trim())
+print("[" + "  hello  ".trim_left() + "]")
 
 # contains
 print("hello".contains("ell"))
@@ -35,3 +36,27 @@ print(Str(3.14))
 print(Str(true))
 print(Str())
 print(Str(nil))
+
+# Go strings-style search and comparison
+print("banana".count("an"))
+print("Goblin".equal_fold(other="gObLiN"))
+print("日本語-日本".index("語"))
+print("日本語-日本".last_index("日"))
+print("goblin".contains_any(chars="xyzl"))
+
+# replace defaults to all occurrences; count can limit replacements
+print("one one one".replace("one", "two"))
+print("one one one".replace(old="one", new="two", count=2))
+
+# count combines Split with SplitN, and SplitAfter with SplitAfterN
+print("a,b,c".split(","))
+print("a,b,c".split(sep=",", count=2))
+print("a,b,c".split_after(sep=","))
+print("a,b,c".split_after(sep=",", count=2))
+print("  one\ttwo\nthree  ".fields())
+
+# trimming, cutting, and repetition
+print("xyhelloxy".trim_left("xy"))
+print("hello.go".trim_suffix(suffix=".go"))
+print("key=value".cut("="))
+print("go".repeat(count=3))

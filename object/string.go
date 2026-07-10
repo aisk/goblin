@@ -2,11 +2,21 @@ package object
 
 import (
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 type String string
 
 var _ Object = String("")
+
+type trimDirection uint8
+
+const (
+	trimBoth trimDirection = iota
+	trimLeft
+	trimRight
+)
 
 func (s String) Size(args CallArgs) (Object, error) {
 	if err := RequireNoKeyword("size", args); err != nil {
@@ -58,21 +68,38 @@ func (s String) HasSuffix(args CallArgs) (Object, error) {
 
 func (s String) Trim(args CallArgs) (Object, error) {
 	ap := NewArgParser("trim", args)
-	cutset := ap.Str("cutset")
+	cutset := ap.AnyOr("cutset", Nil)
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	return String(strings.Trim(string(s), string(cutset))), nil
+	return s.trimWith("trim", cutset, trimBoth)
 }
 
-func (s String) TrimSpace(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("trim_space", args); err != nil {
-		return nil, err
+func (s String) trimWith(name string, cutset Object, direction trimDirection) (Object, error) {
+	value := string(s)
+	if _, space := cutset.(Unit); space {
+		switch direction {
+		case trimBoth:
+			return String(strings.TrimSpace(value)), nil
+		case trimLeft:
+			return String(strings.TrimLeftFunc(value, unicode.IsSpace)), nil
+		case trimRight:
+			return String(strings.TrimRightFunc(value, unicode.IsSpace)), nil
+		}
 	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("trim_space() takes exactly 0 arguments, got %d", len(args.Positional))
+	chars, ok := cutset.(String)
+	if !ok {
+		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %T", name, cutset)
 	}
-	return String(strings.TrimSpace(string(s))), nil
+	switch direction {
+	case trimBoth:
+		return String(strings.Trim(value, string(chars))), nil
+	case trimLeft:
+		return String(strings.TrimLeft(value, string(chars))), nil
+	case trimRight:
+		return String(strings.TrimRight(value, string(chars))), nil
+	}
+	panic("invalid trim direction")
 }
 
 func (s String) Contains(args CallArgs) (Object, error) {
@@ -82,6 +109,247 @@ func (s String) Contains(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	return Bool(strings.Contains(string(s), string(substr))), nil
+}
+
+func (s String) ContainsAny(args CallArgs) (Object, error) {
+	ap := NewArgParser("contains_any", args)
+	chars := ap.Str("chars")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return Bool(strings.ContainsAny(string(s), string(chars))), nil
+}
+
+func (s String) Count(args CallArgs) (Object, error) {
+	ap := NewArgParser("count", args)
+	substr := ap.Str("substr")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return Integer(strings.Count(string(s), string(substr))), nil
+}
+
+func (s String) EqualFold(args CallArgs) (Object, error) {
+	ap := NewArgParser("equal_fold", args)
+	other := ap.Str("other")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return Bool(strings.EqualFold(string(s), string(other))), nil
+}
+
+func (s String) CompareText(args CallArgs) (Object, error) {
+	ap := NewArgParser("compare", args)
+	other := ap.Str("other")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return Integer(strings.Compare(string(s), string(other))), nil
+}
+
+func (s String) IndexOf(args CallArgs) (Object, error) {
+	ap := NewArgParser("index", args)
+	substr := ap.Str("substr")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return runeIndex(string(s), strings.Index(string(s), string(substr))), nil
+}
+
+func (s String) LastIndex(args CallArgs) (Object, error) {
+	ap := NewArgParser("last_index", args)
+	substr := ap.Str("substr")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return runeIndex(string(s), strings.LastIndex(string(s), string(substr))), nil
+}
+
+func (s String) IndexAny(args CallArgs) (Object, error) {
+	ap := NewArgParser("index_any", args)
+	chars := ap.Str("chars")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return runeIndex(string(s), strings.IndexAny(string(s), string(chars))), nil
+}
+
+func (s String) LastIndexAny(args CallArgs) (Object, error) {
+	ap := NewArgParser("last_index_any", args)
+	chars := ap.Str("chars")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return runeIndex(string(s), strings.LastIndexAny(string(s), string(chars))), nil
+}
+
+// Go's strings indexes are byte offsets. Goblin strings iterate and size in
+// Unicode code points, so string indexes consistently use rune offsets.
+func runeIndex(s string, byteIndex int) Integer {
+	if byteIndex < 0 {
+		return -1
+	}
+	return Integer(utf8.RuneCountInString(s[:byteIndex]))
+}
+
+func (s String) Repeat(args CallArgs) (Object, error) {
+	ap := NewArgParser("repeat", args)
+	count := ap.Int("count")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	if count < 0 {
+		return nil, NewValueError("repeat() count must not be negative")
+	}
+	return String(strings.Repeat(string(s), int(count))), nil
+}
+
+// Replace combines strings.Replace and strings.ReplaceAll. count defaults to
+// -1, meaning all matches, and may be supplied by name.
+func (s String) Replace(args CallArgs) (Object, error) {
+	ap := NewArgParser("replace", args)
+	old, newValue := ap.Str("old"), ap.Str("new")
+	count := ap.IntOr("count", -1)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return String(strings.Replace(string(s), string(old), string(newValue), int(count))), nil
+}
+
+func stringsList(values []string) Object {
+	elements := make([]Object, len(values))
+	for i, value := range values {
+		elements[i] = String(value)
+	}
+	return &List{Elements: elements}
+}
+
+// Split combines strings.Split and strings.SplitN. count=-1 keeps all pieces.
+func (s String) Split(args CallArgs) (Object, error) {
+	ap := NewArgParser("split", args)
+	sep := ap.Str("sep")
+	count := ap.IntOr("count", -1)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringsList(strings.SplitN(string(s), string(sep), int(count))), nil
+}
+
+// SplitAfter combines strings.SplitAfter and strings.SplitAfterN.
+func (s String) SplitAfter(args CallArgs) (Object, error) {
+	ap := NewArgParser("split_after", args)
+	sep := ap.Str("sep")
+	count := ap.IntOr("count", -1)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringsList(strings.SplitAfterN(string(s), string(sep), int(count))), nil
+}
+
+func (s String) Fields(args CallArgs) (Object, error) {
+	if err := noStringArgs("fields", args); err != nil {
+		return nil, err
+	}
+	return stringsList(strings.Fields(string(s))), nil
+}
+
+func (s String) Title(args CallArgs) (Object, error) {
+	if err := noStringArgs("title", args); err != nil {
+		return nil, err
+	}
+	return String(strings.Title(string(s))), nil //nolint:staticcheck -- mirrors strings.Title
+}
+
+func (s String) ToTitle(args CallArgs) (Object, error) {
+	if err := noStringArgs("to_title", args); err != nil {
+		return nil, err
+	}
+	return String(strings.ToTitle(string(s))), nil
+}
+
+func (s String) ToValidUTF8(args CallArgs) (Object, error) {
+	ap := NewArgParser("to_valid_utf8", args)
+	replacement := ap.StrOr("replacement", "")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return String(strings.ToValidUTF8(string(s), string(replacement))), nil
+}
+
+func (s String) TrimLeft(args CallArgs) (Object, error) {
+	ap := NewArgParser("trim_left", args)
+	cutset := ap.AnyOr("cutset", Nil)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return s.trimWith("trim_left", cutset, trimLeft)
+}
+
+func (s String) TrimRight(args CallArgs) (Object, error) {
+	ap := NewArgParser("trim_right", args)
+	cutset := ap.AnyOr("cutset", Nil)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return s.trimWith("trim_right", cutset, trimRight)
+}
+
+func (s String) TrimPrefix(args CallArgs) (Object, error) {
+	ap := NewArgParser("trim_prefix", args)
+	prefix := ap.Str("prefix")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return String(strings.TrimPrefix(string(s), string(prefix))), nil
+}
+
+func (s String) TrimSuffix(args CallArgs) (Object, error) {
+	ap := NewArgParser("trim_suffix", args)
+	suffix := ap.Str("suffix")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return String(strings.TrimSuffix(string(s), string(suffix))), nil
+}
+
+func (s String) Cut(args CallArgs) (Object, error) {
+	ap := NewArgParser("cut", args)
+	sep := ap.Str("sep")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	before, after, found := strings.Cut(string(s), string(sep))
+	return &List{Elements: []Object{String(before), String(after), Bool(found)}}, nil
+}
+
+func (s String) CutPrefix(args CallArgs) (Object, error) {
+	ap := NewArgParser("cut_prefix", args)
+	prefix := ap.Str("prefix")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	value, found := strings.CutPrefix(string(s), string(prefix))
+	return &List{Elements: []Object{String(value), Bool(found)}}, nil
+}
+
+func (s String) CutSuffix(args CallArgs) (Object, error) {
+	ap := NewArgParser("cut_suffix", args)
+	suffix := ap.Str("suffix")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	value, found := strings.CutSuffix(string(s), string(suffix))
+	return &List{Elements: []Object{String(value), Bool(found)}}, nil
+}
+
+func noStringArgs(name string, args CallArgs) error {
+	if err := RequireNoKeyword(name, args); err != nil {
+		return err
+	}
+	if len(args.Positional) != 0 {
+		return NewTypeError("%s() takes exactly 0 arguments, got %d", name, len(args.Positional))
+	}
+	return nil
 }
 
 func (s String) String() string {
@@ -184,10 +452,54 @@ func (s String) GetAttr(name string) (Object, error) {
 		return &Function{Name: "has_suffix", Fn: s.HasSuffix}, nil
 	case "trim":
 		return &Function{Name: "trim", Fn: s.Trim}, nil
-	case "trim_space":
-		return &Function{Name: "trim_space", Fn: s.TrimSpace}, nil
 	case "contains":
 		return &Function{Name: "contains", Fn: s.Contains}, nil
+	case "contains_any":
+		return &Function{Name: name, Fn: s.ContainsAny}, nil
+	case "count":
+		return &Function{Name: name, Fn: s.Count}, nil
+	case "equal_fold":
+		return &Function{Name: name, Fn: s.EqualFold}, nil
+	case "compare":
+		return &Function{Name: name, Fn: s.CompareText}, nil
+	case "index":
+		return &Function{Name: name, Fn: s.IndexOf}, nil
+	case "last_index":
+		return &Function{Name: name, Fn: s.LastIndex}, nil
+	case "index_any":
+		return &Function{Name: name, Fn: s.IndexAny}, nil
+	case "last_index_any":
+		return &Function{Name: name, Fn: s.LastIndexAny}, nil
+	case "repeat":
+		return &Function{Name: name, Fn: s.Repeat}, nil
+	case "replace":
+		return &Function{Name: name, Fn: s.Replace}, nil
+	case "split":
+		return &Function{Name: name, Fn: s.Split}, nil
+	case "split_after":
+		return &Function{Name: name, Fn: s.SplitAfter}, nil
+	case "fields":
+		return &Function{Name: name, Fn: s.Fields}, nil
+	case "title":
+		return &Function{Name: name, Fn: s.Title}, nil
+	case "to_title":
+		return &Function{Name: name, Fn: s.ToTitle}, nil
+	case "to_valid_utf8":
+		return &Function{Name: name, Fn: s.ToValidUTF8}, nil
+	case "trim_left":
+		return &Function{Name: name, Fn: s.TrimLeft}, nil
+	case "trim_right":
+		return &Function{Name: name, Fn: s.TrimRight}, nil
+	case "trim_prefix":
+		return &Function{Name: name, Fn: s.TrimPrefix}, nil
+	case "trim_suffix":
+		return &Function{Name: name, Fn: s.TrimSuffix}, nil
+	case "cut":
+		return &Function{Name: name, Fn: s.Cut}, nil
+	case "cut_prefix":
+		return &Function{Name: name, Fn: s.CutPrefix}, nil
+	case "cut_suffix":
+		return &Function{Name: name, Fn: s.CutSuffix}, nil
 	case "constructor":
 		return StrConstructorFn, nil
 	default:

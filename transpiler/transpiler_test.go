@@ -57,8 +57,8 @@ func TestTranspileMemberCallUsesGetAttr(t *testing.T) {
 		},
 		{
 			name:     "string literal",
-			source:   "print(\" x \".trim_space())\n",
-			wantAttr: `.GetAttr("trim_space")`,
+			source:   "print(\" x \".trim())\n",
+			wantAttr: `.GetAttr("trim")`,
 		},
 		{
 			name:     "variable receiver",
