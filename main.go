@@ -31,6 +31,7 @@ var buildExeCmd = &cobra.Command{
 	Short: "Compile a Goblin source file to a native executable",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		sourceFile := args[0]
 
 		l, err := lexer.NewLexerFile(sourceFile)
@@ -94,6 +95,7 @@ var runCmd = &cobra.Command{
 	Short: "Interpret a Goblin source file directly (tree-walking interpreter)",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		sourceFile := args[0]
 
 		l, err := lexer.NewLexerFile(sourceFile)
@@ -123,6 +125,7 @@ var replCmd = &cobra.Command{
 	Short: "Start an interactive Goblin REPL",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		cmd.SilenceUsage = true
 		return runREPL()
 	},
 }
