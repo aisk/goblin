@@ -512,6 +512,13 @@ func (s String) GetAttr(name string) (Object, error) {
 		return &Function{Name: name, Fn: s.CutPrefix}, nil
 	case "cut_suffix":
 		return &Function{Name: name, Fn: s.CutSuffix}, nil
+	case "encode":
+		return &Function{Name: name, Fn: func(args CallArgs) (Object, error) {
+			if err := requireNoArgs("encode", args); err != nil {
+				return nil, err
+			}
+			return NewBytes([]byte(s)), nil
+		}}, nil
 	case "constructor":
 		return StrConstructorFn, nil
 	default:

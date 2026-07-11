@@ -39,11 +39,10 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 		return object.String(r.resp.Status), nil
 	case "header":
 		return NewHeader(r.resp.Header), nil
+	case "body":
+		return object.NewBytes(r.body), nil
 	case "json":
 		return &object.Function{Name: "json", Fn: r.json}, nil
-	// TODO: expose "body" once goblin gains a reader/bytes type; the raw
-	// response bytes are intentionally not surfaced yet. Until then, json()
-	// is the way to read the response payload.
 	default:
 		return nil, object.NewAttributeError("Response has no attribute '%s'", name)
 	}

@@ -36,6 +36,7 @@ var BuiltinsModule = &object.Module{
 		"Int":                 object.IntConstructorFn,
 		"Float":               object.FloatConstructorFn,
 		"Str":                 object.StrConstructorFn,
+		"Bytes":               object.BytesConstructorFn,
 		"Bool":                object.BoolConstructorFn,
 		"List":                object.ListConstructorFn,
 		"Dict":                object.DictConstructorFn,

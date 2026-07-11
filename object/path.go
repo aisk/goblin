@@ -132,8 +132,12 @@ func (p *Path) GetAttr(name string) (Object, error) {
 		return &Function{Name: "resolve", Fn: p.Resolve}, nil
 	case "read_text":
 		return &Function{Name: "read_text", Fn: p.ReadText}, nil
+	case "read_bytes":
+		return &Function{Name: "read_bytes", Fn: p.ReadBytes}, nil
 	case "write_text":
 		return &Function{Name: "write_text", Fn: p.WriteText}, nil
+	case "write_bytes":
+		return &Function{Name: "write_bytes", Fn: p.WriteBytes}, nil
 	case "iterdir":
 		return &Function{Name: "iterdir", Fn: p.IterDir}, nil
 	case "glob":
@@ -364,6 +368,17 @@ func (p *Path) ReadText(args CallArgs) (Object, error) {
 	return String(data), nil
 }
 
+func (p *Path) ReadBytes(args CallArgs) (Object, error) {
+	if err := requireNoArgs("read_bytes", args); err != nil {
+		return nil, err
+	}
+	data, err := os.ReadFile(p.raw)
+	if err != nil {
+		return nil, WrapNativeError(IOError, "read_bytes() failed", err)
+	}
+	return NewBytes(data), nil
+}
+
 func (p *Path) WriteText(args CallArgs) (Object, error) {
 	ap := NewArgParser("write_text", args)
 	data := ap.Str("data")
@@ -372,6 +387,22 @@ func (p *Path) WriteText(args CallArgs) (Object, error) {
 	}
 	if err := os.WriteFile(p.raw, []byte(data), 0644); err != nil {
 		return nil, WrapNativeError(IOError, "write_text() failed", err)
+	}
+	return Nil, nil
+}
+
+func (p *Path) WriteBytes(args CallArgs) (Object, error) {
+	ap := NewArgParser("write_bytes", args)
+	data := ap.Any("data")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	b, ok := data.(Bytes)
+	if !ok {
+		return nil, NewTypeError("write_bytes() argument 'data' must be Bytes, got %T", data)
+	}
+	if err := os.WriteFile(p.raw, []byte(b), 0644); err != nil {
+		return nil, WrapNativeError(IOError, "write_bytes() failed", err)
 	}
 	return Nil, nil
 }
