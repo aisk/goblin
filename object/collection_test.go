@@ -110,7 +110,7 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		{IntConstructorFn, CallArgs{Keyword: map[string]Object{"value": String("12")}}, "12"},
 		{FloatConstructorFn, CallArgs{Keyword: map[string]Object{"value": Integer(2)}}, "2"},
 		{BoolConstructorFn, CallArgs{Keyword: map[string]Object{"value": String("")}}, "false"},
-		{ListConstructorFn, CallArgs{Keyword: map[string]Object{"iterable": String("ab")}}, "[a, b]"},
+		{ListConstructorFn, CallArgs{Keyword: map[string]Object{"iterable": String("ab")}}, `["a", "b"]`},
 	}
 	for _, tt := range tests {
 		got, err := tt.fn.Call(tt.args)
@@ -120,6 +120,22 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		if got.String() != tt.want {
 			t.Fatalf("%s() = %s, want %s", tt.fn.Name, got, tt.want)
 		}
+	}
+}
+
+func TestCollectionStringQuotesStringLiterals(t *testing.T) {
+	list := &List{Elements: []Object{
+		String("hello\nworld"),
+		&List{Elements: []Object{String(`say "hi"`)}},
+	}}
+	if got, want := list.String(), `["hello\nworld", ["say \"hi\""]]`; got != want {
+		t.Fatalf("List.String() = %q, want %q", got, want)
+	}
+
+	dict := NewDict()
+	dict.Set(String("name"), String("Goblin"))
+	if got, want := dict.String(), `{"name": "Goblin"}`; got != want {
+		t.Fatalf("Dict.String() = %q, want %q", got, want)
 	}
 }
 

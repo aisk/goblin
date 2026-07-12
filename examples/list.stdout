@@ -19,9 +19,9 @@ hello-world
 1,a,true
 
 [1, 2, 3]
-[a, b, c]
+["a", "b", "c"]
 []
-[x, y]
+["x", "y"]
 true
 2
 2

@@ -17,6 +17,16 @@ type Object interface {
 	Attributes() []string
 }
 
+// literal returns an object's representation inside a collection literal.
+// Strings need quoting; other objects already provide an appropriate String
+// representation, including nested collections.
+func literal(obj Object) string {
+	if s, ok := obj.(String); ok {
+		return s.Literal()
+	}
+	return obj.String()
+}
+
 // AttributesFunction exposes an object's attribute names as the bound
 // attributes() method. A fresh List is returned on every call so callers
 // cannot mutate shared runtime metadata.

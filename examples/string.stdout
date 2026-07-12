@@ -27,12 +27,12 @@ true
 true
 two two two
 two two one
-[a, b, c]
-[a, b,c]
-[a,, b,, c]
-[a,, b,c]
-[one, two, three]
+["a", "b", "c"]
+["a", "b,c"]
+["a,", "b,", "c"]
+["a,", "b,c"]
+["one", "two", "three"]
 helloxy
 hello
-[key, value, true]
+["key", "value", true]
 gogogo

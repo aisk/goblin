@@ -180,7 +180,7 @@ func (d *Dict) Get(key Object) (Object, bool) {
 func (d *Dict) String() string {
 	elements := make([]string, 0, len(d.Entries))
 	for _, entry := range d.Entries {
-		elements = append(elements, fmt.Sprintf("%s: %s", entry.Key.String(), entry.Value.String()))
+		elements = append(elements, fmt.Sprintf("%s: %s", literal(entry.Key), literal(entry.Value)))
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }

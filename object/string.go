@@ -1,6 +1,7 @@
 package object
 
 import (
+	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -354,6 +355,11 @@ func noStringArgs(name string, args CallArgs) error {
 
 func (s String) String() string {
 	return string(s)
+}
+
+// Literal returns the quoted Goblin source representation of the string.
+func (s String) Literal() string {
+	return strconv.Quote(string(s))
 }
 
 func (s String) Bool() bool {

@@ -215,7 +215,7 @@ func (l *List) Copy(args CallArgs) (Object, error) {
 func (l *List) String() string {
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {
-		elements[i] = elem.String()
+		elements[i] = literal(elem)
 	}
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
 }
