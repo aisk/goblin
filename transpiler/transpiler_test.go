@@ -116,10 +116,13 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 		"type User struct",
 		"func (u *User) Hello(",
 		"func (u *User) GetAttr(",
+		"func (u *User) Attributes() []string",
 		`fmt.Sprintf("<User@%p>", u)`,
 		`case "name":`,
 		`case "hello":`,
 		`case "constructor":`,
+		`case "attributes":`,
+		`return []string{"name", "age", "hello", "constructor", "attributes"}`,
 		`var UserConstructor object.Object`,
 		`UserConstructor = &object.Function{`,
 	} {
@@ -129,5 +132,16 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 	}
 	if strings.Contains(code, "_method_") {
 		t.Fatalf("expected transpiled code to no longer reference _method_ slots\n%s", code)
+	}
+}
+
+func TestTranspileTypeAllowsAttributesOverride(t *testing.T) {
+	code := transpileSource(t, `type User() { func attributes(self) { return ["custom"] } }`)
+	if strings.Contains(code, `case "attributes": {
+		return object.AttributesFunction`) {
+		t.Fatalf("generated default attributes method despite user override\n%s", code)
+	}
+	if !strings.Contains(code, `return []string{"attributes", "constructor"}`) {
+		t.Fatalf("generated Attributes metadata does not include override\n%s", code)
 	}
 }

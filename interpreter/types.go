@@ -15,6 +15,7 @@ type goblinType struct {
 	name        string
 	fields      []*ast.TypeField
 	methods     map[string]*ast.FunctionDefine
+	attributes  []string
 	constructor *object.Function
 	env         *Environment
 }
@@ -22,14 +23,34 @@ type goblinType struct {
 // defineType registers a user type's constructor in the current scope.
 func defineType(def *ast.TypeDefine, env *Environment) {
 	methods := make(map[string]*ast.FunctionDefine, len(def.Methods))
+	attributes := make([]string, 0, len(def.Methods)+len(def.Fields)+2)
+	seen := make(map[string]bool, cap(attributes))
+	for _, f := range def.Fields {
+		if !seen[f.Name] {
+			attributes = append(attributes, f.Name)
+			seen[f.Name] = true
+		}
+	}
 	for _, m := range def.Methods {
 		methods[m.Name] = m
+		if !seen[m.Name] {
+			attributes = append(attributes, m.Name)
+			seen[m.Name] = true
+		}
+	}
+	if !seen["constructor"] {
+		attributes = append(attributes, "constructor")
+		seen["constructor"] = true
+	}
+	if !seen["attributes"] {
+		attributes = append(attributes, "attributes")
 	}
 	t := &goblinType{
-		name:    def.Name,
-		fields:  def.Fields,
-		methods: methods,
-		env:     env,
+		name:       def.Name,
+		fields:     def.Fields,
+		methods:    methods,
+		attributes: attributes,
+		env:        env,
 	}
 	t.constructor = &object.Function{
 		Name: def.Name,
@@ -135,7 +156,14 @@ func (in *instance) GetAttr(name string) (object.Object, error) {
 	if v, ok := in.fields[name]; ok {
 		return v, nil
 	}
+	if name == "attributes" {
+		return object.AttributesFunction(in), nil
+	}
 	return nil, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
+}
+
+func (in *instance) Attributes() []string {
+	return append([]string(nil), in.typ.attributes...)
 }
 
 func (in *instance) SetAttr(name string, value object.Object) error {

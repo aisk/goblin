@@ -116,12 +116,16 @@ func (f Float) Index(index Object) (Object, error) {
 
 func (f Float) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(f), nil
 	case "constructor":
 		return FloatConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Float has no attribute '%s'", name)
 	}
 }
+
+func (f Float) Attributes() []string { return []string{"attributes", "constructor"} }
 
 var FloatConstructorFn = &Function{Name: "Float", Fn: FloatConstructor}
 

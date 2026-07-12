@@ -29,6 +29,8 @@ func (r *Response) String() string {
 
 func (r *Response) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(r), nil
 	case "status_code":
 		return object.Integer(r.resp.StatusCode), nil
 	case "status":
@@ -43,6 +45,10 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("Response has no attribute '%s'", name)
 	}
+}
+
+func (r *Response) Attributes() []string {
+	return []string{"attributes", "status_code", "status", "header", "json"}
 }
 
 // json parses the response body as JSON and returns the corresponding goblin

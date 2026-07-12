@@ -243,6 +243,8 @@ func (d *Dict) SetIndex(index Object, value Object) error {
 
 func (d *Dict) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(d), nil
 	case "size":
 		return &Function{Name: "size", Fn: d.Size}, nil
 	case "keys":
@@ -270,6 +272,10 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 	default:
 		return nil, NewAttributeError("Dict has no attribute '%s'", name)
 	}
+}
+
+func (d *Dict) Attributes() []string {
+	return []string{"attributes", "size", "keys", "values", "items", "contains", "get", "set_default", "pop", "update", "clear", "copy", "constructor"}
 }
 
 var DictConstructorFn = &Function{Name: "Dict", Fn: DictConstructor}

@@ -91,7 +91,7 @@ var reservedGoMethodNames = map[string]bool{
 	"String": true, "Bool": true, "Compare": true, "Add": true,
 	"Minus": true, "Multiply": true, "Divide": true, "And": true,
 	"Or": true, "Not": true, "Iter": true, "Index": true,
-	"GetAttr": true, "SetAttr": true, "SetIndex": true,
+	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin
@@ -1217,13 +1217,19 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	ctx.topDecls = append(ctx.topDecls, protoDecls...)
 
-	getAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+1)
+	getAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+2)
+	attributeNames := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+2)
+	seenAttributes := make(map[string]bool, cap(attributeNames))
 	for _, field := range typeDef.Fields {
 		getAttrCases = append(getAttrCases,
 			jen.Case(jen.Lit(field.Name)).Block(
 				jen.Return(jen.Id(receiverName).Dot(field.Name), jen.Nil()),
 			),
 		)
+		if !seenAttributes[field.Name] {
+			attributeNames = append(attributeNames, jen.Lit(field.Name))
+			seenAttributes[field.Name] = true
+		}
 	}
 	for _, method := range typeDef.Methods {
 		wrapperName := methodWrapperName(method.Name)
@@ -1238,6 +1244,10 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 				),
 			),
 		)
+		if !seenAttributes[method.Name] {
+			attributeNames = append(attributeNames, jen.Lit(method.Name))
+			seenAttributes[method.Name] = true
+		}
 	}
 	userDefinedConstructor := false
 	for _, field := range typeDef.Fields {
@@ -1260,6 +1270,16 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 				jen.Return(jen.Id(ctorVarName), jen.Nil()),
 			),
 		)
+		attributeNames = append(attributeNames, jen.Lit("constructor"))
+		seenAttributes["constructor"] = true
+	}
+	if !seenAttributes["attributes"] {
+		getAttrCases = append(getAttrCases,
+			jen.Case(jen.Lit("attributes")).Block(
+				jen.Return(jen.Qual(pathObject, "AttributesFunction").Call(jen.Id(receiverName)), jen.Nil()),
+			),
+		)
+		attributeNames = append(attributeNames, jen.Lit("attributes"))
 	}
 	getAttrCases = append(getAttrCases,
 		jen.Default().Block(
@@ -1275,6 +1295,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.Id("name").String(),
 		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(
 			jen.Switch(jen.Id("name")).Block(getAttrCases...),
+		),
+	)
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("Attributes").Params().Index().String().Block(
+			jen.Return(jen.Index().String().Values(attributeNames...)),
 		),
 	)
 

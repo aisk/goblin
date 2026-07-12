@@ -140,6 +140,8 @@ func (f *File) Index(object.Object) (object.Object, error) {
 
 func (f *File) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(f), nil
 	case "name":
 		return object.String(f.Name), nil
 	case "closed":
@@ -155,6 +157,10 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("File has no attribute '%s'", name)
 	}
+}
+
+func (f *File) Attributes() []string {
+	return []string{"attributes", "name", "closed", "read", "write", "stat", "close"}
 }
 
 var _ object.Object = (*File)(nil)

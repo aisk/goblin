@@ -65,6 +65,8 @@ func (t *Time) Index(object.Object) (object.Object, error) {
 
 func (t *Time) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(t), nil
 	// Date components
 	case "year":
 		return object.Integer(t.Value.Year()), nil
@@ -113,6 +115,10 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("Time has no attribute '%s'", name)
 	}
+}
+
+func (t *Time) Attributes() []string {
+	return []string{"attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "format"}
 }
 
 var _ object.Object = (*Time)(nil)

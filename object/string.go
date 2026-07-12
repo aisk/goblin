@@ -440,6 +440,8 @@ func (s String) Index(index Object) (Object, error) {
 
 func (s String) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(s), nil
 	case "size":
 		return &Function{Name: "size", Fn: s.Size}, nil
 	case "upper":
@@ -504,6 +506,16 @@ func (s String) GetAttr(name string) (Object, error) {
 		return StrConstructorFn, nil
 	default:
 		return nil, NewAttributeError("String has no attribute '%s'", name)
+	}
+}
+
+func (s String) Attributes() []string {
+	return []string{
+		"attributes", "size", "upper", "lower", "has_prefix", "has_suffix", "trim",
+		"contains", "contains_any", "count", "equal_fold", "compare", "index", "last_index",
+		"index_any", "last_index_any", "repeat", "replace", "split", "split_after", "fields",
+		"title", "to_title", "to_valid_utf8", "trim_left", "trim_right", "trim_prefix",
+		"trim_suffix", "cut", "cut_prefix", "cut_suffix", "constructor",
 	}
 }
 

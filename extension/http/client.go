@@ -25,6 +25,8 @@ func (c *Client) String() string {
 
 func (c *Client) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(c), nil
 	case "timeout":
 		return object.Float(c.Client.Timeout.Seconds()), nil
 	case "do":
@@ -58,6 +60,10 @@ func (c *Client) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("Client has no attribute '%s'", name)
 	}
+}
+
+func (c *Client) Attributes() []string {
+	return []string{"attributes", "timeout", "do", "get", "head", "delete", "post", "put", "patch"}
 }
 
 var _ object.Object = (*Client)(nil)

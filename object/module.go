@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Module struct {
 	Name    string
@@ -36,7 +39,22 @@ func (m *Module) GetAttr(name string) (Object, error) {
 	if val, ok := m.Members[name]; ok {
 		return val, nil
 	}
+	if name == "attributes" {
+		return AttributesFunction(m), nil
+	}
 	return nil, NewAttributeError("module has no attribute '%s'", name)
+}
+
+func (m *Module) Attributes() []string {
+	names := make([]string, 0, len(m.Members)+1)
+	for name := range m.Members {
+		names = append(names, name)
+	}
+	if _, overridden := m.Members["attributes"]; !overridden {
+		names = append(names, "attributes")
+	}
+	sort.Strings(names)
+	return names
 }
 
 var _ Object = (*Module)(nil)

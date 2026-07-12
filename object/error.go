@@ -188,6 +188,8 @@ func (e *Error) Format(s fmt.State, verb rune) {
 
 func (e *Error) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(e), nil
 	case "message":
 		return String(e.Value), nil
 	case "wrap":
@@ -202,6 +204,10 @@ func (e *Error) GetAttr(name string) (Object, error) {
 		return &Function{Name: "traceback", Fn: e.TracebackValue}, nil
 	}
 	return nil, NewAttributeError("Error has no attribute '%s'", name)
+}
+
+func (e *Error) Attributes() []string {
+	return []string{"attributes", "message", "wrap", "unwrap", "is", "constructor", "traceback"}
 }
 
 // TracebackValue exposes traceback formatting to Goblin as err.traceback().

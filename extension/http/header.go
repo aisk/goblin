@@ -29,6 +29,8 @@ func (h *Header) String() string {
 
 func (h *Header) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(h), nil
 	case "get":
 		return &object.Function{Name: "get", Fn: h.get}, nil
 	case "values":
@@ -42,6 +44,10 @@ func (h *Header) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("Header has no attribute '%s'", name)
 	}
+}
+
+func (h *Header) Attributes() []string {
+	return []string{"attributes", "get", "values", "set", "add", "del"}
 }
 
 // get returns the first value associated with the given key, or "" if none.

@@ -87,6 +87,8 @@ func (p *Path) Index(Object) (Object, error) { return nil, NewTypeError("Path is
 
 func (p *Path) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(p), nil
 	// Pure properties — return values directly.
 	case "name":
 		return String(filepath.Base(p.raw)), nil
@@ -143,6 +145,15 @@ func (p *Path) GetAttr(name string) (Object, error) {
 		return PathConstructorFn, nil
 	}
 	return nil, NewAttributeError("Path has no attribute '%s'", name)
+}
+
+func (p *Path) Attributes() []string {
+	return []string{
+		"attributes", "name", "stem", "suffix", "parent", "parts",
+		"is_absolute", "with_name", "with_suffix", "join", "relative_to", "match", "as_posix",
+		"exists", "is_dir", "is_file", "is_symlink", "resolve", "read_text", "write_text",
+		"iterdir", "glob", "mkdir", "unlink", "rename", "constructor",
+	}
 }
 
 // pathSegment coerces a String or Path argument into a plain path string.

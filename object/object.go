@@ -14,6 +14,27 @@ type Object interface {
 	Iter() ([]Object, error)
 	Index(index Object) (Object, error)
 	GetAttr(name string) (Object, error)
+	Attributes() []string
+}
+
+// AttributesFunction exposes an object's attribute names as the bound
+// attributes() method. A fresh List is returned on every call so callers
+// cannot mutate shared runtime metadata.
+func AttributesFunction(obj Object) *Function {
+	return &Function{Name: "attributes", Fn: func(args CallArgs) (Object, error) {
+		if err := RequireNoKeyword("attributes", args); err != nil {
+			return nil, err
+		}
+		if len(args.Positional) != 0 {
+			return nil, NewTypeError("attributes() takes exactly 0 arguments, got %d", len(args.Positional))
+		}
+		names := obj.Attributes()
+		elements := make([]Object, len(names))
+		for i, name := range names {
+			elements[i] = String(name)
+		}
+		return &List{Elements: elements}, nil
+	}}
 }
 
 func Call(obj Object, args CallArgs) (Object, error) {

@@ -45,12 +45,16 @@ func (f *Function) Index(Object) (Object, error) {
 }
 func (f *Function) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(f), nil
 	case "constructor":
 		return FunctionConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Function has no attribute '%s'", name)
 	}
 }
+
+func (f *Function) Attributes() []string { return []string{"attributes", "constructor"} }
 
 var _ Object = (*Function)(nil)
 

@@ -55,6 +55,8 @@ func (f *FileInfo) Index(object.Object) (object.Object, error) {
 
 func (f *FileInfo) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(f), nil
 	case "name":
 		return object.String(f.Info.Name()), nil
 	case "size":
@@ -68,6 +70,10 @@ func (f *FileInfo) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("FileInfo has no attribute '%s'", name)
 	}
+}
+
+func (f *FileInfo) Attributes() []string {
+	return []string{"attributes", "name", "size", "is_dir", "mode", "mod_time"}
 }
 
 var _ object.Object = (*FileInfo)(nil)

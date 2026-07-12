@@ -60,5 +60,10 @@ func (n Unit) Index(index Object) (Object, error) {
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {
+	if name == "attributes" {
+		return AttributesFunction(n), nil
+	}
 	return nil, NewAttributeError("Nil has no attribute '%s'", name)
 }
+
+func (n Unit) Attributes() []string { return []string{"attributes"} }

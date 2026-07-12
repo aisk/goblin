@@ -90,3 +90,29 @@ func TestSessionInvalidInput(t *testing.T) {
 		t.Errorf("expected error for invalid input, got nil")
 	}
 }
+
+func TestSessionUserTypeAttributes(t *testing.T) {
+	s := NewSession(".")
+	if _, err := s.Eval("type User(name) { func hello(self) { return self.name } }"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Eval(`var user = User("alice")`); err != nil {
+		t.Fatal(err)
+	}
+	if got := evalString(t, s, "user.attributes()"); got != "[name, hello, constructor, attributes]" {
+		t.Fatalf("user.attributes() = %q", got)
+	}
+}
+
+func TestSessionUserCanOverrideAttributes(t *testing.T) {
+	s := NewSession(".")
+	if _, err := s.Eval(`type User() { func attributes(self) { return ["custom"] } }`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Eval("var user = User()"); err != nil {
+		t.Fatal(err)
+	}
+	if got := evalString(t, s, "user.attributes()"); got != "[custom]" {
+		t.Fatalf("overridden user.attributes() = %q", got)
+	}
+}

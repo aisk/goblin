@@ -307,6 +307,8 @@ func (l *List) SetIndex(index Object, value Object) error {
 
 func (l *List) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(l), nil
 	case "size":
 		return &Function{Name: "size", Fn: l.Size}, nil
 	case "push":
@@ -340,6 +342,10 @@ func (l *List) GetAttr(name string) (Object, error) {
 	default:
 		return nil, NewAttributeError("List has no attribute '%s'", name)
 	}
+}
+
+func (l *List) Attributes() []string {
+	return []string{"attributes", "size", "push", "pop", "first", "last", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "constructor"}
 }
 
 var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}

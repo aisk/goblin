@@ -25,6 +25,8 @@ func (r *Request) String() string {
 
 func (r *Request) GetAttr(name string) (object.Object, error) {
 	switch name {
+	case "attributes":
+		return object.AttributesFunction(r), nil
 	case "method":
 		return object.String(r.Req.Method), nil
 	case "url":
@@ -38,6 +40,10 @@ func (r *Request) GetAttr(name string) (object.Object, error) {
 	default:
 		return nil, object.NewAttributeError("Request has no attribute '%s'", name)
 	}
+}
+
+func (r *Request) Attributes() []string {
+	return []string{"attributes", "method", "url", "header"}
 }
 
 var _ object.Object = (*Request)(nil)

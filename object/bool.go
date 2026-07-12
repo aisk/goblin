@@ -89,12 +89,16 @@ func (b Bool) Index(index Object) (Object, error) {
 
 func (b Bool) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(b), nil
 	case "constructor":
 		return BoolConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Bool has no attribute '%s'", name)
 	}
 }
+
+func (b Bool) Attributes() []string { return []string{"attributes", "constructor"} }
 
 var BoolConstructorFn = &Function{Name: "Bool", Fn: BoolConstructor}
 

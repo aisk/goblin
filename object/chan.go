@@ -35,6 +35,8 @@ func (c *Chan) Index(Object) (Object, error) { return nil, NewTypeError("Chan is
 
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(c), nil
 	case "send":
 		return &Function{Name: "send", Fn: c.Send}, nil
 	case "recv":
@@ -46,6 +48,10 @@ func (c *Chan) GetAttr(name string) (Object, error) {
 	default:
 		return nil, NewAttributeError("Chan has no attribute '%s'", name)
 	}
+}
+
+func (c *Chan) Attributes() []string {
+	return []string{"attributes", "send", "recv", "close", "constructor"}
 }
 
 // Send blocks until the value is delivered or buffered. Sending on a closed
