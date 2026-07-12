@@ -2,12 +2,56 @@ package interpreter
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 )
+
+// CompletionCandidates returns names available at the end of a simple member
+// path. An empty path returns session globals and builtins. Non-empty paths are
+// resolved through GetAttr only; functions are never called, so REPL
+// completion cannot trigger arbitrary Goblin execution.
+func (s *Session) CompletionCandidates(path []string) []string {
+	if len(path) == 0 {
+		names := make(map[string]struct{}, len(s.global.vars)+len(extension.BuiltinsModule.Members))
+		for name := range extension.BuiltinsModule.Members {
+			names[name] = struct{}{}
+		}
+		for name := range s.global.vars {
+			names[name] = struct{}{}
+		}
+		return sortedNames(names)
+	}
+
+	value, ok := s.global.Get(path[0])
+	if !ok {
+		value, ok = extension.BuiltinsModule.Members[path[0]]
+	}
+	if !ok {
+		return nil
+	}
+	for _, name := range path[1:] {
+		var err error
+		value, err = value.GetAttr(name)
+		if err != nil {
+			return nil
+		}
+	}
+	return value.Attributes()
+}
+
+func sortedNames(names map[string]struct{}) []string {
+	result := make([]string, 0, len(names))
+	for name := range names {
+		result = append(result, name)
+	}
+	sort.Strings(result)
+	return result
+}
 
 // Session is a persistent interpreter context. Unlike Run, it keeps its global
 // scope and module registry across calls, so successive Eval invocations share

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/aisk/goblin/ast"
@@ -151,6 +152,7 @@ func runREPL() error {
 		HistoryLimit:    1000,
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
+		AutoComplete:    &replCompleter{session: session},
 	})
 	if err != nil {
 		return err
@@ -200,6 +202,72 @@ func runREPL() error {
 		}
 		evalLine(out, session, src)
 	}
+}
+
+var replKeywords = []string{
+	"break", "catch", "continue", "else", "export", "false", "for", "func",
+	"if", "import", "in", "nil", "raise", "return", "true", "try", "type",
+	"var", "while",
+}
+
+type replCompleter struct {
+	session *interpreter.Session
+}
+
+// Do completes ASCII Goblin identifiers and side-effect-free member paths.
+// Readline expects each candidate to contain only the suffix that should be
+// inserted at the cursor.
+func (c *replCompleter) Do(line []rune, pos int) ([][]rune, int) {
+	path, prefix, ok := completionPath(line, pos)
+	if !ok {
+		return nil, 0
+	}
+
+	names := c.session.CompletionCandidates(path)
+	if len(path) == 0 {
+		names = append(names, replKeywords...)
+		sort.Strings(names)
+	}
+
+	candidates := make([][]rune, 0, len(names))
+	previous := ""
+	for _, name := range names {
+		if name == previous || !strings.HasPrefix(name, prefix) {
+			continue
+		}
+		previous = name
+		candidates = append(candidates, []rune(name[len(prefix):]))
+	}
+	return candidates, len([]rune(prefix))
+}
+
+func completionPath(line []rune, pos int) (path []string, prefix string, ok bool) {
+	if pos < 0 || pos > len(line) {
+		return nil, "", false
+	}
+	start := pos
+	for start > 0 && (isIdentifierRune(line[start-1]) || line[start-1] == '.') {
+		start--
+	}
+	fragment := string(line[start:pos])
+	parts := strings.Split(fragment, ".")
+	for i, part := range parts {
+		if part == "" && i != len(parts)-1 {
+			return nil, "", false
+		}
+		if part != "" && !isIdentifierStart(rune(part[0])) {
+			return nil, "", false
+		}
+	}
+	return parts[:len(parts)-1], parts[len(parts)-1], true
+}
+
+func isIdentifierRune(r rune) bool {
+	return isIdentifierStart(r) || r >= '0' && r <= '9'
+}
+
+func isIdentifierStart(r rune) bool {
+	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r == '_'
 }
 
 func evalLine(out io.Writer, session *interpreter.Session, src string) {

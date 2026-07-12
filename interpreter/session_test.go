@@ -1,8 +1,42 @@
 package interpreter
 
 import (
+	"reflect"
+	"sort"
 	"testing"
 )
+
+func TestSessionCompletionCandidates(t *testing.T) {
+	s := NewSession(".")
+	if names := s.CompletionCandidates(nil); !containsString(names, "print") || !sort.StringsAreSorted(names) {
+		t.Fatalf("root completion candidates = %v", names)
+	}
+
+	if _, err := s.Eval(`type User(name) { func hello(self) { return self.name } }`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Eval(`var user = User("alice")`); err != nil {
+		t.Fatal(err)
+	}
+	if names := s.CompletionCandidates([]string{"user"}); !reflect.DeepEqual(names, []string{"name", "hello", "constructor", "attributes"}) {
+		t.Fatalf("user completion candidates = %v", names)
+	}
+	if names := s.CompletionCandidates([]string{"user", "name"}); !containsString(names, "trim") {
+		t.Fatalf("nested String completion candidates = %v", names)
+	}
+	if names := s.CompletionCandidates([]string{"missing"}); names != nil {
+		t.Fatalf("missing completion candidates = %v, want nil", names)
+	}
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
 
 // evalString is a test helper that evaluates src and returns its String form,
 // or "<nil>" when the fragment produced no value (a statement).
