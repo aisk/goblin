@@ -1084,19 +1084,19 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, strDecl)
 
-	// Repr() (string, error)  <- "__str" (error-propagating; object.Represented)
-	reprReturnNil := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)), jen.Nil())
-	reprDecl := jen.Func().Params(receiverParam()).Id("Repr").Params().Parens(jen.List(jen.String(), jen.Error()))
+	// ToString() (string, error)  <- "__str" (error-propagating)
+	toStringReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)), jen.Nil())
+	toStringDecl := jen.Func().Params(receiverParam()).Id("ToString").Params().Parens(jen.List(jen.String(), jen.Error()))
 	if defined["__str"] {
-		reprDecl.Block(
+		toStringDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("String").Call(), jen.Nil()),
 		)
 	} else {
-		reprDecl.Block(reprReturnNil)
+		toStringDecl.Block(toStringReturn)
 	}
-	protoDecls = append(protoDecls, reprDecl)
+	protoDecls = append(protoDecls, toStringDecl)
 
 	// Bool() bool  <- "__bool"
 	boolDecl := jen.Func().Params(receiverParam()).Id("Bool").Params().Bool()

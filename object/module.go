@@ -18,7 +18,9 @@ func (m *Module) String() string {
 	}
 	return "<module>"
 }
-func (m *Module) Bool() bool { return true }
+
+func (m *Module) ToString() (string, error) { return m.String(), nil }
+func (m *Module) Bool() bool                { return true }
 func (m *Module) Compare(Object) (int, error) {
 	return 0, NewTypeError("cannot compare Module")
 }

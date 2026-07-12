@@ -19,6 +19,8 @@ func (i Integer) String() string {
 	return strconv.FormatInt(int64(i), 10)
 }
 
+func (i Integer) ToString() (string, error) { return i.String(), nil }
+
 func (i Integer) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Integer:

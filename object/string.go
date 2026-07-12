@@ -357,6 +357,8 @@ func (s String) String() string {
 	return string(s)
 }
 
+func (s String) ToString() (string, error) { return s.String(), nil }
+
 // Literal returns the quoted Goblin source representation of the string.
 func (s String) Literal() string {
 	return strconv.Quote(string(s))
@@ -533,7 +535,7 @@ func StrConstructor(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	s, err := Repr(value)
+	s, err := value.ToString()
 	if err != nil {
 		return nil, err
 	}

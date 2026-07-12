@@ -19,6 +19,8 @@ func (f *FileInfo) String() string {
 	return fmt.Sprintf("<file_info %s>", f.Info.Name())
 }
 
+func (f *FileInfo) ToString() (string, error) { return f.String(), nil }
+
 func (f *FileInfo) Bool() bool {
 	return true
 }

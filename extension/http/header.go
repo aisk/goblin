@@ -27,6 +27,8 @@ func (h *Header) String() string {
 	return fmt.Sprintf("<http_header %d>", len(h.Header))
 }
 
+func (h *Header) ToString() (string, error) { return h.String(), nil }
+
 func (h *Header) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":

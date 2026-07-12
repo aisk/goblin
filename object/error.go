@@ -74,6 +74,8 @@ func (e *Error) String() string {
 	return e.Value
 }
 
+func (e *Error) ToString() (string, error) { return e.String(), nil }
+
 func (e *Error) Bool() bool {
 	return true
 }

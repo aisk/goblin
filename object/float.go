@@ -19,6 +19,8 @@ func (f Float) String() string {
 	return strconv.FormatFloat(float64(f), 'f', -1, 64)
 }
 
+func (f Float) ToString() (string, error) { return f.String(), nil }
+
 func (f Float) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Float:

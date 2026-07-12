@@ -185,6 +185,8 @@ func (d *Dict) String() string {
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }
 
+func (d *Dict) ToString() (string, error) { return d.String(), nil }
+
 func (d *Dict) Bool() bool {
 	return len(d.Entries) > 0
 }

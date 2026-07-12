@@ -104,6 +104,8 @@ func (f *File) String() string {
 	return fmt.Sprintf("<file %s>", f.Name)
 }
 
+func (f *File) ToString() (string, error) { return f.String(), nil }
+
 func (f *File) Bool() bool {
 	return !f.closed
 }

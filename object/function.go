@@ -12,7 +12,9 @@ func (f *Function) Call(args CallArgs) (Object, error) {
 }
 
 func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name) }
-func (f *Function) Bool() bool     { return true }
+
+func (f *Function) ToString() (string, error) { return f.String(), nil }
+func (f *Function) Bool() bool                { return true }
 func (f *Function) Compare(other Object) (int, error) {
 	if g, ok := other.(*Function); ok {
 		if f == g {

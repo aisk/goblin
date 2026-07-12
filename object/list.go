@@ -220,6 +220,8 @@ func (l *List) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
 }
 
+func (l *List) ToString() (string, error) { return l.String(), nil }
+
 func (l *List) Bool() bool {
 	return len(l.Elements) > 0
 }

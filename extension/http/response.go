@@ -27,6 +27,8 @@ func (r *Response) String() string {
 	return fmt.Sprintf("<http_response %s>", r.resp.Status)
 }
 
+func (r *Response) ToString() (string, error) { return r.String(), nil }
+
 func (r *Response) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":

@@ -174,9 +174,8 @@ func (in *instance) SetAttr(name string, value object.Object) error {
 	return object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
-// String satisfies fmt.Stringer; since it cannot return an error it swallows a
-// failing __str and falls back to the default repr. Callers that can propagate
-// errors should use object.Repr, which routes through Repr below.
+// String satisfies fmt.Stringer. It falls back to the default representation
+// when __str fails because fmt.Stringer cannot return an error.
 func (in *instance) String() string {
 	if v, ok, err := in.callProto("__str"); ok && err == nil {
 		return v.String()
@@ -184,7 +183,8 @@ func (in *instance) String() string {
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
 }
 
-func (in *instance) Repr() (string, error) {
+// ToString performs Goblin's potentially failing __str conversion.
+func (in *instance) ToString() (string, error) {
 	if v, ok, err := in.callProto("__str"); ok {
 		if err != nil {
 			return "", err

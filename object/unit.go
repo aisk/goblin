@@ -10,6 +10,8 @@ func (n Unit) String() string {
 	return "none"
 }
 
+func (n Unit) ToString() (string, error) { return n.String(), nil }
+
 func (n Unit) Bool() bool {
 	return false
 }

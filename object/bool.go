@@ -19,6 +19,8 @@ func (b Bool) String() string {
 	panic("never happen")
 }
 
+func (b Bool) ToString() (string, error) { return b.String(), nil }
+
 func (b Bool) Bool() bool {
 	return bool(b)
 }

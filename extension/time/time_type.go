@@ -19,6 +19,8 @@ func (t *Time) String() string {
 	return t.Value.Format(stdtime.RFC3339)
 }
 
+func (t *Time) ToString() (string, error) { return t.String(), nil }
+
 func (t *Time) Bool() bool {
 	return !t.Value.IsZero()
 }

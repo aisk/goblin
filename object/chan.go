@@ -9,7 +9,9 @@ type Chan struct {
 var _ Object = &Chan{}
 
 func (c *Chan) String() string { return "<chan>" }
-func (c *Chan) Bool() bool     { return true }
+
+func (c *Chan) ToString() (string, error) { return c.String(), nil }
+func (c *Chan) Bool() bool                { return true }
 
 func (c *Chan) Compare(other Object) (int, error) {
 	if o, ok := other.(*Chan); ok {

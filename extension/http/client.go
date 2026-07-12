@@ -23,6 +23,8 @@ func (c *Client) String() string {
 	return "<http_client>"
 }
 
+func (c *Client) ToString() (string, error) { return c.String(), nil }
+
 func (c *Client) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":

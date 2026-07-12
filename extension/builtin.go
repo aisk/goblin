@@ -52,7 +52,7 @@ func print(args object.CallArgs) (object.Object, error) {
 		if i > 0 {
 			fmt.Print(" ")
 		}
-		s, err := object.Repr(arg)
+		s, err := arg.ToString()
 		if err != nil {
 			return nil, err
 		}
