@@ -25,6 +25,8 @@ func (b Bool) Bool() bool {
 	return bool(b)
 }
 
+func (b Bool) ToBool() (bool, error) { return b.Bool(), nil }
+
 func (b Bool) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Bool:

@@ -25,6 +25,8 @@ func (f *FileInfo) Bool() bool {
 	return true
 }
 
+func (f *FileInfo) ToBool() (bool, error) { return f.Bool(), nil }
+
 func (f *FileInfo) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare FileInfo")
 }

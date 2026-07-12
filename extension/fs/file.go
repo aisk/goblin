@@ -110,6 +110,8 @@ func (f *File) Bool() bool {
 	return !f.closed
 }
 
+func (f *File) ToBool() (bool, error) { return f.Bool(), nil }
+
 func (f *File) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare File")
 }

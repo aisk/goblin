@@ -194,8 +194,7 @@ func (in *instance) ToString() (string, error) {
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in), nil
 }
 
-// Bool satisfies the infallible Object interface; it swallows a failing __bool.
-// Callers that can propagate errors should use object.Truthy (see Truthy).
+// Bool returns an infallible truth value, falling back to true when __bool fails.
 func (in *instance) Bool() bool {
 	if v, ok, err := in.callProto("__bool"); ok && err == nil {
 		return v.Bool()
@@ -203,7 +202,7 @@ func (in *instance) Bool() bool {
 	return true
 }
 
-func (in *instance) Truthy() (bool, error) {
+func (in *instance) ToBool() (bool, error) {
 	if v, ok, err := in.callProto("__bool"); ok {
 		if err != nil {
 			return false, err

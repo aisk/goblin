@@ -191,6 +191,8 @@ func (d *Dict) Bool() bool {
 	return len(d.Entries) > 0
 }
 
+func (d *Dict) ToBool() (bool, error) { return d.Bool(), nil }
+
 func (d *Dict) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Dict and %T", other)
 }

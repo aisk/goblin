@@ -157,7 +157,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		if err != nil {
 			return err
 		}
-		truthy, err := object.Truthy(cond)
+		truthy, err := cond.ToBool()
 		if err != nil {
 			return err
 		}
@@ -175,7 +175,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 			if err != nil {
 				return err
 			}
-			truthy, err := object.Truthy(cond)
+			truthy, err := cond.ToBool()
 			if err != nil {
 				return err
 			}
@@ -392,7 +392,7 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		if err != nil {
 			return nil, err
 		}
-		lhsTruthy, err := object.Truthy(lhs)
+		lhsTruthy, err := lhs.ToBool()
 		if err != nil {
 			return nil, err
 		}
@@ -406,7 +406,7 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		if err != nil {
 			return nil, err
 		}
-		rhsTruthy, err := object.Truthy(rhs)
+		rhsTruthy, err := rhs.ToBool()
 		if err != nil {
 			return nil, err
 		}

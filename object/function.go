@@ -15,6 +15,7 @@ func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name)
 
 func (f *Function) ToString() (string, error) { return f.String(), nil }
 func (f *Function) Bool() bool                { return true }
+func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
 func (f *Function) Compare(other Object) (int, error) {
 	if g, ok := other.(*Function); ok {
 		if f == g {

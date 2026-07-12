@@ -226,6 +226,8 @@ func (l *List) Bool() bool {
 	return len(l.Elements) > 0
 }
 
+func (l *List) ToBool() (bool, error) { return l.Bool(), nil }
+
 func (l *List) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare List and %T", other)
 }

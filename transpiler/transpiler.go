@@ -781,7 +781,7 @@ func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHand
 	errVar := ctx.localName("err")
 	stmts := append([]jen.Code{}, condPreStmts...)
 	stmts = append(stmts,
-		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(cond),
+		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(cond).Dot("ToBool").Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.If(jen.Id(condVar)).Block(body...).Else().Block(elseBody...),
 	)
@@ -802,7 +802,7 @@ func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandle
 	errVar := ctx.localName("err")
 	loopBody := append([]jen.Code{}, condPreStmts...)
 	loopBody = append(loopBody,
-		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(cond),
+		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(cond).Dot("ToBool").Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.If(jen.Op("!").Id(condVar)).Block(jen.Break()),
 	)
@@ -1111,18 +1111,18 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, boolDecl)
 
-	// Truthy() (bool, error)  <- "__bool" (error-propagating; object.Truthful)
-	truthyDecl := jen.Func().Params(receiverParam()).Id("Truthy").Params().Parens(jen.List(jen.Bool(), jen.Error()))
+	// ToBool() (bool, error)  <- "__bool" (error-propagating)
+	toBoolDecl := jen.Func().Params(receiverParam()).Id("ToBool").Params().Parens(jen.List(jen.Bool(), jen.Error()))
 	if defined["__bool"] {
-		truthyDecl.Block(
+		toBoolDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("Bool").Call(), jen.Nil()),
 		)
 	} else {
-		truthyDecl.Block(jen.Return(jen.True(), jen.Nil()))
+		toBoolDecl.Block(jen.Return(jen.True(), jen.Nil()))
 	}
-	protoDecls = append(protoDecls, truthyDecl)
+	protoDecls = append(protoDecls, toBoolDecl)
 
 	// Compare(other) (int, error)  <- "__cmp" (returns Int -1/0/1)
 	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
@@ -1622,14 +1622,14 @@ func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOper
 	rhsBlock := append([]jen.Code{}, rhsPre...)
 	rhsBlock = append(rhsBlock,
 		jen.Id(rhsVar).Op(":=").Add(rhs),
-		jen.List(jen.Id(rhsTruthyVar), jen.Id(rhsErrVar)).Op(":=").Qual(pathObject, "Truthy").Call(jen.Id(rhsVar)),
+		jen.List(jen.Id(rhsTruthyVar), jen.Id(rhsErrVar)).Op(":=").Id(rhsVar).Dot("ToBool").Call(),
 		jen.If(jen.Id(rhsErrVar).Op("!=").Nil()).Block(onError(rhsErrVar)),
 		jen.Id(tmpVar).Op("=").Qual(pathObject, "Bool").Call(jen.Id(rhsTruthyVar)),
 	)
 
 	preStmts := append([]jen.Code{}, lhsPre...)
 	preStmts = append(preStmts,
-		jen.List(jen.Id(lhsTruthyVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Truthy").Call(lhs),
+		jen.List(jen.Id(lhsTruthyVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot("ToBool").Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.Var().Id(tmpVar).Qual(pathObject, "Object"),
 	)

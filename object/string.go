@@ -371,6 +371,8 @@ func (s String) Bool() bool {
 	return true
 }
 
+func (s String) ToBool() (bool, error) { return s.Bool(), nil }
+
 func (s String) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case String:

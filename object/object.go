@@ -8,6 +8,7 @@ type Object interface {
 	// user-defined __str method and propagate its error.
 	ToString() (string, error)
 	Bool() bool
+	ToBool() (bool, error)
 	Compare(other Object) (int, error)
 	Add(other Object) (Object, error)
 	Minus(other Object) (Object, error)
@@ -64,22 +65,6 @@ func Call(obj Object, args CallArgs) (Object, error) {
 // e.g. `list[0] = x` or `dict["k"] = v`.
 type IndexSetter interface {
 	SetIndex(index Object, value Object) error
-}
-
-// Truthful is implemented by objects whose truthiness test may fail, e.g. a
-// user type whose `__bool` method raises. It provides an error-propagating
-// alternative to the infallible Bool() method.
-type Truthful interface {
-	Truthy() (bool, error)
-}
-
-// Truthy returns an object's truth value, propagating any error from a
-// user-defined __bool method. Objects that cannot fail fall back to Bool().
-func Truthy(obj Object) (bool, error) {
-	if t, ok := obj.(Truthful); ok {
-		return t.Truthy()
-	}
-	return obj.Bool(), nil
 }
 
 // AttrSetter is implemented by objects that support member assignment,

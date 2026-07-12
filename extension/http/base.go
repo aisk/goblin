@@ -1,7 +1,6 @@
 package http
 
 import (
-
 	"github.com/aisk/goblin/object"
 )
 
@@ -15,6 +14,8 @@ type objectBase struct {
 }
 
 func (b objectBase) Bool() bool { return true }
+
+func (b objectBase) ToBool() (bool, error) { return b.Bool(), nil }
 
 func (b objectBase) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare %s", b.typeName)

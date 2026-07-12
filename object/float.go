@@ -15,6 +15,8 @@ func (f Float) Bool() bool {
 	return true
 }
 
+func (f Float) ToBool() (bool, error) { return f.Bool(), nil }
+
 func (f Float) String() string {
 	return strconv.FormatFloat(float64(f), 'f', -1, 64)
 }

@@ -15,6 +15,8 @@ func (i Integer) Bool() bool {
 	return true
 }
 
+func (i Integer) ToBool() (bool, error) { return i.Bool(), nil }
+
 func (i Integer) String() string {
 	return strconv.FormatInt(int64(i), 10)
 }

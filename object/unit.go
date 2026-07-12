@@ -16,6 +16,8 @@ func (n Unit) Bool() bool {
 	return false
 }
 
+func (n Unit) ToBool() (bool, error) { return n.Bool(), nil }
+
 func (n Unit) Compare(other Object) (int, error) {
 	switch other.(type) {
 	case Unit:

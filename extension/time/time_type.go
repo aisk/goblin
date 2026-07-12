@@ -25,6 +25,8 @@ func (t *Time) Bool() bool {
 	return !t.Value.IsZero()
 }
 
+func (t *Time) ToBool() (bool, error) { return t.Bool(), nil }
+
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {
