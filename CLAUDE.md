@@ -9,9 +9,11 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 ## Development Commands
 
 ### Building and Running
-- `go build .` - Build the goblin compiler
-- `goblin <file.goblin>` - Transpile Goblin source to Go (outputs to stdout)
-- Typical workflow: `goblin hello.goblin > hello.go && go run hello.go`
+- `go build .` - Build the goblin CLI
+- The CLI is cobra-based with subcommands (see `main.go`):
+  - `goblin run <file.goblin>` - Interpret a source file directly via the tree-walking interpreter
+  - `goblin build-exe <file.goblin>` - Transpile to Go and compile a native executable (`-o` sets output path)
+  - `goblin repl` - Start an interactive REPL (history persisted to `~/.goblin_history`)
 
 ### Grammar Generation
 - `gocc -a goblin.bnf` - Regenerate lexer, parser, token, errors, and util packages from BNF grammar
@@ -24,22 +26,32 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 
 ## Architecture
 
-### Code Generation Flow
+### Execution Flow
 
 ```
-source.goblin → Lexer (lexer/) → Tokens → Parser (parser/) → AST (ast/) → Transpiler (transpiler/) → Go source code
+source.goblin → Lexer (lexer/) → Tokens → Parser (parser/) → AST (ast/) → semantic.CheckModule (semantic/) → { interpreter/ | transpiler/ }
 ```
 
-The transpiler wraps all generated code inside an `Execute()` function and a `main()` that calls it. Runtime values use the `object.Object` interface so arithmetic and logic operations are dispatched dynamically via method calls (`.Add()`, `.Multiply()`, `.And()`, etc.).
+After parsing, `semantic.CheckModule` runs on the `*ast.Module` before either backend. There are two backends over the same AST:
+- **Interpreter** (`interpreter/`) — a tree-walking interpreter used by `goblin run` and the REPL (`interpreter.Run` / `interpreter.Session`).
+- **Transpiler** (`transpiler/`) — emits Go source, used by `goblin build-exe`. It wraps generated code inside an `Execute()` function and a `main()` that calls it.
+
+Runtime values use the `object.Object` interface so arithmetic and logic operations are dispatched dynamically via method calls (`.Add()`, `.Multiply()`, `.And()`, etc.). The example tests (`examples/`) exercise the transpiler path.
 
 ### Key Source Files (hand-written)
 
 - `goblin.bnf` — Master grammar. All changes to syntax start here.
 - `ast/ast.go` — AST node types and `New*`/`Append*` constructors required by gocc reduce actions.
 - `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `range`, `max`, `min`) are resolved here.
-- `object/*.go` — Runtime type system: Integer (int64), Float (float64), String, Bool, List, Unit (nil), Error. Each type implements the `Object` interface for arithmetic, logic, and iteration.
+- `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST.
+- `semantic/semantic.go` — Semantic checks run on the module before either backend.
+- `object/*.go` — Runtime type system: Integer (int64), Float (float64), String, Bool, List, Bytes, Unit (nil), Error. Each type implements the `Object` interface for arithmetic, logic, and iteration.
 - `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.
-- `main.go` — CLI entry point.
+- `main.go` — CLI entry point (cobra commands: `run`, `build-exe`, `repl`).
+
+### Custom-Type Operator Overloading
+
+User-defined types implement operators/protocols via single-leading-underscore dunder methods — `__add`, `__cmp`, `__bool`, `__str`, `__iter`, `__getitem`, `__and`, `__or`, `__not`, etc. (this style, **not** Python's `__add__` with trailing underscores).
 
 ### Generated Code (do not edit)
 
