@@ -532,7 +532,7 @@ func (s String) Attributes() []string {
 		"contains", "contains_any", "count", "equal_fold", "compare", "index", "last_index",
 		"index_any", "last_index_any", "repeat", "replace", "split", "split_after", "fields",
 		"title", "to_title", "to_valid_utf8", "trim_left", "trim_right", "trim_prefix",
-		"trim_suffix", "cut", "cut_prefix", "cut_suffix", "constructor",
+		"trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode", "constructor",
 	}
 }
 
