@@ -1,7 +1,6 @@
 package http
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	stdhttp "net/http"
@@ -10,16 +9,17 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-// Response wraps net/http.Response. It exposes the Go field names (status_code,
-// status, header) plus a json() helper that decodes the buffered body. The raw
-// body is read eagerly and kept in memory.
+// Response wraps net/http.Response. Its body remains a streaming Body; json()
+// consumes that same stream.
 type Response struct {
 	objectBase
 	resp *stdhttp.Response
-	body []byte
+	body *Body
 }
 
-func NewResponse(resp *stdhttp.Response, body []byte) *Response {
+func NewResponse(resp *stdhttp.Response) *Response {
+	body := NewBody(resp.Body)
+	resp.Body = body
 	return &Response{objectBase: objectBase{typeName: "Response"}, resp: resp, body: body}
 }
 
@@ -40,7 +40,7 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 	case "header":
 		return NewHeader(r.resp.Header), nil
 	case "body":
-		return object.NewBytes(r.body), nil
+		return r.body, nil
 	case "json":
 		return &object.Function{Name: "json", Fn: r.json}, nil
 	default:
@@ -49,7 +49,7 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Response) Attributes() []string {
-	return []string{"attributes", "status_code", "status", "header", "json"}
+	return []string{"attributes", "status_code", "status", "header", "body", "json"}
 }
 
 // json parses the response body as JSON and returns the corresponding goblin
@@ -61,7 +61,7 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, object.NewTypeError("json() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	dec := json.NewDecoder(bytes.NewReader(r.body))
+	dec := json.NewDecoder(r.body)
 	dec.UseNumber()
 	var v any
 	if err := dec.Decode(&v); err != nil {

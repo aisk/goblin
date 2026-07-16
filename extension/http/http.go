@@ -1,6 +1,7 @@
 package http
 
 import (
+	"bytes"
 	"io"
 	stdhttp "net/http"
 	"strings"
@@ -112,7 +113,7 @@ func bodylessRequest(client *stdhttp.Client, fn, method string, args object.Call
 	if err != nil {
 		return nil, err
 	}
-	req, err := buildRequest(method, rawURL, "", "")
+	req, err := buildRequest(method, rawURL, "", nil)
 	if err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
 	}
@@ -215,14 +216,9 @@ func newClientObject(args object.CallArgs) (object.Object, error) {
 // Low-level helpers
 // ---------------------------------------------------------------------------
 
-// buildRequest constructs a *http.Request, wrapping a non-empty body string in
-// a reader and setting Content-Type when provided.
-func buildRequest(method, rawURL, contentType, body string) (*stdhttp.Request, error) {
-	var reader io.Reader
-	if body != "" {
-		reader = strings.NewReader(body)
-	}
-	req, err := stdhttp.NewRequest(method, rawURL, reader)
+// buildRequest constructs a *http.Request and sets Content-Type when provided.
+func buildRequest(method, rawURL, contentType string, body io.Reader) (*stdhttp.Request, error) {
+	req, err := stdhttp.NewRequest(method, rawURL, body)
 	if err != nil {
 		return nil, err
 	}
@@ -232,22 +228,13 @@ func buildRequest(method, rawURL, contentType, body string) (*stdhttp.Request, e
 	return req, nil
 }
 
-// doRequest sends req using client, reads the full response body, and wraps the
-// result in a Response.
+// doRequest sends req using client and leaves the response body as a stream.
 func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, error) {
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, "request failed", err)
 	}
-	defer resp.Body.Close()
-
-	// TODO: buffering the entire body is unbounded; once goblin has a reader
-	// type, expose a streaming body and/or cap this with an io.LimitReader.
-	data, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, "reading response body failed", err)
-	}
-	return NewResponse(resp, data), nil
+	return NewResponse(resp), nil
 }
 
 // stringArg asserts that obj is a goblin string, returning a descriptive error
@@ -260,15 +247,22 @@ func stringArg(fn, name string, obj object.Object) (string, error) {
 	return string(s), nil
 }
 
-// bodyArg accepts a string body or nil (meaning no body).
-func bodyArg(fn string, obj object.Object) (string, error) {
+// bodyArg accepts convenient in-memory values or any duck-typed object with a
+// read(size) method. Duck readers may optionally expose close().
+func bodyArg(fn string, obj object.Object) (io.Reader, error) {
 	switch v := obj.(type) {
 	case object.Unit:
-		return "", nil
+		return nil, nil
 	case object.String:
-		return string(v), nil
+		return strings.NewReader(string(v)), nil
+	case object.Bytes:
+		return bytes.NewReader(v), nil
 	default:
-		return "", object.NewTypeError("%s() body argument must be a string or nil, got %T", fn, obj)
+		reader, err := newDuckReader(obj)
+		if err != nil {
+			return nil, object.NewTypeError("%s() body argument: %s", fn, err)
+		}
+		return reader, nil
 	}
 }
 

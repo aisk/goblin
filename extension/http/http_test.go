@@ -9,6 +9,55 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
+type testReader struct {
+	objectBase
+	chunks    []object.Object
+	readSizes []object.Integer
+	closed    bool
+}
+
+func newTestReader(chunks ...object.Object) *testReader {
+	return &testReader{objectBase: objectBase{typeName: "TestReader"}, chunks: chunks}
+}
+
+func (r *testReader) String() string            { return "<test_reader>" }
+func (r *testReader) ToString() (string, error) { return r.String(), nil }
+func (r *testReader) Attributes() []string      { return []string{"read", "close"} }
+func (r *testReader) GetAttr(name string) (object.Object, error) {
+	switch name {
+	case "read":
+		return &object.Function{Name: "read", Fn: func(args object.CallArgs) (object.Object, error) {
+			ap := object.NewArgParser("read", args)
+			size := ap.Int("size")
+			if err := ap.Finish(); err != nil {
+				return nil, err
+			}
+			r.readSizes = append(r.readSizes, size)
+			if len(r.chunks) == 0 {
+				return object.Bytes{}, nil
+			}
+			chunk := r.chunks[0]
+			r.chunks = r.chunks[1:]
+			return chunk, nil
+		}}, nil
+	case "close":
+		return &object.Function{Name: "close", Fn: func(args object.CallArgs) (object.Object, error) {
+			if err := object.RequireNoKeyword("close", args); err != nil {
+				return nil, err
+			}
+			if len(args.Positional) != 0 {
+				return nil, object.NewTypeError("close() takes no arguments")
+			}
+			r.closed = true
+			return object.Nil, nil
+		}}, nil
+	default:
+		return nil, object.NewAttributeError("TestReader has no attribute '%s'", name)
+	}
+}
+
+var _ object.Object = (*testReader)(nil)
+
 func moduleFunction(t *testing.T, name string) *object.Function {
 	t.Helper()
 
@@ -128,6 +177,78 @@ func TestRequestAndDo(t *testing.T) {
 	reply := callMethod(t, respHeader, "get", object.String("X-Reply"))
 	if got := reply.String(); got != "ok" {
 		t.Fatalf("X-Reply = %q, want ok", got)
+	}
+}
+
+func TestRequestBodyUsesDuckTypedReader(t *testing.T) {
+	server := httptest.NewServer(stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Errorf("read request body: %v", err)
+			return
+		}
+		if got := string(data); got != "hello world" {
+			t.Errorf("body = %q, want %q", got, "hello world")
+		}
+		w.WriteHeader(stdhttp.StatusNoContent)
+	}))
+	defer server.Close()
+
+	reader := newTestReader(object.String("hello "), object.Bytes("world"), object.Nil)
+	reqObj, err := moduleFunction(t, "Request").Call(object.CallArgs{Positional: object.Args{
+		object.String("POST"), object.String(server.URL), reader,
+	}})
+	if err != nil {
+		t.Fatalf("Request() error = %v", err)
+	}
+	req := reqObj.(*Request)
+	if _, ok := attr(t, req, "body").(*Body); !ok {
+		t.Fatalf("request body = %T, want *Body", attr(t, req, "body"))
+	}
+
+	clientObj, err := moduleFunction(t, "Client").Call(object.CallArgs{})
+	if err != nil {
+		t.Fatalf("Client() error = %v", err)
+	}
+	resp := callMethod(t, clientObj, "do", req).(*Response)
+	defer resp.body.Close()
+
+	if len(reader.readSizes) == 0 || reader.readSizes[0] <= 0 {
+		t.Fatalf("read(size) calls = %v, want a positive requested size", reader.readSizes)
+	}
+	if !reader.closed {
+		t.Fatal("duck reader close() was not called after sending request")
+	}
+}
+
+func TestResponseBodyIsStreamingReader(t *testing.T) {
+	server := httptest.NewServer(stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, _ *stdhttp.Request) {
+		_, _ = w.Write([]byte("abcdef"))
+	}))
+	defer server.Close()
+
+	respObj, err := moduleFunction(t, "get").Call(object.CallArgs{
+		Positional: object.Args{object.String(server.URL)},
+	})
+	if err != nil {
+		t.Fatalf("get() error = %v", err)
+	}
+	body, ok := attr(t, respObj, "body").(*Body)
+	if !ok {
+		t.Fatalf("response body = %T, want *Body", attr(t, respObj, "body"))
+	}
+
+	first := callMethod(t, body, "read", object.Integer(3)).(object.Bytes)
+	if got := string(first); got != "abc" {
+		t.Fatalf("body.read(3) = %q, want abc", got)
+	}
+	rest := callMethod(t, body, "read").(object.Bytes)
+	if got := string(rest); got != "def" {
+		t.Fatalf("body.read() = %q, want def", got)
+	}
+	callMethod(t, body, "close")
+	if closed := attr(t, body, "closed").(object.Bool); !closed.Bool() {
+		t.Fatal("body.closed = false after close()")
 	}
 }
 
