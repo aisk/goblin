@@ -4,7 +4,7 @@ import "testing"
 
 func TestAttributesMethodReturnsResolvableNames(t *testing.T) {
 	objects := []Object{
-		Nil, True, Integer(1), Float(1), String("x"),
+		Nil, True, Integer(1), Float(1), String("x"), Bytes("x"),
 		&List{}, NewDict(), &Chan{ch: make(chan Object)}, NewPath("."),
 		&Function{Name: "f", Fn: func(CallArgs) (Object, error) { return Nil, nil }},
 		NewError("boom"), &Module{Name: "m", Members: map[string]Object{"value": Integer(1)}},
