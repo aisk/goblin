@@ -16,7 +16,9 @@ var _ Object = Bytes{}
 func NewBytes(data []byte) Bytes { return Bytes(append([]byte(nil), data...)) }
 
 func (b Bytes) String() string { return "b" + strconv.Quote(string(b)) }
+func (b Bytes) ToString() (string, error) { return b.String(), nil }
 func (b Bytes) Bool() bool     { return len(b) != 0 }
+func (b Bytes) ToBool() (bool, error) { return b.Bool(), nil }
 
 func (b Bytes) Compare(other Object) (int, error) {
 	v, ok := other.(Bytes)
@@ -440,6 +442,8 @@ func (b Bytes) Decode(args CallArgs) (Object, error) {
 
 func (b Bytes) GetAttr(name string) (Object, error) {
 	switch name {
+	case "attributes":
+		return AttributesFunction(b), nil
 	case "size":
 		return &Function{Name: name, Fn: b.Size}, nil
 	case "decode":
@@ -514,6 +518,17 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 		return BytesConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Bytes has no attribute '%s'", name)
+	}
+}
+
+func (b Bytes) Attributes() []string {
+	return []string{
+		"attributes", "size", "decode", "contains", "contains_any", "contains_rune", "count",
+		"equal_fold", "compare", "has_prefix", "has_suffix", "index", "last_index",
+		"index_any", "last_index_any", "index_byte", "last_index_byte", "index_rune",
+		"join", "repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
+		"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",
+		"upper", "lower", "title", "to_valid_utf8", "constructor",
 	}
 }
 
