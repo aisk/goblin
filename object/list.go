@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -341,6 +342,24 @@ func (l *List) GetAttr(name string) (Object, error) {
 		return &Function{Name: "clear", Fn: l.Clear}, nil
 	case "copy":
 		return &Function{Name: "copy", Fn: l.Copy}, nil
+	case "sort":
+		return &Function{Name: "sort", Fn: l.sortMethod}, nil
+	case "map":
+		return &Function{Name: "map", Fn: l.mapMethod}, nil
+	case "filter":
+		return &Function{Name: "filter", Fn: l.filterMethod}, nil
+	case "reduce":
+		return &Function{Name: "reduce", Fn: l.reduceMethod}, nil
+	case "each":
+		return &Function{Name: "each", Fn: l.eachMethod}, nil
+	case "find":
+		return &Function{Name: "find", Fn: l.findMethod}, nil
+	case "any":
+		return &Function{Name: "any", Fn: l.anyMethod}, nil
+	case "all":
+		return &Function{Name: "all", Fn: l.allMethod}, nil
+	case "sum":
+		return &Function{Name: "sum", Fn: l.sumMethod}, nil
 	case "constructor":
 		return ListConstructorFn, nil
 	default:
@@ -348,8 +367,282 @@ func (l *List) GetAttr(name string) (Object, error) {
 	}
 }
 
+func (l *List) sortMethod(args CallArgs) (Object, error) {
+	p := NewArgParser("sort", args)
+	key, supplied := p.OptionalAny("key")
+	if !supplied {
+		key = Nil
+	}
+	reverseObj, supplied := p.OptionalAny("reverse")
+	reverse := false
+	if supplied {
+		reverse = reverseObj.Bool()
+	}
+	stableObj, supplied := p.OptionalAny("stable")
+	stable := false
+	if supplied {
+		stable = stableObj.Bool()
+	}
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+
+	var sortErr error
+	less := func(i, j int) bool {
+		if sortErr != nil {
+			return false
+		}
+		var a, b Object
+		if key != Nil {
+			a, sortErr = Call(key, CallArgs{Positional: []Object{l.Elements[i]}})
+			if sortErr != nil {
+				return false
+			}
+			b, sortErr = Call(key, CallArgs{Positional: []Object{l.Elements[j]}})
+			if sortErr != nil {
+				return false
+			}
+		} else {
+			a, b = l.Elements[i], l.Elements[j]
+		}
+
+		res, err := a.Compare(b)
+		if err != nil {
+			sortErr = err
+			return false
+		}
+		if reverse {
+			return res > 0
+		}
+		return res < 0
+	}
+
+	if stable {
+		sort.SliceStable(l.Elements, less)
+	} else {
+		sort.Slice(l.Elements, less)
+	}
+
+	if sortErr != nil {
+		return nil, sortErr
+	}
+	return Nil, nil
+}
+
+func (l *List) mapMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("map", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, NewTypeError("map() takes exactly 1 argument, got %d", len(args.Positional))
+	}
+	fn := args.Positional[0]
+	newElems := make([]Object, len(l.Elements))
+	for i, e := range l.Elements {
+		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+		newElems[i] = res
+	}
+	return &List{Elements: newElems}, nil
+}
+
+func (l *List) filterMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("filter", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, NewTypeError("filter() takes exactly 1 argument, got %d", len(args.Positional))
+	}
+	fn := args.Positional[0]
+	newElems := []Object{}
+	for _, e := range l.Elements {
+		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+		b, err := res.ToBool()
+		if err != nil {
+			return nil, err
+		}
+		if b {
+			newElems = append(newElems, e)
+		}
+	}
+	return &List{Elements: newElems}, nil
+}
+
+func (l *List) reduceMethod(args CallArgs) (Object, error) {
+	p := NewArgParser("reduce", args)
+	initial, supplied := p.OptionalAny("initial")
+	if !supplied {
+		initial = Nil
+	}
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, NewTypeError("reduce() takes exactly 1 positional argument, got %d", len(args.Positional))
+	}
+	fn := args.Positional[0]
+
+	acc := initial
+	start := 0
+	if acc == Nil {
+		if len(l.Elements) == 0 {
+			return nil, NewTypeError("reduce() of empty list with no initial value")
+		}
+		acc = l.Elements[0]
+		start = 1
+	}
+	for i := start; i < len(l.Elements); i++ {
+		var err error
+		acc, err = Call(fn, CallArgs{Positional: []Object{acc, l.Elements[i]}})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return acc, nil
+}
+
+func (l *List) eachMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("each", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, NewTypeError("each() takes exactly 1 argument, got %d", len(args.Positional))
+	}
+	fn := args.Positional[0]
+	for _, e := range l.Elements {
+		_, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+	}
+	return Nil, nil
+}
+
+func (l *List) findMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("find", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 1 {
+		return nil, NewTypeError("find() takes exactly 1 argument, got %d", len(args.Positional))
+	}
+	fn := args.Positional[0]
+	for _, e := range l.Elements {
+		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+		b, err := res.ToBool()
+		if err != nil {
+			return nil, err
+		}
+		if b {
+			return e, nil
+		}
+	}
+	return Nil, nil
+}
+
+func (l *List) anyMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("any", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) > 1 {
+		return nil, NewTypeError("any() takes at most 1 argument, got %d", len(args.Positional))
+	}
+
+	if len(args.Positional) == 0 {
+		for _, e := range l.Elements {
+			b, err := e.ToBool()
+			if err != nil {
+				return nil, err
+			}
+			if b {
+				return True, nil
+			}
+		}
+		return False, nil
+	}
+
+	fn := args.Positional[0]
+	for _, e := range l.Elements {
+		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+		b, err := res.ToBool()
+		if err != nil {
+			return nil, err
+		}
+		if b {
+			return True, nil
+		}
+	}
+	return False, nil
+}
+
+func (l *List) allMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("all", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) > 1 {
+		return nil, NewTypeError("all() takes at most 1 argument, got %d", len(args.Positional))
+	}
+
+	if len(args.Positional) == 0 {
+		for _, e := range l.Elements {
+			b, err := e.ToBool()
+			if err != nil {
+				return nil, err
+			}
+			if !b {
+				return False, nil
+			}
+		}
+		return True, nil
+	}
+
+	fn := args.Positional[0]
+	for _, e := range l.Elements {
+		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		if err != nil {
+			return nil, err
+		}
+		b, err := res.ToBool()
+		if err != nil {
+			return nil, err
+		}
+		if !b {
+			return False, nil
+		}
+	}
+	return True, nil
+}
+
+func (l *List) sumMethod(args CallArgs) (Object, error) {
+	if err := RequireNoKeyword("sum", args); err != nil {
+		return nil, err
+	}
+	if len(args.Positional) != 0 {
+		return nil, NewTypeError("sum() takes exactly 0 arguments, got %d", len(args.Positional))
+	}
+	var res Object = Integer(0)
+	for _, e := range l.Elements {
+		var err error
+		res, err = res.Add(e)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
 func (l *List) Attributes() []string {
-	return []string{"attributes", "size", "push", "pop", "first", "last", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "constructor"}
+	return []string{"attributes", "size", "push", "pop", "first", "last", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find", "any", "all", "sum", "constructor"}
 }
 
 var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}
