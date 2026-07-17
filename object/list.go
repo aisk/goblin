@@ -475,21 +475,15 @@ func (l *List) filterMethod(args CallArgs) (Object, error) {
 
 func (l *List) reduceMethod(args CallArgs) (Object, error) {
 	p := NewArgParser("reduce", args)
+	fn := p.Any("fn")
 	initial, supplied := p.OptionalAny("initial")
-	if !supplied {
-		initial = Nil
-	}
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("reduce() takes exactly 1 positional argument, got %d", len(args.Positional))
-	}
-	fn := args.Positional[0]
 
 	acc := initial
 	start := 0
-	if acc == Nil {
+	if !supplied {
 		if len(l.Elements) == 0 {
 			return nil, NewTypeError("reduce() of empty list with no initial value")
 		}
