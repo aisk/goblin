@@ -1,12 +1,7 @@
 # Installation
 
-Goblin is written in Go, so the easiest way to install it is with the Go
-toolchain.
-
-## Prerequisites
-
-You need [Go](https://go.dev/dl/) 1.20 or later. Verify your installation
-with:
+Goblin is installed through the Go toolchain. Install [Go](https://go.dev/dl/)
+1.20 or later, then verify that it is available:
 
 ```sh
 $ go version
@@ -18,9 +13,8 @@ $ go version
 $ go install github.com/aisk/goblin@latest
 ```
 
-This downloads, builds, and installs the `goblin` binary into
-`$GOBIN` (which defaults to `$HOME/go/bin`). Make sure that directory is on
-your `PATH`.
+This downloads, builds, and installs `goblin` into `$GOBIN`, normally
+`$HOME/go/bin` when `GOBIN` is unset. Ensure that directory is on your `PATH`.
 
 ## Verify the installation
 
@@ -28,7 +22,7 @@ your `PATH`.
 $ goblin --help
 ```
 
-If you see the help output, you are ready to go.
+If help text is printed, the installation is ready to use.
 
 ## Build from source
 
@@ -40,4 +34,9 @@ $ cd goblin
 $ go build .
 ```
 
-This produces a `goblin` executable in the current directory.
+This produces a `goblin` executable in the current directory. While working
+from a clone of the repository, you can also run it directly:
+
+```sh
+$ go run . run hello.goblin
+```

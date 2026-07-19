@@ -1,25 +1,31 @@
 # Introduction
 
-**Goblin** is a toy programming language built for fun. It is dynamically
-typed, with a syntax that borrows from Go and Python.
+Goblin is a dynamically typed language with Go-style braces and a compact,
+Python-like feel. It is useful for experimenting with programs and for
+learning how interpreters, runtimes, and code generation fit together.
 
-Goblin programs can be executed in two ways:
+This book assumes that you can use a command line and already know the basic
+ideas of variables, functions, and control flow. Its aim is not to catalogue
+every API, but to get you comfortably reading and writing Goblin programs.
 
-- **Interpreted** — `goblin run` executes a source file directly with a
-  tree-walking interpreter. There is also an interactive REPL (`goblin repl`).
-- **Compiled** — `goblin build-exe` transpiles the source to Go and compiles
-  it into a native executable.
+Goblin has two ways to run a program:
 
-A quick taste:
+- `goblin run` interprets a source file directly. Use it while developing and
+  experimenting.
+- `goblin build-exe` transpiles source to Go and compiles a native executable.
+  Use it when you want a standalone program.
+
+Here is a complete Goblin program:
 
 ```goblin
 func greet(name) {
     print("Hello,", name)
 }
 
-for name in ["world", "goblin"] {
+for name in ["world", "Goblin"] {
     greet(name)
 }
 ```
 
-The source code is available on [GitHub](https://github.com/aisk/goblin).
+Source files use the `.goblin` extension. Comments start with `#`. When you
+are ready, continue with [Installation](./installation.md).

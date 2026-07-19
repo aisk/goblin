@@ -1,6 +1,6 @@
 [book]
-title = "The Goblin Programming Language"
-description = "A tutorial for the Goblin programming language"
+title = "Goblin Book"
+description = "A concise introduction to the Goblin programming language"
 authors = ["AN Long"]
 language = "en"
 src = "src"
