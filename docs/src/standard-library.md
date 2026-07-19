@@ -54,3 +54,14 @@ functions.
 
 Each module has its own chapter in this section, with a focused API reference
 and example.
+
+## Reading API signatures
+
+Examples and tables use `name(required, optional=value)` to show argument
+order and defaults. Square brackets mean an argument may be omitted, as in
+`Chan([size])`. They do not promise that named arguments are accepted: a
+function's chapter calls out positional-only APIs where that matters.
+
+Unless a chapter says otherwise, a function that touches files, the operating
+system, or the network can raise an error value. Wrap the smallest useful
+boundary in try/catch, then add context or recover deliberately.

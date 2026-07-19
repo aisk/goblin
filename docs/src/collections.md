@@ -70,6 +70,30 @@ print(ordered)  # [1, 2, 3]
 Use contains() for membership tests. Use index() when the position matters;
 check for a missing value before using its result as an index.
 
+### Transforming lists with callbacks
+
+Lists also provide callback-based helpers. map() returns transformed values,
+filter() keeps values whose callback is truthy, and reduce() combines values
+from left to right. each() runs a callback for its side effect; find() returns
+the first matching value or nil.
+
+~~~goblin
+var values = [1, 2, 3, 4]
+var squares = values.map(func(value) { return value * value })
+var large = values.filter(func(value) { return value > 2 })
+var total = values.reduce(func(acc, value) { return acc + value }, 0)
+
+print(squares) # [1, 4, 9, 16]
+print(large)   # [3, 4]
+print(total)   # 10
+~~~
+
+Callbacks receive one list element, except reduce(), whose callback receives
+the accumulator followed by the element. Without an initial value, reduce()
+uses the first list element and raises TypeError for an empty list. any() and
+all() accept an optional callback; with none, they test each element's
+truthiness. sum() adds all elements.
+
 ## Dictionaries
 
 Create a dictionary with key: value pairs. Read and write through a key.

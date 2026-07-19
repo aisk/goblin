@@ -1,0 +1,7 @@
+var greeting = "Hello"
+
+func greet(name) {
+    return greeting + ", " + name
+}
+
+export greet
