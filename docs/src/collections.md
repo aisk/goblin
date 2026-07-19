@@ -46,6 +46,29 @@ print(combined) # [1, 2, 3, 4]
 pop(), first(), last(), and index() can raise IndexError when the requested
 element is unavailable. remove() raises ValueError if the value is absent.
 
+### Common list patterns
+
+Use push() while building a result, pop() when processing a work stack, and
+copy() before an operation that should not change the original list.
+
+~~~goblin
+var names = ["Ada", "Linus", "Grace"]
+var greetings = []
+for name in names {
+    greetings.push("Hello, " + name)
+}
+print(greetings.join(" | "))
+
+var original = [3, 1, 2]
+var ordered = original.copy()
+ordered.sort()
+print(original) # [3, 1, 2]
+print(ordered)  # [1, 2, 3]
+~~~
+
+Use contains() for membership tests. Use index() when the position matters;
+check for a missing value before using its result as an index.
+
 ## Dictionaries
 
 Create a dictionary with key: value pairs. Read and write through a key.
@@ -84,3 +107,26 @@ for pair in settings.items() {
 
 List() and Dict() construct the corresponding collections. See [Control
 flow](./control-flow.md) for iteration.
+
+### Common dictionary patterns
+
+Use get() to read optional configuration, set_default() to initialize a value
+once, and update() to merge a set of overrides into a base dictionary.
+
+~~~goblin
+var defaults = {"host": "127.0.0.1", "port": 8080}
+var overrides = {"port": 3000}
+defaults.update(overrides)
+print(defaults["port"]) # 3000
+
+var counts = {}
+for word in ["go", "goblin", "go"] {
+    var current = counts.get(word, default=0)
+    counts[word] = current + 1
+}
+print(counts["go"]) # 2
+~~~
+
+Use keys(), values(), or items() only when a list snapshot is useful. For a
+simple dictionary traversal, iterate the dictionary itself and look up each
+value by its key.

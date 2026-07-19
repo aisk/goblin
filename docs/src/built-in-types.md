@@ -41,6 +41,22 @@ print(Float(true))  # 1
 print(max(3, 5, 4))
 ~~~
 
+### When to convert and when to calculate
+
+Use Int() or Float() at the edge of a program, where a value arrives as text
+or where an integer operation must become floating-point. Keep calculations in
+their natural numeric form after that. For example, parse a configuration value
+once, then use min() and max() to keep it within a permitted range.
+
+~~~goblin
+var requested_workers = Int("12")
+var workers = min(max(requested_workers, 1), 8)
+print(workers) # 8
+~~~
+
+Int() rejects non-numeric text with ValueError. This makes it suitable for
+validating numeric input inside a try/catch block.
+
 ## Booleans and nil
 
 Use Bool(value) to convert any value by truthiness. False, nil, numeric zero,
@@ -56,6 +72,26 @@ print(true && false)  # false
 A function with no explicit result returns nil. Nil can be compared with nil,
 but arithmetic and indexing on it are errors.
 
+### Using truthiness for optional values
+
+Truthiness is convenient for choosing a fallback or guarding an optional
+collection. Use an explicit comparison with nil when zero, false, or an empty
+collection must still be treated as a present value.
+
+~~~goblin
+var nickname = ""
+if nickname {
+    print(nickname)
+} else {
+    print("anonymous")
+}
+
+var limit = 0
+if limit == nil {
+    print("no limit supplied")
+}
+~~~
+
 ## Strings and bytes
 
 Strings are immutable Unicode text. They can be indexed and iterated by
@@ -66,6 +102,18 @@ Bytes are immutable raw byte sequences. Bytes("ABC") has size 3 and its first
 element is the integer 65. Common byte methods mirror string operations:
 decode(), contains(), has_prefix(), split(), replace(), and trim(). Use Bytes
 for raw data and strings for text.
+
+### Working with bytes
+
+Use Bytes when reading or sending binary-oriented data, or when indexing must
+produce numeric byte values. Use decode() when that data should become text.
+
+~~~goblin
+var header = Bytes("GET")
+print(header[0])          # 71
+print(header.contains("E"))
+print(header.decode())    # GET
+~~~
 
 ## Lists and dictionaries
 
@@ -88,6 +136,23 @@ spawn(func() {
 print(done.recv())
 done.close()
 ~~~
+
+### Coordinating concurrent work
+
+An unbuffered channel makes send() wait until another function calls recv().
+This makes it useful for returning one result from spawned work. A buffered
+channel can accept up to its capacity before a receiver is ready.
+
+~~~goblin
+var results = Chan(2)
+spawn(func() { results.send(2 * 2) })
+spawn(func() { results.send(3 * 3) })
+print(results.recv() + results.recv())
+results.close()
+~~~
+
+Close a channel only when no more values will be sent. Receiving from a closed,
+drained channel raises ValueError, rather than producing a special nil value.
 
 ## Common operations
 

@@ -73,3 +73,25 @@ print("config.toml".trim_suffix(".toml"))
 trim() with no argument removes Unicode whitespace. Supplying a string trims
 any of its characters from both ends; it does not remove an exact substring.
 Use trim_prefix() or trim_suffix() when that distinction matters.
+
+## Common text-processing patterns
+
+Use trim() before validating user-supplied text, split() to turn a delimited
+setting into a list, and replace() when normalizing a known spelling or format.
+
+~~~goblin
+var raw_tags = " go, language,tools "
+var tags = []
+for tag in raw_tags.split(",") {
+    tags.push(tag.trim())
+}
+print(tags)
+
+var filename = "report.TXT"
+if filename.lower().has_suffix(".txt") {
+    print("text file")
+}
+~~~
+
+Use contains() when a yes/no answer is enough. Use index() or last_index() when
+you need the position, such as separating a filename from its final extension.
