@@ -38,6 +38,7 @@
 - [math](./module-math.md)
 - [http](./module-http.md)
 - [mime](./module-mime.md)
+- [uuid](./module-uuid.md)
 
 # Extending Goblin with Go
 
