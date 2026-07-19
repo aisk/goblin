@@ -94,9 +94,10 @@ if limit == nil {
 
 ## Strings and bytes
 
-Strings are immutable Unicode text. They can be indexed and iterated by
-character, combined with +, and repeated with *. See [Strings](./strings.md)
-for conversions and typical methods.
+Strings are immutable Unicode text. They can be iterated by character,
+combined with +, and repeated with *, but they are not indexable with `[]`.
+Use `index()` or `last_index()` to find a character position. See
+[Strings](./strings.md) for conversions and typical methods.
 
 Bytes are immutable raw byte sequences. Bytes("ABC") has size 3 and its first
 element is the integer 65. Common byte methods mirror string operations:

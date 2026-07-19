@@ -32,11 +32,17 @@ print("ha" * 3)        # hahaha
 ```
 
 Comparison operators are `==`, `!=`, `<`, `<=`, `>`, and `>=`; each produces a
-boolean. Logical operators are `!`, `&&`, and `||`.
+boolean. Logical operators are `!`, `&&`, and `||`. `&&` and `||`
+short-circuit, so their right-hand side is evaluated only when needed.
 
 ```goblin
 var allowed = age >= 18 && !banned
 ```
+
+`&&` and `||` currently have the same precedence and group from left to right.
+Always use parentheses when they are mixed: `ready || (retry && connected)`.
+For example, `true || false && false` evaluates as
+`(true || false) && false`, producing `false`.
 
 Conditions use truthiness. `false`, `nil`, numeric zero, and empty strings or
 collections are false. Logical expressions always produce booleans. Continue

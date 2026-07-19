@@ -5,13 +5,12 @@ runtime types. Empty collections are false in conditions.
 
 ## Lists
 
-Create a list with square brackets. Indexes begin at zero, and negative indexes
-count from the end.
+Create a list with square brackets. Direct list indexes begin at zero and must
+be non-negative.
 
 ~~~goblin
 var tasks = ["write", "test"]
 print(tasks[0])
-print(tasks[-1])
 tasks[1] = "review"
 tasks.push("ship")
 print(tasks.pop())
@@ -43,8 +42,10 @@ print(combined) # [1, 2, 3, 4]
 | reverse() / sort() | Reorder the list in place |
 | copy() / clear() | Duplicate or empty the list |
 
-pop(), first(), last(), and index() can raise IndexError when the requested
-element is unavailable. remove() raises ValueError if the value is absent.
+pop(), first(), and last() raise IndexError when the requested element is
+unavailable. pop() accepts a negative index, so its default `-1` removes the
+last element. index() returns `-1` when a value is absent, and remove() returns
+true when it removed a value or false when it did not.
 
 ### Common list patterns
 
