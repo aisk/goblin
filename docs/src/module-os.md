@@ -27,3 +27,35 @@ print(os.hostname())
 
 Avoid using exit() inside reusable library code. Environment and temporary-file
 operations can raise IOError.
+
+## Configuration from the environment
+
+getenv() returns an empty string for a missing key. Use that behavior to supply
+a development default, or use environ() when a program needs to inspect the
+complete environment dictionary.
+
+~~~goblin
+var env = os.environ()
+var mode = env.get("APP_MODE", default="development")
+var debug = mode == "development"
+print(debug)
+~~~
+
+setenv() changes only the environment of the current Goblin process and
+processes it starts. It does not persist after the program exits.
+
+## Temporary paths and process identity
+
+tempdir() and tempfile() accept optional directory and pattern arguments and
+return created paths. They are helpful for generated output and tests.
+
+~~~goblin
+var directory = os.tempdir("", "goblin-")
+var filename = os.tempfile(directory, "data-")
+print(directory)
+print(filename)
+~~~
+
+getpid(), getppid(), getuid(), getgid(), and getgroups() expose identity
+information supplied by the host operating system. Availability and exact
+values can vary by platform.

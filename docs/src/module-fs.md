@@ -27,3 +27,46 @@ append() adds text and returns the number of bytes written.
 
 Files returned by open() or create() should be closed after use. Filesystem
 operations can raise IOError.
+
+## File objects
+
+open(path) returns a read-oriented file object and create(path) returns a file
+that can be written. File objects expose name, closed, read(size=nil),
+write(text), stat(), and close(). read() returns text; write() returns the
+number of bytes written.
+
+~~~goblin
+var file = fs.create("log.txt")
+file.write("started\n")
+print(file.name)
+file.close()
+
+var reader = fs.open("log.txt")
+print(reader.read())
+print(reader.stat().size)
+reader.close()
+fs.remove("log.txt")
+~~~
+
+Always close a file once its work is finished, including after a try/catch
+block. For one small text file, fs.read() and fs.write() are simpler and avoid
+managing a file object.
+
+## Inspecting directories
+
+stat(path) and read_dir(path) return FileInfo values. Their common fields are
+name, size, is_dir, mode, and mod_time.
+
+~~~goblin
+var entries = fs.read_dir(".")
+for entry in entries {
+    if entry.is_dir {
+        print("directory:", entry.name)
+    } else {
+        print("file:", entry.name, entry.size)
+    }
+}
+~~~
+
+mkdir() creates one directory only; it fails when the parent is missing or the
+path already exists. remove() removes one file or empty directory.
