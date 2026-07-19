@@ -6,6 +6,7 @@ require github.com/dave/jennifer v1.6.1
 
 require (
 	github.com/chzyer/readline v1.5.1
+	github.com/google/uuid v1.6.0
 	github.com/spf13/cobra v1.10.2
 )
 

@@ -38,6 +38,7 @@ var knownModules = map[string]moduleInfo{
 	"fs":     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
 	"mime":   {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
 	"json":   {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},
+	"uuid":   {executorPath: pathExtension, varName: "uuid_module", executorFunc: "ExecuteUUID"},
 	"path":   {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
 	"time":   {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
 }

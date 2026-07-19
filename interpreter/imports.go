@@ -28,6 +28,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"fs":     fs.Execute,
 	"mime":   extension.ExecuteMime,
 	"json":   extension.ExecuteJson,
+	"uuid":   extension.ExecuteUUID,
 	"path":   pathExt.Execute,
 	"time":   timeExt.Execute,
 }
