@@ -9,19 +9,17 @@ print(message)        # say: "hello"
 print(message.size()) # 12
 ~~~
 
-size() counts Unicode characters, not bytes. Indexing and iteration also
-operate on characters.
+size() counts Unicode characters, not bytes. Strings iterate by character, but
+they cannot be indexed with `[]`; use index() or last_index() when a character
+position is needed.
 
 ~~~goblin
 var language = "Goblin"
-print(language[0]) # G
 
 for character in language {
     print(character)
 }
 ~~~
-
-An invalid index raises IndexError.
 
 ## Combining and converting text
 

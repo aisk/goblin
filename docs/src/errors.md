@@ -71,7 +71,10 @@ The runtime uses named error kinds, which can be raised directly or wrapped.
 | AttributeError / NameError | A missing member or identifier |
 | ImportError | An unavailable module |
 | ParseError | Invalid JSON or other parsed input |
-| IOError | File, network, or operating-system failure |
+| IOError | Generic file, network, or operating-system failure |
+| NotExistError / ExistError / PermissionError | A missing, existing, or inaccessible filesystem path |
+| TimeoutError / NetworkError | A timed-out or other network operation |
+| NotImplementedError | An operation the runtime does not implement |
 
 Kinds are hierarchical. IndexError and KeyError are LookupErrors;
 ZeroDivisionError is an ArithmeticError; ParseError is a ValueError. Therefore

@@ -22,7 +22,7 @@ print(os.hostname())
 | environ() | Return all environment values as a dictionary |
 | getwd() / hostname() | Current directory and machine name |
 | getpid() / getppid() | Process identifiers |
-| tempdir(dir="", pattern="") / tempfile(dir="", pattern="") | Create temporary paths |
+| tempdir([dir, pattern]) / tempfile([dir, pattern]) | Create temporary paths |
 | exit(code=0) | End the process |
 
 Avoid using exit() inside reusable library code. Environment and temporary-file
@@ -46,8 +46,9 @@ processes it starts. It does not persist after the program exits.
 
 ## Temporary paths and process identity
 
-tempdir() and tempfile() accept optional directory and pattern arguments and
-return created paths. They are helpful for generated output and tests.
+tempdir() and tempfile() accept optional directory and pattern arguments in
+that positional order, and return created paths. They are helpful for generated
+output and tests. These functions do not accept named arguments.
 
 ~~~goblin
 var directory = os.tempdir("", "goblin-")

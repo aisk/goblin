@@ -11,6 +11,8 @@
 # Language basics
 
 - [Values, variables, and expressions](./basics.md)
+- [Scope and declarations](./scope.md)
+- [Syntax and call rules](./syntax.md)
 - [Built-in types](./built-in-types.md)
 - [Control flow](./control-flow.md)
 - [Functions](./functions.md)
@@ -18,6 +20,8 @@
 - [Collections](./collections.md)
 - [Types and methods](./types.md)
 - [Errors](./errors.md)
+- [Built-in functions](./built-in-functions.md)
+- [Concurrency](./concurrency.md)
 
 # Standard library
 

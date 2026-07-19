@@ -67,11 +67,15 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | Method | Enables |
 | --- | --- |
 | `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
+| `__and`, `__or`, `__not` | Logical `&&`, `||`, and `!` operators |
 | `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1` |
 | `__str` | Printing and `Str(value)` |
 | `__bool` | Conditions and `Bool(value)` |
 | `__iter` | `for value in instance` |
 | `__getitem`, `__setitem` | `instance[index]` read and assignment |
+
+If a protocol method is absent, the corresponding operation raises TypeError.
+This includes every comparison when `__cmp` is absent.
 
 For example, this type supports `+` and printing:
 
