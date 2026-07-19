@@ -6,6 +6,7 @@
 
 - [Installation](./installation.md)
 - [Your first program](./hello-world.md)
+- [Using the REPL](./repl.md)
 
 # Language basics
 
