@@ -15,6 +15,11 @@ Goblin has two ways to run a program:
 - `goblin build-exe` transpiles source to Go and compiles a native executable.
   Use it when you want a standalone program.
 
+Both paths parse the same language and run semantic checks before executing.
+During development, start with `goblin run`; use `build-exe` when you need an
+executable without the Goblin CLI. The generated executable still uses the
+Goblin runtime, so the language behavior is intended to be the same.
+
 Here is a complete Goblin program:
 
 ```goblin
@@ -29,3 +34,11 @@ for name in ["world", "Goblin"] {
 
 Source files use the `.goblin` extension. Comments start with `#`. When you
 are ready, continue with [Installation](./installation.md).
+
+## What this book covers
+
+The chapters first cover values and control flow, then functions and
+collections, followed by custom types, modules, and errors. The examples are
+complete fragments that can be pasted into a `.goblin` file. The Book focuses
+on the language and its standard runtime; see the repository's `examples/`
+directory for larger executable programs.

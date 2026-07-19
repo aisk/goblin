@@ -16,6 +16,13 @@ $ go install github.com/aisk/goblin@latest
 This downloads, builds, and installs `goblin` into `$GOBIN`, normally
 `$HOME/go/bin` when `GOBIN` is unset. Ensure that directory is on your `PATH`.
 
+For a typical Unix shell, add the following line to your shell profile if
+`goblin` is not found after installation:
+
+```sh
+export PATH="$PATH:$(go env GOPATH)/bin"
+```
+
 ## Verify the installation
 
 ```sh
@@ -23,6 +30,14 @@ $ goblin --help
 ```
 
 If help text is printed, the installation is ready to use.
+
+The CLI provides three subcommands:
+
+| Command | Purpose |
+| --- | --- |
+| `goblin run file.goblin` | Interpret a source file |
+| `goblin build-exe file.goblin` | Build a native executable |
+| `goblin repl` | Start an interactive session |
 
 ## Build from source
 
@@ -39,4 +54,18 @@ from a clone of the repository, you can also run it directly:
 
 ```sh
 $ go run . run hello.goblin
+```
+
+Run the project's checks before contributing a change:
+
+```sh
+$ go test ./...
+```
+
+## Updating
+
+To update an installation made with `go install`, run the same command again:
+
+```sh
+$ go install github.com/aisk/goblin@latest
 ```
