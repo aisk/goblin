@@ -1,5 +1,7 @@
 # Introduction
 
+![Goblin logo](https://repository-images.githubusercontent.com/650676396/467e8cc2-8df2-445a-a477-b7bb399394a2)
+
 Goblin is a dynamically typed language with Go-style braces and a compact,
 Python-like feel. It is useful for experimenting with programs and for
 learning how interpreters, runtimes, and code generation fit together.

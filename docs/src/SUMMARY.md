@@ -31,3 +31,9 @@
 - [math](./module-math.md)
 - [http](./module-http.md)
 - [mime](./module-mime.md)
+
+# Extending Goblin with Go
+
+- [Overview](./extending-with-go.md)
+- [Custom object types](./go-custom-types.md)
+- [Functions and arguments](./go-functions-and-arguments.md)
