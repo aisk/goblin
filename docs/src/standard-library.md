@@ -22,21 +22,21 @@ without an import. Import a module only when its capabilities are needed.
 
 | Module | Main purpose | Start with |
 | --- | --- | --- |
-| json | Encode and decode JSON | marshal(), unmarshal() |
-| fs | Read, write, inspect, and remove files | read(), write(), exists() |
-| os | Read environment and process information | getenv(), getwd(), hostname() |
-| path | Find the current or home directory | cwd(), home() |
-| time | Work with time and durations | now(), sleep(), parse() |
-| random | Generate random values or choose an item | intn(), float(), choice() |
-| math | Numeric constants and functions | pi, sqrt(), pow(), abs() |
-| http | Make HTTP requests | get(), post(), put() |
-| mime | Look up MIME types and extensions | type_by_extension() |
+| [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
+| [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
+| [os](./module-os.md) | Read environment and process information | getenv(), getwd(), hostname() |
+| [path](./module-path.md) | Find the current or home directory | cwd(), home() |
+| [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
+| [random](./module-random.md) | Generate random values or choose an item | intn(), float(), choice() |
+| [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
+| [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
+| [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 
 ## Imports and errors
 
 Built-in module names are simple strings such as "json" and "fs". Local source
 modules use a relative import such as "./modules/greeter"; those are documented
-in [Built-in modules](./modules.md) because they use the same import syntax.
+in [Modules and imports](./modules.md) because they use the same import syntax.
 
 Most standard-library operations that touch the outside world can fail. JSON
 parsing may raise ParseError, a missing file may raise an I/O-related error, and
@@ -52,5 +52,5 @@ instead of assuming a current directory. Use time.sleep() only for intentional
 delays, and use Chan plus spawn() for communication between concurrent Goblin
 functions.
 
-The [Built-in modules](./modules.md) chapter gives a compact reference and
-examples for the most common modules.
+Each module has its own chapter in this section, with a focused API reference
+and example.

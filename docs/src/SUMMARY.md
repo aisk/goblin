@@ -21,4 +21,13 @@
 # Standard library
 
 - [Overview](./standard-library.md)
-- [Built-in modules](./modules.md)
+- [Modules and imports](./modules.md)
+- [json](./module-json.md)
+- [fs](./module-fs.md)
+- [os](./module-os.md)
+- [path](./module-path.md)
+- [time](./module-time.md)
+- [random](./module-random.md)
+- [math](./module-math.md)
+- [http](./module-http.md)
+- [mime](./module-mime.md)
