@@ -1,0 +1,8 @@
+var values = [1, 2, 3, 4]
+var squares = values.map(func(value) { return value * value })
+var large = values.filter(func(value) { return value > 2 })
+var total = values.reduce(func(acc, value) { return acc + value }, 0)
+
+print(squares)
+print(large)
+print(total)

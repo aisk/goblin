@@ -62,6 +62,12 @@ Run the project's checks before contributing a change:
 $ go test ./...
 ```
 
+To verify the complete programs mirrored in the Book, run:
+
+```sh
+$ bash docs/check-examples.sh
+```
+
 ## Updating
 
 To update an installation made with `go install`, run the same command again:

@@ -1,0 +1,8 @@
+var result = Chan()
+
+spawn(func() {
+    result.send(21 * 2)
+})
+
+print(result.recv())
+result.close()

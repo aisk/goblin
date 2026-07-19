@@ -32,4 +32,38 @@ Names without export remain private. Define a module-level name before code
 that uses it; this also applies to names referenced from an exported function.
 Named functions may call themselves recursively.
 
+## A complete local module
+
+For a small project, keep the entry point and local module in separate files:
+
+~~~text
+project/
+├── main.goblin
+└── modules/
+    └── greeter.goblin
+~~~
+
+~~~goblin
+# modules/greeter.goblin
+var greeting = "Hello"
+
+func greet(name) {
+    return greeting + ", " + name
+}
+
+export greet
+~~~
+
+~~~goblin
+# main.goblin
+import "./modules/greeter"
+
+print(greeter.greet("world"))
+~~~
+
+Run the entry point from `project/` with `goblin run main.goblin`. Local import
+paths are resolved from the importing file, not from the shell's current
+directory. A local import's final path component becomes its module name, so
+`./modules/greeter` is available as `greeter`.
+
 The remaining chapters document each built-in module separately.

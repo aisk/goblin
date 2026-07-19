@@ -44,3 +44,6 @@ collections, followed by custom types, modules, and errors. The examples are
 complete fragments that can be pasted into a `.goblin` file. The Book focuses
 on the language and its standard runtime; see the repository's `examples/`
 directory for larger executable programs.
+
+For the current implementation boundaries and features deliberately absent from
+the language, see [Language model and limits](./language-model.md).
