@@ -1,82 +1,86 @@
-# Strings and collections
+# Collections
+
+Lists and dictionaries are mutable collections. Their elements can have mixed
+runtime types. Empty collections are false in conditions.
 
 ## Lists
 
-Create a list with square brackets. Its elements may have different types.
-Indices start at zero and can be read or assigned.
+Create a list with square brackets. Indexes begin at zero, and negative indexes
+count from the end.
 
-```goblin
+~~~goblin
 var tasks = ["write", "test"]
 print(tasks[0])
+print(tasks[-1])
 tasks[1] = "review"
 tasks.push("ship")
-print(tasks.pop()) # ship; it is removed from the list
-```
+print(tasks.pop())
+~~~
 
-Negative indexes count from the end. An index outside the list raises
-`IndexError`.
+An index outside the list raises IndexError. The + operator makes a new
+concatenated list; push(), reverse(), sort(), and clear() change the current
+list.
 
-```goblin
-var colors = ["red", "green", "blue"]
-print(colors[-1]) # blue
-```
-
-Common list methods include `size()`, `first()`, `last()`, `contains()`,
-`join()`, `reverse()`, and `copy()`.
-
-```goblin
-var numbers = [1, 2, 3]
-print(numbers.size())
-print(numbers.join(","))
-```
-
-`push()` changes the existing list and returns it. `copy()` is useful when you
-need a separate list before mutating it. List concatenation creates a new list:
-
-```goblin
+~~~goblin
 var first = [1, 2]
 var combined = first + [3, 4]
 print(combined) # [1, 2, 3, 4]
-```
+~~~
+
+### List method guide
+
+| Method | Purpose |
+| --- | --- |
+| size() | Number of elements |
+| push(value, ...) | Append one or more values |
+| pop(index=-1) | Remove and return an element; defaults to the last |
+| first() / last() | Read the first or last element without removing it |
+| insert(index, value) | Insert before an index |
+| remove(value) | Remove the first matching value |
+| contains(value) / count(value) | Test for or count a value |
+| index(value, start=0) | Find a value from an offset |
+| join(separator) | Convert elements to text with a separator |
+| reverse() / sort() | Reorder the list in place |
+| copy() / clear() | Duplicate or empty the list |
+
+pop(), first(), last(), and index() can raise IndexError when the requested
+element is unavailable. remove() raises ValueError if the value is absent.
 
 ## Dictionaries
 
-Create a dictionary with `{key: value}` and read or assign through a key. Keys
-and values are runtime values.
+Create a dictionary with key: value pairs. Read and write through a key.
 
-```goblin
+~~~goblin
 var user = {"name": "Ada", "age": 36}
 print(user["name"])
 user["active"] = true
-```
+print(user.get("role", default="reader"))
+~~~
 
-Looking up a missing key with `dict[key]` raises `KeyError`. Use `get()` when a
-missing value is expected, and provide a `default` when appropriate.
+Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
+missing value is expected. Dictionary iteration yields keys; items() yields
+two-element [key, value] lists. Dictionary iteration order is unspecified.
 
-Dictionaries provide methods such as `size()`, `contains()`, `get()`, `keys()`,
-`values()`, `items()`, and `update()`.
-
-```goblin
-var port = user.get("port", default=8080)
-if user.contains("name") {
-    print(user["name"])
-}
-```
-
-`set_default(key, default)` returns the existing value or stores and returns
-the default. `pop(key)` removes a key and returns its value. `items()` returns
-a list of two-element `[key, value]` lists; dictionary iteration itself yields
-only keys.
-
-```goblin
+~~~goblin
 var settings = {}
 settings.set_default("theme", "dark")
 for pair in settings.items() {
     print(pair[0], pair[1])
 }
-```
+~~~
 
-`List()` and `Dict()` construct the corresponding collections. See [Control
-flow](./control-flow.md) for iteration. Collection elements may be mixed types,
-but dictionary key equality uses the key's runtime value. Dictionary iteration
-order is unspecified.
+### Dictionary method guide
+
+| Method | Purpose |
+| --- | --- |
+| size() | Number of entries |
+| contains(key) | Test whether a key exists |
+| get(key, default=nil) | Read a key without raising for a missing key |
+| set_default(key, default=nil) | Get an existing value or insert a default |
+| keys() / values() / items() | Return lists of keys, values, or key/value pairs |
+| pop(key) | Remove and return a value |
+| update(other) | Copy entries from another dictionary |
+| copy() / clear() | Duplicate or empty the dictionary |
+
+List() and Dict() construct the corresponding collections. See [Control
+flow](./control-flow.md) for iteration.
