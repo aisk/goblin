@@ -10,6 +10,7 @@
 # Language basics
 
 - [Values, variables, and expressions](./basics.md)
+- [Built-in types](./built-in-types.md)
 - [Control flow](./control-flow.md)
 - [Functions](./functions.md)
 - [Strings and collections](./collections.md)

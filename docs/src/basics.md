@@ -1,18 +1,14 @@
 # Values, variables, and expressions
 
 Goblin is dynamically typed: variables do not declare a type, and values carry
-their types at runtime. The basic values are integers, floats, strings,
-booleans, and `nil`.
+their types at runtime. Use `var` to bind a name to a value.
 
 ```goblin
-var count = 3
-var price = 19.5
-var name = "Goblin"
-var enabled = true
-var missing = nil
+var project = "Goblin Book"
+var published = false
 ```
 
-Declare a variable with `var`. Assign to its name to update it later.
+Assign to the name to update it later.
 
 ```goblin
 var score = 10
@@ -42,31 +38,6 @@ boolean. Logical operators are `!`, `&&`, and `||`.
 var allowed = age >= 18 && !banned
 ```
 
-Conditions use truthiness. `false`, `nil`, and the numeric value `0` are false.
-Logical expressions always produce booleans.
-
-## Strings
-
-Strings use double quotes. Escape a double quote or backslash with a backslash:
-
-```goblin
-var message = "say: \\"hello\\""
-print(message.size())
-```
-
-Strings are values with methods. Useful examples include `upper()`, `lower()`,
-`contains()`, `split()`, and `replace()`.
-
-```goblin
-var title = "Goblin book"
-print(title.upper())
-print(title.contains("book"))
-print("a,b,c".split(","))
-```
-
-Use `Int()`, `Float()`, and `Str()` for explicit conversions:
-
-```goblin
-var port = Int("8080")
-var label = Str(port)
-```
+Conditions use truthiness. `false`, `nil`, numeric zero, and empty strings or
+collections are false. Logical expressions always produce booleans. Continue
+with [Built-in types](./built-in-types.md) for the values that Goblin provides.
