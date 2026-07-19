@@ -16,5 +16,9 @@
 - [Strings](./strings.md)
 - [Collections](./collections.md)
 - [Types and methods](./types.md)
-- [Modules](./modules.md)
 - [Errors](./errors.md)
+
+# Standard library
+
+- [Overview](./standard-library.md)
+- [Built-in modules](./modules.md)
