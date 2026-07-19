@@ -1,0 +1,11 @@
+[book]
+title = "The Goblin Programming Language"
+description = "A tutorial for the Goblin programming language"
+authors = ["AN Long"]
+language = "en"
+src = "src"
+
+[output.html]
+git-repository-url = "https://github.com/aisk/goblin"
+edit-url-template = "https://github.com/aisk/goblin/edit/master/docs/{path}"
+site-url = "/goblin/"
