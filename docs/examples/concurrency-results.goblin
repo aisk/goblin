@@ -1,0 +1,31 @@
+func square(value, result) {
+    result.send(value * value)
+}
+
+func load_number(text, result) {
+    try {
+        result.send({"value": Int(text), "error": nil})
+    } catch err {
+        result.send({"value": nil, "error": err})
+    }
+}
+
+var results = Chan(3)
+for value in [2, 3, 4] {
+    spawn(square, value, results)
+}
+
+var total = 0
+for ignored in range(0, 3) {
+    total = total + results.recv()
+}
+results.close()
+print(total)
+
+var result = Chan()
+spawn(load_number, "not-a-number", result)
+var outcome = result.recv()
+if outcome["error"] {
+    print(outcome["error"].message)
+}
+result.close()

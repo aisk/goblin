@@ -12,4 +12,5 @@ run_example() {
 
 run_example "$repo_dir/docs/examples/collections-callbacks.goblin"
 run_example "$repo_dir/docs/examples/concurrency.goblin"
+run_example "$repo_dir/docs/examples/concurrency-results.goblin"
 run_example "$repo_dir/docs/examples/local-module/main.goblin"
