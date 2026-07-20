@@ -199,11 +199,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 					}
 				}
 
-				for _, field := range v.Fields {
-					if !c.currentScope.declare(field.Name) {
-						return c.newError(field.Pos, "duplicate declaration in same scope: %s", field.Name)
-					}
-				}
+				// Fields are NOT in scope as bare identifiers inside methods;
+				// they must be accessed through self. Declaring only the
+				// parameters here keeps the checker aligned with both backends.
 				for _, param := range method.Parameters {
 					if !c.currentScope.declare(param.Name) {
 						return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)

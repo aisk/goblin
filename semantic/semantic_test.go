@@ -174,6 +174,21 @@ func TestCheckModule(t *testing.T) {
 			errContains: "duplicate type field name: name",
 		},
 		{
+			name: "bare field reference in method is undefined",
+			source: "type User(name) {\n" +
+				"  func hello(self) { return name }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "undefined identifier: name",
+		},
+		{
+			name: "method parameter may share a field's name",
+			source: "type User(name) {\n" +
+				"  func rename(self, name) { self.name = name }\n" +
+				"}\n",
+			wantErr: false,
+		},
+		{
 			name: "type method requires self",
 			source: "type User(name) {\n" +
 				"  func hello(name) { print(name) }\n" +
