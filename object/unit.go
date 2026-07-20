@@ -7,7 +7,7 @@ type Unit struct{}
 var _ Object = Unit{}
 
 func (n Unit) String() string {
-	return "none"
+	return "nil"
 }
 
 func (n Unit) ToString() (string, error) { return n.String(), nil }

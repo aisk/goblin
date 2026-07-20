@@ -8,7 +8,7 @@ operation succeeds only when its value types are compatible.
 | Integer | 0, -42 | Signed whole number |
 | Float | 3.14, -0.5 | Floating-point number |
 | Bool | true, false | Logical value |
-| Nil | nil | Absence of a value; it prints as none |
+| Nil | nil | Absence of a value; it prints as nil |
 | String | "hello" | Immutable Unicode text |
 | Bytes | Bytes("data") | Immutable raw byte sequence |
 | List | [1, "two"] | Ordered, mutable collection |

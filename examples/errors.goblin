@@ -21,7 +21,7 @@ var deep = err.wrap("startup")
 print(deep.message)
 print(deep.is(not_found))
 
-# unwrap at the bottom of the chain returns none
+# unwrap at the bottom of the chain returns nil
 print(not_found.unwrap())
 
 # wrap/is compose with raise and catch

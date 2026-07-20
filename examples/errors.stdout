@@ -4,7 +4,7 @@ true
 false
 startup: loading config: not found
 true
-none
+nil
 reading file: not found
 true
 ValueError
