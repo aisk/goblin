@@ -71,14 +71,6 @@ func (b Bool) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Bool")
 }
 
-func (b Bool) And(other Object) (Object, error) {
-	return Bool(b.Bool() && other.Bool()), nil
-}
-
-func (b Bool) Or(other Object) (Object, error) {
-	return Bool(b.Bool() || other.Bool()), nil
-}
-
 func (b Bool) Not() (Object, error) {
 	return Bool(!b.Bool()), nil
 }

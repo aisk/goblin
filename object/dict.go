@@ -262,14 +262,6 @@ func (d *Dict) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Dict")
 }
 
-func (d *Dict) And(other Object) (Object, error) {
-	return Bool(d.Bool() && other.Bool()), nil
-}
-
-func (d *Dict) Or(other Object) (Object, error) {
-	return Bool(d.Bool() || other.Bool()), nil
-}
-
 func (d *Dict) Not() (Object, error) {
 	return Bool(!d.Bool()), nil
 }

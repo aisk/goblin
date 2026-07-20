@@ -90,8 +90,8 @@ func exportedName(name string) string {
 // must be mangled so both can coexist on the same receiver.
 var reservedGoMethodNames = map[string]bool{
 	"String": true, "Bool": true, "Compare": true, "Add": true,
-	"Minus": true, "Multiply": true, "Divide": true, "And": true,
-	"Or": true, "Not": true, "Iter": true, "Index": true,
+	"Minus": true, "Multiply": true, "Divide": true,
+	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 }
 
@@ -1156,8 +1156,6 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		{"Minus", "__sub", "cannot subtract %s"},
 		{"Multiply", "__mul", "cannot multiply %s"},
 		{"Divide", "__div", "cannot divide %s"},
-		{"And", "__and", "cannot perform AND on %s"},
-		{"Or", "__or", "cannot perform OR on %s"},
 	}
 	for _, op := range binOps {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
@@ -1178,7 +1176,13 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	if defined["__not"] {
 		notDecl.Block(jen.Return(protoCall("__not")))
 	} else {
-		notDecl.Block(jen.Return(jen.Nil(), errorf("cannot perform NOT on %s")))
+		// Without __not, ! negates the instance's truthiness, matching the
+		// default behavior of built-in types.
+		notDecl.Block(
+			jen.List(jen.Id("_b"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("ToBool").Call(),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
+			jen.Return(jen.Qual(pathObject, "Bool").Call(jen.Op("!").Id("_b")), jen.Nil()),
+		)
 	}
 	protoDecls = append(protoDecls, notDecl)
 

@@ -98,14 +98,6 @@ func (f Float) Divide(other Object) (Object, error) {
 	}
 }
 
-func (f Float) And(other Object) (Object, error) {
-	return Bool(f.Bool() && other.Bool()), nil
-}
-
-func (f Float) Or(other Object) (Object, error) {
-	return Bool(f.Bool() || other.Bool()), nil
-}
-
 func (f Float) Not() (Object, error) {
 	return Bool(!f.Bool()), nil
 }

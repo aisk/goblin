@@ -254,25 +254,17 @@ func (in *instance) Divide(other object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
 }
 
-func (in *instance) And(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__and", other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError("cannot perform AND on %s", in.typ.name)
-}
-
-func (in *instance) Or(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__or", other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError("cannot perform OR on %s", in.typ.name)
-}
-
 func (in *instance) Not() (object.Object, error) {
 	if v, ok, err := in.callProto("__not"); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot perform NOT on %s", in.typ.name)
+	// Without __not, ! negates the instance's truthiness, matching the
+	// default behavior of built-in types.
+	b, err := in.ToBool()
+	if err != nil {
+		return nil, err
+	}
+	return object.Bool(!b), nil
 }
 
 func (in *instance) Iter() ([]object.Object, error) {

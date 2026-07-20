@@ -29,12 +29,6 @@ func (f *Function) Multiply(Object) (Object, error) {
 	return nil, NewTypeError("cannot multiply Function")
 }
 func (f *Function) Divide(Object) (Object, error) { return nil, NewTypeError("cannot divide Function") }
-func (f *Function) And(Object) (Object, error) {
-	return nil, NewTypeError("cannot perform AND on Function")
-}
-func (f *Function) Or(Object) (Object, error) {
-	return nil, NewTypeError("cannot perform OR on Function")
-}
 func (f *Function) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Function") }
 func (f *Function) Iter() ([]Object, error) {
 	return nil, NewTypeError("Function does not support iteration")

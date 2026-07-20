@@ -42,8 +42,6 @@ func (b Bytes) Add(other Object) (Object, error) {
 func (b Bytes) Minus(Object) (Object, error)     { return nil, NewTypeError("cannot subtract from Bytes") }
 func (b Bytes) Multiply(Object) (Object, error)  { return nil, NewTypeError("cannot multiply Bytes") }
 func (b Bytes) Divide(Object) (Object, error)    { return nil, NewTypeError("cannot divide Bytes") }
-func (b Bytes) And(other Object) (Object, error) { return Bool(b.Bool() && other.Bool()), nil }
-func (b Bytes) Or(other Object) (Object, error)  { return Bool(b.Bool() || other.Bool()), nil }
 func (b Bytes) Not() (Object, error)             { return Bool(!b.Bool()), nil }
 
 func (b Bytes) Iter() ([]Object, error) {

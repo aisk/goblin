@@ -264,14 +264,6 @@ func (l *List) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide List")
 }
 
-func (l *List) And(other Object) (Object, error) {
-	return Bool(l.Bool() && other.Bool()), nil
-}
-
-func (l *List) Or(other Object) (Object, error) {
-	return Bool(l.Bool() || other.Bool()), nil
-}
-
 func (l *List) Not() (Object, error) {
 	return Bool(!l.Bool()), nil
 }

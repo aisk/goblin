@@ -67,7 +67,7 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | Method | Enables |
 | --- | --- |
 | `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
-| `__and`, `__or`, `__not` | Logical `&&`, `||`, and `!` operators |
+| `__not` | Logical `!` operator; without it `!` negates truthiness |
 | `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of `==` |
 | `__str` | Printing and `Str(value)` |
 | `__bool` | Conditions and `Bool(value)` |

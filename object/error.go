@@ -102,14 +102,6 @@ func (e *Error) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Error and %T", other)
 }
 
-func (e *Error) And(other Object) (Object, error) {
-	return nil, NewTypeError("cannot perform AND operation on Error and %T", other)
-}
-
-func (e *Error) Or(other Object) (Object, error) {
-	return nil, NewTypeError("cannot perform OR operation on Error and %T", other)
-}
-
 func (e *Error) Not() (Object, error) {
 	return nil, NewTypeError("cannot perform NOT operation on Error")
 }

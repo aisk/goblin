@@ -14,8 +14,6 @@ type Object interface {
 	Minus(other Object) (Object, error)
 	Multiply(other Object) (Object, error)
 	Divide(other Object) (Object, error)
-	And(other Object) (Object, error)
-	Or(other Object) (Object, error)
 	Not() (Object, error)
 	Iter() ([]Object, error)
 	Index(index Object) (Object, error)

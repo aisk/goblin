@@ -73,3 +73,5 @@ var o = Opaque()
 if o {
     print("opaque is truthy")
 }
+# Without __not, ! negates truthiness.
+print(!o)
