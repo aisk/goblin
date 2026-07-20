@@ -86,7 +86,9 @@ func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam s
 
 		d := NewDict()
 		for _, key := range keys {
-			d.Set(String(key), kwExtras[key])
+			if err := d.Set(String(key), kwExtras[key]); err != nil {
+				return nil, err
+			}
 		}
 		bound[kwArgsParam] = d
 	}

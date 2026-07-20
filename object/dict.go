@@ -11,9 +11,29 @@ type DictEntry struct {
 }
 
 type Dict struct {
-	// Entries maps the string form of each key to its entry. Iteration order is
-	// unspecified, mirroring Go's map semantics.
+	// Entries maps the encoded form of each key (see dictKey) to its entry.
+	// Iteration order is unspecified, mirroring Go's map semantics.
 	Entries map[string]DictEntry
+}
+
+// dictKey encodes a key for map storage. The type tag keeps keys of different
+// types distinct even when they render identically (1 vs "1" vs true). Only
+// immutable built-in types are hashable; anything else raises TypeError.
+func dictKey(key Object) (string, error) {
+	switch v := key.(type) {
+	case String:
+		return "s:" + string(v), nil
+	case Integer:
+		return "i:" + v.String(), nil
+	case Float:
+		return "f:" + v.String(), nil
+	case Bool:
+		return "b:" + v.String(), nil
+	case Unit:
+		return "n:", nil
+	default:
+		return "", NewTypeError("unhashable dict key: %s", key.String())
+	}
 }
 
 var _ Object = &Dict{}
@@ -73,7 +93,10 @@ func (d *Dict) Contains(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	_, ok := d.Get(key)
+	_, ok, err := d.Get(key)
+	if err != nil {
+		return nil, err
+	}
 	return Bool(ok), nil
 }
 
@@ -84,7 +107,11 @@ func (d *Dict) GetValue(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if value, ok := d.Get(key); ok {
+	value, ok, err := d.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
 		return value, nil
 	}
 	return def, nil
@@ -97,10 +124,16 @@ func (d *Dict) SetDefault(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if value, ok := d.Get(key); ok {
+	value, ok, err := d.Get(key)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
 		return value, nil
 	}
-	d.Set(key, def)
+	if err := d.Set(key, def); err != nil {
+		return nil, err
+	}
 	return def, nil
 }
 
@@ -111,7 +144,10 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	encoded := key.String()
+	encoded, err := dictKey(key)
+	if err != nil {
+		return nil, err
+	}
 	if entry, ok := d.Entries[encoded]; ok {
 		delete(d.Entries, encoded)
 		return entry.Value, nil
@@ -133,7 +169,9 @@ func (d *Dict) Update(args CallArgs) (Object, error) {
 		return nil, NewTypeError("update() argument 'other' must be Dict, got %T", other)
 	}
 	for _, entry := range source.Entries {
-		d.Set(entry.Key, entry.Value)
+		if err := d.Set(entry.Key, entry.Value); err != nil {
+			return nil, err
+		}
 	}
 	return d, nil
 }
@@ -152,7 +190,9 @@ func (d *Dict) Copy(args CallArgs) (Object, error) {
 	}
 	result := NewDict()
 	for _, entry := range d.Entries {
-		result.Set(entry.Key, entry.Value)
+		if err := result.Set(entry.Key, entry.Value); err != nil {
+			return nil, err
+		}
 	}
 	return result, nil
 }
@@ -163,18 +203,27 @@ func NewDict() *Dict {
 	}
 }
 
-func (d *Dict) Set(key, value Object) {
+func (d *Dict) Set(key, value Object) error {
+	encoded, err := dictKey(key)
+	if err != nil {
+		return err
+	}
 	if d.Entries == nil {
 		d.Entries = make(map[string]DictEntry)
 	}
-	d.Entries[key.String()] = DictEntry{Key: key, Value: value}
+	d.Entries[encoded] = DictEntry{Key: key, Value: value}
+	return nil
 }
 
-func (d *Dict) Get(key Object) (Object, bool) {
-	if entry, ok := d.Entries[key.String()]; ok {
-		return entry.Value, true
+func (d *Dict) Get(key Object) (Object, bool, error) {
+	encoded, err := dictKey(key)
+	if err != nil {
+		return nil, false, err
 	}
-	return nil, false
+	if entry, ok := d.Entries[encoded]; ok {
+		return entry.Value, true, nil
+	}
+	return nil, false, nil
 }
 
 func (d *Dict) String() string {
@@ -234,15 +283,18 @@ func (d *Dict) Iter() ([]Object, error) {
 }
 
 func (d *Dict) Index(index Object) (Object, error) {
-	if val, ok := d.Get(index); ok {
+	val, ok, err := d.Get(index)
+	if err != nil {
+		return nil, err
+	}
+	if ok {
 		return val, nil
 	}
 	return nil, NewKeyError("key not found: %s", index.String())
 }
 
 func (d *Dict) SetIndex(index Object, value Object) error {
-	d.Set(index, value)
-	return nil
+	return d.Set(index, value)
 }
 
 func (d *Dict) GetAttr(name string) (Object, error) {
@@ -290,7 +342,9 @@ func DictConstructor(args CallArgs) (Object, error) {
 	}
 	result := NewDict()
 	for k, v := range args.Keyword {
-		result.Set(String(k), v)
+		if err := result.Set(String(k), v); err != nil {
+			return nil, err
+		}
 	}
 	return result, nil
 }

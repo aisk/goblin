@@ -46,3 +46,18 @@ print(options.items().size())
 var options_copy = options.copy()
 options_copy.clear()
 print(options_copy.size())
+
+# Keys of different types stay distinct
+var mixed = {}
+mixed[1] = "int key"
+mixed["1"] = "string key"
+print(mixed[1])
+print(mixed["1"])
+print(mixed.size())
+
+# Only immutable values can be keys
+try {
+    mixed[[1, 2]] = "boom"
+} catch e {
+    print(e)
+}

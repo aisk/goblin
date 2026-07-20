@@ -479,7 +479,13 @@ func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError
 		}
 		preStmts = append(preStmts, keyPre...)
 		preStmts = append(preStmts, valuePre...)
-		preStmts = append(preStmts, jen.Id(dictVar).Dot("Set").Call(key, value))
+		errVar := ctx.localName("err")
+		preStmts = append(preStmts,
+			jen.If(
+				jen.Id(errVar).Op(":=").Id(dictVar).Dot("Set").Call(key, value),
+				jen.Id(errVar).Op("!=").Nil(),
+			).Block(onError(errVar)),
+		)
 	}
 
 	return preStmts, jen.Id(dictVar), nil

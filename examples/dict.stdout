@@ -20,3 +20,7 @@ none
 true
 2
 0
+int key
+string key
+2
+unhashable dict key: [1, 2]

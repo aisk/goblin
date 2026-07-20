@@ -75,7 +75,9 @@ func JSONToGoblin(v any) (object.Object, error) {
 			if err != nil {
 				return nil, err
 			}
-			d.Set(object.String(k), g)
+			if err := d.Set(object.String(k), g); err != nil {
+				return nil, err
+			}
 		}
 		return d, nil
 	}

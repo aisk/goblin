@@ -105,6 +105,11 @@ user["active"] = true
 print(user.get("role", default="reader"))
 ~~~
 
+Keys may be strings, integers, floats, booleans, or nil, and keys of
+different types stay distinct: `d[1]` and `d["1"]` are separate entries.
+Using a mutable value (a list, dictionary, or custom instance) as a key
+raises TypeError.
+
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
 missing value is expected. Dictionary iteration yields keys; items() yields
 two-element [key, value] lists. Dictionary iteration order is unspecified.

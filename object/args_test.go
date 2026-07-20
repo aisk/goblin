@@ -111,7 +111,7 @@ func TestBindArgumentsVarArgsAndKwArgs(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected kwargs dict, got %#v", bound["kwargs"])
 	}
-	if _, ok := kwargs.Get(String("x")); !ok {
+	if _, ok, _ := kwargs.Get(String("x")); !ok {
 		t.Fatalf("expected kwargs to contain key x")
 	}
 }

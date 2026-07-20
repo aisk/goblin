@@ -260,3 +260,44 @@ func TestListSort(t *testing.T) {
 		t.Fatalf("sort with key result = %s", list2)
 	}
 }
+
+func TestDictKeysOfDifferentTypesStayDistinct(t *testing.T) {
+	dict := NewDict()
+	for _, kv := range []struct {
+		key   Object
+		value Object
+	}{
+		{Integer(1), String("int")},
+		{String("1"), String("str")},
+		{Float(1.5), String("float")},
+		{True, String("bool")},
+		{String("true"), String("str-true")},
+		{Nil, String("nil")},
+	} {
+		if err := dict.Set(kv.key, kv.value); err != nil {
+			t.Fatalf("Set(%s) failed: %v", kv.key.String(), err)
+		}
+	}
+	if len(dict.Entries) != 6 {
+		t.Fatalf("expected 6 distinct entries, got %d", len(dict.Entries))
+	}
+	if v, ok, err := dict.Get(Integer(1)); err != nil || !ok || v != String("int") {
+		t.Fatalf("Get(1) = %v, %v, %v; want \"int\"", v, ok, err)
+	}
+	if v, ok, err := dict.Get(String("1")); err != nil || !ok || v != String("str") {
+		t.Fatalf("Get(\"1\") = %v, %v, %v; want \"str\"", v, ok, err)
+	}
+}
+
+func TestDictUnhashableKey(t *testing.T) {
+	dict := NewDict()
+	if err := dict.Set(&List{}, Integer(1)); err == nil {
+		t.Fatal("Set with a list key should fail")
+	}
+	if _, _, err := dict.Get(&List{}); err == nil {
+		t.Fatal("Get with a list key should fail")
+	}
+	if _, err := dict.Index(&List{}); err == nil {
+		t.Fatal("Index with a list key should fail")
+	}
+}

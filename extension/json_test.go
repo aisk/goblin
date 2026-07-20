@@ -62,11 +62,11 @@ func TestJsonUnmarshalNumberTypes(t *testing.T) {
 		t.Fatalf("unmarshal error: %v", err)
 	}
 	d := got.(*object.Dict)
-	iv, _ := d.Get(object.String("i"))
+	iv, _, _ := d.Get(object.String("i"))
 	if _, ok := iv.(object.Integer); !ok {
 		t.Errorf("i want Integer, got %T", iv)
 	}
-	fv, _ := d.Get(object.String("f"))
+	fv, _, _ := d.Get(object.String("f"))
 	if _, ok := fv.(object.Float); !ok {
 		t.Errorf("f want Float, got %T", fv)
 	}
@@ -153,10 +153,10 @@ func TestJsonRoundTrip(t *testing.T) {
 		t.Fatalf("unmarshal error: %v", err)
 	}
 	d := back.(*object.Dict)
-	if v, _ := d.Get(object.String("name")); v.String() != "Bob" {
+	if v, _, _ := d.Get(object.String("name")); v.String() != "Bob" {
 		t.Errorf("round-trip name = %q, want Bob", v.String())
 	}
-	if v, _ := d.Get(object.String("active")); v.String() != "true" {
+	if v, _, _ := d.Get(object.String("active")); v.String() != "true" {
 		t.Errorf("round-trip active = %q, want true", v.String())
 	}
 }

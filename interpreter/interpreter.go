@@ -315,7 +315,9 @@ func evalExpr(expr ast.Expression, env *Environment) (object.Object, error) {
 			if err != nil {
 				return nil, err
 			}
-			d.Set(k, v)
+			if err := d.Set(k, v); err != nil {
+				return nil, err
+			}
 		}
 		return d, nil
 
