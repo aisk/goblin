@@ -64,16 +64,20 @@ var buildExeCmd = &cobra.Command{
 			return err
 		}
 
-		// Determine output path.
+		// Determine output path. It must be absolute: go build runs in the
+		// temporary directory, where a relative -o would land (and be
+		// removed along with it).
 		out, _ := cmd.Flags().GetString("output")
 		if out == "" {
 			base := filepath.Base(sourceFile)
-			binaryName := strings.TrimSuffix(base, ".goblin")
+			out = strings.TrimSuffix(base, ".goblin")
+		}
+		if !filepath.IsAbs(out) {
 			cwd, err := os.Getwd()
 			if err != nil {
 				return fmt.Errorf("failed to get working directory: %w", err)
 			}
-			out = filepath.Join(cwd, binaryName)
+			out = filepath.Join(cwd, out)
 		}
 
 		goBuild := exec.Command("go", "build", "-mod=mod", "-o", out, ".")

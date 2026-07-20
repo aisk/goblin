@@ -1895,9 +1895,18 @@ func pathToRelDir(importPath string) string {
 	return s
 }
 
-// detectGoblinRoot walks up from the current working directory (then the
-// executable path) looking for a go.mod that declares github.com/aisk/goblin.
+// detectGoblinRoot locates a local goblin source checkout so generated code
+// builds against it (via a replace directive) instead of the published module.
+// GOBLIN_ROOT takes precedence; otherwise it walks up from the current working
+// directory, then from the executable path, looking for a go.mod that declares
+// github.com/aisk/goblin. Without a match the published runtime version is
+// used, which is correct for released binaries but means a development binary
+// run outside the repository silently builds against the released runtime.
 func detectGoblinRoot() string {
+	if root := os.Getenv("GOBLIN_ROOT"); root != "" {
+		return root
+	}
+
 	// Try walking up from cwd
 	if cwd, err := os.Getwd(); err == nil {
 		dir := cwd

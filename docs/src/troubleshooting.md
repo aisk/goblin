@@ -29,3 +29,8 @@ If `build-exe` fails after a program works with `run`, verify that the Go
 toolchain is installed and run the command again with the generated-build
 message visible. Report the Goblin source, command, full error text, and
 whether the interpreter path succeeds when filing an issue.
+
+`build-exe` compiles against the published Goblin runtime unless it finds a
+local source checkout (from the working directory or the executable's
+location). When developing Goblin itself, set `GOBLIN_ROOT` to the checkout
+path so compiled programs use your local runtime.
