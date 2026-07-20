@@ -202,7 +202,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
-	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
+	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
 	}
@@ -344,7 +344,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
-	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
+	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
 	}
@@ -1818,6 +1818,59 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 	return append(prelude, codes...), nil
 }
 
+// transpileModuleStatements transpiles a module body with hoisting, mirroring
+// the interpreter, which registers all top-level function and type definitions
+// before executing the module body. Every module-level binding is declared
+// upfront (initialized to nil), all function values are assigned next, and the
+// remaining statements run in source order. This makes forward references —
+// including mutually recursive functions — work in generated code. Type
+// constructor names are pre-registered for the same reason (their variables
+// are emitted as package-level declarations).
+func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+	for _, stmt := range stmts {
+		if typeDef, ok := stmt.(*ast.TypeDefine); ok {
+			ctx.moduleImports[typeDef.Name] = typeDef.Name + "Constructor"
+		}
+	}
+
+	var decls, funcAssigns, body []jen.Code
+	declare := func(name string) {
+		decl := jen.Var().Id(name).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Nil")
+		decl.Op(";").Id("_").Op("=").Id(name)
+		decls = append(decls, decl)
+	}
+	for _, stmt := range stmts {
+		switch v := stmt.(type) {
+		case *ast.FunctionDefine:
+			declare(v.Name)
+			funcValue, err := ctx.buildFunctionValue(v.Name, v.Position(), v.Parameters, v.Body)
+			if err != nil {
+				return nil, err
+			}
+			funcAssigns = append(funcAssigns, jen.Id(v.Name).Op("=").Add(funcValue))
+		case *ast.Declare:
+			// Split `var x = expr` into a hoisted declaration and an in-place
+			// assignment so function closures may reference the variable
+			// regardless of where their definition appears in the source.
+			declare(v.Name)
+			preStmts, value, err := ctx.transpileExpression(v.Value, onError)
+			if err != nil {
+				return nil, err
+			}
+			body = append(body, preStmts...)
+			body = append(body, jen.Id(v.Name).Op("=").Add(value))
+		default:
+			codes, err := ctx.transpileStatement(stmt, onError, exportsVar)
+			if err != nil {
+				return nil, err
+			}
+			body = append(body, codes...)
+		}
+	}
+	result := append(decls, funcAssigns...)
+	return append(result, body...), nil
+}
+
 func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	var result []jen.Code
 	for _, stmt := range stmts {
@@ -2027,7 +2080,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
-	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
+	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
 	}
@@ -2166,7 +2219,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
 	}
 
-	stmts, err := ctx.transpileStatements(mod.Body, onError, exportsVar)
+	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
 	if err != nil {
 		return err
 	}

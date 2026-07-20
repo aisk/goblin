@@ -29,19 +29,26 @@ print(readers[0](), readers[1](), readers[2]()) # 1 2 3
 
 ## Declarations at module scope
 
-`import`, `type`, and `export` are allowed only at module scope. A named
-function can call itself recursively, but ordinary uses of a top-level name
-must appear after its declaration.
+`import`, `type`, and `export` are allowed only at module scope. Module-level
+`import`, `func`, and `type` names are hoisted: they are visible throughout
+the module regardless of where the definition appears, so functions may call
+functions defined later — including mutually recursive pairs.
 
 ~~~goblin
-func double(value) {
-    return value * 2
+func is_even(n) {
+    if n == 0 { return true }
+    return is_odd(n - 1)
 }
 
-print(double(21))
+func is_odd(n) {
+    if n == 0 { return false }
+    return is_even(n - 1)
+}
+
+print(is_even(10))
 ~~~
 
-Names must be declared before ordinary expressions use them. In particular,
-local `var` declarations and top-level functions are not available before
-their declaration. Keep declarations near the beginning of the block when that
-makes a function easier to read.
+Other names must be declared before use: local `var` declarations (and nested
+function definitions) are not available before their declaration. Keep
+declarations near the beginning of the block when that makes a function easier
+to read.

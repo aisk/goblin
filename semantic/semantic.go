@@ -78,14 +78,25 @@ func CheckModule(mod *ast.Module) error {
 		currentScope: newScope(nil),
 	}
 
-	// Import names are available across the whole module in current transpiler behavior.
+	// Module-level import, function, and type names are hoisted: they are
+	// visible across the whole module regardless of definition order, so
+	// mutually recursive functions work. Calling a function before the
+	// statement defining it has executed is still a runtime error.
 	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok {
+		var name string
+		var pos token.Pos
+		switch v := stmt.(type) {
+		case *ast.Import:
+			name, pos = v.Name, v.Position()
+		case *ast.FunctionDefine:
+			name, pos = v.Name, v.Position()
+		case *ast.TypeDefine:
+			name, pos = v.Name, v.Position()
+		default:
 			continue
 		}
-		if !c.currentScope.declare(imp.Name) {
-			return c.newError(imp.Position(), "duplicate declaration in same scope: %s", imp.Name)
+		if !c.currentScope.declare(name) {
+			return c.newError(pos, "duplicate declaration in same scope: %s", name)
 		}
 	}
 
@@ -121,9 +132,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		if !isModuleScope {
 			return c.newError(v.Position(), "type is only allowed at module scope")
 		}
-		if !c.currentScope.declare(v.Name) {
-			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
-		}
+		// The type name itself was already hoisted by CheckModule.
 
 		seenFields := make(map[string]struct{}, len(v.Fields))
 		seenDefault := false
@@ -241,8 +250,12 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		}
 		return c.checkExpression(v.Value)
 	case *ast.FunctionDefine:
-		if !c.currentScope.declare(v.Name) {
-			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
+		// Module-level function names were already hoisted by CheckModule;
+		// nested functions are declared where they appear.
+		if !isModuleScope {
+			if !c.currentScope.declare(v.Name) {
+				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
+			}
 		}
 		return c.checkFunction(v.Parameters, v.Body)
 	case *ast.IfElse:

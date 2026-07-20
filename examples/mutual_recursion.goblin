@@ -1,0 +1,38 @@
+# Module-level function definitions are hoisted, so definition order does
+# not matter: a function may be called before its definition appears, and
+# mutually recursive functions work.
+print(greet())
+
+func greet() {
+    return "hello from below"
+}
+
+func is_even(n) {
+    if n == 0 {
+        return true
+    }
+    return is_odd(n - 1)
+}
+
+func is_odd(n) {
+    if n == 0 {
+        return false
+    }
+    return is_even(n - 1)
+}
+
+print(is_even(10))
+print(is_odd(7))
+
+# A function may also reference a type defined after it.
+func origin() {
+    return Point(0, 0)
+}
+
+type Point(x, y) {
+    func __str(self) {
+        return "Point(" + Str(self.x) + ", " + Str(self.y) + ")"
+    }
+}
+
+print(origin())
