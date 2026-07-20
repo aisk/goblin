@@ -69,8 +69,9 @@ print(!nil)           # true
 print(true && false)  # false
 ~~~
 
-A function with no explicit result returns nil. Nil can be compared with nil,
-but arithmetic and indexing on it are errors.
+A function with no explicit result returns nil. Comparing any value against
+nil with `==` is safe — it is true only for nil itself — but arithmetic and
+indexing on nil are errors.
 
 ### Using truthiness for optional values
 

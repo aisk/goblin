@@ -115,11 +115,6 @@ func (l *List) Insert(args CallArgs) (Object, error) {
 	return l, nil
 }
 
-func objectsEqual(a, b Object) bool {
-	cmp, err := a.Compare(b)
-	return err == nil && cmp == 0
-}
-
 func (l *List) Contains(args CallArgs) (Object, error) {
 	ap := NewArgParser("contains", args)
 	value := ap.Any("value")
@@ -127,7 +122,7 @@ func (l *List) Contains(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	for _, elem := range l.Elements {
-		if objectsEqual(elem, value) {
+		if Equals(elem, value) {
 			return True, nil
 		}
 	}
@@ -142,7 +137,7 @@ func (l *List) Count(args CallArgs) (Object, error) {
 	}
 	count := 0
 	for _, elem := range l.Elements {
-		if objectsEqual(elem, value) {
+		if Equals(elem, value) {
 			count++
 		}
 	}
@@ -164,7 +159,7 @@ func (l *List) IndexOf(args CallArgs) (Object, error) {
 		i = 0
 	}
 	for ; i < len(l.Elements); i++ {
-		if objectsEqual(l.Elements[i], value) {
+		if Equals(l.Elements[i], value) {
 			return Integer(i), nil
 		}
 	}
@@ -178,7 +173,7 @@ func (l *List) Remove(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	for i, elem := range l.Elements {
-		if objectsEqual(elem, value) {
+		if Equals(elem, value) {
 			copy(l.Elements[i:], l.Elements[i+1:])
 			l.Elements = l.Elements[:len(l.Elements)-1]
 			return True, nil

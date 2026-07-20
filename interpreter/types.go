@@ -10,7 +10,7 @@ import (
 // goblinType is the runtime representation of a user-defined `type`. Its
 // constructor is a callable object.Function; the same pointer is what
 // `instance.constructor` returns, so identity comparisons (`p.constructor ==
-// Point`) work via Function.Compare.
+// Point`) work via object.Equals.
 type goblinType struct {
 	name        string
 	fields      []*ast.TypeField

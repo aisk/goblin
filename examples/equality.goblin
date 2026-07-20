@@ -1,0 +1,39 @@
+# Equality is total: values of unrelated types are simply unequal,
+# so == and != never raise.
+var x = 1
+print(x == nil)
+print(x != nil)
+print(1 == "1")
+
+# Numbers compare across int/float.
+print(1 == 1.0)
+
+# Lists and dicts compare structurally.
+print([1, 2, [3]] == [1, 2, [3]])
+print([1, 2] == [1, 3])
+print({"a": 1} == {"a": 1})
+print({"a": 1} == {"a": 2})
+
+# Structural equality powers list search methods.
+var nested = [[1], [2]]
+print(nested.contains([1]))
+print(nested.index([2]))
+
+# Instances without __cmp are equal only to themselves.
+type Point(x, y) {}
+var p = Point(1, 2)
+var q = Point(1, 2)
+print(p == p)
+print(p == q)
+print(p.constructor == Point)
+
+# __cmp defines equality for a type, and works on either side of ==.
+type Money(amount) {
+    func __cmp(self, other) {
+        return self.amount - other
+    }
+}
+var m = Money(5)
+print(m == 5)
+print(5 == m)
+print(m == 6)

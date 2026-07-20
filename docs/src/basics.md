@@ -32,8 +32,12 @@ print("ha" * 3)        # hahaha
 ```
 
 Comparison operators are `==`, `!=`, `<`, `<=`, `>`, and `>=`; each produces a
-boolean. Logical operators are `!`, `&&`, and `||`. `&&` and `||`
-short-circuit, so their right-hand side is evaluated only when needed.
+boolean. Equality is total: values of unrelated types are simply unequal, so
+`x == nil` is always a safe test, and lists and dictionaries compare element
+by element. Ordering comparisons (`<`, `<=`, `>`, `>=`) raise TypeError when
+the operands cannot be ordered. Logical operators are `!`, `&&`, and `||`.
+`&&` and `||` short-circuit, so their right-hand side is evaluated only when
+needed.
 
 ```goblin
 var allowed = age >= 18 && !banned

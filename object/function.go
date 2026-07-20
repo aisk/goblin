@@ -16,13 +16,9 @@ func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name)
 func (f *Function) ToString() (string, error) { return f.String(), nil }
 func (f *Function) Bool() bool                { return true }
 func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
+// Compare always fails: functions support equality (identity, handled by
+// Equals) but have no ordering.
 func (f *Function) Compare(other Object) (int, error) {
-	if g, ok := other.(*Function); ok {
-		if f == g {
-			return 0, nil
-		}
-		return 1, nil
-	}
 	return 0, NewTypeError("cannot compare Function and %T", other)
 }
 func (f *Function) Add(Object) (Object, error) { return nil, NewTypeError("cannot add Function") }

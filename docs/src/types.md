@@ -68,14 +68,16 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | --- | --- |
 | `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
 | `__and`, `__or`, `__not` | Logical `&&`, `||`, and `!` operators |
-| `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1` |
+| `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of `==` |
 | `__str` | Printing and `Str(value)` |
 | `__bool` | Conditions and `Bool(value)` |
 | `__iter` | `for value in instance` |
 | `__getitem`, `__setitem` | `instance[index]` read and assignment |
 
 If a protocol method is absent, the corresponding operation raises TypeError.
-This includes every comparison when `__cmp` is absent.
+Equality is the exception: without `__cmp`, `==` and `!=` fall back to
+identity, so an instance is equal only to itself and never raises. Ordering
+comparisons (`<`, `<=`, `>`, `>=`) still require `__cmp`.
 
 For example, this type supports `+` and printing:
 

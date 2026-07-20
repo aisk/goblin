@@ -431,7 +431,11 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		return lhs.Multiply(rhs)
 	case ast.Divide:
 		return lhs.Divide(rhs)
-	case ast.Equal, ast.NotEqual, ast.LessThan, ast.GreaterThan, ast.LessOrEqual, ast.GreaterOrEqual:
+	case ast.Equal:
+		return object.Bool(object.Equals(lhs, rhs)), nil
+	case ast.NotEqual:
+		return object.Bool(!object.Equals(lhs, rhs)), nil
+	case ast.LessThan, ast.GreaterThan, ast.LessOrEqual, ast.GreaterOrEqual:
 		c, err := lhs.Compare(rhs)
 		if err != nil {
 			return nil, err
@@ -444,10 +448,6 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 
 func compareResult(op string, c int) bool {
 	switch op {
-	case ast.Equal:
-		return c == 0
-	case ast.NotEqual:
-		return c != 0
 	case ast.LessThan:
 		return c < 0
 	case ast.GreaterThan:

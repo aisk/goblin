@@ -1540,11 +1540,24 @@ func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryO
 		return nil, nil, err
 	}
 
+	tmpVar := ctx.localName("tmp")
+	preStmts := append(lhsPre, rhsPre...)
+
+	// Equality is total and never raises; ordering goes through Compare and
+	// propagates its error.
+	if operation.Operator == ast.Equal || operation.Operator == ast.NotEqual {
+		equals := jen.Qual(pathObject, "Equals").Call(lhs, rhs)
+		if operation.Operator == ast.NotEqual {
+			equals = jen.Op("!").Add(equals)
+		}
+		preStmts = append(preStmts,
+			jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(equals),
+		)
+		return preStmts, jen.Id(tmpVar), nil
+	}
+
 	cmpVar := ctx.localName("cmp")
 	errVar := ctx.localName("err")
-	tmpVar := ctx.localName("tmp")
-
-	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
 		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot("Compare").Call(rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
