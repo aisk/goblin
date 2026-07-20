@@ -18,6 +18,11 @@ func (n Unit) Bool() bool {
 
 func (n Unit) ToBool() (bool, error) { return n.Bool(), nil }
 
+func (n Unit) Equals(other Object) bool {
+	_, ok := other.(Unit)
+	return ok
+}
+
 func (n Unit) Compare(other Object) (int, error) {
 	switch other.(type) {
 	case Unit:

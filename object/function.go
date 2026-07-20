@@ -16,6 +16,13 @@ func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name)
 func (f *Function) ToString() (string, error) { return f.String(), nil }
 func (f *Function) Bool() bool                { return true }
 func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
+// Equals is identity: two functions are equal only when they are the same
+// function value.
+func (f *Function) Equals(other Object) bool {
+	v, ok := other.(*Function)
+	return ok && f == v
+}
+
 // Compare always fails: functions support equality (identity, handled by
 // Equals) but have no ordering.
 func (f *Function) Compare(other Object) (int, error) {

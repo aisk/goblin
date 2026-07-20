@@ -14,6 +14,11 @@ func (c *Chan) ToString() (string, error) { return c.String(), nil }
 func (c *Chan) Bool() bool                { return true }
 func (c *Chan) ToBool() (bool, error)     { return c.Bool(), nil }
 
+func (c *Chan) Equals(other Object) bool {
+	v, ok := other.(*Chan)
+	return ok && c == v
+}
+
 func (c *Chan) Compare(other Object) (int, error) {
 	if o, ok := other.(*Chan); ok {
 		if c == o {

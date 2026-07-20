@@ -23,6 +23,16 @@ func (i Integer) String() string {
 
 func (i Integer) ToString() (string, error) { return i.String(), nil }
 
+func (i Integer) Equals(other Object) bool {
+	switch v := other.(type) {
+	case Integer:
+		return i == v
+	case Float:
+		return float64(i) == float64(v)
+	}
+	return false
+}
+
 func (i Integer) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Integer:

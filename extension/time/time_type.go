@@ -27,6 +27,11 @@ func (t *Time) Bool() bool {
 
 func (t *Time) ToBool() (bool, error) { return t.Bool(), nil }
 
+func (t *Time) Equals(other object.Object) bool {
+	v, ok := other.(*Time)
+	return ok && t.Value.Equal(v.Value)
+}
+
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {

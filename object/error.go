@@ -82,6 +82,11 @@ func (e *Error) Bool() bool {
 
 func (e *Error) ToBool() (bool, error) { return e.Bool(), nil }
 
+func (e *Error) Equals(other Object) bool {
+	v, ok := other.(*Error)
+	return ok && e == v
+}
+
 func (e *Error) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Error and %T", other)
 }

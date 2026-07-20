@@ -5,8 +5,9 @@ import (
 	"testing"
 )
 
-// cmpObj is a minimal non-core Object whose Compare reports equality with any
-// Integer, standing in for a user-defined type with __cmp.
+// cmpObj stands in for a user-defined type with __cmp: its Compare reports
+// equality with any Integer and its Equals delegates to Compare, mirroring
+// how instances and generated user types implement equality.
 type cmpObj struct{ Unit }
 
 func (c *cmpObj) Compare(other Object) (int, error) {
@@ -16,9 +17,15 @@ func (c *cmpObj) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare")
 }
 
-// plainObj is a non-core Object without usable comparison, standing in for a
-// user-defined type without __cmp. The pad field keeps the struct non-zero
-// sized so distinct allocations have distinct addresses.
+func (c *cmpObj) Equals(other Object) bool {
+	cmp, err := c.Compare(other)
+	return err == nil && cmp == 0
+}
+
+// plainObj stands in for a user-defined type without __cmp: no structural
+// equality of its own, so it is equal only to itself via the identity
+// backstop in the package-level Equals. The pad field keeps the struct
+// non-zero sized so distinct allocations have distinct addresses.
 type plainObj struct {
 	Unit
 	pad int
@@ -27,6 +34,8 @@ type plainObj struct {
 func (p *plainObj) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare")
 }
+
+func (p *plainObj) Equals(Object) bool { return false }
 
 func TestEquals(t *testing.T) {
 	shared := &List{Elements: []Object{Integer(1)}}

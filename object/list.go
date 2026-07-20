@@ -224,6 +224,19 @@ func (l *List) Bool() bool {
 
 func (l *List) ToBool() (bool, error) { return l.Bool(), nil }
 
+func (l *List) Equals(other Object) bool {
+	v, ok := other.(*List)
+	if !ok || len(l.Elements) != len(v.Elements) {
+		return false
+	}
+	for i, elem := range l.Elements {
+		if !Equals(elem, v.Elements[i]) {
+			return false
+		}
+	}
+	return true
+}
+
 func (l *List) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare List and %T", other)
 }

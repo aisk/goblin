@@ -20,6 +20,11 @@ func (b Bytes) ToString() (string, error) { return b.String(), nil }
 func (b Bytes) Bool() bool     { return len(b) != 0 }
 func (b Bytes) ToBool() (bool, error) { return b.Bool(), nil }
 
+func (b Bytes) Equals(other Object) bool {
+	v, ok := other.(Bytes)
+	return ok && bytes.Equal(b, v)
+}
+
 func (b Bytes) Compare(other Object) (int, error) {
 	v, ok := other.(Bytes)
 	if !ok {

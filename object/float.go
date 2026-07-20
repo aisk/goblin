@@ -23,6 +23,17 @@ func (f Float) String() string {
 
 func (f Float) ToString() (string, error) { return f.String(), nil }
 
+func (f Float) Equals(other Object) bool {
+	switch v := other.(type) {
+	case Float:
+		// IEEE 754 semantics: NaN is not equal to anything, including itself.
+		return f == v
+	case Integer:
+		return float64(f) == float64(v)
+	}
+	return false
+}
+
 func (f Float) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Float:

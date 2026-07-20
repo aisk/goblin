@@ -242,6 +242,20 @@ func (d *Dict) Bool() bool {
 
 func (d *Dict) ToBool() (bool, error) { return d.Bool(), nil }
 
+func (d *Dict) Equals(other Object) bool {
+	v, ok := other.(*Dict)
+	if !ok || len(d.Entries) != len(v.Entries) {
+		return false
+	}
+	for key, entry := range d.Entries {
+		theirs, exists := v.Entries[key]
+		if !exists || !Equals(entry.Value, theirs.Value) {
+			return false
+		}
+	}
+	return true
+}
+
 func (d *Dict) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Dict and %T", other)
 }

@@ -9,6 +9,16 @@ type Object interface {
 	ToString() (string, error)
 	Bool() bool
 	ToBool() (bool, error)
+	// Equals reports whether the receiver equals other. Equality is total:
+	// implementations return false for unrelated types instead of failing.
+	// The == operator goes through the package-level Equals, which consults
+	// both operands, so an implementation only needs to recognize the types
+	// it considers equal to itself. Types without a natural equality should
+	// fall back to identity (see instance and generated user types).
+	Equals(other Object) bool
+	// Compare orders the receiver against other for <, <=, > and >=. It
+	// fails for operands without a defined ordering; equality must not rely
+	// on it.
 	Compare(other Object) (int, error)
 	Add(other Object) (Object, error)
 	Minus(other Object) (Object, error)

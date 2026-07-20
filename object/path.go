@@ -45,6 +45,11 @@ func (p *Path) ToString() (string, error) { return p.String(), nil }
 func (p *Path) Bool() bool                { return p.raw != "" && p.raw != "." }
 func (p *Path) ToBool() (bool, error)     { return p.Bool(), nil }
 
+func (p *Path) Equals(other Object) bool {
+	v, ok := other.(*Path)
+	return ok && p.raw == v.raw
+}
+
 func (p *Path) Compare(other Object) (int, error) {
 	v, ok := other.(*Path)
 	if !ok {

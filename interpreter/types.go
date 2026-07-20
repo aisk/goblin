@@ -212,6 +212,16 @@ func (in *instance) ToBool() (bool, error) {
 	return true, nil
 }
 
+// Equals dispatches __cmp when defined; without it an instance is equal only
+// to itself.
+func (in *instance) Equals(other object.Object) bool {
+	if c, err := in.Compare(other); err == nil {
+		return c == 0
+	}
+	o, ok := other.(*instance)
+	return ok && o == in
+}
+
 func (in *instance) Compare(other object.Object) (int, error) {
 	if v, ok, err := in.callProto("__cmp", other); ok {
 		if err != nil {

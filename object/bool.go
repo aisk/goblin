@@ -27,6 +27,11 @@ func (b Bool) Bool() bool {
 
 func (b Bool) ToBool() (bool, error) { return b.Bool(), nil }
 
+func (b Bool) Equals(other Object) bool {
+	v, ok := other.(Bool)
+	return ok && b == v
+}
+
 func (b Bool) Compare(other Object) (int, error) {
 	switch v := other.(type) {
 	case Bool:

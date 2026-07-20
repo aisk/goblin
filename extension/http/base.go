@@ -17,6 +17,10 @@ func (b objectBase) Bool() bool { return true }
 
 func (b objectBase) ToBool() (bool, error) { return b.Bool(), nil }
 
+// Equals returns false: http objects have no structural equality. Identity
+// equality is provided by object.Equals' backstop.
+func (b objectBase) Equals(object.Object) bool { return false }
+
 func (b objectBase) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare %s", b.typeName)
 }

@@ -22,6 +22,11 @@ func (m *Module) String() string {
 func (m *Module) ToString() (string, error) { return m.String(), nil }
 func (m *Module) Bool() bool                { return true }
 func (m *Module) ToBool() (bool, error)     { return m.Bool(), nil }
+func (m *Module) Equals(other Object) bool {
+	v, ok := other.(*Module)
+	return ok && m == v
+}
+
 func (m *Module) Compare(Object) (int, error) {
 	return 0, NewTypeError("cannot compare Module")
 }

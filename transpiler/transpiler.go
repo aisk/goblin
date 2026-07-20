@@ -89,7 +89,7 @@ func exportedName(name string) string {
 // user-defined goblin method whose exported name collides with one of these
 // must be mangled so both can coexist on the same receiver.
 var reservedGoMethodNames = map[string]bool{
-	"String": true, "Bool": true, "Compare": true, "Add": true,
+	"String": true, "Bool": true, "Equals": true, "Compare": true, "Add": true,
 	"Minus": true, "Multiply": true, "Divide": true,
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
@@ -1130,6 +1130,23 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		toBoolDecl.Block(jen.Return(jen.True(), jen.Nil()))
 	}
 	protoDecls = append(protoDecls, toBoolDecl)
+
+	// Equals(other) bool — __cmp when defined, identity otherwise.
+	equalsDecl := jen.Func().Params(receiverParam()).Id("Equals").Params(
+		jen.Id("other").Qual(pathObject, "Object"),
+	).Bool()
+	if defined["__cmp"] {
+		equalsDecl.Block(
+			jen.List(jen.Id("_cmp"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("Compare").Call(jen.Id("other")),
+			jen.Return(jen.Id("_err").Op("==").Nil().Op("&&").Id("_cmp").Op("==").Lit(0)),
+		)
+	} else {
+		equalsDecl.Block(
+			jen.List(jen.Id("_o"), jen.Id("_ok")).Op(":=").Id("other").Assert(jen.Op("*").Id(goTypeName)),
+			jen.Return(jen.Id("_ok").Op("&&").Id("_o").Op("==").Id(receiverName)),
+		)
+	}
+	protoDecls = append(protoDecls, equalsDecl)
 
 	// Compare(other) (int, error)  <- "__cmp" (returns Int -1/0/1)
 	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
