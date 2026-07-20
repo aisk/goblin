@@ -43,10 +43,9 @@ needed.
 var allowed = age >= 18 && !banned
 ```
 
-`&&` and `||` currently have the same precedence and group from left to right.
-Always use parentheses when they are mixed: `ready || (retry && connected)`.
-For example, `true || false && false` evaluates as
-`(true || false) && false`, producing `false`.
+`&&` binds tighter than `||`, as in most languages: `ready || retry &&
+connected` evaluates as `ready || (retry && connected)`, and
+`true || false && false` produces `true`.
 
 Conditions use truthiness. `false`, `nil`, numeric zero, and empty strings or
 collections are false. Logical expressions always produce booleans. Continue

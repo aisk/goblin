@@ -90,9 +90,13 @@ Expression
 ;
 
 Expression1
+    : AndExpression
+    | Expression1 "||" AndExpression         << ast.NewBinaryOperation($0, "||", $2) >>
+;
+
+AndExpression
     : Expression2
-    | Expression1 "&&" Expression2           << ast.NewBinaryOperation($0, "&&", $2) >>
-    | Expression1 "||" Expression2           << ast.NewBinaryOperation($0, "||", $2) >>
+    | AndExpression "&&" Expression2         << ast.NewBinaryOperation($0, "&&", $2) >>
 ;
 
 Expression2

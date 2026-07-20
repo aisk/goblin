@@ -31,3 +31,8 @@ print(Bool("hello"))
 print(Bool(""))
 print(Bool(nil))
 print(Bool())
+
+# && binds tighter than ||
+print(true || false && false)
+print(false && false || true)
+print(1 == 1 || 2 == 3 && 4 == 5)
