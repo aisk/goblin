@@ -109,8 +109,9 @@ func BoolConstructor(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if value.Bool() {
-		return True, nil
+	b, err := value.ToBool()
+	if err != nil {
+		return nil, err
 	}
-	return False, nil
+	return Bool(b), nil
 }

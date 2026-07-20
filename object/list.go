@@ -88,7 +88,11 @@ func (l *List) Join(args CallArgs) (Object, error) {
 	}
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {
-		elements[i] = elem.String()
+		s, err := elem.ToString()
+		if err != nil {
+			return nil, err
+		}
+		elements[i] = s
 	}
 	return String(strings.Join(elements, string(sep))), nil
 }
@@ -376,12 +380,18 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 	reverseObj, supplied := p.OptionalAny("reverse")
 	reverse := false
 	if supplied {
-		reverse = reverseObj.Bool()
+		var err error
+		if reverse, err = reverseObj.ToBool(); err != nil {
+			return nil, err
+		}
 	}
 	stableObj, supplied := p.OptionalAny("stable")
 	stable := false
 	if supplied {
-		stable = stableObj.Bool()
+		var err error
+		if stable, err = stableObj.ToBool(); err != nil {
+			return nil, err
+		}
 	}
 	if err := p.Finish(); err != nil {
 		return nil, err

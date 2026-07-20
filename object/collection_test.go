@@ -301,3 +301,32 @@ func TestDictUnhashableKey(t *testing.T) {
 		t.Fatal("Index with a list key should fail")
 	}
 }
+
+// failingConv is an Object whose user-level conversions fail, standing in for
+// an instance whose __bool/__str raise.
+type failingConv struct {
+	Unit
+	pad int
+}
+
+func (f *failingConv) ToBool() (bool, error)     { return false, NewTypeError("bool exploded") }
+func (f *failingConv) ToString() (string, error) { return "", NewTypeError("str exploded") }
+
+func TestConversionErrorsPropagate(t *testing.T) {
+	obj := &failingConv{}
+
+	if _, err := BoolConstructor(CallArgs{Positional: Args{obj}}); err == nil {
+		t.Fatal("Bool() should propagate a failing ToBool")
+	}
+
+	list := &List{Elements: []Object{obj}}
+	if _, err := list.Join(CallArgs{Positional: Args{String(",")}}); err == nil {
+		t.Fatal("join() should propagate a failing ToString")
+	}
+
+	sortable := &List{Elements: []Object{Integer(3), Integer(1)}}
+	args := CallArgs{Keyword: map[string]Object{"reverse": obj}}
+	if _, err := sortable.sortMethod(args); err == nil {
+		t.Fatal("sort() should propagate a failing ToBool for reverse")
+	}
+}
