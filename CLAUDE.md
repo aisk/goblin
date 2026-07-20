@@ -20,9 +20,9 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 
 ### Testing
 - `go test ./...` - Run all tests
-- `go test -v -run TestExamples/hello ./examples` - Run a single example test by name
-- Tests live in `examples/examples_test.go` — each `.goblin` file is transpiled, compiled, executed, and its output compared against corresponding `.stdout` and `.stderr` files
-- On first run, missing `.stdout`/`.stderr` files are auto-created from actual output
+- `go test -v -run TestExamples/hello ./examples` - Run a single example test by name (`TestInterpreterExamples/hello` for the interpreter run)
+- Each `examples/*.goblin` file is tested through **both backends** against the same `.stdout`/`.stderr` files: `TestExamples` transpiles/compiles/executes, `TestInterpreterExamples` interprets
+- On first run, missing `.stdout`/`.stderr` files are auto-created from actual output (by the transpiler test)
 
 ## Architecture
 
@@ -36,7 +36,7 @@ After parsing, `semantic.CheckModule` runs on the `*ast.Module` before either ba
 - **Interpreter** (`interpreter/`) — a tree-walking interpreter used by `goblin run` and the REPL (`interpreter.Run` / `interpreter.Session`).
 - **Transpiler** (`transpiler/`) — emits Go source, used by `goblin build-exe`. It wraps generated code inside an `Execute()` function and a `main()` that calls it.
 
-Runtime values use the `object.Object` interface so arithmetic and logic operations are dispatched dynamically via method calls (`.Add()`, `.Multiply()`, `.And()`, etc.). The example tests (`examples/`) exercise the transpiler path.
+Runtime values use the `object.Object` interface so arithmetic and logic operations are dispatched dynamically via method calls (`.Add()`, `.Multiply()`, `.And()`, etc.). Both backends share this runtime, which is why the example tests can check them against identical expected output.
 
 ### Key Source Files (hand-written)
 
@@ -45,9 +45,13 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 - `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `range`, `max`, `min`) are resolved here.
 - `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST.
 - `semantic/semantic.go` — Semantic checks run on the module before either backend.
-- `object/*.go` — Runtime type system: Integer (int64), Float (float64), String, Bool, List, Bytes, Unit (nil), Error. Each type implements the `Object` interface for arithmetic, logic, and iteration.
+- `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration.
 - `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.
 - `main.go` — CLI entry point (cobra commands: `run`, `build-exe`, `repl`).
+
+### Standard Library Modules
+
+Importable modules (`os`, `json`, `http`, …) are implemented in Go under `extension/`. A new module must be registered in **two places**: `builtinModules` in `interpreter/imports.go` and `knownModules` in `transpiler/transpiler.go`.
 
 ### Custom-Type Operator Overloading
 
@@ -62,9 +66,14 @@ The `lexer/`, `parser/`, `token/`, `errors/`, and `util/` packages are auto-gene
 1. Update `goblin.bnf` with new grammar rules
 2. Run `gocc goblin.bnf` to regenerate parser components
 3. Add AST node types and gocc constructor functions in `ast/ast.go`
-4. Implement transpilation in `transpiler/transpiler.go`
+4. Implement the feature in **both** `transpiler/transpiler.go` and `interpreter/` — the two backends must stay behavior-compatible
 5. If the feature needs a new runtime type, add it in `object/`
 6. Add an example `.goblin` file under `examples/` and run tests to generate expected output
+7. Update the relevant Goblin Book chapter under `docs/src/`
+
+## Documentation (Goblin Book)
+
+`docs/` is an mdBook (`mdbook build docs`); `docs/book/` is generated output — do not edit. Runnable programs mirrored in the book live in `docs/examples/`, verified by `docs/check-examples.sh`. Keep the book in sync when changing language behavior, built-ins, or stdlib modules.
 
 ## Key Dependencies
 
