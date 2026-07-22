@@ -40,6 +40,7 @@
 - [http](./module-http.md)
 - [mime](./module-mime.md)
 - [uuid](./module-uuid.md)
+- [regexp](./module-regexp.md)
 
 # Extending Goblin with Go
 

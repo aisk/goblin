@@ -1,0 +1,23 @@
+import "regexp"
+
+var assignment = regexp.compile("(?P<key>[a-z]+)=(\\d+)(?P<unit>[a-z]+)?")
+print(assignment.test("prefix count=12 suffix"))
+print(assignment.test("prefix count=12 suffix", full=true))
+
+var match = assignment.find("count=12")
+print(match.text)
+print(match.start)
+print(match.end)
+print(match.groups)
+print(match.group("key"))
+print(match.group("unit"))
+print(assignment.find("missing"))
+
+var words = regexp.compile("[a-z]+")
+print(words.find_all("one two three", limit=2).size())
+print(assignment.replace("a=1 b=2", "${key}:$2", limit=1))
+print(regexp.compile(",\\s*").split("a, b,c", limit=1))
+
+# Match offsets follow Go regexp and count UTF-8 bytes, not Unicode characters.
+print(words.find("日abc").start)
+print(regexp.compile("^|$").find_all("ab").size())
