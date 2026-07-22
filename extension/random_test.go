@@ -131,3 +131,88 @@ func TestRandomGeneratorConstructor(t *testing.T) {
 		t.Fatal("Generator accepted a non-integer seed")
 	}
 }
+
+func TestRandomFloatRange(t *testing.T) {
+	generator := newRandomGenerator(11)
+	for i := 0; i < 100; i++ {
+		obj, err := generator.randomFloat(object.CallArgs{Keyword: map[string]object.Object{
+			"min": object.Float(-5.5),
+			"max": object.Integer(9),
+		}})
+		if err != nil {
+			t.Fatal(err)
+		}
+		value := obj.(object.Float)
+		if value < -5.5 || value >= 9 {
+			t.Fatalf("float(min=-5.5, max=9) = %g", value)
+		}
+	}
+	for _, args := range []object.CallArgs{
+		{Keyword: map[string]object.Object{"min": object.Float(1), "max": object.Float(1)}},
+		{Keyword: map[string]object.Object{"max": object.Float(math.Inf(1))}},
+		{Keyword: map[string]object.Object{"min": object.Float(math.NaN())}},
+	} {
+		if _, err := generator.randomFloat(args); err == nil {
+			t.Fatalf("randomFloat(%v) succeeded", args)
+		}
+	}
+}
+
+func TestRandomSampleIsDeterministicAndDoesNotMutateInput(t *testing.T) {
+	values := &object.List{Elements: []object.Object{
+		object.String("a"), object.String("b"), object.String("c"), object.String("d"),
+	}}
+	original := values.String()
+	a := newRandomGenerator(123)
+	b := newRandomGenerator(123)
+	left, err := a.randomSample(object.CallArgs{Positional: []object.Object{values, object.Integer(3)}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	right, err := b.randomSample(object.CallArgs{Positional: []object.Object{values, object.Integer(3)}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !left.Equals(right) {
+		t.Fatalf("same seed produced different samples: %s != %s", left, right)
+	}
+	if values.String() != original {
+		t.Fatalf("sample modified input: %s became %s", original, values)
+	}
+	seen := map[string]bool{}
+	for _, item := range left.(*object.List).Elements {
+		seen[string(item.(object.String))] = true
+	}
+	if len(seen) != 3 {
+		t.Fatalf("sample contains duplicates: %s", left)
+	}
+	if _, err := a.randomSample(object.CallArgs{Positional: []object.Object{values, object.Integer(5)}}); err == nil {
+		t.Fatal("oversized sample succeeded")
+	}
+}
+
+func TestRandomDistributions(t *testing.T) {
+	generator := newRandomGenerator(99)
+	constant, err := generator.randomNormal(object.CallArgs{Keyword: map[string]object.Object{
+		"mean": object.Integer(12), "stddev": object.Integer(0),
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if constant != object.Float(12) {
+		t.Fatalf("normal(mean=12, stddev=0) = %v", constant)
+	}
+	if _, err := generator.randomNormal(object.CallArgs{Keyword: map[string]object.Object{"stddev": object.Float(-1)}}); err == nil {
+		t.Fatal("normal accepted negative stddev")
+	}
+	value, err := generator.randomExponential(object.CallArgs{Keyword: map[string]object.Object{"rate": object.Float(2)}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value.(object.Float) < 0 {
+		t.Fatalf("exponential(rate=2) = %v", value)
+	}
+	if _, err := generator.randomExponential(object.CallArgs{Keyword: map[string]object.Object{"rate": object.Integer(0)}}); err == nil {
+		t.Fatal("exponential accepted zero rate")
+	}
+}

@@ -29,7 +29,15 @@ The range must satisfy `min < max`; invalid ranges raise `ValueError`. The
 implementation supports ranges crossing zero and ranges close to the complete
 `Int` domain without overflow or modulo bias.
 
-`float()` returns a value in `[0.0, 1.0)`.
+`float()` returns a value in `[0.0, 1.0)`. Like `int`, it accepts an exclusive
+maximum and an optional minimum:
+
+~~~goblin
+var temperature = random.float(min=-20.0, max=40.0)
+~~~
+
+Integer and Float bounds may be mixed. Both must be finite and satisfy
+`min < max`.
 
 ## Choosing and arranging values
 
@@ -50,11 +58,41 @@ in random order. It does not modify another value. `n` must be non-negative.
 var indexes = random.perm(5)
 ~~~
 
+`sample(list, count)` selects elements without replacement. It returns a new
+list and does not modify the input. `count` must be between zero and the input
+size, inclusive.
+
+~~~goblin
+var winners = random.sample(players, 3)
+~~~
+
+The implementation performs only `count` random draws and uses additional
+memory proportional to `count`, rather than constructing a complete
+permutation of a large input.
+
+## Probability distributions
+
+`normal(mean=0.0, stddev=1.0)` draws from a normal distribution. `mean` and
+`stddev` must be finite, and `stddev` must be non-negative. A zero standard
+deviation returns the mean directly.
+
+~~~goblin
+var measurement = random.normal(mean=100.0, stddev=2.5)
+~~~
+
+`exponential(rate=1.0)` draws from an exponential distribution with the given
+rate. The rate must be finite and positive; the distribution mean is
+`1 / rate`.
+
+~~~goblin
+var delay = random.exponential(rate=2.0)
+~~~
+
 ## Independent generators
 
 Use `Generator(seed=unit)` when random state must be isolated or reproducible.
-It provides the same `int`, `float`, `choice`, `shuffle`, and `perm` operations
-as the module.
+It provides the same `int`, `float`, `choice`, `shuffle`, `perm`, `sample`,
+`normal`, and `exponential` operations as the module.
 
 ~~~goblin
 var first = random.Generator(seed=42)
