@@ -7,9 +7,25 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
+// ExecuteOs builds the os module with live process arguments (os.Args).
+// Used by compiled programs from build-exe.
 func ExecuteOs() (object.Object, error) {
+	return newOsModule(func() []string { return os.Args }), nil
+}
+
+// ExecuteOsWithArgv builds the os module with a fixed argv snapshot. Used by
+// the interpreter so goblin run / the REPL expose script argv without mutating
+// process-global state. The snapshot is closed over by argv(), so concurrent
+// runs and spawned goroutines keep a stable view after the loader returns.
+func ExecuteOsWithArgv(argv []string) (object.Object, error) {
+	snapshot := append([]string(nil), argv...)
+	return newOsModule(func() []string { return snapshot }), nil
+}
+
+func newOsModule(argsFn func() []string) object.Object {
 	return &object.Module{
 		Members: map[string]object.Object{
+			"argv":        &object.Function{Name: "argv", Fn: makeArgv(argsFn)},
 			"environ":     &object.Function{Name: "environ", Fn: environ},
 			"exit":        &object.Function{Name: "exit", Fn: exit},
 			"getegid":     &object.Function{Name: "getegid", Fn: getegid},
@@ -28,7 +44,25 @@ func ExecuteOs() (object.Object, error) {
 			"tempdir":     &object.Function{Name: "tempdir", Fn: tempDir},
 			"tempfile":    &object.Function{Name: "tempfile", Fn: tempFile},
 		},
-	}, nil
+	}
+}
+
+// makeArgv returns argv(), which yields a fresh Goblin list from argsFn each call.
+func makeArgv(argsFn func() []string) func(object.CallArgs) (object.Object, error) {
+	return func(args object.CallArgs) (object.Object, error) {
+		if err := object.RequireNoKeyword("argv", args); err != nil {
+			return nil, err
+		}
+		if len(args.Positional) != 0 {
+			return nil, object.NewTypeError("argv() requires no arguments")
+		}
+		procArgs := argsFn()
+		elems := make([]object.Object, len(procArgs))
+		for i, a := range procArgs {
+			elems[i] = object.String(a)
+		}
+		return &object.List{Elements: elems}, nil
+	}
 }
 
 func exit(args object.CallArgs) (object.Object, error) {

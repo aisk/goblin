@@ -4,7 +4,31 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+
+	"github.com/aisk/goblin/object"
 )
+
+func TestSessionArgv(t *testing.T) {
+	s := NewSession(".")
+	if _, err := s.Eval(`import "os"`); err != nil {
+		t.Fatal(err)
+	}
+	v, err := s.Eval(`os.argv()`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	list, ok := v.(*object.List)
+	if !ok {
+		t.Fatalf("os.argv() = %T, want *object.List", v)
+	}
+	if len(list.Elements) != 1 {
+		t.Fatalf("os.argv() size = %d, want 1", len(list.Elements))
+	}
+	got, ok := list.Elements[0].(object.String)
+	if !ok || string(got) != replArgv0 {
+		t.Fatalf("os.argv()[0] = %#v, want %q", list.Elements[0], replArgv0)
+	}
+}
 
 func TestSessionCompletionCandidates(t *testing.T) {
 	s := NewSession(".")

@@ -1,7 +1,13 @@
 package main
 
 import (
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
 	"reflect"
+	"strings"
+	"sync"
 	"testing"
 
 	"github.com/aisk/goblin/interpreter"
@@ -53,4 +59,93 @@ func TestCompletionPathAtCursor(t *testing.T) {
 	if !ok || !reflect.DeepEqual(path, []string{"user"}) || prefix != "na" {
 		t.Fatalf("completionPath = (%v, %q, %v)", path, prefix, ok)
 	}
+}
+
+func TestRunWantsHelp(t *testing.T) {
+	tests := []struct {
+		args []string
+		want bool
+	}{
+		{args: []string{"-h"}, want: true},
+		{args: []string{"--help"}, want: true},
+		{args: []string{"-h", "script.goblin"}, want: false},
+		{args: []string{"--help", "script.goblin"}, want: false},
+		{args: []string{"script.goblin", "-h"}, want: false},
+		{args: []string{"script.goblin"}, want: false},
+	}
+	for _, tt := range tests {
+		if got := runWantsHelp(tt.args); got != tt.want {
+			t.Errorf("runWantsHelp(%v) = %v, want %v", tt.args, got, tt.want)
+		}
+	}
+}
+
+func TestValidateRunArgs(t *testing.T) {
+	if err := validateRunArgs([]string{"script.goblin", "-h"}); err != nil {
+		t.Fatalf("validateRunArgs(script, -h) = %v, want nil", err)
+	}
+	if err := validateRunArgs([]string{"-h", "script.goblin"}); err == nil {
+		t.Fatal("validateRunArgs(-h, script) expected error")
+	}
+	if err := validateRunArgs([]string{"--verbose"}); err == nil {
+		t.Fatal("validateRunArgs(--verbose) expected error")
+	}
+}
+
+func TestRunCLIForwardsScriptFlags(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	script := filepath.Join(t.TempDir(), "argv.goblin")
+	if err := os.WriteFile(script, []byte(`import "os"
+for a in os.argv() {
+    print(a)
+}
+`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := exec.Command(bin, "run", script, "--verbose", "-h").CombinedOutput()
+	if err != nil {
+		t.Fatalf("goblin run: %v\n%s", err, out)
+	}
+	want := script + "\n--verbose\n-h\n"
+	if strings.ReplaceAll(string(out), "\r\n", "\n") != want {
+		t.Fatalf("stdout = %q, want %q", out, want)
+	}
+}
+
+func TestRunCLIRejectsLeadingFlag(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	out, err := exec.Command(bin, "run", "-h", "script.goblin").CombinedOutput()
+	if err == nil {
+		t.Fatalf("expected error, got output:\n%s", out)
+	}
+	if !strings.Contains(string(out), "flag-like") {
+		t.Fatalf("stderr/stdout = %q, want flag-like error", out)
+	}
+}
+
+var (
+	goblinBinOnce sync.Once
+	goblinBinPath string
+	goblinBinErr  error
+)
+
+func sharedGoblinBin(t *testing.T) string {
+	t.Helper()
+	goblinBinOnce.Do(func() {
+		dir, err := os.MkdirTemp("", "goblin-cli-bin-")
+		if err != nil {
+			goblinBinErr = err
+			return
+		}
+		goblinBinPath = filepath.Join(dir, "goblin")
+		cmd := exec.Command("go", "build", "-o", goblinBinPath, ".")
+		if output, err := cmd.CombinedOutput(); err != nil {
+			goblinBinErr = fmt.Errorf("go build: %v\n%s", err, output)
+		}
+	})
+	if goblinBinErr != nil {
+		t.Fatal(goblinBinErr)
+	}
+	return goblinBinPath
 }

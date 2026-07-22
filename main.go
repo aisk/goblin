@@ -96,12 +96,26 @@ var buildExeCmd = &cobra.Command{
 }
 
 var runCmd = &cobra.Command{
-	Use:   "run <source.goblin>",
+	Use:   "run <source.goblin> [args...]",
 	Short: "Interpret a Goblin source file directly (tree-walking interpreter)",
-	Args:  cobra.ExactArgs(1),
+	Long: `Interpret a Goblin source file directly (tree-walking interpreter).
+
+The first argument must be the source file. All arguments after it are
+forwarded to the script as os.argv(), including flag-like values such as
+-h or --verbose. CLI help is "goblin run -h" (alone) or "goblin help run"
+— a leading flag other than bare -h/--help is an error.`,
+	Args:               cobra.MinimumNArgs(1),
+	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
+		if runWantsHelp(args) {
+			return cmd.Help()
+		}
+		if err := validateRunArgs(args); err != nil {
+			return err
+		}
 		sourceFile := args[0]
+		scriptArgs := args[1:]
 
 		l, err := lexer.NewLexerFile(sourceFile)
 		if err != nil {
@@ -121,7 +135,7 @@ var runCmd = &cobra.Command{
 			return err
 		}
 
-		return interpreter.Run(m, sourceFile)
+		return interpreter.Run(m, sourceFile, scriptArgs...)
 	},
 }
 
@@ -321,6 +335,25 @@ func bracketsBalanced(src string) bool {
 		}
 	}
 	return depth <= 0
+}
+
+// runWantsHelp reports whether args are only -h/--help (goblin run's own help).
+// Flags after the source file are forwarded to the script; leading flags are
+// rejected by validateRunArgs.
+func runWantsHelp(args []string) bool {
+	return len(args) == 1 && (args[0] == "-h" || args[0] == "--help")
+}
+
+// validateRunArgs requires the first argument to be a source path, not a flag.
+// Flag-like values belong after the source file so they reach os.argv().
+func validateRunArgs(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("source file required")
+	}
+	if strings.HasPrefix(args[0], "-") {
+		return fmt.Errorf("source file required before script arguments; got %q (flag-like). Use \"goblin run -h\" or \"goblin help run\" for help", args[0])
+	}
+	return nil
 }
 
 func init() {
