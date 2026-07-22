@@ -35,9 +35,12 @@ The CLI provides three subcommands:
 
 | Command | Purpose |
 | --- | --- |
-| `goblin run file.goblin` | Interpret a source file |
+| `goblin run file.goblin [args...]` | Interpret a source file (trailing args become `os.argv()`; put the file before any flags) |
 | `goblin build-exe file.goblin` | Build a native executable |
 | `goblin repl` | Start an interactive session |
+
+For `goblin run`, CLI help is `goblin run -h` or `goblin help run`. Script
+flags such as `-v` must come after the source file.
 
 ## Build from source
 

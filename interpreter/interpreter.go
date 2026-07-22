@@ -69,15 +69,20 @@ type returnSignal struct{ value object.Object }
 func (returnSignal) Error() string { return "return outside function" }
 
 // Run interprets a parsed module. sourcePath is the path of the source file,
-// used to resolve relative imports.
-func Run(mod *ast.Module, sourcePath string) error {
+// used to resolve relative imports. scriptArgs are forwarded to os.argv() as
+// elements after sourcePath (index 0).
+func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) error {
+	argv := make([]string, 1+len(scriptArgs))
+	argv[0] = sourcePath
+	copy(argv[1:], scriptArgs)
+
 	global := NewEnvironment(nil)
 	reg := object.NewRegistry()
 
 	// Resolve imports and hoist top-level function/type definitions so
 	// references (including recursion and forward references) resolve
 	// regardless of source order.
-	if err := loadInto(mod, global, filepath.Dir(sourcePath), reg); err != nil {
+	if err := loadInto(mod, global, filepath.Dir(sourcePath), reg, argv); err != nil {
 		return err
 	}
 

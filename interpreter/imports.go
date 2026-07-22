@@ -19,9 +19,10 @@ import (
 )
 
 // builtinModules maps a built-in module name to its executor, mirroring the
-// transpiler's knownModules table.
+// transpiler's knownModules table. "os" is intentionally absent: the
+// interpreter binds it per run via ExecuteOsWithArgv so argv is scoped to the
+// script (or REPL) without process-global state.
 var builtinModules = map[string]object.ModuleExecutor{
-	"os":     extension.ExecuteOs,
 	"random": extension.ExecuteRandom,
 	"math":   extension.ExecuteMath,
 	"http":   httpExt.Execute,
@@ -38,11 +39,12 @@ func isPathImport(path string) bool {
 }
 
 // loadInto resolves imports and hoists function/type definitions for a module
-// body into env, so references resolve regardless of source order.
-func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Registry) error {
+// body into env, so references resolve regardless of source order. argv is the
+// script command line closed over by import "os".
+func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Registry, argv []string) error {
 	for _, stmt := range mod.Body {
 		if imp, ok := stmt.(*ast.Import); ok {
-			m, err := resolveImport(imp, baseDir, reg)
+			m, err := resolveImport(imp, baseDir, reg, argv)
 			if err != nil {
 				return err
 			}
@@ -60,11 +62,16 @@ func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Reg
 	return nil
 }
 
-func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry) (object.Object, error) {
+func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv []string) (object.Object, error) {
 	if isPathImport(imp.Path) {
 		full := filepath.Join(baseDir, imp.Path) + ".goblin"
 		return reg.Load(full, func() (object.Object, error) {
-			return loadModuleFile(full, reg)
+			return loadModuleFile(full, reg, argv)
+		})
+	}
+	if imp.Path == "os" {
+		return reg.Load(imp.Path, func() (object.Object, error) {
+			return extension.ExecuteOsWithArgv(argv)
 		})
 	}
 	exec, ok := builtinModules[imp.Path]
@@ -76,7 +83,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry) (objec
 
 // loadModuleFile interprets a Goblin source file as a module and returns its
 // exported members.
-func loadModuleFile(path string, reg *object.Registry) (object.Object, error) {
+func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Object, error) {
 	l, err := lexer.NewLexerFile(path)
 	if err != nil {
 		return nil, object.NewImportError("failed to read module %s: %v", path, err)
@@ -94,7 +101,7 @@ func loadModuleFile(path string, reg *object.Registry) (object.Object, error) {
 	}
 
 	env := NewEnvironment(nil)
-	if err := loadInto(mod, env, filepath.Dir(path), reg); err != nil {
+	if err := loadInto(mod, env, filepath.Dir(path), reg, argv); err != nil {
 		return nil, err
 	}
 	if err := evalStatements(mod.Body, env); err != nil {

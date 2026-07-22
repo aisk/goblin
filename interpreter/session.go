@@ -60,7 +60,12 @@ type Session struct {
 	global  *Environment
 	reg     *object.Registry
 	baseDir string
+	argv    []string
 }
+
+// replArgv0 is os.argv()[0] inside the REPL, so interactive sessions do not
+// expose the goblin binary's process arguments as script argv.
+const replArgv0 = "<repl>"
 
 // NewSession creates a session. baseDir is used to resolve relative imports.
 func NewSession(baseDir string) *Session {
@@ -68,6 +73,7 @@ func NewSession(baseDir string) *Session {
 		global:  NewEnvironment(nil),
 		reg:     object.NewRegistry(),
 		baseDir: baseDir,
+		argv:    []string{replArgv0},
 	}
 }
 
@@ -94,7 +100,7 @@ func (s *Session) Eval(src string) (object.Object, error) {
 	// interpreter reports undefined names at runtime against the live scope.
 
 	// Resolve imports and hoist definitions into the persistent scope.
-	if err := loadInto(mod, s.global, s.baseDir, s.reg); err != nil {
+	if err := loadInto(mod, s.global, s.baseDir, s.reg, s.argv); err != nil {
 		return nil, err
 	}
 

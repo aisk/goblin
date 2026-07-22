@@ -24,7 +24,7 @@ without an import. Import a module only when its capabilities are needed.
 | --- | --- | --- |
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
 | [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
-| [os](./module-os.md) | Read environment and process information | getenv(), getwd(), hostname() |
+| [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
 | [path](./module-path.md) | Find the current or home directory | cwd(), home() |
 | [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
 | [random](./module-random.md) | Generate random values or choose an item | intn(), float(), choice() |

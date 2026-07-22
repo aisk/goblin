@@ -27,6 +27,9 @@ exits.
 Relative imports are resolved from the directory where the REPL starts, so
 start it from a project directory when testing a local module.
 
+`os.argv()` in the REPL returns `["<repl>"]`. It does not expose the goblin
+binary's process arguments. Use `goblin run` when you need real script argv.
+
 ## Multi-line input
 
 When parentheses, brackets, or braces are unbalanced, the prompt changes to

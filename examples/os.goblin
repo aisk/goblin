@@ -3,6 +3,12 @@ import "os"
 # getenv returns a string (empty when the variable is unset)
 print(os.getenv("HOME").constructor == Str)
 
+# argv is the process command line: a non-empty list of strings
+var args = os.argv()
+print(args.constructor == List)
+print(args.size() > 0)
+print(args[0].constructor == Str)
+
 # process and user/group accessors return integers
 print(os.getpid().constructor == Int)
 print(os.getppid().constructor == Int)
