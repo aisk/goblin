@@ -113,6 +113,31 @@ for a in os.argv() {
 	}
 }
 
+func TestBuiltExecutableForwardsArguments(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	dir := t.TempDir()
+	script := filepath.Join(dir, "argv.goblin")
+	executable := filepath.Join(dir, "argv-program")
+	if err := os.WriteFile(script, []byte(`import "os"
+var args = os.argv()
+print(args[1])
+print(args[2])
+`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	if out, err := exec.Command(bin, "build-exe", "-o", executable, script).CombinedOutput(); err != nil {
+		t.Fatalf("goblin build-exe: %v\n%s", err, out)
+	}
+	out, err := exec.Command(executable, "foo", "--bar").CombinedOutput()
+	if err != nil {
+		t.Fatalf("compiled program: %v\n%s", err, out)
+	}
+	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "foo\n--bar\n"; got != want {
+		t.Fatalf("compiled stdout = %q, want %q", got, want)
+	}
+}
+
 func TestRunCLIRejectsLeadingFlag(t *testing.T) {
 	bin := sharedGoblinBin(t)
 	out, err := exec.Command(bin, "run", "-h", "script.goblin").CombinedOutput()

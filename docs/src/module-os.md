@@ -15,7 +15,7 @@ print(port)
 print(os.getwd())
 print(os.hostname())
 
-# argv() is the process command line (index 0 is the program name)
+# argv() is the program command line (index 0 is the invocation name)
 for arg in os.argv() {
     print(arg)
 }
@@ -23,7 +23,7 @@ for arg in os.argv() {
 
 | Function | Purpose |
 | --- | --- |
-| argv() | Return the process command-line arguments as a list of strings |
+| argv() | Return the program command-line arguments as a list of strings |
 | getenv(key) / setenv(key, value) / unsetenv(key) | Read or change environment values |
 | environ() | Return all environment values as a dictionary |
 | getwd() / hostname() | Current directory and machine name |
@@ -33,16 +33,17 @@ for arg in os.argv() {
 
 Avoid using exit() inside reusable library code. Environment and temporary-file
 operations can raise IOError. argv() does not accept arguments and returns a
-fresh list each call; mutating that list does not change the process arguments.
+fresh list each call; mutating that list does not change the program arguments.
 
 ## Command-line arguments
 
-argv() mirrors Go's os.Args. Index 0 is the program name or invocation path;
-remaining elements are the arguments passed after it. With `goblin run`, pass
-script arguments after the source file — for example `goblin run app.goblin foo
-bar` makes `argv()` return `["app.goblin", "foo", "bar"]`. Arguments that look
-like flags (such as `-v` or `--help`) are forwarded only when they appear
-*after* the source file. Put the source file first. Leading flags are rejected.
+argv() presents the command line from the Goblin program's point of view. Index
+0 is its invocation name; remaining elements are the arguments passed after it.
+With `goblin run`, the source path is the invocation name — for example `goblin
+run app.goblin foo bar` makes `argv()` return `["app.goblin", "foo", "bar"]`.
+Arguments that look like flags (such as `-v` or `--help`) are forwarded only
+when they appear *after* the source file. Put the source file first. Leading
+flags are rejected.
 For CLI help use `goblin run -h` or `goblin help run` (alone, with no source
 file). Compiled executables from `build-exe` see the real process argv (the
 binary path at index 0). In the REPL, `argv()` is `[""]` so interactive

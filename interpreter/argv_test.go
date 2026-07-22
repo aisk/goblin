@@ -1,6 +1,8 @@
 package interpreter
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/aisk/goblin/ast"
@@ -10,7 +12,6 @@ import (
 )
 
 func TestRunForwardsArgv(t *testing.T) {
-	// Run builds argv as [sourcePath] + scriptArgs; raise if the snapshot is wrong.
 	const source = `import "os"
 var a = os.argv()
 if a.size() != 3 {
@@ -39,6 +40,33 @@ if a[2] != "bar" {
 	}
 
 	if err := Run(mod, "myscript.goblin", "foo", "bar"); err != nil {
+		t.Fatalf("Run() error = %v", err)
+	}
+}
+
+func TestImportedModuleSeesEntryArgv(t *testing.T) {
+	dir := t.TempDir()
+	dep := filepath.Join(dir, "dep.goblin")
+	if err := os.WriteFile(dep, []byte(`import "os"
+var a = os.argv()
+if a.size() != 2 || a[1] != "from-entry" {
+    raise Error("dependency saw the wrong argv")
+}
+`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	const source = `import "./dep"`
+	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+	mod := st.(*ast.Module)
+	if err := semantic.CheckModule(mod); err != nil {
+		t.Fatalf("semantic error: %v", err)
+	}
+
+	if err := Run(mod, filepath.Join(dir, "main.goblin"), "from-entry"); err != nil {
 		t.Fatalf("Run() error = %v", err)
 	}
 }
