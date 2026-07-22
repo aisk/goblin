@@ -3,6 +3,7 @@ package extension
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/aisk/goblin/object"
@@ -105,11 +106,11 @@ func TestOsArgv(t *testing.T) {
 	}
 }
 
-func TestExecuteOsWithArgv(t *testing.T) {
+func TestExecuteOsWithFrozenArgs(t *testing.T) {
 	want := []string{"script.goblin", "foo", "bar"}
-	modObj, err := ExecuteOsWithArgv(want)
+	modObj, err := ExecuteOsWithFrozenArgs(want)
 	if err != nil {
-		t.Fatalf("ExecuteOsWithArgv() error = %v", err)
+		t.Fatalf("ExecuteOsWithFrozenArgs() error = %v", err)
 	}
 	fn := argvFromT(t, modObj)
 
@@ -123,7 +124,7 @@ func TestExecuteOsWithArgv(t *testing.T) {
 		}
 	}
 
-	// Live ExecuteOs() is independent of WithArgv snapshots.
+	// Live ExecuteOs() is independent of WithFrozenArgs snapshots.
 	live := callArgv(t, osFunction(t, "argv"))
 	if len(live) != len(os.Args) {
 		t.Fatalf("ExecuteOs argv size = %d, want %d", len(live), len(os.Args))
@@ -142,14 +143,14 @@ func TestExecuteOsWithArgv(t *testing.T) {
 	}
 }
 
-func TestExecuteOsWithArgvConcurrent(t *testing.T) {
+func TestExecuteOsWithFrozenArgsConcurrent(t *testing.T) {
 	const n = 32
 	errCh := make(chan error, n)
 	for i := 0; i < n; i++ {
 		i := i
 		go func() {
-			label := string(rune('a' + i%26))
-			modObj, err := ExecuteOsWithArgv([]string{label, "x"})
+			label := strconv.Itoa(i)
+			modObj, err := ExecuteOsWithFrozenArgs([]string{label, "x"})
 			if err != nil {
 				errCh <- err
 				return

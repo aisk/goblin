@@ -102,16 +102,16 @@ var runCmd = &cobra.Command{
 
 The first argument must be the source file. All arguments after it are
 forwarded to the script as os.argv(), including flag-like values such as
--h or --verbose. CLI help is "goblin run -h" (alone) or "goblin help run"
-— a leading flag other than bare -h/--help is an error.`,
+-h or --verbose. Leading flags are rejected. CLI help is "goblin run -h"
+or "goblin help run" (alone, with no source file).`,
 	Args:               cobra.MinimumNArgs(1),
 	DisableFlagParsing: true,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cmd.SilenceUsage = true
-		if runWantsHelp(args) {
+		if wantsHelp(args) {
 			return cmd.Help()
 		}
-		if err := validateRunArgs(args); err != nil {
+		if err := requireSourceFirst(args); err != nil {
 			return err
 		}
 		sourceFile := args[0]
@@ -337,16 +337,16 @@ func bracketsBalanced(src string) bool {
 	return depth <= 0
 }
 
-// runWantsHelp reports whether args are only -h/--help (goblin run's own help).
+// wantsHelp reports whether args are only -h/--help (goblin run's own help).
 // Flags after the source file are forwarded to the script; leading flags are
-// rejected by validateRunArgs.
-func runWantsHelp(args []string) bool {
+// rejected by requireSourceFirst.
+func wantsHelp(args []string) bool {
 	return len(args) == 1 && (args[0] == "-h" || args[0] == "--help")
 }
 
-// validateRunArgs requires the first argument to be a source path, not a flag.
+// requireSourceFirst requires the first argument to be a source path, not a flag.
 // Flag-like values belong after the source file so they reach os.argv().
-func validateRunArgs(args []string) error {
+func requireSourceFirst(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("source file required")
 	}

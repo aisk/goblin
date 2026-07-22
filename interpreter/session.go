@@ -64,8 +64,9 @@ type Session struct {
 }
 
 // replArgv0 is os.argv()[0] inside the REPL, so interactive sessions do not
-// expose the goblin binary's process arguments as script argv.
-const replArgv0 = "<repl>"
+// expose the goblin binary's process arguments as script argv. Empty string
+// matches Python's interactive sys.argv == [''].
+const replArgv0 = ""
 
 // NewSession creates a session. baseDir is used to resolve relative imports.
 func NewSession(baseDir string) *Session {

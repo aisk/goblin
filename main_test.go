@@ -61,7 +61,7 @@ func TestCompletionPathAtCursor(t *testing.T) {
 	}
 }
 
-func TestRunWantsHelp(t *testing.T) {
+func TestWantsHelp(t *testing.T) {
 	tests := []struct {
 		args []string
 		want bool
@@ -74,21 +74,21 @@ func TestRunWantsHelp(t *testing.T) {
 		{args: []string{"script.goblin"}, want: false},
 	}
 	for _, tt := range tests {
-		if got := runWantsHelp(tt.args); got != tt.want {
-			t.Errorf("runWantsHelp(%v) = %v, want %v", tt.args, got, tt.want)
+		if got := wantsHelp(tt.args); got != tt.want {
+			t.Errorf("wantsHelp(%v) = %v, want %v", tt.args, got, tt.want)
 		}
 	}
 }
 
-func TestValidateRunArgs(t *testing.T) {
-	if err := validateRunArgs([]string{"script.goblin", "-h"}); err != nil {
-		t.Fatalf("validateRunArgs(script, -h) = %v, want nil", err)
+func TestRequireSourceFirst(t *testing.T) {
+	if err := requireSourceFirst([]string{"script.goblin", "-h"}); err != nil {
+		t.Fatalf("requireSourceFirst(script, -h) = %v, want nil", err)
 	}
-	if err := validateRunArgs([]string{"-h", "script.goblin"}); err == nil {
-		t.Fatal("validateRunArgs(-h, script) expected error")
+	if err := requireSourceFirst([]string{"-h", "script.goblin"}); err == nil {
+		t.Fatal("should not accept leading -h before source")
 	}
-	if err := validateRunArgs([]string{"--verbose"}); err == nil {
-		t.Fatal("validateRunArgs(--verbose) expected error")
+	if err := requireSourceFirst([]string{"--verbose"}); err == nil {
+		t.Fatal("should not accept --verbose without source")
 	}
 }
 
@@ -117,18 +117,35 @@ func TestRunCLIRejectsLeadingFlag(t *testing.T) {
 	bin := sharedGoblinBin(t)
 	out, err := exec.Command(bin, "run", "-h", "script.goblin").CombinedOutput()
 	if err == nil {
-		t.Fatalf("expected error, got output:\n%s", out)
+		t.Fatalf("should not accept leading -h before source, got output:\n%s", out)
 	}
+	// Exit status alone is not enough: if requireSourceFirst were skipped,
+	// "-h" would be treated as the source path and fail with a file-open
+	// error (still non-zero), so the test would pass for the wrong reason.
 	if !strings.Contains(string(out), "flag-like") {
-		t.Fatalf("stderr/stdout = %q, want flag-like error", out)
+		t.Fatalf("goblin run -h script: wrong failure, want flag-like rejection, got %q", out)
 	}
 }
 
 var (
 	goblinBinOnce sync.Once
+	goblinBinDir  string
 	goblinBinPath string
 	goblinBinErr  error
 )
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+	if goblinBinDir != "" {
+		if err := os.RemoveAll(goblinBinDir); err != nil {
+			fmt.Fprintf(os.Stderr, "TestMain: remove %s: %v\n", goblinBinDir, err)
+			if code == 0 {
+				code = 1
+			}
+		}
+	}
+	os.Exit(code)
+}
 
 func sharedGoblinBin(t *testing.T) string {
 	t.Helper()
@@ -138,6 +155,7 @@ func sharedGoblinBin(t *testing.T) string {
 			goblinBinErr = err
 			return
 		}
+		goblinBinDir = dir
 		goblinBinPath = filepath.Join(dir, "goblin")
 		cmd := exec.Command("go", "build", "-o", goblinBinPath, ".")
 		if output, err := cmd.CombinedOutput(); err != nil {

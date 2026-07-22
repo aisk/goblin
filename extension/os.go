@@ -13,12 +13,13 @@ func ExecuteOs() (object.Object, error) {
 	return newOsModule(func() []string { return os.Args }), nil
 }
 
-// ExecuteOsWithArgv builds the os module with a fixed argv snapshot. Used by
-// the interpreter so goblin run / the REPL expose script argv without mutating
-// process-global state. The snapshot is closed over by argv(), so concurrent
-// runs and spawned goroutines keep a stable view after the loader returns.
-func ExecuteOsWithArgv(argv []string) (object.Object, error) {
-	snapshot := append([]string(nil), argv...)
+// ExecuteOsWithFrozenArgs builds the os module with a fixed Args snapshot.
+// Used by the interpreter so goblin run / the REPL expose script argv without
+// mutating process-global state. The snapshot is closed over by argv(), so
+// concurrent runs and spawned goroutines keep a stable view after the loader
+// returns.
+func ExecuteOsWithFrozenArgs(args []string) (object.Object, error) {
+	snapshot := append([]string(nil), args...)
 	return newOsModule(func() []string { return snapshot }), nil
 }
 

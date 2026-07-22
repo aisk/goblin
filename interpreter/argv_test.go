@@ -1,10 +1,6 @@
 package interpreter
 
 import (
-	"bytes"
-	"io"
-	"os"
-	"strings"
 	"testing"
 
 	"github.com/aisk/goblin/ast"
@@ -14,9 +10,20 @@ import (
 )
 
 func TestRunForwardsArgv(t *testing.T) {
+	// Run builds argv as [sourcePath] + scriptArgs; raise if the snapshot is wrong.
 	const source = `import "os"
-for a in os.argv() {
-    print(a)
+var a = os.argv()
+if a.size() != 3 {
+    raise Error("bad size")
+}
+if a[0] != "myscript.goblin" {
+    raise Error("bad 0")
+}
+if a[1] != "foo" {
+    raise Error("bad 1")
+}
+if a[2] != "bar" {
+    raise Error("bad 2")
 }
 `
 	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
@@ -31,31 +38,7 @@ for a in os.argv() {
 		t.Fatalf("semantic error: %v", err)
 	}
 
-	orig := os.Stdout
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("failed to create pipe: %v", err)
-	}
-	os.Stdout = w
-
-	done := make(chan string)
-	go func() {
-		var buf bytes.Buffer
-		_, _ = io.Copy(&buf, r)
-		done <- buf.String()
-	}()
-
-	runErr := Run(mod, "myscript.goblin", "foo", "bar")
-
-	w.Close()
-	os.Stdout = orig
-	out := <-done
-
-	if runErr != nil {
-		t.Fatalf("Run() error = %v", runErr)
-	}
-	want := "myscript.goblin\nfoo\nbar\n"
-	if strings.ReplaceAll(out, "\r\n", "\n") != want {
-		t.Fatalf("stdout = %q, want %q", out, want)
+	if err := Run(mod, "myscript.goblin", "foo", "bar"); err != nil {
+		t.Fatalf("Run() error = %v", err)
 	}
 }
