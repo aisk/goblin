@@ -20,7 +20,7 @@ import (
 
 // builtinModules maps a built-in module name to its executor, mirroring the
 // transpiler's knownModules table. "os" is intentionally absent: the
-// interpreter binds it per run via ExecuteOsWithArgv so argv is scoped to the
+// interpreter binds it per run via ExecuteOsWithFrozenArgs so argv is scoped to the
 // script (or REPL) without process-global state.
 var builtinModules = map[string]object.ModuleExecutor{
 	"random": extension.ExecuteRandom,
@@ -71,7 +71,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv [
 	}
 	if imp.Path == "os" {
 		return reg.Load(imp.Path, func() (object.Object, error) {
-			return extension.ExecuteOsWithArgv(argv)
+			return extension.ExecuteOsWithFrozenArgs(argv)
 		})
 	}
 	exec, ok := builtinModules[imp.Path]

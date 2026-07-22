@@ -42,13 +42,13 @@ remaining elements are the arguments passed after it. With `goblin run`, pass
 script arguments after the source file — for example `goblin run app.goblin foo
 bar` makes `argv()` return `["app.goblin", "foo", "bar"]`. Arguments that look
 like flags (such as `-v` or `--help`) are forwarded only when they appear
-*after* the source file. Put the `.goblin` path first; a leading flag other
-than bare `-h` / `--help` is rejected. For CLI help use `goblin run -h` or
-`goblin help run`. Compiled executables from `build-exe` see the real process
-argv (the binary path at index 0). In the REPL, `argv()` is `["<repl>"]` so
-interactive sessions do not expose the goblin process arguments. Use argv()
-when a program needs flags or positional inputs from the shell; prefer getenv()
-for configuration that should not be visible on the command line.
+*after* the source file. Put the source file first. Leading flags are rejected.
+For CLI help use `goblin run -h` or `goblin help run` (alone, with no source
+file). Compiled executables from `build-exe` see the real process argv (the
+binary path at index 0). In the REPL, `argv()` is `[""]` so interactive
+sessions do not expose the goblin process arguments. Use argv() when a program
+needs flags or positional inputs from the shell; prefer getenv() for
+configuration that should not be visible on the command line.
 
 ~~~goblin
 var args = os.argv()
