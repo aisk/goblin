@@ -1,13 +1,31 @@
 import "random"
 
-# int / intn return integers, float returns a float
+# int returns integers, float returns a float
 print(random.int().constructor == Int)
-print(random.intn(100).constructor == Int)
+print(random.int(100).constructor == Int)
 print(random.float().constructor == Float)
 
-# intn(1) can only ever be 0
-print(random.intn(1))
+# int(1) can only ever be 0
+print(random.int(1))
+
+# min is inclusive and max is exclusive
+var bounded = random.int(min=-10, max=10)
+print(bounded >= -10)
+print(bounded < 10)
 
 # float() is always within [0.0, 1.0)
 print(random.float() >= 0.0)
 print(random.float() < 1.0)
+
+# A seeded generator produces a reproducible, isolated sequence
+var first = random.Generator(seed=42)
+var second = random.Generator(seed=42)
+print(first.int(1000) == second.int(1000))
+
+# shuffle modifies a list; perm creates shuffled indexes
+var values = [1, 2, 3]
+first.shuffle(values)
+print(values.size())
+var indexes = first.perm(4)
+indexes.sort()
+print(indexes)
