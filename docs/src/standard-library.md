@@ -1,7 +1,7 @@
 # Standard library
 
 Goblin's standard library provides modules for common program boundaries:
-files, environment variables, paths, time, data formats, networking, random
+files, environment variables, external commands, paths, time, data formats, networking, random
 values, mathematics, and MIME metadata. Import a module at module scope, then
 access its members with dot notation.
 
@@ -25,6 +25,7 @@ without an import. Import a module only when its capabilities are needed.
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
 | [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
 | [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
+| [exec](./module-exec.md) | Configure and execute external commands | Command() |
 | [path](./module-path.md) | Find the current or home directory | cwd(), home() |
 | [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
 | [random](./module-random.md) | Generate random values or choose an item | intn(), float(), choice() |

@@ -41,6 +41,7 @@ var knownModules = map[string]moduleInfo{
 	"uuid":   {executorPath: pathExtension, varName: "uuid_module", executorFunc: "ExecuteUUID"},
 	"path":   {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
 	"time":   {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
+	"exec":   {executorPath: pathExtension + "/exec", varName: "exec_module", executorFunc: "Execute"},
 }
 
 // transpileContext holds state for a single Transpile call.

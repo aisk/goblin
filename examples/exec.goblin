@@ -1,0 +1,13 @@
+import "exec"
+
+var cmd = exec.Command(
+    "printf",
+    ["hello from exec\n"],
+    stdout=exec.CAPTURE,
+    stderr=exec.CAPTURE
+)
+
+var result = cmd.run()
+print(result.stdout.decode())
+print(result.code)
+print(result.success)

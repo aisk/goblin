@@ -7,6 +7,7 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
+	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
 	pathExt "github.com/aisk/goblin/extension/path"
@@ -32,6 +33,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"uuid":   extension.ExecuteUUID,
 	"path":   pathExt.Execute,
 	"time":   timeExt.Execute,
+	"exec":   execExt.Execute,
 }
 
 func isPathImport(path string) bool {
