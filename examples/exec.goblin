@@ -1,13 +1,20 @@
 import "exec"
 
-var cmd = exec.Command(
-    "printf",
-    ["hello from exec\n"],
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-)
+print(exec.look_path("go") != "")
 
-var result = cmd.run()
-print(result.stdout.decode())
-print(result.code)
-print(result.success)
+var output = exec.Command("go", ["env", "GOOS"]).output()
+print(output.constructor == Bytes)
+print(output.decode().trim() != "")
+
+var combined = exec.Command(
+    "go",
+    ["version"],
+    env=nil,
+    stdin=nil
+).combined_output()
+print(combined.decode().has_prefix("go version"))
+
+var cmd = exec.Command("go", ["version"])
+cmd.start()
+cmd.wait()
+print(true)

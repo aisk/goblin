@@ -1,54 +1,28 @@
+// Package exec adapts Go's os/exec package to Goblin.
 package exec
 
 import (
 	"bytes"
-	"fmt"
-	"io"
-	"os"
 	stdexec "os/exec"
 
 	"github.com/aisk/goblin/object"
 )
 
-type streamPolicy struct {
-	objectBase
-	name string
-}
-
-func (p *streamPolicy) String() string            { return "exec." + p.name }
-func (p *streamPolicy) ToString() (string, error) { return p.String(), nil }
-func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
-	if name == "attributes" {
-		return object.AttributesFunction(p), nil
-	}
-	return nil, object.NewAttributeError("stream policy has no attribute '%s'", name)
-}
-func (p *streamPolicy) Attributes() []string { return []string{"attributes"} }
-
-var (
-	inherit = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "INHERIT"}
-	discard = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "DISCARD"}
-	capture = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "CAPTURE"}
-)
-
 func Execute() (object.Object, error) {
 	return &object.Module{Name: "exec", Members: map[string]object.Object{
-		"Command": &object.Function{Name: "Command", Fn: command},
-		"INHERIT": inherit,
-		"DISCARD": discard,
-		"CAPTURE": capture,
+		"Command":   &object.Function{Name: "Command", Fn: command},
+		"look_path": &object.Function{Name: "look_path", Fn: lookPath},
 	}}, nil
 }
 
+// command combines os/exec.Command with the Goblin-representable Cmd fields.
 func command(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("Command", args)
 	name := ap.Str("name")
 	argsObj := ap.AnyOr("args", &object.List{})
-	cwdObj := ap.AnyOr("cwd", object.Nil)
+	dirObj := ap.AnyOr("dir", object.Nil)
 	envObj := ap.AnyOr("env", object.Nil)
-	stdinObj := ap.AnyOr("stdin", inherit)
-	stdoutObj := ap.AnyOr("stdout", inherit)
-	stderrObj := ap.AnyOr("stderr", inherit)
+	stdinObj := ap.AnyOr("stdin", object.Nil)
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -59,20 +33,20 @@ func command(args object.CallArgs) (object.Object, error) {
 	}
 	argv := make([]string, len(list.Elements))
 	for i, arg := range list.Elements {
-		s, ok := arg.(object.String)
+		value, ok := arg.(object.String)
 		if !ok {
 			return nil, object.NewTypeError("Command() argument 'args' must contain only strings, got %T at index %d", arg, i)
 		}
-		argv[i] = string(s)
+		argv[i] = string(value)
 	}
 
 	cmd := stdexec.Command(string(name), argv...)
-	if _, ok := cwdObj.(object.Unit); !ok {
-		cwd, ok := object.PathString(cwdObj)
+	if _, ok := dirObj.(object.Unit); !ok {
+		dir, ok := object.PathString(dirObj)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'cwd' must be unit, str, or Path, got %T", cwdObj)
+			return nil, object.NewTypeError("Command() argument 'dir' must be unit, str, or Path, got %T", dirObj)
 		}
-		cmd.Dir = cwd
+		cmd.Dir = dir
 	}
 	if _, ok := envObj.(object.Unit); !ok {
 		dict, ok := envObj.(*object.Dict)
@@ -89,73 +63,27 @@ func command(args object.CallArgs) (object.Object, error) {
 			cmd.Env = append(cmd.Env, string(key)+"="+string(value))
 		}
 	}
-
-	c := &Cmd{objectBase: objectBase{typeName: "Cmd"}, cmd: cmd, state: stateCreated}
-	if err := c.configureStdin(stdinObj); err != nil {
-		return nil, err
-	}
-	if err := c.configureOutput("stdout", stdoutObj); err != nil {
-		return nil, err
-	}
-	if err := c.configureOutput("stderr", stderrObj); err != nil {
-		return nil, err
-	}
-	return c, nil
-}
-
-func (c *Cmd) configureStdin(value object.Object) error {
-	switch v := value.(type) {
-	case *streamPolicy:
-		switch v {
-		case inherit:
-			c.cmd.Stdin = os.Stdin
-		case discard:
-			c.cmd.Stdin = nil
-		default:
-			return object.NewTypeError("Command() argument 'stdin' does not accept exec.%s", v.name)
-		}
+	switch value := stdinObj.(type) {
+	case object.Unit:
 	case object.String:
-		c.cmd.Stdin = bytes.NewReader([]byte(v))
+		cmd.Stdin = bytes.NewReader([]byte(value))
 	case object.Bytes:
-		c.cmd.Stdin = bytes.NewReader([]byte(v))
+		cmd.Stdin = bytes.NewReader([]byte(value))
 	default:
-		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, str, or Bytes, got %T", value)
+		return nil, object.NewTypeError("Command() argument 'stdin' must be unit, str, or Bytes, got %T", stdinObj)
 	}
-	return nil
+	return &Cmd{objectBase: objectBase{typeName: "Cmd"}, cmd: cmd}, nil
 }
 
-func (c *Cmd) configureOutput(name string, value object.Object) error {
-	policy, ok := value.(*streamPolicy)
-	if !ok {
-		return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, or CAPTURE, got %T", name, value)
+func lookPath(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("look_path", args)
+	file := ap.Str("file")
+	if err := ap.Finish(); err != nil {
+		return nil, err
 	}
-	var writer io.Writer
-	switch policy {
-	case inherit:
-		if name == "stdout" {
-			writer = os.Stdout
-		} else {
-			writer = os.Stderr
-		}
-	case discard:
-		writer = io.Discard
-	case capture:
-		if name == "stdout" {
-			c.stdout = &bytes.Buffer{}
-			writer = c.stdout
-		} else {
-			c.stderr = &bytes.Buffer{}
-			writer = c.stderr
-		}
-	default:
-		return object.NewTypeError("invalid stream policy %s", policy.String())
+	path, err := stdexec.LookPath(string(file))
+	if err != nil {
+		return nil, object.WrapNativeError(object.IOError, "look_path() failed", err)
 	}
-	if name == "stdout" {
-		c.cmd.Stdout = writer
-	} else {
-		c.cmd.Stderr = writer
-	}
-	return nil
+	return object.String(path), nil
 }
-
-func commandString(cmd *stdexec.Cmd) string { return fmt.Sprintf("%q", cmd.Args) }

@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"errors"
 	"os"
 	"testing"
 
@@ -36,81 +37,59 @@ func helperCommand(t *testing.T, helperArgs ...string) *Cmd {
 	for _, arg := range helperArgs {
 		argObjects = append(argObjects, object.String(arg))
 	}
-	obj, err := command(object.CallArgs{
+	value, err := command(object.CallArgs{
 		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: argObjects}},
 		Keyword: map[string]object.Object{
 			"env": &object.Dict{Entries: map[string]object.DictEntry{
 				"GO_WANT_HELPER_PROCESS": {Key: object.String("GO_WANT_HELPER_PROCESS"), Value: object.String("1")},
 			}},
-			"stdout": capture,
-			"stderr": capture,
 		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	return obj.(*Cmd)
+	return value.(*Cmd)
 }
 
-func TestRunCapturesOutputAndExitStatus(t *testing.T) {
-	cmd := helperCommand(t, "out", "err", "fail")
-	obj, err := cmd.run(object.CallArgs{})
+func TestOutputAndCombinedOutput(t *testing.T) {
+	output, err := helperCommand(t, "out").output(object.CallArgs{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	result := obj.(*Result)
-	if result.code != 7 {
-		t.Fatalf("code = %d, want 7", result.code)
+	if got := string(output.(object.Bytes)); got != "out" {
+		t.Fatalf("output = %q", got)
 	}
-	if result.Bool() {
-		t.Fatal("non-zero result is truthy")
+	combined, err := helperCommand(t, "out", "err").combinedOutput(object.CallArgs{})
+	if err != nil {
+		t.Fatal(err)
 	}
-	if got := string(result.stdout.(object.Bytes)); got != "out" {
-		t.Fatalf("stdout = %q", got)
-	}
-	if got := string(result.stderr.(object.Bytes)); got != "err" {
-		t.Fatalf("stderr = %q", got)
+	if got := string(combined.(object.Bytes)); got != "outerr" && got != "errout" {
+		t.Fatalf("combined_output = %q", got)
 	}
 }
 
-func TestStartWaitAndRepeatedWait(t *testing.T) {
-	cmd := helperCommand(t, "ok")
+func TestRunAndWaitReturnExitErrors(t *testing.T) {
+	if _, err := helperCommand(t, "", "", "fail").run(object.CallArgs{}); err == nil || !errors.Is(err, object.IOError) {
+		t.Fatalf("run error = %v, want IOError", err)
+	}
+	cmd := helperCommand(t)
 	if _, err := cmd.start(object.CallArgs{}); err != nil {
 		t.Fatal(err)
 	}
-	first, err := cmd.wait(object.CallArgs{})
-	if err != nil {
+	if _, err := cmd.wait(object.CallArgs{}); err != nil {
 		t.Fatal(err)
-	}
-	second, err := cmd.wait(object.CallArgs{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if first != second {
-		t.Fatal("repeated wait did not return cached result")
-	}
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("repeated start succeeded")
 	}
 }
 
-func TestWaitBeforeStartFails(t *testing.T) {
-	cmd := helperCommand(t)
-	if _, err := cmd.wait(object.CallArgs{}); err == nil {
-		t.Fatal("wait before start succeeded")
-	}
-}
-
-func TestFailedStartCannotBeRetried(t *testing.T) {
-	obj, err := command(object.CallArgs{Positional: []object.Object{object.String("/definitely/not/a/goblin-command")}})
+func TestLookPath(t *testing.T) {
+	value, err := lookPath(object.CallArgs{Positional: object.Args{object.String("go")}})
 	if err != nil {
 		t.Fatal(err)
 	}
-	cmd := obj.(*Cmd)
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("missing command started")
+	if value.(object.String) == "" {
+		t.Fatal("look_path returned an empty path")
 	}
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("failed command was started a second time")
+	if _, err := lookPath(object.CallArgs{Positional: object.Args{object.String("definitely-not-a-goblin-command")}}); err == nil {
+		t.Fatal("look_path accepted a missing executable")
 	}
 }
