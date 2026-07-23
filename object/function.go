@@ -16,6 +16,7 @@ func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name)
 func (f *Function) ToString() (string, error) { return f.String(), nil }
 func (f *Function) Bool() bool                { return true }
 func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
+
 // Equals is identity: two functions are equal only when they are the same
 // function value.
 func (f *Function) Equals(other Object) bool {
@@ -36,7 +37,7 @@ func (f *Function) Multiply(Object) (Object, error) {
 	return nil, NewTypeError("cannot multiply Function")
 }
 func (f *Function) Divide(Object) (Object, error) { return nil, NewTypeError("cannot divide Function") }
-func (f *Function) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Function") }
+func (f *Function) Not() (Object, error)          { return nil, NewTypeError("cannot perform NOT on Function") }
 func (f *Function) Iter() ([]Object, error) {
 	return nil, NewTypeError("Function does not support iteration")
 }
