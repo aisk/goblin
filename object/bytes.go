@@ -15,10 +15,10 @@ var _ Object = Bytes{}
 
 func NewBytes(data []byte) Bytes { return Bytes(append([]byte(nil), data...)) }
 
-func (b Bytes) String() string { return "b" + strconv.Quote(string(b)) }
+func (b Bytes) String() string            { return "b" + strconv.Quote(string(b)) }
 func (b Bytes) ToString() (string, error) { return b.String(), nil }
-func (b Bytes) Bool() bool     { return len(b) != 0 }
-func (b Bytes) ToBool() (bool, error) { return b.Bool(), nil }
+func (b Bytes) Bool() bool                { return len(b) != 0 }
+func (b Bytes) ToBool() (bool, error)     { return b.Bool(), nil }
 
 func (b Bytes) Equals(other Object) bool {
 	v, ok := other.(Bytes)
@@ -44,10 +44,10 @@ func (b Bytes) Add(other Object) (Object, error) {
 	return Bytes(result), nil
 }
 
-func (b Bytes) Minus(Object) (Object, error)     { return nil, NewTypeError("cannot subtract from Bytes") }
-func (b Bytes) Multiply(Object) (Object, error)  { return nil, NewTypeError("cannot multiply Bytes") }
-func (b Bytes) Divide(Object) (Object, error)    { return nil, NewTypeError("cannot divide Bytes") }
-func (b Bytes) Not() (Object, error)             { return Bool(!b.Bool()), nil }
+func (b Bytes) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract from Bytes") }
+func (b Bytes) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Bytes") }
+func (b Bytes) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Bytes") }
+func (b Bytes) Not() (Object, error)            { return Bool(!b.Bool()), nil }
 
 func (b Bytes) Iter() ([]Object, error) {
 	result := make([]Object, len(b))

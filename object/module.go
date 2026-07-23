@@ -34,7 +34,7 @@ func (m *Module) Add(Object) (Object, error)      { return nil, NewTypeError("ca
 func (m *Module) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract Module") }
 func (m *Module) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Module") }
 func (m *Module) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Module") }
-func (m *Module) Not() (Object, error)      { return nil, NewTypeError("cannot perform NOT on Module") }
+func (m *Module) Not() (Object, error)            { return nil, NewTypeError("cannot perform NOT on Module") }
 func (m *Module) Iter() ([]Object, error) {
 	return nil, NewTypeError("Module does not support iteration")
 }
