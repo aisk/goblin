@@ -36,6 +36,8 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"time":   timeExt.Execute,
 	"exec":   execExt.Execute,
 	"regexp": regexpExt.Execute,
+	"gzip":   extension.ExecuteGzip,
+	"zlib":   extension.ExecuteZlib,
 }
 
 func isPathImport(path string) bool {

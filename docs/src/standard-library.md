@@ -34,6 +34,7 @@ without an import. Import a module only when its capabilities are needed.
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 | [uuid](./module-uuid.md) | Generate and validate UUID strings | new(), validate() |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile() |
+| [gzip and zlib](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
 
 ## Imports and errors
 
