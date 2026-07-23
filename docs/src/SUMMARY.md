@@ -30,6 +30,7 @@
 - [Overview](./standard-library.md)
 - [Modules and imports](./modules.md)
 - [json](./module-json.md)
+- [base64](./module-base64.md)
 - [fs](./module-fs.md)
 - [os](./module-os.md)
 - [exec](./module-exec.md)

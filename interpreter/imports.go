@@ -27,6 +27,7 @@ import (
 var builtinModules = map[string]object.ModuleExecutor{
 	"random": extension.ExecuteRandom,
 	"math":   extension.ExecuteMath,
+	"base64": extension.ExecuteBase64,
 	"http":   httpExt.Execute,
 	"fs":     fs.Execute,
 	"mime":   extension.ExecuteMime,

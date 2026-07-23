@@ -1,0 +1,9 @@
+import "base64"
+
+var encoded = base64.encode("hello, Goblin")
+print(encoded)
+print(base64.decode(encoded).decode())
+
+var url_encoded = base64.url_encode(Bytes([251, 255]))
+print(url_encoded)
+print(base64.url_decode(url_encoded))
