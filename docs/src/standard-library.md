@@ -41,6 +41,7 @@ needed.
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
 | [gzip and zlib](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
+| [tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
 
 ## Imports and errors
 
