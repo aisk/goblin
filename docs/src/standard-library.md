@@ -23,6 +23,7 @@ without an import. Import a module only when its capabilities are needed.
 | Module | Main purpose | Start with |
 | --- | --- | --- |
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
+| [base64](./module-base64.md) | Encode and decode Base64 text | encode(), decode() |
 | [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
 | [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
 | [exec](./module-exec.md) | Configure and execute external commands | Command() |
