@@ -41,6 +41,7 @@
 - [mime](./module-mime.md)
 - [uuid](./module-uuid.md)
 - [regexp](./module-regexp.md)
+- [sha256 and sha512](./module-sha2.md)
 
 # Extending Goblin with Go
 
