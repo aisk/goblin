@@ -45,6 +45,8 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"csv":    extension.ExecuteCSV,
 	"gzip":   extension.ExecuteGzip,
 	"zlib":   extension.ExecuteZlib,
+	"tar":    extension.ExecuteTar,
+	"zip":    extension.ExecuteZip,
 }
 
 func isPathImport(path string) bool {

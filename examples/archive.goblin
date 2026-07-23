@@ -1,0 +1,16 @@
+import "tar"
+import "zip"
+
+var files = {
+    "README.txt": "Goblin",
+    "data.bin": Bytes([0, 1, 2])
+}
+
+var tar_files = tar.read_all(tar.write_all(files))
+print(tar_files["README.txt"].decode())
+print(tar_files["data.bin"])
+
+var zip_files = zip.read_all(zip.write_all(files))
+print(zip_files["README.txt"].decode())
+print(zip_files["data.bin"])
+print(zip.write_all(files, method=zip.store).constructor == Bytes)

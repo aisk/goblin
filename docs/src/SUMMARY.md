@@ -47,6 +47,7 @@
 - [url](./module-url.md)
 - [csv](./module-csv.md)
 - [gzip and zlib](./module-compression.md)
+- [tar and zip](./module-archive.md)
 
 # Extending Goblin with Go
 
