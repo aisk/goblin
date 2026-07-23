@@ -45,6 +45,7 @@
 - [hex](./module-hex.md)
 - [sha256 and sha512](./module-sha2.md)
 - [url](./module-url.md)
+- [csv](./module-csv.md)
 
 # Extending Goblin with Go
 
