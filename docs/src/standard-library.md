@@ -39,6 +39,7 @@ needed.
 | [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode_to_string(), decode_string() |
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum256(), sum512() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
+| [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
 
 ## Imports and errors
 
