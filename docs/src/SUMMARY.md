@@ -41,6 +41,7 @@
 - [mime](./module-mime.md)
 - [uuid](./module-uuid.md)
 - [regexp](./module-regexp.md)
+- [tar and zip](./module-archive.md)
 
 # Extending Goblin with Go
 
