@@ -13,6 +13,7 @@ import (
 	pathExt "github.com/aisk/goblin/extension/path"
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
+	urlExt "github.com/aisk/goblin/extension/url"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
@@ -36,6 +37,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"time":   timeExt.Execute,
 	"exec":   execExt.Execute,
 	"regexp": regexpExt.Execute,
+	"url":    urlExt.Execute,
 }
 
 func isPathImport(path string) bool {
