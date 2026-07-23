@@ -1,0 +1,11 @@
+import "url"
+
+var parsed = url.parse("https://user@example.com:8443/a/b?q=1#top")
+print(parsed.scheme)
+print(parsed.hostname)
+print(parsed.port)
+print(parsed.path)
+print(parsed.resolve_reference(url.parse("../c")))
+print(url.query_escape("a b"))
+print(url.path_escape("a/b"))
+print(url.join_path("https://example.com/a", ["b", "c"]))

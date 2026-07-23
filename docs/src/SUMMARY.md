@@ -41,6 +41,7 @@
 - [mime](./module-mime.md)
 - [uuid](./module-uuid.md)
 - [regexp](./module-regexp.md)
+- [url](./module-url.md)
 
 # Extending Goblin with Go
 
