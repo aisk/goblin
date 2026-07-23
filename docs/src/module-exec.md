@@ -1,93 +1,51 @@
 # exec
 
-Import `exec` to configure and execute external commands. Commands are invoked
-directly: arguments are never parsed by a shell.
+The `exec` module follows Go's `os/exec` package. Commands run directly without
+a shell, so arguments are not expanded as globs, pipelines, redirects, or
+environment-variable references.
 
 ~~~goblin
 import "exec"
 
-var cmd = exec.Command(
-    "git",
-    ["status", "--short"],
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-)
-
-var result = cmd.run()
-if result.success {
-    print(result.stdout.decode())
-}
+var output = exec.Command("git", ["status", "--short"]).output()
+print(output.decode())
 ~~~
 
-## Command
+## Module API
 
-~~~text
-Command(name, args=[], cwd=unit, env=unit,
-        stdin=INHERIT, stdout=INHERIT, stderr=INHERIT)
-~~~
-
-`name` and every element of `args` must be strings. `cwd` accepts `unit`, a
-string, or a `Path`. An omitted `env` inherits the current process environment;
-a dictionary replaces it completely, so `env={}` starts the command with an
-empty environment. Environment keys and values must be strings.
-
-The standard-stream policies are:
-
-| Policy | Meaning |
+| Function | Go equivalent |
 | --- | --- |
-| `INHERIT` | Use the corresponding Goblin process stream |
-| `DISCARD` | Provide EOF for stdin or discard output |
-| `CAPTURE` | Capture stdout or stderr into the result |
+| `Command(name, args=[], dir=unit, env=unit, stdin=unit)` | `exec.Command` plus `Cmd` field setup |
+| `look_path(file)` | `exec.LookPath` |
 
-`stdin` also accepts `Str` or `Bytes`. `CAPTURE` is valid only for stdout and
-stderr. Captured values are `Bytes`, because command output is not necessarily
-UTF-8; call `decode()` when text is expected.
+`args` is a list of strings. Goblin keyword arguments configure the
+Go `Cmd.Dir`, `Cmd.Env`, and `Cmd.Stdin` fields while the command is created.
+`dir` accepts a string or `Path`. `env` accepts a dictionary of string keys and
+values; `unit` inherits the current environment. `stdin` accepts `Str`, `Bytes`,
+or `unit`.
 
-## Executing a command
+## Cmd
 
-`cmd.run()` starts, waits for, and reaps a command. Output behavior comes only
-from the stream configuration on `Command`.
+| Method | Go equivalent |
+| --- | --- |
+| `run()` | `Cmd.Run` |
+| `start()` | `Cmd.Start` |
+| `wait()` | `Cmd.Wait` |
+| `output()` | `Cmd.Output` |
+| `combined_output()` | `Cmd.CombinedOutput` |
 
-~~~goblin
-var result = exec.Command(
-    "gofmt",
-    stdin="package main\nfunc main(){}",
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-).run()
-~~~
+`run`, `start`, and `wait` return `unit` on success. The output methods return
+`Bytes`, since process output is not necessarily UTF-8. As in Go, a non-zero
+exit status is an error for `run`, `wait`, `output`, and `combined_output`;
+Goblin exposes it as an `IOError`.
 
-For explicit asynchronous control, use `start()` followed by `wait()`:
-
-~~~goblin
-var cmd = exec.Command("worker", ["--once"])
-cmd.start()
-print(cmd.pid)
-var result = cmd.wait()
-~~~
-
-A command can be started only once. `wait()` before `start()` and a second
-execution attempt raise `ValueError`. Repeated calls to `wait()` return the
-same cached result. `kill()` terminates a started command; call `wait()`
-afterward to obtain its result. `cmd.pid` is `unit` before startup, and
-`cmd.running` reports whether the command has not yet been reaped.
-
-## Result
-
-| Attribute | Type | Meaning |
-| --- | --- | --- |
-| `code` | `Int` | Exit code; a signal may produce `-1` |
-| `success` | `Bool` | Whether the exit code is zero |
-| `stdout` | `Bytes` or `unit` | Captured stdout, if configured |
-| `stderr` | `Bytes` or `unit` | Captured stderr, if configured |
-
-A non-zero exit code is a normal result, not an exception. Failures to start
-or wait for the command raise an I/O-related error. Inspect `code` or `success`
-and implement any command-specific failure policy in Goblin code.
+Call either `run`, `output`, or `combined_output` for one-step execution. For
+explicit asynchronous control, call `start` followed by `wait`. A `Cmd`
+represents one command execution and must not be reused.
 
 ## Shell commands
 
-`exec` does not interpret pipes, redirects, glob patterns, or shell variables.
-Pass every argument as a separate list element. If shell syntax is explicitly
-required, invoke a platform shell yourself, for example `exec.Command("sh",
-["-c", script])`; do not insert untrusted text into such a script.
+Pass each argument as a separate list element. If shell syntax is explicitly
+required, invoke a platform shell yourself, for example
+`exec.Command("sh", ["-c", script])`. Never interpolate untrusted text into a
+shell script.
