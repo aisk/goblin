@@ -136,7 +136,8 @@ func TestMatchGroupsNamesAndByteOffsets(t *testing.T) {
 		t.Fatalf("groups = %v", groups)
 	}
 	named := getAttr(t, m, "named_groups").(*object.Dict)
-	if named.String() != `{"word": "abc", "optional": nil}` && named.String() != `{"optional": nil, "word": "abc"}` {
+	namedString := named.String()
+	if namedString != `{"word": "abc", "optional": nil}` && namedString != `{"optional": nil, "word": "abc"}` {
 		t.Fatalf("named_groups = %v", named)
 	}
 	for _, attr := range m.Attributes() {

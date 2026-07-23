@@ -49,6 +49,8 @@ var knownModules = map[string]moduleInfo{
 	"sha512": {executorPath: pathExtension, varName: "sha512_module", executorFunc: "ExecuteSHA512"},
 	"url":    {executorPath: pathExtension + "/url", varName: "url_module", executorFunc: "Execute"},
 	"csv":    {executorPath: pathExtension, varName: "csv_module", executorFunc: "ExecuteCSV"},
+	"gzip":   {executorPath: pathExtension, varName: "gzip_module", executorFunc: "ExecuteGzip"},
+	"zlib":   {executorPath: pathExtension, varName: "zlib_module", executorFunc: "ExecuteZlib"},
 }
 
 // transpileContext holds state for a single Transpile call.
