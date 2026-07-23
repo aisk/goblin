@@ -35,6 +35,7 @@ without an import. Import a module only when its capabilities are needed.
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 | [uuid](./module-uuid.md) | Generate and validate UUID strings | new(), validate() |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile() |
+| [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode_to_string(), decode_string() |
 
 ## Imports and errors
 
