@@ -40,6 +40,7 @@ needed.
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum256(), sum512() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
+| [gzip and zlib](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
 
 ## Imports and errors
 
