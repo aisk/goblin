@@ -41,6 +41,7 @@ func helperCommand(t *testing.T, helperArgs ...string) *Cmd {
 		Keyword: map[string]object.Object{
 			"env": &object.Dict{Entries: map[string]object.DictEntry{
 				"GO_WANT_HELPER_PROCESS": {Key: object.String("GO_WANT_HELPER_PROCESS"), Value: object.String("1")},
+				"GOCOVERDIR":             {Key: object.String("GOCOVERDIR"), Value: object.String(t.TempDir())},
 			}},
 			"stdout": capture,
 			"stderr": capture,
