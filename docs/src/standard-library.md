@@ -33,7 +33,7 @@ without an import. Import a module only when its capabilities are needed.
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 | [uuid](./module-uuid.md) | Generate and validate UUID strings | new(), validate() |
-| [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile() |
+| [regexp](./module-regexp.md) | Match, search, replace, and split text with RE2 expressions | compile(), match_string() |
 
 ## Imports and errors
 

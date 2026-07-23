@@ -1,14 +1,10 @@
 true
-false
+a\+b
+true
 count=12
-0
-8
-["count", "12", nil]
-count
-nil
-nil
-2
-a:1 b=2
+["count=12", "count", "12"]
+[3, 11]
+["a=1"]
+a:1 b:2
+["", "key", ""]
 ["a", "b,c"]
-3
-2
