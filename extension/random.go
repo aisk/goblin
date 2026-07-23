@@ -2,7 +2,6 @@ package extension
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"sync"
 	"sync/atomic"
@@ -25,10 +24,8 @@ func ExecuteRandom() (object.Object, error) {
 		"Generator":   &object.Function{Name: "Generator", Fn: randomGeneratorConstructor},
 		"int":         &object.Function{Name: "int", Fn: defaultGenerator.randomInt},
 		"float":       &object.Function{Name: "float", Fn: defaultGenerator.randomFloat},
-		"choice":      &object.Function{Name: "choice", Fn: defaultGenerator.randomChoice},
 		"shuffle":     &object.Function{Name: "shuffle", Fn: defaultGenerator.randomShuffle},
 		"perm":        &object.Function{Name: "perm", Fn: defaultGenerator.randomPerm},
-		"sample":      &object.Function{Name: "sample", Fn: defaultGenerator.randomSample},
 		"normal":      &object.Function{Name: "normal", Fn: defaultGenerator.randomNormal},
 		"exponential": &object.Function{Name: "exponential", Fn: defaultGenerator.randomExponential},
 	}}, nil
@@ -66,102 +63,39 @@ func randomGeneratorConstructor(args object.CallArgs) (object.Object, error) {
 
 func (g *RandomGenerator) randomInt(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("int", args)
-	maxObj, hasMax := ap.OptionalAny("max")
-	minObj, hasMin := ap.OptionalAny("min")
+	nObj := ap.AnyOr("n", object.Nil)
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 
-	if !hasMax {
-		if hasMin {
-			return nil, object.NewTypeError("int() argument 'min' requires 'max'")
-		}
+	if _, ok := nObj.(object.Unit); ok {
 		g.mu.Lock()
 		value := g.rng.Int63()
 		g.mu.Unlock()
 		return object.Integer(value), nil
 	}
-	if _, ok := maxObj.(object.Unit); ok {
-		if hasMin {
-			return nil, object.NewTypeError("int() argument 'min' requires an integer 'max'")
-		}
-		g.mu.Lock()
-		value := g.rng.Int63()
-		g.mu.Unlock()
-		return object.Integer(value), nil
-	}
-
-	max, ok := maxObj.(object.Integer)
+	n, ok := nObj.(object.Integer)
 	if !ok {
-		return nil, object.NewTypeError("int() argument 'max' must be unit or int, got %T", maxObj)
+		return nil, object.NewTypeError("int() argument 'n' must be unit or int, got %T", nObj)
 	}
-	min := object.Integer(0)
-	if hasMin {
-		var ok bool
-		min, ok = minObj.(object.Integer)
-		if !ok {
-			return nil, object.NewTypeError("int() argument 'min' must be an int, got %T", minObj)
-		}
+	if n <= 0 {
+		return nil, object.NewValueError("int() argument 'n' must be positive, got %d", n)
 	}
-	if min >= max {
-		return nil, object.NewValueError("int() requires min < max, got min=%d and max=%d", min, max)
-	}
-
-	width := uint64(max) - uint64(min)
-	threshold := -width % width
 	g.mu.Lock()
-	defer g.mu.Unlock()
-	for {
-		r := g.rng.Uint64()
-		if r >= threshold {
-			return object.Integer(int64(uint64(min) + r%width)), nil
-		}
-	}
+	value := g.rng.Int63n(int64(n))
+	g.mu.Unlock()
+	return object.Integer(value), nil
 }
 
 func (g *RandomGenerator) randomFloat(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("float", args)
-	maxObj := ap.NumberOr("max", object.Float(1))
-	minObj := ap.NumberOr("min", object.Float(0))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	max := randomNumberFloat64(maxObj)
-	min := randomNumberFloat64(minObj)
-	if math.IsNaN(min) || math.IsNaN(max) || math.IsInf(min, 0) || math.IsInf(max, 0) {
-		return nil, object.NewValueError("float() requires finite bounds")
-	}
-	if min >= max {
-		return nil, object.NewValueError("float() requires min < max, got min=%g and max=%g", min, max)
-	}
 	g.mu.Lock()
-	u := g.rng.Float64()
+	value := g.rng.Float64()
 	g.mu.Unlock()
-	// A convex combination avoids overflow in max-min for wide finite ranges.
-	value := min*(1-u) + max*u
-	if value >= max {
-		value = math.Nextafter(max, min)
-	}
 	return object.Float(value), nil
-}
-
-func (g *RandomGenerator) randomChoice(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("choice", args)
-	listObj := ap.Any("list")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	list, ok := listObj.(*object.List)
-	if !ok {
-		return nil, object.NewTypeError("choice() argument 'list' must be a list, got %T", listObj)
-	}
-	if len(list.Elements) == 0 {
-		return nil, object.NewValueError("choice() argument 'list' cannot be empty")
-	}
-	g.mu.Lock()
-	index := g.rng.Intn(len(list.Elements))
-	g.mu.Unlock()
-	return list.Elements[index], nil
 }
 
 func (g *RandomGenerator) randomShuffle(args object.CallArgs) (object.Object, error) {
@@ -205,92 +139,26 @@ func (g *RandomGenerator) randomPerm(args object.CallArgs) (object.Object, error
 	return &object.List{Elements: elements}, nil
 }
 
-func (g *RandomGenerator) randomSample(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("sample", args)
-	listObj := ap.Any("list")
-	count := ap.Int("count")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	list, ok := listObj.(*object.List)
-	if !ok {
-		return nil, object.NewTypeError("sample() argument 'list' must be a list, got %T", listObj)
-	}
-	if count < 0 || uint64(count) > uint64(len(list.Elements)) {
-		return nil, object.NewValueError("sample() argument 'count' must be between 0 and %d, got %d", len(list.Elements), count)
-	}
-
-	// Perform a virtual partial Fisher-Yates shuffle. The sparse swap table
-	// keeps both additional memory and random draws proportional to count.
-	elements := make([]object.Object, int(count))
-	swaps := make(map[int]int, int(count))
-	g.mu.Lock()
-	for i := 0; i < int(count); i++ {
-		j := i + g.rng.Intn(len(list.Elements)-i)
-		selected := j
-		if mapped, ok := swaps[j]; ok {
-			selected = mapped
-		}
-		replacement := i
-		if mapped, ok := swaps[i]; ok {
-			replacement = mapped
-		}
-		swaps[j] = replacement
-		elements[i] = list.Elements[selected]
-	}
-	g.mu.Unlock()
-	return &object.List{Elements: elements}, nil
-}
-
 func (g *RandomGenerator) randomNormal(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("normal", args)
-	meanObj := ap.NumberOr("mean", object.Float(0))
-	stddevObj := ap.NumberOr("stddev", object.Float(1))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	mean := randomNumberFloat64(meanObj)
-	stddev := randomNumberFloat64(stddevObj)
-	if math.IsNaN(mean) || math.IsInf(mean, 0) || math.IsNaN(stddev) || math.IsInf(stddev, 0) {
-		return nil, object.NewValueError("normal() requires finite mean and stddev")
-	}
-	if stddev < 0 {
-		return nil, object.NewValueError("normal() argument 'stddev' must be non-negative, got %g", stddev)
-	}
-	if stddev == 0 {
-		return object.Float(mean), nil
-	}
 	g.mu.Lock()
-	value := mean + stddev*g.rng.NormFloat64()
+	value := g.rng.NormFloat64()
 	g.mu.Unlock()
 	return object.Float(value), nil
 }
 
 func (g *RandomGenerator) randomExponential(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("exponential", args)
-	rateObj := ap.NumberOr("rate", object.Float(1))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	rate := randomNumberFloat64(rateObj)
-	if math.IsNaN(rate) || math.IsInf(rate, 0) || rate <= 0 {
-		return nil, object.NewValueError("exponential() argument 'rate' must be finite and positive, got %g", rate)
-	}
 	g.mu.Lock()
-	value := g.rng.ExpFloat64() / rate
+	value := g.rng.ExpFloat64()
 	g.mu.Unlock()
 	return object.Float(value), nil
-}
-
-func randomNumberFloat64(value object.Object) float64 {
-	switch number := value.(type) {
-	case object.Integer:
-		return float64(number)
-	case object.Float:
-		return float64(number)
-	default:
-		panic("randomNumberFloat64 called with non-number")
-	}
 }
 
 func (g *RandomGenerator) String() string            { return fmt.Sprintf("<random.Generator seed=%d>", g.seed) }
@@ -333,14 +201,10 @@ func (g *RandomGenerator) GetAttr(name string) (object.Object, error) {
 		return &object.Function{Name: "int", Fn: g.randomInt}, nil
 	case "float":
 		return &object.Function{Name: "float", Fn: g.randomFloat}, nil
-	case "choice":
-		return &object.Function{Name: "choice", Fn: g.randomChoice}, nil
 	case "shuffle":
 		return &object.Function{Name: "shuffle", Fn: g.randomShuffle}, nil
 	case "perm":
 		return &object.Function{Name: "perm", Fn: g.randomPerm}, nil
-	case "sample":
-		return &object.Function{Name: "sample", Fn: g.randomSample}, nil
 	case "normal":
 		return &object.Function{Name: "normal", Fn: g.randomNormal}, nil
 	case "exponential":
@@ -349,7 +213,7 @@ func (g *RandomGenerator) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Generator has no attribute '%s'", name)
 }
 func (g *RandomGenerator) Attributes() []string {
-	return []string{"attributes", "seed", "int", "float", "choice", "shuffle", "perm", "sample", "normal", "exponential"}
+	return []string{"attributes", "seed", "int", "float", "shuffle", "perm", "normal", "exponential"}
 }
 
 var _ object.Object = (*RandomGenerator)(nil)
@@ -358,7 +222,4 @@ var _ object.Object = (*RandomGenerator)(nil)
 func randInt(args object.CallArgs) (object.Object, error) { return defaultGenerator.randomInt(args) }
 func randFloat(args object.CallArgs) (object.Object, error) {
 	return defaultGenerator.randomFloat(args)
-}
-func randChoice(args object.CallArgs) (object.Object, error) {
-	return defaultGenerator.randomChoice(args)
 }

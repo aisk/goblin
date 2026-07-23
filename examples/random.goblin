@@ -1,43 +1,26 @@
 import "random"
 
-# int returns integers, float returns a float
+# int() mirrors Int63; int(n) mirrors Int63n.
 print(random.int().constructor == Int)
 print(random.int(100).constructor == Int)
-print(random.float().constructor == Float)
-
-# int(1) can only ever be 0
 print(random.int(1))
 
-# min is inclusive and max is exclusive
-var bounded = random.int(min=-10, max=10)
-print(bounded >= -10)
-print(bounded < 10)
-
-# float() is always within [0.0, 1.0)
+# float(), normal(), and exponential() mirror math/rand's Float64,
+# NormFloat64, and ExpFloat64.
 print(random.float() >= 0.0)
 print(random.float() < 1.0)
-var scaled = random.float(min=-2.0, max=2.0)
-print(scaled >= -2.0)
-print(scaled < 2.0)
+print(random.normal().constructor == Float)
+print(random.exponential() >= 0.0)
 
-# A seeded generator produces a reproducible, isolated sequence
+# A seeded Generator combines rand.New and rand.NewSource.
 var first = random.Generator(seed=42)
 var second = random.Generator(seed=42)
 print(first.int(1000) == second.int(1000))
 
-# shuffle modifies a list; perm creates shuffled indexes
+# shuffle adapts rand.Shuffle to a Goblin list; perm mirrors rand.Perm.
 var values = [1, 2, 3]
 first.shuffle(values)
 print(values.size())
 var indexes = first.perm(4)
 indexes.sort()
 print(indexes)
-
-# Sampling does not modify the input list
-var population = ["a", "b", "c", "d"]
-print(first.sample(population, 2).size())
-print(population.size())
-
-# Parameterized probability distributions
-print(first.normal(mean=12.0, stddev=0.0))
-print(first.exponential(rate=2.0) >= 0.0)
