@@ -1,0 +1,6 @@
+import "csv"
+
+var records = csv.read_all("name,score\nGoblin,10\n")
+print(records)
+print(csv.write_all(records))
+print(csv.read_all("a;b\n1;2\n", comma=";"))

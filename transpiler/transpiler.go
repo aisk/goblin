@@ -43,6 +43,7 @@ var knownModules = map[string]moduleInfo{
 	"time":   {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
 	"exec":   {executorPath: pathExtension + "/exec", varName: "exec_module", executorFunc: "Execute"},
 	"regexp": {executorPath: pathExtension + "/regexp", varName: "regexp_module", executorFunc: "Execute"},
+	"csv":    {executorPath: pathExtension, varName: "csv_module", executorFunc: "ExecuteCSV"},
 }
 
 // transpileContext holds state for a single Transpile call.
