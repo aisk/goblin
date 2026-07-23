@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aisk/goblin/extension/fs"
 	"github.com/aisk/goblin/object"
 )
 
@@ -42,8 +43,8 @@ func newOsModule(argsFn func() []string) object.Object {
 			"hostname":    &object.Function{Name: "hostname", Fn: hostname},
 			"setenv":      &object.Function{Name: "setenv", Fn: setenv},
 			"unsetenv":    &object.Function{Name: "unsetenv", Fn: unsetenv},
-			"tempdir":     &object.Function{Name: "tempdir", Fn: tempDir},
-			"tempfile":    &object.Function{Name: "tempfile", Fn: tempFile},
+			"mkdir_temp":  &object.Function{Name: "mkdir_temp", Fn: mkdirTemp},
+			"create_temp": &object.Function{Name: "create_temp", Fn: createTemp},
 		},
 	}
 }
@@ -285,32 +286,20 @@ func getwd(args object.CallArgs) (object.Object, error) {
 // tempDir creates a new temporary directory, mirroring Go's os.MkdirTemp.
 // Both dir and pattern are optional; when dir is empty Go uses the OS default
 // temp directory.
-func tempDir(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tempdir", args); err != nil {
+func mkdirTemp(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("mkdir_temp", args)
+	dirObj := ap.AnyOr("dir", object.String(""))
+	pattern := ap.StrOr("pattern", "")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 2 {
-		return nil, object.NewTypeError("tempdir() takes at most 2 arguments, got %d", len(args.Positional))
+	dir, ok := object.PathString(dirObj)
+	if !ok {
+		return nil, object.NewTypeError("mkdir_temp() argument 'dir' must be a string or Path")
 	}
-	dir := ""
-	pattern := ""
-	if len(args.Positional) >= 1 {
-		d, ok := object.PathString(args.Positional[0])
-		if !ok {
-			return nil, object.NewTypeError("tempdir() first argument (dir) must be a string or Path")
-		}
-		dir = d
-	}
-	if len(args.Positional) >= 2 {
-		p, ok := args.Positional[1].(object.String)
-		if !ok {
-			return nil, object.NewTypeError("tempdir() second argument (pattern) must be a string")
-		}
-		pattern = string(p)
-	}
-	path, err := os.MkdirTemp(dir, pattern)
+	path, err := os.MkdirTemp(dir, string(pattern))
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempdir() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "mkdir_temp() failed", err)
 	}
 	return object.String(path), nil
 }
@@ -318,33 +307,20 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 // tempFile creates a new temporary file, mirroring Go's os.CreateTemp.
 // Both dir and pattern are optional; when dir is empty Go uses the OS default
 // temp directory.
-func tempFile(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tempfile", args); err != nil {
+func createTemp(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("create_temp", args)
+	dirObj := ap.AnyOr("dir", object.String(""))
+	pattern := ap.StrOr("pattern", "")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 2 {
-		return nil, object.NewTypeError("tempfile() takes at most 2 arguments, got %d", len(args.Positional))
+	dir, ok := object.PathString(dirObj)
+	if !ok {
+		return nil, object.NewTypeError("create_temp() argument 'dir' must be a string or Path")
 	}
-	dir := ""
-	pattern := ""
-	if len(args.Positional) >= 1 {
-		d, ok := object.PathString(args.Positional[0])
-		if !ok {
-			return nil, object.NewTypeError("tempfile() first argument (dir) must be a string or Path")
-		}
-		dir = d
-	}
-	if len(args.Positional) >= 2 {
-		p, ok := args.Positional[1].(object.String)
-		if !ok {
-			return nil, object.NewTypeError("tempfile() second argument (pattern) must be a string")
-		}
-		pattern = string(p)
-	}
-	f, err := os.CreateTemp(dir, pattern)
+	file, err := os.CreateTemp(dir, string(pattern))
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempfile() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "create_temp() failed", err)
 	}
-	f.Close()
-	return object.String(f.Name()), nil
+	return fs.NewFile(file.Name(), file), nil
 }

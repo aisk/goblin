@@ -28,7 +28,8 @@ for arg in os.argv() {
 | environ() | Return all environment values as a dictionary |
 | getwd() / hostname() | Current directory and machine name |
 | getpid() / getppid() | Process identifiers |
-| tempdir([dir, pattern]) / tempfile([dir, pattern]) | Create temporary paths |
+| mkdir_temp(dir="", pattern="") | Create a temporary directory |
+| create_temp(dir="", pattern="") | Create and open a temporary file |
 | exit(code=0) | End the process |
 
 Avoid using exit() inside reusable library code. Environment and temporary-file
@@ -78,15 +79,17 @@ processes it starts. It does not persist after the program exits.
 
 ## Temporary paths and process identity
 
-tempdir() and tempfile() accept optional directory and pattern arguments in
-that positional order, and return created paths. They are helpful for generated
-output and tests. These functions do not accept named arguments.
+mkdir_temp() and create_temp() mirror Go's os.MkdirTemp and os.CreateTemp.
+Both accept optional directory and pattern arguments, positionally or by name.
+mkdir_temp() returns the created path; create_temp() returns an open fs.File
+whose name attribute contains its path.
 
 ~~~goblin
-var directory = os.tempdir("", "goblin-")
-var filename = os.tempfile(directory, "data-")
+var directory = os.mkdir_temp(pattern="goblin-")
+var file = os.create_temp(directory, pattern="data-")
 print(directory)
-print(filename)
+print(file.name)
+file.close()
 ~~~
 
 getpid(), getppid(), getuid(), getgid(), and getgroups() expose identity

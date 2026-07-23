@@ -1,4 +1,5 @@
 import "os"
+import "fs"
 
 # getenv returns a string (empty when the variable is unset)
 print(os.getenv("HOME").constructor == Str)
@@ -19,16 +20,22 @@ print(os.getpid() > 0)
 
 # Note: os.exit() is tested separately to avoid terminating the test runner
 
-# tempdir / tempfile mirror Go's os.MkdirTemp / os.CreateTemp.
+# mkdir_temp / create_temp mirror Go's os.MkdirTemp / os.CreateTemp.
 # Both dir and pattern are optional.
-var d1 = os.tempdir()
+var d1 = os.mkdir_temp()
 print(d1 != "")
+fs.remove(d1)
 
-var d2 = os.tempdir("", "goblin-*")
+var d2 = os.mkdir_temp(pattern="goblin-*")
 print(d2 != "")
+fs.remove(d2)
 
-var f1 = os.tempfile()
-print(f1 != "")
+var f1 = os.create_temp()
+print(f1.name != "")
+f1.close()
+fs.remove(f1.name)
 
-var f2 = os.tempfile("", "goblin-*")
-print(f2 != "")
+var f2 = os.create_temp(pattern="goblin-*")
+print(f2.name != "")
+f2.close()
+fs.remove(f2.name)
