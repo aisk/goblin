@@ -7,152 +7,166 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-// Pattern is an immutable, concurrency-safe compiled regular expression.
-type Pattern struct {
+// Regexp wraps Go's immutable, concurrency-safe regexp.Regexp.
+type Regexp struct {
 	objectBase
 	source string
 	re     *stdregexp.Regexp
-	full   *stdregexp.Regexp
 }
 
-func (p *Pattern) String() string              { return fmt.Sprintf("<regexp.Pattern %q>", p.source) }
-func (p *Pattern) ToString() (string, error)   { return p.String(), nil }
-func (p *Pattern) Bool() bool                  { return true }
-func (p *Pattern) ToBool() (bool, error)       { return true, nil }
-func (p *Pattern) Not() (object.Object, error) { return object.False, nil }
-func (p *Pattern) Equals(other object.Object) bool {
-	v, ok := other.(*Pattern)
-	return ok && p.source == v.source
+func (r *Regexp) String() string              { return fmt.Sprintf("<regexp.Regexp %q>", r.source) }
+func (r *Regexp) ToString() (string, error)   { return r.source, nil }
+func (r *Regexp) Bool() bool                  { return true }
+func (r *Regexp) ToBool() (bool, error)       { return true, nil }
+func (r *Regexp) Not() (object.Object, error) { return object.False, nil }
+func (r *Regexp) Equals(other object.Object) bool {
+	value, ok := other.(*Regexp)
+	return ok && r.source == value.source
 }
 
-func (p *Pattern) matcher(full object.Bool) *stdregexp.Regexp {
-	if full {
-		return p.full
-	}
-	return p.re
-}
-
-func parseTextFull(name string, args object.CallArgs) (string, object.Bool, error) {
-	ap := object.NewArgParser(name, args)
-	text := ap.Str("text")
-	full := ap.BoolOr("full", object.False)
-	if err := ap.Finish(); err != nil {
-		return "", false, err
-	}
-	return string(text), full, nil
-}
-
-func (p *Pattern) test(args object.CallArgs) (object.Object, error) {
-	text, full, err := parseTextFull("test", args)
-	if err != nil {
+func (r *Regexp) matchString(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("match_string", args)
+	text := p.Str("text")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	return object.Bool(p.matcher(full).MatchString(text)), nil
+	return object.Bool(r.re.MatchString(string(text))), nil
 }
 
-func (p *Pattern) find(args object.CallArgs) (object.Object, error) {
-	text, full, err := parseTextFull("find", args)
-	if err != nil {
+// findString combines Go's Find(All)?String(Submatch)?(Index)? family through
+// Goblin keyword arguments. n follows Go's FindAll convention and is used only
+// when all=true.
+func (r *Regexp) findString(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("find_string", args)
+	text := p.Str("text")
+	all := p.BoolOr("all", object.False)
+	submatch := p.BoolOr("submatch", object.False)
+	index := p.BoolOr("index", object.False)
+	n := p.IntOr("n", -1)
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	indices := p.matcher(full).FindStringSubmatchIndex(text)
-	if indices == nil {
-		return object.Nil, nil
-	}
-	return newMatch(text, indices, p.re.SubexpNames()), nil
-}
-
-func parseTextLimit(name string, args object.CallArgs) (string, int, error) {
-	ap := object.NewArgParser(name, args)
-	text := ap.Str("text")
-	limit := ap.IntOr("limit", -1)
-	if err := ap.Finish(); err != nil {
-		return "", 0, err
-	}
-	if limit < -1 {
-		return "", 0, object.NewValueError("%s() limit must be -1 or non-negative", name)
-	}
-	return string(text), int(limit), nil
-}
-
-func (p *Pattern) findAll(args object.CallArgs) (object.Object, error) {
-	text, limit, err := parseTextLimit("find_all", args)
-	if err != nil {
-		return nil, err
-	}
-	if limit == 0 {
-		return &object.List{Elements: []object.Object{}}, nil
-	}
-	indices := p.re.FindAllStringSubmatchIndex(text, limit)
-	items := make([]object.Object, len(indices))
-	for i, index := range indices {
-		items[i] = newMatch(text, index, p.re.SubexpNames())
-	}
-	return &object.List{Elements: items}, nil
-}
-
-func (p *Pattern) replace(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("replace", args)
-	text := ap.Str("text")
-	replacement := ap.Str("replacement")
-	limit := ap.IntOr("limit", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if limit < -1 {
-		return nil, object.NewValueError("replace() limit must be -1 or non-negative")
-	}
-	if limit == 0 {
-		return text, nil
+	if !all && n != -1 {
+		return nil, object.NewTypeError("find_string() argument 'n' requires all=true")
 	}
 	s := string(text)
-	matches := p.re.FindAllStringSubmatchIndex(s, int(limit))
-	result := make([]byte, 0, len(s))
-	last := 0
-	for _, match := range matches {
-		result = append(result, s[last:match[0]]...)
-		result = p.re.ExpandString(result, string(replacement), s, match)
-		last = match[1]
+	if all {
+		switch {
+		case bool(submatch) && bool(index):
+			return intMatrix(r.re.FindAllStringSubmatchIndex(s, int(n))), nil
+		case bool(submatch):
+			return stringMatrix(r.re.FindAllStringSubmatch(s, int(n))), nil
+		case bool(index):
+			return intMatrix(r.re.FindAllStringIndex(s, int(n))), nil
+		default:
+			return stringList(r.re.FindAllString(s, int(n))), nil
+		}
 	}
-	result = append(result, s[last:]...)
-	return object.String(result), nil
+	switch {
+	case bool(submatch) && bool(index):
+		return optionalIntList(r.re.FindStringSubmatchIndex(s)), nil
+	case bool(submatch):
+		return optionalStringList(r.re.FindStringSubmatch(s)), nil
+	case bool(index):
+		return optionalIntList(r.re.FindStringIndex(s)), nil
+	default:
+		return object.String(r.re.FindString(s)), nil
+	}
 }
 
-func (p *Pattern) split(args object.CallArgs) (object.Object, error) {
-	text, limit, err := parseTextLimit("split", args)
-	if err != nil {
+func (r *Regexp) replaceAllString(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("replace_all_string", args)
+	text := p.Str("text")
+	replacement := p.Str("replacement")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if limit == 0 {
-		return &object.List{Elements: []object.Object{object.String(text)}}, nil
-	}
-	splits := p.re.Split(text, limit+1)
-	if limit < 0 {
-		splits = p.re.Split(text, -1)
-	}
-	items := make([]object.Object, len(splits))
-	for i, value := range splits {
-		items[i] = object.String(value)
-	}
-	return &object.List{Elements: items}, nil
+	return object.String(r.re.ReplaceAllString(string(text), string(replacement))), nil
 }
 
-func (p *Pattern) GetAttr(name string) (object.Object, error) {
+func (r *Regexp) split(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("split", args)
+	text := p.Str("text")
+	n := p.IntOr("n", -1)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return stringList(r.re.Split(string(text), int(n))), nil
+}
+
+func (r *Regexp) subexpNames(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("subexp_names", args)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return stringList(r.re.SubexpNames()), nil
+}
+
+func (r *Regexp) GetAttr(name string) (object.Object, error) {
 	methods := map[string]func(object.CallArgs) (object.Object, error){
-		"test": p.test, "find": p.find, "find_all": p.findAll,
-		"replace": p.replace, "split": p.split,
+		"match_string":       r.matchString,
+		"find_string":        r.findString,
+		"replace_all_string": r.replaceAllString,
+		"split":              r.split,
+		"subexp_names":       r.subexpNames,
 	}
 	if name == "attributes" {
-		return object.AttributesFunction(p), nil
+		return object.AttributesFunction(r), nil
 	}
 	if fn, ok := methods[name]; ok {
 		return &object.Function{Name: name, Fn: fn}, nil
 	}
-	return nil, object.NewAttributeError("Pattern has no attribute '%s'", name)
+	return nil, object.NewAttributeError("Regexp has no attribute '%s'", name)
 }
 
-func (p *Pattern) Attributes() []string {
-	return []string{"attributes", "test", "find", "find_all", "replace", "split"}
+func (r *Regexp) Attributes() []string {
+	return []string{"attributes", "match_string", "find_string", "replace_all_string", "split", "subexp_names"}
 }
 
-var _ object.Object = (*Pattern)(nil)
+func stringList(values []string) *object.List {
+	items := make([]object.Object, len(values))
+	for i, value := range values {
+		items[i] = object.String(value)
+	}
+	return &object.List{Elements: items}
+}
+
+func intList(values []int) *object.List {
+	items := make([]object.Object, len(values))
+	for i, value := range values {
+		items[i] = object.Integer(value)
+	}
+	return &object.List{Elements: items}
+}
+
+func optionalStringList(values []string) object.Object {
+	if values == nil {
+		return object.Nil
+	}
+	return stringList(values)
+}
+
+func optionalIntList(values []int) object.Object {
+	if values == nil {
+		return object.Nil
+	}
+	return intList(values)
+}
+
+func stringMatrix(values [][]string) *object.List {
+	items := make([]object.Object, len(values))
+	for i, value := range values {
+		items[i] = stringList(value)
+	}
+	return &object.List{Elements: items}
+}
+
+func intMatrix(values [][]int) *object.List {
+	items := make([]object.Object, len(values))
+	for i, value := range values {
+		items[i] = intList(value)
+	}
+	return &object.List{Elements: items}
+}
+
+var _ object.Object = (*Regexp)(nil)
