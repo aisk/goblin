@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/aisk/goblin/extension/fs"
 	"github.com/aisk/goblin/object"
 )
 
@@ -19,6 +20,37 @@ func argvFunction(t *testing.T, module object.Object) *object.Function {
 		t.Fatalf("os.argv = %T, want *object.Function", mod.Members["argv"])
 	}
 	return fn
+}
+
+func TestOsTempFunctionsMirrorGoResources(t *testing.T) {
+	dirValue, err := mkdirTemp(object.CallArgs{Keyword: object.Kwargs{"pattern": object.String("goblin-*")}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := string(dirValue.(object.String))
+	defer os.Remove(dir)
+
+	fileValue, err := createTemp(object.CallArgs{Keyword: object.Kwargs{
+		"dir": object.String(dir), "pattern": object.String("data-*"),
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	file := fileValue.(*fs.File)
+	defer os.Remove(file.Name)
+	if _, err := file.Write(object.CallArgs{Positional: object.Args{object.String("goblin")}}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := file.Close(object.CallArgs{}); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(file.Name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "goblin" {
+		t.Fatalf("temporary file = %q", data)
+	}
 }
 
 func callArgv(t *testing.T, fn *object.Function) (*object.List, []string) {
