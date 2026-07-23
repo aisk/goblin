@@ -198,7 +198,7 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	case "unwrap":
 		return &Function{Name: "unwrap", Fn: e.Unwrapped}, nil
 	case "is":
-		return &Function{Name: "is", Fn: e.Is}, nil
+		return &Function{Name: "is", Fn: e.IsValue}, nil
 	case "constructor":
 		return ErrorConstructorFn, nil
 	case "traceback":
@@ -254,9 +254,13 @@ func (e *Error) Unwrapped(args CallArgs) (Object, error) {
 	return NewError(cause.Error()), nil
 }
 
-// Is reports whether target appears anywhere in the receiver's cause chain,
+// IsValue reports whether target appears anywhere in the receiver's cause chain,
 // delegating to the standard library's errors.Is. Usage: err.is(target).
-func (e *Error) Is(args CallArgs) (Object, error) {
+//
+// The Go method deliberately avoids the name Is: methods named Is on error
+// types are reserved for the standard errors.Is protocol and must have the
+// signature Is(error) bool.
+func (e *Error) IsValue(args CallArgs) (Object, error) {
 	ap := NewArgParser("is", args)
 	target := ap.Any("target")
 	if err := ap.Finish(); err != nil {
