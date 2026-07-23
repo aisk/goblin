@@ -1,0 +1,9 @@
+import "sha256"
+import "sha512"
+
+print(sha256.sum256("goblin").size())
+print(sha256.sum224("goblin").size())
+print(sha512.sum512("goblin").size())
+print(sha512.sum384("goblin").size())
+print(sha512.sum512_224("goblin").size())
+print(sha512.sum512_256("goblin").size())
