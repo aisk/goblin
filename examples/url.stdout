@@ -1,0 +1,8 @@
+https
+example.com
+8443
+/a/b
+https://user@example.com:8443/c
+a+b
+a%2Fb
+https://example.com/a/b/c

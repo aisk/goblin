@@ -38,6 +38,7 @@ needed.
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode_to_string(), decode_string() |
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum256(), sum512() |
+| [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 
 ## Imports and errors
 
