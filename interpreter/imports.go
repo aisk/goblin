@@ -38,6 +38,8 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"exec":   execExt.Execute,
 	"regexp": regexpExt.Execute,
 	"hex":    extension.ExecuteHex,
+	"sha256": extension.ExecuteSHA256,
+	"sha512": extension.ExecuteSHA512,
 }
 
 func isPathImport(path string) bool {
