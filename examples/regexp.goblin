@@ -1,22 +1,36 @@
 import "regexp"
 
 var assignment = regexp.compile("(?P<key>[a-z]+)=(\\d+)(?P<unit>[a-z]+)?")
-print(assignment.test("prefix count=12 suffix"))
-print(assignment.test("prefix count=12 suffix", full=true))
+print(assignment.match("prefix count=12 suffix"))
+print(assignment.match("prefix count=12 suffix", full=true))
+print(assignment.pattern)
+print(assignment.group_names)
 
 var match = assignment.find("count=12")
 print(match.text)
 print(match.start)
 print(match.end)
+print(match.span("key"))
 print(match.groups)
 print(match.group("key"))
 print(match.group("unit"))
+# named_groups is a dict, so print single lookups: dict order is unspecified.
+print(match.named_groups.get("key"))
+print(match.named_groups.size())
 print(assignment.find("missing"))
 
 var words = regexp.compile("[a-z]+")
-print(words.find_all("one two three", limit=2).size())
-print(assignment.replace("a=1 b=2", "${key}:$2", limit=1))
-print(regexp.compile(",\\s*").split("a, b,c", limit=1))
+print(words.find_all("one two three", count=2).size())
+print(assignment.replace("a=1 b=2", "${key}:$2", count=1))
+
+# count means the same thing as it does on the built-in str methods: for split
+# it is the number of pieces, for replace the number of replacements.
+print(regexp.compile(",\\s*").split("a, b,c", count=2))
+print("a, b,c".split(sep=", ", count=2))
+
+# escape() is how to search for text that is not itself a pattern.
+print(regexp.compile(regexp.escape("a.c")).match("abc"))
+print(regexp.compile(regexp.escape("a.c")).match("a.c"))
 
 # Match offsets follow Go regexp and count UTF-8 bytes, not Unicode characters.
 print(words.find("日abc").start)

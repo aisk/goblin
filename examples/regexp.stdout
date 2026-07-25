@@ -1,14 +1,22 @@
 true
 false
+(?P<key>[a-z]+)=(\d+)(?P<unit>[a-z]+)?
+["key", nil, "unit"]
 count=12
 0
 8
+[0, 5]
 ["count", "12", nil]
 count
 nil
+count
+2
 nil
 2
 a:1 b=2
 ["a", "b,c"]
+["a", "b,c"]
+false
+true
 3
 2

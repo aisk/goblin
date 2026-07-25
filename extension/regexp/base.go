@@ -2,26 +2,37 @@ package regexp
 
 import "github.com/aisk/goblin/object"
 
-type objectBase struct{}
+// objectBase provides the boilerplate Object methods shared by Pattern and
+// Match. Both are opaque values: always truthy, and supporting neither
+// arithmetic, ordering, iteration, nor indexing.
+type objectBase struct{ typeName string }
 
-func (objectBase) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("regexp value does not support addition")
+func (b objectBase) Bool() bool                  { return true }
+func (b objectBase) ToBool() (bool, error)       { return true, nil }
+func (b objectBase) Not() (object.Object, error) { return object.False, nil }
+
+// Equals returns false so that object.Equals falls back to its identity
+// backstop. Pattern overrides this with value equality.
+func (b objectBase) Equals(object.Object) bool { return false }
+
+func (b objectBase) Compare(object.Object) (int, error) {
+	return 0, object.NewTypeError("cannot compare %s", b.typeName)
 }
-func (objectBase) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("regexp value does not support subtraction")
+func (b objectBase) Add(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot add %s", b.typeName)
 }
-func (objectBase) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("regexp value does not support multiplication")
+func (b objectBase) Minus(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot subtract %s", b.typeName)
 }
-func (objectBase) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("regexp value does not support division")
+func (b objectBase) Multiply(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot multiply %s", b.typeName)
 }
-func (objectBase) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("regexp values are not ordered")
+func (b objectBase) Divide(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot divide %s", b.typeName)
 }
-func (objectBase) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("regexp value does not support iteration")
+func (b objectBase) Iter() ([]object.Object, error) {
+	return nil, object.NewTypeError("%s does not support iteration", b.typeName)
 }
-func (objectBase) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("regexp value is not indexable")
+func (b objectBase) Index(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("%s is not indexable", b.typeName)
 }

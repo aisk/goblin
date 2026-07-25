@@ -3,6 +3,7 @@ package regexp
 import (
 	"fmt"
 	stdregexp "regexp"
+	"sync"
 
 	"github.com/aisk/goblin/object"
 )
@@ -12,24 +13,40 @@ type Pattern struct {
 	objectBase
 	source string
 	re     *stdregexp.Regexp
-	full   *stdregexp.Regexp
+	// names is re.SubexpNames(): entry i holds the name of group i, or "" when
+	// that group is unnamed. It is never mutated, so Match values share it.
+	names []string
+	// full anchors the source at both ends for match(full=true). Most patterns
+	// never need it, so it is compiled on first use.
+	fullOnce sync.Once
+	full     *stdregexp.Regexp
+	fullErr  error
 }
 
-func (p *Pattern) String() string              { return fmt.Sprintf("<regexp.Pattern %q>", p.source) }
-func (p *Pattern) ToString() (string, error)   { return p.String(), nil }
-func (p *Pattern) Bool() bool                  { return true }
-func (p *Pattern) ToBool() (bool, error)       { return true, nil }
-func (p *Pattern) Not() (object.Object, error) { return object.False, nil }
+func (p *Pattern) String() string            { return fmt.Sprintf("<regexp.Pattern %q>", p.source) }
+func (p *Pattern) ToString() (string, error) { return p.String(), nil }
+
+// Equals compares by source. Two patterns compiled from the same text behave
+// identically, so they are interchangeable values rather than handles.
 func (p *Pattern) Equals(other object.Object) bool {
 	v, ok := other.(*Pattern)
 	return ok && p.source == v.source
 }
 
-func (p *Pattern) matcher(full object.Bool) *stdregexp.Regexp {
-	if full {
-		return p.full
+// matcher returns the engine for a match request. The full=true engine wraps
+// the source in a non-capturing group, so group numbers and names are the same
+// in both engines and Match can always be built from p.names.
+func (p *Pattern) matcher(full object.Bool) (*stdregexp.Regexp, error) {
+	if !full {
+		return p.re, nil
 	}
-	return p.re
+	p.fullOnce.Do(func() {
+		p.full, p.fullErr = stdregexp.Compile(`\A(?:` + p.source + `)\z`)
+	})
+	if p.fullErr != nil {
+		return nil, object.WrapError(object.ParseError, "anchoring the pattern for full=true failed", p.fullErr)
+	}
+	return p.full, nil
 }
 
 func parseTextFull(name string, args object.CallArgs) (string, object.Bool, error) {
@@ -42,12 +59,16 @@ func parseTextFull(name string, args object.CallArgs) (string, object.Bool, erro
 	return string(text), full, nil
 }
 
-func (p *Pattern) test(args object.CallArgs) (object.Object, error) {
-	text, full, err := parseTextFull("test", args)
+func (p *Pattern) match(args object.CallArgs) (object.Object, error) {
+	text, full, err := parseTextFull("match", args)
 	if err != nil {
 		return nil, err
 	}
-	return object.Bool(p.matcher(full).MatchString(text)), nil
+	re, err := p.matcher(full)
+	if err != nil {
+		return nil, err
+	}
+	return object.Bool(re.MatchString(text)), nil
 }
 
 func (p *Pattern) find(args object.CallArgs) (object.Object, error) {
@@ -55,38 +76,39 @@ func (p *Pattern) find(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	indices := p.matcher(full).FindStringSubmatchIndex(text)
-	if indices == nil {
-		return object.Nil, nil
-	}
-	return newMatch(text, indices, p.re.SubexpNames()), nil
-}
-
-func parseTextLimit(name string, args object.CallArgs) (string, int, error) {
-	ap := object.NewArgParser(name, args)
-	text := ap.Str("text")
-	limit := ap.IntOr("limit", -1)
-	if err := ap.Finish(); err != nil {
-		return "", 0, err
-	}
-	if limit < -1 {
-		return "", 0, object.NewValueError("%s() limit must be -1 or non-negative", name)
-	}
-	return string(text), int(limit), nil
-}
-
-func (p *Pattern) findAll(args object.CallArgs) (object.Object, error) {
-	text, limit, err := parseTextLimit("find_all", args)
+	re, err := p.matcher(full)
 	if err != nil {
 		return nil, err
 	}
-	if limit == 0 {
-		return &object.List{Elements: []object.Object{}}, nil
+	indices := re.FindStringSubmatchIndex(text)
+	if indices == nil {
+		return object.Nil, nil
 	}
-	indices := p.re.FindAllStringSubmatchIndex(text, limit)
+	return newMatch(text, indices, p.names), nil
+}
+
+// parseTextCount reads the (text, count) argument pair shared by find_all and
+// split. count follows the built-in str methods: any negative value means "no
+// limit", and it is passed straight through to the Go engine.
+func parseTextCount(name string, args object.CallArgs) (string, int, error) {
+	ap := object.NewArgParser(name, args)
+	text := ap.Str("text")
+	count := ap.IntOr("count", -1)
+	if err := ap.Finish(); err != nil {
+		return "", 0, err
+	}
+	return string(text), int(count), nil
+}
+
+func (p *Pattern) findAll(args object.CallArgs) (object.Object, error) {
+	text, count, err := parseTextCount("find_all", args)
+	if err != nil {
+		return nil, err
+	}
+	indices := p.re.FindAllStringSubmatchIndex(text, count)
 	items := make([]object.Object, len(indices))
 	for i, index := range indices {
-		items[i] = newMatch(text, index, p.re.SubexpNames())
+		items[i] = newMatch(text, index, p.names)
 	}
 	return &object.List{Elements: items}, nil
 }
@@ -95,18 +117,15 @@ func (p *Pattern) replace(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("replace", args)
 	text := ap.Str("text")
 	replacement := ap.Str("replacement")
-	limit := ap.IntOr("limit", -1)
+	count := ap.IntOr("count", -1)
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if limit < -1 {
-		return nil, object.NewValueError("replace() limit must be -1 or non-negative")
-	}
-	if limit == 0 {
-		return text, nil
+	if err := p.checkTemplate(string(replacement)); err != nil {
+		return nil, err
 	}
 	s := string(text)
-	matches := p.re.FindAllStringSubmatchIndex(s, int(limit))
+	matches := p.re.FindAllStringSubmatchIndex(s, int(count))
 	result := make([]byte, 0, len(s))
 	last := 0
 	for _, match := range matches {
@@ -119,31 +138,55 @@ func (p *Pattern) replace(args object.CallArgs) (object.Object, error) {
 }
 
 func (p *Pattern) split(args object.CallArgs) (object.Object, error) {
-	text, limit, err := parseTextLimit("split", args)
+	text, count, err := parseTextCount("split", args)
 	if err != nil {
 		return nil, err
 	}
-	if limit == 0 {
-		return &object.List{Elements: []object.Object{object.String(text)}}, nil
-	}
-	splits := p.re.Split(text, limit+1)
-	if limit < 0 {
-		splits = p.re.Split(text, -1)
-	}
-	items := make([]object.Object, len(splits))
-	for i, value := range splits {
+	pieces := p.re.Split(text, count)
+	items := make([]object.Object, len(pieces))
+	for i, value := range pieces {
 		items[i] = object.String(value)
 	}
 	return &object.List{Elements: items}, nil
 }
 
-func (p *Pattern) GetAttr(name string) (object.Object, error) {
-	methods := map[string]func(object.CallArgs) (object.Object, error){
-		"test": p.test, "find": p.find, "find_all": p.findAll,
-		"replace": p.replace, "split": p.split,
+// groupNames lists capture-group names by number, excluding group 0. Entry i
+// holds the name of group i+1, or nil when that group is unnamed, so it lines
+// up element for element with Match.groups.
+func (p *Pattern) groupNames() *object.List {
+	items := make([]object.Object, len(p.names)-1)
+	for i, name := range p.names[1:] {
+		if name == "" {
+			items[i] = object.Nil
+			continue
+		}
+		items[i] = object.String(name)
 	}
-	if name == "attributes" {
+	return &object.List{Elements: items}
+}
+
+// hasGroupName reports whether the pattern declares a group called name.
+func (p *Pattern) hasGroupName(name string) bool {
+	for _, candidate := range p.names[1:] {
+		if candidate != "" && candidate == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (p *Pattern) GetAttr(name string) (object.Object, error) {
+	switch name {
+	case "attributes":
 		return object.AttributesFunction(p), nil
+	case "pattern":
+		return object.String(p.source), nil
+	case "group_names":
+		return p.groupNames(), nil
+	}
+	methods := map[string]func(object.CallArgs) (object.Object, error){
+		"match": p.match, "find": p.find, "find_all": p.findAll,
+		"replace": p.replace, "split": p.split,
 	}
 	if fn, ok := methods[name]; ok {
 		return &object.Function{Name: name, Fn: fn}, nil
@@ -152,7 +195,10 @@ func (p *Pattern) GetAttr(name string) (object.Object, error) {
 }
 
 func (p *Pattern) Attributes() []string {
-	return []string{"attributes", "test", "find", "find_all", "replace", "split"}
+	return []string{
+		"attributes", "pattern", "group_names",
+		"match", "find", "find_all", "replace", "split",
+	}
 }
 
 var _ object.Object = (*Pattern)(nil)

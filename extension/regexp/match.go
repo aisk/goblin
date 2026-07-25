@@ -11,19 +11,22 @@ type Match struct {
 	objectBase
 	source  string
 	indices []int
-	names   []string
+	// names is the compiling Pattern's SubexpNames slice, shared because it is
+	// immutable.
+	names []string
 }
 
 func newMatch(source string, indices []int, names []string) *Match {
-	return &Match{source: source, indices: append([]int(nil), indices...), names: append([]string(nil), names...)}
+	return &Match{
+		objectBase: objectBase{typeName: "Match"},
+		source:     source,
+		indices:    append([]int(nil), indices...),
+		names:      names,
+	}
 }
 
-func (m *Match) String() string                  { return fmt.Sprintf("<regexp.Match %q>", m.substring(0)) }
-func (m *Match) ToString() (string, error)       { return m.String(), nil }
-func (m *Match) Bool() bool                      { return true }
-func (m *Match) ToBool() (bool, error)           { return true, nil }
-func (m *Match) Not() (object.Object, error)     { return object.False, nil }
-func (m *Match) Equals(other object.Object) bool { return m == other }
+func (m *Match) String() string            { return fmt.Sprintf("<regexp.Match %q>", m.substring(0)) }
+func (m *Match) ToString() (string, error) { return m.String(), nil }
 
 func (m *Match) participated(index int) bool {
 	return index >= 0 && index*2+1 < len(m.indices) && m.indices[index*2] >= 0
@@ -36,17 +39,17 @@ func (m *Match) substring(index int) string {
 	return m.source[m.indices[index*2]:m.indices[index*2+1]]
 }
 
-func (m *Match) group(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("group", args)
-	key := ap.AnyOr("index_or_name", object.Integer(0))
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	index := -1
+// groupIndex resolves a group key to a group number. It returns -1, nil when
+// the group exists but did not participate in the match, and an IndexError when
+// no such group exists at all.
+func (m *Match) groupIndex(method string, key object.Object) (int, error) {
 	switch value := key.(type) {
 	case object.Integer:
-		if value >= 0 && int(value)*2+1 < len(m.indices) {
-			index = int(value)
+		if value >= 0 && int(value) < len(m.indices)/2 {
+			if !m.participated(int(value)) {
+				return -1, nil
+			}
+			return int(value), nil
 		}
 	case object.String:
 		found := false
@@ -54,24 +57,54 @@ func (m *Match) group(args object.CallArgs) (object.Object, error) {
 			if m.names[i] == string(value) {
 				found = true
 				if m.participated(i) {
-					index = i
-					break
+					return i, nil
 				}
 			}
 		}
-		if found && index < 0 {
-			return object.Nil, nil
+		if found {
+			return -1, nil
 		}
 	default:
-		return nil, object.NewTypeError("group() argument 'index_or_name' must be int or str, got %T", key)
+		return 0, object.NewTypeError("%s() argument 'key' must be int or str, got %T", method, key)
+	}
+	return 0, object.NewIndexError("no such capture group: %s", key.String())
+}
+
+func (m *Match) group(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("group", args)
+	key := ap.AnyOr("key", object.Integer(0))
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	index, err := m.groupIndex("group", key)
+	if err != nil {
+		return nil, err
 	}
 	if index < 0 {
-		return nil, object.NewIndexError("no such capture group: %s", key.String())
-	}
-	if !m.participated(index) {
 		return object.Nil, nil
 	}
 	return object.String(m.substring(index)), nil
+}
+
+// span returns the half-open [start, end) offsets of one group, or nil when the
+// group did not participate.
+func (m *Match) span(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("span", args)
+	key := ap.AnyOr("key", object.Integer(0))
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	index, err := m.groupIndex("span", key)
+	if err != nil {
+		return nil, err
+	}
+	if index < 0 {
+		return object.Nil, nil
+	}
+	return &object.List{Elements: []object.Object{
+		object.Integer(m.indices[index*2]),
+		object.Integer(m.indices[index*2+1]),
+	}}, nil
 }
 
 func (m *Match) groups() *object.List {
@@ -86,10 +119,35 @@ func (m *Match) groups() *object.List {
 	return &object.List{Elements: items}
 }
 
+// namedGroups maps each capture-group name to its text. Following group(), a
+// name the pattern repeats resolves to its first participating group, and a
+// name that participated nowhere maps to nil.
+func (m *Match) namedGroups() (object.Object, error) {
+	result := object.NewDict()
+	filled := make(map[string]bool)
+	for i := 1; i < len(m.names); i++ {
+		name := m.names[i]
+		if name == "" || filled[name] {
+			continue
+		}
+		value := object.Object(object.Nil)
+		if m.participated(i) {
+			value = object.String(m.substring(i))
+			filled[name] = true
+		}
+		if err := result.Set(object.String(name), value); err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
+}
+
 func (m *Match) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(m), nil
+	case "source":
+		return object.String(m.source), nil
 	case "text":
 		return object.String(m.substring(0)), nil
 	case "start":
@@ -98,15 +156,22 @@ func (m *Match) GetAttr(name string) (object.Object, error) {
 		return object.Integer(m.indices[1]), nil
 	case "groups":
 		return m.groups(), nil
+	case "named_groups":
+		return m.namedGroups()
 	case "group":
 		return &object.Function{Name: "group", Fn: m.group}, nil
+	case "span":
+		return &object.Function{Name: "span", Fn: m.span}, nil
 	default:
 		return nil, object.NewAttributeError("Match has no attribute '%s'", name)
 	}
 }
 
 func (m *Match) Attributes() []string {
-	return []string{"attributes", "text", "start", "end", "groups", "group"}
+	return []string{
+		"attributes", "source", "text", "start", "end",
+		"groups", "named_groups", "group", "span",
+	}
 }
 
 var _ object.Object = (*Match)(nil)
