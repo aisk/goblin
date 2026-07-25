@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"os"
 	"reflect"
 	"sort"
 	"testing"
@@ -32,7 +33,7 @@ func TestSessionArgv(t *testing.T) {
 
 func TestSessionCompletionCandidates(t *testing.T) {
 	s := NewSession(".")
-	if names := s.CompletionCandidates(nil); !containsString(names, "print") || !sort.StringsAreSorted(names) {
+	if names := s.CompletionCandidates(nil); !containsString(names, "print") || !containsString(names, "eprint") || !sort.StringsAreSorted(names) {
 		t.Fatalf("root completion candidates = %v", names)
 	}
 
@@ -127,17 +128,36 @@ func TestSessionStatementsPersistAndReturnNil(t *testing.T) {
 }
 
 // A call that parses as a statement (identifier-led) goes through the normal
-// path and still yields its return value. print() returns nil, which the REPL
-// suppresses from display.
+// path and still yields its return value. print()/eprint() return nil, which
+// the REPL suppresses from display.
 func TestSessionCallStatement(t *testing.T) {
 	s := NewSession(".")
-	v, err := s.Eval(`print("hi")`)
+	for _, expr := range []string{`print("hi")`, `eprint("hi")`} {
+		discardStdio(t, func() {
+			v, err := s.Eval(expr)
+			if err != nil {
+				t.Fatalf("Eval(%s) error: %v", expr, err)
+			}
+			if v != nil {
+				t.Errorf("%s returned %v, want nil", expr, v)
+			}
+		})
+	}
+}
+
+func discardStdio(t *testing.T, fn func()) {
+	t.Helper()
+	origOut, origErr := os.Stdout, os.Stderr
+	devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
 	if err != nil {
-		t.Fatalf("Eval error: %v", err)
+		t.Fatalf("devnull: %v", err)
 	}
-	if v != nil {
-		t.Errorf("print() returned %v, want nil", v)
-	}
+	os.Stdout, os.Stderr = devNull, devNull
+	defer func() {
+		os.Stdout, os.Stderr = origOut, origErr
+		_ = devNull.Close()
+	}()
+	fn()
 }
 
 // Genuinely invalid input must surface an error, not be masked by the

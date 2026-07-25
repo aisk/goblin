@@ -6,6 +6,9 @@ Create `hello.goblin`:
 print("Hello, world!")
 ```
 
+To write the same kind of line to stderr (for warnings or diagnostics), use
+`eprint` instead of `print`.
+
 Goblin does not require a `main` function. Statements at the top level run in
 order. Add a comment with `#` when you need to explain a line:
 

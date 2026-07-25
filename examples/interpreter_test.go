@@ -15,8 +15,8 @@ import (
 )
 
 // TestInterpreterExamples runs each .goblin file through the tree-walking
-// interpreter and compares its stdout against the corresponding .stdout file
-// (the same expected output the transpiler is checked against).
+// interpreter and compares stdout/stderr against the corresponding golden
+// files (the same expected output the transpiler is checked against).
 func TestInterpreterExamples(t *testing.T) {
 	files, err := filepath.Glob("*.goblin")
 	if err != nil {
@@ -29,23 +29,15 @@ func TestInterpreterExamples(t *testing.T) {
 	for _, file := range files {
 		baseName := strings.TrimSuffix(filepath.Base(file), ".goblin")
 		t.Run(baseName, func(t *testing.T) {
-			expectedFile := baseName + ".stdout"
-			expected, err := os.ReadFile(expectedFile)
-			if err != nil {
-				t.Fatalf("read expected stdout (%s): %v", expectedFile, err)
-			}
-
-			stdout := runInterpreter(t, file)
-			if normalize(stdout) != normalize(string(expected)) {
-				t.Errorf("stdout mismatch:\nExpected:\n%s\nActual:\n%s", string(expected), stdout)
-			}
+			stdout, stderr := runInterpreter(t, file)
+			checkOutput(t, ".", baseName, ".stdout", stdout, true)
+			checkOutput(t, ".", baseName, ".stderr", stderr, false)
 		})
 	}
 }
 
-// runInterpreter parses and interprets a file, capturing everything written to
-// os.Stdout.
-func runInterpreter(t *testing.T, goblinFile string) string {
+// runInterpreter parses and interprets a file, capturing os.Stdout and os.Stderr.
+func runInterpreter(t *testing.T, goblinFile string) (stdout, stderr string) {
 	t.Helper()
 
 	l, err := lexer.NewLexerFile(goblinFile)
@@ -64,28 +56,40 @@ func runInterpreter(t *testing.T, goblinFile string) string {
 		t.Fatalf("semantic error: %v", err)
 	}
 
-	// Capture os.Stdout (built-in print writes there via fmt.Print).
-	orig := os.Stdout
-	r, w, err := os.Pipe()
+	origOut, origErr := os.Stdout, os.Stderr
+	outR, outW, err := os.Pipe()
 	if err != nil {
-		t.Fatalf("failed to create pipe: %v", err)
+		t.Fatalf("failed to create stdout pipe: %v", err)
 	}
-	os.Stdout = w
+	errR, errW, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("failed to create stderr pipe: %v", err)
+	}
+	os.Stdout, os.Stderr = outW, errW
+	defer func() {
+		os.Stdout, os.Stderr = origOut, origErr
+	}()
 
-	done := make(chan string)
+	outDone := make(chan string)
+	errDone := make(chan string)
 	go func() {
-		data, _ := io.ReadAll(r)
-		done <- string(data)
+		data, _ := io.ReadAll(outR)
+		outDone <- string(data)
+	}()
+	go func() {
+		data, _ := io.ReadAll(errR)
+		errDone <- string(data)
 	}()
 
 	runErr := interpreter.Run(module, goblinFile)
 
-	w.Close()
-	os.Stdout = orig
-	out := <-done
+	outW.Close()
+	errW.Close()
+	stdout = <-outDone
+	stderr = <-errDone
 
 	if runErr != nil {
-		t.Fatalf("interpreter error: %v", runErr)
+		t.Fatalf("interpreter error: %v\nstderr: %s", runErr, stderr)
 	}
-	return out
+	return stdout, stderr
 }

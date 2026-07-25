@@ -1,7 +1,9 @@
 package extension
 
 import (
-	"fmt"
+	"io"
+	"os"
+	"strings"
 
 	"github.com/aisk/goblin/object"
 )
@@ -10,6 +12,7 @@ var BuiltinsModule = &object.Module{
 	Name: "builtin",
 	Members: map[string]object.Object{
 		"print":               &object.Function{Name: "print", Fn: print},
+		"eprint":              &object.Function{Name: "eprint", Fn: eprint},
 		"spawn":               &object.Function{Name: "spawn", Fn: spawn},
 		"range":               &object.Function{Name: "range", Fn: range_},
 		"max":                 &object.Function{Name: "max", Fn: max},
@@ -45,21 +48,36 @@ var BuiltinsModule = &object.Module{
 	},
 }
 
+// print writes values to stdout, separated by spaces, ending with a newline.
+// Positional-only.
 func print(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("print", args); err != nil {
+	return writeLine("print", os.Stdout, args)
+}
+
+// eprint is like print, but writes to stderr. Positional-only.
+func eprint(args object.CallArgs) (object.Object, error) {
+	return writeLine("eprint", os.Stderr, args)
+}
+
+func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoKeyword(name, args); err != nil {
 		return nil, err
 	}
+	var b strings.Builder
 	for i, arg := range args.Positional {
 		if i > 0 {
-			fmt.Print(" ")
+			b.WriteByte(' ')
 		}
 		s, err := arg.ToString()
 		if err != nil {
 			return nil, err
 		}
-		fmt.Print(s)
+		b.WriteString(s)
 	}
-	fmt.Print("\n")
+	b.WriteByte('\n')
+	if _, err := io.WriteString(w, b.String()); err != nil {
+		return nil, object.WrapNativeError(object.IOError, name+"() failed", err)
+	}
 	return nil, nil
 }
 

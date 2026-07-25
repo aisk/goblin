@@ -15,8 +15,9 @@ print(text)
 ~~~
 
 The standard library is separate from Goblin's built-in functions and types.
-For example, print(), range(), Int(), List(), Dict(), and Chan() are available
-without an import. Import a module only when its capabilities are needed.
+For example, print(), eprint(), range(), Int(), List(), Dict(), and Chan() are
+available without an import. Import a module only when its capabilities are
+needed.
 
 ## Module map
 

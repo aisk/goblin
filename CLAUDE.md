@@ -42,7 +42,7 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 
 - `goblin.bnf` — Master grammar. All changes to syntax start here.
 - `ast/ast.go` — AST node types and `New*`/`Append*` constructors required by gocc reduce actions.
-- `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `range`, `max`, `min`) are resolved here.
+- `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `eprint`, `range`, `max`, `min`) are resolved here.
 - `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST.
 - `semantic/semantic.go` — Semantic checks run on the module before either backend.
 - `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration.
