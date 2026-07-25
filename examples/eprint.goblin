@@ -1,0 +1,6 @@
+# eprint mirrors print but writes to stderr
+eprint("hello, stderr!")
+eprint(42, 3.14)
+
+# stdout stays separate
+print("hello, stdout!")

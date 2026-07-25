@@ -164,7 +164,7 @@ try {
     print(e.is(LookupError)) # true
 }
 
-# Built-ins include print, range, max, min, spawn, Error and typed constructors
+# Built-ins include print, eprint, range, max, min, spawn, Error and typed constructors
 print(max(1, 2, 3))  # 3
 print(min(1, 2.5))   # 1
 print(Int("42"))     # 42

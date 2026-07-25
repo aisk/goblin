@@ -16,8 +16,9 @@ score = score + 5
 print(score) # 15
 ```
 
-`print` separates multiple arguments with spaces and ends the line. A comment
-starts with `#` and runs to the end of its line.
+`print` separates multiple arguments with spaces and ends the line; it writes
+to stdout. Use `eprint` for the same formatting on stderr. A comment starts
+with `#` and runs to the end of its line.
 
 ## Operators
 
