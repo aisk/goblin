@@ -1,0 +1,121 @@
+# Numeric local variables. The transpiler may give these native Go types
+# instead of boxed objects, so this file pins down the behaviour that has to
+# survive that: mixed int/float arithmetic, integer vs float division, division
+# by zero, closures over numbers, and variables whose type changes.
+
+# Stable int and float locals.
+var i = 0
+while i < 3 {
+    print(i)
+    i = i + 1
+}
+
+var f = 0.5
+f = f + 0.25
+print(f)
+
+# Integer division truncates; float division does not.
+print(7 / 2)
+print(7.0 / 2)
+print(7 / 2.0)
+print(-7 / 2)
+
+# Mixed int/float arithmetic widens to float.
+var n = 3
+print(n * 1.5)
+print(n + 0.5)
+print(1.5 * n)
+
+# Mixed comparisons compare numerically.
+print(n == 3.0)
+print(n < 3.5)
+print(3.0 == n)
+print(n != 3.0)
+
+# Unary operators.
+print(-n)
+print(--n)
+print(-(n * 2))
+var neg = -4.5
+print(-neg)
+
+# Bool locals and short circuiting.
+var flag = true
+var other = false
+print(flag && !other)
+print(flag || other)
+if flag && n > 2 {
+    print("both")
+}
+
+# Short circuit must still protect a division: the right side never runs.
+var zero = 0
+if zero != 0 && 10 / zero > 1 {
+    print("unreachable")
+} else {
+    print("short circuit ok")
+}
+
+# Division by zero stays a catchable error, not a crash.
+try {
+    print(10 / zero)
+} catch e {
+    print("caught:", e)
+}
+
+var fzero = 0.0
+try {
+    print(1.0 / fzero)
+} catch e {
+    print("caught:", e)
+}
+
+# A variable whose type changes is just a normal dynamic value.
+var mixed = 1
+print(mixed)
+mixed = "now a string"
+print(mixed)
+mixed = 2.5
+print(mixed)
+
+# Numbers captured by a closure keep working.
+var base = 10
+func add_base(x) {
+    return x + base
+}
+print(add_base(5))
+
+var counter = 0
+var bump = func() {
+    counter = counter + 1
+    return counter
+}
+print(bump())
+print(bump())
+print(counter)
+
+# Numeric locals crossing into dynamic contexts: calls, lists, dicts.
+var k = 7
+print(max(k, 3))
+var xs = [k, k * 2, k / 2]
+print(xs)
+var d = {"k": k}
+print(d["k"])
+print("k is " + Str(k))
+
+# Accumulating in a loop, the shape hot code actually has.
+var total = 0
+var j = 1
+while j <= 10 {
+    total = total + j * j
+    j = j + 1
+}
+print(total)
+
+var ftotal = 0.0
+var m = 0
+while m < 5 {
+    ftotal = ftotal + m * 0.5
+    m = m + 1
+}
+print(ftotal)

@@ -63,6 +63,11 @@ type transpileContext struct {
 	imported         map[string]struct{} // paths already transpiled (dedup)
 	moduleFuncs      []jen.Code          // top-level module executor functions (single-file mode)
 	topDecls         []jen.Code          // top-level type declarations and methods
+	// localTypes holds the specialised native types for the function body
+	// currently being transpiled (see typeinfer.go). It is swapped on entry to
+	// every function body and restored on exit, so it always describes exactly
+	// one scope. Names absent from it are ordinary object.Object values.
+	localTypes map[string]staticType
 	// For directory mode:
 	goModuleName string
 	outputDir    string
@@ -77,6 +82,128 @@ func newTranspileContext() *transpileContext {
 		moduleFuncs:      nil,
 		topDecls:         nil,
 	}
+}
+
+// enterScope installs the type environment inferred for a function body and
+// returns a function restoring the previous one.
+func (ctx *transpileContext) enterScope(body []ast.Statement) func() {
+	saved := ctx.localTypes
+	ctx.localTypes = inferLocals(body)
+	return func() { ctx.localTypes = saved }
+}
+
+// typeOf reports the specialised native type of a name, or tyDynamic when the
+// name is an ordinary boxed value.
+func (ctx *transpileContext) typeOf(name string) staticType {
+	if ctx.localTypes == nil {
+		return tyDynamic
+	}
+	if t, ok := ctx.localTypes[name]; ok {
+		return t
+	}
+	return tyDynamic
+}
+
+// nativeTypeOf reports whether an expression can be evaluated as a native Go
+// expression in the current scope, and with what type.
+func (ctx *transpileContext) nativeTypeOf(expr ast.Expression) staticType {
+	if ctx.localTypes == nil {
+		return tyDynamic
+	}
+	return staticTypeOf(expr, ctx.localTypes)
+}
+
+// box wraps a native Go expression back into an object.Object.
+func box(code *jen.Statement, t staticType) *jen.Statement {
+	switch t {
+	case tyInt:
+		return jen.Qual(pathObject, "Integer").Call(code)
+	case tyFloat:
+		return jen.Qual(pathObject, "Float").Call(code)
+	case tyBool:
+		return jen.Qual(pathObject, "Bool").Call(code)
+	}
+	return code
+}
+
+// emitNative renders an expression as a plain Go expression. It mirrors
+// staticTypeOf exactly and must only be called when that reported a native
+// type; anything else is a bug in one of the two, and is reported as such
+// rather than silently miscompiled.
+//
+// Native expressions have no side effects and, with the sole exception of
+// division, cannot fail — so they collapse into a single Go expression with no
+// error plumbing. Division needs a zero check, and that is a statement, hence
+// the leading []jen.Code most callers will find empty.
+func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	switch e := expr.(type) {
+	case *ast.Literal:
+		switch v := e.Value.(type) {
+		case object.Integer:
+			return nil, jen.Lit(int64(v)), nil
+		case object.Float:
+			return nil, jen.Lit(float64(v)), nil
+		case object.Bool:
+			return nil, jen.Lit(bool(v)), nil
+		}
+
+	case *ast.Identifier:
+		return nil, jen.Id(e.Name), nil
+
+	case *ast.UnaryOperation:
+		pre, operand, err := ctx.emitNative(e.Operand, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		return pre, jen.Parens(jen.Op(e.Operator).Add(operand)), nil
+
+	case *ast.BinaryOperation:
+		lhsPre, lhs, err := ctx.emitNative(e.LHS, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		rhsPre, rhs, err := ctx.emitNative(e.RHS, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		pre := append(lhsPre, rhsPre...)
+
+		// Go has no implicit numeric conversion, so a mixed int/float operand
+		// pair — which Goblin widens to float — needs the int side converted
+		// explicitly. This covers comparisons too: Integer.Equals(Float) and
+		// Integer.Compare(Float) both compare as float64.
+		lhsType := ctx.nativeTypeOf(e.LHS)
+		rhsType := ctx.nativeTypeOf(e.RHS)
+		if numeric(lhsType) && numeric(rhsType) && lhsType != rhsType {
+			if lhsType == tyInt {
+				lhs = jen.Float64().Call(lhs)
+			} else {
+				rhs = jen.Float64().Call(rhs)
+			}
+		}
+
+		if e.Operator == "/" {
+			// Bind the divisor so it is evaluated once, then reproduce
+			// Goblin's ZeroDivisionError instead of Go's panic (integers) or
+			// ±Inf (floats).
+			divisor := ctx.localName("div")
+			errVar := ctx.localName("err")
+			pre = append(pre,
+				jen.Id(divisor).Op(":=").Add(rhs),
+				jen.If(jen.Id(divisor).Op("==").Lit(0)).Block(
+					jen.Id(errVar).Op(":=").Qual(pathObject, "NewZeroDivisionError").Call(jen.Lit("division by zero")),
+					onError(errVar),
+				),
+			)
+			return pre, jen.Parens(lhs.Op("/").Id(divisor)), nil
+		}
+
+		// Goblin's operator spellings for arithmetic, comparison, && and ||
+		// are the same as Go's, so the operator carries over verbatim.
+		return pre, jen.Parens(lhs.Op(e.Operator).Add(rhs)), nil
+	}
+
+	return nil, nil, fmt.Errorf("internal error: %T is not a native expression", expr)
 }
 
 func (ctx *transpileContext) localName(prefix string) string {
@@ -519,6 +646,18 @@ func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpressio
 }
 
 func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	// If the whole subtree evaluates natively, emit it as one Go expression and
+	// box the result once, instead of one interface call and one allocation per
+	// operator. Callers that can consume the unboxed value (declarations,
+	// assignments, conditions) check for this themselves before calling here.
+	if t := ctx.nativeTypeOf(expr); t.native() {
+		pre, code, err := ctx.emitNative(expr, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		return pre, box(code, t), nil
+	}
+
 	switch v := expr.(type) {
 	case *ast.Literal:
 		obj, err := transpileObject(v.Value)
@@ -721,6 +860,16 @@ func isBuiltinFunction(name string) bool {
 }
 
 func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
+	if t := ctx.typeOf(decl.Name); t.native() {
+		pre, value, err := ctx.emitNative(decl.Value, onError)
+		if err != nil {
+			return nil, err
+		}
+		declStmt := jen.Var().Id(decl.Name).Id(goTypeOf(t)).Op("=").Add(value)
+		declStmt.Op(";").Id("_").Op("=").Id(decl.Name)
+		return append(pre, declStmt), nil
+	}
+
 	preStmts, value, err := ctx.transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
@@ -731,6 +880,16 @@ func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHand
 }
 
 func (ctx *transpileContext) transpileAssign(decl *ast.Assign, onError errHandler) ([]jen.Code, error) {
+	if ctx.typeOf(decl.Target).native() {
+		pre, value, err := ctx.emitNative(decl.Value, onError)
+		if err != nil {
+			return nil, err
+		}
+		assignStmt := jen.Id(decl.Target).Op("=").Add(value)
+		assignStmt.Op(";").Id("_").Op("=").Id(decl.Target)
+		return append(pre, assignStmt), nil
+	}
+
 	preStmts, value, err := ctx.transpileExpression(decl.Value, onError)
 	if err != nil {
 		return nil, err
@@ -784,6 +943,24 @@ func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler
 }
 
 func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
+	// A natively-typed bool condition is already a Go bool: no boxing, no
+	// ToBool() call, no error path.
+	if ctx.nativeTypeOf(ifelse.Condition) == tyBool {
+		pre, cond, err := ctx.emitNative(ifelse.Condition, onError)
+		if err != nil {
+			return nil, err
+		}
+		body, err := ctx.transpileStatements(ifelse.IfBody, onError, "")
+		if err != nil {
+			return nil, err
+		}
+		elseBody, err := ctx.transpileStatements(ifelse.ElseBody, onError, "")
+		if err != nil {
+			return nil, err
+		}
+		return append(pre, jen.If(cond).Block(body...).Else().Block(elseBody...)), nil
+	}
+
 	condPreStmts, cond, err := ctx.transpileExpression(ifelse.Condition, onError)
 	if err != nil {
 		return nil, err
@@ -808,6 +985,30 @@ func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHand
 }
 
 func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
+	// Same as in transpileIfElse: a native bool condition becomes the loop
+	// condition directly, which is what lets a hot numeric loop compile down to
+	// an ordinary Go `for`.
+	if ctx.nativeTypeOf(while_.Condition) == tyBool {
+		condPre, cond, err := ctx.emitNative(while_.Condition, onError)
+		if err != nil {
+			return nil, err
+		}
+		body, err := ctx.transpileStatements(while_.Body, onError, "")
+		if err != nil {
+			return nil, err
+		}
+		// With no guard to hoist this is a plain Go for-condition; a division
+		// in the condition needs its check re-run each iteration, so the loop
+		// becomes `for { guard; if !cond { break }; body }`.
+		if len(condPre) == 0 {
+			return []jen.Code{jen.For(cond).Block(body...)}, nil
+		}
+		loopBody := append([]jen.Code{}, condPre...)
+		loopBody = append(loopBody, jen.If(jen.Op("!").Add(cond)).Block(jen.Break()))
+		loopBody = append(loopBody, body...)
+		return []jen.Code{jen.For().Block(loopBody...)}, nil
+	}
+
 	condPreStmts, cond, err := ctx.transpileExpression(while_.Condition, onError)
 	if err != nil {
 		return nil, err
@@ -1044,6 +1245,10 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 // by named function definitions and anonymous function literals. name is used
 // only for the runtime function's repr and for BindArguments diagnostics.
 func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
+	// Each function body gets its own inferred types; parameters stay boxed,
+	// since a caller can pass anything.
+	defer ctx.enterScope(body)()
+
 	callArgsName := ctx.localName("callArgs")
 
 	fnOnError := func(errVar string) jen.Code {
@@ -1902,6 +2107,10 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 // constructor names are pre-registered for the same reason (their variables
 // are emitted as package-level declarations).
 func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+	// A module's top level is a function body too — it becomes Execute() — so
+	// its locals are eligible for the same specialisation.
+	defer ctx.enterScope(stmts)()
+
 	for _, stmt := range stmts {
 		if typeDef, ok := stmt.(*ast.TypeDefine); ok {
 			ctx.moduleImports[typeDef.Name] = typeDef.Name + "Constructor"
@@ -1927,6 +2136,23 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 			// Split `var x = expr` into a hoisted declaration and an in-place
 			// assignment so function closures may reference the variable
 			// regardless of where their definition appears in the source.
+			// A specialised variable is hoisted with its native type; it can
+			// never be captured by a closure, since being named inside a nested
+			// scope is exactly what disqualifies it from specialisation.
+			if t := ctx.typeOf(v.Name); t.native() {
+				decl := jen.Var().Id(v.Name).Id(goTypeOf(t))
+				decl.Op(";").Id("_").Op("=").Id(v.Name)
+				decls = append(decls, decl)
+
+				pre, value, err := ctx.emitNative(v.Value, onError)
+				if err != nil {
+					return nil, err
+				}
+				body = append(body, pre...)
+				body = append(body, jen.Id(v.Name).Op("=").Add(value))
+				continue
+			}
+
 			declare(v.Name)
 			preStmts, value, err := ctx.transpileExpression(v.Value, onError)
 			if err != nil {
