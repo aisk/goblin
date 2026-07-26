@@ -60,7 +60,7 @@ Importable modules (`os`, `json`, `http`, …) are implemented in Go under `exte
 
 ### Custom-Type Operator Overloading
 
-User-defined types implement operators/protocols via single-leading-underscore dunder methods — `__add`, `__cmp`, `__bool`, `__str`, `__iter`, `__getitem`, `__and`, `__or`, `__not`, etc. (this style, **not** Python's `__add__` with trailing underscores).
+User-defined types implement operators/protocols via single-leading-underscore dunder methods — `__add`, `__radd` (and the other reflected operators), `__cmp`, `__bool`, `__str`, `__iter`, `__getitem`, `__setitem`, `__not`, etc. (this style, **not** Python's `__add__` with trailing underscores). The authoritative list is `protocolArity` in `semantic/semantic.go`; `&&` and `||` are **not** overloadable, they go through `ToBool()`.
 
 ### Generated Code (do not edit)
 
