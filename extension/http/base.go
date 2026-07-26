@@ -10,6 +10,7 @@ import (
 // comparison, iteration, nor indexing. Concrete types embed this base and
 // implement only String() and GetAttr().
 type objectBase struct {
+	object.NoReflectedOps
 	typeName string
 }
 

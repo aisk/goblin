@@ -438,6 +438,13 @@ func (s String) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide String")
 }
 
+// Only repetition reads in both operand orders (see RMultiply above); Go
+// cannot embed NoReflectedOps into a named string type, so the operators a
+// string does not complete from the right answer here.
+func (s String) RAdd(Object) (Object, bool, error)    { return nil, false, nil }
+func (s String) RMinus(Object) (Object, bool, error)  { return nil, false, nil }
+func (s String) RDivide(Object) (Object, bool, error) { return nil, false, nil }
+
 func (s String) Not() (Object, error) {
 	return Bool(!s.Bool()), nil
 }

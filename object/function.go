@@ -3,6 +3,7 @@ package object
 import "fmt"
 
 type Function struct {
+	NoReflectedOps
 	Name string
 	Fn   func(CallArgs) (Object, error)
 }

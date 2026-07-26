@@ -6,6 +6,7 @@ import (
 )
 
 type Module struct {
+	NoReflectedOps
 	Name    string
 	Members map[string]Object
 }

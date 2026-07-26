@@ -76,6 +76,12 @@ func (b Bool) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Bool")
 }
 
+// No reflected operators: a named bool type cannot embed NoReflectedOps.
+func (b Bool) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
+func (b Bool) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
+func (b Bool) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
+func (b Bool) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+
 func (b Bool) Not() (Object, error) {
 	return Bool(!b.Bool()), nil
 }

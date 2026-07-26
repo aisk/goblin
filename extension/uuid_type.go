@@ -11,6 +11,7 @@ import (
 // UUID is Goblin's UUID value. It is deliberately defined in extension so the
 // core object package remains independent of the Google UUID implementation.
 type UUID struct {
+	object.NoReflectedOps
 	Value googleuuid.UUID
 }
 

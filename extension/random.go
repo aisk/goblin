@@ -38,6 +38,7 @@ func ExecuteRandom() (object.Object, error) {
 // generator safe to share between Goblin goroutines, although concurrent call
 // ordering is intentionally not deterministic.
 type RandomGenerator struct {
+	object.NoReflectedOps
 	mu   sync.Mutex
 	rng  *rand.Rand
 	seed int64

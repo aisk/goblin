@@ -5,7 +5,10 @@ import "github.com/aisk/goblin/object"
 // objectBase provides the boilerplate Object methods shared by Pattern and
 // Match. Both are opaque values: always truthy, and supporting neither
 // arithmetic, ordering, iteration, nor indexing.
-type objectBase struct{ typeName string }
+type objectBase struct {
+	object.NoReflectedOps
+	typeName string
+}
 
 func (b objectBase) Bool() bool                  { return true }
 func (b objectBase) ToBool() (bool, error)       { return true, nil }

@@ -11,6 +11,7 @@ type DictEntry struct {
 }
 
 type Dict struct {
+	NoReflectedOps
 	// Entries maps the encoded form of each key (see dictKey) to its entry.
 	// Iteration order is unspecified, mirroring Go's map semantics.
 	Entries map[string]DictEntry

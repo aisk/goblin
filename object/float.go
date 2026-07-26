@@ -69,6 +69,12 @@ func (f Float) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Float and %s", TypeName(other))
 }
 
+// No reflected operators: a named float64 type cannot embed NoReflectedOps.
+func (f Float) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
+func (f Float) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
+func (f Float) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
+func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+
 func (f Float) Not() (Object, error) {
 	return Bool(!f.Bool()), nil
 }

@@ -8,12 +8,15 @@ It includes these groups of methods:
 | --- | --- |
 | Display and conversion | String(), ToString(), Bool(), ToBool() |
 | Comparison and operators | Compare(), Add(), Minus(), Multiply(), Divide(), And(), Or(), Not() |
+| Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide() |
 | Collection protocols | Iter(), Index() |
 | Members | GetAttr(), Attributes() |
 
-Implement object.IndexSetter when a value supports item assignment,
-object.AttrSetter when it supports member assignment, and the object.Right\*
-interfaces when an operator should also work with the value on its right.
+The reflected operators are required, but most types have nothing to say
+through them: embed object.NoReflectedOps and they all answer "not handled".
+
+Implement object.IndexSetter when a value supports item assignment, and
+object.AttrSetter when it supports member assignment.
 
 ## Start with a Go struct
 
@@ -24,6 +27,7 @@ standard TypeError rather than silently accepting an operation.
 
 ~~~go
 type Counter struct {
+    object.NoReflectedOps // nothing completes an operation from Counter's right
     Value int64
 }
 
@@ -118,13 +122,29 @@ Compare is reached even when it appears on the right of `1 < value`. Report an
 unfit pair with object.NewTypeError so the reflected attempt is made; any other
 error propagates as-is.
 
-Arithmetic reaches the right operand through the optional object.RightAdder,
-object.RightSubtractor, object.RightMultiplier and object.RightDivider
-interfaces, the Go side of `__radd` and friends. Their argument is the LEFT
+Arithmetic reaches the right operand through RAdd, RMinus, RMultiply and
+RDivide, the Go side of `__radd` and friends. Their argument is the LEFT
 operand — RMinus(left) computes `left - receiver` — and the bool they return
 reports whether the receiver handled this operand at all; returning false
-leaves the left operand's error in place. object.String and object.List
-implement RMultiply this way, which is what makes `3 * "ab"` work.
+leaves the left operand's error in place. Embed object.NoReflectedOps and
+override only the operator a type completes from the right, the way
+object.String and object.List override RMultiply to make `3 * "ab"` work:
+
+~~~go
+type Vector struct {
+    object.NoReflectedOps
+    X, Y float64
+}
+
+// `2 * v` — scaling reads the same in either operand order.
+func (v Vector) RMultiply(left object.Object) (object.Object, bool, error) {
+    n, ok := left.(object.Integer)
+    if !ok {
+        return nil, false, nil
+    }
+    return Vector{X: v.X * float64(n), Y: v.Y * float64(n)}, true, nil
+}
+~~~
 
 For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show

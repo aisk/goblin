@@ -20,6 +20,7 @@ type Frame struct {
 }
 
 type Error struct {
+	NoReflectedOps
 	Value string
 	// Wrapped is the underlying error this one wraps, or nil. Typed as the Go
 	// `error` interface so the standard library's errors.Is / errors.Unwrap can

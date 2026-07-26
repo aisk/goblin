@@ -3,6 +3,7 @@ package object
 // Chan wraps a Go channel of Objects, exposing send/recv/close to Goblin.
 // Element typing is dynamic: any Object can flow through the channel.
 type Chan struct {
+	NoReflectedOps
 	ch chan Object
 }
 

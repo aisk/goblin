@@ -68,6 +68,12 @@ func (i Integer) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Integer and %s", TypeName(other))
 }
 
+// No reflected operators: a named int64 type cannot embed NoReflectedOps.
+func (i Integer) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
+func (i Integer) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
+func (i Integer) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
+func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+
 func (i Integer) Not() (Object, error) {
 	return Bool(!i.Bool()), nil
 }

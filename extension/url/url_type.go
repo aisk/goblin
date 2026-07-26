@@ -7,6 +7,7 @@ import (
 )
 
 type URL struct {
+	object.NoReflectedOps
 	value *url.URL
 }
 

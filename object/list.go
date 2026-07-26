@@ -7,6 +7,7 @@ import (
 )
 
 type List struct {
+	NoReflectedOps
 	Elements []Object
 }
 

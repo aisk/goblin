@@ -13,6 +13,7 @@ import (
 // (name, parent, joining via `/`, ...) never touch disk, while IO methods
 // (exists, read_text, iterdir, ...) do.
 type Path struct {
+	NoReflectedOps
 	raw string
 }
 

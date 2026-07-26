@@ -47,7 +47,14 @@ func (b Bytes) Add(other Object) (Object, error) {
 func (b Bytes) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract from Bytes") }
 func (b Bytes) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Bytes") }
 func (b Bytes) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Bytes") }
-func (b Bytes) Not() (Object, error)            { return Bool(!b.Bool()), nil }
+
+// No reflected operators: a named slice type cannot embed NoReflectedOps.
+func (b Bytes) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
+func (b Bytes) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
+func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
+func (b Bytes) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+
+func (b Bytes) Not() (Object, error) { return Bool(!b.Bool()), nil }
 
 func (b Bytes) Iter() ([]Object, error) {
 	result := make([]Object, len(b))

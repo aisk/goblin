@@ -9,6 +9,7 @@ import (
 )
 
 type File struct {
+	object.NoReflectedOps
 	Name   string
 	File   *os.File
 	closed bool

@@ -8,6 +8,7 @@ import (
 
 // Time wraps Go's time.Time as a goblin object.
 type Time struct {
+	object.NoReflectedOps
 	Value stdtime.Time
 }
 

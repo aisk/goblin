@@ -48,6 +48,12 @@ func (n Unit) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Nil")
 }
 
+// No reflected operators: a named struct type cannot embed NoReflectedOps.
+func (n Unit) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
+func (n Unit) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
+func (n Unit) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
+func (n Unit) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+
 func (n Unit) Not() (Object, error) {
 	return Bool(!n.Bool()), nil
 }

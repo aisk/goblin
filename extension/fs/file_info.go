@@ -8,6 +8,7 @@ import (
 )
 
 type FileInfo struct {
+	object.NoReflectedOps
 	Info stdfs.FileInfo
 }
 
