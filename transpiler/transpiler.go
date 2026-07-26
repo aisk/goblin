@@ -962,14 +962,60 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 		kwArgsName = kwArgsParam.Name
 	}
 
-	stmts := []jen.Code{
-		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+	bindCall := func() jen.Code {
+		return jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(name),
 			jen.Index().String().Values(fixedParamNames...),
 			jen.Lit(varArgsName),
 			jen.Lit(kwArgsName),
 			jen.Id(callArgsName),
-		),
+		)
+	}
+
+	// A function without varargs/kwargs that is called with exactly its fixed
+	// parameters, all positional, needs no binding map at all: the parameter
+	// names and their positions are known here, at transpile time. The call
+	// shape is not — functions are first-class values — so the check is emitted
+	// into the generated code, with BindArguments kept as the fallback so
+	// diagnostics for every other shape stay identical.
+	if varArgsParam == nil && kwArgsParam == nil {
+		stmts := make([]jen.Code, 0, len(fixedParams)*2+1)
+		for _, param := range fixedParams {
+			stmts = append(stmts,
+				jen.Var().Id(param.Name).Qual(pathObject, "Object"),
+				jen.Id("_").Op("=").Id(param.Name),
+			)
+		}
+
+		fastBody := make([]jen.Code, 0, len(fixedParams))
+		for i, param := range fixedParams {
+			fastBody = append(fastBody,
+				jen.Id(param.Name).Op("=").Id(callArgsName).Dot("Positional").Index(jen.Lit(i)),
+			)
+		}
+
+		slowBody := []jen.Code{
+			bindCall(),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
+			// A zero-parameter function still needs the call for its arity
+			// check, but then never reads the map.
+			jen.Id("_").Op("=").Id(boundName),
+		}
+		for _, param := range fixedParams {
+			slowBody = append(slowBody,
+				jen.Id(param.Name).Op("=").Id(boundName).Index(jen.Lit(param.Name)),
+			)
+		}
+
+		fastCond := jen.Len(jen.Id(callArgsName).Dot("Keyword")).Op("==").Lit(0).
+			Op("&&").
+			Len(jen.Id(callArgsName).Dot("Positional")).Op("==").Lit(len(fixedParams))
+
+		return append(stmts, jen.If(fastCond).Block(fastBody...).Else().Block(slowBody...))
+	}
+
+	stmts := []jen.Code{
+		bindCall(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
 		jen.Id("_").Op("=").Id(boundName),
 	}
