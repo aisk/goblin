@@ -29,9 +29,9 @@ func (b Bool) Bool() bool {
 
 func (b Bool) ToBool() (bool, error) { return b.Bool(), nil }
 
-func (b Bool) Equals(other Object) bool {
+func (b Bool) Equals(other Object) (bool, error) {
 	v, ok := other.(Bool)
-	return ok && b == v
+	return ok && b == v, nil
 }
 
 func (b Bool) Compare(other Object) (int, error) {

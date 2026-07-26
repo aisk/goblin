@@ -86,9 +86,9 @@ func (e *Error) Bool() bool {
 
 func (e *Error) ToBool() (bool, error) { return e.Bool(), nil }
 
-func (e *Error) Equals(other Object) bool {
+func (e *Error) Equals(other Object) (bool, error) {
 	v, ok := other.(*Error)
-	return ok && e == v
+	return ok && e == v, nil
 }
 
 func (e *Error) Compare(other Object) (int, error) {

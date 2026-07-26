@@ -27,7 +27,7 @@ func TestArchiveRoundTrips(t *testing.T) {
 			t.Fatalf("text entry = %v, %v", alpha, err)
 		}
 		binary, _, err := result.Get(object.String("dir/b.bin"))
-		if err != nil || !binary.Equals(object.NewBytes([]byte{0, 1, 2})) {
+		if err != nil || !objectEquals(binary, object.NewBytes([]byte{0, 1, 2})) {
 			t.Fatalf("binary entry = %v, %v", binary, err)
 		}
 	}

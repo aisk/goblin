@@ -10,10 +10,10 @@ type objectBase struct {
 
 func (b objectBase) TypeName() string { return b.typeName }
 
-func (b objectBase) Bool() bool                  { return true }
-func (b objectBase) ToBool() (bool, error)       { return true, nil }
-func (b objectBase) Equals(object.Object) bool   { return false }
-func (b objectBase) Not() (object.Object, error) { return object.False, nil }
+func (b objectBase) Bool() bool                         { return true }
+func (b objectBase) ToBool() (bool, error)              { return true, nil }
+func (b objectBase) Equals(object.Object) (bool, error) { return false, nil }
+func (b objectBase) Not() (object.Object, error)        { return object.False, nil }
 func (b objectBase) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare %s", b.typeName)
 }

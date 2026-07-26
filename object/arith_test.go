@@ -57,7 +57,7 @@ func TestArithNumeric(t *testing.T) {
 			t.Errorf("%s: unexpected error: %v", tc.name, err)
 			continue
 		}
-		if !Equals(got, tc.want) {
+		if eq, err := Equals(got, tc.want); err != nil || !eq {
 			t.Errorf("%s = %s, want %s", tc.name, got.String(), tc.want.String())
 		}
 	}
@@ -125,7 +125,8 @@ func TestArithBuiltinRepetition(t *testing.T) {
 	}
 	list := &List{Elements: []Object{Integer(1), Integer(2)}}
 	got, err = Multiply(Integer(2), list)
-	if err != nil || !Equals(got, &List{Elements: []Object{Integer(1), Integer(2), Integer(1), Integer(2)}}) {
+	eq, eqErr := Equals(got, &List{Elements: []Object{Integer(1), Integer(2), Integer(1), Integer(2)}})
+	if err != nil || eqErr != nil || !eq {
 		t.Fatalf("2 * [1, 2] = %v, %v", got, err)
 	}
 	// A non-integer left operand is still an error, reported by that operand.

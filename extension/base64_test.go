@@ -35,7 +35,7 @@ func TestBase64StandardRoundTrip(t *testing.T) {
 		t.Fatalf("encode() = %v", encoded)
 	}
 	decoded := callBase64(t, "decode", encoded)
-	if !decoded.Equals(object.NewBytes([]byte{0, 1, 2, 253, 254, 255})) {
+	if !objectEquals(decoded, object.NewBytes([]byte{0, 1, 2, 253, 254, 255})) {
 		t.Fatalf("decode() = %v", decoded)
 	}
 }
@@ -46,7 +46,7 @@ func TestBase64URLRoundTripWithoutPadding(t *testing.T) {
 		t.Fatalf("url_encode() = %v", encoded)
 	}
 	decoded := callBase64(t, "url_decode", encoded)
-	if !decoded.Equals(object.NewBytes([]byte("Goblin?"))) {
+	if !objectEquals(decoded, object.NewBytes([]byte("Goblin?"))) {
 		t.Fatalf("url_decode() = %v", decoded)
 	}
 }

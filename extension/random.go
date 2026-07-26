@@ -301,9 +301,9 @@ func (g *RandomGenerator) String() string            { return fmt.Sprintf("<rand
 func (g *RandomGenerator) ToString() (string, error) { return g.String(), nil }
 func (g *RandomGenerator) Bool() bool                { return true }
 func (g *RandomGenerator) ToBool() (bool, error)     { return true, nil }
-func (g *RandomGenerator) Equals(other object.Object) bool {
+func (g *RandomGenerator) Equals(other object.Object) (bool, error) {
 	otherGenerator, ok := other.(*RandomGenerator)
-	return ok && g == otherGenerator
+	return ok && g == otherGenerator, nil
 }
 func (g *RandomGenerator) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare Generator")

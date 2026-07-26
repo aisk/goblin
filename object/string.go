@@ -375,9 +375,9 @@ func (s String) Bool() bool {
 
 func (s String) ToBool() (bool, error) { return s.Bool(), nil }
 
-func (s String) Equals(other Object) bool {
+func (s String) Equals(other Object) (bool, error) {
 	v, ok := other.(String)
-	return ok && s == v
+	return ok && s == v, nil
 }
 
 func (s String) Compare(other Object) (int, error) {

@@ -23,9 +23,9 @@ func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
 
 // Equals is identity: two functions are equal only when they are the same
 // function value.
-func (f *Function) Equals(other Object) bool {
+func (f *Function) Equals(other Object) (bool, error) {
 	v, ok := other.(*Function)
-	return ok && f == v
+	return ok && f == v, nil
 }
 
 // Compare always fails: functions support equality (identity, handled by

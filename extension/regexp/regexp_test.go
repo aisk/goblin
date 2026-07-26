@@ -83,7 +83,7 @@ func TestFindSearchAndFull(t *testing.T) {
 	if m.substring(0) != "a" || m.indices[0] != 1 {
 		t.Fatalf("find = %#v", m)
 	}
-	if got := call(t, p, "find", object.String("zab"), object.True); !got.Equals(object.Nil) {
+	if got := call(t, p, "find", object.String("zab"), object.True); !equalsNil(t, got) {
 		t.Fatalf("full find = %v, want nil", got)
 	}
 	if got := call(t, p, "find", object.String("ab"), object.True).(*Match).substring(0); got != "ab" {
@@ -125,14 +125,14 @@ func TestMatchGroupsNamesAndByteOffsets(t *testing.T) {
 	if got := call(t, m, "group", object.String("word")); got != object.String("abc") {
 		t.Fatalf("group(word) = %v", got)
 	}
-	if got := call(t, m, "group", object.String("optional")); !got.Equals(object.Nil) {
+	if got := call(t, m, "group", object.String("optional")); !equalsNil(t, got) {
 		t.Fatalf("optional group = %v", got)
 	}
 	if got := getAttr(t, m, "source"); got != object.String("日abc") {
 		t.Fatalf("source = %v", got)
 	}
 	groups := m.groups()
-	if len(groups.Elements) != 2 || !groups.Elements[1].Equals(object.Nil) {
+	if len(groups.Elements) != 2 || !equalsNil(t, groups.Elements[1]) {
 		t.Fatalf("groups = %v", groups)
 	}
 	named := getAttr(t, m, "named_groups").(*object.Dict)
@@ -156,7 +156,7 @@ func TestMatchSpan(t *testing.T) {
 	if got := call(t, m, "span", object.String("word")).(*object.List); got.String() != "[3, 6]" {
 		t.Fatalf("span(word) = %v", got)
 	}
-	if got := call(t, m, "span", object.Integer(2)); !got.Equals(object.Nil) {
+	if got := call(t, m, "span", object.Integer(2)); !equalsNil(t, got) {
 		t.Fatalf("span of a non-participating group = %v, want nil", got)
 	}
 	if err := callErr(t, m, "span", object.Integer(9)); !errors.Is(err, object.IndexError) {
@@ -290,4 +290,15 @@ func TestPatternConcurrentReuse(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+}
+
+// equalsNil reports whether value is nil, failing the test if the comparison
+// itself errors.
+func equalsNil(t *testing.T, value object.Object) bool {
+	t.Helper()
+	eq, err := object.Equals(value, object.Nil)
+	if err != nil {
+		t.Fatalf("comparing with nil: %v", err)
+	}
+	return eq
 }

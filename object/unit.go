@@ -23,9 +23,9 @@ func (n Unit) Bool() bool {
 
 func (n Unit) ToBool() (bool, error) { return n.Bool(), nil }
 
-func (n Unit) Equals(other Object) bool {
+func (n Unit) Equals(other Object) (bool, error) {
 	_, ok := other.(Unit)
-	return ok
+	return ok, nil
 }
 
 func (n Unit) Compare(other Object) (int, error) {

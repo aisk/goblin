@@ -31,9 +31,9 @@ func (f *FileInfo) Bool() bool {
 
 func (f *FileInfo) ToBool() (bool, error) { return f.Bool(), nil }
 
-func (f *FileInfo) Equals(other object.Object) bool {
+func (f *FileInfo) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*FileInfo)
-	return ok && f == v
+	return ok && f == v, nil
 }
 
 func (f *FileInfo) Compare(object.Object) (int, error) {

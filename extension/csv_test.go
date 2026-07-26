@@ -19,7 +19,7 @@ func TestCSVRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !decoded.Equals(records) {
+	if !objectEquals(decoded, records) {
 		t.Fatalf("round trip = %v", decoded)
 	}
 }

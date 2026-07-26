@@ -26,9 +26,9 @@ func (u *UUID) Bool() bool                  { return u.Value != googleuuid.Nil }
 func (u *UUID) ToBool() (bool, error)       { return u.Bool(), nil }
 func (u *UUID) Not() (object.Object, error) { return object.Bool(!u.Bool()), nil }
 
-func (u *UUID) Equals(other object.Object) bool {
+func (u *UUID) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*UUID)
-	return ok && u.Value == v.Value
+	return ok && u.Value == v.Value, nil
 }
 
 func (u *UUID) Compare(other object.Object) (int, error) {

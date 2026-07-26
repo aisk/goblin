@@ -31,9 +31,9 @@ func (t *Time) Bool() bool {
 
 func (t *Time) ToBool() (bool, error) { return t.Bool(), nil }
 
-func (t *Time) Equals(other object.Object) bool {
+func (t *Time) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*Time)
-	return ok && t.Value.Equal(v.Value)
+	return ok && t.Value.Equal(v.Value), nil
 }
 
 func (t *Time) Compare(other object.Object) (int, error) {

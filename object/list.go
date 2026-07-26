@@ -128,7 +128,11 @@ func (l *List) Contains(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	for _, elem := range l.Elements {
-		if Equals(elem, value) {
+		eq, err := Equals(elem, value)
+		if err != nil {
+			return nil, err
+		}
+		if eq {
 			return True, nil
 		}
 	}
@@ -143,7 +147,11 @@ func (l *List) Count(args CallArgs) (Object, error) {
 	}
 	count := 0
 	for _, elem := range l.Elements {
-		if Equals(elem, value) {
+		eq, err := Equals(elem, value)
+		if err != nil {
+			return nil, err
+		}
+		if eq {
 			count++
 		}
 	}
@@ -165,7 +173,11 @@ func (l *List) IndexOf(args CallArgs) (Object, error) {
 		i = 0
 	}
 	for ; i < len(l.Elements); i++ {
-		if Equals(l.Elements[i], value) {
+		eq, err := Equals(l.Elements[i], value)
+		if err != nil {
+			return nil, err
+		}
+		if eq {
 			return Integer(i), nil
 		}
 	}
@@ -179,7 +191,11 @@ func (l *List) Remove(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	for i, elem := range l.Elements {
-		if Equals(elem, value) {
+		eq, err := Equals(elem, value)
+		if err != nil {
+			return nil, err
+		}
+		if eq {
 			copy(l.Elements[i:], l.Elements[i+1:])
 			l.Elements = l.Elements[:len(l.Elements)-1]
 			return True, nil
@@ -224,7 +240,17 @@ func (l *List) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
 }
 
-func (l *List) ToString() (string, error) { return l.String(), nil }
+func (l *List) ToString() (string, error) {
+	elements := make([]string, len(l.Elements))
+	for i, elem := range l.Elements {
+		s, err := literalString(elem)
+		if err != nil {
+			return "", err
+		}
+		elements[i] = s
+	}
+	return fmt.Sprintf("[%s]", strings.Join(elements, ", ")), nil
+}
 
 func (l *List) Bool() bool {
 	return len(l.Elements) > 0
@@ -232,17 +258,18 @@ func (l *List) Bool() bool {
 
 func (l *List) ToBool() (bool, error) { return l.Bool(), nil }
 
-func (l *List) Equals(other Object) bool {
+func (l *List) Equals(other Object) (bool, error) {
 	v, ok := other.(*List)
 	if !ok || len(l.Elements) != len(v.Elements) {
-		return false
+		return false, nil
 	}
 	for i, elem := range l.Elements {
-		if !Equals(elem, v.Elements[i]) {
-			return false
+		eq, err := Equals(elem, v.Elements[i])
+		if err != nil || !eq {
+			return false, err
 		}
 	}
-	return true
+	return true, nil
 }
 
 func (l *List) Compare(other Object) (int, error) {

@@ -26,9 +26,9 @@ func (m *Module) String() string {
 func (m *Module) ToString() (string, error) { return m.String(), nil }
 func (m *Module) Bool() bool                { return true }
 func (m *Module) ToBool() (bool, error)     { return m.Bool(), nil }
-func (m *Module) Equals(other Object) bool {
+func (m *Module) Equals(other Object) (bool, error) {
 	v, ok := other.(*Module)
-	return ok && m == v
+	return ok && m == v, nil
 }
 
 func (m *Module) Compare(Object) (int, error) {

@@ -1,6 +1,7 @@
 package object
 
 import (
+	"errors"
 	"math"
 	"testing"
 )
@@ -17,9 +18,12 @@ func (c *cmpObj) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare")
 }
 
-func (c *cmpObj) Equals(other Object) bool {
+func (c *cmpObj) Equals(other Object) (bool, error) {
 	cmp, err := c.Compare(other)
-	return err == nil && cmp == 0
+	if err != nil {
+		return false, nil
+	}
+	return cmp == 0, nil
 }
 
 // plainObj stands in for a user-defined type without __cmp: no structural
@@ -35,7 +39,7 @@ func (p *plainObj) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare")
 }
 
-func (p *plainObj) Equals(Object) bool { return false }
+func (p *plainObj) Equals(Object) (bool, error) { return false, nil }
 
 func TestEquals(t *testing.T) {
 	shared := &List{Elements: []Object{Integer(1)}}
@@ -69,11 +73,16 @@ func TestEquals(t *testing.T) {
 		{"no cmp: distinct", plain, &plainObj{}, false},
 	}
 	for _, tc := range cases {
-		if got := Equals(tc.a, tc.b); got != tc.want {
+		got, err := Equals(tc.a, tc.b)
+		if err != nil {
+			t.Errorf("%s: unexpected error: %v", tc.name, err)
+			continue
+		}
+		if got != tc.want {
 			t.Errorf("%s: Equals(%s, %s) = %v, want %v", tc.name, tc.a.String(), tc.b.String(), got, tc.want)
 		}
-		if got := Equals(tc.b, tc.a); got != tc.want {
-			t.Errorf("%s (swapped): Equals(%s, %s) = %v, want %v", tc.name, tc.b.String(), tc.a.String(), got, tc.want)
+		if got, err := Equals(tc.b, tc.a); err != nil || got != tc.want {
+			t.Errorf("%s (swapped): Equals(%s, %s) = %v, %v; want %v", tc.name, tc.b.String(), tc.a.String(), got, err, tc.want)
 		}
 	}
 }
@@ -83,15 +92,66 @@ func TestEqualsDict(t *testing.T) {
 	d1.Set(String("k"), Integer(1))
 	d2 := &Dict{Entries: map[string]DictEntry{}}
 	d2.Set(String("k"), Integer(1))
-	if !Equals(d1, d2) {
+	if eq, err := Equals(d1, d2); err != nil || !eq {
 		t.Fatal("dicts with equal entries should be equal")
 	}
 	d2.Set(String("k"), Integer(2))
-	if Equals(d1, d2) {
+	if eq, err := Equals(d1, d2); err != nil || eq {
 		t.Fatal("dicts with different values should not be equal")
 	}
 	d3 := &Dict{Entries: map[string]DictEntry{}}
-	if Equals(d1, d3) {
+	if eq, err := Equals(d1, d3); err != nil || eq {
 		t.Fatal("dicts of different sizes should not be equal")
+	}
+}
+
+// raisingCmp stands in for a user type whose __cmp fails: == must report that
+// failure rather than answering "not equal".
+type raisingCmp struct{ Unit }
+
+func (r *raisingCmp) TypeName() string { return "raisingCmp" }
+
+func (r *raisingCmp) Compare(Object) (int, error) { return 0, NewValueError("cmp exploded") }
+
+func (r *raisingCmp) Equals(other Object) (bool, error) {
+	_, err := r.Compare(other)
+	return false, err
+}
+
+// typeErrorCmp stands in for the common __cmp shape, written only for the
+// operands the type really compares against: `Money(5) == nil` must stay false
+// rather than surfacing the TypeError from inside the method.
+type typeErrorCmp struct{ Unit }
+
+func (c *typeErrorCmp) TypeName() string { return "typeErrorCmp" }
+
+func (c *typeErrorCmp) Equals(other Object) (bool, error) {
+	if _, ok := other.(Integer); !ok {
+		return false, NewTypeError("cannot subtract Integer and %s", other.TypeName())
+	}
+	return true, nil
+}
+
+func TestEqualsTreatsTypeErrorAsUnequal(t *testing.T) {
+	obj := &typeErrorCmp{}
+	for _, other := range []Object{Nil, String("x"), &List{}} {
+		eq, err := Equals(obj, other)
+		if err != nil {
+			t.Errorf("Equals(obj, %s) error = %v, want none", other.String(), err)
+		}
+		if eq {
+			t.Errorf("Equals(obj, %s) = true, want false", other.String())
+		}
+	}
+	if eq, err := Equals(obj, Integer(1)); err != nil || !eq {
+		t.Errorf("Equals(obj, 1) = %v, %v; want true", eq, err)
+	}
+}
+
+func TestEqualsPropagatesComparisonFailure(t *testing.T) {
+	for _, pair := range [][2]Object{{&raisingCmp{}, Integer(1)}, {Integer(1), &raisingCmp{}}} {
+		if _, err := Equals(pair[0], pair[1]); !errors.Is(err, ValueError) {
+			t.Errorf("Equals(%s, %s) error = %v, want ValueError", pair[0].String(), pair[1].String(), err)
+		}
 	}
 }

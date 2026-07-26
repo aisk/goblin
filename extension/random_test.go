@@ -101,7 +101,7 @@ func TestRandomGeneratorShuffleAndPerm(t *testing.T) {
 	if _, err := b.randomShuffle(object.CallArgs{Positional: []object.Object{rightList}}); err != nil {
 		t.Fatal(err)
 	}
-	if !left.Equals(rightList) {
+	if !objectEquals(left, rightList) {
 		t.Fatalf("same seed produced different shuffles: %s != %s", left, rightList)
 	}
 
@@ -173,7 +173,7 @@ func TestRandomSampleIsDeterministicAndDoesNotMutateInput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !left.Equals(right) {
+	if !objectEquals(left, right) {
 		t.Fatalf("same seed produced different samples: %s != %s", left, right)
 	}
 	if values.String() != original {

@@ -116,9 +116,9 @@ func (f *File) Bool() bool {
 
 func (f *File) ToBool() (bool, error) { return f.Bool(), nil }
 
-func (f *File) Equals(other object.Object) bool {
+func (f *File) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*File)
-	return ok && f == v
+	return ok && f == v, nil
 }
 
 func (f *File) Compare(object.Object) (int, error) {

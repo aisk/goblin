@@ -1,5 +1,5 @@
-# Equality is total: values of unrelated types are simply unequal,
-# so == and != never raise.
+# Equality is total across types: values of unrelated types are simply
+# unequal, so == and != never raise over a type mismatch.
 var x = 1
 print(x == nil)
 print(x != nil)
@@ -37,3 +37,34 @@ var m = Money(5)
 print(m == 5)
 print(5 == m)
 print(m == 6)
+
+# A __cmp written only for the operands it really compares against keeps
+# working as a guard: the type mismatch inside it reads as "unequal".
+print(m == nil)
+print(m == "5")
+
+# A __cmp that fails for a reason of its own is not an answer, so == reports
+# the failure instead of quietly saying "not equal".
+type Fragile(v) {
+    func __cmp(self, other) {
+        return self.v / 0
+    }
+}
+try {
+    print(Fragile(1) == 1)
+} catch e {
+    print(e)
+}
+
+# Rendering a collection runs the __str of everything inside it, and a failure
+# there is not swallowed either.
+type Loud() {
+    func __str(self) {
+        raise Error("cannot render")
+    }
+}
+try {
+    print([Loud()])
+} catch e {
+    print(e)
+}

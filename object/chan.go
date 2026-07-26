@@ -18,9 +18,9 @@ func (c *Chan) ToString() (string, error) { return c.String(), nil }
 func (c *Chan) Bool() bool                { return true }
 func (c *Chan) ToBool() (bool, error)     { return c.Bool(), nil }
 
-func (c *Chan) Equals(other Object) bool {
+func (c *Chan) Equals(other Object) (bool, error) {
 	v, ok := other.(*Chan)
-	return ok && c == v
+	return ok && c == v, nil
 }
 
 func (c *Chan) Compare(other Object) (int, error) {

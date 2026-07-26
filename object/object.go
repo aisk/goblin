@@ -9,13 +9,16 @@ type Object interface {
 	ToString() (string, error)
 	Bool() bool
 	ToBool() (bool, error)
-	// Equals reports whether the receiver equals other. Equality is total:
-	// implementations return false for unrelated types instead of failing.
-	// The == operator goes through the package-level Equals, which consults
-	// both operands, so an implementation only needs to recognize the types
-	// it considers equal to itself. Types without a natural equality should
-	// fall back to identity (see instance and generated user types).
-	Equals(other Object) bool
+	// Equals reports whether the receiver equals other. Unrelated types are
+	// simply unequal, so a built-in never fails here; the error exists for a
+	// user-defined __cmp, whose failure must not be mistaken for "not equal".
+	// A TypeError is the exception: it reads as "I do not know this type",
+	// which the package-level Equals turns back into "unequal". That function
+	// is what the == operator uses, and it consults both operands, so an
+	// implementation only needs to recognize the types it considers equal to
+	// itself. Types without a natural equality fall back to identity (see
+	// instance and generated user types).
+	Equals(other Object) (bool, error)
 	// Compare orders the receiver against other for <, <=, > and >=. It
 	// fails for operands without a defined ordering; equality must not rely
 	// on it.
@@ -61,6 +64,16 @@ func literal(obj Object) string {
 		return s.Literal()
 	}
 	return obj.String()
+}
+
+// literalString is literal's failing twin, used by the collections' ToString.
+// Rendering a collection runs the __str of every value inside it, and those
+// may fail; a collection must not swallow what its elements report.
+func literalString(obj Object) (string, error) {
+	if s, ok := obj.(String); ok {
+		return s.Literal(), nil
+	}
+	return obj.ToString()
 }
 
 // AttributesFunction exposes an object's attribute names as the bound

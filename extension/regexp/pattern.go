@@ -28,9 +28,9 @@ func (p *Pattern) ToString() (string, error) { return p.String(), nil }
 
 // Equals compares by source. Two patterns compiled from the same text behave
 // identically, so they are interchangeable values rather than handles.
-func (p *Pattern) Equals(other object.Object) bool {
+func (p *Pattern) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*Pattern)
-	return ok && p.source == v.source
+	return ok && p.source == v.source, nil
 }
 
 // matcher returns the engine for a match request. The full=true engine wraps

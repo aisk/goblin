@@ -19,7 +19,7 @@ func (b objectBase) Not() (object.Object, error) { return object.False, nil }
 
 // Equals returns false so that object.Equals falls back to its identity
 // backstop. Pattern overrides this with value equality.
-func (b objectBase) Equals(object.Object) bool { return false }
+func (b objectBase) Equals(object.Object) (bool, error) { return false, nil }
 
 func (b objectBase) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("cannot compare %s", b.typeName)

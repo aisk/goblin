@@ -222,27 +222,44 @@ func (in *instance) ToBool() (bool, error) {
 }
 
 // Equals dispatches __cmp when defined; without it an instance is equal only
-// to itself.
-func (in *instance) Equals(other object.Object) bool {
-	if c, err := in.Compare(other); err == nil {
-		return c == 0
+// to itself. A __cmp that fails makes == fail too: a raised error is not the
+// same answer as "not equal".
+func (in *instance) Equals(other object.Object) (bool, error) {
+	c, ok, err := in.compareProto(other)
+	if !ok {
+		o, isInstance := other.(*instance)
+		return isInstance && o == in, nil
 	}
-	o, ok := other.(*instance)
-	return ok && o == in
+	if err != nil {
+		return false, err
+	}
+	return c == 0, nil
 }
 
 func (in *instance) Compare(other object.Object) (int, error) {
-	if v, ok, err := in.callProto("__cmp", other); ok {
-		if err != nil {
-			return 0, err
-		}
-		i, isInt := v.(object.Integer)
-		if !isInt {
-			return 0, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.String())
-		}
-		return int(i), nil
+	c, ok, err := in.compareProto(other)
+	if !ok {
+		return 0, object.NewTypeError("cannot compare %s", in.typ.name)
 	}
-	return 0, object.NewTypeError("cannot compare %s", in.typ.name)
+	return c, err
+}
+
+// compareProto runs __cmp and validates its result. ok reports whether the
+// type defines the method at all, which == and the ordering operators answer
+// differently.
+func (in *instance) compareProto(other object.Object) (int, bool, error) {
+	v, ok, err := in.callProto("__cmp", other)
+	if !ok {
+		return 0, false, nil
+	}
+	if err != nil {
+		return 0, true, err
+	}
+	i, isInt := v.(object.Integer)
+	if !isInt {
+		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.String())
+	}
+	return int(i), true, nil
 }
 
 func (in *instance) Add(other object.Object) (object.Object, error) {

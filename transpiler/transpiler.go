@@ -1405,19 +1405,21 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, toBoolDecl)
 
-	// Equals(other) bool — __cmp when defined, identity otherwise.
+	// Equals(other) (bool, error) — __cmp when defined, identity otherwise. A
+	// __cmp that fails fails the comparison rather than reporting "not equal".
 	equalsDecl := jen.Func().Params(receiverParam()).Id("Equals").Params(
 		jen.Id("other").Qual(pathObject, "Object"),
-	).Bool()
+	).Parens(jen.List(jen.Bool(), jen.Error()))
 	if defined["__cmp"] {
 		equalsDecl.Block(
 			jen.List(jen.Id("_cmp"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("Compare").Call(jen.Id("other")),
-			jen.Return(jen.Id("_err").Op("==").Nil().Op("&&").Id("_cmp").Op("==").Lit(0)),
+			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
+			jen.Return(jen.Id("_cmp").Op("==").Lit(0), jen.Nil()),
 		)
 	} else {
 		equalsDecl.Block(
 			jen.List(jen.Id("_o"), jen.Id("_ok")).Op(":=").Id("other").Assert(jen.Op("*").Id(goTypeName)),
-			jen.Return(jen.Id("_ok").Op("&&").Id("_o").Op("==").Id(receiverName)),
+			jen.Return(jen.Id("_ok").Op("&&").Id("_o").Op("==").Id(receiverName), jen.Nil()),
 		)
 	}
 	protoDecls = append(protoDecls, equalsDecl)
@@ -1874,15 +1876,19 @@ func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryO
 	tmpVar := ctx.localName("tmp")
 	preStmts := append(lhsPre, rhsPre...)
 
-	// Equality is total and never raises; ordering goes through Compare and
-	// propagates its error.
+	// Equality is total for the built-in types, but a user-defined __cmp may
+	// fail; like ordering, that error propagates.
 	if operation.Operator == ast.Equal || operation.Operator == ast.NotEqual {
-		equals := jen.Qual(pathObject, "Equals").Call(lhs, rhs)
+		eqVar := ctx.localName("eq")
+		eqErrVar := ctx.localName("err")
+		result := jen.Id(eqVar)
 		if operation.Operator == ast.NotEqual {
-			equals = jen.Op("!").Add(equals)
+			result = jen.Op("!").Id(eqVar)
 		}
 		preStmts = append(preStmts,
-			jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(equals),
+			jen.List(jen.Id(eqVar), jen.Id(eqErrVar)).Op(":=").Qual(pathObject, "Equals").Call(lhs, rhs),
+			jen.If(jen.Id(eqErrVar).Op("!=").Nil()).Block(onError(eqErrVar)),
+			jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(result),
 		)
 		return preStmts, jen.Id(tmpVar), nil
 	}

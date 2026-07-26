@@ -103,6 +103,27 @@ func numericDivide(a, b Object) (Object, bool, error) {
 	return nil, false, nil
 }
 
+func numericEquals(a, b Object) (bool, bool) {
+	switch lhs := a.(type) {
+	case Integer:
+		switch rhs := b.(type) {
+		case Integer:
+			return lhs == rhs, true
+		case Float:
+			return Float(lhs) == rhs, true
+		}
+	case Float:
+		switch rhs := b.(type) {
+		case Float:
+			// IEEE 754 semantics: NaN equals nothing, including itself.
+			return lhs == rhs, true
+		case Integer:
+			return lhs == Float(rhs), true
+		}
+	}
+	return false, false
+}
+
 func numericCompare(a, b Object) (int, bool) {
 	switch lhs := a.(type) {
 	case Integer:

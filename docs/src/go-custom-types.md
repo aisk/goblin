@@ -128,7 +128,9 @@ object.Divide(a, b), which also give the right operand a chance to answer.
 A custom type therefore only has to recognize the types it knows, and its
 Compare is reached even when it appears on the right of `1 < value`. Report an
 unfit pair with object.NewTypeError so the reflected attempt is made; any other
-error propagates as-is.
+error propagates as-is. Equals follows the same rule with its own error return:
+a TypeError from it means "not this type" and leaves `==` total, while any
+other error fails the comparison.
 
 Arithmetic reaches the right operand through RAdd, RMinus, RMultiply and
 RDivide, the Go side of `__radd` and friends. Their argument is the LEFT

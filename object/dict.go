@@ -238,7 +238,21 @@ func (d *Dict) String() string {
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }
 
-func (d *Dict) ToString() (string, error) { return d.String(), nil }
+func (d *Dict) ToString() (string, error) {
+	elements := make([]string, 0, len(d.Entries))
+	for _, entry := range d.Entries {
+		key, err := literalString(entry.Key)
+		if err != nil {
+			return "", err
+		}
+		value, err := literalString(entry.Value)
+		if err != nil {
+			return "", err
+		}
+		elements = append(elements, fmt.Sprintf("%s: %s", key, value))
+	}
+	return fmt.Sprintf("{%s}", strings.Join(elements, ", ")), nil
+}
 
 func (d *Dict) Bool() bool {
 	return len(d.Entries) > 0
@@ -246,18 +260,22 @@ func (d *Dict) Bool() bool {
 
 func (d *Dict) ToBool() (bool, error) { return d.Bool(), nil }
 
-func (d *Dict) Equals(other Object) bool {
+func (d *Dict) Equals(other Object) (bool, error) {
 	v, ok := other.(*Dict)
 	if !ok || len(d.Entries) != len(v.Entries) {
-		return false
+		return false, nil
 	}
 	for key, entry := range d.Entries {
 		theirs, exists := v.Entries[key]
-		if !exists || !Equals(entry.Value, theirs.Value) {
-			return false
+		if !exists {
+			return false, nil
+		}
+		eq, err := Equals(entry.Value, theirs.Value)
+		if err != nil || !eq {
+			return false, err
 		}
 	}
-	return true
+	return true, nil
 }
 
 func (d *Dict) Compare(other Object) (int, error) {

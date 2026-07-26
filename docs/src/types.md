@@ -80,6 +80,10 @@ Equality is the exception: without `__cmp`, `==` and `!=` fall back to
 identity, so an instance is equal only to itself and never raises. Ordering
 comparisons (`<`, `<=`, `>`, `>=`) still require `__cmp`.
 
+With `__cmp`, a type mismatch inside it still reads as "unequal" — `money ==
+nil` stays false for a `__cmp` written only for numbers — but any other failure
+is reported rather than swallowed, so `==` raises whatever the method raised.
+
 A comparison consults both operands, so the instance does not have to be on the
 left. When the left operand has no ordering for the right one — as a built-in
 number never has for a custom type — the right operand is asked to compare

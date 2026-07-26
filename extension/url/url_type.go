@@ -18,9 +18,9 @@ func (u *URL) String() string            { return u.value.String() }
 func (u *URL) ToString() (string, error) { return u.value.String(), nil }
 func (u *URL) Bool() bool                { return true }
 func (u *URL) ToBool() (bool, error)     { return true, nil }
-func (u *URL) Equals(other object.Object) bool {
+func (u *URL) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*URL)
-	return ok && u.value.String() == value.value.String()
+	return ok && u.value.String() == value.value.String(), nil
 }
 func (u *URL) Compare(object.Object) (int, error) {
 	return 0, object.NewTypeError("URL values are not ordered")

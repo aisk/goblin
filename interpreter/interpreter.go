@@ -444,10 +444,12 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		return object.Multiply(lhs, rhs)
 	case ast.Divide:
 		return object.Divide(lhs, rhs)
-	case ast.Equal:
-		return object.Bool(object.Equals(lhs, rhs)), nil
-	case ast.NotEqual:
-		return object.Bool(!object.Equals(lhs, rhs)), nil
+	case ast.Equal, ast.NotEqual:
+		eq, err := object.Equals(lhs, rhs)
+		if err != nil {
+			return nil, err
+		}
+		return object.Bool(eq == (e.Operator == ast.Equal)), nil
 	case ast.LessThan, ast.GreaterThan, ast.LessOrEqual, ast.GreaterOrEqual:
 		c, err := object.Compare(lhs, rhs)
 		if err != nil {
