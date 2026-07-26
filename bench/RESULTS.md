@@ -1,6 +1,6 @@
 # Benchmark Results
 
-Measured 2026-07-26 on Goblin at commit `02b0475`.
+Measured 2026-07-26 on Goblin at commit `24340b1`.
 
 ## Environment
 
@@ -21,12 +21,12 @@ byte-identical output across all five languages, verified before timing.
 
 | benchmark | go | node | lua | python | goblin build-exe | goblin run |
 |---|---:|---:|---:|---:|---:|---:|
-| fib | 10 | 36 | 104 | 179 | 1308 | 4003 |
-| sieve | 12 | 68 | 153 | 671 | 835 | 4049 |
-| mandelbrot | 9 | 28 | 96 | 695 | 435 | 2608 |
-| nqueens | 14 | 34 | 217 | 410 | 946 | 5899 |
-| matmul | 30 | 50 | 179 | 1179 | 538 | 4463 |
-| hanoi | 7 | 32 | 83 | 163 | 1351 | 3517 |
+| fib | 10 | 37 | 105 | 180 | 1021 | 3418 |
+| sieve | 12 | 69 | 164 | 680 | 824 | 3461 |
+| mandelbrot | 9 | 28 | 96 | 676 | 437 | 2606 |
+| nqueens | 15 | 36 | 215 | 405 | 778 | 5490 |
+| matmul | 29 | 50 | 176 | 1116 | 533 | 3940 |
+| hanoi | 7 | 31 | 83 | 160 | 902 | 3020 |
 
 ### Interpreter startup, measured separately
 
@@ -41,104 +41,155 @@ An empty program costs:
 | python3 | 9 ms |
 | node | 16 ms |
 
-This matters at the fast end of the table: **almost half of node's 36 ms on
+This matters at the fast end of the table: **almost half of node's 37 ms on
 `fib` is V8 booting**, not computing. The ratios below subtract startup.
 
 ## Slowdown vs Go (startup subtracted)
 
 | benchmark | node | lua | python | goblin build-exe | goblin run |
 |---|---:|---:|---:|---:|---:|
-| fib | 2.5× | 13× | 21× | **163×** | 500× |
-| sieve | 5.2× | 15× | 66× | **83×** | 404× |
-| mandelbrot | 1.7× | 14× | 98× | **62×** | 372× |
-| nqueens | 1.5× | 18× | 33× | **79×** | 491× |
-| matmul | 1.2× | 6.4× | 42× | **19×** | 159× |
-| hanoi | 3.2× | 16× | 31× | **270×** | 702× |
+| fib | 2.6× | 13× | 21× | **128×** | 427× |
+| sieve | 5.3× | 16× | 67× | **82×** | 346× |
+| mandelbrot | 1.7× | 14× | 95× | **62×** | 372× |
+| nqueens | 1.5× | 16× | 30× | **60×** | 422× |
+| matmul | 1.3× | 6.5× | 41× | **20×** | 146× |
+| hanoi | 3.0× | 16× | 30× | **180×** | 603× |
 
-Goblin transpile + `go build` adds a flat **188–209 ms** per program, not
+Goblin transpile + `go build` adds a flat **202–220 ms** per program, not
 included above.
 
 ## What the numbers say
 
 ### 1. Function calls, not loops, are Goblin's bottleneck
 
-The spread in the `build-exe` column is 14× (19× to 270× vs Go) and it splits
+The spread in the `build-exe` column is 9× (20× to 180× vs Go) and it splits
 cleanly along one line — how many Goblin-level function calls the benchmark
 makes:
 
 | benchmark | dominated by | build-exe vs Go | build-exe vs CPython |
 |---|---|---:|---|
-| matmul | 13.8 M loop iterations, 0 calls | 19× | **2.2× faster** |
-| mandelbrot | float loop, 0 calls | 62× | **1.6× faster** |
-| sieve | array loop, 0 calls | 83× | 1.2× slower |
-| nqueens | 2.0 M calls, each with a loop inside | 79× | 2.3× slower |
-| fib | 7.0 M calls | 163× | 7.3× slower |
-| hanoi | 4.2 M calls (4 args each) | 270× | 8.3× slower |
+| matmul | 13.8 M loop iterations, 0 calls | 20× | **2.1× faster** |
+| mandelbrot | float loop, 0 calls | 62× | **1.5× faster** |
+| nqueens | 2.0 M calls, each with a loop inside | 60× | 2.0× slower |
+| sieve | array loop, 0 calls | 82× | 1.2× slower |
+| fib | 7.0 M calls | 128× | 6.0× slower |
+| hanoi | 4.2 M calls (4 args each) | 180× | 6.0× slower |
 
 Per-operation cost of the compiled backend makes it concrete:
 
-- one `matmul` inner iteration (two 2-D index reads, a multiply, an add): **39 ns**
-- one `fib` call (1 argument): **185 ns**
-- one `hanoi` call (4 arguments): **322 ns**
+- one `matmul` inner iteration (two 2-D index reads, a multiply, an add): **38 ns**
+- one `fib` call (1 argument): **145 ns**
+- one `hanoi` call (4 arguments): **215 ns**
 
-A single function call costs 5–8× more than a whole arithmetic loop body. On a
-transpiled-to-Go backend that is not where the time should be going.
+A single function call still costs 4–6× more than a whole arithmetic loop body.
+On a transpiled-to-Go backend that is not where the time should be going.
 
-### 2. The cause is in `emitParameterBinding`
+### 2. What commit `24340b1` already removed
 
-Every Goblin function becomes an `&object.Function{Fn: func(callArgs object.CallArgs) (object.Object, error)}`,
-and the first thing every call does is `transpiler/transpiler.go:965`:
+Two allocation sites were removed after the first round of measurements:
 
-```go
-bound, err := object.BindArguments("fib", []string{"n"}, "", "", callArgs)
-```
+- **`object.BindArguments` fast path.** Every call used to allocate three maps:
+  `bound`, `index` (parameter name → position, though `params` is already
+  ordered) and `kwExtras` (allocated even with zero keyword arguments). When
+  the callee has only fixed parameters and the caller passes them all
+  positionally — the overwhelmingly common shape — only `bound` is built now.
+- **Lazy `Environment.vars`.** `evalBlock` allocated a map per scope, and a
+  loop body is a fresh scope on *every iteration*, so matmul's inner loop was
+  creating 13.8 M maps that mostly stayed empty. The map is now allocated on
+  first `Define`.
 
-`object.BindArguments` (`object/args.go:31`) allocates **two maps on every
-call** — `bound` for the results and `index` for parameter-name lookup — then
-the generated body reads each parameter back out by string key. So `fib(32)`
-performs ~14 M map allocations plus 7 M string hashes purely to move one
-integer into one variable.
+19 lines total, no semantic change:
 
-Both facts are compile-time constants: the parameter names, their count, and
-(at most call sites) the fact that all arguments are positional with no
-varargs/kwargs. An obvious fix is a fast path that skips `BindArguments`
-entirely when the callee has only fixed parameters and the call site passes
-only positional arguments, assigning `callArgs.Positional[i]` straight to the
-generated local. At minimum, `index` can be hoisted to a package-level var
-since it is rebuilt identically on every call.
+| benchmark | run before | run after | Δ | exe before | exe after | Δ |
+|---|---:|---:|---:|---:|---:|---:|
+| fib | 4003 | 3418 | **−15%** | 1308 | 1021 | **−22%** |
+| sieve | 4049 | 3461 | **−15%** | 835 | 824 | −1% |
+| mandelbrot | 2608 | 2606 | 0 | 435 | 437 | 0 |
+| nqueens | 5899 | 5490 | −7% | 946 | 778 | **−18%** |
+| matmul | 4463 | 3940 | **−12%** | 538 | 533 | −1% |
+| hanoi | 3517 | 3020 | **−14%** | 1351 | 902 | **−33%** |
 
-This should move `fib`/`hanoi` toward the 19–83× band the loop-heavy
-benchmarks already occupy, i.e. a projected 3–8× win on call-heavy code.
+`mandelbrot` gains nothing from the lazy scope because its inner loop body
+declares `var tmp`, so that map is genuinely needed; the loop-only benchmarks
+gain nothing on the compiled backend because they never call a function.
 
-### 3. `build-exe` is worth 2.6–8.3× over `goblin run`
+### 3. What the profiler says is left
+
+CPU profiles of the interpreter at this commit (`runtime/pprof`, whole run):
+
+**matmul — variable lookup is now half the runtime.**
+
+| symbol | flat | cum |
+|---|---:|---:|
+| `runtime.mapaccess2_faststr` | 24.9% | 47.9% |
+| `interpreter.(*Environment).Get` | 6.7% | 43.3% |
+| `aeshashbody` (string hashing) | 7.4% | 7.4% |
+
+`Environment` is a `map[string]Object` per scope, so every variable read is a
+string hash plus a hash-table probe, repeated up the scope chain. The real fix
+is resolving identifiers to `(depth, index)` slots at compile time and indexing
+a slice at runtime — a new resolve pass, so not a small change, but it is the
+single largest recoverable cost in the interpreter. A cheaper approximation is
+a linear-scanned slice for scopes below ~8 bindings.
+
+**fib — moving arguments into scope is still a third of the runtime.**
+
+| symbol | cum |
+|---|---:|
+| `runtime.mapassign_faststr` | 22.5% |
+| `object.BindArguments` | 16.5% |
+| `interpreter.(*Environment).Define` | 15.6% |
+| `runtime.mallocgc` | 29.1% |
+
+The remaining waste is structural: `BindArguments` builds a `bound` map, and
+the caller immediately iterates it to `Define` each entry into the new
+`Environment` — a second map. A `BindArgumentsInto(define func(string, Object))`
+variant would let the interpreter write straight into the scope and let the
+transpiler assign straight to generated locals, taking the per-call map count
+from 2 to 1 (or 0 once scopes are slot-based).
+
+**GC tuning is nearly free.** With allocation this dominant, the Go default
+`GOGC=100` is too aggressive. Measured on this commit:
+
+| | default | `GOGC=400` | Δ |
+|---|---:|---:|---:|
+| `goblin run fib` | 3440 | 2658 | **−23%** |
+| `goblin run hanoi` | 3041 | 2522 | −17% |
+| `fib` build-exe | 1023 | 776 | **−24%** |
+| `hanoi` build-exe | 911 | 753 | −17% |
+
+`GOGC=800` adds nothing over 400. Raising the default (only when the user has
+not set `GOGC`) is a one-line change; the cost is a larger resident set.
+
+### 4. `build-exe` is worth 2.9–7.4× over `goblin run`
 
 | benchmark | speedup from compiling |
 |---|---:|
-| matmul | 8.3× |
-| nqueens | 6.2× |
+| matmul | 7.4× |
+| nqueens | 7.1× |
 | mandelbrot | 6.0× |
-| sieve | 4.9× |
-| fib | 3.1× |
-| hanoi | 2.6× |
+| sieve | 4.2× |
+| fib | 3.3× |
+| hanoi | 3.3× |
 
-The gain is smallest exactly where calls dominate — the shared `object`
-runtime and the per-call binding cost are paid by both backends, so compiling
-away the tree walk only removes the part that is not the bottleneck.
+The gain is smallest where calls dominate — the shared `object` runtime and the
+per-call binding cost are paid by both backends, so compiling away the tree
+walk only removes the part that is not the bottleneck.
 
-### 4. The tree-walking interpreter is respectable
+### 5. The tree-walking interpreter is respectable
 
-`goblin run` sits 3.8× behind CPython on the loop-heavy benchmarks
-(mandelbrot, matmul) and 6× on sieve. For a tree-walking interpreter with no
+`goblin run` sits 3.5–3.9× behind CPython on the loop-heavy benchmarks
+(mandelbrot, matmul) and 5× on sieve. For a tree-walking interpreter with no
 bytecode compilation step, being within 4× of CPython on numeric loops is a
-good result; the 14–22× gap on fib/hanoi/nqueens is the same call-overhead
+good result; the 14–19× gap on fib/hanoi/nqueens is the same call-overhead
 story as above, not a general interpreter weakness.
 
-### 5. Cross-language sanity check
+### 6. Cross-language sanity check
 
-Go and Node are within 1.2–5× of each other (JIT doing its job), Lua 5.4 lands
-6–18× behind Go, and CPython 21–98× — all consistent with what these
+Go and Node are within 1.3–5.3× of each other (JIT doing its job), Lua 5.4
+lands 6.5–16× behind Go, and CPython 21–95× — all consistent with what these
 benchmarks report elsewhere, which suggests the harness itself is not skewing
-anything. CPython's worst showing is `mandelbrot` (98×), a pure float loop with
+anything. CPython's worst showing is `mandelbrot` (95×), a pure float loop with
 no library escape hatch; its best is `fib` (21×), where the work per bytecode
 op is highest.
 
