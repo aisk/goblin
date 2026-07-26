@@ -19,6 +19,33 @@ func (c CallArgs) keywordOrEmpty() Kwargs {
 	return c.Keyword
 }
 
+// Scope is anything argument binding can write bindings into, letting callers
+// skip the intermediate map that BindArguments returns.
+type Scope interface {
+	Define(name string, v Object)
+}
+
+// BindArgumentsInto binds call arguments straight into scope. For the common
+// call shape (fixed parameters, all positional) nothing is allocated at all;
+// other shapes fall back to BindArguments.
+func BindArgumentsInto(funcName string, params []string, varArgsParam, kwArgsParam string, call CallArgs, scope Scope) error {
+	if varArgsParam == "" && kwArgsParam == "" && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
+		for i, param := range params {
+			scope.Define(param, call.Positional[i])
+		}
+		return nil
+	}
+
+	bound, err := BindArguments(funcName, params, varArgsParam, kwArgsParam, call)
+	if err != nil {
+		return err
+	}
+	for name, value := range bound {
+		scope.Define(name, value)
+	}
+	return nil
+}
+
 func RequireNoKeyword(funcName string, call CallArgs) error {
 	if len(call.Keyword) == 0 {
 		return nil

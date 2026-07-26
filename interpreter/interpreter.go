@@ -567,15 +567,11 @@ func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast
 	return &object.Function{
 		Name: name,
 		Fn: func(args object.CallArgs) (object.Object, error) {
-			bound, err := object.BindArguments(name, fixed, varArgs, kwArgs, args)
-			if err != nil {
+			local := NewEnvironment(env)
+			if err := object.BindArgumentsInto(name, fixed, varArgs, kwArgs, args, local); err != nil {
 				return nil, object.WithFrame(err, frame)
 			}
-			local := NewEnvironment(env)
-			for n, val := range bound {
-				local.Define(n, val)
-			}
-			err = evalStatements(body, local)
+			err := evalStatements(body, local)
 			if rs, ok := err.(returnSignal); ok {
 				if rs.value == nil {
 					return object.Nil, nil
