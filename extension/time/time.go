@@ -43,7 +43,7 @@ func sleep(args object.CallArgs) (object.Object, error) {
 	case object.Integer:
 		stdtime.Sleep(stdtime.Duration(int64(v)) * stdtime.Second)
 	default:
-		return nil, object.NewTypeError("sleep() argument must be a number, got %s", object.TypeName(args.Positional[0]))
+		return nil, object.NewTypeError("sleep() argument must be a number, got %s", args.Positional[0].TypeName())
 	}
 	return object.Nil, nil
 }

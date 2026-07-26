@@ -35,7 +35,7 @@ func shaData(name string, args object.CallArgs) ([]byte, error) {
 	case object.String:
 		return []byte(v), nil
 	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, object.TypeName(value))
+		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
 	}
 }
 

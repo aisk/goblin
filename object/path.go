@@ -14,6 +14,7 @@ import (
 // (exists, read_text, iterdir, ...) do.
 type Path struct {
 	NoReflectedOps
+	NoAssignment
 	raw string
 }
 
@@ -40,6 +41,8 @@ func PathString(obj Object) (string, bool) {
 	}
 }
 
+func (p *Path) TypeName() string { return "Path" }
+
 func (p *Path) String() string { return p.raw }
 
 func (p *Path) ToString() (string, error) { return p.String(), nil }
@@ -54,7 +57,7 @@ func (p *Path) Equals(other Object) bool {
 func (p *Path) Compare(other Object) (int, error) {
 	v, ok := other.(*Path)
 	if !ok {
-		return 0, NewTypeError("cannot compare Path and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare Path and %s", other.TypeName())
 	}
 	switch {
 	case p.raw < v.raw:
@@ -171,7 +174,7 @@ func pathSegment(fnName string, arg Object) (string, error) {
 	case *Path:
 		return v.raw, nil
 	default:
-		return "", NewTypeError("%s() argument must be a string or Path, got %s", fnName, TypeName(arg))
+		return "", NewTypeError("%s() argument must be a string or Path, got %s", fnName, arg.TypeName())
 	}
 }
 
@@ -399,7 +402,7 @@ func (p *Path) WriteBytes(args CallArgs) (Object, error) {
 	}
 	b, ok := data.(Bytes)
 	if !ok {
-		return nil, NewTypeError("write_bytes() argument 'data' must be Bytes, got %s", TypeName(data))
+		return nil, NewTypeError("write_bytes() argument 'data' must be Bytes, got %s", data.TypeName())
 	}
 	if err := os.WriteFile(p.raw, []byte(b), 0644); err != nil {
 		return nil, WrapNativeError(IOError, "write_bytes() failed", err)

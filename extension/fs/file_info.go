@@ -9,12 +9,15 @@ import (
 
 type FileInfo struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	Info stdfs.FileInfo
 }
 
 func NewFileInfo(info stdfs.FileInfo) *FileInfo {
 	return &FileInfo{Info: info}
 }
+
+func (f *FileInfo) TypeName() string { return "FileInfo" }
 
 func (f *FileInfo) String() string {
 	return fmt.Sprintf("<file_info %s>", f.Info.Name())

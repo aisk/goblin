@@ -8,8 +8,11 @@ import (
 
 type URL struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	value *url.URL
 }
+
+func (u *URL) TypeName() string { return "URL" }
 
 func (u *URL) String() string            { return u.value.String() }
 func (u *URL) ToString() (string, error) { return u.value.String(), nil }
@@ -50,7 +53,7 @@ func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
 	}
 	other, ok := reference.(*URL)
 	if !ok {
-		return nil, object.NewTypeError("resolve_reference() argument 'reference' must be a URL, got %s", object.TypeName(reference))
+		return nil, object.NewTypeError("resolve_reference() argument 'reference' must be a URL, got %s", reference.TypeName())
 	}
 	return &URL{value: u.value.ResolveReference(other.value)}, nil
 }

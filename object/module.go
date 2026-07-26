@@ -7,11 +7,14 @@ import (
 
 type Module struct {
 	NoReflectedOps
+	NoAssignment
 	Name    string
 	Members map[string]Object
 }
 
 var _ Object = (*Module)(nil)
+
+func (m *Module) TypeName() string { return "Module" }
 
 func (m *Module) String() string {
 	if m.Name != "" {

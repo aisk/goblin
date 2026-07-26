@@ -40,6 +40,17 @@ type Object interface {
 	Index(index Object) (Object, error)
 	GetAttr(name string) (Object, error)
 	Attributes() []string
+	// SetIndex and SetAttr perform `value[index] = x` and `value.name = x`.
+	// The bool reports whether the receiver supports that form of assignment
+	// at all; when it is false the caller raises the type error, so a value
+	// that never accepts assignment embeds NoAssignment and says nothing.
+	SetIndex(index Object, value Object) (bool, error)
+	SetAttr(name string, value Object) (bool, error)
+	// TypeName is the Goblin-level name of the value's type, as diagnostics
+	// spell it. Every type names itself: a Go type name would differ between
+	// the interpreter and transpiled programs (*interpreter.instance vs
+	// *main.Point), making the two backends disagree on an error's text.
+	TypeName() string
 }
 
 // literal returns an object's representation inside a collection literal.
@@ -92,32 +103,35 @@ func (NoReflectedOps) RMinus(Object) (Object, bool, error)    { return nil, fals
 func (NoReflectedOps) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (NoReflectedOps) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
-// IndexSetter is implemented by objects that support index assignment,
-// e.g. `list[0] = x` or `dict["k"] = v`.
-type IndexSetter interface {
-	SetIndex(index Object, value Object) error
-}
+// NoAssignment declines both forms of assignment. Types that accept one embed
+// it and override just that method, the way *List overrides SetIndex.
+type NoAssignment struct{}
 
-// AttrSetter is implemented by objects that support member assignment,
-// e.g. `obj.field = x`.
-type AttrSetter interface {
-	SetAttr(name string, value Object) error
-}
+func (NoAssignment) SetIndex(Object, Object) (bool, error) { return false, nil }
+func (NoAssignment) SetAttr(string, Object) (bool, error)  { return false, nil }
 
-// SetItem performs an index assignment, dispatching to the object's SetIndex
-// method when available.
+// SetItem performs an index assignment. A value that does not accept one is
+// reported by its type, not by its contents, so the message reads the same for
+// every value of that type.
 func SetItem(obj Object, index Object, value Object) error {
-	if s, ok := obj.(IndexSetter); ok {
-		return s.SetIndex(index, value)
+	handled, err := obj.SetIndex(index, value)
+	if err != nil {
+		return err
 	}
-	return NewTypeError("%s does not support index assignment", obj.String())
+	if !handled {
+		return NewTypeError("%s does not support index assignment", obj.TypeName())
+	}
+	return nil
 }
 
-// SetAttribute performs a member assignment, dispatching to the object's
-// SetAttr method when available.
+// SetAttribute performs a member assignment.
 func SetAttribute(obj Object, name string, value Object) error {
-	if s, ok := obj.(AttrSetter); ok {
-		return s.SetAttr(name, value)
+	handled, err := obj.SetAttr(name, value)
+	if err != nil {
+		return err
 	}
-	return NewTypeError("%s does not support attribute assignment", obj.String())
+	if !handled {
+		return NewTypeError("%s does not support attribute assignment", obj.TypeName())
+	}
+	return nil
 }

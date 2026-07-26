@@ -17,6 +17,8 @@ func (i Integer) Bool() bool {
 
 func (i Integer) ToBool() (bool, error) { return i.Bool(), nil }
 
+func (i Integer) TypeName() string { return "Integer" }
+
 func (i Integer) String() string {
 	return strconv.FormatInt(int64(i), 10)
 }
@@ -37,38 +39,41 @@ func (i Integer) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(i, other); ok {
 		return c, nil
 	}
-	return 0, NewTypeError("cannot compare Integer and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Integer and %s", other.TypeName())
 }
 
 func (i Integer) Add(other Object) (Object, error) {
 	if result, ok := numericAdd(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot add Integer and %s", TypeName(other))
+	return nil, NewTypeError("cannot add Integer and %s", other.TypeName())
 }
 
 func (i Integer) Minus(other Object) (Object, error) {
 	if result, ok := numericMinus(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot subtract Integer and %s", TypeName(other))
+	return nil, NewTypeError("cannot subtract Integer and %s", other.TypeName())
 }
 
 func (i Integer) Multiply(other Object) (Object, error) {
 	if result, ok := numericMultiply(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot multiply Integer and %s", TypeName(other))
+	return nil, NewTypeError("cannot multiply Integer and %s", other.TypeName())
 }
 
 func (i Integer) Divide(other Object) (Object, error) {
 	if result, ok, err := numericDivide(i, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot divide Integer and %s", TypeName(other))
+	return nil, NewTypeError("cannot divide Integer and %s", other.TypeName())
 }
 
-// No reflected operators: a named int64 type cannot embed NoReflectedOps.
+// A named int64 type cannot embed NoAssignment and NoReflectedOps, so Integer
+// declines assignment and the reflected operators itself.
+func (i Integer) SetIndex(Object, Object) (bool, error)  { return false, nil }
+func (i Integer) SetAttr(string, Object) (bool, error)   { return false, nil }
 func (i Integer) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
 func (i Integer) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (i Integer) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
@@ -124,6 +129,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %s", TypeName(value))
+		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %s", value.TypeName())
 	}
 }

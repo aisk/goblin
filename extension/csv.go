@@ -100,19 +100,19 @@ func csvRecordsObject(records [][]string) *object.List {
 func csvObjectRecords(value object.Object) ([][]string, error) {
 	rows, ok := value.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("write_all() argument 'records' must be a list, got %s", object.TypeName(value))
+		return nil, object.NewTypeError("write_all() argument 'records' must be a list, got %s", value.TypeName())
 	}
 	records := make([][]string, len(rows.Elements))
 	for i, rowObj := range rows.Elements {
 		row, ok := rowObj.(*object.List)
 		if !ok {
-			return nil, object.NewTypeError("write_all() record %d must be a list, got %s", i, object.TypeName(rowObj))
+			return nil, object.NewTypeError("write_all() record %d must be a list, got %s", i, rowObj.TypeName())
 		}
 		records[i] = make([]string, len(row.Elements))
 		for j, fieldObj := range row.Elements {
 			field, ok := fieldObj.(object.String)
 			if !ok {
-				return nil, object.NewTypeError("write_all() field %d in record %d must be a string, got %s", j, i, object.TypeName(fieldObj))
+				return nil, object.NewTypeError("write_all() field %d in record %d must be a string, got %s", j, i, fieldObj.TypeName())
 			}
 			records[i][j] = string(field)
 		}

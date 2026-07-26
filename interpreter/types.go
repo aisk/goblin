@@ -173,12 +173,14 @@ func (in *instance) Attributes() []string {
 	return append([]string(nil), in.typ.attributes...)
 }
 
-func (in *instance) SetAttr(name string, value object.Object) error {
+// SetAttr always handles the assignment: an instance accepts writes to its own
+// fields and reports any other name as a missing attribute.
+func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 	if in.typ.hasField(name) {
 		in.fields[name] = value
-		return nil
+		return true, nil
 	}
-	return object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
+	return true, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
 // String satisfies fmt.Stringer. It falls back to the default representation
@@ -321,11 +323,11 @@ func (in *instance) Index(index object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("%s is not indexable", in.typ.name)
 }
 
-// SetIndex implements object.IndexSetter, dispatching `obj[i] = v` to a
-// user-defined "__setitem" method.
-func (in *instance) SetIndex(index object.Object, value object.Object) error {
-	if _, ok, err := in.callProto("__setitem", index, value); ok {
-		return err
-	}
-	return object.NewTypeError("%s does not support index assignment", in.typ.name)
+// SetIndex dispatches `obj[i] = v` to a user-defined "__setitem" method. It
+// reports handled == false without one, leaving object.SetItem
+// to raise the same "does not support index assignment" error every other type
+// gets.
+func (in *instance) SetIndex(index object.Object, value object.Object) (bool, error) {
+	_, ok, err := in.callProto("__setitem", index, value)
+	return ok, err
 }

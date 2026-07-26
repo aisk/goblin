@@ -97,7 +97,7 @@ func doDo(client *stdhttp.Client, args object.CallArgs) (object.Object, error) {
 	}
 	reqObj, ok := args.Positional[0].(*Request)
 	if !ok {
-		return nil, object.NewTypeError("do() argument must be a request, got %s", object.TypeName(args.Positional[0]))
+		return nil, object.NewTypeError("do() argument must be a request, got %s", args.Positional[0].TypeName())
 	}
 	return doRequest(client, reqObj.Req)
 }
@@ -242,7 +242,7 @@ func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, err
 func stringArg(fn, name string, obj object.Object) (string, error) {
 	s, ok := obj.(object.String)
 	if !ok {
-		return "", object.NewTypeError("%s() %s argument must be a string, got %s", fn, name, object.TypeName(obj))
+		return "", object.NewTypeError("%s() %s argument must be a string, got %s", fn, name, obj.TypeName())
 	}
 	return string(s), nil
 }
@@ -274,6 +274,6 @@ func durationFromObject(fn string, obj object.Object) (time.Duration, error) {
 	case object.Integer:
 		return time.Duration(int64(v)) * time.Second, nil
 	default:
-		return 0, object.NewTypeError("%s() timeout argument must be a number, got %s", fn, object.TypeName(obj))
+		return 0, object.NewTypeError("%s() timeout argument must be a number, got %s", fn, obj.TypeName())
 	}
 }

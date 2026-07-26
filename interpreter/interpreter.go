@@ -490,7 +490,7 @@ func evalUnary(e *ast.UnaryOperation, env *Environment) (object.Object, error) {
 		case object.Float:
 			return object.Float(-float64(v)), nil
 		default:
-			return nil, object.NewTypeError("cannot negate %s", object.TypeName(operand))
+			return nil, object.NewTypeError("cannot negate %s", operand.TypeName())
 		}
 	default:
 		return nil, fmt.Errorf("interpreter: unknown unary operator %q", e.Operator)
@@ -521,7 +521,7 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 		case ast.CallArgumentKeywordUnpack:
 			d, ok := v.(*object.Dict)
 			if !ok {
-				return call, object.NewTypeError("argument after ** must be a dict, got %s", object.TypeName(v))
+				return call, object.NewTypeError("argument after ** must be a dict, got %s", v.TypeName())
 			}
 			if call.Keyword == nil {
 				call.Keyword = object.Kwargs{}

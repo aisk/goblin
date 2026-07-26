@@ -7,8 +7,11 @@ import "github.com/aisk/goblin/object"
 // arithmetic, ordering, iteration, nor indexing.
 type objectBase struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	typeName string
 }
+
+func (b objectBase) TypeName() string { return b.typeName }
 
 func (b objectBase) Bool() bool                  { return true }
 func (b objectBase) ToBool() (bool, error)       { return true, nil }

@@ -47,7 +47,7 @@ func compressionInput(name string, args object.CallArgs, withLevel bool) ([]byte
 	case object.String:
 		data = []byte(v)
 	default:
-		return nil, 0, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, object.TypeName(value))
+		return nil, 0, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
 	}
 	return data, int(level), nil
 }

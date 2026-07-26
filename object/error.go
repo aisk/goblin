@@ -21,6 +21,7 @@ type Frame struct {
 
 type Error struct {
 	NoReflectedOps
+	NoAssignment
 	Value string
 	// Wrapped is the underlying error this one wraps, or nil. Typed as the Go
 	// `error` interface so the standard library's errors.Is / errors.Unwrap can
@@ -71,6 +72,8 @@ func (e *Error) Unwrap() error {
 	return e.Wrapped
 }
 
+func (e *Error) TypeName() string { return "Error" }
+
 func (e *Error) String() string {
 	return e.Value
 }
@@ -89,23 +92,23 @@ func (e *Error) Equals(other Object) bool {
 }
 
 func (e *Error) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Error and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Error and %s", other.TypeName())
 }
 
 func (e *Error) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add Error and %s", TypeName(other))
+	return nil, NewTypeError("cannot add Error and %s", other.TypeName())
 }
 
 func (e *Error) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract Error and %s", TypeName(other))
+	return nil, NewTypeError("cannot subtract Error and %s", other.TypeName())
 }
 
 func (e *Error) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Error and %s", TypeName(other))
+	return nil, NewTypeError("cannot multiply Error and %s", other.TypeName())
 }
 
 func (e *Error) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide Error and %s", TypeName(other))
+	return nil, NewTypeError("cannot divide Error and %s", other.TypeName())
 }
 
 func (e *Error) Not() (Object, error) {
@@ -265,7 +268,7 @@ func (e *Error) Is(args CallArgs) (Object, error) {
 	}
 	t, ok := target.(*Error)
 	if !ok {
-		return nil, NewTypeError("is() argument must be an Error, got %s", TypeName(target))
+		return nil, NewTypeError("is() argument must be an Error, got %s", target.TypeName())
 	}
 	return Bool(errors.Is(e, t)), nil
 }

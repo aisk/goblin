@@ -2,9 +2,14 @@ package object
 
 var Nil Object = Unit{}
 
-type Unit struct{}
+type Unit struct {
+	NoReflectedOps
+	NoAssignment
+}
 
 var _ Object = Unit{}
+
+func (n Unit) TypeName() string { return "Nil" }
 
 func (n Unit) String() string {
 	return "nil"
@@ -28,7 +33,7 @@ func (n Unit) Compare(other Object) (int, error) {
 	case Unit:
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Nil and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare Nil and %s", other.TypeName())
 	}
 }
 
@@ -47,12 +52,6 @@ func (n Unit) Multiply(other Object) (Object, error) {
 func (n Unit) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Nil")
 }
-
-// No reflected operators: a named struct type cannot embed NoReflectedOps.
-func (n Unit) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
-func (n Unit) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
-func (n Unit) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
-func (n Unit) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (n Unit) Not() (Object, error) {
 	return Bool(!n.Bool()), nil

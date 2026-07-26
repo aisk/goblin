@@ -23,3 +23,5 @@ ababab
 ababab
 [1, 2, 1, 2]
 [1, 2, 1, 2]
+Opaque does not support index assignment
+Integer does not support index assignment

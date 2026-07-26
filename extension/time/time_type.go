@@ -9,12 +9,15 @@ import (
 // Time wraps Go's time.Time as a goblin object.
 type Time struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	Value stdtime.Time
 }
 
 func NewTime(t stdtime.Time) *Time {
 	return &Time{Value: t}
 }
+
+func (t *Time) TypeName() string { return "Time" }
 
 func (t *Time) String() string {
 	return t.Value.Format(stdtime.RFC3339)
@@ -36,7 +39,7 @@ func (t *Time) Equals(other object.Object) bool {
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Time with %s", object.TypeName(other))
+		return 0, object.NewTypeError("cannot compare Time with %s", other.TypeName())
 	}
 	if t.Value.Before(ot.Value) {
 		return -1, nil

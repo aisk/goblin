@@ -12,6 +12,7 @@ type DictEntry struct {
 
 type Dict struct {
 	NoReflectedOps
+	NoAssignment
 	// Entries maps the encoded form of each key (see dictKey) to its entry.
 	// Iteration order is unspecified, mirroring Go's map semantics.
 	Entries map[string]DictEntry
@@ -167,7 +168,7 @@ func (d *Dict) Update(args CallArgs) (Object, error) {
 	}
 	source, ok := other.(*Dict)
 	if !ok {
-		return nil, NewTypeError("update() argument 'other' must be Dict, got %s", TypeName(other))
+		return nil, NewTypeError("update() argument 'other' must be Dict, got %s", other.TypeName())
 	}
 	for _, entry := range source.Entries {
 		if err := d.Set(entry.Key, entry.Value); err != nil {
@@ -227,6 +228,8 @@ func (d *Dict) Get(key Object) (Object, bool, error) {
 	return nil, false, nil
 }
 
+func (d *Dict) TypeName() string { return "Dict" }
+
 func (d *Dict) String() string {
 	elements := make([]string, 0, len(d.Entries))
 	for _, entry := range d.Entries {
@@ -258,11 +261,11 @@ func (d *Dict) Equals(other Object) bool {
 }
 
 func (d *Dict) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Dict and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Dict and %s", other.TypeName())
 }
 
 func (d *Dict) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add Dict and %s", TypeName(other))
+	return nil, NewTypeError("cannot add Dict and %s", other.TypeName())
 }
 
 func (d *Dict) Minus(other Object) (Object, error) {
@@ -270,7 +273,7 @@ func (d *Dict) Minus(other Object) (Object, error) {
 }
 
 func (d *Dict) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Dict and %s", TypeName(other))
+	return nil, NewTypeError("cannot multiply Dict and %s", other.TypeName())
 }
 
 func (d *Dict) Divide(other Object) (Object, error) {
@@ -300,8 +303,8 @@ func (d *Dict) Index(index Object) (Object, error) {
 	return nil, NewKeyError("key not found: %s", index.String())
 }
 
-func (d *Dict) SetIndex(index Object, value Object) error {
-	return d.Set(index, value)
+func (d *Dict) SetIndex(index Object, value Object) (bool, error) {
+	return true, d.Set(index, value)
 }
 
 func (d *Dict) GetAttr(name string) (Object, error) {

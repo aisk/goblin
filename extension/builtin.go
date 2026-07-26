@@ -146,7 +146,7 @@ func max(args object.CallArgs) (object.Object, error) {
 					maxValue = float64(v)
 				}
 			default:
-				return nil, object.NewTypeError("max() argument %d: invalid type %s", i, object.TypeName(arg))
+				return nil, object.NewTypeError("max() argument %d: invalid type %s", i, arg.TypeName())
 			}
 		}
 		return object.Float(maxValue), nil
@@ -159,7 +159,7 @@ func max(args object.CallArgs) (object.Object, error) {
 				maxIntValue = int64(v)
 			}
 		} else {
-			return nil, object.NewTypeError("max() argument %d: invalid type %s", i, object.TypeName(arg))
+			return nil, object.NewTypeError("max() argument %d: invalid type %s", i, arg.TypeName())
 		}
 	}
 	return object.Integer(maxIntValue), nil
@@ -196,7 +196,7 @@ func min(args object.CallArgs) (object.Object, error) {
 					minValue = float64(v)
 				}
 			default:
-				return nil, object.NewTypeError("min() argument %d: invalid type %s", i, object.TypeName(arg))
+				return nil, object.NewTypeError("min() argument %d: invalid type %s", i, arg.TypeName())
 			}
 		}
 		return object.Float(minValue), nil
@@ -209,7 +209,7 @@ func min(args object.CallArgs) (object.Object, error) {
 				minIntValue = int64(v)
 			}
 		} else {
-			return nil, object.NewTypeError("min() argument %d: invalid type %s", i, object.TypeName(arg))
+			return nil, object.NewTypeError("min() argument %d: invalid type %s", i, arg.TypeName())
 		}
 	}
 	return object.Integer(minIntValue), nil

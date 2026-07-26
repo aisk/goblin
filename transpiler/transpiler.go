@@ -818,7 +818,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				jen.If(jen.Op("!").Id(okVar)).Block(
 					jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
 						jen.Lit("argument after ** must be a dict, got %s"),
-						jen.Qual(pathObject, "TypeName").Call(jen.Id(unpackObjVar)),
+						jen.Id(unpackObjVar).Dot("TypeName").Call(),
 					),
 					onError(errVar),
 				),
@@ -828,7 +828,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 					jen.If(jen.Op("!").Id(okVar)).Block(
 						jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
 							jen.Lit("keyword argument name must be a string, got %s"),
-							jen.Qual(pathObject, "TypeName").Call(jen.Id(keyObjVar)),
+							jen.Id(keyObjVar).Dot("TypeName").Call(),
 						),
 						onError(errVar),
 					),
@@ -1531,17 +1531,18 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 	protoDecls = append(protoDecls, indexDecl)
 
-	// SetIndex(index, value) error  <- "set_item" (object.IndexSetter)
+	// SetIndex(index, value) (bool, error)  <- "__setitem". Without it the type
+	// reports "not handled" and object.SetItem raises the shared error.
 	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
 		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
-	).Error()
+	).Parens(jen.List(jen.Bool(), jen.Error()))
 	if defined["__setitem"] {
 		setIndexDecl.Block(
 			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall("__setitem", jen.Id("index"), jen.Id("value"))),
-			jen.Return(jen.Id("_err")),
+			jen.Return(jen.True(), jen.Id("_err")),
 		)
 	} else {
-		setIndexDecl.Block(jen.Return(errorf("%s does not support index assignment")))
+		setIndexDecl.Block(jen.Return(jen.False(), jen.Nil()))
 	}
 	protoDecls = append(protoDecls, setIndexDecl)
 
@@ -1638,13 +1639,14 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		setAttrCases = append(setAttrCases,
 			jen.Case(jen.Lit(field.Name)).Block(
 				jen.Id(receiverName).Dot(field.Name).Op("=").Id("value"),
-				jen.Return(jen.Nil()),
+				jen.Return(jen.True(), jen.Nil()),
 			),
 		)
 	}
 	setAttrCases = append(setAttrCases,
 		jen.Default().Block(
 			jen.Return(
+				jen.True(),
 				jen.Qual(pathObject, "NewAttributeError").Call(jen.Lit("%s has no attribute '%s'"), jen.Lit(typeDef.Name), jen.Id("name")),
 			),
 		),
@@ -1652,7 +1654,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	ctx.topDecls = append(ctx.topDecls,
 		jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("SetAttr").Params(
 			jen.Id("name").String(), jen.Id("value").Qual(pathObject, "Object"),
-		).Error().Block(
+		).Parens(jen.List(jen.Bool(), jen.Error())).Block(
 			jen.Switch(jen.Id("name")).Block(setAttrCases...),
 		),
 	)

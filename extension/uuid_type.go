@@ -12,10 +12,13 @@ import (
 // core object package remains independent of the Google UUID implementation.
 type UUID struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	Value googleuuid.UUID
 }
 
 func NewUUID(value googleuuid.UUID) *UUID { return &UUID{Value: value} }
+
+func (u *UUID) TypeName() string { return "UUID" }
 
 func (u *UUID) String() string              { return u.Value.String() }
 func (u *UUID) ToString() (string, error)   { return u.String(), nil }
@@ -31,7 +34,7 @@ func (u *UUID) Equals(other object.Object) bool {
 func (u *UUID) Compare(other object.Object) (int, error) {
 	v, ok := other.(*UUID)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare UUID with %s", object.TypeName(other))
+		return 0, object.NewTypeError("cannot compare UUID with %s", other.TypeName())
 	}
 	return bytes.Compare(u.Value[:], v.Value[:]), nil
 }

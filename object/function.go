@@ -4,6 +4,7 @@ import "fmt"
 
 type Function struct {
 	NoReflectedOps
+	NoAssignment
 	Name string
 	Fn   func(CallArgs) (Object, error)
 }
@@ -11,6 +12,8 @@ type Function struct {
 func (f *Function) Call(args CallArgs) (Object, error) {
 	return f.Fn(args)
 }
+
+func (f *Function) TypeName() string { return "Function" }
 
 func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name) }
 
@@ -28,7 +31,7 @@ func (f *Function) Equals(other Object) bool {
 // Compare always fails: functions support equality (identity, handled by
 // Equals) but have no ordering.
 func (f *Function) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Function and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Function and %s", other.TypeName())
 }
 func (f *Function) Add(Object) (Object, error) { return nil, NewTypeError("cannot add Function") }
 func (f *Function) Minus(Object) (Object, error) {

@@ -90,7 +90,7 @@ func (s String) trimWith(name string, cutset Object, direction trimDirection) (O
 	}
 	chars, ok := cutset.(String)
 	if !ok {
-		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %s", name, TypeName(cutset))
+		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %s", name, cutset.TypeName())
 	}
 	switch direction {
 	case trimBoth:
@@ -353,6 +353,8 @@ func noStringArgs(name string, args CallArgs) error {
 	return nil
 }
 
+func (s String) TypeName() string { return "String" }
+
 func (s String) String() string {
 	return string(s)
 }
@@ -390,7 +392,7 @@ func (s String) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare String and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare String and %s", other.TypeName())
 	}
 }
 
@@ -403,7 +405,7 @@ func (s String) Add(other Object) (Object, error) {
 	case Bool:
 		return String(string(s) + v.String()), nil
 	default:
-		return nil, NewTypeError("cannot add String and %s", TypeName(other))
+		return nil, NewTypeError("cannot add String and %s", other.TypeName())
 	}
 }
 
@@ -420,7 +422,7 @@ func (s String) Multiply(other Object) (Object, error) {
 		}
 		return String(result), nil
 	default:
-		return nil, NewTypeError("cannot multiply String and %s", TypeName(other))
+		return nil, NewTypeError("cannot multiply String and %s", other.TypeName())
 	}
 }
 
@@ -438,12 +440,14 @@ func (s String) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide String")
 }
 
-// Only repetition reads in both operand orders (see RMultiply above); Go
-// cannot embed NoReflectedOps into a named string type, so the operators a
-// string does not complete from the right answer here.
-func (s String) RAdd(Object) (Object, bool, error)    { return nil, false, nil }
-func (s String) RMinus(Object) (Object, bool, error)  { return nil, false, nil }
-func (s String) RDivide(Object) (Object, bool, error) { return nil, false, nil }
+// A named string type cannot embed NoAssignment and NoReflectedOps. Only
+// repetition reads in both operand orders (see RMultiply above); everything
+// else a string does not accept is declined here.
+func (s String) SetIndex(Object, Object) (bool, error) { return false, nil }
+func (s String) SetAttr(string, Object) (bool, error)  { return false, nil }
+func (s String) RAdd(Object) (Object, bool, error)     { return nil, false, nil }
+func (s String) RMinus(Object) (Object, bool, error)   { return nil, false, nil }
+func (s String) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
 
 func (s String) Not() (Object, error) {
 	return Bool(!s.Bool()), nil

@@ -4,10 +4,13 @@ package object
 // Element typing is dynamic: any Object can flow through the channel.
 type Chan struct {
 	NoReflectedOps
+	NoAssignment
 	ch chan Object
 }
 
 var _ Object = &Chan{}
+
+func (c *Chan) TypeName() string { return "Chan" }
 
 func (c *Chan) String() string { return "<chan>" }
 
@@ -27,7 +30,7 @@ func (c *Chan) Compare(other Object) (int, error) {
 		}
 		return 1, nil
 	}
-	return 0, NewTypeError("cannot compare Chan and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Chan and %s", other.TypeName())
 }
 
 func (c *Chan) Add(Object) (Object, error)      { return nil, NewTypeError("cannot add Chan") }

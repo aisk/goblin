@@ -10,6 +10,8 @@ import (
 // and raises from multiplication the way a failing reflected method does.
 type rightObj struct{ Unit }
 
+func (r *rightObj) TypeName() string { return "rightObj" }
+
 func (r *rightObj) RAdd(left Object) (Object, bool, error) {
 	return String("radd " + left.String()), true, nil
 }
@@ -25,6 +27,8 @@ func (r *rightObj) RMultiply(Object) (Object, bool, error) {
 // pickyObj accepts only integers on its right-hand side, the way a built-in
 // that reads in either operand order does.
 type pickyObj struct{ Unit }
+
+func (p *pickyObj) TypeName() string { return "pickyObj" }
 
 func (p *pickyObj) RAdd(left Object) (Object, bool, error) {
 	if _, ok := left.(Integer); !ok {

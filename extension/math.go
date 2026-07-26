@@ -377,6 +377,6 @@ func toFloat(funcName string, v object.Object) (float64, error) {
 	case object.Float:
 		return float64(n), nil
 	default:
-		return 0, object.NewTypeError("%s() argument must be a number, got %s", funcName, object.TypeName(v))
+		return 0, object.NewTypeError("%s() argument must be a number, got %s", funcName, v.TypeName())
 	}
 }

@@ -13,10 +13,12 @@ type ordObj struct {
 	value int
 }
 
+func (o *ordObj) TypeName() string { return "ordObj" }
+
 func (o *ordObj) Compare(other Object) (int, error) {
 	v, ok := other.(Integer)
 	if !ok {
-		return 0, NewTypeError("cannot compare ordObj and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare ordObj and %s", other.TypeName())
 	}
 	switch {
 	case o.value < int(v):

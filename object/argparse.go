@@ -81,7 +81,7 @@ func (p *ArgParser) required(name string) (Object, bool) {
 // already pending.
 func (p *ArgParser) typeErr(name, want string, got Object) {
 	if p.err == nil {
-		p.err = NewTypeError("%s() argument '%s' must be %s, got %s", p.funcName, name, want, TypeName(got))
+		p.err = NewTypeError("%s() argument '%s' must be %s, got %s", p.funcName, name, want, got.TypeName())
 	}
 }
 

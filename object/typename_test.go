@@ -26,13 +26,13 @@ func TestTypeName(t *testing.T) {
 		{&Function{Name: "f"}, "Function"},
 		{&Module{Name: "m"}, "Module"},
 		{&namedObj{}, "Point"},
-		// Types outside this package that do not implement Named fall back to
-		// their Go type name, stripped of pointer and package qualifier.
+		// Embedding another type for its defaults does not name a type:
+		// ordObj embeds Unit and would report "Nil" without its own method.
 		{&ordObj{}, "ordObj"},
 	}
 	for _, tc := range cases {
-		if got := TypeName(tc.obj); got != tc.want {
-			t.Errorf("TypeName(%T) = %q, want %q", tc.obj, got, tc.want)
+		if got := tc.obj.TypeName(); got != tc.want {
+			t.Errorf("%T.TypeName() = %q, want %q", tc.obj, got, tc.want)
 		}
 	}
 }

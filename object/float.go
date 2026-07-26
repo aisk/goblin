@@ -17,6 +17,8 @@ func (f Float) Bool() bool {
 
 func (f Float) ToBool() (bool, error) { return f.Bool(), nil }
 
+func (f Float) TypeName() string { return "Float" }
+
 func (f Float) String() string {
 	return strconv.FormatFloat(float64(f), 'f', -1, 64)
 }
@@ -38,38 +40,41 @@ func (f Float) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(f, other); ok {
 		return c, nil
 	}
-	return 0, NewTypeError("cannot compare Float and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare Float and %s", other.TypeName())
 }
 
 func (f Float) Add(other Object) (Object, error) {
 	if result, ok := numericAdd(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot add Float and %s", TypeName(other))
+	return nil, NewTypeError("cannot add Float and %s", other.TypeName())
 }
 
 func (f Float) Minus(other Object) (Object, error) {
 	if result, ok := numericMinus(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot subtract Float and %s", TypeName(other))
+	return nil, NewTypeError("cannot subtract Float and %s", other.TypeName())
 }
 
 func (f Float) Multiply(other Object) (Object, error) {
 	if result, ok := numericMultiply(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot multiply Float and %s", TypeName(other))
+	return nil, NewTypeError("cannot multiply Float and %s", other.TypeName())
 }
 
 func (f Float) Divide(other Object) (Object, error) {
 	if result, ok, err := numericDivide(f, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot divide Float and %s", TypeName(other))
+	return nil, NewTypeError("cannot divide Float and %s", other.TypeName())
 }
 
-// No reflected operators: a named float64 type cannot embed NoReflectedOps.
+// A named float64 type cannot embed NoAssignment and NoReflectedOps, so Float
+// declines assignment and the reflected operators itself.
+func (f Float) SetIndex(Object, Object) (bool, error)  { return false, nil }
+func (f Float) SetAttr(string, Object) (bool, error)   { return false, nil }
 func (f Float) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
 func (f Float) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (f Float) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
@@ -125,6 +130,6 @@ func FloatConstructor(args CallArgs) (Object, error) {
 		}
 		return Float(0), nil
 	default:
-		return nil, NewTypeError("Float() argument 'value' must be a string or a number, got %s", TypeName(value))
+		return nil, NewTypeError("Float() argument 'value' must be a string or a number, got %s", value.TypeName())
 	}
 }

@@ -10,6 +10,7 @@ import (
 
 type File struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	Name   string
 	File   *os.File
 	closed bool
@@ -56,7 +57,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 
 	content, ok := contentArg.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("write() argument 'content' must be a string, got %s", object.TypeName(contentArg))
+		return nil, object.NewTypeError("write() argument 'content' must be a string, got %s", contentArg.TypeName())
 	}
 
 	n, err := f.File.WriteString(string(content))
@@ -100,6 +101,8 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 	}
 	return NewFileInfo(info), nil
 }
+
+func (f *File) TypeName() string { return "File" }
 
 func (f *File) String() string {
 	return fmt.Sprintf("<file %s>", f.Name)

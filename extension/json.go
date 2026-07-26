@@ -133,7 +133,7 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 	case *object.Dict:
 		return goblinDictToJSON(v, buf, indent, level)
 	default:
-		return object.NewTypeError("marshal() unsupported type: %s", object.TypeName(obj))
+		return object.NewTypeError("marshal() unsupported type: %s", obj.TypeName())
 	}
 }
 

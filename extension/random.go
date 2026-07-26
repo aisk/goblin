@@ -39,6 +39,7 @@ func ExecuteRandom() (object.Object, error) {
 // ordering is intentionally not deterministic.
 type RandomGenerator struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	mu   sync.Mutex
 	rng  *rand.Rand
 	seed int64
@@ -58,7 +59,7 @@ func randomGeneratorConstructor(args object.CallArgs) (object.Object, error) {
 	if _, ok := seedObj.(object.Unit); !ok {
 		value, ok := seedObj.(object.Integer)
 		if !ok {
-			return nil, object.NewTypeError("Generator() argument 'seed' must be unit or int, got %s", object.TypeName(seedObj))
+			return nil, object.NewTypeError("Generator() argument 'seed' must be unit or int, got %s", seedObj.TypeName())
 		}
 		seed = int64(value)
 	}
@@ -94,14 +95,14 @@ func (g *RandomGenerator) randomInt(args object.CallArgs) (object.Object, error)
 
 	max, ok := maxObj.(object.Integer)
 	if !ok {
-		return nil, object.NewTypeError("int() argument 'max' must be unit or int, got %s", object.TypeName(maxObj))
+		return nil, object.NewTypeError("int() argument 'max' must be unit or int, got %s", maxObj.TypeName())
 	}
 	min := object.Integer(0)
 	if hasMin {
 		var ok bool
 		min, ok = minObj.(object.Integer)
 		if !ok {
-			return nil, object.NewTypeError("int() argument 'min' must be an int, got %s", object.TypeName(minObj))
+			return nil, object.NewTypeError("int() argument 'min' must be an int, got %s", minObj.TypeName())
 		}
 	}
 	if min >= max {
@@ -154,7 +155,7 @@ func (g *RandomGenerator) randomChoice(args object.CallArgs) (object.Object, err
 	}
 	list, ok := listObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("choice() argument 'list' must be a list, got %s", object.TypeName(listObj))
+		return nil, object.NewTypeError("choice() argument 'list' must be a list, got %s", listObj.TypeName())
 	}
 	if len(list.Elements) == 0 {
 		return nil, object.NewValueError("choice() argument 'list' cannot be empty")
@@ -173,7 +174,7 @@ func (g *RandomGenerator) randomShuffle(args object.CallArgs) (object.Object, er
 	}
 	list, ok := listObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("shuffle() argument 'list' must be a list, got %s", object.TypeName(listObj))
+		return nil, object.NewTypeError("shuffle() argument 'list' must be a list, got %s", listObj.TypeName())
 	}
 	g.mu.Lock()
 	g.rng.Shuffle(len(list.Elements), func(i, j int) {
@@ -215,7 +216,7 @@ func (g *RandomGenerator) randomSample(args object.CallArgs) (object.Object, err
 	}
 	list, ok := listObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("sample() argument 'list' must be a list, got %s", object.TypeName(listObj))
+		return nil, object.NewTypeError("sample() argument 'list' must be a list, got %s", listObj.TypeName())
 	}
 	if count < 0 || uint64(count) > uint64(len(list.Elements)) {
 		return nil, object.NewValueError("sample() argument 'count' must be between 0 and %d, got %d", len(list.Elements), count)
@@ -293,6 +294,8 @@ func randomNumberFloat64(value object.Object) float64 {
 		panic("randomNumberFloat64 called with non-number")
 	}
 }
+
+func (g *RandomGenerator) TypeName() string { return "Generator" }
 
 func (g *RandomGenerator) String() string            { return fmt.Sprintf("<random.Generator seed=%d>", g.seed) }
 func (g *RandomGenerator) ToString() (string, error) { return g.String(), nil }

@@ -115,3 +115,17 @@ print("ab" * 3)
 print(3 * "ab")
 print([1, 2] * 2)
 print(2 * [1, 2])
+
+# Assignment is a protocol too: without __setitem a type does not accept item
+# assignment, and the failure names the type rather than the value.
+try {
+    o[0] = 1
+} catch e {
+    print(e)
+}
+var n = 1
+try {
+    n[0] = 1
+} catch e {
+    print(e)
+}

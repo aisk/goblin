@@ -15,6 +15,8 @@ var _ Object = Bytes{}
 
 func NewBytes(data []byte) Bytes { return Bytes(append([]byte(nil), data...)) }
 
+func (b Bytes) TypeName() string { return "Bytes" }
+
 func (b Bytes) String() string            { return "b" + strconv.Quote(string(b)) }
 func (b Bytes) ToString() (string, error) { return b.String(), nil }
 func (b Bytes) Bool() bool                { return len(b) != 0 }
@@ -28,7 +30,7 @@ func (b Bytes) Equals(other Object) bool {
 func (b Bytes) Compare(other Object) (int, error) {
 	v, ok := other.(Bytes)
 	if !ok {
-		return 0, NewTypeError("cannot compare Bytes and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare Bytes and %s", other.TypeName())
 	}
 	return bytes.Compare(b, v), nil
 }
@@ -36,7 +38,7 @@ func (b Bytes) Compare(other Object) (int, error) {
 func (b Bytes) Add(other Object) (Object, error) {
 	v, ok := other.(Bytes)
 	if !ok {
-		return nil, NewTypeError("cannot add Bytes and %s", TypeName(other))
+		return nil, NewTypeError("cannot add Bytes and %s", other.TypeName())
 	}
 	result := make([]byte, 0, len(b)+len(v))
 	result = append(result, b...)
@@ -48,7 +50,10 @@ func (b Bytes) Minus(Object) (Object, error)    { return nil, NewTypeError("cann
 func (b Bytes) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Bytes") }
 func (b Bytes) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Bytes") }
 
-// No reflected operators: a named slice type cannot embed NoReflectedOps.
+// A named slice type cannot embed NoAssignment and NoReflectedOps, so Bytes
+// declines assignment and the reflected operators itself.
+func (b Bytes) SetIndex(Object, Object) (bool, error)  { return false, nil }
+func (b Bytes) SetAttr(string, Object) (bool, error)   { return false, nil }
 func (b Bytes) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
 func (b Bytes) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
@@ -67,7 +72,7 @@ func (b Bytes) Iter() ([]Object, error) {
 func (b Bytes) Index(index Object) (Object, error) {
 	i, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("Bytes index must be an integer, got %s", TypeName(index))
+		return nil, NewTypeError("Bytes index must be an integer, got %s", index.TypeName())
 	}
 	pos, err := listIndex("Bytes", i, len(b))
 	if err != nil {
@@ -90,7 +95,7 @@ func bytesArg(name, param string, value Object) ([]byte, error) {
 	case String:
 		return []byte(v), nil
 	default:
-		return nil, NewTypeError("%s() argument '%s' must be Bytes or str, got %s", name, param, TypeName(value))
+		return nil, NewTypeError("%s() argument '%s' must be Bytes or str, got %s", name, param, value.TypeName())
 	}
 }
 
@@ -253,13 +258,13 @@ func (b Bytes) Join(args CallArgs) (Object, error) {
 	}
 	list, ok := iterable.(*List)
 	if !ok {
-		return nil, NewTypeError("join() argument 'iterable' must be a List, got %s", TypeName(iterable))
+		return nil, NewTypeError("join() argument 'iterable' must be a List, got %s", iterable.TypeName())
 	}
 	parts := make([][]byte, len(list.Elements))
 	for i, elem := range list.Elements {
 		part, err := bytesArg("join", "iterable", elem)
 		if err != nil {
-			return nil, NewTypeError("join() element %d must be Bytes or str, got %s", i, TypeName(elem))
+			return nil, NewTypeError("join() element %d must be Bytes or str, got %s", i, elem.TypeName())
 		}
 		parts[i] = part
 	}
@@ -566,6 +571,6 @@ func BytesConstructor(args CallArgs) (Object, error) {
 		}
 		return Bytes(result), nil
 	default:
-		return nil, NewTypeError("Bytes() argument 'value' must be a string, Bytes, or List, got %s", TypeName(value))
+		return nil, NewTypeError("Bytes() argument 'value' must be a string, Bytes, or List, got %s", value.TypeName())
 	}
 }

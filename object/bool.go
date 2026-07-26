@@ -9,6 +9,8 @@ type Bool bool
 
 var _ Object = Bool(true)
 
+func (b Bool) TypeName() string { return "Bool" }
+
 func (b Bool) String() string {
 	switch b {
 	case true:
@@ -44,7 +46,7 @@ func (b Bool) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Bool and %s", TypeName(other))
+		return 0, NewTypeError("cannot compare Bool and %s", other.TypeName())
 	}
 }
 
@@ -60,7 +62,7 @@ func (b Bool) Add(other Object) (Object, error) {
 	case String:
 		return String(b.String() + string(v)), nil
 	default:
-		return nil, NewTypeError("cannot add Bool and %s", TypeName(other))
+		return nil, NewTypeError("cannot add Bool and %s", other.TypeName())
 	}
 }
 
@@ -76,7 +78,10 @@ func (b Bool) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Bool")
 }
 
-// No reflected operators: a named bool type cannot embed NoReflectedOps.
+// A named bool type cannot embed NoAssignment and NoReflectedOps, so Bool
+// declines assignment and the reflected operators itself.
+func (b Bool) SetIndex(Object, Object) (bool, error)  { return false, nil }
+func (b Bool) SetAttr(string, Object) (bool, error)   { return false, nil }
 func (b Bool) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
 func (b Bool) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (b Bool) RMultiply(Object) (Object, bool, error) { return nil, false, nil }

@@ -11,8 +11,11 @@ import (
 // implement only String() and GetAttr().
 type objectBase struct {
 	object.NoReflectedOps
+	object.NoAssignment
 	typeName string
 }
+
+func (b objectBase) TypeName() string { return b.typeName }
 
 func (b objectBase) Bool() bool { return true }
 

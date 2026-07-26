@@ -8,6 +8,7 @@ import (
 
 type List struct {
 	NoReflectedOps
+	NoAssignment
 	Elements []Object
 }
 
@@ -213,6 +214,8 @@ func (l *List) Copy(args CallArgs) (Object, error) {
 	return &List{Elements: elements}, nil
 }
 
+func (l *List) TypeName() string { return "List" }
+
 func (l *List) String() string {
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {
@@ -243,7 +246,7 @@ func (l *List) Equals(other Object) bool {
 }
 
 func (l *List) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare List and %s", TypeName(other))
+	return 0, NewTypeError("cannot compare List and %s", other.TypeName())
 }
 
 func (l *List) Add(other Object) (Object, error) {
@@ -254,7 +257,7 @@ func (l *List) Add(other Object) (Object, error) {
 		copy(newElements[len(l.Elements):], v.Elements)
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot add List and %s", TypeName(other))
+		return nil, NewTypeError("cannot add List and %s", other.TypeName())
 	}
 }
 
@@ -274,7 +277,7 @@ func (l *List) Multiply(other Object) (Object, error) {
 		}
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot multiply List and %s", TypeName(other))
+		return nil, NewTypeError("cannot multiply List and %s", other.TypeName())
 	}
 }
 
@@ -303,7 +306,7 @@ func (l *List) Iter() ([]Object, error) {
 func (l *List) Index(index Object) (Object, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("list index must be integer, got %s", TypeName(index))
+		return nil, NewTypeError("list index must be integer, got %s", index.TypeName())
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
@@ -312,17 +315,17 @@ func (l *List) Index(index Object) (Object, error) {
 	return l.Elements[i], nil
 }
 
-func (l *List) SetIndex(index Object, value Object) error {
+func (l *List) SetIndex(index Object, value Object) (bool, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return NewTypeError("list index must be integer, got %s", TypeName(index))
+		return true, NewTypeError("list index must be integer, got %s", index.TypeName())
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
-		return NewIndexError("list index out of range: %d", i)
+		return true, NewIndexError("list index out of range: %d", i)
 	}
 	l.Elements[i] = value
-	return nil
+	return true, nil
 }
 
 func (l *List) GetAttr(name string) (Object, error) {

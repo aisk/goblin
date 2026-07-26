@@ -7,16 +7,18 @@ It includes these groups of methods:
 | Group | Object methods |
 | --- | --- |
 | Display and conversion | String(), ToString(), Bool(), ToBool() |
-| Comparison and operators | Compare(), Add(), Minus(), Multiply(), Divide(), And(), Or(), Not() |
+| Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Not() |
 | Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide() |
 | Collection protocols | Iter(), Index() |
-| Members | GetAttr(), Attributes() |
+| Members | GetAttr(), Attributes(), SetIndex(), SetAttr() |
+| Identity | TypeName() |
 
 The reflected operators are required, but most types have nothing to say
 through them: embed object.NoReflectedOps and they all answer "not handled".
 
-Implement object.IndexSetter when a value supports item assignment, and
-object.AttrSetter when it supports member assignment.
+Assignment is part of the interface too: SetIndex and SetAttr return a bool
+saying whether the value accepts that form of assignment at all. A value that
+accepts neither embeds object.NoAssignment and says nothing.
 
 ## Start with a Go struct
 
@@ -28,9 +30,11 @@ standard TypeError rather than silently accepting an operation.
 ~~~go
 type Counter struct {
     object.NoReflectedOps // nothing completes an operation from Counter's right
+    object.NoAssignment   // counter[i] = x and counter.f = x are not accepted
     Value int64
 }
 
+func (c *Counter) TypeName() string { return "Counter" }
 func (c *Counter) String() string { return fmt.Sprintf("Counter(%d)", c.Value) }
 func (c *Counter) ToString() (string, error) { return c.String(), nil }
 func (c *Counter) Bool() bool { return c.Value != 0 }
@@ -75,7 +79,7 @@ unsupported protocol methods.
 
 ~~~go
 func (c *Counter) Add(other object.Object) (object.Object, error) {
-    return nil, object.NewTypeError("cannot add Counter and %s", object.TypeName(other))
+    return nil, object.NewTypeError("cannot add Counter and %s", other.TypeName())
 }
 ~~~
 
@@ -89,7 +93,7 @@ only need display, truthiness, and members.
 func (v Vector) Add(other object.Object) (object.Object, error) {
     right, ok := other.(Vector)
     if !ok {
-        return nil, object.NewTypeError("cannot add Vector and %s", object.TypeName(other))
+        return nil, object.NewTypeError("cannot add Vector and %s", other.TypeName())
     }
     return Vector{X: v.X + right.X, Y: v.Y + right.Y}, nil
 }
@@ -99,17 +103,21 @@ Compare returns a negative value, zero, or a positive value. Iter returns a
 slice of object.Object values. Index must verify that its index is an
 object.Integer and return IndexError for an invalid position.
 
-## Name types in messages with object.TypeName
+## Name types in messages with TypeName
 
-Use object.TypeName(value), not %T, when an error mentions the type of a value.
-A Go type name is an implementation detail that differs between the two
-backends — a user-defined Point is \*interpreter.instance under `goblin run`
-and \*main.Point in a compiled program — so %T makes the same program report
-different messages depending on how it was executed. TypeName reports the
-Goblin-level name. It uses the Go type name (without pointer and package
-qualifier) for types outside object/, which is already the name a Goblin
-program knows a custom type by; implement object.Named to report a different
-one.
+Use value.TypeName(), not %T, when an error mentions the type of a value. A Go
+type name is an implementation detail that differs between the two backends — a
+user-defined Point is \*interpreter.instance under `goblin run` and \*main.Point
+in a compiled program — so %T makes the same program report different messages
+depending on how it was executed. TypeName returns the Goblin-level name, which
+is why every type declares it:
+
+~~~go
+func (v Vector) TypeName() string { return "Vector" }
+~~~
+
+Embedding is not enough here: a type that embeds another for its defaults
+inherits that type's name too, which is exactly the wrong answer.
 
 ## Operators dispatch through package-level helpers
 
