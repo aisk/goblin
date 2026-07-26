@@ -14,3 +14,12 @@ true
 3
 opaque is truthy
 false
+Scaled(6)
+Scaled(6)
+Scaled(13)
+Scaled(4)
+cannot subtract Integer and Scaled
+ababab
+ababab
+[1, 2, 1, 2]
+[1, 2, 1, 2]

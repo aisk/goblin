@@ -233,6 +233,7 @@ var reservedGoMethodNames = map[string]bool{
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 	"TypeName": true,
+	"RAdd":     true, "RMinus": true, "RMultiply": true, "RDivide": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin
@@ -1342,7 +1343,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		}
 		return jen.Id(receiverName).Dot(methodWrapperName(goblinName)).Call(callArgs)
 	}
-	protoDecls := make([]jen.Code, 0, 14)
+	protoDecls := make([]jen.Code, 0, 18)
 
 	// TypeName() string — the declared Goblin name, so diagnostics never leak
 	// the generated Go type (the interpreter reports the same name here).
@@ -1459,6 +1460,30 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			d.Block(jen.Return(protoCall(op.goblin, jen.Id("other"))))
 		} else {
 			d.Block(jen.Return(jen.Nil(), errorf(op.errFmt)))
+		}
+		protoDecls = append(protoDecls, d)
+	}
+
+	// Reflected operators (Object, bool, error) <- "__radd" and friends. The
+	// methods are always generated so the object.Right* interfaces are
+	// satisfied; the bool tells the dispatcher whether the type actually
+	// defines a handler for this operand order.
+	for _, op := range []struct{ goMethod, goblin string }{
+		{"RAdd", "__radd"},
+		{"RMinus", "__rsub"},
+		{"RMultiply", "__rmul"},
+		{"RDivide", "__rdiv"},
+	} {
+		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
+			jen.Id("left").Qual(pathObject, "Object"),
+		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Bool(), jen.Error()))
+		if defined[op.goblin] {
+			d.Block(
+				jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(op.goblin, jen.Id("left"))),
+				jen.Return(jen.Id("_res"), jen.True(), jen.Id("_err")),
+			)
+		} else {
+			d.Block(jen.Return(jen.Nil(), jen.False(), jen.Nil()))
 		}
 		protoDecls = append(protoDecls, d)
 	}
@@ -1907,7 +1932,7 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 	errVar := ctx.localName("err")
 	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
-		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot(methodName).Call(rhs),
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, methodName).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil

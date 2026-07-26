@@ -277,6 +277,16 @@ func (l *List) Multiply(other Object) (Object, error) {
 	}
 }
 
+// RMultiply repeats the list when it is the right operand, so `2 * [1, 2]`
+// reads the same as `[1, 2] * 2`.
+func (l *List) RMultiply(left Object) (Object, bool, error) {
+	if _, ok := left.(Integer); !ok {
+		return nil, false, nil
+	}
+	result, err := l.Multiply(left)
+	return result, true, err
+}
+
 func (l *List) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide List")
 }

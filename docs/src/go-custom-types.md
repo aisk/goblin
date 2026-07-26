@@ -11,8 +11,9 @@ It includes these groups of methods:
 | Collection protocols | Iter(), Index() |
 | Members | GetAttr(), Attributes() |
 
-Implement object.IndexSetter when a value supports item assignment, and
-object.AttrSetter when it supports member assignment.
+Implement object.IndexSetter when a value supports item assignment,
+object.AttrSetter when it supports member assignment, and the object.Right\*
+interfaces when an operator should also work with the value on its right.
 
 ## Start with a Go struct
 
@@ -108,13 +109,22 @@ one.
 
 ## Operators dispatch through package-level helpers
 
-The `==`, `!=` and ordering operators do not call Equals and Compare on the
-left operand directly: both backends go through object.Equals(a, b) and
-object.Compare(a, b), which also give the right operand a chance to answer.
+The operators do not call Equals, Compare, Add and friends on the left operand
+directly: both backends go through object.Equals(a, b), object.Compare(a, b),
+object.Add(a, b), object.Minus(a, b), object.Multiply(a, b) and
+object.Divide(a, b), which also give the right operand a chance to answer.
 A custom type therefore only has to recognize the types it knows, and its
 Compare is reached even when it appears on the right of `1 < value`. Report an
-unordered pair with object.NewTypeError so the reflected attempt is made; any
-other error propagates as-is.
+unfit pair with object.NewTypeError so the reflected attempt is made; any other
+error propagates as-is.
+
+Arithmetic reaches the right operand through the optional object.RightAdder,
+object.RightSubtractor, object.RightMultiplier and object.RightDivider
+interfaces, the Go side of `__radd` and friends. Their argument is the LEFT
+operand — RMinus(left) computes `left - receiver` — and the bool they return
+reports whether the receiver handled this operand at all; returning false
+leaves the left operand's error in place. object.String and object.List
+implement RMultiply this way, which is what makes `3 * "ab"` work.
 
 For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show

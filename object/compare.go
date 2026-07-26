@@ -14,27 +14,14 @@ import "errors"
 // operand's error is the one reported, since it names the expression's own
 // operand order.
 //
-// Comparing numbers is the hot path of every loop condition, so the pairs the
-// generated code hits most are ordered here without the interface call that
-// the general path pays for. The results match Integer.Compare and
-// Float.Compare, which remain the definition for every other caller.
+// Numbers and strings, which every loop condition is made of, are ordered here
+// without the interface call the general path pays for; the result is the one
+// Integer.Compare, Float.Compare and String.Compare define.
 func Compare(a, b Object) (int, error) {
-	switch lhs := a.(type) {
-	case Integer:
-		switch rhs := b.(type) {
-		case Integer:
-			return compareOrdered(lhs, rhs), nil
-		case Float:
-			return compareOrdered(Float(lhs), rhs), nil
-		}
-	case Float:
-		switch rhs := b.(type) {
-		case Float:
-			return compareOrdered(lhs, rhs), nil
-		case Integer:
-			return compareOrdered(lhs, Float(rhs)), nil
-		}
-	case String:
+	if c, ok := numericCompare(a, b); ok {
+		return c, nil
+	}
+	if lhs, ok := a.(String); ok {
 		if rhs, ok := b.(String); ok {
 			return compareOrdered(lhs, rhs), nil
 		}
@@ -44,16 +31,6 @@ func Compare(a, b Object) (int, error) {
 		return c, nil
 	}
 	return compareReflected(a, b, err)
-}
-
-func compareOrdered[T Integer | Float | String](a, b T) int {
-	switch {
-	case a < b:
-		return -1
-	case a > b:
-		return 1
-	}
-	return 0
 }
 
 // compareReflected gives the right operand its turn once the left one reported

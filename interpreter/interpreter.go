@@ -437,13 +437,13 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 
 	switch e.Operator {
 	case ast.Add:
-		return lhs.Add(rhs)
+		return object.Add(lhs, rhs)
 	case ast.Minus:
-		return lhs.Minus(rhs)
+		return object.Minus(lhs, rhs)
 	case ast.Multiply:
-		return lhs.Multiply(rhs)
+		return object.Multiply(lhs, rhs)
 	case ast.Divide:
-		return lhs.Divide(rhs)
+		return object.Divide(lhs, rhs)
 	case ast.Equal:
 		return object.Bool(object.Equals(lhs, rhs)), nil
 	case ast.NotEqual:

@@ -424,6 +424,16 @@ func (s String) Multiply(other Object) (Object, error) {
 	}
 }
 
+// RMultiply repeats the string when it is the right operand, so `3 * "ab"`
+// reads the same as `"ab" * 3`.
+func (s String) RMultiply(left Object) (Object, bool, error) {
+	if _, ok := left.(Integer); !ok {
+		return nil, false, nil
+	}
+	result, err := s.Multiply(left)
+	return result, true, err
+}
+
 func (s String) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide String")
 }

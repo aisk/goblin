@@ -24,12 +24,13 @@ for character in language {
 ## Combining and converting text
 
 Use + to concatenate strings. A string can also concatenate an integer or
-boolean, and * repeats it by an integer count.
+boolean, and * repeats it by an integer count, in either operand order.
 
 ~~~goblin
 print("go" + "blin") # goblin
 print("item-" + 3)   # item-3
 print("ha" * 3)      # hahaha
+print(3 * "ha")      # hahaha
 ~~~
 
 Str(value) converts any value to its display text. This is useful when

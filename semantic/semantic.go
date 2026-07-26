@@ -14,6 +14,7 @@ import (
 // indexing) by defining a method with one of these names.
 var protocolArity = map[string]int{
 	"__add": 2, "__sub": 2, "__mul": 2, "__div": 2,
+	"__radd": 2, "__rsub": 2, "__rmul": 2, "__rdiv": 2,
 	"__cmp": 2, "__getitem": 2,
 	"__not": 1, "__str": 1, "__bool": 1, "__iter": 1,
 	"__setitem": 3,

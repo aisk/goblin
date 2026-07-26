@@ -67,6 +67,7 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | Method | Enables |
 | --- | --- |
 | `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
+| `__radd`, `__rsub`, `__rmul`, `__rdiv` | The same operators with the instance on the right |
 | `__not` | Logical `!` operator; without it `!` negates truthiness |
 | `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of a comparison |
 | `__str` | Printing and `Str(value)` |
@@ -96,8 +97,33 @@ print(m < 10) # true
 print(10 > m) # true, answered by Money.__cmp
 ```
 
-Arithmetic operators have no such reflected form: `m + 1` calls `__add` on the
-instance, while `1 + m` asks the integer to add a `Money` and raises TypeError.
+Arithmetic cannot flip its operands the same way — `a - b` is not `b - a` — so
+it uses a second set of methods instead. When the left operand does not know
+the right one, the right operand's `__radd`, `__rsub`, `__rmul` or `__rdiv` is
+called with the left operand as its argument:
+
+```goblin
+type Scaled(factor) {
+    func __mul(self, other) {
+        return Scaled(self.factor * other)
+    }
+    func __rmul(self, other) {
+        return Scaled(other * self.factor)
+    }
+}
+
+var s = Scaled(3)
+print(s * 2) # Scaled(6)
+print(2 * s) # Scaled(6), answered by __rmul
+```
+
+A reflected method is only reached after the left operand reports that the
+types do not fit. Anything else it raises — a division by zero, a failure
+inside its own body — propagates instead, and an operator whose reflected
+method is not defined keeps reporting the error of its left operand.
+
+The built-in sequences follow the same rule, so repetition reads in either
+order: `3 * "ab"` and `2 * [1, 2]` work like `"ab" * 3` and `[1, 2] * 2`.
 
 For example, this type supports `+` and printing:
 

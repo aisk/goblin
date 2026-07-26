@@ -75,3 +75,43 @@ if o {
 }
 # Without __not, ! negates truthiness.
 print(!o)
+
+# Reflected operators (__radd/__rsub/__rmul/__rdiv) run when the value is on
+# the right of an operand that does not know it, which is the only way an
+# expression like `1 + scaled` can reach a custom type. Comparison needs no
+# such method: __cmp is already consulted from either side.
+type Scaled(factor) {
+    func __mul(self, other) {
+        return Scaled(self.factor * other)
+    }
+    func __rmul(self, other) {
+        return Scaled(other * self.factor)
+    }
+    func __radd(self, other) {
+        return Scaled(other + self.factor)
+    }
+    func __rdiv(self, other) {
+        return Scaled(other / self.factor)
+    }
+    func __str(self) {
+        return "Scaled(" + Str(self.factor) + ")"
+    }
+}
+
+var s = Scaled(3)
+print(s * 2)
+print(2 * s)
+print(10 + s)
+print(12 / s)
+# Without __rsub the subtraction is still reported by its left operand.
+try {
+    print(1 - s)
+} catch e {
+    print(e)
+}
+
+# Repetition of the built-in sequences reads in either operand order too.
+print("ab" * 3)
+print(3 * "ab")
+print([1, 2] * 2)
+print(2 * [1, 2])

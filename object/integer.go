@@ -34,78 +34,38 @@ func (i Integer) Equals(other Object) bool {
 }
 
 func (i Integer) Compare(other Object) (int, error) {
-	switch v := other.(type) {
-	case Integer:
-		a, b := int64(i), int64(v)
-		if a < b {
-			return -1, nil
-		}
-		if a > b {
-			return 1, nil
-		}
-		return 0, nil
-	case Float:
-		a, b := float64(i), float64(v)
-		if a < b {
-			return -1, nil
-		}
-		if a > b {
-			return 1, nil
-		}
-		return 0, nil
-	default:
-		return 0, NewTypeError("cannot compare Integer and %s", TypeName(other))
+	if c, ok := numericCompare(i, other); ok {
+		return c, nil
 	}
+	return 0, NewTypeError("cannot compare Integer and %s", TypeName(other))
 }
 
 func (i Integer) Add(other Object) (Object, error) {
-	switch v := other.(type) {
-	case Integer:
-		return Integer(int64(i) + int64(v)), nil
-	case Float:
-		return Float(float64(i) + float64(v)), nil
-	default:
-		return nil, NewTypeError("cannot add Integer and %s", TypeName(other))
+	if result, ok := numericAdd(i, other); ok {
+		return result, nil
 	}
+	return nil, NewTypeError("cannot add Integer and %s", TypeName(other))
 }
 
 func (i Integer) Minus(other Object) (Object, error) {
-	switch v := other.(type) {
-	case Integer:
-		return Integer(int64(i) - int64(v)), nil
-	case Float:
-		return Float(float64(i) - float64(v)), nil
-	default:
-		return nil, NewTypeError("cannot subtract Integer and %s", TypeName(other))
+	if result, ok := numericMinus(i, other); ok {
+		return result, nil
 	}
+	return nil, NewTypeError("cannot subtract Integer and %s", TypeName(other))
 }
 
 func (i Integer) Multiply(other Object) (Object, error) {
-	switch v := other.(type) {
-	case Integer:
-		return Integer(int64(i) * int64(v)), nil
-	case Float:
-		return Float(float64(i) * float64(v)), nil
-	default:
-		return nil, NewTypeError("cannot multiply Integer and %s", TypeName(other))
+	if result, ok := numericMultiply(i, other); ok {
+		return result, nil
 	}
+	return nil, NewTypeError("cannot multiply Integer and %s", TypeName(other))
 }
 
 func (i Integer) Divide(other Object) (Object, error) {
-	switch v := other.(type) {
-	case Integer:
-		if int64(v) == 0 {
-			return nil, NewZeroDivisionError("division by zero")
-		}
-		return Integer(int64(i) / int64(v)), nil
-	case Float:
-		if float64(v) == 0 {
-			return nil, NewZeroDivisionError("division by zero")
-		}
-		return Float(float64(i) / float64(v)), nil
-	default:
-		return nil, NewTypeError("cannot divide Integer and %s", TypeName(other))
+	if result, ok, err := numericDivide(i, other); ok {
+		return result, err
 	}
+	return nil, NewTypeError("cannot divide Integer and %s", TypeName(other))
 }
 
 func (i Integer) Not() (Object, error) {
