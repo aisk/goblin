@@ -33,6 +33,17 @@ func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam s
 		return nil, NewTypeError("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
 	}
 
+	// Fast path for the overwhelmingly common call shape: only fixed
+	// parameters, all supplied positionally. Skips the index and kwExtras
+	// maps, which the general path below allocates on every single call.
+	if varArgsParam == "" && kwArgsParam == "" && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
+		bound := make(map[string]Object, len(params))
+		for i, param := range params {
+			bound[param] = call.Positional[i]
+		}
+		return bound, nil
+	}
+
 	bound := make(map[string]Object, len(params)+2)
 	index := make(map[string]int, len(params))
 	for i, param := range params {

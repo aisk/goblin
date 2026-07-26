@@ -24,7 +24,10 @@ type Environment struct {
 
 // NewEnvironment creates a scope whose lookups fall back to parent.
 func NewEnvironment(parent *Environment) *Environment {
-	return &Environment{vars: make(map[string]object.Object), parent: parent}
+	// vars is allocated on first Define. Most block scopes (loop bodies, if
+	// branches) never declare anything, and a loop body allocating a map per
+	// iteration dominates the profile of tight loops.
+	return &Environment{parent: parent}
 }
 
 // Get resolves a name, walking up the scope chain.
@@ -39,6 +42,9 @@ func (e *Environment) Get(name string) (object.Object, bool) {
 
 // Define binds a name in the current scope (used by `let`).
 func (e *Environment) Define(name string, v object.Object) {
+	if e.vars == nil {
+		e.vars = make(map[string]object.Object)
+	}
 	e.vars[name] = v
 }
 
@@ -51,7 +57,7 @@ func (e *Environment) Assign(name string, v object.Object) {
 			return
 		}
 	}
-	e.vars[name] = v
+	e.Define(name, v)
 }
 
 // Control-flow signals. They implement error so they can propagate up through
