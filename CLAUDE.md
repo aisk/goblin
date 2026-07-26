@@ -24,6 +24,11 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 - Each `examples/*.goblin` file is tested through **both backends** against the same `.stdout`/`.stderr` files: `TestExamples` transpiles/compiles/executes, `TestInterpreterExamples` interprets
 - On first run, missing `.stdout`/`.stderr` files are auto-created from actual output (by the transpiler test)
 
+### Benchmarking
+- `bench/run.sh [repeats]` - Time six compute-only benchmarks across Goblin (both backends), Go, Node, Lua and Python; prints a Markdown table
+- Every implementation of a benchmark must print byte-identical output, so `bench/` also serves as a cross-backend behaviour check
+- Latest measurements and the performance analysis live in `bench/RESULTS.md`
+
 ## Architecture
 
 ### Execution Flow

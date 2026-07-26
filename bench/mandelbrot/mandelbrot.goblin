@@ -1,0 +1,31 @@
+# Mandelbrot set rendered as ASCII: a float-heavy inner loop.
+var width = 160
+var height = 80
+var max_iter = 1000
+
+var y = 0
+while y < height {
+    var ci = y * 2.0 / height - 1.0
+    var line = ""
+    var x = 0
+    while x < width {
+        var cr = x * 3.0 / width - 2.0
+        var zr = 0.0
+        var zi = 0.0
+        var iter = 0
+        while iter < max_iter && zr * zr + zi * zi <= 4.0 {
+            var tmp = zr * zr - zi * zi + cr
+            zi = 2.0 * zr * zi + ci
+            zr = tmp
+            iter = iter + 1
+        }
+        if iter == max_iter {
+            line = line + "*"
+        } else {
+            line = line + " "
+        }
+        x = x + 1
+    }
+    print(line)
+    y = y + 1
+}

@@ -1,0 +1,44 @@
+# N-Queens: recursive backtracking with an O(row) safety check.
+var n = 11
+var cols = []
+var i = 0
+while i < n {
+    cols.push(0)
+    i = i + 1
+}
+
+func safe(cols, row, col) {
+    var i = 0
+    while i < row {
+        var c = cols[i]
+        if c == col {
+            return false
+        }
+        if c - i == col - row {
+            return false
+        }
+        if c + i == col + row {
+            return false
+        }
+        i = i + 1
+    }
+    return true
+}
+
+func solve(cols, row, n) {
+    if row == n {
+        return 1
+    }
+    var count = 0
+    var col = 0
+    while col < n {
+        if safe(cols, row, col) {
+            cols[row] = col
+            count = count + solve(cols, row + 1, n)
+        }
+        col = col + 1
+    }
+    return count
+}
+
+print(solve(cols, 0, n))

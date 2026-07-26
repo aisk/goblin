@@ -1,0 +1,56 @@
+# Dense matrix multiplication: nested loops over indexed 2-D lists.
+var n = 240
+
+var a = []
+var b = []
+var i = 0
+var j = 0
+var row = []
+
+i = 0
+while i < n {
+    row = []
+    j = 0
+    while j < n {
+        row.push(i + j)
+        j = j + 1
+    }
+    a.push(row)
+    i = i + 1
+}
+
+i = 0
+while i < n {
+    row = []
+    j = 0
+    while j < n {
+        row.push(i - j)
+        j = j + 1
+    }
+    b.push(row)
+    i = i + 1
+}
+
+var total = 0
+var k = 0
+var sum = 0
+var ai = []
+
+i = 0
+while i < n {
+    ai = a[i]
+    j = 0
+    while j < n {
+        sum = 0
+        k = 0
+        while k < n {
+            sum = sum + ai[k] * b[k][j]
+            k = k + 1
+        }
+        total = total + sum
+        j = j + 1
+    }
+    i = i + 1
+}
+
+print(total)

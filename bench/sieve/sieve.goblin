@@ -1,0 +1,26 @@
+# Sieve of Eratosthenes: tight loops over a large flat array.
+var limit = 4000000
+
+var flags = []
+var i = 0
+while i <= limit {
+    flags.push(true)
+    i = i + 1
+}
+
+var count = 0
+var p = 2
+var m = 0
+while p <= limit {
+    if flags[p] {
+        count = count + 1
+        m = p * p
+        while m <= limit {
+            flags[m] = false
+            m = m + p
+        }
+    }
+    p = p + 1
+}
+
+print(count)
