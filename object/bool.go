@@ -44,7 +44,7 @@ func (b Bool) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Bool and %T", other)
+		return 0, NewTypeError("cannot compare Bool and %s", TypeName(other))
 	}
 }
 
@@ -60,7 +60,7 @@ func (b Bool) Add(other Object) (Object, error) {
 	case String:
 		return String(b.String() + string(v)), nil
 	default:
-		return nil, NewTypeError("cannot add Bool and %T", other)
+		return nil, NewTypeError("cannot add Bool and %s", TypeName(other))
 	}
 }
 

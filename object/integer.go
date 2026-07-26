@@ -54,7 +54,7 @@ func (i Integer) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Integer and %T", other)
+		return 0, NewTypeError("cannot compare Integer and %s", TypeName(other))
 	}
 }
 
@@ -65,7 +65,7 @@ func (i Integer) Add(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) + float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot add Integer and %T", other)
+		return nil, NewTypeError("cannot add Integer and %s", TypeName(other))
 	}
 }
 
@@ -76,7 +76,7 @@ func (i Integer) Minus(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) - float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot subtract Integer and %T", other)
+		return nil, NewTypeError("cannot subtract Integer and %s", TypeName(other))
 	}
 }
 
@@ -87,7 +87,7 @@ func (i Integer) Multiply(other Object) (Object, error) {
 	case Float:
 		return Float(float64(i) * float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot multiply Integer and %T", other)
+		return nil, NewTypeError("cannot multiply Integer and %s", TypeName(other))
 	}
 }
 
@@ -104,7 +104,7 @@ func (i Integer) Divide(other Object) (Object, error) {
 		}
 		return Float(float64(i) / float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot divide Integer and %T", other)
+		return nil, NewTypeError("cannot divide Integer and %s", TypeName(other))
 	}
 }
 
@@ -158,6 +158,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %T", value)
+		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %s", TypeName(value))
 	}
 }

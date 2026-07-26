@@ -32,7 +32,7 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 	}
 	path, ok := object.PathString(pathArg)
 	if !ok {
-		return "", object.NewTypeError("%s() argument 'path' must be a string or Path, got %T", funcName, pathArg)
+		return "", object.NewTypeError("%s() argument 'path' must be a string or Path, got %s", funcName, object.TypeName(pathArg))
 	}
 	return path, nil
 }
@@ -92,11 +92,11 @@ func bindPathContentArgs(funcName string, args object.CallArgs) (string, string,
 	}
 	path, ok := pathArg.(object.String)
 	if !ok {
-		return "", "", object.NewTypeError("%s() argument 'path' must be a string, got %T", funcName, pathArg)
+		return "", "", object.NewTypeError("%s() argument 'path' must be a string, got %s", funcName, object.TypeName(pathArg))
 	}
 	content, ok := contentArg.(object.String)
 	if !ok {
-		return "", "", object.NewTypeError("%s() argument 'content' must be a string, got %T", funcName, contentArg)
+		return "", "", object.NewTypeError("%s() argument 'content' must be a string, got %s", funcName, object.TypeName(contentArg))
 	}
 	return string(path), string(content), nil
 }

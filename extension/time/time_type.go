@@ -35,7 +35,7 @@ func (t *Time) Equals(other object.Object) bool {
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Time with %T", other)
+		return 0, object.NewTypeError("cannot compare Time with %s", object.TypeName(other))
 	}
 	if t.Value.Before(ot.Value) {
 		return -1, nil

@@ -68,7 +68,7 @@ func (b *Body) read(args object.CallArgs) (object.Object, error) {
 
 	size, ok := sizeObj.(object.Integer)
 	if !ok {
-		return nil, object.NewTypeError("read() argument 'size' must be an int or nil, got %T", sizeObj)
+		return nil, object.NewTypeError("read() argument 'size' must be an int or nil, got %s", object.TypeName(sizeObj))
 	}
 	if size < 0 {
 		return nil, object.NewValueError("read() size must not be negative")
@@ -141,11 +141,11 @@ type duckReader struct {
 func newDuckReader(value object.Object) (*duckReader, error) {
 	readObj, err := value.GetAttr("read")
 	if err != nil {
-		return nil, object.NewTypeError("HTTP body must be a string, Bytes, nil, or an object with a read(size) method, got %T", value)
+		return nil, object.NewTypeError("HTTP body must be a string, Bytes, nil, or an object with a read(size) method, got %s", object.TypeName(value))
 	}
 	readFn, ok := readObj.(*object.Function)
 	if !ok {
-		return nil, object.NewTypeError("HTTP body read attribute must be callable, got %T", readObj)
+		return nil, object.NewTypeError("HTTP body read attribute must be callable, got %s", object.TypeName(readObj))
 	}
 
 	var closeFn *object.Function
@@ -153,7 +153,7 @@ func newDuckReader(value object.Object) (*duckReader, error) {
 		var ok bool
 		closeFn, ok = closeObj.(*object.Function)
 		if !ok {
-			return nil, object.NewTypeError("HTTP body close attribute must be callable, got %T", closeObj)
+			return nil, object.NewTypeError("HTTP body close attribute must be callable, got %s", object.TypeName(closeObj))
 		}
 	}
 	return &duckReader{readFn: readFn, closeFn: closeFn}, nil
@@ -179,7 +179,7 @@ func (r *duckReader) Read(p []byte) (int, error) {
 		case object.String:
 			r.pending = append(r.pending, []byte(v)...)
 		default:
-			return 0, object.NewTypeError("HTTP body read(size) must return Bytes, str, or nil, got %T", value)
+			return 0, object.NewTypeError("HTTP body read(size) must return Bytes, str, or nil, got %s", object.TypeName(value))
 		}
 		if len(r.pending) == 0 {
 			r.eof = true

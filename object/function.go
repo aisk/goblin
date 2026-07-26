@@ -27,7 +27,7 @@ func (f *Function) Equals(other Object) bool {
 // Compare always fails: functions support equality (identity, handled by
 // Equals) but have no ordering.
 func (f *Function) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Function and %T", other)
+	return 0, NewTypeError("cannot compare Function and %s", TypeName(other))
 }
 func (f *Function) Add(Object) (Object, error) { return nil, NewTypeError("cannot add Function") }
 func (f *Function) Minus(Object) (Object, error) {

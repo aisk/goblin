@@ -55,7 +55,7 @@ func (f Float) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Float and %T", other)
+		return 0, NewTypeError("cannot compare Float and %s", TypeName(other))
 	}
 }
 
@@ -66,7 +66,7 @@ func (f Float) Add(other Object) (Object, error) {
 	case Integer:
 		return Float(float64(f) + float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot add Float and %T", other)
+		return nil, NewTypeError("cannot add Float and %s", TypeName(other))
 	}
 }
 
@@ -77,7 +77,7 @@ func (f Float) Minus(other Object) (Object, error) {
 	case Integer:
 		return Float(float64(f) - float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot subtract Float and %T", other)
+		return nil, NewTypeError("cannot subtract Float and %s", TypeName(other))
 	}
 }
 
@@ -88,7 +88,7 @@ func (f Float) Multiply(other Object) (Object, error) {
 	case Integer:
 		return Float(float64(f) * float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot multiply Float and %T", other)
+		return nil, NewTypeError("cannot multiply Float and %s", TypeName(other))
 	}
 }
 
@@ -105,7 +105,7 @@ func (f Float) Divide(other Object) (Object, error) {
 		}
 		return Float(float64(f) / float64(v)), nil
 	default:
-		return nil, NewTypeError("cannot divide Float and %T", other)
+		return nil, NewTypeError("cannot divide Float and %s", TypeName(other))
 	}
 }
 
@@ -159,6 +159,6 @@ func FloatConstructor(args CallArgs) (Object, error) {
 		}
 		return Float(0), nil
 	default:
-		return nil, NewTypeError("Float() argument 'value' must be a string or a number, got %T", value)
+		return nil, NewTypeError("Float() argument 'value' must be a string or a number, got %s", TypeName(value))
 	}
 }

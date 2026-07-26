@@ -53,7 +53,7 @@ func (p *Path) Equals(other Object) bool {
 func (p *Path) Compare(other Object) (int, error) {
 	v, ok := other.(*Path)
 	if !ok {
-		return 0, NewTypeError("cannot compare Path and %T", other)
+		return 0, NewTypeError("cannot compare Path and %s", TypeName(other))
 	}
 	switch {
 	case p.raw < v.raw:
@@ -170,7 +170,7 @@ func pathSegment(fnName string, arg Object) (string, error) {
 	case *Path:
 		return v.raw, nil
 	default:
-		return "", NewTypeError("%s() argument must be a string or Path, got %T", fnName, arg)
+		return "", NewTypeError("%s() argument must be a string or Path, got %s", fnName, TypeName(arg))
 	}
 }
 
@@ -398,7 +398,7 @@ func (p *Path) WriteBytes(args CallArgs) (Object, error) {
 	}
 	b, ok := data.(Bytes)
 	if !ok {
-		return nil, NewTypeError("write_bytes() argument 'data' must be Bytes, got %T", data)
+		return nil, NewTypeError("write_bytes() argument 'data' must be Bytes, got %s", TypeName(data))
 	}
 	if err := os.WriteFile(p.raw, []byte(b), 0644); err != nil {
 		return nil, WrapNativeError(IOError, "write_bytes() failed", err)

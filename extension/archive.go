@@ -38,20 +38,20 @@ func archiveData(name string, args object.CallArgs) ([]byte, error) {
 	case object.String:
 		return []byte(v), nil
 	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %T", name, value)
+		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, object.TypeName(value))
 	}
 }
 
 func archiveFiles(name string, value object.Object) (map[string][]byte, error) {
 	dict, ok := value.(*object.Dict)
 	if !ok {
-		return nil, object.NewTypeError("%s() argument 'files' must be a dict, got %T", name, value)
+		return nil, object.NewTypeError("%s() argument 'files' must be a dict, got %s", name, object.TypeName(value))
 	}
 	files := make(map[string][]byte, len(dict.Entries))
 	for _, entry := range dict.Entries {
 		filename, ok := entry.Key.(object.String)
 		if !ok {
-			return nil, object.NewTypeError("%s() file names must be strings, got %T", name, entry.Key)
+			return nil, object.NewTypeError("%s() file names must be strings, got %s", name, object.TypeName(entry.Key))
 		}
 		switch content := entry.Value.(type) {
 		case object.Bytes:
@@ -59,7 +59,7 @@ func archiveFiles(name string, value object.Object) (map[string][]byte, error) {
 		case object.String:
 			files[string(filename)] = []byte(content)
 		default:
-			return nil, object.NewTypeError("%s() file %q must contain Bytes or str, got %T", name, filename, entry.Value)
+			return nil, object.NewTypeError("%s() file %q must contain Bytes or str, got %s", name, filename, object.TypeName(entry.Value))
 		}
 	}
 	return files, nil

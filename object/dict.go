@@ -166,7 +166,7 @@ func (d *Dict) Update(args CallArgs) (Object, error) {
 	}
 	source, ok := other.(*Dict)
 	if !ok {
-		return nil, NewTypeError("update() argument 'other' must be Dict, got %T", other)
+		return nil, NewTypeError("update() argument 'other' must be Dict, got %s", TypeName(other))
 	}
 	for _, entry := range source.Entries {
 		if err := d.Set(entry.Key, entry.Value); err != nil {
@@ -257,11 +257,11 @@ func (d *Dict) Equals(other Object) bool {
 }
 
 func (d *Dict) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Dict and %T", other)
+	return 0, NewTypeError("cannot compare Dict and %s", TypeName(other))
 }
 
 func (d *Dict) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add Dict and %T", other)
+	return nil, NewTypeError("cannot add Dict and %s", TypeName(other))
 }
 
 func (d *Dict) Minus(other Object) (Object, error) {
@@ -269,7 +269,7 @@ func (d *Dict) Minus(other Object) (Object, error) {
 }
 
 func (d *Dict) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Dict and %T", other)
+	return nil, NewTypeError("cannot multiply Dict and %s", TypeName(other))
 }
 
 func (d *Dict) Divide(other Object) (Object, error) {

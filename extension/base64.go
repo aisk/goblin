@@ -45,7 +45,7 @@ func encodeBase64(name string, encoding *base64.Encoding, args object.CallArgs) 
 	case object.String:
 		data = []byte(value)
 	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be str or Bytes, got %T", name, value)
+		return nil, object.NewTypeError("%s() argument 'data' must be str or Bytes, got %s", name, object.TypeName(value))
 	}
 	return object.String(encoding.EncodeToString(data)), nil
 }

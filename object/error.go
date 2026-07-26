@@ -88,23 +88,23 @@ func (e *Error) Equals(other Object) bool {
 }
 
 func (e *Error) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Error and %T", other)
+	return 0, NewTypeError("cannot compare Error and %s", TypeName(other))
 }
 
 func (e *Error) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add Error and %T", other)
+	return nil, NewTypeError("cannot add Error and %s", TypeName(other))
 }
 
 func (e *Error) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract Error and %T", other)
+	return nil, NewTypeError("cannot subtract Error and %s", TypeName(other))
 }
 
 func (e *Error) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Error and %T", other)
+	return nil, NewTypeError("cannot multiply Error and %s", TypeName(other))
 }
 
 func (e *Error) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide Error and %T", other)
+	return nil, NewTypeError("cannot divide Error and %s", TypeName(other))
 }
 
 func (e *Error) Not() (Object, error) {
@@ -264,7 +264,7 @@ func (e *Error) Is(args CallArgs) (Object, error) {
 	}
 	t, ok := target.(*Error)
 	if !ok {
-		return nil, NewTypeError("is() argument must be an Error, got %T", target)
+		return nil, NewTypeError("is() argument must be an Error, got %s", TypeName(target))
 	}
 	return Bool(errors.Is(e, t)), nil
 }

@@ -55,13 +55,13 @@ func command(args object.CallArgs) (object.Object, error) {
 
 	list, ok := argsObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("Command() argument 'args' must be a list, got %T", argsObj)
+		return nil, object.NewTypeError("Command() argument 'args' must be a list, got %s", object.TypeName(argsObj))
 	}
 	argv := make([]string, len(list.Elements))
 	for i, arg := range list.Elements {
 		s, ok := arg.(object.String)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'args' must contain only strings, got %T at index %d", arg, i)
+			return nil, object.NewTypeError("Command() argument 'args' must contain only strings, got %s at index %d", object.TypeName(arg), i)
 		}
 		argv[i] = string(s)
 	}
@@ -70,14 +70,14 @@ func command(args object.CallArgs) (object.Object, error) {
 	if _, ok := cwdObj.(object.Unit); !ok {
 		cwd, ok := object.PathString(cwdObj)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'cwd' must be unit, str, or Path, got %T", cwdObj)
+			return nil, object.NewTypeError("Command() argument 'cwd' must be unit, str, or Path, got %s", object.TypeName(cwdObj))
 		}
 		cmd.Dir = cwd
 	}
 	if _, ok := envObj.(object.Unit); !ok {
 		dict, ok := envObj.(*object.Dict)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'env' must be unit or dict, got %T", envObj)
+			return nil, object.NewTypeError("Command() argument 'env' must be unit or dict, got %s", object.TypeName(envObj))
 		}
 		cmd.Env = make([]string, 0, len(dict.Entries))
 		for _, entry := range dict.Entries {
@@ -119,7 +119,7 @@ func (c *Cmd) configureStdin(value object.Object) error {
 	case object.Bytes:
 		c.cmd.Stdin = bytes.NewReader([]byte(v))
 	default:
-		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, str, or Bytes, got %T", value)
+		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, str, or Bytes, got %s", object.TypeName(value))
 	}
 	return nil
 }
@@ -127,7 +127,7 @@ func (c *Cmd) configureStdin(value object.Object) error {
 func (c *Cmd) configureOutput(name string, value object.Object) error {
 	policy, ok := value.(*streamPolicy)
 	if !ok {
-		return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, or CAPTURE, got %T", name, value)
+		return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, or CAPTURE, got %s", name, object.TypeName(value))
 	}
 	var writer io.Writer
 	switch policy {

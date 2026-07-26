@@ -26,7 +26,7 @@ func (c *Chan) Compare(other Object) (int, error) {
 		}
 		return 1, nil
 	}
-	return 0, NewTypeError("cannot compare Chan and %T", other)
+	return 0, NewTypeError("cannot compare Chan and %s", TypeName(other))
 }
 
 func (c *Chan) Add(Object) (Object, error)      { return nil, NewTypeError("cannot add Chan") }

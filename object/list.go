@@ -242,7 +242,7 @@ func (l *List) Equals(other Object) bool {
 }
 
 func (l *List) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare List and %T", other)
+	return 0, NewTypeError("cannot compare List and %s", TypeName(other))
 }
 
 func (l *List) Add(other Object) (Object, error) {
@@ -253,7 +253,7 @@ func (l *List) Add(other Object) (Object, error) {
 		copy(newElements[len(l.Elements):], v.Elements)
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot add List and %T", other)
+		return nil, NewTypeError("cannot add List and %s", TypeName(other))
 	}
 }
 
@@ -273,7 +273,7 @@ func (l *List) Multiply(other Object) (Object, error) {
 		}
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot multiply List and %T", other)
+		return nil, NewTypeError("cannot multiply List and %s", TypeName(other))
 	}
 }
 
@@ -292,7 +292,7 @@ func (l *List) Iter() ([]Object, error) {
 func (l *List) Index(index Object) (Object, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("list index must be integer, got %T", index)
+		return nil, NewTypeError("list index must be integer, got %s", TypeName(index))
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
@@ -304,7 +304,7 @@ func (l *List) Index(index Object) (Object, error) {
 func (l *List) SetIndex(index Object, value Object) error {
 	idx, ok := index.(Integer)
 	if !ok {
-		return NewTypeError("list index must be integer, got %T", index)
+		return NewTypeError("list index must be integer, got %s", TypeName(index))
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
@@ -416,7 +416,7 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 			a, b = l.Elements[i], l.Elements[j]
 		}
 
-		res, err := a.Compare(b)
+		res, err := Compare(a, b)
 		if err != nil {
 			sortErr = err
 			return false

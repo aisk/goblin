@@ -70,7 +70,7 @@ unsupported protocol methods.
 
 ~~~go
 func (c *Counter) Add(other object.Object) (object.Object, error) {
-    return nil, object.NewTypeError("cannot add Counter and %T", other)
+    return nil, object.NewTypeError("cannot add Counter and %s", object.TypeName(other))
 }
 ~~~
 
@@ -84,7 +84,7 @@ only need display, truthiness, and members.
 func (v Vector) Add(other object.Object) (object.Object, error) {
     right, ok := other.(Vector)
     if !ok {
-        return nil, object.NewTypeError("cannot add Vector and %T", other)
+        return nil, object.NewTypeError("cannot add Vector and %s", object.TypeName(other))
     }
     return Vector{X: v.X + right.X, Y: v.Y + right.Y}, nil
 }
@@ -93,6 +93,28 @@ func (v Vector) Add(other object.Object) (object.Object, error) {
 Compare returns a negative value, zero, or a positive value. Iter returns a
 slice of object.Object values. Index must verify that its index is an
 object.Integer and return IndexError for an invalid position.
+
+## Name types in messages with object.TypeName
+
+Use object.TypeName(value), not %T, when an error mentions the type of a value.
+A Go type name is an implementation detail that differs between the two
+backends — a user-defined Point is \*interpreter.instance under `goblin run`
+and \*main.Point in a compiled program — so %T makes the same program report
+different messages depending on how it was executed. TypeName reports the
+Goblin-level name. It uses the Go type name (without pointer and package
+qualifier) for types outside object/, which is already the name a Goblin
+program knows a custom type by; implement object.Named to report a different
+one.
+
+## Operators dispatch through package-level helpers
+
+The `==`, `!=` and ordering operators do not call Equals and Compare on the
+left operand directly: both backends go through object.Equals(a, b) and
+object.Compare(a, b), which also give the right operand a chance to answer.
+A custom type therefore only has to recognize the types it knows, and its
+Compare is reached even when it appears on the right of `1 < value`. Report an
+unordered pair with object.NewTypeError so the reflected attempt is made; any
+other error propagates as-is.
 
 For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show

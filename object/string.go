@@ -90,7 +90,7 @@ func (s String) trimWith(name string, cutset Object, direction trimDirection) (O
 	}
 	chars, ok := cutset.(String)
 	if !ok {
-		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %T", name, cutset)
+		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %s", name, TypeName(cutset))
 	}
 	switch direction {
 	case trimBoth:
@@ -390,7 +390,7 @@ func (s String) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare String and %T", other)
+		return 0, NewTypeError("cannot compare String and %s", TypeName(other))
 	}
 }
 
@@ -403,7 +403,7 @@ func (s String) Add(other Object) (Object, error) {
 	case Bool:
 		return String(string(s) + v.String()), nil
 	default:
-		return nil, NewTypeError("cannot add String and %T", other)
+		return nil, NewTypeError("cannot add String and %s", TypeName(other))
 	}
 }
 
@@ -420,7 +420,7 @@ func (s String) Multiply(other Object) (Object, error) {
 		}
 		return String(result), nil
 	default:
-		return nil, NewTypeError("cannot multiply String and %T", other)
+		return nil, NewTypeError("cannot multiply String and %s", TypeName(other))
 	}
 }
 

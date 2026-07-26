@@ -49,7 +49,7 @@ func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
 	}
 	other, ok := reference.(*URL)
 	if !ok {
-		return nil, object.NewTypeError("resolve_reference() argument 'reference' must be a URL, got %T", reference)
+		return nil, object.NewTypeError("resolve_reference() argument 'reference' must be a URL, got %s", object.TypeName(reference))
 	}
 	return &URL{value: u.value.ResolveReference(other.value)}, nil
 }

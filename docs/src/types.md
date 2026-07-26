@@ -68,7 +68,7 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | --- | --- |
 | `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
 | `__not` | Logical `!` operator; without it `!` negates truthiness |
-| `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of `==` |
+| `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of a comparison |
 | `__str` | Printing and `Str(value)` |
 | `__bool` | Conditions and `Bool(value)` |
 | `__iter` | `for value in instance` |
@@ -78,6 +78,26 @@ If a protocol method is absent, the corresponding operation raises TypeError.
 Equality is the exception: without `__cmp`, `==` and `!=` fall back to
 identity, so an instance is equal only to itself and never raises. Ordering
 comparisons (`<`, `<=`, `>`, `>=`) still require `__cmp`.
+
+A comparison consults both operands, so the instance does not have to be on the
+left. When the left operand has no ordering for the right one — as a built-in
+number never has for a custom type — the right operand is asked to compare
+itself against the left and the result is flipped:
+
+```goblin
+type Money(amount) {
+    func __cmp(self, other) {
+        return self.amount - other
+    }
+}
+
+var m = Money(5)
+print(m < 10) # true
+print(10 > m) # true, answered by Money.__cmp
+```
+
+Arithmetic operators have no such reflected form: `m + 1` calls `__add` on the
+instance, while `1 + m` asks the integer to add a `Money` and raises TypeError.
 
 For example, this type supports `+` and printing:
 

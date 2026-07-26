@@ -232,6 +232,7 @@ var reservedGoMethodNames = map[string]bool{
 	"Minus": true, "Multiply": true, "Divide": true,
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
+	"TypeName": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin
@@ -814,9 +815,9 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				jen.Id(unpackObjVar).Op(":=").Add(argExpr),
 				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
 				jen.If(jen.Op("!").Id(okVar)).Block(
-					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-						jen.Lit("keyword unpack argument must be a dict, got %T"),
-						jen.Id(unpackObjVar),
+					jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
+						jen.Lit("argument after ** must be a dict, got %s"),
+						jen.Qual(pathObject, "TypeName").Call(jen.Id(unpackObjVar)),
 					),
 					onError(errVar),
 				),
@@ -824,9 +825,9 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
 					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
 					jen.If(jen.Op("!").Id(okVar)).Block(
-						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-							jen.Lit("keyword argument name must be a string, got %T"),
-							jen.Id(keyObjVar),
+						jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
+							jen.Lit("keyword argument name must be a string, got %s"),
+							jen.Qual(pathObject, "TypeName").Call(jen.Id(keyObjVar)),
 						),
 						onError(errVar),
 					),
@@ -1323,8 +1324,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		defined[m.Name] = true
 	}
 	receiverParam := func() jen.Code { return jen.Id(receiverName).Op("*").Id(goTypeName) }
+	// Protocol fallbacks raise the same TypeError the interpreter and the
+	// built-in types raise, so `catch TypeError` and object.Compare's reflected
+	// dispatch behave identically on user types across both backends.
 	errorf := func(format string) jen.Code {
-		return jen.Qual("fmt", "Errorf").Call(jen.Lit(format), jen.Lit(typeDef.Name))
+		return jen.Qual(pathObject, "NewTypeError").Call(jen.Lit(format), jen.Lit(typeDef.Name))
 	}
 	// protoCall builds `receiver.Wrapper(object.CallArgs{Positional: {args}})`.
 	protoCall := func(goblinName string, args ...jen.Code) *jen.Statement {
@@ -1338,7 +1342,13 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		}
 		return jen.Id(receiverName).Dot(methodWrapperName(goblinName)).Call(callArgs)
 	}
-	protoDecls := make([]jen.Code, 0, 13)
+	protoDecls := make([]jen.Code, 0, 14)
+
+	// TypeName() string — the declared Goblin name, so diagnostics never leak
+	// the generated Go type (the interpreter reports the same name here).
+	protoDecls = append(protoDecls, jen.Func().Params(receiverParam()).Id("TypeName").Params().String().Block(
+		jen.Return(jen.Lit(typeDef.Name)),
+	))
 
 	// String() string  <- "str"
 	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
@@ -1421,7 +1431,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(0), jen.Id("_err"))),
 			jen.List(jen.Id("_i"), jen.Id("_ok")).Op(":=").Id("_res").Assert(jen.Qual(pathObject, "Integer")),
 			jen.If(jen.Op("!").Id("_ok")).Block(
-				jen.Return(jen.Lit(0), errorf("%s.__cmp must return Int")),
+				jen.Return(jen.Lit(0), jen.Qual(pathObject, "NewTypeError").Call(
+					jen.Lit("%s.__cmp must return Int, got %s"),
+					jen.Lit(typeDef.Name),
+					jen.Id("_res").Dot("String").Call(),
+				)),
 			),
 			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),
 		)
@@ -1849,7 +1863,7 @@ func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryO
 	cmpVar := ctx.localName("cmp")
 	errVar := ctx.localName("err")
 	preStmts = append(preStmts,
-		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot("Compare").Call(rhs),
+		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Compare").Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(
 			jen.Id(cmpVar).Op(operation.Operator).Lit(0),

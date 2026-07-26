@@ -31,3 +31,32 @@ print(nil == nil)
 if 10 > 5 {
     print("10 is greater")
 }
+
+# __cmp orders a value against a built-in on either side: when the left operand
+# has no ordering for the right one, the right operand is asked instead and the
+# result is flipped, just like == already consults both operands.
+type Money(amount) {
+    func __cmp(self, other) {
+        return self.amount - other
+    }
+}
+var m = Money(5)
+print(m < 10)
+print(10 > m)
+print(m >= 5)
+print(5 <= m)
+
+# Runtime errors name the Goblin type, never the type the backend represents
+# it with.
+try {
+    print(1 + m)
+} catch e {
+    print(e)
+}
+# When neither operand can order the pair, the failure describes the operands
+# in the order the expression used them.
+try {
+    print([1] < m)
+} catch e {
+    print(e)
+}

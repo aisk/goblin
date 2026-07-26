@@ -55,7 +55,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 
 	content, ok := contentArg.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("write() argument 'content' must be a string, got %T", contentArg)
+		return nil, object.NewTypeError("write() argument 'content' must be a string, got %s", object.TypeName(contentArg))
 	}
 
 	n, err := f.File.WriteString(string(content))

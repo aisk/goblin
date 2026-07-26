@@ -162,6 +162,13 @@ func (in *instance) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
+// TypeName reports the declared name of the user type. Without it diagnostics
+// would name the interpreter's internal representation, which the transpiler
+// backend has no counterpart for.
+func (in *instance) TypeName() string {
+	return in.typ.name
+}
+
 func (in *instance) Attributes() []string {
 	return append([]string(nil), in.typ.attributes...)
 }

@@ -28,7 +28,7 @@ func (n Unit) Compare(other Object) (int, error) {
 	case Unit:
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Nil and %T", other)
+		return 0, NewTypeError("cannot compare Nil and %s", TypeName(other))
 	}
 }
 
