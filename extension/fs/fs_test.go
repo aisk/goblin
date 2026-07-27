@@ -73,7 +73,7 @@ func TestFsOpenReadClose(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read() error = %v", err)
 	}
-	if got := contentObj.String(); got != "hello from fs" {
+	if got := object.Inspect(contentObj); got != "hello from fs" {
 		t.Fatalf("read() = %q, want %q", got, "hello from fs")
 	}
 
@@ -101,7 +101,7 @@ func TestFsAcceptsPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read(Path) error = %v", err)
 	}
-	if got := readObj.String(); got != "via path" {
+	if got := object.Inspect(readObj); got != "via path" {
 		t.Fatalf("read(Path) = %q, want %q", got, "via path")
 	}
 
@@ -149,7 +149,7 @@ func TestFsHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read() error = %v", err)
 	}
-	if got := readObj.String(); got != "helper text" {
+	if got := object.Inspect(readObj); got != "helper text" {
 		t.Fatalf("read() = %q, want %q", got, "helper text")
 	}
 
@@ -159,7 +159,7 @@ func TestFsHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("exists() error = %v", err)
 	}
-	if got := existsObj.String(); got != "true" {
+	if got := object.Inspect(existsObj); got != "true" {
 		t.Fatalf("exists() = %q, want %q", got, "true")
 	}
 
@@ -169,7 +169,7 @@ func TestFsHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("exists(missing) error = %v", err)
 	}
-	if got := missingObj.String(); got != "false" {
+	if got := object.Inspect(missingObj); got != "false" {
 		t.Fatalf("exists(missing) = %q, want %q", got, "false")
 	}
 

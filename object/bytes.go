@@ -19,8 +19,7 @@ func (b Bytes) TypeName() string { return "Bytes" }
 
 func (b Bytes) String() string            { return "b" + strconv.Quote(string(b)) }
 func (b Bytes) ToString() (string, error) { return b.String(), nil }
-func (b Bytes) Bool() bool                { return len(b) != 0 }
-func (b Bytes) ToBool() (bool, error)     { return b.Bool(), nil }
+func (b Bytes) ToBool() (bool, error)     { return len(b) != 0, nil }
 
 func (b Bytes) Equals(other Object) (bool, error) {
 	v, ok := other.(Bytes)
@@ -59,7 +58,7 @@ func (b Bytes) RMinus(Object) (Object, bool, error)    { return nil, false, nil 
 func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (b Bytes) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (b Bytes) Not() (Object, error) { return Bool(!b.Bool()), nil }
+func (b Bytes) Not() (Object, error) { return Bool(len(b) == 0), nil }
 
 func (b Bytes) Iter() ([]Object, error) {
 	result := make([]Object, len(b))

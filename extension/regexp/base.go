@@ -13,7 +13,6 @@ type objectBase struct {
 
 func (b objectBase) TypeName() string { return b.typeName }
 
-func (b objectBase) Bool() bool                  { return true }
 func (b objectBase) ToBool() (bool, error)       { return true, nil }
 func (b objectBase) Not() (object.Object, error) { return object.False, nil }
 

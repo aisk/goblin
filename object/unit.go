@@ -17,11 +17,7 @@ func (n Unit) String() string {
 
 func (n Unit) ToString() (string, error) { return n.String(), nil }
 
-func (n Unit) Bool() bool {
-	return false
-}
-
-func (n Unit) ToBool() (bool, error) { return n.Bool(), nil }
+func (n Unit) ToBool() (bool, error) { return false, nil }
 
 func (n Unit) Equals(other Object) (bool, error) {
 	_, ok := other.(Unit)
@@ -54,7 +50,7 @@ func (n Unit) Divide(other Object) (Object, error) {
 }
 
 func (n Unit) Not() (Object, error) {
-	return Bool(!n.Bool()), nil
+	return True, nil
 }
 
 func (n Unit) Iter() ([]Object, error) {

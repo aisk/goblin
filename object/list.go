@@ -252,11 +252,7 @@ func (l *List) ToString() (string, error) {
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", ")), nil
 }
 
-func (l *List) Bool() bool {
-	return len(l.Elements) > 0
-}
-
-func (l *List) ToBool() (bool, error) { return l.Bool(), nil }
+func (l *List) ToBool() (bool, error) { return len(l.Elements) > 0, nil }
 
 func (l *List) Equals(other Object) (bool, error) {
 	v, ok := other.(*List)
@@ -323,7 +319,7 @@ func (l *List) Divide(other Object) (Object, error) {
 }
 
 func (l *List) Not() (Object, error) {
-	return Bool(!l.Bool()), nil
+	return Bool(len(l.Elements) == 0), nil
 }
 
 func (l *List) Iter() ([]Object, error) {

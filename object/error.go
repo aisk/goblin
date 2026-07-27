@@ -80,11 +80,7 @@ func (e *Error) String() string {
 
 func (e *Error) ToString() (string, error) { return e.String(), nil }
 
-func (e *Error) Bool() bool {
-	return true
-}
-
-func (e *Error) ToBool() (bool, error) { return e.Bool(), nil }
+func (e *Error) ToBool() (bool, error) { return true, nil }
 
 func (e *Error) Equals(other Object) (bool, error) {
 	v, ok := other.(*Error)
@@ -390,7 +386,7 @@ func ErrorConstructor(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	return NewError(message.String()), nil
+	return NewError(Inspect(message)), nil
 }
 
 // Raise validates the value thrown by a `raise` statement. Only Error values
@@ -400,7 +396,7 @@ func Raise(v Object) error {
 	if e, ok := v.(*Error); ok {
 		return e
 	}
-	return NewTypeError("raise expects an Error, got: %s", v.String())
+	return NewTypeError("raise expects an Error, got: %s", Inspect(v))
 }
 
 // ErrorValue extracts the Goblin Error value carried by err, unwrapping any

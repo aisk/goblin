@@ -34,7 +34,7 @@ func dictKey(key Object) (string, error) {
 	case Unit:
 		return "n:", nil
 	default:
-		return "", NewTypeError("unhashable dict key: %s", key.String())
+		return "", NewTypeError("unhashable dict key: %s", Inspect(key))
 	}
 }
 
@@ -157,7 +157,7 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if hasDefault {
 		return def, nil
 	}
-	return nil, NewKeyError("key not found: %s", key.String())
+	return nil, NewKeyError("key not found: %s", Inspect(key))
 }
 
 func (d *Dict) Update(args CallArgs) (Object, error) {
@@ -254,11 +254,7 @@ func (d *Dict) ToString() (string, error) {
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", ")), nil
 }
 
-func (d *Dict) Bool() bool {
-	return len(d.Entries) > 0
-}
-
-func (d *Dict) ToBool() (bool, error) { return d.Bool(), nil }
+func (d *Dict) ToBool() (bool, error) { return len(d.Entries) > 0, nil }
 
 func (d *Dict) Equals(other Object) (bool, error) {
 	v, ok := other.(*Dict)
@@ -299,7 +295,7 @@ func (d *Dict) Divide(other Object) (Object, error) {
 }
 
 func (d *Dict) Not() (Object, error) {
-	return Bool(!d.Bool()), nil
+	return Bool(len(d.Entries) == 0), nil
 }
 
 func (d *Dict) Iter() ([]Object, error) {
@@ -318,7 +314,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 	if ok {
 		return val, nil
 	}
-	return nil, NewKeyError("key not found: %s", index.String())
+	return nil, NewKeyError("key not found: %s", Inspect(index))
 }
 
 func (d *Dict) SetIndex(index Object, value Object) (bool, error) {

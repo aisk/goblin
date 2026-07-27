@@ -13,11 +13,11 @@ type rightObj struct{ Unit }
 func (r *rightObj) TypeName() string { return "rightObj" }
 
 func (r *rightObj) RAdd(left Object) (Object, bool, error) {
-	return String("radd " + left.String()), true, nil
+	return String("radd " + Inspect(left)), true, nil
 }
 
 func (r *rightObj) RDivide(left Object) (Object, bool, error) {
-	return String("rdiv " + left.String()), true, nil
+	return String("rdiv " + Inspect(left)), true, nil
 }
 
 func (r *rightObj) RMultiply(Object) (Object, bool, error) {
@@ -58,7 +58,7 @@ func TestArithNumeric(t *testing.T) {
 			continue
 		}
 		if eq, err := Equals(got, tc.want); err != nil || !eq {
-			t.Errorf("%s = %s, want %s", tc.name, got.String(), tc.want.String())
+			t.Errorf("%s = %s, want %s", tc.name, Inspect(got), Inspect(tc.want))
 		}
 	}
 }
@@ -68,7 +68,7 @@ func TestArithDivideByZero(t *testing.T) {
 		for _, dividend := range []Object{Integer(1), Float(1)} {
 			_, err := Divide(dividend, divisor)
 			if !errors.Is(err, ZeroDivisionError) {
-				t.Errorf("%s / %s: error = %v, want ZeroDivisionError", dividend.String(), divisor.String(), err)
+				t.Errorf("%s / %s: error = %v, want ZeroDivisionError", Inspect(dividend), Inspect(divisor), err)
 			}
 		}
 	}
@@ -77,10 +77,10 @@ func TestArithDivideByZero(t *testing.T) {
 func TestArithReflected(t *testing.T) {
 	right := &rightObj{}
 
-	if got, err := Add(Integer(1), right); err != nil || got.String() != "radd 1" {
+	if got, err := Add(Integer(1), right); err != nil || Inspect(got) != "radd 1" {
 		t.Errorf("Add = %v, %v; want \"radd 1\"", got, err)
 	}
-	if got, err := Divide(Integer(8), right); err != nil || got.String() != "rdiv 8" {
+	if got, err := Divide(Integer(8), right); err != nil || Inspect(got) != "rdiv 8" {
 		t.Errorf("Divide = %v, %v; want \"rdiv 8\"", got, err)
 	}
 
@@ -105,7 +105,7 @@ func TestArithReflectedDeclined(t *testing.T) {
 	if want := "cannot add String and pickyObj"; err == nil || err.Error() != want {
 		t.Fatalf("error = %v, want %q", err, want)
 	}
-	if got, err := Add(Integer(1), &pickyObj{}); err != nil || got.String() != "picky" {
+	if got, err := Add(Integer(1), &pickyObj{}); err != nil || Inspect(got) != "picky" {
 		t.Fatalf("Add = %v, %v; want \"picky\"", got, err)
 	}
 }
@@ -120,7 +120,7 @@ func TestArithKeepsNonTypeErrors(t *testing.T) {
 
 func TestArithBuiltinRepetition(t *testing.T) {
 	got, err := Multiply(Integer(3), String("ab"))
-	if err != nil || got.String() != "ababab" {
+	if err != nil || Inspect(got) != "ababab" {
 		t.Fatalf("3 * \"ab\" = %v, %v; want \"ababab\"", got, err)
 	}
 	list := &List{Elements: []Object{Integer(1), Integer(2)}}

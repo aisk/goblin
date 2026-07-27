@@ -8,14 +8,7 @@ type Integer int64
 
 var _ Object = Integer(0)
 
-func (i Integer) Bool() bool {
-	if i == 0 {
-		return false
-	}
-	return true
-}
-
-func (i Integer) ToBool() (bool, error) { return i.Bool(), nil }
+func (i Integer) ToBool() (bool, error) { return i != 0, nil }
 
 func (i Integer) TypeName() string { return "Integer" }
 
@@ -75,7 +68,7 @@ func (i Integer) RMultiply(Object) (Object, bool, error) { return nil, false, ni
 func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (i Integer) Not() (Object, error) {
-	return Bool(!i.Bool()), nil
+	return Bool(i == 0), nil
 }
 
 func (i Integer) Iter() ([]Object, error) {

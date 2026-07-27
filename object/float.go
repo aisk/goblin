@@ -8,14 +8,7 @@ type Float float64
 
 var _ Object = Float(0)
 
-func (f Float) Bool() bool {
-	if f == 0 {
-		return false
-	}
-	return true
-}
-
-func (f Float) ToBool() (bool, error) { return f.Bool(), nil }
+func (f Float) ToBool() (bool, error) { return f != 0, nil }
 
 func (f Float) TypeName() string { return "Float" }
 
@@ -75,7 +68,7 @@ func (f Float) RMultiply(Object) (Object, bool, error) { return nil, false, nil 
 func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (f Float) Not() (Object, error) {
-	return Bool(!f.Bool()), nil
+	return Bool(f == 0), nil
 }
 
 func (f Float) Iter() ([]Object, error) {

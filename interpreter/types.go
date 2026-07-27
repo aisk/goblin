@@ -187,7 +187,7 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 // when __str fails because fmt.Stringer cannot return an error.
 func (in *instance) String() string {
 	if v, ok, err := in.callProto("__str"); ok && err == nil {
-		return v.String()
+		return object.Inspect(v)
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
 }
@@ -198,17 +198,9 @@ func (in *instance) ToString() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return v.String(), nil
+		return v.ToString()
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in), nil
-}
-
-// Bool returns an infallible truth value, falling back to true when __bool fails.
-func (in *instance) Bool() bool {
-	if v, ok, err := in.callProto("__bool"); ok && err == nil {
-		return v.Bool()
-	}
-	return true
 }
 
 func (in *instance) ToBool() (bool, error) {
@@ -216,7 +208,7 @@ func (in *instance) ToBool() (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		return v.Bool(), nil
+		return v.ToBool()
 	}
 	return true, nil
 }
@@ -257,7 +249,7 @@ func (in *instance) compareProto(other object.Object) (int, bool, error) {
 	}
 	i, isInt := v.(object.Integer)
 	if !isInt {
-		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.String())
+		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, object.Inspect(v))
 	}
 	return int(i), true, nil
 }

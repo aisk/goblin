@@ -16,7 +16,7 @@ func TestNow(t *testing.T) {
 	if !ok {
 		t.Fatalf("now() did not return *Time, got %T", result)
 	}
-	if !tm.Bool() {
+	if truthy, err := tm.ToBool(); err != nil || !truthy {
 		t.Fatal("now() returned zero time")
 	}
 }

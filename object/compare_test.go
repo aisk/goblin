@@ -61,7 +61,7 @@ func TestCompare(t *testing.T) {
 			continue
 		}
 		if got != tc.want {
-			t.Errorf("%s: Compare(%s, %s) = %d, want %d", tc.name, tc.a.String(), tc.b.String(), got, tc.want)
+			t.Errorf("%s: Compare(%s, %s) = %d, want %d", tc.name, Inspect(tc.a), Inspect(tc.b), got, tc.want)
 		}
 	}
 }

@@ -18,8 +18,7 @@ func (f *Function) TypeName() string { return "Function" }
 func (f *Function) String() string { return fmt.Sprintf("<function %s>", f.Name) }
 
 func (f *Function) ToString() (string, error) { return f.String(), nil }
-func (f *Function) Bool() bool                { return true }
-func (f *Function) ToBool() (bool, error)     { return f.Bool(), nil }
+func (f *Function) ToBool() (bool, error)     { return true, nil }
 
 // Equals is identity: two functions are equal only when they are the same
 // function value.

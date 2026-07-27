@@ -67,7 +67,7 @@ func (m *Match) groupIndex(method string, key object.Object) (int, error) {
 	default:
 		return 0, object.NewTypeError("%s() argument 'key' must be int or str, got %s", method, key.TypeName())
 	}
-	return 0, object.NewIndexError("no such capture group: %s", key.String())
+	return 0, object.NewIndexError("no such capture group: %s", object.Inspect(key))
 }
 
 func (m *Match) group(args object.CallArgs) (object.Object, error) {

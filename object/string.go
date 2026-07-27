@@ -366,14 +366,7 @@ func (s String) Literal() string {
 	return strconv.Quote(string(s))
 }
 
-func (s String) Bool() bool {
-	if s == "" {
-		return false
-	}
-	return true
-}
-
-func (s String) ToBool() (bool, error) { return s.Bool(), nil }
+func (s String) ToBool() (bool, error) { return s != "", nil }
 
 func (s String) Equals(other Object) (bool, error) {
 	v, ok := other.(String)
@@ -450,7 +443,7 @@ func (s String) RMinus(Object) (Object, bool, error)   { return nil, false, nil 
 func (s String) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
 
 func (s String) Not() (Object, error) {
-	return Bool(!s.Bool()), nil
+	return Bool(s == ""), nil
 }
 
 func (s String) Iter() ([]Object, error) {

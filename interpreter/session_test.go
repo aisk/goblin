@@ -74,7 +74,7 @@ func evalString(t *testing.T, s *Session, src string) string {
 	if v == nil {
 		return "<nil>"
 	}
-	return v.String()
+	return object.Inspect(v)
 }
 
 func TestSessionBareExpression(t *testing.T) {

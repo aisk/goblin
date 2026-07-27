@@ -299,7 +299,6 @@ func (g *RandomGenerator) TypeName() string { return "Generator" }
 
 func (g *RandomGenerator) String() string            { return fmt.Sprintf("<random.Generator seed=%d>", g.seed) }
 func (g *RandomGenerator) ToString() (string, error) { return g.String(), nil }
-func (g *RandomGenerator) Bool() bool                { return true }
 func (g *RandomGenerator) ToBool() (bool, error)     { return true, nil }
 func (g *RandomGenerator) Equals(other object.Object) (bool, error) {
 	otherGenerator, ok := other.(*RandomGenerator)

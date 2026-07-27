@@ -16,7 +16,6 @@ func (u *URL) TypeName() string { return "URL" }
 
 func (u *URL) String() string            { return u.value.String() }
 func (u *URL) ToString() (string, error) { return u.value.String(), nil }
-func (u *URL) Bool() bool                { return true }
 func (u *URL) ToBool() (bool, error)     { return true, nil }
 func (u *URL) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*URL)

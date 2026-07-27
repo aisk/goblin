@@ -17,9 +17,7 @@ type objectBase struct {
 
 func (b objectBase) TypeName() string { return b.typeName }
 
-func (b objectBase) Bool() bool { return true }
-
-func (b objectBase) ToBool() (bool, error) { return b.Bool(), nil }
+func (b objectBase) ToBool() (bool, error) { return true, nil }
 
 // Equals returns false: http objects have no structural equality. Identity
 // equality is provided by object.Equals' backstop.

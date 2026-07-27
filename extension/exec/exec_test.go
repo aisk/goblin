@@ -63,7 +63,7 @@ func TestRunCapturesOutputAndExitStatus(t *testing.T) {
 	if result.code != 7 {
 		t.Fatalf("code = %d, want 7", result.code)
 	}
-	if result.Bool() {
+	if truthy, err := result.ToBool(); err != nil || truthy {
 		t.Fatal("non-zero result is truthy")
 	}
 	if got := string(result.stdout.(object.Bytes)); got != "out" {

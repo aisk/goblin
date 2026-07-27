@@ -23,11 +23,7 @@ func (b Bool) String() string {
 
 func (b Bool) ToString() (string, error) { return b.String(), nil }
 
-func (b Bool) Bool() bool {
-	return bool(b)
-}
-
-func (b Bool) ToBool() (bool, error) { return b.Bool(), nil }
+func (b Bool) ToBool() (bool, error) { return bool(b), nil }
 
 func (b Bool) Equals(other Object) (bool, error) {
 	v, ok := other.(Bool)
@@ -88,7 +84,7 @@ func (b Bool) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (b Bool) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (b Bool) Not() (Object, error) {
-	return Bool(!b.Bool()), nil
+	return !b, nil
 }
 
 func (b Bool) Iter() ([]Object, error) {

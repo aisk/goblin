@@ -46,8 +46,7 @@ func (p *Path) TypeName() string { return "Path" }
 func (p *Path) String() string { return p.raw }
 
 func (p *Path) ToString() (string, error) { return p.String(), nil }
-func (p *Path) Bool() bool                { return p.raw != "" && p.raw != "." }
-func (p *Path) ToBool() (bool, error)     { return p.Bool(), nil }
+func (p *Path) ToBool() (bool, error)     { return p.raw != "" && p.raw != ".", nil }
 
 func (p *Path) Equals(other Object) (bool, error) {
 	v, ok := other.(*Path)
@@ -85,7 +84,7 @@ func (p *Path) Divide(other Object) (Object, error) {
 	return NewPath(filepath.Join(p.raw, seg)), nil
 }
 
-func (p *Path) Not() (Object, error) { return Bool(!p.Bool()), nil }
+func (p *Path) Not() (Object, error) { return Bool(p.raw == "" || p.raw == "."), nil }
 func (p *Path) Iter() ([]Object, error) {
 	return nil, NewTypeError("Path is not iterable; use iterdir() to list a directory")
 }

@@ -50,8 +50,8 @@ func TestJsonUnmarshalScalars(t *testing.T) {
 		if err != nil {
 			t.Fatalf("unmarshal(%q) error: %v", c.in, err)
 		}
-		if got.String() != c.want.String() {
-			t.Errorf("unmarshal(%q) = %q, want %q", c.in, got.String(), c.want.String())
+		if object.Inspect(got) != object.Inspect(c.want) {
+			t.Errorf("unmarshal(%q) = %q, want %q", c.in, object.Inspect(got), object.Inspect(c.want))
 		}
 	}
 }
@@ -96,8 +96,8 @@ func TestJsonMarshalCompact(t *testing.T) {
 		t.Fatalf("marshal error: %v", err)
 	}
 	// Key order is unspecified, so accept either ordering of the compact form.
-	if s := got.String(); s != `{"a":1,"b":2}` && s != `{"b":2,"a":1}` {
-		t.Errorf("marshal = %q, want compact two-key object", got.String())
+	if s := object.Inspect(got); s != `{"a":1,"b":2}` && s != `{"b":2,"a":1}` {
+		t.Errorf("marshal = %q, want compact two-key object", object.Inspect(got))
 	}
 }
 
@@ -110,8 +110,8 @@ func TestJsonMarshalIndent(t *testing.T) {
 		t.Fatalf("marshal error: %v", err)
 	}
 	want := "[\n  1,\n  2\n]"
-	if got.String() != want {
-		t.Errorf("marshal indent = %q, want %q", got.String(), want)
+	if object.Inspect(got) != want {
+		t.Errorf("marshal indent = %q, want %q", object.Inspect(got), want)
 	}
 }
 
@@ -120,16 +120,16 @@ func TestJsonMarshalNilAndEmpty(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal nil error: %v", err)
 	}
-	if got.String() != "null" {
-		t.Errorf("marshal(nil) = %q, want null", got.String())
+	if object.Inspect(got) != "null" {
+		t.Errorf("marshal(nil) = %q, want null", object.Inspect(got))
 	}
 
 	got, err = jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{&object.Dict{}}})
 	if err != nil {
 		t.Fatalf("marshal empty dict error: %v", err)
 	}
-	if got.String() != "{}" {
-		t.Errorf("marshal({}) = %q, want {}", got.String())
+	if object.Inspect(got) != "{}" {
+		t.Errorf("marshal({}) = %q, want {}", object.Inspect(got))
 	}
 }
 
@@ -153,11 +153,11 @@ func TestJsonRoundTrip(t *testing.T) {
 		t.Fatalf("unmarshal error: %v", err)
 	}
 	d := back.(*object.Dict)
-	if v, _, _ := d.Get(object.String("name")); v.String() != "Bob" {
-		t.Errorf("round-trip name = %q, want Bob", v.String())
+	if v, _, _ := d.Get(object.String("name")); object.Inspect(v) != "Bob" {
+		t.Errorf("round-trip name = %q, want Bob", object.Inspect(v))
 	}
-	if v, _, _ := d.Get(object.String("active")); v.String() != "true" {
-		t.Errorf("round-trip active = %q, want true", v.String())
+	if v, _, _ := d.Get(object.String("active")); object.Inspect(v) != "true" {
+		t.Errorf("round-trip active = %q, want true", object.Inspect(v))
 	}
 }
 

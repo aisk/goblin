@@ -25,11 +25,7 @@ func (f *FileInfo) String() string {
 
 func (f *FileInfo) ToString() (string, error) { return f.String(), nil }
 
-func (f *FileInfo) Bool() bool {
-	return true
-}
-
-func (f *FileInfo) ToBool() (bool, error) { return f.Bool(), nil }
+func (f *FileInfo) ToBool() (bool, error) { return true, nil }
 
 func (f *FileInfo) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*FileInfo)
@@ -52,7 +48,7 @@ func (f *FileInfo) Multiply(object.Object) (object.Object, error) {
 func (f *FileInfo) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide FileInfo")
 }
-func (f *FileInfo) Not() (object.Object, error) { return object.Bool(!f.Bool()), nil }
+func (f *FileInfo) Not() (object.Object, error) { return object.False, nil }
 func (f *FileInfo) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("FileInfo does not support iteration")
 }

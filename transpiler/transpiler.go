@@ -551,7 +551,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 func transpileObject(obj object.Object) (*jen.Statement, error) {
 	switch v := obj.(type) {
 	case object.Bool:
-		if v.Bool() {
+		if bool(v) {
 			return jen.Qual(pathObject, "True"), nil
 		}
 		return jen.Qual(pathObject, "False"), nil
@@ -1351,14 +1351,14 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.Return(jen.Lit(typeDef.Name)),
 	))
 
-	// String() string  <- "str"
+	// String() string  <- "__str" (infallible fmt.Stringer, for diagnostics)
 	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
 	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
 	if defined["__str"] {
 		strDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
-			jen.Return(jen.Id("_res").Dot("String").Call()),
+			jen.Return(jen.Qual(pathObject, "Inspect").Call(jen.Id("_res"))),
 		)
 	} else {
 		strDecl.Block(reprReturn)
@@ -1372,25 +1372,12 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		toStringDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("String").Call(), jen.Nil()),
+			jen.Return(jen.Id("_res").Dot("ToString").Call()),
 		)
 	} else {
 		toStringDecl.Block(toStringReturn)
 	}
 	protoDecls = append(protoDecls, toStringDecl)
-
-	// Bool() bool  <- "__bool"
-	boolDecl := jen.Func().Params(receiverParam()).Id("Bool").Params().Bool()
-	if defined["__bool"] {
-		boolDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.True())),
-			jen.Return(jen.Id("_res").Dot("Bool").Call()),
-		)
-	} else {
-		boolDecl.Block(jen.Return(jen.True()))
-	}
-	protoDecls = append(protoDecls, boolDecl)
 
 	// ToBool() (bool, error)  <- "__bool" (error-propagating)
 	toBoolDecl := jen.Func().Params(receiverParam()).Id("ToBool").Params().Parens(jen.List(jen.Bool(), jen.Error()))
@@ -1398,7 +1385,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		toBoolDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("Bool").Call(), jen.Nil()),
+			jen.Return(jen.Id("_res").Dot("ToBool").Call()),
 		)
 	} else {
 		toBoolDecl.Block(jen.Return(jen.True(), jen.Nil()))
@@ -1437,7 +1424,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 				jen.Return(jen.Lit(0), jen.Qual(pathObject, "NewTypeError").Call(
 					jen.Lit("%s.__cmp must return Int, got %s"),
 					jen.Lit(typeDef.Name),
-					jen.Id("_res").Dot("String").Call(),
+					jen.Qual(pathObject, "Inspect").Call(jen.Id("_res")),
 				)),
 			),
 			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),

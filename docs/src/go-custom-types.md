@@ -6,7 +6,7 @@ It includes these groups of methods:
 
 | Group | Object methods |
 | --- | --- |
-| Display and conversion | String(), ToString(), Bool(), ToBool() |
+| Display and conversion | ToString(), ToBool() |
 | Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Not() |
 | Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide() |
 | Collection protocols | Iter(), Index() |
@@ -15,6 +15,11 @@ It includes these groups of methods:
 
 The reflected operators are required, but most types have nothing to say
 through them: embed object.NoReflectedOps and they all answer "not handled".
+
+Types should also implement String() string, satisfying fmt.Stringer. It is
+not part of the interface, but diagnostics and formatting reach it through
+object.Inspect, which asserts fmt.Stringer and falls back to TypeName().
+ToString is the failing counterpart that may run a user-defined __str.
 
 Assignment is part of the interface too: SetIndex and SetAttr return a bool
 saying whether the value accepts that form of assignment at all. A value that
@@ -37,8 +42,7 @@ type Counter struct {
 func (c *Counter) TypeName() string { return "Counter" }
 func (c *Counter) String() string { return fmt.Sprintf("Counter(%d)", c.Value) }
 func (c *Counter) ToString() (string, error) { return c.String(), nil }
-func (c *Counter) Bool() bool { return c.Value != 0 }
-func (c *Counter) ToBool() (bool, error) { return c.Bool(), nil }
+func (c *Counter) ToBool() (bool, error) { return c.Value != 0, nil }
 
 func (c *Counter) GetAttr(name string) (object.Object, error) {
     switch name {

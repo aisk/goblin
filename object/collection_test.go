@@ -117,7 +117,7 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if got.String() != tt.want {
+		if Inspect(got) != tt.want {
 			t.Fatalf("%s() = %s, want %s", tt.fn.Name, got, tt.want)
 		}
 	}
@@ -155,7 +155,7 @@ func TestListFunctionalMethods(t *testing.T) {
 	gotMap := callMethod(t, list, "map", CallArgs{Positional: Args{&Function{Fn: func(args CallArgs) (Object, error) {
 		return args.Positional[0].(Integer) * 2, nil
 	}}}})
-	if gotMap.String() != "[2, 4, 6, 8]" {
+	if Inspect(gotMap) != "[2, 4, 6, 8]" {
 		t.Fatalf("map result = %s", gotMap)
 	}
 
@@ -163,7 +163,7 @@ func TestListFunctionalMethods(t *testing.T) {
 	gotFilter := callMethod(t, list, "filter", CallArgs{Positional: Args{&Function{Fn: func(args CallArgs) (Object, error) {
 		return Bool(args.Positional[0].(Integer)%2 == 0), nil
 	}}}})
-	if gotFilter.String() != "[2, 4]" {
+	if Inspect(gotFilter) != "[2, 4]" {
 		t.Fatalf("filter result = %s", gotFilter)
 	}
 
@@ -275,7 +275,7 @@ func TestDictKeysOfDifferentTypesStayDistinct(t *testing.T) {
 		{Nil, String("nil")},
 	} {
 		if err := dict.Set(kv.key, kv.value); err != nil {
-			t.Fatalf("Set(%s) failed: %v", kv.key.String(), err)
+			t.Fatalf("Set(%s) failed: %v", Inspect(kv.key), err)
 		}
 	}
 	if len(dict.Entries) != 6 {

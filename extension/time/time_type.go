@@ -25,11 +25,7 @@ func (t *Time) String() string {
 
 func (t *Time) ToString() (string, error) { return t.String(), nil }
 
-func (t *Time) Bool() bool {
-	return !t.Value.IsZero()
-}
-
-func (t *Time) ToBool() (bool, error) { return t.Bool(), nil }
+func (t *Time) ToBool() (bool, error) { return !t.Value.IsZero(), nil }
 
 func (t *Time) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*Time)
@@ -62,7 +58,7 @@ func (t *Time) Multiply(object.Object) (object.Object, error) {
 func (t *Time) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide Time")
 }
-func (t *Time) Not() (object.Object, error) { return object.Bool(!t.Bool()), nil }
+func (t *Time) Not() (object.Object, error) { return object.Bool(t.Value.IsZero()), nil }
 func (t *Time) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Time does not support iteration")
 }
