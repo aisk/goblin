@@ -144,12 +144,33 @@ func argValueOr[T Object](p *ArgParser, name, want string, def T) T {
 	return t
 }
 
+// optionalArgValue extracts an optional argument of concrete type T and
+// reports whether it was supplied.
+func optionalArgValue[T Object](p *ArgParser, name, want string) (T, bool) {
+	var zero T
+	v, ok := p.optional(name)
+	if !ok {
+		return zero, false
+	}
+	t, ok := v.(T)
+	if !ok {
+		p.typeErr(name, want, v)
+		return zero, true
+	}
+	return t, true
+}
+
 // Int returns a required Integer argument.
 func (p *ArgParser) Int(name string) Integer { return argValue[Integer](p, name, "int") }
 
 // IntOr returns an optional Integer argument, or def when absent.
 func (p *ArgParser) IntOr(name string, def Integer) Integer {
 	return argValueOr(p, name, "int", def)
+}
+
+// OptionalInt returns an optional Integer and whether it was supplied.
+func (p *ArgParser) OptionalInt(name string) (Integer, bool) {
+	return optionalArgValue[Integer](p, name, "int")
 }
 
 // Float returns a required Float argument.

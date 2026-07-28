@@ -30,7 +30,7 @@ needed.
 | [exec](./module-exec.md) | Configure and execute external commands | Command() |
 | [path](./module-path.md) | Find the current or home directory | cwd(), home() |
 | [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
-| [random](./module-random.md) | Generate reproducible random values and permutations | Generator(), int(), shuffle() |
+| [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |

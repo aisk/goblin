@@ -36,7 +36,7 @@
 - [exec](./module-exec.md)
 - [path](./module-path.md)
 - [time](./module-time.md)
-- [random](./module-random.md)
+- [rand](./module-rand.md)
 - [math](./module-math.md)
 - [http](./module-http.md)
 - [mime](./module-mime.md)

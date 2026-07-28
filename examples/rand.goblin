@@ -1,0 +1,24 @@
+import "rand"
+
+print(rand.int().constructor == Int)
+print(rand.int(100).constructor == Int)
+print(rand.float().constructor == Float)
+print(rand.int(1))
+
+var first = rand.Rand(seed=42)
+var second = rand.Rand(seed=42)
+print(first.int(1000) == second.int(1000))
+
+var value = first.float()
+print(value >= 0.0)
+print(value < 1.0)
+
+var values = [1, 2, 3]
+first.shuffle(values)
+print(values.size())
+var indexes = first.perm(4)
+indexes.sort()
+print(indexes)
+
+print(first.norm_float().constructor == Float)
+print(first.exp_float() >= 0.0)

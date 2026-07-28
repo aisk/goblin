@@ -94,6 +94,30 @@ func TestArgParserOptionalAnyDistinguishesOmittedAndNil(t *testing.T) {
 	}
 }
 
+func TestArgParserOptionalInt(t *testing.T) {
+	p := NewArgParser("f", CallArgs{})
+	if value, ok := p.OptionalInt("value"); ok || value != 0 {
+		t.Fatalf("omitted OptionalInt = (%v, %v), want (0, false)", value, ok)
+	}
+	if err := p.Finish(); err != nil {
+		t.Fatal(err)
+	}
+
+	p = NewArgParser("f", CallArgs{Keyword: Kwargs{"value": Integer(7)}})
+	if value, ok := p.OptionalInt("value"); !ok || value != 7 {
+		t.Fatalf("supplied OptionalInt = (%v, %v), want (7, true)", value, ok)
+	}
+	if err := p.Finish(); err != nil {
+		t.Fatal(err)
+	}
+
+	p = NewArgParser("f", CallArgs{Positional: Args{String("bad")}})
+	p.OptionalInt("value")
+	if err := p.Finish(); err == nil || !strings.Contains(err.Error(), "argument 'value' must be int") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
 func TestArgParserKeywordOnly(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Keyword: Kwargs{"a": Integer(1), "b": Integer(2)}})
 	a, b := p.Int("a"), p.Int("b")

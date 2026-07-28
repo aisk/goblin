@@ -32,7 +32,7 @@ type moduleInfo struct {
 
 var knownModules = map[string]moduleInfo{
 	"os":     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
-	"random": {executorPath: pathExtension, varName: "random_module", executorFunc: "ExecuteRandom"},
+	"rand":   {executorPath: pathExtension, varName: "rand_module", executorFunc: "ExecuteRand"},
 	"math":   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
 	"base64": {executorPath: pathExtension, varName: "base64_module", executorFunc: "ExecuteBase64"},
 	"http":   {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},

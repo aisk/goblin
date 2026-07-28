@@ -26,7 +26,7 @@ import (
 // interpreter binds it per run via ExecuteOsWithFrozenArgs so argv is scoped to the
 // script (or REPL) without process-global state.
 var builtinModules = map[string]object.ModuleExecutor{
-	"random": extension.ExecuteRandom,
+	"rand":   extension.ExecuteRand,
 	"math":   extension.ExecuteMath,
 	"base64": extension.ExecuteBase64,
 	"http":   httpExt.Execute,
