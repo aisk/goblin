@@ -528,7 +528,7 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 			if call.Keyword == nil {
 				call.Keyword = object.Kwargs{}
 			}
-			for _, entry := range d.Entries {
+			for _, entry := range d.Entries() {
 				call.Keyword[fmt.Sprint(entry.Key)] = entry.Value
 			}
 		default:

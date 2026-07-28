@@ -1,6 +1,9 @@
 package object
 
-import "testing"
+import (
+	"math"
+	"testing"
+)
 
 func callMethod(t *testing.T, obj Object, name string, args CallArgs) Object {
 	t.Helper()
@@ -278,14 +281,71 @@ func TestDictKeysOfDifferentTypesStayDistinct(t *testing.T) {
 			t.Fatalf("Set(%s) failed: %v", inspect(kv.key), err)
 		}
 	}
-	if len(dict.Entries) != 6 {
-		t.Fatalf("expected 6 distinct entries, got %d", len(dict.Entries))
+	if dict.Len() != 6 {
+		t.Fatalf("expected 6 distinct entries, got %d", dict.Len())
 	}
 	if v, ok, err := dict.Get(Integer(1)); err != nil || !ok || v != String("int") {
 		t.Fatalf("Get(1) = %v, %v, %v; want \"int\"", v, ok, err)
 	}
 	if v, ok, err := dict.Get(String("1")); err != nil || !ok || v != String("str") {
 		t.Fatalf("Get(\"1\") = %v, %v, %v; want \"str\"", v, ok, err)
+	}
+}
+
+func TestDictNumericKeysUnifyLikeEquals(t *testing.T) {
+	dict := NewDict()
+	dict.Set(Float(1.0), String("float"))
+	dict.Set(Integer(1), String("int"))
+	if dict.Len() != 1 {
+		t.Fatalf("1 and 1.0 should be one key, got %d entries", dict.Len())
+	}
+	if v, ok, err := dict.Get(Integer(1)); err != nil || !ok || v != String("int") {
+		t.Fatalf("Get(1) = %v, %v, %v; want \"int\"", v, ok, err)
+	}
+	if entries := dict.Entries(); entries[0].Key != Float(1.0) {
+		t.Fatalf("stored key = %s, want the first-inserted 1.0", inspect(entries[0].Key))
+	}
+
+	negZero := NewDict()
+	negZero.Set(Float(math.Copysign(0, -1)), Integer(1))
+	if _, ok, err := negZero.Get(Integer(0)); err != nil || !ok {
+		t.Fatal("0 should find the -0.0 key")
+	}
+}
+
+func TestDictNaNKeyFindsItself(t *testing.T) {
+	dict := NewDict()
+	nan := Float(math.NaN())
+	dict.Set(nan, String("v"))
+	if v, ok, err := dict.Get(nan); err != nil || !ok || v != String("v") {
+		t.Fatalf("Get(NaN) = %v, %v, %v; want \"v\"", v, ok, err)
+	}
+	if got := callMethod(t, dict, "pop", CallArgs{Positional: Args{nan}}); got != String("v") {
+		t.Fatalf("pop(NaN) = %v, want \"v\"", got)
+	}
+	if dict.Len() != 0 {
+		t.Fatal("NaN entry should be removed after pop")
+	}
+}
+
+func TestDictHashCollisionKeepsKeysDistinct(t *testing.T) {
+	// MaxInt64 and MaxInt64-1 round to the same float64, so they share a
+	// hash but remain unequal keys living in one bucket.
+	a, b := Integer(math.MaxInt64), Integer(math.MaxInt64-1)
+	dict := NewDict()
+	dict.Set(a, String("a"))
+	dict.Set(b, String("b"))
+	if dict.Len() != 2 {
+		t.Fatalf("colliding keys merged: %d entries, want 2", dict.Len())
+	}
+	if v, ok, err := dict.Get(b); err != nil || !ok || v != String("b") {
+		t.Fatalf("Get(b) = %v, %v, %v; want \"b\"", v, ok, err)
+	}
+	if _, ok, err := dict.remove(b); err != nil || !ok {
+		t.Fatal("removing one colliding key should succeed")
+	}
+	if v, ok, err := dict.Get(a); err != nil || !ok || v != String("a") {
+		t.Fatalf("Get(a) after removing b = %v, %v, %v; want \"a\"", v, ok, err)
 	}
 }
 

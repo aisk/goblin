@@ -822,7 +822,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 					),
 					onError(errVar),
 				),
-				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries")).Block(
+				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries").Call()).Block(
 					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
 					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
 					jen.If(jen.Op("!").Id(okVar)).Block(

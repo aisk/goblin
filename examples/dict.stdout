@@ -23,4 +23,6 @@ true
 int key
 string key
 2
+second
+1
 unhashable dict key: [1, 2]

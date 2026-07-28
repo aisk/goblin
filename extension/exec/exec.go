@@ -79,8 +79,8 @@ func command(args object.CallArgs) (object.Object, error) {
 		if !ok {
 			return nil, object.NewTypeError("Command() argument 'env' must be unit or dict, got %s", envObj.TypeName())
 		}
-		cmd.Env = make([]string, 0, len(dict.Entries))
-		for _, entry := range dict.Entries {
+		cmd.Env = make([]string, 0, dict.Len())
+		for _, entry := range dict.Entries() {
 			key, keyOK := entry.Key.(object.String)
 			value, valueOK := entry.Value.(object.String)
 			if !keyOK || !valueOK {

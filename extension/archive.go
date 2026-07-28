@@ -54,8 +54,8 @@ func archiveFiles(name string, value object.Object) ([]archiveEntry, error) {
 	if !ok {
 		return nil, object.NewTypeError("%s() argument 'files' must be a dict, got %s", name, value.TypeName())
 	}
-	entries := make([]archiveEntry, 0, len(dict.Entries))
-	for _, entry := range dict.Entries {
+	entries := make([]archiveEntry, 0, dict.Len())
+	for _, entry := range dict.Entries() {
 		filename, ok := entry.Key.(object.String)
 		if !ok {
 			return nil, object.NewTypeError("%s() file names must be strings, got %s", name, entry.Key.TypeName())

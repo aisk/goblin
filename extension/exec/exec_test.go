@@ -36,13 +36,13 @@ func helperCommand(t *testing.T, helperArgs ...string) *Cmd {
 	for _, arg := range helperArgs {
 		argObjects = append(argObjects, object.String(arg))
 	}
+	env := object.NewDict()
+	env.Set(object.String("GO_WANT_HELPER_PROCESS"), object.String("1"))
+	env.Set(object.String("GOCOVERDIR"), object.String(t.TempDir()))
 	obj, err := command(object.CallArgs{
 		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: argObjects}},
 		Keyword: map[string]object.Object{
-			"env": &object.Dict{Entries: map[string]object.DictEntry{
-				"GO_WANT_HELPER_PROCESS": {Key: object.String("GO_WANT_HELPER_PROCESS"), Value: object.String("1")},
-				"GOCOVERDIR":             {Key: object.String("GOCOVERDIR"), Value: object.String(t.TempDir())},
-			}},
+			"env":    env,
 			"stdout": capture,
 			"stderr": capture,
 		},

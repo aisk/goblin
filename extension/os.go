@@ -120,19 +120,17 @@ func environ(args object.CallArgs) (object.Object, error) {
 	if err := noArgs("environ", args); err != nil {
 		return nil, err
 	}
-	env := os.Environ()
-	entries := make(map[string]object.DictEntry, len(env))
-	for _, e := range env {
+	result := object.NewDict()
+	for _, e := range os.Environ() {
 		key, value, found := strings.Cut(e, "=")
 		if !found {
 			continue
 		}
-		entries[key] = object.DictEntry{
-			Key:   object.String(key),
-			Value: object.String(value),
+		if err := result.Set(object.String(key), object.String(value)); err != nil {
+			return nil, err
 		}
 	}
-	return &object.Dict{Entries: entries}, nil
+	return result, nil
 }
 
 func hostname(args object.CallArgs) (object.Object, error) {

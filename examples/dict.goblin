@@ -55,6 +55,13 @@ print(mixed[1])
 print(mixed["1"])
 print(mixed.size())
 
+# Key identity follows ==, so equal numbers are one key
+var nums = {}
+nums[1] = "first"
+nums[1.0] = "second"
+print(nums[1])
+print(nums.size())
+
 # Only immutable values can be keys
 try {
     mixed[[1, 2]] = "boom"

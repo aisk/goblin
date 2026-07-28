@@ -88,9 +88,9 @@ func TestEquals(t *testing.T) {
 }
 
 func TestEqualsDict(t *testing.T) {
-	d1 := &Dict{Entries: map[string]DictEntry{}}
+	d1 := NewDict()
 	d1.Set(String("k"), Integer(1))
-	d2 := &Dict{Entries: map[string]DictEntry{}}
+	d2 := NewDict()
 	d2.Set(String("k"), Integer(1))
 	if eq, err := Equals(d1, d2); err != nil || !eq {
 		t.Fatal("dicts with equal entries should be equal")
@@ -99,7 +99,7 @@ func TestEqualsDict(t *testing.T) {
 	if eq, err := Equals(d1, d2); err != nil || eq {
 		t.Fatal("dicts with different values should not be equal")
 	}
-	d3 := &Dict{Entries: map[string]DictEntry{}}
+	d3 := NewDict()
 	if eq, err := Equals(d1, d3); err != nil || eq {
 		t.Fatal("dicts of different sizes should not be equal")
 	}

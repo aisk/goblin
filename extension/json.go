@@ -179,14 +179,14 @@ func goblinListToJSON(elements []object.Object, buf *bytes.Buffer, indent, level
 }
 
 func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) error {
-	if len(d.Entries) == 0 {
+	if d.Len() == 0 {
 		buf.WriteString("{}")
 		return nil
 	}
 	pretty := indent > 0
 	buf.WriteByte('{')
 	i := 0
-	for _, entry := range d.Entries {
+	for _, entry := range d.Entries() {
 		if i > 0 {
 			buf.WriteByte(',')
 		}

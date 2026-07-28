@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -13,29 +14,33 @@ type DictEntry struct {
 type Dict struct {
 	NoReflectedOps
 	NoAssignment
-	// Entries maps the encoded form of each key (see dictKey) to its entry.
-	// Iteration order is unspecified, mirroring Go's map semantics.
-	Entries map[string]DictEntry
+	// buckets groups entries by key hash; a bucket holds more than one entry
+	// only when distinct keys collide. Iteration order is unspecified,
+	// mirroring Go's map semantics.
+	buckets map[uint64][]DictEntry
+	count   int
 }
 
-// dictKey encodes a key for map storage. The type tag keeps keys of different
-// types distinct even when they render identically (1 vs "1" vs true). Only
-// immutable built-in types are hashable; anything else raises TypeError.
-func dictKey(key Object) (string, error) {
-	switch v := key.(type) {
-	case String:
-		return "s:" + string(v), nil
-	case Integer:
-		return "i:" + v.String(), nil
-	case Float:
-		return "f:" + v.String(), nil
-	case Bool:
-		return "b:" + v.String(), nil
-	case Unit:
-		return "n:", nil
-	default:
-		return "", NewTypeError("unhashable dict key: %s", inspect(key))
+// hashKey hashes a key for bucket placement. Only Hashable types can be dict
+// keys; anything else raises TypeError.
+func hashKey(key Object) (uint64, error) {
+	if h, ok := key.(Hashable); ok {
+		return h.Hash()
 	}
+	return 0, NewTypeError("unhashable dict key: %s", inspect(key))
+}
+
+// keysMatch decides, within a bucket, whether a stored key and a lookup key
+// are the same dict key. That is Goblin's == with one exception: a NaN key
+// matches NaN, so it can be read and deleted again even though == says
+// NaN != NaN.
+func keysMatch(stored, lookup Object) (bool, error) {
+	if a, ok := stored.(Float); ok {
+		if b, ok := lookup.(Float); ok && math.IsNaN(float64(a)) && math.IsNaN(float64(b)) {
+			return true, nil
+		}
+	}
+	return Equals(stored, lookup)
 }
 
 var _ Object = &Dict{}
@@ -47,7 +52,7 @@ func (d *Dict) Size(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	return Integer(len(d.Entries)), nil
+	return Integer(d.count), nil
 }
 
 func (d *Dict) Keys(args CallArgs) (Object, error) {
@@ -57,8 +62,8 @@ func (d *Dict) Keys(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, NewTypeError("keys() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	keys := make([]Object, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	keys := make([]Object, 0, d.count)
+	for _, entry := range d.Entries() {
 		keys = append(keys, entry.Key)
 	}
 	return &List{Elements: keys}, nil
@@ -71,8 +76,8 @@ func (d *Dict) Values(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, NewTypeError("values() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
-	values := make([]Object, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	values := make([]Object, 0, d.count)
+	for _, entry := range d.Entries() {
 		values = append(values, entry.Value)
 	}
 	return &List{Elements: values}, nil
@@ -82,8 +87,8 @@ func (d *Dict) Items(args CallArgs) (Object, error) {
 	if err := requireNoArgs("items", args); err != nil {
 		return nil, err
 	}
-	items := make([]Object, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	items := make([]Object, 0, d.count)
+	for _, entry := range d.Entries() {
 		items = append(items, &List{Elements: []Object{entry.Key, entry.Value}})
 	}
 	return &List{Elements: items}, nil
@@ -146,13 +151,12 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	encoded, err := dictKey(key)
+	value, ok, err := d.remove(key)
 	if err != nil {
 		return nil, err
 	}
-	if entry, ok := d.Entries[encoded]; ok {
-		delete(d.Entries, encoded)
-		return entry.Value, nil
+	if ok {
+		return value, nil
 	}
 	if hasDefault {
 		return def, nil
@@ -170,7 +174,7 @@ func (d *Dict) Update(args CallArgs) (Object, error) {
 	if !ok {
 		return nil, NewTypeError("update() argument 'other' must be Dict, got %s", other.TypeName())
 	}
-	for _, entry := range source.Entries {
+	for _, entry := range source.Entries() {
 		if err := d.Set(entry.Key, entry.Value); err != nil {
 			return nil, err
 		}
@@ -182,7 +186,8 @@ func (d *Dict) Clear(args CallArgs) (Object, error) {
 	if err := requireNoArgs("clear", args); err != nil {
 		return nil, err
 	}
-	d.Entries = make(map[string]DictEntry)
+	d.buckets = make(map[uint64][]DictEntry)
+	d.count = 0
 	return d, nil
 }
 
@@ -191,7 +196,7 @@ func (d *Dict) Copy(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	result := NewDict()
-	for _, entry := range d.Entries {
+	for _, entry := range d.Entries() {
 		if err := result.Set(entry.Key, entry.Value); err != nil {
 			return nil, err
 		}
@@ -201,28 +206,89 @@ func (d *Dict) Copy(args CallArgs) (Object, error) {
 
 func NewDict() *Dict {
 	return &Dict{
-		Entries: make(map[string]DictEntry),
+		buckets: make(map[uint64][]DictEntry),
 	}
 }
 
+// Len returns the number of entries.
+func (d *Dict) Len() int { return d.count }
+
+// Entries returns the entries as a fresh slice callers may keep or reorder.
+// Iteration order is unspecified, mirroring Go's map semantics.
+func (d *Dict) Entries() []DictEntry {
+	entries := make([]DictEntry, 0, d.count)
+	for _, bucket := range d.buckets {
+		entries = append(entries, bucket...)
+	}
+	return entries
+}
+
 func (d *Dict) Set(key, value Object) error {
-	encoded, err := dictKey(key)
+	hash, err := hashKey(key)
 	if err != nil {
 		return err
 	}
-	if d.Entries == nil {
-		d.Entries = make(map[string]DictEntry)
+	if d.buckets == nil {
+		d.buckets = make(map[uint64][]DictEntry)
 	}
-	d.Entries[encoded] = DictEntry{Key: key, Value: value}
+	bucket := d.buckets[hash]
+	for i, entry := range bucket {
+		match, err := keysMatch(entry.Key, key)
+		if err != nil {
+			return err
+		}
+		if match {
+			// The first-inserted key stays, only the value changes, so after
+			// d[1.0] = x; d[1] = y the dict still shows the key as 1.0.
+			bucket[i].Value = value
+			return nil
+		}
+	}
+	d.buckets[hash] = append(bucket, DictEntry{Key: key, Value: value})
+	d.count++
 	return nil
 }
 
 func (d *Dict) Get(key Object) (Object, bool, error) {
-	encoded, err := dictKey(key)
+	hash, err := hashKey(key)
 	if err != nil {
 		return nil, false, err
 	}
-	if entry, ok := d.Entries[encoded]; ok {
+	for _, entry := range d.buckets[hash] {
+		match, err := keysMatch(entry.Key, key)
+		if err != nil {
+			return nil, false, err
+		}
+		if match {
+			return entry.Value, true, nil
+		}
+	}
+	return nil, false, nil
+}
+
+// remove deletes key's entry, reporting whether one existed and its value.
+func (d *Dict) remove(key Object) (Object, bool, error) {
+	hash, err := hashKey(key)
+	if err != nil {
+		return nil, false, err
+	}
+	bucket := d.buckets[hash]
+	for i, entry := range bucket {
+		match, err := keysMatch(entry.Key, key)
+		if err != nil {
+			return nil, false, err
+		}
+		if !match {
+			continue
+		}
+		last := len(bucket) - 1
+		bucket[i] = bucket[last]
+		if last == 0 {
+			delete(d.buckets, hash)
+		} else {
+			d.buckets[hash] = bucket[:last]
+		}
+		d.count--
 		return entry.Value, true, nil
 	}
 	return nil, false, nil
@@ -231,16 +297,16 @@ func (d *Dict) Get(key Object) (Object, bool, error) {
 func (d *Dict) TypeName() string { return "Dict" }
 
 func (d *Dict) String() string {
-	elements := make([]string, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	elements := make([]string, 0, d.count)
+	for _, entry := range d.Entries() {
 		elements = append(elements, fmt.Sprintf("%s: %s", literal(entry.Key), literal(entry.Value)))
 	}
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }
 
 func (d *Dict) ToString() (string, error) {
-	elements := make([]string, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	elements := make([]string, 0, d.count)
+	for _, entry := range d.Entries() {
 		key, err := literalString(entry.Key)
 		if err != nil {
 			return "", err
@@ -254,19 +320,22 @@ func (d *Dict) ToString() (string, error) {
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", ")), nil
 }
 
-func (d *Dict) ToBool() (bool, error) { return len(d.Entries) > 0, nil }
+func (d *Dict) ToBool() (bool, error) { return d.count > 0, nil }
 
 func (d *Dict) Equals(other Object) (bool, error) {
 	v, ok := other.(*Dict)
-	if !ok || len(d.Entries) != len(v.Entries) {
+	if !ok || d.count != v.count {
 		return false, nil
 	}
-	for key, entry := range d.Entries {
-		theirs, exists := v.Entries[key]
+	for _, entry := range d.Entries() {
+		theirs, exists, err := v.Get(entry.Key)
+		if err != nil {
+			return false, err
+		}
 		if !exists {
 			return false, nil
 		}
-		eq, err := Equals(entry.Value, theirs.Value)
+		eq, err := Equals(entry.Value, theirs)
 		if err != nil || !eq {
 			return false, err
 		}
@@ -295,12 +364,12 @@ func (d *Dict) Divide(other Object) (Object, error) {
 }
 
 func (d *Dict) Not() (Object, error) {
-	return Bool(len(d.Entries) == 0), nil
+	return Bool(d.count == 0), nil
 }
 
 func (d *Dict) Iter() ([]Object, error) {
-	keys := make([]Object, 0, len(d.Entries))
-	for _, entry := range d.Entries {
+	keys := make([]Object, 0, d.count)
+	for _, entry := range d.Entries() {
 		keys = append(keys, entry.Key)
 	}
 	return keys, nil
