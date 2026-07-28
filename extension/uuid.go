@@ -10,46 +10,111 @@ import (
 func ExecuteUUID() (object.Object, error) {
 	return &object.Module{
 		Members: map[string]object.Object{
-			"new":      &object.Function{Name: "new", Fn: uuidNew},
-			"parse":    &object.Function{Name: "parse", Fn: uuidParse},
-			"validate": &object.Function{Name: "validate", Fn: uuidValidate},
+			"UUID":           &object.Function{Name: "UUID", Fn: uuidConstructor},
+			"new":            &object.Function{Name: "new", Fn: uuidNew},
+			"validate":       &object.Function{Name: "validate", Fn: uuidValidate},
+			"namespace_dns":  NewUUID(googleuuid.NameSpaceDNS),
+			"namespace_url":  NewUUID(googleuuid.NameSpaceURL),
+			"namespace_oid":  NewUUID(googleuuid.NameSpaceOID),
+			"namespace_x500": NewUUID(googleuuid.NameSpaceX500),
 		},
 	}, nil
 }
 
-func uuidNew(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("new", args); err != nil {
-		return nil, err
-	}
-	return NewUUID(googleuuid.New()), nil
-}
-
-func uuidParse(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("parse", args)
-	value := p.Str("value")
+func uuidConstructor(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("UUID", args)
+	value := p.Any("value")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 
-	id, err := googleuuid.Parse(string(value))
+	switch value := value.(type) {
+	case *UUID:
+		return value, nil
+	case object.String:
+		id, err := googleuuid.Parse(string(value))
+		if err != nil {
+			return nil, object.WrapError(object.ParseError, "UUID() failed", err)
+		}
+		return NewUUID(id), nil
+	case object.Bytes:
+		id, err := googleuuid.FromBytes([]byte(value))
+		if err != nil {
+			return nil, object.WrapError(object.ParseError, "UUID() failed", err)
+		}
+		return NewUUID(id), nil
+	default:
+		return nil, object.NewTypeError("UUID() argument 'value' must be UUID, str, or Bytes, got %s", value.TypeName())
+	}
+}
+
+func uuidNew(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("new", args)
+	version := p.IntOr("version", object.Integer(4))
+	namespace := p.AnyOr("namespace", object.Nil)
+	data := p.AnyOr("data", object.Nil)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+
+	v := int64(version)
+	if v != 1 && v != 3 && v != 4 && v != 5 && v != 6 && v != 7 {
+		return nil, object.NewValueError("new() argument 'version' must be one of 1, 3, 4, 5, 6, or 7, got %d", v)
+	}
+
+	if v == 3 || v == 5 {
+		space, ok := namespace.(*UUID)
+		if namespace == object.Nil {
+			return nil, object.NewTypeError("new() missing required argument for version %d: 'namespace'", v)
+		}
+		if !ok {
+			return nil, object.NewTypeError("new() argument 'namespace' must be UUID, got %s", namespace.TypeName())
+		}
+		if data == object.Nil {
+			return nil, object.NewTypeError("new() missing required argument for version %d: 'data'", v)
+		}
+		var raw []byte
+		switch value := data.(type) {
+		case object.String:
+			raw = []byte(value)
+		case object.Bytes:
+			raw = []byte(value)
+		default:
+			return nil, object.NewTypeError("new() argument 'data' must be str or Bytes, got %s", data.TypeName())
+		}
+		if v == 3 {
+			return NewUUID(googleuuid.NewMD5(space.Value, raw)), nil
+		}
+		return NewUUID(googleuuid.NewSHA1(space.Value, raw)), nil
+	}
+
+	if namespace != object.Nil || data != object.Nil {
+		return nil, object.NewTypeError("new() arguments 'namespace' and 'data' are only valid for versions 3 and 5")
+	}
+
+	var id googleuuid.UUID
+	var err error
+	switch v {
+	case 1:
+		id, err = googleuuid.NewUUID()
+	case 4:
+		id, err = googleuuid.NewRandom()
+	case 6:
+		id, err = googleuuid.NewV6()
+	case 7:
+		id, err = googleuuid.NewV7()
+	}
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "parse() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "new() failed", err)
 	}
 	return NewUUID(id), nil
 }
 
 func uuidValidate(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("validate", args)
-	value := p.Any("value")
+	value := p.Str("value")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	switch value := value.(type) {
-	case *UUID:
-		return object.True, nil
-	case object.String:
-		return object.Bool(googleuuid.Validate(string(value)) == nil), nil
-	default:
-		return nil, object.NewTypeError("validate() argument must be a UUID or string")
-	}
+	return object.Bool(googleuuid.Validate(string(value)) == nil), nil
 }
