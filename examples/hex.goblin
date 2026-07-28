@@ -1,6 +1,6 @@
 import "hex"
 
-var encoded = hex.encode_to_string("Goblin")
+var encoded = hex.encode("Goblin")
 print(encoded)
-print(hex.decode_string(encoded))
+print(hex.decode(encoded))
 print(hex.dump("Go").has_prefix("00000000"))

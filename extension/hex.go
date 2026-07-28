@@ -8,9 +8,9 @@ import (
 
 func ExecuteHex() (object.Object, error) {
 	return &object.Module{Name: "hex", Members: map[string]object.Object{
-		"encode_to_string": &object.Function{Name: "encode_to_string", Fn: hexEncodeToString},
-		"decode_string":    &object.Function{Name: "decode_string", Fn: hexDecodeString},
-		"dump":             &object.Function{Name: "dump", Fn: hexDump},
+		"encode": &object.Function{Name: "encode", Fn: hexEncode},
+		"decode": &object.Function{Name: "decode", Fn: hexDecode},
+		"dump":   &object.Function{Name: "dump", Fn: hexDump},
 	}}, nil
 }
 
@@ -30,23 +30,23 @@ func hexBytes(name string, args object.CallArgs) ([]byte, error) {
 	}
 }
 
-func hexEncodeToString(args object.CallArgs) (object.Object, error) {
-	data, err := hexBytes("encode_to_string", args)
+func hexEncode(args object.CallArgs) (object.Object, error) {
+	data, err := hexBytes("encode", args)
 	if err != nil {
 		return nil, err
 	}
 	return object.String(hex.EncodeToString(data)), nil
 }
 
-func hexDecodeString(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("decode_string", args)
+func hexDecode(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("decode", args)
 	value := p.Str("s")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	data, err := hex.DecodeString(string(value))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "decode_string() failed", err)
+		return nil, object.WrapError(object.ParseError, "decode() failed", err)
 	}
 	return object.NewBytes(data), nil
 }

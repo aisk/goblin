@@ -36,7 +36,7 @@ needed.
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 | [uuid](./module-uuid.md) | Generate and validate UUID strings | new(), validate() |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
-| [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode_to_string(), decode_string() |
+| [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum256(), sum512() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |

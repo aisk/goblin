@@ -8,15 +8,15 @@ import (
 )
 
 func TestHexRoundTrip(t *testing.T) {
-	encoded, err := hexEncodeToString(object.CallArgs{Positional: object.Args{object.NewBytes([]byte{0, 0xff})}})
+	encoded, err := hexEncode(object.CallArgs{Positional: object.Args{object.NewBytes([]byte{0, 0xff})}})
 	if err != nil || encoded != object.String("00ff") {
-		t.Fatalf("encode_to_string = %v, %v", encoded, err)
+		t.Fatalf("encode = %v, %v", encoded, err)
 	}
-	decoded, err := hexDecodeString(object.CallArgs{Positional: object.Args{encoded}})
+	decoded, err := hexDecode(object.CallArgs{Positional: object.Args{encoded}})
 	if err != nil || !objectEquals(decoded, object.NewBytes([]byte{0, 0xff})) {
-		t.Fatalf("decode_string = %v, %v", decoded, err)
+		t.Fatalf("decode = %v, %v", decoded, err)
 	}
-	if _, err := hexDecodeString(object.CallArgs{Positional: object.Args{object.String("xyz")}}); err == nil || !errors.Is(err, object.ParseError) {
+	if _, err := hexDecode(object.CallArgs{Positional: object.Args{object.String("xyz")}}); err == nil || !errors.Is(err, object.ParseError) {
 		t.Fatalf("invalid decode error = %v", err)
 	}
 }

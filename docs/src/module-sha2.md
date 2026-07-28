@@ -12,5 +12,5 @@ Each function accepts `Bytes` or `Str` and returns raw digest `Bytes`.
 | `sha512.sum512_224(data)` | `sha512.Sum512_224` |
 | `sha512.sum512_256(data)` | `sha512.Sum512_256` |
 
-Use `hex.encode_to_string` or `base64.encode` when a textual digest is needed.
+Use `hex.encode` or `base64.encode` when a textual digest is needed.
 SHA-2 hashes do not authenticate data or securely store passwords by themselves.
