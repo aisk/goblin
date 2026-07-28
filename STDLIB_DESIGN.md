@@ -10,7 +10,8 @@ Existing modules are cited below as illustrations, not as canon: they predate th
 - "Near-standard" Go libraries are acceptable as a base too: packages under `golang.org/x/*`, or de-facto standards maintained by trusted stewards with a stable API (e.g. `github.com/google/uuid`). Anything else needs human review before being added as a dependency.
 - Module names are flat, lowercase, and drop Go's package hierarchy: `encoding/json` → `json`, `compress/gzip` → `gzip`, `archive/tar` → `tar`, `crypto/sha256` → `sha256`. The mapping is per registered module, not per Go source file (`compression.go` implements the `gzip` and `zlib` modules).
 - Function and method names are lowercase (snake_case when multi-word); type names are Capitalized (`Path`, `UUID`, `File`). Snake-casing a Go name whose words all carry meaning is fine (`csv.read_all` ← `ReadAll`, `s.to_title` ← `strings.ToTitle`); what gets dropped are the parts of a Go name that only exist to tell overload-family variants apart (`ParseInt`'s `Int`, `EncodeToString`'s `ToString` vs buffer-writing `Encode`) — once §3 collapses the family into one function, the discriminating suffix has nothing left to discriminate. The binding rule is cross-module consistency: the same concept gets the same name everywhere. For example, `hex.encode` was formerly exposed as `hex.encode_to_string`, despite naming the same concept as `base64.encode`; dropping the Go-specific `to_string` suffix fixed that inconsistency.
-- Module-level constants are lowercase snake_case like other members (`gzip.best_speed`, `gzip.default_compression`). `exec.INHERIT`/`DISCARD`/`CAPTURE` predate this rule and are a known conflict pending review.
+- Module-level constants are UPPER_CASE snake_case (`exec.INHERIT`, `gzip.BEST_SPEED`, `uuid.NAMESPACE_DNS`), visually distinct from functions and methods.
+- Snake-casing applies to names that are genuinely multi-word in Goblin's vocabulary. POSIX-heritage identifiers that read as single lexemes (`getenv`, `getpid`, `getwd`, …) are kept as-is, not force-segmented. And when the Go name itself is awkward, choosing a deliberately different, better name is allowed with review — `os.tempdir`/`os.tempfile` ← `os.MkdirTemp`/`os.CreateTemp` is the precedent.
 
 ## 2. When to depart from Go: object-oriented wrapping
 
@@ -30,8 +31,9 @@ Module-level members should be only what cannot be a method — constructors, fa
 Go has no default arguments or overloading, so it grows function families like `Split`/`SplitN`, `Encode`/`EncodeToString`, `NewWriter`/`NewWriterLevel`. Goblin call sites support positional and keyword arguments plus `*`/`**` unpacking, and Go-implemented stdlib functions can give any parameter a default via `ArgParser` — use that to collapse each family into **one** function.
 
 - The common case must work with only positional required arguments: `s.split(sep)`.
-- Variations become optional keyword arguments with defaults that reproduce the Go zero-config behaviour: `s.split(sep, count=-1)`, `gzip.compress(data, level=gzip.default_compression)`.
+- Variations become optional keyword arguments with defaults that reproduce the Go zero-config behaviour: `s.split(sep, count=-1)`, `gzip.compress(data, level=gzip.DEFAULT_COMPRESSION)`.
 - Never expose `foo` and `foo_with_bar` side by side when a keyword argument can express the difference.
+- Collapse configuration, not concepts: when a shared prefix/suffix names a genuinely different operation rather than a config knob, the functions stay separate. `url.query_escape` and `url.path_escape` apply different encoding rules to different URL components — folding them into `escape(s, mode=...)` would trade two self-describing names for a stringly-typed enum. The test: if the variants differ in *what* they do (not just in a parameter Go couldn't default), keep them apart.
 - Keyword names are part of the API — choose them as carefully as function names, and reuse the same name for the same concept across modules (`level`, `sep`, `count`, `comma`, …).
 
 All argument handling goes through `object.ArgParser` (`object/argparse.go`): it defines positional order, keyword precedence, defaults, and uniform `TypeError` messages. Do not hand-roll argument validation in new code — roughly half the existing modules predate `ArgParser` and validate by hand; that is legacy to migrate, not a second acceptable style. For parameter types `ArgParser` has no typed accessor for yet (Bytes, List, Dict), use `Any`/`AnyOr` plus a manual type assertion that keeps the standard message format (`funcname() argument 'x' must be ..., got ...`) — or better, add the missing accessor.
@@ -40,7 +42,7 @@ All argument handling goes through `object.ArgParser` (`object/argparse.go`): it
 
 - Never return raw Go errors and never panic across the boundary. Wrap native errors with `object.WrapNativeError` / `object.WrapError`, attaching the appropriate sentinel from the hierarchy in `object/error.go` (`IOError`, `ParseError`, `PermissionError`, …).
 - Add a new sentinel error kind only when callers realistically need to catch that case distinctly; otherwise use the nearest existing parent.
-- Error messages follow the existing format: `funcname() <what failed>`. (A few historical exceptions in `http` — e.g. `"request failed"` — are pending cleanup.)
+- Error messages follow the existing format: `funcname() <what failed>`. A bare `funcname() failed` says nothing — name the failure (`decode() invalid hex data`, `read() failed to read HTTP body`).
 
 ## 5. Values, not Go internals
 
