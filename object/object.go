@@ -134,10 +134,10 @@ type NoAssignment struct{}
 func (NoAssignment) SetIndex(Object, Object) (bool, error) { return false, nil }
 func (NoAssignment) SetAttr(string, Object) (bool, error)  { return false, nil }
 
-// SetItem performs an index assignment. A value that does not accept one is
+// SetIndex performs an index assignment. A value that does not accept one is
 // reported by its type, not by its contents, so the message reads the same for
 // every value of that type.
-func SetItem(obj Object, index Object, value Object) error {
+func SetIndex(obj Object, index Object, value Object) error {
 	handled, err := obj.SetIndex(index, value)
 	if err != nil {
 		return err
@@ -148,8 +148,8 @@ func SetItem(obj Object, index Object, value Object) error {
 	return nil
 }
 
-// SetAttribute performs a member assignment.
-func SetAttribute(obj Object, name string, value Object) error {
+// SetAttr performs a member assignment.
+func SetAttr(obj Object, name string, value Object) error {
 	handled, err := obj.SetAttr(name, value)
 	if err != nil {
 		return err
