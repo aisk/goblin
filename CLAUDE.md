@@ -56,7 +56,7 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 
 ### Standard Library Modules
 
-Importable modules (`os`, `json`, `http`, …) are implemented in Go under `extension/`. A new module must be registered in **two places**: `builtinModules` in `interpreter/imports.go` and `knownModules` in `transpiler/transpiler.go`.
+Importable modules (`os`, `json`, `http`, …) are implemented in Go under `extension/`. A new module must be registered in **two places**: `builtinModules` in `interpreter/imports.go` and `knownModules` in `transpiler/transpiler.go`. API design for stdlib modules follows `STDLIB_DESIGN.md`.
 
 ### Custom-Type Operator Overloading
 
