@@ -167,11 +167,5 @@ func (c *Cmd) Attributes() []string {
 }
 
 func noArgs(name string, args object.CallArgs) error {
-	if err := object.RequireNoKeyword(name, args); err != nil {
-		return err
-	}
-	if len(args.Positional) != 0 {
-		return object.NewTypeError("%s() takes no arguments, got %d", name, len(args.Positional))
-	}
-	return nil
+	return object.NewArgParser(name, args).Finish()
 }

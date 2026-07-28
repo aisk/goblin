@@ -90,11 +90,8 @@ func (b *Body) read(args object.CallArgs) (object.Object, error) {
 }
 
 func (b *Body) close(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("close", args); err != nil {
+	if err := object.NewArgParser("close", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("close() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if err := b.Close(); err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, "closing HTTP body failed", err)

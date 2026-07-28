@@ -21,11 +21,8 @@ func Execute() (object.Object, error) {
 }
 
 func cwd(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("cwd", args); err != nil {
+	if err := object.NewArgParser("cwd", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("cwd() takes no arguments, got %d", len(args.Positional))
 	}
 	dir, err := os.Getwd()
 	if err != nil {
@@ -35,11 +32,8 @@ func cwd(args object.CallArgs) (object.Object, error) {
 }
 
 func home(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("home", args); err != nil {
+	if err := object.NewArgParser("home", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("home() takes no arguments, got %d", len(args.Positional))
 	}
 	dir, err := os.UserHomeDir()
 	if err != nil {

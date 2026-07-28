@@ -20,30 +20,24 @@ func Execute() (object.Object, error) {
 
 // now returns the current local time.
 func now(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("now", args); err != nil {
+	if err := object.NewArgParser("now", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("now() requires no arguments")
 	}
 	return NewTime(stdtime.Now()), nil
 }
 
 // sleep pauses execution for the given number of seconds (float).
 func sleep(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("sleep", args); err != nil {
+	p := object.NewArgParser("sleep", args)
+	seconds := p.Number("seconds")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("sleep() requires exactly 1 argument")
-	}
-	switch v := args.Positional[0].(type) {
+	switch v := seconds.(type) {
 	case object.Float:
 		stdtime.Sleep(stdtime.Duration(float64(v) * float64(stdtime.Second)))
 	case object.Integer:
 		stdtime.Sleep(stdtime.Duration(int64(v)) * stdtime.Second)
-	default:
-		return nil, object.NewTypeError("sleep() argument must be a number, got %s", args.Positional[0].TypeName())
 	}
 	return object.Nil, nil
 }
@@ -51,19 +45,10 @@ func sleep(args object.CallArgs) (object.Object, error) {
 // parse parses a formatted string and returns the time value it represents.
 // Uses Go's reference layout (e.g. "2006-01-02").
 func parse(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("parse", args); err != nil {
+	p := object.NewArgParser("parse", args)
+	layout, value := p.Str("layout"), p.Str("value")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 2 {
-		return nil, object.NewTypeError("parse() requires exactly 2 arguments")
-	}
-	layout, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("parse() first argument must be a string")
-	}
-	value, ok := args.Positional[1].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("parse() second argument must be a string")
 	}
 	t, err := stdtime.Parse(string(layout), string(value))
 	if err != nil {
@@ -74,28 +59,22 @@ func parse(args object.CallArgs) (object.Object, error) {
 
 // unix returns the local time corresponding to the given Unix time, in seconds.
 func unix(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("unix", args); err != nil {
+	p := object.NewArgParser("unix", args)
+	sec := p.Int("seconds")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("unix() requires exactly 1 argument")
-	}
-	sec, ok := args.Positional[0].(object.Integer)
-	if !ok {
-		return nil, object.NewTypeError("unix() argument must be an integer")
 	}
 	return NewTime(stdtime.Unix(int64(sec), 0)), nil
 }
 
 // since returns the number of seconds (float) elapsed since the given Time.
 func since(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("since", args); err != nil {
+	p := object.NewArgParser("since", args)
+	timeObj := p.Any("time")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("since() requires exactly 1 argument")
-	}
-	t, ok := args.Positional[0].(*Time)
+	t, ok := timeObj.(*Time)
 	if !ok {
 		return nil, object.NewTypeError("since() argument must be a Time")
 	}

@@ -55,11 +55,8 @@ func (r *Response) Attributes() []string {
 // json parses the response body as JSON and returns the corresponding goblin
 // value (dict, list, string, number, bool, or nil).
 func (r *Response) json(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("json", args); err != nil {
+	if err := object.NewArgParser("json", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("json() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	dec := json.NewDecoder(r.body)
 	dec.UseNumber()

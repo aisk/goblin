@@ -60,11 +60,13 @@ func eprint(args object.CallArgs) (object.Object, error) {
 }
 
 func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword(name, args); err != nil {
+	p := object.NewArgParser(name, args)
+	values := p.Rest()
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	var b strings.Builder
-	for i, arg := range args.Positional {
+	for i, arg := range values {
 		if i > 0 {
 			b.WriteByte(' ')
 		}

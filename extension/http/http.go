@@ -89,31 +89,25 @@ func doPatch(client *stdhttp.Client, args object.CallArgs) (object.Object, error
 
 // doDo implements do(request) — mirrors (*Client).Do.
 func doDo(client *stdhttp.Client, args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("do", args); err != nil {
+	p := object.NewArgParser("do", args)
+	requestArg := p.Any("request")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("do() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	reqObj, ok := args.Positional[0].(*Request)
+	reqObj, ok := requestArg.(*Request)
 	if !ok {
-		return nil, object.NewTypeError("do() argument must be a request, got %s", args.Positional[0].TypeName())
+		return nil, object.NewTypeError("do() argument must be a request, got %s", requestArg.TypeName())
 	}
 	return doRequest(client, reqObj.Req)
 }
 
 func bodylessRequest(client *stdhttp.Client, fn, method string, args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword(fn, args); err != nil {
+	p := object.NewArgParser(fn, args)
+	rawURL := p.Str("url")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
-	}
-	rawURL, err := stringArg(fn, "url", args.Positional[0])
-	if err != nil {
-		return nil, err
-	}
-	req, err := buildRequest(method, rawURL, "", nil)
+	req, err := buildRequest(method, string(rawURL), "", nil)
 	if err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
 	}
@@ -121,25 +115,17 @@ func bodylessRequest(client *stdhttp.Client, fn, method string, args object.Call
 }
 
 func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword(fn, args); err != nil {
+	p := object.NewArgParser(fn, args)
+	rawURL, contentType := p.Str("url"), p.Str("content_type")
+	bodyObj := p.Any("body")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 3 {
-		return nil, object.NewTypeError("%s() takes exactly 3 arguments (url, content_type, body), got %d", fn, len(args.Positional))
-	}
-	rawURL, err := stringArg(fn, "url", args.Positional[0])
+	body, err := bodyArg(fn, bodyObj)
 	if err != nil {
 		return nil, err
 	}
-	contentType, err := stringArg(fn, "content_type", args.Positional[1])
-	if err != nil {
-		return nil, err
-	}
-	body, err := bodyArg(fn, args.Positional[2])
-	if err != nil {
-		return nil, err
-	}
-	req, err := buildRequest(method, rawURL, contentType, body)
+	req, err := buildRequest(method, string(rawURL), string(contentType), body)
 	if err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
 	}
@@ -154,25 +140,17 @@ func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs
 // mirrors http.NewRequest. The returned request is executed later via
 // client.do.
 func newRequestObject(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("Request", args); err != nil {
+	p := object.NewArgParser("Request", args)
+	method, rawURL := p.Str("method"), p.Str("url")
+	bodyObj := p.Any("body")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 3 {
-		return nil, object.NewTypeError("Request() takes exactly 3 arguments (method, url, body), got %d", len(args.Positional))
-	}
-	method, err := stringArg("Request", "method", args.Positional[0])
+	body, err := bodyArg("Request", bodyObj)
 	if err != nil {
 		return nil, err
 	}
-	rawURL, err := stringArg("Request", "url", args.Positional[1])
-	if err != nil {
-		return nil, err
-	}
-	body, err := bodyArg("Request", args.Positional[2])
-	if err != nil {
-		return nil, err
-	}
-	req, err := buildRequest(method, rawURL, "", body)
+	req, err := buildRequest(string(method), string(rawURL), "", body)
 	if err != nil {
 		return nil, object.WrapNativeError(object.NetworkError, "Request() failed", err)
 	}
@@ -183,26 +161,14 @@ func newRequestObject(args object.CallArgs) (object.Object, error) {
 // is accepted as a single positional argument or the "timeout" keyword; when
 // omitted it defaults to defaultTimeout.
 func newClientObject(args object.CallArgs) (object.Object, error) {
-	if len(args.Positional) > 1 {
-		return nil, object.NewTypeError("Client() takes at most 1 positional argument, got %d", len(args.Positional))
-	}
-
-	var timeoutObj object.Object
-	if len(args.Positional) == 1 {
-		timeoutObj = args.Positional[0]
-	}
-	for key, value := range args.Keyword {
-		if key != "timeout" {
-			return nil, object.NewTypeError("Client() got an unexpected keyword argument '%s'", key)
-		}
-		if timeoutObj != nil {
-			return nil, object.NewTypeError("Client() got multiple values for argument 'timeout'")
-		}
-		timeoutObj = value
+	p := object.NewArgParser("Client", args)
+	timeoutObj, hasTimeout := p.OptionalAny("timeout")
+	if err := p.Finish(); err != nil {
+		return nil, err
 	}
 
 	timeout := defaultTimeout
-	if timeoutObj != nil {
+	if hasTimeout {
 		var err error
 		timeout, err = durationFromObject("Client", timeoutObj)
 		if err != nil {
@@ -235,16 +201,6 @@ func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, err
 		return nil, object.WrapNativeError(object.NetworkError, "request failed", err)
 	}
 	return NewResponse(resp), nil
-}
-
-// stringArg asserts that obj is a goblin string, returning a descriptive error
-// otherwise.
-func stringArg(fn, name string, obj object.Object) (string, error) {
-	s, ok := obj.(object.String)
-	if !ok {
-		return "", object.NewTypeError("%s() %s argument must be a string, got %s", fn, name, obj.TypeName())
-	}
-	return string(s), nil
 }
 
 // bodyArg accepts convenient in-memory values or any duck-typed object with a

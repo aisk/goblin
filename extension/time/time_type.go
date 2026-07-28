@@ -101,15 +101,10 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 		return &object.Function{
 			Name: "format",
 			Fn: func(args object.CallArgs) (object.Object, error) {
-				if err := object.RequireNoKeyword("format", args); err != nil {
+				p := object.NewArgParser("format", args)
+				layout := p.Str("layout")
+				if err := p.Finish(); err != nil {
 					return nil, err
-				}
-				if len(args.Positional) != 1 {
-					return nil, object.NewTypeError("format() requires exactly 1 argument")
-				}
-				layout, ok := args.Positional[0].(object.String)
-				if !ok {
-					return nil, object.NewTypeError("format() argument must be a string")
 				}
 				return object.String(t.Value.Format(string(layout))), nil
 			},

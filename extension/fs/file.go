@@ -28,11 +28,8 @@ func (f *File) ensureOpen(method string) error {
 }
 
 func (f *File) Read(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("read", args); err != nil {
+	if err := object.NewArgParser("read", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("read() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if err := f.ensureOpen("read"); err != nil {
 		return nil, err
@@ -68,11 +65,8 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 }
 
 func (f *File) Close(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("close", args); err != nil {
+	if err := object.NewArgParser("close", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("close() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if f.closed {
 		return object.Nil, nil
@@ -85,11 +79,8 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 }
 
 func (f *File) Stat(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("stat", args); err != nil {
+	if err := object.NewArgParser("stat", args).Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("stat() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	if err := f.ensureOpen("stat"); err != nil {
 		return nil, err

@@ -48,14 +48,15 @@ func newOsModule(argsFn func() []string) object.Object {
 	}
 }
 
+func noArgs(name string, args object.CallArgs) error {
+	return object.NewArgParser(name, args).Finish()
+}
+
 // makeArgv returns argv(), which yields a fresh Goblin list from argsFn each call.
 func makeArgv(argsFn func() []string) func(object.CallArgs) (object.Object, error) {
 	return func(args object.CallArgs) (object.Object, error) {
-		if err := object.RequireNoKeyword("argv", args); err != nil {
+		if err := noArgs("argv", args); err != nil {
 			return nil, err
-		}
-		if len(args.Positional) != 0 {
-			return nil, object.NewTypeError("argv() requires no arguments")
 		}
 		procArgs := argsFn()
 		elems := make([]object.Object, len(procArgs))
@@ -67,53 +68,30 @@ func makeArgv(argsFn func() []string) func(object.CallArgs) (object.Object, erro
 }
 
 func exit(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("exit", args); err != nil {
+	p := object.NewArgParser("exit", args)
+	code := p.IntOr("code", 0)
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 1 {
-		return nil, object.NewTypeError("exit() takes at most 1 argument")
-	}
-	code := 0
-	if len(args.Positional) == 1 {
-		c, ok := args.Positional[0].(object.Integer)
-		if !ok {
-			return nil, object.NewTypeError("exit() argument must be an integer")
-		}
-		code = int(c)
-	}
-	os.Exit(code)
+	os.Exit(int(code))
 	return nil, nil
 }
 
 func getenv(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getenv", args); err != nil {
+	p := object.NewArgParser("getenv", args)
+	key := p.Str("key")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("getenv() requires exactly 1 argument")
-	}
-	key, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("getenv() argument must be a string")
 	}
 	value := os.Getenv(string(key))
 	return object.String(value), nil
 }
 
 func setenv(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("setenv", args); err != nil {
+	p := object.NewArgParser("setenv", args)
+	key, value := p.Str("key"), p.Str("value")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 2 {
-		return nil, object.NewTypeError("setenv() requires exactly 2 arguments")
-	}
-	key, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("setenv() first argument must be a string")
-	}
-	value, ok := args.Positional[1].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("setenv() second argument must be a string")
 	}
 	if err := os.Setenv(string(key), string(value)); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "setenv() failed", err)
@@ -122,15 +100,10 @@ func setenv(args object.CallArgs) (object.Object, error) {
 }
 
 func unsetenv(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("unsetenv", args); err != nil {
+	p := object.NewArgParser("unsetenv", args)
+	key := p.Str("key")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("unsetenv() requires exactly 1 argument")
-	}
-	key, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("unsetenv() argument must be a string")
 	}
 	if err := os.Unsetenv(string(key)); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "unsetenv() failed", err)
@@ -139,11 +112,8 @@ func unsetenv(args object.CallArgs) (object.Object, error) {
 }
 
 func environ(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("environ", args); err != nil {
+	if err := noArgs("environ", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("environ() requires no arguments")
 	}
 	env := os.Environ()
 	entries := make(map[string]object.DictEntry, len(env))
@@ -161,11 +131,8 @@ func environ(args object.CallArgs) (object.Object, error) {
 }
 
 func hostname(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("hostname", args); err != nil {
+	if err := noArgs("hostname", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("hostname() requires no arguments")
 	}
 	name, err := os.Hostname()
 	if err != nil {
@@ -175,77 +142,56 @@ func hostname(args object.CallArgs) (object.Object, error) {
 }
 
 func getpid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getpid", args); err != nil {
+	if err := noArgs("getpid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getpid() requires no arguments")
 	}
 	pid := os.Getpid()
 	return object.Integer(pid), nil
 }
 
 func getppid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getppid", args); err != nil {
+	if err := noArgs("getppid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getppid() requires no arguments")
 	}
 	ppid := os.Getppid()
 	return object.Integer(ppid), nil
 }
 
 func getuid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getuid", args); err != nil {
+	if err := noArgs("getuid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getuid() requires no arguments")
 	}
 	uid := os.Getuid()
 	return object.Integer(uid), nil
 }
 
 func getegid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getegid", args); err != nil {
+	if err := noArgs("getegid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getegid() requires no arguments")
 	}
 	egid := os.Getegid()
 	return object.Integer(egid), nil
 }
 
 func geteuid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("geteuid", args); err != nil {
+	if err := noArgs("geteuid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("geteuid() requires no arguments")
 	}
 	euid := os.Geteuid()
 	return object.Integer(euid), nil
 }
 
 func getgid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getgid", args); err != nil {
+	if err := noArgs("getgid", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getgid() requires no arguments")
 	}
 	gid := os.Getgid()
 	return object.Integer(gid), nil
 }
 
 func getgroups(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getgroups", args); err != nil {
+	if err := noArgs("getgroups", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getgroups() requires no arguments")
 	}
 	gids, err := os.Getgroups()
 	if err != nil {
@@ -259,21 +205,15 @@ func getgroups(args object.CallArgs) (object.Object, error) {
 }
 
 func getpagesize(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getpagesize", args); err != nil {
+	if err := noArgs("getpagesize", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getpagesize() requires no arguments")
 	}
 	return object.Integer(os.Getpagesize()), nil
 }
 
 func getwd(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("getwd", args); err != nil {
+	if err := noArgs("getwd", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("getwd() requires no arguments")
 	}
 	wd, err := os.Getwd()
 	if err != nil {
@@ -286,29 +226,21 @@ func getwd(args object.CallArgs) (object.Object, error) {
 // Both dir and pattern are optional; when dir is empty Go uses the OS default
 // temp directory.
 func tempDir(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tempdir", args); err != nil {
+	p := object.NewArgParser("tempdir", args)
+	dirObj, hasDir := p.OptionalAny("dir")
+	pattern := p.StrOr("pattern", "")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 2 {
-		return nil, object.NewTypeError("tempdir() takes at most 2 arguments, got %d", len(args.Positional))
-	}
 	dir := ""
-	pattern := ""
-	if len(args.Positional) >= 1 {
-		d, ok := object.PathString(args.Positional[0])
+	if hasDir {
+		d, ok := object.PathString(dirObj)
 		if !ok {
 			return nil, object.NewTypeError("tempdir() first argument (dir) must be a string or Path")
 		}
 		dir = d
 	}
-	if len(args.Positional) >= 2 {
-		p, ok := args.Positional[1].(object.String)
-		if !ok {
-			return nil, object.NewTypeError("tempdir() second argument (pattern) must be a string")
-		}
-		pattern = string(p)
-	}
-	path, err := os.MkdirTemp(dir, pattern)
+	path, err := os.MkdirTemp(dir, string(pattern))
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "tempdir() failed", err)
 	}
@@ -319,29 +251,21 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 // Both dir and pattern are optional; when dir is empty Go uses the OS default
 // temp directory.
 func tempFile(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("tempfile", args); err != nil {
+	p := object.NewArgParser("tempfile", args)
+	dirObj, hasDir := p.OptionalAny("dir")
+	pattern := p.StrOr("pattern", "")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 2 {
-		return nil, object.NewTypeError("tempfile() takes at most 2 arguments, got %d", len(args.Positional))
-	}
 	dir := ""
-	pattern := ""
-	if len(args.Positional) >= 1 {
-		d, ok := object.PathString(args.Positional[0])
+	if hasDir {
+		d, ok := object.PathString(dirObj)
 		if !ok {
 			return nil, object.NewTypeError("tempfile() first argument (dir) must be a string or Path")
 		}
 		dir = d
 	}
-	if len(args.Positional) >= 2 {
-		p, ok := args.Positional[1].(object.String)
-		if !ok {
-			return nil, object.NewTypeError("tempfile() second argument (pattern) must be a string")
-		}
-		pattern = string(p)
-	}
-	f, err := os.CreateTemp(dir, pattern)
+	f, err := os.CreateTemp(dir, string(pattern))
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "tempfile() failed", err)
 	}

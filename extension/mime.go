@@ -16,32 +16,20 @@ func ExecuteMime() (object.Object, error) {
 }
 
 func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("type_by_extension", args); err != nil {
+	p := object.NewArgParser("type_by_extension", args)
+	ext := p.Str("extension")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("type_by_extension() requires exactly 1 argument")
-	}
-
-	ext, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("type_by_extension() argument must be a string")
 	}
 
 	return object.String(mime.TypeByExtension(string(ext))), nil
 }
 
 func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("extensions_by_type", args); err != nil {
+	p := object.NewArgParser("extensions_by_type", args)
+	mimeType := p.Str("mime_type")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("extensions_by_type() requires exactly 1 argument")
-	}
-
-	mimeType, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("extensions_by_type() argument must be a string")
 	}
 
 	extensions, err := mime.ExtensionsByType(string(mimeType))

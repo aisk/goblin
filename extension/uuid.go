@@ -18,26 +18,17 @@ func ExecuteUUID() (object.Object, error) {
 }
 
 func uuidNew(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("new", args); err != nil {
+	if err := noArgs("new", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, object.NewTypeError("new() requires no arguments")
 	}
 	return NewUUID(googleuuid.New()), nil
 }
 
 func uuidParse(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("parse", args); err != nil {
+	p := object.NewArgParser("parse", args)
+	value := p.Str("value")
+	if err := p.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("parse() requires exactly 1 argument")
-	}
-
-	value, ok := args.Positional[0].(object.String)
-	if !ok {
-		return nil, object.NewTypeError("parse() argument must be a string")
 	}
 
 	id, err := googleuuid.Parse(string(value))
@@ -48,14 +39,12 @@ func uuidParse(args object.CallArgs) (object.Object, error) {
 }
 
 func uuidValidate(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoKeyword("validate", args); err != nil {
+	p := object.NewArgParser("validate", args)
+	value := p.Any("value")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, object.NewTypeError("validate() requires exactly 1 argument")
-	}
-
-	switch value := args.Positional[0].(type) {
+	switch value := value.(type) {
 	case *UUID:
 		return object.True, nil
 	case object.String:

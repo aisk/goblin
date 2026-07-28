@@ -106,31 +106,21 @@ func (h *Header) del(args object.CallArgs) (object.Object, error) {
 }
 
 func headerKeyArg(fn string, args object.CallArgs) (string, error) {
-	if err := object.RequireNoKeyword(fn, args); err != nil {
+	p := object.NewArgParser(fn, args)
+	key := p.Str("key")
+	if err := p.Finish(); err != nil {
 		return "", err
 	}
-	if len(args.Positional) != 1 {
-		return "", object.NewTypeError("%s() takes exactly 1 argument, got %d", fn, len(args.Positional))
-	}
-	return stringArg(fn, "key", args.Positional[0])
+	return string(key), nil
 }
 
 func headerKeyValueArgs(fn string, args object.CallArgs) (string, string, error) {
-	if err := object.RequireNoKeyword(fn, args); err != nil {
+	p := object.NewArgParser(fn, args)
+	key, value := p.Str("key"), p.Str("value")
+	if err := p.Finish(); err != nil {
 		return "", "", err
 	}
-	if len(args.Positional) != 2 {
-		return "", "", object.NewTypeError("%s() takes exactly 2 arguments, got %d", fn, len(args.Positional))
-	}
-	key, err := stringArg(fn, "key", args.Positional[0])
-	if err != nil {
-		return "", "", err
-	}
-	value, err := stringArg(fn, "value", args.Positional[1])
-	if err != nil {
-		return "", "", err
-	}
-	return key, value, nil
+	return string(key), string(value), nil
 }
 
 var _ object.Object = (*Header)(nil)
