@@ -94,6 +94,81 @@ func TestArgParserOptionalAnyDistinguishesOmittedAndNil(t *testing.T) {
 	}
 }
 
+func TestArgParserKeywordOnly(t *testing.T) {
+	p := NewArgParser("f", CallArgs{Keyword: Kwargs{"a": Integer(1), "b": Integer(2)}})
+	a, b := p.Int("a"), p.Int("b")
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if a != 1 || b != 2 {
+		t.Fatalf("unexpected values: a=%v b=%v", a, b)
+	}
+}
+
+func TestArgParserDuplicateArgument(t *testing.T) {
+	// f("x", sep=",") where the first accessor is sep: the positional slot
+	// already binds sep, so the keyword is a duplicate, not a value for the
+	// next parameter.
+	p := NewArgParser("split", CallArgs{
+		Positional: Args{String("x")},
+		Keyword:    Kwargs{"sep": String(",")},
+	})
+	p.Str("sep")
+	p.IntOr("count", -1)
+	err := p.Finish()
+	if err == nil || !strings.Contains(err.Error(), "split() got multiple values for argument 'sep'") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestArgParserDuplicateArgumentLaterParam(t *testing.T) {
+	// f(1, 2, b=9): the second positional slot already binds b.
+	p := NewArgParser("f", CallArgs{
+		Positional: Args{Integer(1), Integer(2)},
+		Keyword:    Kwargs{"b": Integer(9)},
+	})
+	p.Int("a")
+	p.Int("b")
+	err := p.Finish()
+	if err == nil || !strings.Contains(err.Error(), "f() got multiple values for argument 'b'") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestArgParserKeywordAfterPositionalNoConflict(t *testing.T) {
+	// f(1, b=2): the positional slot binds a, the keyword binds b — no conflict.
+	p := NewArgParser("f", CallArgs{
+		Positional: Args{Integer(1)},
+		Keyword:    Kwargs{"b": Integer(2)},
+	})
+	a := p.Int("a")
+	b := p.IntOr("b", -1)
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if a != 1 || b != 2 {
+		t.Fatalf("unexpected values: a=%v b=%v", a, b)
+	}
+}
+
+func TestArgParserRestThenKeywordNoConflict(t *testing.T) {
+	// f(1, 2, 3, key=9): the variadic tail belongs to Rest, so a keyword-only
+	// accessor after Rest must not report a duplicate.
+	p := NewArgParser("f", CallArgs{
+		Positional: Args{Integer(1), Integer(2), Integer(3)},
+		Keyword:    Kwargs{"key": Integer(9)},
+	})
+	first := p.Int("first")
+	rest := p.Rest()
+	key := p.IntOr("key", -1)
+	if err := p.Finish(); err != nil {
+		t.Fatalf("expected nil error, got %v", err)
+	}
+	if first != 1 || len(rest) != 2 || key != 9 {
+		t.Fatalf("unexpected values: first=%v rest=%v key=%v", first, rest, key)
+	}
+}
+
 func TestArgParserRest(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{Integer(1), Integer(2), Integer(3)}})
 	first := p.Int("first")

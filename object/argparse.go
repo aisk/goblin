@@ -46,7 +46,9 @@ func (p *ArgParser) next(name string) (Object, bool) {
 		return nil, false
 	}
 	if v, ok := p.call.Keyword[name]; ok {
-		if p.used[name] {
+		// An unconsumed positional slot would have bound to this parameter,
+		// so the caller supplied it both positionally and by keyword.
+		if p.used[name] || p.pos < len(p.call.Positional) {
 			p.err = NewTypeError("%s() got multiple values for argument '%s'", p.funcName, name)
 			return nil, false
 		}
