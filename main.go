@@ -302,7 +302,7 @@ func evalLine(out io.Writer, session *interpreter.Session, src string) {
 	if _, isUnit := result.(object.Unit); isUnit {
 		return
 	}
-	fmt.Fprintln(out, object.Inspect(result))
+	fmt.Fprintln(out, fmt.Sprint(result))
 }
 
 // bracketsBalanced reports whether all (), [], {} are closed, ignoring those

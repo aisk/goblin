@@ -34,7 +34,7 @@ func dictKey(key Object) (string, error) {
 	case Unit:
 		return "n:", nil
 	default:
-		return "", NewTypeError("unhashable dict key: %s", Inspect(key))
+		return "", NewTypeError("unhashable dict key: %s", inspect(key))
 	}
 }
 
@@ -157,7 +157,7 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if hasDefault {
 		return def, nil
 	}
-	return nil, NewKeyError("key not found: %s", Inspect(key))
+	return nil, NewKeyError("key not found: %s", inspect(key))
 }
 
 func (d *Dict) Update(args CallArgs) (Object, error) {
@@ -314,7 +314,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 	if ok {
 		return val, nil
 	}
-	return nil, NewKeyError("key not found: %s", Inspect(index))
+	return nil, NewKeyError("key not found: %s", inspect(index))
 }
 
 func (d *Dict) SetIndex(index Object, value Object) (bool, error) {

@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"fmt"
 	"bytes"
 	"encoding/json"
 	"strconv"
@@ -181,7 +182,7 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 			buf.WriteByte('\n')
 			writeSpaces(buf, indent*(level+1))
 		}
-		kb, err := json.Marshal(object.Inspect(entry.Key))
+		kb, err := json.Marshal(fmt.Sprint(entry.Key))
 		if err != nil {
 			return object.WrapError(object.ValueError, "marshal() failed", err)
 		}

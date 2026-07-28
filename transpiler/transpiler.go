@@ -1358,7 +1358,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		strDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
-			jen.Return(jen.Qual(pathObject, "Inspect").Call(jen.Id("_res"))),
+			jen.Return(jen.Qual("fmt", "Sprint").Call(jen.Id("_res"))),
 		)
 	} else {
 		strDecl.Block(reprReturn)
@@ -1424,7 +1424,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 				jen.Return(jen.Lit(0), jen.Qual(pathObject, "NewTypeError").Call(
 					jen.Lit("%s.__cmp must return Int, got %s"),
 					jen.Lit(typeDef.Name),
-					jen.Qual(pathObject, "Inspect").Call(jen.Id("_res")),
+					jen.Qual("fmt", "Sprint").Call(jen.Id("_res")),
 				)),
 			),
 			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),

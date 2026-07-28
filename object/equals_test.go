@@ -79,10 +79,10 @@ func TestEquals(t *testing.T) {
 			continue
 		}
 		if got != tc.want {
-			t.Errorf("%s: Equals(%s, %s) = %v, want %v", tc.name, Inspect(tc.a), Inspect(tc.b), got, tc.want)
+			t.Errorf("%s: Equals(%s, %s) = %v, want %v", tc.name, inspect(tc.a), inspect(tc.b), got, tc.want)
 		}
 		if got, err := Equals(tc.b, tc.a); err != nil || got != tc.want {
-			t.Errorf("%s (swapped): Equals(%s, %s) = %v, %v; want %v", tc.name, Inspect(tc.b), Inspect(tc.a), got, err, tc.want)
+			t.Errorf("%s (swapped): Equals(%s, %s) = %v, %v; want %v", tc.name, inspect(tc.b), inspect(tc.a), got, err, tc.want)
 		}
 	}
 }
@@ -137,10 +137,10 @@ func TestEqualsTreatsTypeErrorAsUnequal(t *testing.T) {
 	for _, other := range []Object{Nil, String("x"), &List{}} {
 		eq, err := Equals(obj, other)
 		if err != nil {
-			t.Errorf("Equals(obj, %s) error = %v, want none", Inspect(other), err)
+			t.Errorf("Equals(obj, %s) error = %v, want none", inspect(other), err)
 		}
 		if eq {
-			t.Errorf("Equals(obj, %s) = true, want false", Inspect(other))
+			t.Errorf("Equals(obj, %s) = true, want false", inspect(other))
 		}
 	}
 	if eq, err := Equals(obj, Integer(1)); err != nil || !eq {
@@ -151,7 +151,7 @@ func TestEqualsTreatsTypeErrorAsUnequal(t *testing.T) {
 func TestEqualsPropagatesComparisonFailure(t *testing.T) {
 	for _, pair := range [][2]Object{{&raisingCmp{}, Integer(1)}, {Integer(1), &raisingCmp{}}} {
 		if _, err := Equals(pair[0], pair[1]); !errors.Is(err, ValueError) {
-			t.Errorf("Equals(%s, %s) error = %v, want ValueError", Inspect(pair[0]), Inspect(pair[1]), err)
+			t.Errorf("Equals(%s, %s) error = %v, want ValueError", inspect(pair[0]), inspect(pair[1]), err)
 		}
 	}
 }
