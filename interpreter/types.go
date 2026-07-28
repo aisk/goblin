@@ -333,7 +333,7 @@ func (in *instance) Index(index object.Object) (object.Object, error) {
 }
 
 // SetIndex dispatches `obj[i] = v` to a user-defined "__setitem" method. It
-// reports handled == false without one, leaving object.SetItem
+// reports handled == false without one, leaving object.SetIndex
 // to raise the same "does not support index assignment" error every other type
 // gets.
 func (in *instance) SetIndex(index object.Object, value object.Object) (bool, error) {

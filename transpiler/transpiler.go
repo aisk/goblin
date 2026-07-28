@@ -919,7 +919,7 @@ func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandl
 	stmts := append(objPre, idxPre...)
 	stmts = append(stmts, valPre...)
 	stmts = append(stmts,
-		jen.Id(errVar).Op(":=").Qual(pathObject, "SetItem").Call(obj, idx, val),
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetIndex").Call(obj, idx, val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return stmts, nil
@@ -938,7 +938,7 @@ func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler
 	errVar := ctx.localName("err")
 	stmts := append(objPre, valPre...)
 	stmts = append(stmts,
-		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttribute").Call(obj, jen.Lit(s.Property), val),
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttr").Call(obj, jen.Lit(s.Property), val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return stmts, nil
@@ -1521,7 +1521,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	protoDecls = append(protoDecls, indexDecl)
 
 	// SetIndex(index, value) (bool, error)  <- "__setitem". Without it the type
-	// reports "not handled" and object.SetItem raises the shared error.
+	// reports "not handled" and object.SetIndex raises the shared error.
 	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
 		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Bool(), jen.Error()))
