@@ -1142,10 +1142,20 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Parameter : "*" id	<< ast.NewVarArgsParameter(X[1]) >>`,
+		String: `Parameter : id "=" Expression	<< ast.NewDefaultParameter(X[0], X[2]) >>`,
 		Id:         "Parameter",
 		NTType:     46,
 		Index:      112,
+		NumSymbols: 3,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewDefaultParameter(X[0], X[2])
+		},
+	},
+	ProdTabEntry{
+		String: `Parameter : "*" id	<< ast.NewVarArgsParameter(X[1]) >>`,
+		Id:         "Parameter",
+		NTType:     46,
+		Index:      113,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewVarArgsParameter(X[1])
@@ -1155,7 +1165,7 @@ var productionsTable = ProdTab{
 		String: `Parameter : "**" id	<< ast.NewKwArgsParameter(X[1]) >>`,
 		Id:         "Parameter",
 		NTType:     46,
-		Index:      113,
+		Index:      114,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewKwArgsParameter(X[1])
@@ -1165,7 +1175,7 @@ var productionsTable = ProdTab{
 		String: `TypeFields : empty	<<  >>`,
 		Id:         "TypeFields",
 		NTType:     47,
-		Index:      114,
+		Index:      115,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -1175,7 +1185,7 @@ var productionsTable = ProdTab{
 		String: `TypeFields : TypeFieldList	<<  >>`,
 		Id:         "TypeFields",
 		NTType:     47,
-		Index:      115,
+		Index:      116,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -1185,7 +1195,7 @@ var productionsTable = ProdTab{
 		String: `TypeFieldList : TypeField	<< ast.NewTypeFieldList(X[0]) >>`,
 		Id:         "TypeFieldList",
 		NTType:     48,
-		Index:      116,
+		Index:      117,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewTypeFieldList(X[0])
@@ -1195,7 +1205,7 @@ var productionsTable = ProdTab{
 		String: `TypeFieldList : TypeFieldList "," TypeField	<< ast.AppendTypeFieldList(X[0], X[2]) >>`,
 		Id:         "TypeFieldList",
 		NTType:     48,
-		Index:      117,
+		Index:      118,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendTypeFieldList(X[0], X[2])
@@ -1205,7 +1215,7 @@ var productionsTable = ProdTab{
 		String: `TypeField : id	<< ast.NewRequiredTypeField(X[0]) >>`,
 		Id:         "TypeField",
 		NTType:     49,
-		Index:      118,
+		Index:      119,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewRequiredTypeField(X[0])
@@ -1215,7 +1225,7 @@ var productionsTable = ProdTab{
 		String: `TypeField : id "=" Expression	<< ast.NewDefaultTypeField(X[0], X[2]) >>`,
 		Id:         "TypeField",
 		NTType:     49,
-		Index:      119,
+		Index:      120,
 		NumSymbols: 3,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewDefaultTypeField(X[0], X[2])
@@ -1225,7 +1235,7 @@ var productionsTable = ProdTab{
 		String: `FunctionDefine : "func" id "(" Parameters ")" Block	<< ast.NewFunctionDefine(X[1], X[3], X[5]) >>`,
 		Id:         "FunctionDefine",
 		NTType:     50,
-		Index:      120,
+		Index:      121,
 		NumSymbols: 6,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewFunctionDefine(X[1], X[3], X[5])
@@ -1235,7 +1245,7 @@ var productionsTable = ProdTab{
 		String: `TypeMethods : empty	<<  >>`,
 		Id:         "TypeMethods",
 		NTType:     51,
-		Index:      121,
+		Index:      122,
 		NumSymbols: 0,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return nil, nil
@@ -1245,7 +1255,7 @@ var productionsTable = ProdTab{
 		String: `TypeMethods : TypeMethodList	<<  >>`,
 		Id:         "TypeMethods",
 		NTType:     51,
-		Index:      122,
+		Index:      123,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return X[0], nil
@@ -1255,7 +1265,7 @@ var productionsTable = ProdTab{
 		String: `TypeMethodList : FunctionDefine	<< ast.NewTypeMethodList(X[0]) >>`,
 		Id:         "TypeMethodList",
 		NTType:     52,
-		Index:      123,
+		Index:      124,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewTypeMethodList(X[0])
@@ -1265,7 +1275,7 @@ var productionsTable = ProdTab{
 		String: `TypeMethodList : TypeMethodList FunctionDefine	<< ast.AppendTypeMethodList(X[0], X[1]) >>`,
 		Id:         "TypeMethodList",
 		NTType:     52,
-		Index:      124,
+		Index:      125,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.AppendTypeMethodList(X[0], X[1])
@@ -1275,7 +1285,7 @@ var productionsTable = ProdTab{
 		String: `TypeDefine : "type" id "(" TypeFields ")" "{" TypeMethods "}"	<< ast.NewTypeDefine(X[1], X[3], X[6]) >>`,
 		Id:         "TypeDefine",
 		NTType:     53,
-		Index:      125,
+		Index:      126,
 		NumSymbols: 8,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewTypeDefine(X[1], X[3], X[6])
@@ -1285,7 +1295,7 @@ var productionsTable = ProdTab{
 		String: `Return : "return" Expression	<< ast.NewReturn(X[1]) >>`,
 		Id:         "Return",
 		NTType:     54,
-		Index:      126,
+		Index:      127,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturn(X[1])
@@ -1295,7 +1305,7 @@ var productionsTable = ProdTab{
 		String: `Return : "return"	<< ast.NewReturnNil(X[0]) >>`,
 		Id:         "Return",
 		NTType:     54,
-		Index:      127,
+		Index:      128,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewReturnNil(X[0])
@@ -1305,7 +1315,7 @@ var productionsTable = ProdTab{
 		String: `Raise : "raise" Expression	<< ast.NewRaise(X[1]) >>`,
 		Id:         "Raise",
 		NTType:     55,
-		Index:      128,
+		Index:      129,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewRaise(X[1])
@@ -1315,7 +1325,7 @@ var productionsTable = ProdTab{
 		String: `Try : "try" Block "catch" id Block	<< ast.NewTryCatch(X[0], X[1], X[3], X[4]) >>`,
 		Id:         "Try",
 		NTType:     56,
-		Index:      129,
+		Index:      130,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewTryCatch(X[0], X[1], X[3], X[4])
@@ -1325,7 +1335,7 @@ var productionsTable = ProdTab{
 		String: `Export : "export" id	<< ast.NewExport(X[1]) >>`,
 		Id:         "Export",
 		NTType:     57,
-		Index:      130,
+		Index:      131,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExport(X[1])

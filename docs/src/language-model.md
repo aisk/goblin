@@ -11,7 +11,7 @@ before designing a larger program:
 | Area | Current behavior |
 | --- | --- |
 | Types | Dynamic; functions and fields have no annotations |
-| Functions | Required parameters plus `*args` and `**kwargs`; no default parameters |
+| Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
 | Strings | Unicode-aware iteration and size; no `string[index]` syntax |
 | Lists | Direct indexes are non-negative; some methods such as pop() accept negative indexes |
 | Imports | Module scope only; local paths are relative to the importing file |
@@ -19,9 +19,8 @@ before designing a larger program:
 | Errors | Explicit raise and try/catch; spawned-function errors are not propagated |
 
 Goblin favors direct, explicit code over a large amount of syntax. When a
-feature is absent, compose the available pieces: use a function instead of a
-default parameter, a channel instead of a join operation, or an explicit loop
-instead of a specialized expression form.
+feature is absent, compose the available pieces: use a channel instead of a
+join operation, or an explicit loop instead of a specialized expression form.
 
 ## Choosing a backend
 

@@ -549,6 +549,7 @@ func makeFunction(def *ast.FunctionDefine, env *Environment) *object.Function {
 // function literals. name is used for repr and BindArguments diagnostics.
 func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
 	var fixed []string
+	var defaults []object.ParamDefault
 	var varArgs, kwArgs string
 	for _, p := range params {
 		switch {
@@ -558,6 +559,16 @@ func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast
 			kwArgs = p.Name
 		default:
 			fixed = append(fixed, p.Name)
+			if p.HasDefault() {
+				// Defaults are evaluated per call in the defining environment,
+				// matching type-field defaults (types.go construct).
+				expr := p.Default
+				defaults = append(defaults, func() (object.Object, error) {
+					return evalExpr(expr, env)
+				})
+			} else {
+				defaults = append(defaults, nil)
+			}
 		}
 	}
 	module := ""
@@ -570,7 +581,7 @@ func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast
 		Name: name,
 		Fn: func(args object.CallArgs) (object.Object, error) {
 			local := NewEnvironment(env)
-			if err := object.BindArgumentsInto(name, fixed, varArgs, kwArgs, args, local); err != nil {
+			if err := object.BindArgumentsInto(name, fixed, defaults, varArgs, kwArgs, args, local); err != nil {
 				return nil, object.WithFrame(err, frame)
 			}
 			err := evalStatements(body, local)

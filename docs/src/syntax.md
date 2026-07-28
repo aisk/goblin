@@ -21,12 +21,12 @@ values such as strings, integers, or booleans.
 
 ## Functions and calls
 
-Function parameters are required unless captured by `*args` or `**kwargs`.
-Goblin does not have default function parameter values.
+Function parameters are required unless they declare a default value with `=`
+or are captured by `*args` or `**kwargs`.
 
 ~~~goblin
-func report(name, *values, **options) {
-    print(name, values, options)
+func report(name, limit = 10, *values, **options) {
+    print(name, limit, values, options)
 }
 
 report("scores", 1, 2, visible=true)

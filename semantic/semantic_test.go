@@ -143,6 +143,29 @@ func TestCheckModule(t *testing.T) {
 			errContains: "kwargs parameter must be the last parameter",
 		},
 		{
+			name:    "default parameters",
+			source:  "var base = 1\nfunc f(a, b=base+1, *args, **kwargs) { return b }\nf(1)\n",
+			wantErr: false,
+		},
+		{
+			name:        "required parameter after default parameter",
+			source:      "func f(a=1, b) { return b }\n",
+			wantErr:     true,
+			errContains: "required parameter cannot appear after default parameter: b",
+		},
+		{
+			name:        "default expression sees enclosing scope only",
+			source:      "func f(a, b=a) { return b }\n",
+			wantErr:     true,
+			errContains: "undefined identifier: a",
+		},
+		{
+			name:        "default expression with undefined identifier",
+			source:      "func f(a=missing) { return a }\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
 			name:        "import name conflict",
 			source:      "import \"os\"\nvar os = 1\n",
 			wantErr:     true,
@@ -229,6 +252,30 @@ func TestCheckModule(t *testing.T) {
 				"}\n" +
 				"print(V(1))\n",
 			wantErr: false,
+		},
+		{
+			name: "method with default parameter",
+			source: "type V(x) {\n" +
+				"  func scale(self, factor=2) { return self }\n" +
+				"}\n" +
+				"print(V(1))\n",
+			wantErr: false,
+		},
+		{
+			name: "protocol method with default parameter rejected",
+			source: "type V(x) {\n" +
+				"  func __add(self, other=1) { return self }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "protocol method '__add' cannot declare default parameter values",
+		},
+		{
+			name: "self with default rejected",
+			source: "type V(x) {\n" +
+				"  func m(self=1) { return self }\n" +
+				"}\n",
+			wantErr:     true,
+			errContains: "type method must declare 'self' as the first parameter",
 		},
 		{
 			name: "non-protocol method named add is unrestricted",

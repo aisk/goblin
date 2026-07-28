@@ -27,7 +27,7 @@ Module-level members should be only what cannot be a method — constructors, fa
 
 ## 3. Merging Go's overload families
 
-Go has no default arguments or overloading, so it grows function families like `Split`/`SplitN`, `Encode`/`EncodeToString`, `NewWriter`/`NewWriterLevel`. Goblin call sites support positional and keyword arguments plus `*`/`**` unpacking, and Go-implemented stdlib functions can give any parameter a default via `ArgParser` — use that to collapse each family into **one** function. (Functions written *in* Goblin cannot declare parameter defaults yet — the grammar has no `id = expr` parameter form. This is a language feature to be added, not a design choice; until it lands, defaults exist only in Go-implemented builtins and type-field declarations.)
+Go has no default arguments or overloading, so it grows function families like `Split`/`SplitN`, `Encode`/`EncodeToString`, `NewWriter`/`NewWriterLevel`. Goblin call sites support positional and keyword arguments plus `*`/`**` unpacking, and Go-implemented stdlib functions can give any parameter a default via `ArgParser` — use that to collapse each family into **one** function.
 
 - The common case must work with only positional required arguments: `s.split(sep)`.
 - Variations become optional keyword arguments with defaults that reproduce the Go zero-config behaviour: `s.split(sep, count=-1)`, `gzip.compress(data, level=gzip.default_compression)`.

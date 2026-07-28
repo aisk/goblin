@@ -527,6 +527,11 @@ type Parameter struct {
 	Pos     token.Pos
 	VarArgs bool
 	KwArgs  bool
+	Default Expression
+}
+
+func (p *Parameter) HasDefault() bool {
+	return p.Default != nil
 }
 
 func NewRequiredParameter(x any) (any, error) {
@@ -536,6 +541,15 @@ func NewRequiredParameter(x any) (any, error) {
 		Pos:     tok.Pos,
 		VarArgs: false,
 		KwArgs:  false,
+	}, nil
+}
+
+func NewDefaultParameter(name, value any) (any, error) {
+	tok := name.(*token.Token)
+	return &Parameter{
+		Name:    string(tok.Lit),
+		Pos:     tok.Pos,
+		Default: value.(Expression),
 	}, nil
 }
 

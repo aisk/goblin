@@ -1128,13 +1128,61 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
 }
 
+// emitParamDefaults emits the declaration of an []object.ParamDefault literal
+// holding one lazy closure per defaulted parameter (nil per required one). It
+// returns nil code and an empty name when no parameter declares a default.
+// Callers must place the declaration before the parameter variable
+// declarations: the closures must capture the enclosing scope, not the
+// parameters a default expression may share a name with.
+func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Code, string, error) {
+	hasDefault := false
+	for _, param := range params {
+		if param.HasDefault() {
+			hasDefault = true
+			break
+		}
+	}
+	if !hasDefault {
+		return nil, "", nil
+	}
+
+	onError := func(errVar string) jen.Code {
+		return jen.Return(jen.Nil(), jen.Id(errVar))
+	}
+
+	var entries []jen.Code
+	for _, param := range params {
+		if param.VarArgs || param.KwArgs {
+			continue
+		}
+		if !param.HasDefault() {
+			entries = append(entries, jen.Nil())
+			continue
+		}
+		pre, value, err := ctx.transpileExpression(param.Default, onError)
+		if err != nil {
+			return nil, "", err
+		}
+		body := append(pre, jen.Return(value, jen.Nil()))
+		entries = append(entries, jen.Func().Params().Parens(jen.List(
+			jen.Qual(pathObject, "Object"), jen.Id("error")),
+		).Block(body...))
+	}
+
+	name := ctx.localName("defaults")
+	decl := jen.Id(name).Op(":=").Index().Qual(pathObject, "ParamDefault").Values(entries...)
+	return decl, name, nil
+}
+
 // emitParameterBinding emits the statements that bind a CallArgs value (the
 // local named callArgsName) to one Go variable per parameter. It splits params
 // into fixed / *varargs / **kwargs, calls object.BindArguments, and unpacks the
-// resulting map. name is used only for BindArguments diagnostics, and fnOnError
-// builds the error-return emitted when binding fails. It is shared by named
-// functions, anonymous literals, and type methods.
-func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Parameter, callArgsName string, fnOnError errHandler) []jen.Code {
+// resulting map. name is used only for BindArguments diagnostics, defaultsName
+// names the enclosing []object.ParamDefault emitted by emitParamDefaults (""
+// when no parameter has a default), and fnOnError builds the error-return
+// emitted when binding fails. It is shared by named functions, anonymous
+// literals, and type methods.
+func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Parameter, defaultsName string, callArgsName string, fnOnError errHandler) []jen.Code {
 	var varArgsParam *ast.Parameter
 	var kwArgsParam *ast.Parameter
 	fixedParams := make([]*ast.Parameter, 0, len(params))
@@ -1166,9 +1214,14 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 	}
 
 	bindCall := func() jen.Code {
+		defaultsArg := jen.Nil()
+		if defaultsName != "" {
+			defaultsArg = jen.Id(defaultsName)
+		}
 		return jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(name),
 			jen.Index().String().Values(fixedParamNames...),
+			defaultsArg,
 			jen.Lit(varArgsName),
 			jen.Lit(kwArgsName),
 			jen.Id(callArgsName),
@@ -1247,6 +1300,13 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 // by named function definitions and anonymous function literals. name is used
 // only for the runtime function's repr and for BindArguments diagnostics.
 func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
+	// Default expressions belong to the enclosing scope, so they are transpiled
+	// before entering the body's inference scope.
+	defaultsDecl, defaultsName, err := ctx.emitParamDefaults(params)
+	if err != nil {
+		return nil, err
+	}
+
 	// Each function body gets its own inferred types; parameters stay boxed,
 	// since a caller can pass anything.
 	defer ctx.enterScope(body)()
@@ -1257,7 +1317,10 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 		return tracedReturn(errVar, "", name, pos)
 	}
 
-	argsDefine := ctx.emitParameterBinding(name, params, callArgsName, fnOnError)
+	argsDefine := ctx.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)
+	if defaultsDecl != nil {
+		argsDefine = append([]jen.Code{defaultsDecl}, argsDefine...)
+	}
 
 	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
 	if err != nil {
@@ -1660,8 +1723,15 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
 			jen.Id("_").Op("=").Id("builtin"),
 		}
+		defaultsDecl, defaultsName, err := ctx.emitParamDefaults(method.Parameters[1:])
+		if err != nil {
+			return nil, err
+		}
+		if defaultsDecl != nil {
+			bodyPrefix = append(bodyPrefix, defaultsDecl)
+		}
 		bodyPrefix = append(bodyPrefix,
-			ctx.emitParameterBinding(typeDef.Name+"."+method.Name, method.Parameters[1:], callArgsName, fnOnError)...,
+			ctx.emitParameterBinding(typeDef.Name+"."+method.Name, method.Parameters[1:], defaultsName, callArgsName, fnOnError)...,
 		)
 		bodyPrefix = append(bodyPrefix,
 			jen.Var().Id("self").Qual(pathObject, "Object").Op("=").Id(receiverName),
@@ -1732,6 +1802,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(typeDef.Name),
 			jen.Index().String().Values(fieldNames...),
+			jen.Nil(),
 			jen.Lit(""),
 			jen.Lit(""),
 			jen.Id(enrichedCallArgsName),

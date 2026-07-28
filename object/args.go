@@ -25,10 +25,15 @@ type Scope interface {
 	Define(name string, v Object)
 }
 
+// ParamDefault computes a parameter's default value. Binding calls it only
+// when the argument is absent, so defaults are evaluated per call and a failing
+// default expression fails the call itself.
+type ParamDefault func() (Object, error)
+
 // BindArgumentsInto binds call arguments straight into scope. For the common
 // call shape (fixed parameters, all positional) nothing is allocated at all;
 // other shapes fall back to BindArguments.
-func BindArgumentsInto(funcName string, params []string, varArgsParam, kwArgsParam string, call CallArgs, scope Scope) error {
+func BindArgumentsInto(funcName string, params []string, defaults []ParamDefault, varArgsParam, kwArgsParam string, call CallArgs, scope Scope) error {
 	if varArgsParam == "" && kwArgsParam == "" && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
 		for i, param := range params {
 			scope.Define(param, call.Positional[i])
@@ -36,7 +41,7 @@ func BindArgumentsInto(funcName string, params []string, varArgsParam, kwArgsPar
 		return nil
 	}
 
-	bound, err := BindArguments(funcName, params, varArgsParam, kwArgsParam, call)
+	bound, err := BindArguments(funcName, params, defaults, varArgsParam, kwArgsParam, call)
 	if err != nil {
 		return err
 	}
@@ -54,8 +59,9 @@ func RequireNoKeyword(funcName string, call CallArgs) error {
 }
 
 // BindArguments binds positional and keyword arguments to parameter names.
-// varArgsParam and kwArgsParam are optional capture parameter names.
-func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam string, call CallArgs) (map[string]Object, error) {
+// defaults is either nil or parallel to params, with a nil entry per required
+// parameter. varArgsParam and kwArgsParam are optional capture parameter names.
+func BindArguments(funcName string, params []string, defaults []ParamDefault, varArgsParam, kwArgsParam string, call CallArgs) (map[string]Object, error) {
 	if varArgsParam == "" && len(call.Positional) > len(params) {
 		return nil, NewTypeError("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
 	}
@@ -101,10 +107,19 @@ func BindArguments(funcName string, params []string, varArgsParam, kwArgsParam s
 		kwExtras[key] = value
 	}
 
-	for _, param := range params {
-		if _, ok := bound[param]; !ok {
-			return nil, NewTypeError("%s() missing required positional argument: '%s'", funcName, param)
+	for i, param := range params {
+		if _, ok := bound[param]; ok {
+			continue
 		}
+		if i < len(defaults) && defaults[i] != nil {
+			value, err := defaults[i]()
+			if err != nil {
+				return nil, err
+			}
+			bound[param] = value
+			continue
+		}
+		return nil, NewTypeError("%s() missing required positional argument: '%s'", funcName, param)
 	}
 
 	if varArgsParam != "" {

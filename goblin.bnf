@@ -280,6 +280,7 @@ ParameterList
 
 Parameter
     : id                                     << ast.NewRequiredParameter($0) >>
+    | id "=" Expression                      << ast.NewDefaultParameter($0, $2) >>
     | "*" id                                 << ast.NewVarArgsParameter($1) >>
     | "**" id                                << ast.NewKwArgsParameter($1) >>
 ;

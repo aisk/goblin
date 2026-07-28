@@ -64,6 +64,23 @@ Positional arguments must precede named arguments. A parameter can receive a
 value only once; passing the same parameter positionally and by name is an
 error.
 
+A parameter can declare a default value with `=`, making it optional at the
+call site:
+
+```goblin
+func greet(name, msg = "hi") {
+    print(msg, name)
+}
+
+greet("bob")                # hi bob
+greet("bob", msg = "yo")    # yo bob
+```
+
+A required parameter cannot follow one with a default. The default expression
+is evaluated in the function's defining scope — it cannot reference other
+parameters — and it is evaluated on each call that omits the argument, so a
+mutable default like `[]` produces a fresh value every time.
+
 A `*` parameter collects extra positional arguments, while a `**` parameter
 collects extra named arguments. They receive a list and a dictionary,
 respectively.

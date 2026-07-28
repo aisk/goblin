@@ -1,0 +1,13 @@
+hi bob
+yo bob
+hello bob
+step: 1
+step: 6
+step: 100
+[1]
+[2]
+1 10 [] {}
+1 2 [3, 4] {"x": 5}
+42
+hey world
+hey goblin

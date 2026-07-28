@@ -162,12 +162,13 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			}
 			seenMethods[method.Name] = struct{}{}
 
-			if len(method.Parameters) == 0 || method.Parameters[0].Name != "self" || method.Parameters[0].VarArgs || method.Parameters[0].KwArgs {
+			if len(method.Parameters) == 0 || method.Parameters[0].Name != "self" || method.Parameters[0].VarArgs || method.Parameters[0].KwArgs || method.Parameters[0].HasDefault() {
 				return c.newError(method.Position(), "type method must declare 'self' as the first parameter")
 			}
 
 			// Protocol methods (operators, comparison, conversion, iteration,
-			// indexing) have fixed arities and no variadic/keyword parameters.
+			// indexing) have fixed arities and no variadic/keyword/default
+			// parameters.
 			if arity, ok := protocolArity[method.Name]; ok {
 				if len(method.Parameters) != arity {
 					return c.newError(method.Position(), "protocol method '%s' must declare exactly %d parameters including self, got %d", method.Name, arity, len(method.Parameters))
@@ -176,37 +177,24 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 					if param.VarArgs || param.KwArgs {
 						return c.newError(param.Pos, "protocol method '%s' cannot use variadic or keyword parameters", method.Name)
 					}
+					if param.HasDefault() {
+						return c.newError(param.Pos, "protocol method '%s' cannot declare default parameter values", method.Name)
+					}
 				}
+			}
+
+			// Default expressions are evaluated in the type's defining scope,
+			// where fields and self are not visible.
+			if err := c.checkParameterDefaults(method.Parameters); err != nil {
+				return err
 			}
 
 			if err := c.withScope(func() error {
 				c.funcDepth++
 				defer func() { c.funcDepth-- }()
 
-				seen := make(map[string]struct{}, len(method.Parameters))
-				for i, param := range method.Parameters {
-					if _, ok := seen[param.Name]; ok {
-						return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
-					}
-					seen[param.Name] = struct{}{}
-					if param.KwArgs {
-						if i != len(method.Parameters)-1 {
-							return c.newError(param.Pos, "kwargs parameter must be the last parameter")
-						}
-						continue
-					}
-					if param.VarArgs {
-						if i < len(method.Parameters)-1 && !(i == len(method.Parameters)-2 && method.Parameters[len(method.Parameters)-1].KwArgs) {
-							return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
-						}
-						continue
-					}
-					if i > 0 {
-						prev := method.Parameters[i-1]
-						if prev.VarArgs || prev.KwArgs {
-							return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
-						}
-					}
+				if err := c.checkParameterOrder(method.Parameters); err != nil {
+					return err
 				}
 
 				// Fields are NOT in scope as bare identifiers inside methods;
@@ -340,34 +328,17 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 // scope. It backs both named function definitions and anonymous function
 // literals.
 func (c *checker) checkFunction(params []*ast.Parameter, body []ast.Statement) error {
+	// Default expressions are evaluated in the defining scope, so they are
+	// checked before the parameters come into scope.
+	if err := c.checkParameterDefaults(params); err != nil {
+		return err
+	}
 	return c.withScope(func() error {
 		c.funcDepth++
 		defer func() { c.funcDepth-- }()
 
-		seen := make(map[string]struct{}, len(params))
-		for i, param := range params {
-			if _, ok := seen[param.Name]; ok {
-				return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
-			}
-			seen[param.Name] = struct{}{}
-			if param.KwArgs {
-				if i != len(params)-1 {
-					return c.newError(param.Pos, "kwargs parameter must be the last parameter")
-				}
-				continue
-			}
-			if param.VarArgs {
-				if i < len(params)-1 && !(i == len(params)-2 && params[len(params)-1].KwArgs) {
-					return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
-				}
-				continue
-			}
-			if i > 0 {
-				prev := params[i-1]
-				if prev.VarArgs || prev.KwArgs {
-					return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
-				}
-			}
+		if err := c.checkParameterOrder(params); err != nil {
+			return err
 		}
 
 		for _, param := range params {
@@ -378,6 +349,57 @@ func (c *checker) checkFunction(params []*ast.Parameter, body []ast.Statement) e
 
 		return c.checkStatements(body, false)
 	})
+}
+
+// checkParameterDefaults validates default expressions in the current
+// (enclosing) scope, before the parameters themselves are declared.
+func (c *checker) checkParameterDefaults(params []*ast.Parameter) error {
+	for _, param := range params {
+		if param.HasDefault() {
+			if err := c.checkExpression(param.Default); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// checkParameterOrder validates the parameter list shape: unique names, *args
+// last or followed only by **kwargs, **kwargs last, and no required parameter
+// after a defaulted one.
+func (c *checker) checkParameterOrder(params []*ast.Parameter) error {
+	seen := make(map[string]struct{}, len(params))
+	seenDefault := false
+	for i, param := range params {
+		if _, ok := seen[param.Name]; ok {
+			return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
+		}
+		seen[param.Name] = struct{}{}
+		if param.KwArgs {
+			if i != len(params)-1 {
+				return c.newError(param.Pos, "kwargs parameter must be the last parameter")
+			}
+			continue
+		}
+		if param.VarArgs {
+			if i < len(params)-1 && !(i == len(params)-2 && params[len(params)-1].KwArgs) {
+				return c.newError(param.Pos, "args parameter must be the last parameter or followed by kwargs")
+			}
+			continue
+		}
+		if param.HasDefault() {
+			seenDefault = true
+		} else if seenDefault {
+			return c.newError(param.Pos, "required parameter cannot appear after default parameter: %s", param.Name)
+		}
+		if i > 0 {
+			prev := params[i-1]
+			if prev.VarArgs || prev.KwArgs {
+				return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
+			}
+		}
+	}
+	return nil
 }
 
 func (c *checker) checkExpression(expr ast.Expression) error {

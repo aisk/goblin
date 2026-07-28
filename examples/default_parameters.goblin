@@ -1,0 +1,52 @@
+# Parameters can declare default values, used when the caller omits them.
+func greet(name, msg = "hi") {
+    print(msg, name)
+}
+
+greet("bob")
+greet("bob", "yo")
+greet("bob", msg = "hello")
+
+# Defaults are evaluated per call in the defining scope.
+var counter = 0
+func tick(step = counter + 1) {
+    print("step:", step)
+}
+
+tick()
+counter = 5
+tick()
+tick(100)
+
+# A mutable default produces a fresh value on every call.
+func push(item, target = []) {
+    target.push(item)
+    print(target)
+}
+
+push(1)
+push(2)
+
+# Defaults compose with *args and **kwargs.
+func mix(a, b = 10, *rest, **options) {
+    print(a, b, rest, options)
+}
+
+mix(1)
+mix(1, 2, 3, 4, x = 5)
+
+# Anonymous functions and type methods can declare defaults too.
+var double = func(x, factor = 2) {
+    return x * factor
+}
+print(double(21))
+
+type Greeter(prefix = "hey") {
+    func hello(self, name = "world") {
+        print(self.prefix, name)
+    }
+}
+
+var g = Greeter()
+g.hello()
+g.hello("goblin")
