@@ -6,7 +6,7 @@ type Object interface {
 	// ToString performs Goblin's string conversion protocol. It may invoke a
 	// user-defined __str method and propagate its error. Types additionally
 	// implement fmt.Stringer for the infallible representation used by
-	// diagnostics (see Inspect).
+	// diagnostics (see inspect).
 	ToString() (string, error)
 	ToBool() (bool, error)
 	// Equals reports whether the receiver equals other. Unrelated types are
@@ -56,11 +56,11 @@ type Object interface {
 	TypeName() string
 }
 
-// Inspect returns an infallible representation for diagnostics, formatting,
+// inspect returns an infallible representation for diagnostics, formatting,
 // and code paths that must always be able to produce text. Every object type
 // provides it by implementing fmt.Stringer; ToString is the failing,
 // __str-dispatching counterpart.
-func Inspect(obj Object) string {
+func inspect(obj Object) string {
 	if s, ok := obj.(fmt.Stringer); ok {
 		return s.String()
 	}
@@ -74,7 +74,7 @@ func literal(obj Object) string {
 	if s, ok := obj.(String); ok {
 		return s.Literal()
 	}
-	return Inspect(obj)
+	return inspect(obj)
 }
 
 // literalString is literal's failing twin, used by the collections' ToString.
@@ -112,7 +112,7 @@ func Call(obj Object, args CallArgs) (Object, error) {
 	case *Function:
 		return v.Call(args)
 	}
-	return nil, NewTypeError("%s is not callable", Inspect(obj))
+	return nil, NewTypeError("%s is not callable", inspect(obj))
 }
 
 // NoReflectedOps answers "not handled" for every reflected operator. Types

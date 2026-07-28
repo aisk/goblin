@@ -17,8 +17,8 @@ The reflected operators are required, but most types have nothing to say
 through them: embed object.NoReflectedOps and they all answer "not handled".
 
 Types should also implement String() string, satisfying fmt.Stringer. It is
-not part of the interface, but diagnostics and formatting reach it through
-object.Inspect, which asserts fmt.Stringer and falls back to TypeName().
+not part of the interface, but diagnostics and formatting use fmt.Stringer
+and fall back to TypeName() when String is not available.
 ToString is the failing counterpart that may run a user-defined __str.
 
 Assignment is part of the interface too: SetIndex and SetAttr return a bool

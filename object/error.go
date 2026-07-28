@@ -386,7 +386,7 @@ func ErrorConstructor(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	return NewError(Inspect(message)), nil
+	return NewError(inspect(message)), nil
 }
 
 // Raise validates the value thrown by a `raise` statement. Only Error values
@@ -396,7 +396,7 @@ func Raise(v Object) error {
 	if e, ok := v.(*Error); ok {
 		return e
 	}
-	return NewTypeError("raise expects an Error, got: %s", Inspect(v))
+	return NewTypeError("raise expects an Error, got: %s", inspect(v))
 }
 
 // ErrorValue extracts the Goblin Error value carried by err, unwrapping any

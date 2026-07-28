@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"io"
 	stdhttp "net/http"
 	"net/http/httptest"
@@ -168,14 +169,14 @@ func TestRequestAndDo(t *testing.T) {
 	if code := attr(t, resp, "status_code").(object.Integer); code != 201 {
 		t.Fatalf("status_code = %d, want 201", code)
 	}
-	if status := object.Inspect(attr(t, resp, "status")); status != "201 Created" {
+	if status := fmt.Sprint(attr(t, resp, "status")); status != "201 Created" {
 		t.Fatalf("status = %q, want \"201 Created\"", status)
 	}
 
 	// resp.header.get("X-Reply")
 	respHeader := attr(t, resp, "header")
 	reply := callMethod(t, respHeader, "get", object.String("X-Reply"))
-	if got := object.Inspect(reply); got != "ok" {
+	if got := fmt.Sprint(reply); got != "ok" {
 		t.Fatalf("X-Reply = %q, want ok", got)
 	}
 }
@@ -280,7 +281,7 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dict[\"name\"] error = %v", err)
 	}
-	if got := object.Inspect(nameVal); got != "goblin" {
+	if got := fmt.Sprint(nameVal); got != "goblin" {
 		t.Fatalf("name = %q, want goblin", got)
 	}
 	starsVal, err := dict.Index(object.String("stars"))

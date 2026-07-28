@@ -529,7 +529,7 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 				call.Keyword = object.Kwargs{}
 			}
 			for _, entry := range d.Entries {
-				call.Keyword[object.Inspect(entry.Key)] = entry.Value
+				call.Keyword[fmt.Sprint(entry.Key)] = entry.Value
 			}
 		default:
 			return call, fmt.Errorf("interpreter: unsupported call argument kind %v", arg.Kind)

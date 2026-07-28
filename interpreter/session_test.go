@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 	"sort"
@@ -74,7 +75,7 @@ func evalString(t *testing.T, s *Session, src string) string {
 	if v == nil {
 		return "<nil>"
 	}
-	return object.Inspect(v)
+	return fmt.Sprint(v)
 }
 
 func TestSessionBareExpression(t *testing.T) {

@@ -187,7 +187,7 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 // when __str fails because fmt.Stringer cannot return an error.
 func (in *instance) String() string {
 	if v, ok, err := in.callProto("__str"); ok && err == nil {
-		return object.Inspect(v)
+		return fmt.Sprint(v)
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
 }
@@ -249,7 +249,7 @@ func (in *instance) compareProto(other object.Object) (int, bool, error) {
 	}
 	i, isInt := v.(object.Integer)
 	if !isInt {
-		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, object.Inspect(v))
+		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, fmt.Sprint(v))
 	}
 	return int(i), true, nil
 }
