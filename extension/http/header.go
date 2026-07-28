@@ -23,11 +23,11 @@ func NewHeader(h stdhttp.Header) *Header {
 	return &Header{objectBase: objectBase{typeName: "Header"}, Header: h}
 }
 
-func (h *Header) String() string {
+func (h *Header) Inspect() string {
 	return fmt.Sprintf("<http_header %d>", len(h.Header))
 }
 
-func (h *Header) ToString() (string, error) { return h.String(), nil }
+func (h *Header) ToString() (string, error) { return h.Inspect(), nil }
 
 func (h *Header) GetAttr(name string) (object.Object, error) {
 	switch name {

@@ -181,7 +181,7 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 			buf.WriteByte('\n')
 			writeSpaces(buf, indent*(level+1))
 		}
-		kb, err := json.Marshal(entry.Key.String())
+		kb, err := json.Marshal(entry.Key.Inspect())
 		if err != nil {
 			return object.WrapError(object.ValueError, "marshal() failed", err)
 		}

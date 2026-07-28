@@ -144,7 +144,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		if err != nil {
 			return err
 		}
-		return object.SetItem(obj, idx, v)
+		return object.SetIndex(obj, idx, v)
 
 	case *ast.SetAttr:
 		obj, err := evalExpr(s.Object, env)
@@ -155,7 +155,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		if err != nil {
 			return err
 		}
-		return object.SetAttribute(obj, s.Property, v)
+		return object.SetAttr(obj, s.Property, v)
 
 	case *ast.IfElse:
 		cond, err := evalExpr(s.Condition, env)
@@ -521,7 +521,7 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 				call.Keyword = object.Kwargs{}
 			}
 			for _, entry := range d.Entries {
-				call.Keyword[entry.Key.String()] = entry.Value
+				call.Keyword[entry.Key.Inspect()] = entry.Value
 			}
 		default:
 			return call, fmt.Errorf("interpreter: unsupported call argument kind %v", arg.Kind)

@@ -70,10 +70,10 @@ func TestEquals(t *testing.T) {
 	}
 	for _, tc := range cases {
 		if got := Equals(tc.a, tc.b); got != tc.want {
-			t.Errorf("%s: Equals(%s, %s) = %v, want %v", tc.name, tc.a.String(), tc.b.String(), got, tc.want)
+			t.Errorf("%s: Equals(%s, %s) = %v, want %v", tc.name, tc.a.Inspect(), tc.b.Inspect(), got, tc.want)
 		}
 		if got := Equals(tc.b, tc.a); got != tc.want {
-			t.Errorf("%s (swapped): Equals(%s, %s) = %v, want %v", tc.name, tc.b.String(), tc.a.String(), got, tc.want)
+			t.Errorf("%s (swapped): Equals(%s, %s) = %v, want %v", tc.name, tc.b.Inspect(), tc.a.Inspect(), got, tc.want)
 		}
 	}
 }

@@ -17,11 +17,11 @@ func (f Float) Bool() bool {
 
 func (f Float) ToBool() (bool, error) { return f.Bool(), nil }
 
-func (f Float) String() string {
+func (f Float) Inspect() string {
 	return strconv.FormatFloat(float64(f), 'f', -1, 64)
 }
 
-func (f Float) ToString() (string, error) { return f.String(), nil }
+func (f Float) ToString() (string, error) { return f.Inspect(), nil }
 
 func (f Float) Equals(other Object) bool {
 	switch v := other.(type) {

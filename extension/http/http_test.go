@@ -20,8 +20,8 @@ func newTestReader(chunks ...object.Object) *testReader {
 	return &testReader{objectBase: objectBase{typeName: "TestReader"}, chunks: chunks}
 }
 
-func (r *testReader) String() string            { return "<test_reader>" }
-func (r *testReader) ToString() (string, error) { return r.String(), nil }
+func (r *testReader) Inspect() string           { return "<test_reader>" }
+func (r *testReader) ToString() (string, error) { return r.Inspect(), nil }
 func (r *testReader) Attributes() []string      { return []string{"read", "close"} }
 func (r *testReader) GetAttr(name string) (object.Object, error) {
 	switch name {
@@ -168,14 +168,14 @@ func TestRequestAndDo(t *testing.T) {
 	if code := attr(t, resp, "status_code").(object.Integer); code != 201 {
 		t.Fatalf("status_code = %d, want 201", code)
 	}
-	if status := attr(t, resp, "status").String(); status != "201 Created" {
+	if status := attr(t, resp, "status").Inspect(); status != "201 Created" {
 		t.Fatalf("status = %q, want \"201 Created\"", status)
 	}
 
 	// resp.header.get("X-Reply")
 	respHeader := attr(t, resp, "header")
 	reply := callMethod(t, respHeader, "get", object.String("X-Reply"))
-	if got := reply.String(); got != "ok" {
+	if got := reply.Inspect(); got != "ok" {
 		t.Fatalf("X-Reply = %q, want ok", got)
 	}
 }
@@ -280,7 +280,7 @@ func TestGet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("dict[\"name\"] error = %v", err)
 	}
-	if got := nameVal.String(); got != "goblin" {
+	if got := nameVal.Inspect(); got != "goblin" {
 		t.Fatalf("name = %q, want goblin", got)
 	}
 	starsVal, err := dict.Index(object.String("stars"))

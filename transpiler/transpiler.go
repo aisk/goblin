@@ -750,7 +750,7 @@ func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandl
 	stmts := append(objPre, idxPre...)
 	stmts = append(stmts, valPre...)
 	stmts = append(stmts,
-		jen.Id(errVar).Op(":=").Qual(pathObject, "SetItem").Call(obj, idx, val),
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetIndex").Call(obj, idx, val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return stmts, nil
@@ -769,7 +769,7 @@ func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler
 	errVar := ctx.localName("err")
 	stmts := append(objPre, valPre...)
 	stmts = append(stmts,
-		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttribute").Call(obj, jen.Lit(s.Property), val),
+		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttr").Call(obj, jen.Lit(s.Property), val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return stmts, nil
@@ -1083,12 +1083,12 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	// String() string  <- "str"
 	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
-	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
+	strDecl := jen.Func().Params(receiverParam()).Id("Inspect").Params().String()
 	if defined["__str"] {
 		strDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
-			jen.Return(jen.Id("_res").Dot("String").Call()),
+			jen.Return(jen.Id("_res").Dot("Inspect").Call()),
 		)
 	} else {
 		strDecl.Block(reprReturn)
@@ -1102,7 +1102,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		toStringDecl.Block(
 			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("String").Call(), jen.Nil()),
+			jen.Return(jen.Id("_res").Dot("Inspect").Call(), jen.Nil()),
 		)
 	} else {
 		toStringDecl.Block(toStringReturn)

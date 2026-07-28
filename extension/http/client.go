@@ -19,11 +19,11 @@ func NewClient(c *stdhttp.Client) *Client {
 	return &Client{objectBase: objectBase{typeName: "Client"}, Client: c}
 }
 
-func (c *Client) String() string {
+func (c *Client) Inspect() string {
 	return "<http_client>"
 }
 
-func (c *Client) ToString() (string, error) { return c.String(), nil }
+func (c *Client) ToString() (string, error) { return c.Inspect(), nil }
 
 func (c *Client) GetAttr(name string) (object.Object, error) {
 	switch name {

@@ -25,11 +25,11 @@ func NewRequest(req *stdhttp.Request) *Request {
 	return r
 }
 
-func (r *Request) String() string {
+func (r *Request) Inspect() string {
 	return fmt.Sprintf("<http_request %s %s>", r.Req.Method, r.Req.URL)
 }
 
-func (r *Request) ToString() (string, error) { return r.String(), nil }
+func (r *Request) ToString() (string, error) { return r.Inspect(), nil }
 
 func (r *Request) GetAttr(name string) (object.Object, error) {
 	switch name {

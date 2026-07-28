@@ -15,8 +15,8 @@ type streamPolicy struct {
 	name string
 }
 
-func (p *streamPolicy) String() string            { return "exec." + p.name }
-func (p *streamPolicy) ToString() (string, error) { return p.String(), nil }
+func (p *streamPolicy) Inspect() string            { return "exec." + p.name }
+func (p *streamPolicy) ToString() (string, error) { return p.Inspect(), nil }
 func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
 	if name == "attributes" {
 		return object.AttributesFunction(p), nil
@@ -148,7 +148,7 @@ func (c *Cmd) configureOutput(name string, value object.Object) error {
 			writer = c.stderr
 		}
 	default:
-		return object.NewTypeError("invalid stream policy %s", policy.String())
+		return object.NewTypeError("invalid stream policy %s", policy.Inspect())
 	}
 	if name == "stdout" {
 		c.cmd.Stdout = writer

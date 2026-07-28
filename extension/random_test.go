@@ -162,7 +162,7 @@ func TestRandomSampleIsDeterministicAndDoesNotMutateInput(t *testing.T) {
 	values := &object.List{Elements: []object.Object{
 		object.String("a"), object.String("b"), object.String("c"), object.String("d"),
 	}}
-	original := values.String()
+	original := values.Inspect()
 	a := newRandomGenerator(123)
 	b := newRandomGenerator(123)
 	left, err := a.randomSample(object.CallArgs{Positional: []object.Object{values, object.Integer(3)}})
@@ -176,7 +176,7 @@ func TestRandomSampleIsDeterministicAndDoesNotMutateInput(t *testing.T) {
 	if !left.Equals(right) {
 		t.Fatalf("same seed produced different samples: %s != %s", left, right)
 	}
-	if values.String() != original {
+	if values.Inspect() != original {
 		t.Fatalf("sample modified input: %s became %s", original, values)
 	}
 	seen := map[string]bool{}

@@ -15,11 +15,11 @@ func NewFileInfo(info stdfs.FileInfo) *FileInfo {
 	return &FileInfo{Info: info}
 }
 
-func (f *FileInfo) String() string {
+func (f *FileInfo) Inspect() string {
 	return fmt.Sprintf("<file_info %s>", f.Info.Name())
 }
 
-func (f *FileInfo) ToString() (string, error) { return f.String(), nil }
+func (f *FileInfo) ToString() (string, error) { return f.Inspect(), nil }
 
 func (f *FileInfo) Bool() bool {
 	return true

@@ -60,7 +60,7 @@ func TestChanSendRemainsPositionalOnly(t *testing.T) {
 func TestListMutationMethods(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(3)}}
 	callMethod(t, list, "insert", CallArgs{Keyword: map[string]Object{"index": Integer(1), "value": Integer(2)}})
-	if list.String() != "[1, 2, 3]" {
+	if list.Inspect() != "[1, 2, 3]" {
 		t.Fatalf("insert result = %s", list)
 	}
 	if got := callMethod(t, list, "remove", CallArgs{Positional: Args{Integer(2)}}); got != True {
@@ -117,7 +117,7 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if got.String() != tt.want {
+		if got.Inspect() != tt.want {
 			t.Fatalf("%s() = %s, want %s", tt.fn.Name, got, tt.want)
 		}
 	}
@@ -128,14 +128,14 @@ func TestCollectionStringQuotesStringLiterals(t *testing.T) {
 		String("hello\nworld"),
 		&List{Elements: []Object{String(`say "hi"`)}},
 	}}
-	if got, want := list.String(), `["hello\nworld", ["say \"hi\""]]`; got != want {
-		t.Fatalf("List.String() = %q, want %q", got, want)
+	if got, want := list.Inspect(), `["hello\nworld", ["say \"hi\""]]`; got != want {
+		t.Fatalf("List.Inspect() = %q, want %q", got, want)
 	}
 
 	dict := NewDict()
 	dict.Set(String("name"), String("Goblin"))
-	if got, want := dict.String(), `{"name": "Goblin"}`; got != want {
-		t.Fatalf("Dict.String() = %q, want %q", got, want)
+	if got, want := dict.Inspect(), `{"name": "Goblin"}`; got != want {
+		t.Fatalf("Dict.Inspect() = %q, want %q", got, want)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestListFunctionalMethods(t *testing.T) {
 	gotMap := callMethod(t, list, "map", CallArgs{Positional: Args{&Function{Fn: func(args CallArgs) (Object, error) {
 		return args.Positional[0].(Integer) * 2, nil
 	}}}})
-	if gotMap.String() != "[2, 4, 6, 8]" {
+	if gotMap.Inspect() != "[2, 4, 6, 8]" {
 		t.Fatalf("map result = %s", gotMap)
 	}
 
@@ -163,7 +163,7 @@ func TestListFunctionalMethods(t *testing.T) {
 	gotFilter := callMethod(t, list, "filter", CallArgs{Positional: Args{&Function{Fn: func(args CallArgs) (Object, error) {
 		return Bool(args.Positional[0].(Integer)%2 == 0), nil
 	}}}})
-	if gotFilter.String() != "[2, 4]" {
+	if gotFilter.Inspect() != "[2, 4]" {
 		t.Fatalf("filter result = %s", gotFilter)
 	}
 
@@ -238,13 +238,13 @@ func TestListFunctionalMethods(t *testing.T) {
 func TestListSort(t *testing.T) {
 	list := &List{Elements: []Object{Integer(3), Integer(1), Integer(4), Integer(2)}}
 	callMethod(t, list, "sort", CallArgs{})
-	if list.String() != "[1, 2, 3, 4]" {
+	if list.Inspect() != "[1, 2, 3, 4]" {
 		t.Fatalf("sort result = %s", list)
 	}
 
 	// reverse sort
 	callMethod(t, list, "sort", CallArgs{Keyword: Kwargs{"reverse": True}})
-	if list.String() != "[4, 3, 2, 1]" {
+	if list.Inspect() != "[4, 3, 2, 1]" {
 		t.Fatalf("reverse sort result = %s", list)
 	}
 
@@ -275,7 +275,7 @@ func TestDictKeysOfDifferentTypesStayDistinct(t *testing.T) {
 		{Nil, String("nil")},
 	} {
 		if err := dict.Set(kv.key, kv.value); err != nil {
-			t.Fatalf("Set(%s) failed: %v", kv.key.String(), err)
+			t.Fatalf("Set(%s) failed: %v", kv.key.Inspect(), err)
 		}
 	}
 	if len(dict.Entries) != 6 {

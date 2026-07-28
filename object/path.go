@@ -39,9 +39,9 @@ func PathString(obj Object) (string, bool) {
 	}
 }
 
-func (p *Path) String() string { return p.raw }
+func (p *Path) Inspect() string { return p.raw }
 
-func (p *Path) ToString() (string, error) { return p.String(), nil }
+func (p *Path) ToString() (string, error) { return p.Inspect(), nil }
 func (p *Path) Bool() bool                { return p.raw != "" && p.raw != "." }
 func (p *Path) ToBool() (bool, error)     { return p.Bool(), nil }
 

@@ -23,11 +23,11 @@ func NewResponse(resp *stdhttp.Response) *Response {
 	return &Response{objectBase: objectBase{typeName: "Response"}, resp: resp, body: body}
 }
 
-func (r *Response) String() string {
+func (r *Response) Inspect() string {
 	return fmt.Sprintf("<http_response %s>", r.resp.Status)
 }
 
-func (r *Response) ToString() (string, error) { return r.String(), nil }
+func (r *Response) ToString() (string, error) { return r.Inspect(), nil }
 
 func (r *Response) GetAttr(name string) (object.Object, error) {
 	switch name {

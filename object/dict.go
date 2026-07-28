@@ -24,15 +24,15 @@ func dictKey(key Object) (string, error) {
 	case String:
 		return "s:" + string(v), nil
 	case Integer:
-		return "i:" + v.String(), nil
+		return "i:" + v.Inspect(), nil
 	case Float:
-		return "f:" + v.String(), nil
+		return "f:" + v.Inspect(), nil
 	case Bool:
-		return "b:" + v.String(), nil
+		return "b:" + v.Inspect(), nil
 	case Unit:
 		return "n:", nil
 	default:
-		return "", NewTypeError("unhashable dict key: %s", key.String())
+		return "", NewTypeError("unhashable dict key: %s", key.Inspect())
 	}
 }
 
@@ -155,7 +155,7 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if hasDefault {
 		return def, nil
 	}
-	return nil, NewKeyError("key not found: %s", key.String())
+	return nil, NewKeyError("key not found: %s", key.Inspect())
 }
 
 func (d *Dict) Update(args CallArgs) (Object, error) {
@@ -226,7 +226,7 @@ func (d *Dict) Get(key Object) (Object, bool, error) {
 	return nil, false, nil
 }
 
-func (d *Dict) String() string {
+func (d *Dict) Inspect() string {
 	elements := make([]string, 0, len(d.Entries))
 	for _, entry := range d.Entries {
 		elements = append(elements, fmt.Sprintf("%s: %s", literal(entry.Key), literal(entry.Value)))
@@ -234,7 +234,7 @@ func (d *Dict) String() string {
 	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
 }
 
-func (d *Dict) ToString() (string, error) { return d.String(), nil }
+func (d *Dict) ToString() (string, error) { return d.Inspect(), nil }
 
 func (d *Dict) Bool() bool {
 	return len(d.Entries) > 0
@@ -296,7 +296,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 	if ok {
 		return val, nil
 	}
-	return nil, NewKeyError("key not found: %s", index.String())
+	return nil, NewKeyError("key not found: %s", index.Inspect())
 }
 
 func (d *Dict) SetIndex(index Object, value Object) error {

@@ -353,11 +353,11 @@ func noStringArgs(name string, args CallArgs) error {
 	return nil
 }
 
-func (s String) String() string {
+func (s String) Inspect() string {
 	return string(s)
 }
 
-func (s String) ToString() (string, error) { return s.String(), nil }
+func (s String) ToString() (string, error) { return s.Inspect(), nil }
 
 // Literal returns the quoted Goblin source representation of the string.
 func (s String) Literal() string {
@@ -399,9 +399,9 @@ func (s String) Add(other Object) (Object, error) {
 	case String:
 		return String(string(s) + string(v)), nil
 	case Integer:
-		return String(string(s) + v.String()), nil
+		return String(string(s) + v.Inspect()), nil
 	case Bool:
-		return String(string(s) + v.String()), nil
+		return String(string(s) + v.Inspect()), nil
 	default:
 		return nil, NewTypeError("cannot add String and %T", other)
 	}

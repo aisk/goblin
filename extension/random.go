@@ -293,8 +293,8 @@ func randomNumberFloat64(value object.Object) float64 {
 	}
 }
 
-func (g *RandomGenerator) String() string            { return fmt.Sprintf("<random.Generator seed=%d>", g.seed) }
-func (g *RandomGenerator) ToString() (string, error) { return g.String(), nil }
+func (g *RandomGenerator) Inspect() string            { return fmt.Sprintf("<random.Generator seed=%d>", g.seed) }
+func (g *RandomGenerator) ToString() (string, error) { return g.Inspect(), nil }
 func (g *RandomGenerator) Bool() bool                { return true }
 func (g *RandomGenerator) ToBool() (bool, error)     { return true, nil }
 func (g *RandomGenerator) Equals(other object.Object) bool {

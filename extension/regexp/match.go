@@ -25,8 +25,8 @@ func newMatch(source string, indices []int, names []string) *Match {
 	}
 }
 
-func (m *Match) String() string            { return fmt.Sprintf("<regexp.Match %q>", m.substring(0)) }
-func (m *Match) ToString() (string, error) { return m.String(), nil }
+func (m *Match) Inspect() string            { return fmt.Sprintf("<regexp.Match %q>", m.substring(0)) }
+func (m *Match) ToString() (string, error) { return m.Inspect(), nil }
 
 func (m *Match) participated(index int) bool {
 	return index >= 0 && index*2+1 < len(m.indices) && m.indices[index*2] >= 0
@@ -67,7 +67,7 @@ func (m *Match) groupIndex(method string, key object.Object) (int, error) {
 	default:
 		return 0, object.NewTypeError("%s() argument 'key' must be int or str, got %T", method, key)
 	}
-	return 0, object.NewIndexError("no such capture group: %s", key.String())
+	return 0, object.NewIndexError("no such capture group: %s", key.Inspect())
 }
 
 func (m *Match) group(args object.CallArgs) (object.Object, error) {

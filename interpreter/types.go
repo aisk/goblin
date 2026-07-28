@@ -176,9 +176,9 @@ func (in *instance) SetAttr(name string, value object.Object) error {
 
 // String satisfies fmt.Stringer. It falls back to the default representation
 // when __str fails because fmt.Stringer cannot return an error.
-func (in *instance) String() string {
+func (in *instance) Inspect() string {
 	if v, ok, err := in.callProto("__str"); ok && err == nil {
-		return v.String()
+		return v.Inspect()
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
 }
@@ -189,7 +189,7 @@ func (in *instance) ToString() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		return v.String(), nil
+		return v.Inspect(), nil
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in), nil
 }
@@ -229,7 +229,7 @@ func (in *instance) Compare(other object.Object) (int, error) {
 		}
 		i, isInt := v.(object.Integer)
 		if !isInt {
-			return 0, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.String())
+			return 0, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, v.Inspect())
 		}
 		return int(i), nil
 	}

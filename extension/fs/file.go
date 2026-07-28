@@ -100,11 +100,11 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 	return NewFileInfo(info), nil
 }
 
-func (f *File) String() string {
+func (f *File) Inspect() string {
 	return fmt.Sprintf("<file %s>", f.Name)
 }
 
-func (f *File) ToString() (string, error) { return f.String(), nil }
+func (f *File) ToString() (string, error) { return f.Inspect(), nil }
 
 func (f *File) Bool() bool {
 	return !f.closed

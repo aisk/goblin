@@ -12,14 +12,14 @@ type Module struct {
 
 var _ Object = (*Module)(nil)
 
-func (m *Module) String() string {
+func (m *Module) Inspect() string {
 	if m.Name != "" {
 		return fmt.Sprintf("<module %q>", m.Name)
 	}
 	return "<module>"
 }
 
-func (m *Module) ToString() (string, error) { return m.String(), nil }
+func (m *Module) ToString() (string, error) { return m.Inspect(), nil }
 func (m *Module) Bool() bool                { return true }
 func (m *Module) ToBool() (bool, error)     { return m.Bool(), nil }
 func (m *Module) Equals(other Object) bool {

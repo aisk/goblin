@@ -6,11 +6,11 @@ type Unit struct{}
 
 var _ Object = Unit{}
 
-func (n Unit) String() string {
+func (n Unit) Inspect() string {
 	return "nil"
 }
 
-func (n Unit) ToString() (string, error) { return n.String(), nil }
+func (n Unit) ToString() (string, error) { return n.Inspect(), nil }
 
 func (n Unit) Bool() bool {
 	return false

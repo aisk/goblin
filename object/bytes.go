@@ -15,8 +15,8 @@ var _ Object = Bytes{}
 
 func NewBytes(data []byte) Bytes { return Bytes(append([]byte(nil), data...)) }
 
-func (b Bytes) String() string            { return "b" + strconv.Quote(string(b)) }
-func (b Bytes) ToString() (string, error) { return b.String(), nil }
+func (b Bytes) Inspect() string            { return "b" + strconv.Quote(string(b)) }
+func (b Bytes) ToString() (string, error) { return b.Inspect(), nil }
 func (b Bytes) Bool() bool                { return len(b) != 0 }
 func (b Bytes) ToBool() (bool, error)     { return b.Bool(), nil }
 

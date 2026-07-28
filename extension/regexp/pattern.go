@@ -23,8 +23,8 @@ type Pattern struct {
 	fullErr  error
 }
 
-func (p *Pattern) String() string            { return fmt.Sprintf("<regexp.Pattern %q>", p.source) }
-func (p *Pattern) ToString() (string, error) { return p.String(), nil }
+func (p *Pattern) Inspect() string            { return fmt.Sprintf("<regexp.Pattern %q>", p.source) }
+func (p *Pattern) ToString() (string, error) { return p.Inspect(), nil }
 
 // Equals compares by source. Two patterns compiled from the same text behave
 // identically, so they are interchangeable values rather than handles.

@@ -15,11 +15,11 @@ func NewTime(t stdtime.Time) *Time {
 	return &Time{Value: t}
 }
 
-func (t *Time) String() string {
+func (t *Time) Inspect() string {
 	return t.Value.Format(stdtime.RFC3339)
 }
 
-func (t *Time) ToString() (string, error) { return t.String(), nil }
+func (t *Time) ToString() (string, error) { return t.Inspect(), nil }
 
 func (t *Time) Bool() bool {
 	return !t.Value.IsZero()

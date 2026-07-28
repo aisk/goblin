@@ -30,7 +30,7 @@ func TestUUIDNew(t *testing.T) {
 	if !ok {
 		t.Fatalf("new() returned %T, want *UUID", got)
 	}
-	if err := googleuuid.Validate(value.String()); err != nil {
+	if err := googleuuid.Validate(value.Inspect()); err != nil {
 		t.Fatalf("new() returned invalid UUID %q: %v", value, err)
 	}
 }
@@ -42,7 +42,7 @@ func TestUUIDParseAndValidate(t *testing.T) {
 		t.Fatalf("parse() error = %v", err)
 	}
 	parsed, ok := got.(*UUID)
-	if !ok || parsed.String() != "550e8400-e29b-41d4-a716-446655440000" {
+	if !ok || parsed.Inspect() != "550e8400-e29b-41d4-a716-446655440000" {
 		t.Fatalf("parse() = %v, want canonical UUID", got)
 	}
 

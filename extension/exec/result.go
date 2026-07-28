@@ -12,8 +12,8 @@ type Result struct {
 	stderr object.Object
 }
 
-func (r *Result) String() string              { return fmt.Sprintf("<exec.Result code=%d>", r.code) }
-func (r *Result) ToString() (string, error)   { return r.String(), nil }
+func (r *Result) Inspect() string              { return fmt.Sprintf("<exec.Result code=%d>", r.code) }
+func (r *Result) ToString() (string, error)   { return r.Inspect(), nil }
 func (r *Result) Bool() bool                  { return r.code == 0 }
 func (r *Result) ToBool() (bool, error)       { return r.Bool(), nil }
 func (r *Result) Not() (object.Object, error) { return object.Bool(!r.Bool()), nil }

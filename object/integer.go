@@ -17,11 +17,11 @@ func (i Integer) Bool() bool {
 
 func (i Integer) ToBool() (bool, error) { return i.Bool(), nil }
 
-func (i Integer) String() string {
+func (i Integer) Inspect() string {
 	return strconv.FormatInt(int64(i), 10)
 }
 
-func (i Integer) ToString() (string, error) { return i.String(), nil }
+func (i Integer) ToString() (string, error) { return i.Inspect(), nil }
 
 func (i Integer) Equals(other Object) bool {
 	switch v := other.(type) {

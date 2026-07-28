@@ -103,7 +103,7 @@ func TestPatternIntrospection(t *testing.T) {
 		t.Fatalf("pattern = %v", got)
 	}
 	names := getAttr(t, p, "group_names").(*object.List)
-	if names.String() != `["word", nil]` {
+	if names.Inspect() != `["word", nil]` {
 		t.Fatalf("group_names = %v", names)
 	}
 	for _, attr := range p.Attributes() {
@@ -136,7 +136,7 @@ func TestMatchGroupsNamesAndByteOffsets(t *testing.T) {
 		t.Fatalf("groups = %v", groups)
 	}
 	named := getAttr(t, m, "named_groups").(*object.Dict)
-	if named.String() != `{"word": "abc", "optional": nil}` && named.String() != `{"optional": nil, "word": "abc"}` {
+	if named.Inspect() != `{"word": "abc", "optional": nil}` && named.Inspect() != `{"optional": nil, "word": "abc"}` {
 		t.Fatalf("named_groups = %v", named)
 	}
 	for _, attr := range m.Attributes() {
@@ -149,10 +149,10 @@ func TestMatchGroupsNamesAndByteOffsets(t *testing.T) {
 func TestMatchSpan(t *testing.T) {
 	p := compilePattern(t, `(?P<word>[a-z]+)(\d+)?`)
 	m := call(t, p, "find", object.String("12 abc")).(*Match)
-	if got := call(t, m, "span").(*object.List); got.String() != "[3, 6]" {
+	if got := call(t, m, "span").(*object.List); got.Inspect() != "[3, 6]" {
 		t.Fatalf("span() = %v", got)
 	}
-	if got := call(t, m, "span", object.String("word")).(*object.List); got.String() != "[3, 6]" {
+	if got := call(t, m, "span", object.String("word")).(*object.List); got.Inspect() != "[3, 6]" {
 		t.Fatalf("span(word) = %v", got)
 	}
 	if got := call(t, m, "span", object.Integer(2)); !got.Equals(object.Nil) {
@@ -173,7 +173,7 @@ func TestDuplicateNamedGroupUsesFirstParticipating(t *testing.T) {
 		t.Fatalf("group(x) = %v", got)
 	}
 	named := getAttr(t, m, "named_groups").(*object.Dict)
-	if named.String() != `{"x": "b"}` {
+	if named.Inspect() != `{"x": "b"}` {
 		t.Fatalf("named_groups = %v", named)
 	}
 }
@@ -243,7 +243,7 @@ func TestSplitCountMatchesStrSplit(t *testing.T) {
 	for _, count := range []int64{-2, -1, 0, 1, 2, 3, 4} {
 		got := call(t, p, "split", text, object.Integer(count)).(*object.List)
 		want := call(t, text, "split", object.String(","), object.Integer(count)).(*object.List)
-		if got.String() != want.String() {
+		if got.Inspect() != want.Inspect() {
 			t.Fatalf("split(count=%d) = %v, want str.split = %v", count, got, want)
 		}
 	}

@@ -32,8 +32,8 @@ type Cmd struct {
 	done    chan struct{}
 }
 
-func (c *Cmd) String() string            { return fmt.Sprintf("<exec.Cmd %s>", commandString(c.cmd)) }
-func (c *Cmd) ToString() (string, error) { return c.String(), nil }
+func (c *Cmd) Inspect() string            { return fmt.Sprintf("<exec.Cmd %s>", commandString(c.cmd)) }
+func (c *Cmd) ToString() (string, error) { return c.Inspect(), nil }
 
 func (c *Cmd) start(args object.CallArgs) (object.Object, error) {
 	if err := noArgs("start", args); err != nil {

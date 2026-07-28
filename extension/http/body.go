@@ -23,14 +23,14 @@ func NewBody(stream io.ReadCloser) *Body {
 	return &Body{objectBase: objectBase{typeName: "Body"}, stream: stream}
 }
 
-func (b *Body) String() string {
+func (b *Body) Inspect() string {
 	if b.closed.Load() {
 		return "<http_body closed>"
 	}
 	return "<http_body>"
 }
 
-func (b *Body) ToString() (string, error) { return b.String(), nil }
+func (b *Body) ToString() (string, error) { return b.Inspect(), nil }
 
 // Read implements io.Reader for net/http.
 func (b *Body) Read(p []byte) (int, error) {

@@ -212,7 +212,7 @@ func (l *List) Copy(args CallArgs) (Object, error) {
 	return &List{Elements: elements}, nil
 }
 
-func (l *List) String() string {
+func (l *List) Inspect() string {
 	elements := make([]string, len(l.Elements))
 	for i, elem := range l.Elements {
 		elements[i] = literal(elem)
@@ -220,7 +220,7 @@ func (l *List) String() string {
 	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
 }
 
-func (l *List) ToString() (string, error) { return l.String(), nil }
+func (l *List) ToString() (string, error) { return l.Inspect(), nil }
 
 func (l *List) Bool() bool {
 	return len(l.Elements) > 0

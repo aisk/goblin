@@ -9,7 +9,7 @@ type Bool bool
 
 var _ Object = Bool(true)
 
-func (b Bool) String() string {
+func (b Bool) Inspect() string {
 	switch b {
 	case true:
 		return "true"
@@ -19,7 +19,7 @@ func (b Bool) String() string {
 	panic("never happen")
 }
 
-func (b Bool) ToString() (string, error) { return b.String(), nil }
+func (b Bool) ToString() (string, error) { return b.Inspect(), nil }
 
 func (b Bool) Bool() bool {
 	return bool(b)
@@ -58,7 +58,7 @@ func boolToInt(b bool) int {
 func (b Bool) Add(other Object) (Object, error) {
 	switch v := other.(type) {
 	case String:
-		return String(b.String() + string(v)), nil
+		return String(b.Inspect() + string(v)), nil
 	default:
 		return nil, NewTypeError("cannot add Bool and %T", other)
 	}
