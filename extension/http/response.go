@@ -64,7 +64,7 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 	if err := dec.Decode(&v); err != nil {
 		return nil, object.WrapError(object.ParseError, "json() failed to parse response body", err)
 	}
-	return extension.JSONToGoblin(v)
+	return extension.JSONToGoblin(v, "json")
 }
 
 var _ object.Object = (*Response)(nil)

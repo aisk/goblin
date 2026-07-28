@@ -32,7 +32,7 @@ type Cmd struct {
 	done    chan struct{}
 }
 
-func (c *Cmd) String() string            { return fmt.Sprintf("<exec.Cmd %s>", commandString(c.cmd)) }
+func (c *Cmd) String() string            { return fmt.Sprintf("<exec.Command %s>", commandString(c.cmd)) }
 func (c *Cmd) ToString() (string, error) { return c.String(), nil }
 
 func (c *Cmd) start(args object.CallArgs) (object.Object, error) {
@@ -160,7 +160,7 @@ func (c *Cmd) GetAttr(name string) (object.Object, error) {
 		defer c.mu.Unlock()
 		return object.Bool(c.state == stateRunning), nil
 	}
-	return nil, object.NewAttributeError("Cmd has no attribute '%s'", name)
+	return nil, object.NewAttributeError("Command has no attribute '%s'", name)
 }
 func (c *Cmd) Attributes() []string {
 	return []string{"attributes", "run", "start", "wait", "kill", "pid", "running"}

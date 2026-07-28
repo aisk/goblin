@@ -1,7 +1,8 @@
 # json
 
 Import json to exchange data with JSON APIs and files. marshal(value, indent=0)
-produces JSON text; unmarshal(text) parses JSON into Goblin values.
+produces JSON text; unmarshal(data) parses JSON text (str or Bytes) into
+Goblin values.
 
 ~~~goblin
 import "json"
@@ -27,8 +28,9 @@ input.
 
 marshal accepts every standard Goblin value that has a JSON equivalent:
 dictionaries, lists, strings, integers, floats, booleans, and nil. Dictionary
-keys are encoded as JSON object keys. The optional indent argument controls
-pretty printing; omit it for compact data sent over a network.
+keys must be strings and are encoded as JSON object keys; a non-string key
+raises TypeError. The optional indent argument controls pretty printing; omit
+it for compact data sent over a network.
 
 ~~~goblin
 var payload = {

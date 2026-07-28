@@ -97,6 +97,17 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 		return object.String(t.Value.Weekday().String()), nil
 
 	// Methods — return closures that capture the receiver
+	case "elapsed":
+		return &object.Function{
+			Name: "elapsed",
+			Fn: func(args object.CallArgs) (object.Object, error) {
+				if err := object.NewArgParser("elapsed", args).Finish(); err != nil {
+					return nil, err
+				}
+				d := stdtime.Since(t.Value)
+				return object.Float(float64(d) / float64(stdtime.Second)), nil
+			},
+		}, nil
 	case "format":
 		return &object.Function{
 			Name: "format",
@@ -116,7 +127,7 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 }
 
 func (t *Time) Attributes() []string {
-	return []string{"attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "format"}
+	return []string{"attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "elapsed", "format"}
 }
 
 var _ object.Object = (*Time)(nil)

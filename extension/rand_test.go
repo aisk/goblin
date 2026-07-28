@@ -55,7 +55,7 @@ func TestRandSeedIsReproducible(t *testing.T) {
 	}
 }
 
-func TestRandConstructorRequiresSeed(t *testing.T) {
+func TestRandConstructorSeed(t *testing.T) {
 	obj, err := randConstructor(object.CallArgs{Keyword: object.Kwargs{"seed": object.Integer(-9)}})
 	if err != nil {
 		t.Fatal(err)
@@ -63,8 +63,8 @@ func TestRandConstructorRequiresSeed(t *testing.T) {
 	if obj.(*Rand).seed != -9 {
 		t.Fatalf("seed = %d, want -9", obj.(*Rand).seed)
 	}
-	if _, err := randConstructor(object.CallArgs{}); err == nil {
-		t.Fatal("Rand() accepted a missing seed")
+	if _, err := randConstructor(object.CallArgs{}); err != nil {
+		t.Fatalf("Rand() with no seed error = %v", err)
 	}
 }
 

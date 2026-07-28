@@ -8,6 +8,7 @@ import (
 
 func ExecuteMath() (object.Object, error) {
 	return &object.Module{
+		Name: "math",
 		Members: map[string]object.Object{
 			"pi":     object.Float(math.Pi),
 			"e":      object.Float(math.E),
@@ -62,7 +63,7 @@ func mathIntPreserving(name string, args object.CallArgs, intFn func(int64) int6
 	case object.Float:
 		return object.Float(floatFn(float64(n))), nil
 	}
-	return nil, p.Err()
+	return nil, object.NewTypeError("%s() argument 'x' must be number, got %s", name, v.TypeName())
 }
 
 func mathAbs(args object.CallArgs) (object.Object, error) {
@@ -206,53 +207,39 @@ func mathExp(args object.CallArgs) (object.Object, error) {
 }
 
 func mathMax(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("max", args)
-	nums := p.Rest()
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	if len(nums) < 2 {
-		return nil, object.NewTypeError("max() requires at least 2 arguments")
-	}
-	maxVal, err := toFloat("max", nums[0])
-	if err != nil {
-		return nil, err
-	}
-	for _, arg := range nums[1:] {
-		f, err := toFloat("max", arg)
-		if err != nil {
-			return nil, err
-		}
-		if f > maxVal {
-			maxVal = f
-		}
-	}
-	return object.Float(maxVal), nil
+	return mathExtreme("max", args, func(candidate, best float64) bool { return candidate > best })
 }
 
 func mathMin(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("min", args)
+	return mathExtreme("min", args, func(candidate, best float64) bool { return candidate < best })
+}
+
+// mathExtreme returns the winning argument itself, so Integer inputs stay
+// Integer instead of being coerced to Float.
+func mathExtreme(name string, args object.CallArgs, better func(candidate, best float64) bool) (object.Object, error) {
+	p := object.NewArgParser(name, args)
 	nums := p.Rest()
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	if len(nums) < 2 {
-		return nil, object.NewTypeError("min() requires at least 2 arguments")
+		return nil, object.NewTypeError("%s() requires at least 2 arguments", name)
 	}
-	minVal, err := toFloat("min", nums[0])
+	best := nums[0]
+	bestVal, err := toFloat(name, best)
 	if err != nil {
 		return nil, err
 	}
 	for _, arg := range nums[1:] {
-		f, err := toFloat("min", arg)
+		f, err := toFloat(name, arg)
 		if err != nil {
 			return nil, err
 		}
-		if f < minVal {
-			minVal = f
+		if better(f, bestVal) {
+			best, bestVal = arg, f
 		}
 	}
-	return object.Float(minVal), nil
+	return best, nil
 }
 
 func mathIsNaN(args object.CallArgs) (object.Object, error) {

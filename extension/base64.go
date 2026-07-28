@@ -52,14 +52,14 @@ func encodeBase64(name string, encoding *base64.Encoding, args object.CallArgs) 
 
 func decodeBase64(name string, encoding *base64.Encoding, args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser(name, args)
-	value := ap.Str("value")
+	value := ap.Str("data")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 
 	data, err := encoding.DecodeString(string(value))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, name+"() failed", err)
+		return nil, object.WrapError(object.ParseError, name+"() invalid base64 data", err)
 	}
 	return object.NewBytes(data), nil
 }

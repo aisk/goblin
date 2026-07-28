@@ -25,6 +25,7 @@ var defaultClient = &stdhttp.Client{Timeout: defaultTimeout}
 // Client are constructors for the corresponding types.
 func Execute() (object.Object, error) {
 	return &object.Module{
+		Name: "http",
 		Members: map[string]object.Object{
 			"get":     &object.Function{Name: "get", Fn: get},
 			"head":    &object.Function{Name: "head", Fn: head},
@@ -96,9 +97,9 @@ func doDo(client *stdhttp.Client, args object.CallArgs) (object.Object, error) {
 	}
 	reqObj, ok := requestArg.(*Request)
 	if !ok {
-		return nil, object.NewTypeError("do() argument must be a request, got %s", requestArg.TypeName())
+		return nil, object.NewTypeError("do() argument 'request' must be Request, got %s", requestArg.TypeName())
 	}
-	return doRequest(client, reqObj.Req)
+	return doRequest(client, "do", reqObj.Req)
 }
 
 func bodylessRequest(client *stdhttp.Client, fn, method string, args object.CallArgs) (object.Object, error) {
@@ -109,9 +110,9 @@ func bodylessRequest(client *stdhttp.Client, fn, method string, args object.Call
 	}
 	req, err := buildRequest(method, string(rawURL), "", nil)
 	if err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
+		return nil, object.WrapError(object.ValueError, fn+"() invalid URL", err)
 	}
-	return doRequest(client, req)
+	return doRequest(client, fn, req)
 }
 
 func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs) (object.Object, error) {
@@ -127,9 +128,9 @@ func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs
 	}
 	req, err := buildRequest(method, string(rawURL), string(contentType), body)
 	if err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, fn+"() failed", err)
+		return nil, object.WrapError(object.ValueError, fn+"() invalid URL", err)
 	}
-	return doRequest(client, req)
+	return doRequest(client, fn, req)
 }
 
 // ---------------------------------------------------------------------------
@@ -142,7 +143,7 @@ func bodyRequest(client *stdhttp.Client, fn, method string, args object.CallArgs
 func newRequestObject(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("Request", args)
 	method, rawURL := p.Str("method"), p.Str("url")
-	bodyObj := p.Any("body")
+	bodyObj := p.AnyOr("body", object.Nil)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -152,7 +153,7 @@ func newRequestObject(args object.CallArgs) (object.Object, error) {
 	}
 	req, err := buildRequest(string(method), string(rawURL), "", body)
 	if err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, "Request() failed", err)
+		return nil, object.WrapError(object.ValueError, "Request() invalid method or URL", err)
 	}
 	return NewRequest(req), nil
 }
@@ -195,10 +196,10 @@ func buildRequest(method, rawURL, contentType string, body io.Reader) (*stdhttp.
 }
 
 // doRequest sends req using client and leaves the response body as a stream.
-func doRequest(client *stdhttp.Client, req *stdhttp.Request) (object.Object, error) {
+func doRequest(client *stdhttp.Client, fn string, req *stdhttp.Request) (object.Object, error) {
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, "request failed", err)
+		return nil, object.WrapNativeError(object.NetworkError, fn+"() request failed", err)
 	}
 	return NewResponse(resp), nil
 }
@@ -214,9 +215,9 @@ func bodyArg(fn string, obj object.Object) (io.Reader, error) {
 	case object.Bytes:
 		return bytes.NewReader(v), nil
 	default:
-		reader, err := newDuckReader(obj)
+		reader, err := newDuckReader(fn, obj)
 		if err != nil {
-			return nil, object.NewTypeError("%s() body argument: %s", fn, err)
+			return nil, err
 		}
 		return reader, nil
 	}
@@ -230,6 +231,6 @@ func durationFromObject(fn string, obj object.Object) (time.Duration, error) {
 	case object.Integer:
 		return time.Duration(int64(v)) * time.Second, nil
 	default:
-		return 0, object.NewTypeError("%s() timeout argument must be a number, got %s", fn, obj.TypeName())
+		return 0, object.NewTypeError("%s() argument 'timeout' must be number, got %s", fn, obj.TypeName())
 	}
 }

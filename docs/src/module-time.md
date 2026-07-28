@@ -7,17 +7,26 @@ import "time"
 
 var started = time.now()
 time.sleep(0.1)
-print(time.since(started))
+print(started.elapsed())
 print(started.year)
 print(started.format("2006-01-02"))
 ~~~
 
 now() returns the current local time. sleep(seconds) pauses for an integer or
-float number of seconds. since(value) returns elapsed seconds as a Float.
+float number of seconds. t.elapsed() returns the seconds elapsed since t as a
+Float.
+
+Time(year, month, day, hour=0, minute=0, second=0, nanosecond=0) constructs a
+Time from calendar components in local time.
+
+~~~goblin
+var launch = time.Time(2026, 7, 19, hour=9, minute=30)
+print(launch.format("2006-01-02 15:04"))
+~~~
 
 Use parse(layout, text) to parse formatted text. Layouts use Go reference time
-formatting, so 2006-01-02 represents a year-month-day format. unix(seconds)
-creates a time from a Unix timestamp.
+formatting, so 2006-01-02 represents a year-month-day format.
+unix(seconds, nanoseconds=0) creates a time from a Unix timestamp.
 
 ~~~goblin
 var day = time.parse("2006-01-02", "2026-07-19")
@@ -41,7 +50,7 @@ print(now.format("2006-01-02 15:04:05"))
 ~~~
 
 Time values can be compared with the ordinary comparison operators. Use this
-for expiration and scheduling checks; use since() when the needed result is a
+for expiration and scheduling checks; use elapsed() when the needed result is a
 duration in seconds.
 
 ~~~goblin

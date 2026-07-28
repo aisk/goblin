@@ -9,7 +9,7 @@ dictionary whose string keys are archive paths and whose values are `Bytes` or
 file names to `Bytes`. Directory and other non-regular entries are skipped when
 reading.
 
-`zip.write_all` accepts `method=zip.deflate` and also supports `zip.store`.
+`zip.write_all` accepts `method=zip.DEFLATE` and also supports `zip.STORE`.
 Malformed archives raise `ParseError`.
 
 These whole-archive operations correspond to iterating Go Reader and Writer

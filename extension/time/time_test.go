@@ -83,17 +83,19 @@ func TestUnix(t *testing.T) {
 	}
 }
 
-func TestSince(t *testing.T) {
+func TestElapsed(t *testing.T) {
 	start := NewTime(parseTimeHelper(t))
-	elapsed, err := since(object.CallArgs{
-		Positional: []object.Object{start},
-	})
+	fnObj, err := start.GetAttr("elapsed")
 	if err != nil {
-		t.Fatalf("since() returned error: %v", err)
+		t.Fatalf("GetAttr(elapsed) returned error: %v", err)
+	}
+	elapsed, err := fnObj.(*object.Function).Call(object.CallArgs{})
+	if err != nil {
+		t.Fatalf("elapsed() returned error: %v", err)
 	}
 	f, ok := elapsed.(object.Float)
 	if !ok {
-		t.Fatalf("since() did not return Float, got %T", elapsed)
+		t.Fatalf("elapsed() did not return Float, got %T", elapsed)
 	}
 	if f <= 0 {
 		t.Errorf("expected positive elapsed time, got %v", f)

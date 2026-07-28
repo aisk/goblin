@@ -48,7 +48,7 @@ func newRand(seed int64) *Rand {
 
 func randConstructor(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("Rand", args)
-	seed := ap.Int("seed")
+	seed := ap.IntOr("seed", object.Integer(autoRandSeed()))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}

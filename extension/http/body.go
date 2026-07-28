@@ -61,7 +61,7 @@ func (b *Body) read(args object.CallArgs) (object.Object, error) {
 	if _, ok := sizeObj.(object.Unit); ok {
 		data, err := io.ReadAll(b)
 		if err != nil {
-			return nil, object.WrapNativeError(object.NetworkError, "reading HTTP body failed", err)
+			return nil, object.WrapNativeError(object.NetworkError, "read() failed to read HTTP body", err)
 		}
 		return object.NewBytes(data), nil
 	}
@@ -84,7 +84,7 @@ func (b *Body) read(args object.CallArgs) (object.Object, error) {
 	data := make([]byte, int(size))
 	n, err := b.Read(data)
 	if err != nil && err != io.EOF {
-		return nil, object.WrapNativeError(object.NetworkError, "reading HTTP body failed", err)
+		return nil, object.WrapNativeError(object.NetworkError, "read() failed to read HTTP body", err)
 	}
 	return object.NewBytes(data[:n]), nil
 }
@@ -94,7 +94,7 @@ func (b *Body) close(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if err := b.Close(); err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, "closing HTTP body failed", err)
+		return nil, object.WrapNativeError(object.NetworkError, "close() failed to close HTTP body", err)
 	}
 	return object.Nil, nil
 }
@@ -135,14 +135,14 @@ type duckReader struct {
 	closed  bool
 }
 
-func newDuckReader(value object.Object) (*duckReader, error) {
+func newDuckReader(fn string, value object.Object) (*duckReader, error) {
 	readObj, err := value.GetAttr("read")
 	if err != nil {
-		return nil, object.NewTypeError("HTTP body must be a string, Bytes, nil, or an object with a read(size) method, got %s", value.TypeName())
+		return nil, object.NewTypeError("%s() argument 'body' must be str, Bytes, nil, or an object with a read(size) method, got %s", fn, value.TypeName())
 	}
 	readFn, ok := readObj.(*object.Function)
 	if !ok {
-		return nil, object.NewTypeError("HTTP body read attribute must be callable, got %s", readObj.TypeName())
+		return nil, object.NewTypeError("%s() argument 'body' read attribute must be callable, got %s", fn, readObj.TypeName())
 	}
 
 	var closeFn *object.Function
@@ -150,7 +150,7 @@ func newDuckReader(value object.Object) (*duckReader, error) {
 		var ok bool
 		closeFn, ok = closeObj.(*object.Function)
 		if !ok {
-			return nil, object.NewTypeError("HTTP body close attribute must be callable, got %s", closeObj.TypeName())
+			return nil, object.NewTypeError("%s() argument 'body' close attribute must be callable, got %s", fn, closeObj.TypeName())
 		}
 	}
 	return &duckReader{readFn: readFn, closeFn: closeFn}, nil

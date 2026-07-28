@@ -21,14 +21,14 @@ func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
 	if name == "attributes" {
 		return object.AttributesFunction(p), nil
 	}
-	return nil, object.NewAttributeError("stream policy has no attribute '%s'", name)
+	return nil, object.NewAttributeError("StreamPolicy has no attribute '%s'", name)
 }
 func (p *streamPolicy) Attributes() []string { return []string{"attributes"} }
 
 var (
-	inherit = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "INHERIT"}
-	discard = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "DISCARD"}
-	capture = &streamPolicy{objectBase: objectBase{typeName: "stream policy"}, name: "CAPTURE"}
+	inherit = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "INHERIT"}
+	discard = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "DISCARD"}
+	capture = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "CAPTURE"}
 )
 
 func Execute() (object.Object, error) {
@@ -90,7 +90,7 @@ func command(args object.CallArgs) (object.Object, error) {
 		}
 	}
 
-	c := &Cmd{objectBase: objectBase{typeName: "Cmd"}, cmd: cmd, state: stateCreated}
+	c := &Cmd{objectBase: objectBase{typeName: "Command"}, cmd: cmd, state: stateCreated}
 	if err := c.configureStdin(stdinObj); err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (c *Cmd) configureOutput(name string, value object.Object) error {
 			writer = c.stderr
 		}
 	default:
-		return object.NewTypeError("invalid stream policy %s", policy.String())
+		return object.NewTypeError("Command() invalid stream policy %s", policy.String())
 	}
 	if name == "stdout" {
 		c.cmd.Stdout = writer

@@ -1,7 +1,9 @@
 import "os"
 
-# getenv returns a string (empty when the variable is unset)
+# getenv returns a string, or nil / the default= fallback when unset
 print(os.getenv("HOME").constructor == Str)
+print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST") == nil)
+print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST", default="fallback"))
 
 # argv is the process command line: a non-empty list of strings
 var args = os.argv()

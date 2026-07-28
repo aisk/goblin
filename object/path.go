@@ -77,9 +77,9 @@ func (p *Path) Multiply(Object) (Object, error) { return nil, NewTypeError("cann
 // Divide overloads `/` as path joining, so `Path("/tmp") / "log" / "a.txt"`
 // reads like a filesystem path.
 func (p *Path) Divide(other Object) (Object, error) {
-	seg, err := pathSegment("/", other)
+	seg, err := pathSegment("/", "other", other)
 	if err != nil {
-		return nil, err
+		return nil, NewTypeError("cannot join Path with %s using /", other.TypeName())
 	}
 	return NewPath(filepath.Join(p.raw, seg)), nil
 }
@@ -160,20 +160,21 @@ func (p *Path) Attributes() []string {
 	return []string{
 		"attributes", "name", "stem", "suffix", "parent", "parts",
 		"is_absolute", "with_name", "with_suffix", "join", "relative_to", "match", "as_posix",
-		"exists", "is_dir", "is_file", "is_symlink", "resolve", "read_text", "write_text",
+		"exists", "is_dir", "is_file", "is_symlink", "resolve",
+		"read_text", "read_bytes", "write_text", "write_bytes",
 		"iterdir", "glob", "mkdir", "unlink", "rename", "constructor",
 	}
 }
 
 // pathSegment coerces a String or Path argument into a plain path string.
-func pathSegment(fnName string, arg Object) (string, error) {
+func pathSegment(fnName, argName string, arg Object) (string, error) {
 	switch v := arg.(type) {
 	case String:
 		return string(v), nil
 	case *Path:
 		return v.raw, nil
 	default:
-		return "", NewTypeError("%s() argument must be a string or Path, got %s", fnName, arg.TypeName())
+		return "", NewTypeError("%s() argument '%s' must be str or Path, got %s", fnName, argName, arg.TypeName())
 	}
 }
 
@@ -236,13 +237,15 @@ func (p *Path) WithSuffix(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Join(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("join", args); err != nil {
+	ap := NewArgParser("join", args)
+	segments := ap.Rest()
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	elems := make([]string, 0, len(args.Positional)+1)
+	elems := make([]string, 0, len(segments)+1)
 	elems = append(elems, p.raw)
-	for _, arg := range args.Positional {
-		seg, err := pathSegment("join", arg)
+	for _, arg := range segments {
+		seg, err := pathSegment("join", "segments", arg)
 		if err != nil {
 			return nil, err
 		}
@@ -257,7 +260,7 @@ func (p *Path) RelativeTo(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	base, err := pathSegment("relative_to", other)
+	base, err := pathSegment("relative_to", "other", other)
 	if err != nil {
 		return nil, err
 	}
@@ -479,7 +482,7 @@ func (p *Path) Rename(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	targetPath, err := pathSegment("rename", target)
+	targetPath, err := pathSegment("rename", "target", target)
 	if err != nil {
 		return nil, err
 	}
@@ -492,13 +495,7 @@ func (p *Path) Rename(args CallArgs) (Object, error) {
 // requireNoArgs rejects any positional or keyword arguments for the zero-arg
 // query methods.
 func requireNoArgs(fnName string, args CallArgs) error {
-	if err := RequireNoKeyword(fnName, args); err != nil {
-		return err
-	}
-	if len(args.Positional) != 0 {
-		return NewTypeError("%s() takes no arguments, got %d", fnName, len(args.Positional))
-	}
-	return nil
+	return NewArgParser(fnName, args).Finish()
 }
 
 // PathConstructorFn builds a Path from zero or more string/Path segments,
@@ -506,15 +503,17 @@ func requireNoArgs(fnName string, args CallArgs) error {
 var PathConstructorFn = &Function{Name: "Path", Fn: PathConstructor}
 
 func PathConstructor(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("Path", args); err != nil {
+	ap := NewArgParser("Path", args)
+	segments := ap.Rest()
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) == 0 {
+	if len(segments) == 0 {
 		return NewPath("."), nil
 	}
-	segs := make([]string, len(args.Positional))
-	for i, arg := range args.Positional {
-		seg, err := pathSegment("Path", arg)
+	segs := make([]string, len(segments))
+	for i, arg := range segments {
+		seg, err := pathSegment("Path", "segments", arg)
 		if err != nil {
 			return nil, err
 		}

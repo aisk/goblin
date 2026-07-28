@@ -49,13 +49,13 @@ response.body.close()
 
 ## Requests, clients, and headers
 
-For custom methods or headers, construct Request(method, url, body), then send
+For custom methods or headers, construct Request(method, url, body=nil), then send
 it through Client(timeout=seconds). Request.header supports get(), values(),
 set(), add(), and del().
 
 ~~~goblin
 var client = http.Client(timeout=5)
-var request = http.Request("GET", "https://api.example.com/items", nil)
+var request = http.Request("GET", "https://api.example.com/items")
 request.header.set("Accept", "application/json")
 var response = client.do(request)
 print(response.status)

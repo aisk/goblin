@@ -4,4 +4,4 @@ import "zlib"
 var text = "goblin goblin goblin"
 print(gzip.decompress(gzip.compress(text)).decode())
 print(zlib.decompress(zlib.compress(text)).decode())
-print(gzip.compress(text, level=gzip.best_compression).constructor == Bytes)
+print(gzip.compress(text, level=gzip.BEST_COMPRESSION).constructor == Bytes)

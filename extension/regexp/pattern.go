@@ -36,7 +36,7 @@ func (p *Pattern) Equals(other object.Object) (bool, error) {
 // matcher returns the engine for a match request. The full=true engine wraps
 // the source in a non-capturing group, so group numbers and names are the same
 // in both engines and Match can always be built from p.names.
-func (p *Pattern) matcher(full object.Bool) (*stdregexp.Regexp, error) {
+func (p *Pattern) matcher(name string, full object.Bool) (*stdregexp.Regexp, error) {
 	if !full {
 		return p.re, nil
 	}
@@ -44,7 +44,7 @@ func (p *Pattern) matcher(full object.Bool) (*stdregexp.Regexp, error) {
 		p.full, p.fullErr = stdregexp.Compile(`\A(?:` + p.source + `)\z`)
 	})
 	if p.fullErr != nil {
-		return nil, object.WrapError(object.ParseError, "anchoring the pattern for full=true failed", p.fullErr)
+		return nil, object.WrapError(object.ParseError, name+"() failed to anchor pattern for full=true", p.fullErr)
 	}
 	return p.full, nil
 }
@@ -64,7 +64,7 @@ func (p *Pattern) match(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	re, err := p.matcher(full)
+	re, err := p.matcher("match", full)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (p *Pattern) find(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	re, err := p.matcher(full)
+	re, err := p.matcher("find", full)
 	if err != nil {
 		return nil, err
 	}

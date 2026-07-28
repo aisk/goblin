@@ -24,7 +24,7 @@ for arg in os.argv() {
 | Function | Purpose |
 | --- | --- |
 | argv() | Return the program command-line arguments as a list of strings |
-| getenv(key) / setenv(key, value) / unsetenv(key) | Read or change environment values |
+| getenv(key, default=nil) / setenv(key, value) / unsetenv(key) | Read or change environment values |
 | environ() | Return all environment values as a dictionary |
 | getwd() / hostname() | Current directory and machine name |
 | getpid() / getppid() | Process identifiers |
@@ -62,9 +62,9 @@ print("input:", args[1])
 
 ## Configuration from the environment
 
-getenv() returns an empty string for a missing key. Use that behavior to supply
-a development default, or use environ() when a program needs to inspect the
-complete environment dictionary.
+getenv() returns nil for a missing key; pass default= to supply a fallback
+value (for example `os.getenv("PORT", default="8080")`), or use environ() when
+a program needs to inspect the complete environment dictionary.
 
 ~~~goblin
 var env = os.environ()

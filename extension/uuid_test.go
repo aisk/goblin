@@ -113,14 +113,14 @@ func TestUUIDConstructAndValidate(t *testing.T) {
 		t.Fatalf("parse() = %v, want canonical UUID", got)
 	}
 
-	valid, err := uuidFunction(t, "validate").Call(object.CallArgs{Positional: object.Args{object.String(input)}})
+	valid, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{object.String(input)}})
 	if err != nil {
 		t.Fatalf("validate() error = %v", err)
 	}
 	if valid != object.True {
 		t.Fatalf("validate(valid UUID) = %v, want true", valid)
 	}
-	invalid, err := uuidFunction(t, "validate").Call(object.CallArgs{Positional: object.Args{object.String("not-a-uuid")}})
+	invalid, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{object.String("not-a-uuid")}})
 	if err != nil {
 		t.Fatalf("validate() error = %v", err)
 	}
@@ -159,7 +159,7 @@ func TestUUIDFunctionsAcceptKeywords(t *testing.T) {
 	if _, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{"value": object.String(input)}}); err != nil {
 		t.Fatalf("UUID(value=...) error = %v", err)
 	}
-	got, err := uuidFunction(t, "validate").Call(object.CallArgs{Keyword: object.Kwargs{"value": object.String(input)}})
+	got, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Keyword: object.Kwargs{"value": object.String(input)}})
 	if err != nil || got != object.True {
 		t.Fatalf("validate(value=...) = %v, %v; want true, nil", got, err)
 	}
@@ -205,7 +205,7 @@ func TestUUIDVersionSpecificAttributes(t *testing.T) {
 }
 
 func TestUUIDValidateRequiresString(t *testing.T) {
-	_, err := uuidFunction(t, "validate").Call(object.CallArgs{Positional: object.Args{NewUUID(googleuuid.NameSpaceDNS)}})
+	_, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{NewUUID(googleuuid.NameSpaceDNS)}})
 	if err == nil || !errors.Is(err, object.TypeError) {
 		t.Fatalf("validate(UUID) error = %v, want TypeError", err)
 	}

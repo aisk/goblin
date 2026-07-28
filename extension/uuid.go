@@ -9,14 +9,15 @@ import (
 // ExecuteUUID builds the uuid module.
 func ExecuteUUID() (object.Object, error) {
 	return &object.Module{
+		Name: "uuid",
 		Members: map[string]object.Object{
 			"UUID":           &object.Function{Name: "UUID", Fn: uuidConstructor},
 			"new":            &object.Function{Name: "new", Fn: uuidNew},
-			"validate":       &object.Function{Name: "validate", Fn: uuidValidate},
-			"namespace_dns":  NewUUID(googleuuid.NameSpaceDNS),
-			"namespace_url":  NewUUID(googleuuid.NameSpaceURL),
-			"namespace_oid":  NewUUID(googleuuid.NameSpaceOID),
-			"namespace_x500": NewUUID(googleuuid.NameSpaceX500),
+			"is_valid":       &object.Function{Name: "is_valid", Fn: uuidIsValid},
+			"NAMESPACE_DNS":  NewUUID(googleuuid.NameSpaceDNS),
+			"NAMESPACE_URL":  NewUUID(googleuuid.NameSpaceURL),
+			"NAMESPACE_OID":  NewUUID(googleuuid.NameSpaceOID),
+			"NAMESPACE_X500": NewUUID(googleuuid.NameSpaceX500),
 		},
 	}, nil
 }
@@ -34,13 +35,13 @@ func uuidConstructor(args object.CallArgs) (object.Object, error) {
 	case object.String:
 		id, err := googleuuid.Parse(string(value))
 		if err != nil {
-			return nil, object.WrapError(object.ParseError, "UUID() failed", err)
+			return nil, object.WrapError(object.ParseError, "UUID() invalid UUID string", err)
 		}
 		return NewUUID(id), nil
 	case object.Bytes:
 		id, err := googleuuid.FromBytes([]byte(value))
 		if err != nil {
-			return nil, object.WrapError(object.ParseError, "UUID() failed", err)
+			return nil, object.WrapError(object.ParseError, "UUID() invalid UUID bytes", err)
 		}
 		return NewUUID(id), nil
 	default:
@@ -63,10 +64,10 @@ func uuidNew(args object.CallArgs) (object.Object, error) {
 	}
 
 	if v == 3 || v == 5 {
-		space, ok := namespace.(*UUID)
 		if namespace == object.Nil {
 			return nil, object.NewTypeError("new() missing required argument for version %d: 'namespace'", v)
 		}
+		space, ok := namespace.(*UUID)
 		if !ok {
 			return nil, object.NewTypeError("new() argument 'namespace' must be UUID, got %s", namespace.TypeName())
 		}
@@ -105,13 +106,13 @@ func uuidNew(args object.CallArgs) (object.Object, error) {
 		id, err = googleuuid.NewV7()
 	}
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "new() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "new() failed to generate UUID", err)
 	}
 	return NewUUID(id), nil
 }
 
-func uuidValidate(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("validate", args)
+func uuidIsValid(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("is_valid", args)
 	value := p.Str("value")
 	if err := p.Finish(); err != nil {
 		return nil, err

@@ -10,7 +10,7 @@ print(mime.type_by_extension(".json"))
 print(mime.extensions_by_type("application/json"))
 ~~~
 
-type_by_extension(extension) returns a string, or an empty string when the
+type_by_extension(extension) returns a string, or nil when the
 extension is unknown. Include the leading dot in the extension.
 
 extensions_by_type(type) returns a list of known extensions. It can raise
@@ -19,12 +19,12 @@ ParseError when the supplied MIME type is invalid.
 ## Using MIME information with files and HTTP
 
 Pass a suffix, including its leading dot, to type_by_extension(). The returned
-type may include a charset parameter and is empty when no mapping is known.
+type may include a charset parameter and is nil when no mapping is known.
 
 ~~~goblin
 var filename = "report.json"
 var content_type = mime.type_by_extension(".json")
-if content_type == "" {
+if !content_type {
     content_type = "application/octet-stream"
 }
 print(content_type)

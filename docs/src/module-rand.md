@@ -17,7 +17,7 @@ Module-level functions use a private, automatically seeded generator.
 
 | Function | Description |
 | --- | --- |
-| `Rand(seed)` | Create an independent generator with an integer seed. |
+| `Rand(seed=...)` | Create an independent generator; `seed` defaults to an automatic seed. |
 | `int(max=nil)` | Return a non-negative integer, optionally below `max`. |
 | `float()` | Return a Float in `[0.0, 1.0)`. |
 | `perm(n)` | Return a random permutation of the integers `[0, n)`. |
@@ -35,7 +35,7 @@ it would leak that implementation constraint into Goblin.
 
 ## Independent generators
 
-`Rand(seed)` wraps Go's `rand.Rand`. Two instances created with the same seed
+`Rand(seed=...)` wraps Go's `rand.Rand`. Two instances created with the same seed
 produce the same sequence:
 
 ~~~goblin
@@ -57,7 +57,7 @@ is not required.
 
 ## Deliberately omitted Go API
 
-- `Source`, `Source64`, and `New` are replaced by `Rand(seed)`. Go's source
+- `Source`, `Source64`, and `New` are replaced by `Rand(seed=...)`. Go's source
   interfaces are extension points for Go implementations and should not leak
   into the Goblin value API.
 - `Read` is omitted because its Go signature fills a caller-owned byte slice.

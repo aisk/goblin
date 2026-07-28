@@ -25,6 +25,7 @@ func ExecuteOsWithFrozenArgs(args []string) (object.Object, error) {
 
 func newOsModule(argsFn func() []string) object.Object {
 	return &object.Module{
+		Name: "os",
 		Members: map[string]object.Object{
 			"argv":        &object.Function{Name: "argv", Fn: makeArgv(argsFn)},
 			"environ":     &object.Function{Name: "environ", Fn: environ},
@@ -80,10 +81,14 @@ func exit(args object.CallArgs) (object.Object, error) {
 func getenv(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("getenv", args)
 	key := p.Str("key")
+	def := p.AnyOr("default", object.Nil)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	value := os.Getenv(string(key))
+	value, ok := os.LookupEnv(string(key))
+	if !ok {
+		return def, nil
+	}
 	return object.String(value), nil
 }
 

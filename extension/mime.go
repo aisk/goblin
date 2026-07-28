@@ -8,6 +8,7 @@ import (
 
 func ExecuteMime() (object.Object, error) {
 	return &object.Module{
+		Name: "mime",
 		Members: map[string]object.Object{
 			"type_by_extension":  &object.Function{Name: "type_by_extension", Fn: mimeTypeByExtension},
 			"extensions_by_type": &object.Function{Name: "extensions_by_type", Fn: mimeExtensionsByType},
@@ -22,7 +23,11 @@ func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 
-	return object.String(mime.TypeByExtension(string(ext))), nil
+	mimeType := mime.TypeByExtension(string(ext))
+	if mimeType == "" {
+		return object.Nil, nil
+	}
+	return object.String(mimeType), nil
 }
 
 func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
@@ -34,7 +39,7 @@ func mimeExtensionsByType(args object.CallArgs) (object.Object, error) {
 
 	extensions, err := mime.ExtensionsByType(string(mimeType))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "extensions_by_type() failed", err)
+		return nil, object.WrapError(object.ParseError, "extensions_by_type() invalid MIME type", err)
 	}
 
 	elements := make([]object.Object, 0, len(extensions))

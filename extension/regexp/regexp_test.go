@@ -273,7 +273,7 @@ func TestPatternConcurrentReuse(t *testing.T) {
 			defer wg.Done()
 			for j := 0; j < 100; j++ {
 				// full=true races on the lazily compiled anchored engine.
-				re, err := p.matcher(object.True)
+				re, err := p.matcher("match", object.True)
 				if err != nil {
 					t.Error(err)
 					return

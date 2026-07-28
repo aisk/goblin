@@ -40,13 +40,13 @@ func hexEncode(args object.CallArgs) (object.Object, error) {
 
 func hexDecode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("decode", args)
-	value := p.Str("s")
+	value := p.Str("data")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	data, err := hex.DecodeString(string(value))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "decode() failed", err)
+		return nil, object.WrapError(object.ParseError, "decode() invalid hex data", err)
 	}
 	return object.NewBytes(data), nil
 }

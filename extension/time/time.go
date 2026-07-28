@@ -8,14 +8,32 @@ import (
 
 func Execute() (object.Object, error) {
 	return &object.Module{
+		Name: "time",
 		Members: map[string]object.Object{
+			"Time":  &object.Function{Name: "Time", Fn: timeConstructor},
 			"now":   &object.Function{Name: "now", Fn: now},
 			"sleep": &object.Function{Name: "sleep", Fn: sleep},
 			"parse": &object.Function{Name: "parse", Fn: parse},
 			"unix":  &object.Function{Name: "unix", Fn: unix},
-			"since": &object.Function{Name: "since", Fn: since},
 		},
 	}, nil
+}
+
+// timeConstructor builds a Time from calendar components in local time.
+func timeConstructor(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("Time", args)
+	year := p.Int("year")
+	month := p.Int("month")
+	day := p.Int("day")
+	hour := p.IntOr("hour", 0)
+	minute := p.IntOr("minute", 0)
+	second := p.IntOr("second", 0)
+	nanosecond := p.IntOr("nanosecond", 0)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	t := stdtime.Date(int(year), stdtime.Month(month), int(day), int(hour), int(minute), int(second), int(nanosecond), stdtime.Local)
+	return NewTime(t), nil
 }
 
 // now returns the current local time.
@@ -29,16 +47,11 @@ func now(args object.CallArgs) (object.Object, error) {
 // sleep pauses execution for the given number of seconds (float).
 func sleep(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("sleep", args)
-	seconds := p.Number("seconds")
+	seconds := p.Float64("seconds")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	switch v := seconds.(type) {
-	case object.Float:
-		stdtime.Sleep(stdtime.Duration(float64(v) * float64(stdtime.Second)))
-	case object.Integer:
-		stdtime.Sleep(stdtime.Duration(int64(v)) * stdtime.Second)
-	}
+	stdtime.Sleep(stdtime.Duration(seconds * float64(stdtime.Second)))
 	return object.Nil, nil
 }
 
@@ -52,32 +65,18 @@ func parse(args object.CallArgs) (object.Object, error) {
 	}
 	t, err := stdtime.Parse(string(layout), string(value))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "parse() failed", err)
+		return nil, object.WrapError(object.ParseError, "parse() invalid time string", err)
 	}
 	return NewTime(t), nil
 }
 
-// unix returns the local time corresponding to the given Unix time, in seconds.
+// unix returns the local time corresponding to the given Unix time.
 func unix(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("unix", args)
 	sec := p.Int("seconds")
+	nsec := p.IntOr("nanoseconds", 0)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	return NewTime(stdtime.Unix(int64(sec), 0)), nil
-}
-
-// since returns the number of seconds (float) elapsed since the given Time.
-func since(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("since", args)
-	timeObj := p.Any("time")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	t, ok := timeObj.(*Time)
-	if !ok {
-		return nil, object.NewTypeError("since() argument must be a Time")
-	}
-	d := stdtime.Since(t.Value)
-	return object.Float(float64(d) / float64(stdtime.Second)), nil
+	return NewTime(stdtime.Unix(int64(sec), int64(nsec))), nil
 }

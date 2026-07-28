@@ -9,11 +9,11 @@ import "uuid"
 
 var id = uuid.new()
 print(id)
-print(uuid.validate("550e8400-e29b-41d4-a716-446655440000"))
+print(uuid.is_valid("550e8400-e29b-41d4-a716-446655440000"))
 
 var stable_id = uuid.new(
     version=5,
-    namespace=uuid.namespace_dns,
+    namespace=uuid.NAMESPACE_DNS,
     data="example.com",
 )
 ~~~
@@ -24,13 +24,13 @@ var stable_id = uuid.new(
 | --- | --- |
 | `UUID(value)` | Constructs a UUID from a UUID, string, or 16-byte `Bytes` value. Raises `ParseError` when invalid. |
 | `new(version=4, namespace=nil, data=nil)` | Creates a UUID of version 1, 3, 4, 5, 6, or 7. |
-| `validate(value)` | Returns whether a string is a valid UUID representation. |
+| `is_valid(value)` | Returns whether a string is a valid UUID representation. |
 
 `new()` defaults to a random version 4 UUID. Versions 3 and 5 require both a
 UUID `namespace` and `data`; `data` may be a string (encoded as UTF-8) or
 `Bytes`. Those arguments are rejected for all other versions. The predefined
-namespaces are `namespace_dns`, `namespace_url`, `namespace_oid`, and
-`namespace_x500`.
+namespaces are `NAMESPACE_DNS`, `NAMESPACE_URL`, `NAMESPACE_OID`, and
+`NAMESPACE_X500`.
 
 UUID values expose these attributes:
 
@@ -46,4 +46,4 @@ UUID values expose these attributes:
 
 Accessing an attribute that is not defined for the UUID's version raises
 `ValueError`. Functions accept both positional and keyword arguments;
-`validate()` requires a string.
+`is_valid()` requires a string.
