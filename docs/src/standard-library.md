@@ -25,6 +25,7 @@ needed.
 | --- | --- | --- |
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
 | [base64](./module-base64.md) | Encode and decode Base64 text | encode(), decode() |
+| [base32, ascii85, html, and quotedprintable](./module-text-encoding.md) | Encode text and escape HTML | encode(), escape() |
 | [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
 | [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
 | [exec](./module-exec.md) | Configure and execute external commands | Command() |
@@ -38,10 +39,12 @@ needed.
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum256(), sum512() |
+| [md5, sha1, crc32, and adler32](./module-checksum.md) | Compute compatibility digests and checksums | hex(), checksum() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
-| [gzip and zlib](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
+| [gzip, zlib, flate, and bzip2](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
 | [tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
+| [mail](./module-mail.md) | Construct and parse email addresses | parse_address() |
 
 ## Imports and errors
 

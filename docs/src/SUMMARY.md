@@ -31,6 +31,7 @@
 - [Modules and imports](./modules.md)
 - [json](./module-json.md)
 - [base64](./module-base64.md)
+- [base32, ascii85, html, and quotedprintable](./module-text-encoding.md)
 - [fs](./module-fs.md)
 - [os](./module-os.md)
 - [exec](./module-exec.md)
@@ -44,10 +45,12 @@
 - [regexp](./module-regexp.md)
 - [hex](./module-hex.md)
 - [sha256 and sha512](./module-sha2.md)
+- [md5, sha1, crc32, and adler32](./module-checksum.md)
 - [url](./module-url.md)
 - [csv](./module-csv.md)
-- [gzip and zlib](./module-compression.md)
+- [gzip, zlib, flate, and bzip2](./module-compression.md)
 - [tar and zip](./module-archive.md)
+- [mail](./module-mail.md)
 
 # Extending Goblin with Go
 

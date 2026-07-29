@@ -2,6 +2,7 @@ package extension
 
 import (
 	"bytes"
+	"compress/bzip2"
 	"compress/flate"
 	"compress/gzip"
 	"compress/zlib"
@@ -28,6 +29,16 @@ func ExecuteGzip() (object.Object, error) {
 
 func ExecuteZlib() (object.Object, error) {
 	return &object.Module{Name: "zlib", Members: compressionMembers(zlibCompress, zlibDecompress)}, nil
+}
+
+func ExecuteFlate() (object.Object, error) {
+	return &object.Module{Name: "flate", Members: compressionMembers(flateCompress, flateDecompress)}, nil
+}
+
+func ExecuteBzip2() (object.Object, error) {
+	return &object.Module{Name: "bzip2", Members: map[string]object.Object{
+		"decompress": &object.Function{Name: "decompress", Fn: bzip2Decompress},
+	}}, nil
 }
 
 func compressionInput(name string, args object.CallArgs, withLevel bool) ([]byte, int, error) {
@@ -110,4 +121,28 @@ func zlibDecompress(args object.CallArgs) (object.Object, error) {
 	return decompressedBytes("decompress", args, func(r io.Reader) (io.ReadCloser, error) {
 		return zlib.NewReader(r)
 	})
+}
+
+func flateCompress(args object.CallArgs) (object.Object, error) {
+	return compressedBytes("compress", args, func(w io.Writer, level int) (io.WriteCloser, error) {
+		return flate.NewWriter(w, level)
+	})
+}
+
+func flateDecompress(args object.CallArgs) (object.Object, error) {
+	return decompressedBytes("decompress", args, func(r io.Reader) (io.ReadCloser, error) {
+		return flate.NewReader(r), nil
+	})
+}
+
+func bzip2Decompress(args object.CallArgs) (object.Object, error) {
+	data, _, err := compressionInput("decompress", args, false)
+	if err != nil {
+		return nil, err
+	}
+	output, err := io.ReadAll(bzip2.NewReader(bytes.NewReader(data)))
+	if err != nil {
+		return nil, object.WrapError(object.ParseError, "decompress() invalid bzip2 data", err)
+	}
+	return object.NewBytes(output), nil
 }

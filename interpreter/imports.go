@@ -10,6 +10,7 @@ import (
 	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
+	mailExt "github.com/aisk/goblin/extension/mail"
 	pathExt "github.com/aisk/goblin/extension/path"
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
@@ -26,27 +27,38 @@ import (
 // interpreter binds it per run via ExecuteOsWithFrozenArgs so argv is scoped to the
 // script (or REPL) without process-global state.
 var builtinModules = map[string]object.ModuleExecutor{
-	"rand":   extension.ExecuteRand,
-	"math":   extension.ExecuteMath,
-	"base64": extension.ExecuteBase64,
-	"http":   httpExt.Execute,
-	"fs":     fs.Execute,
-	"mime":   extension.ExecuteMime,
-	"json":   extension.ExecuteJson,
-	"uuid":   extension.ExecuteUUID,
-	"path":   pathExt.Execute,
-	"time":   timeExt.Execute,
-	"exec":   execExt.Execute,
-	"regexp": regexpExt.Execute,
-	"hex":    extension.ExecuteHex,
-	"sha256": extension.ExecuteSHA256,
-	"sha512": extension.ExecuteSHA512,
-	"url":    urlExt.Execute,
-	"csv":    extension.ExecuteCSV,
-	"gzip":   extension.ExecuteGzip,
-	"zlib":   extension.ExecuteZlib,
-	"tar":    extension.ExecuteTar,
-	"zip":    extension.ExecuteZip,
+	"rand":            extension.ExecuteRand,
+	"math":            extension.ExecuteMath,
+	"base64":          extension.ExecuteBase64,
+	"http":            httpExt.Execute,
+	"fs":              fs.Execute,
+	"mime":            extension.ExecuteMime,
+	"json":            extension.ExecuteJson,
+	"uuid":            extension.ExecuteUUID,
+	"path":            pathExt.Execute,
+	"time":            timeExt.Execute,
+	"exec":            execExt.Execute,
+	"regexp":          regexpExt.Execute,
+	"hex":             extension.ExecuteHex,
+	"sha256":          extension.ExecuteSHA256,
+	"sha512":          extension.ExecuteSHA512,
+	"url":             urlExt.Execute,
+	"csv":             extension.ExecuteCSV,
+	"gzip":            extension.ExecuteGzip,
+	"zlib":            extension.ExecuteZlib,
+	"tar":             extension.ExecuteTar,
+	"zip":             extension.ExecuteZip,
+	"base32":          extension.ExecuteBase32,
+	"ascii85":         extension.ExecuteASCII85,
+	"html":            extension.ExecuteHTML,
+	"quotedprintable": extension.ExecuteQuotedPrintable,
+	"md5":             extension.ExecuteMD5,
+	"sha1":            extension.ExecuteSHA1,
+	"crc32":           extension.ExecuteCRC32,
+	"adler32":         extension.ExecuteAdler32,
+	"flate":           extension.ExecuteFlate,
+	"bzip2":           extension.ExecuteBzip2,
+	"mail":            mailExt.Execute,
 }
 
 func isPathImport(path string) bool {
