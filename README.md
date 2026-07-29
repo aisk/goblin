@@ -4,6 +4,8 @@
 
 Toy language built for fun.
 
+Read the [Goblin Book](https://aisk.github.io/goblin/) for installation, language features, standard-library APIs, and examples.
+
 ## Installation
 
 ```sh
