@@ -14,6 +14,7 @@ Malformed input raises `ParseError`.
 
 An `Address` exposes read-only `name` and `address` attributes. Converting it to
 text produces Go's correctly quoted and encoded mailbox representation.
+Its `constructor` attribute is the same callable as `mail.Address`.
 
 ~~~goblin
 import "mail"

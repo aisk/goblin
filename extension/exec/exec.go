@@ -26,14 +26,15 @@ func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
 func (p *streamPolicy) Attributes() []string { return []string{"attributes"} }
 
 var (
-	inherit = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "INHERIT"}
-	discard = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "DISCARD"}
-	capture = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "CAPTURE"}
+	inherit     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "INHERIT"}
+	discard     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "DISCARD"}
+	capture     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "CAPTURE"}
+	commandType = object.NewNativeConstructor("Command", command)
 )
 
 func Execute() (object.Object, error) {
 	return &object.Module{Name: "exec", Members: map[string]object.Object{
-		"Command": &object.Function{Name: "Command", Fn: command},
+		"Command": commandType.Function,
 		"INHERIT": inherit,
 		"DISCARD": discard,
 		"CAPTURE": capture,

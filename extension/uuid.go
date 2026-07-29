@@ -6,12 +6,14 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
+var uuidType = object.NewNativeConstructor("UUID", uuidConstructor)
+
 // ExecuteUUID builds the uuid module.
 func ExecuteUUID() (object.Object, error) {
 	return &object.Module{
 		Name: "uuid",
 		Members: map[string]object.Object{
-			"UUID":           &object.Function{Name: "UUID", Fn: uuidConstructor},
+			"UUID":           uuidType.Function,
 			"new":            &object.Function{Name: "new", Fn: uuidNew},
 			"is_valid":       &object.Function{Name: "is_valid", Fn: uuidIsValid},
 			"NAMESPACE_DNS":  NewUUID(googleuuid.NameSpaceDNS),

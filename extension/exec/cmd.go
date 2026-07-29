@@ -137,6 +137,9 @@ func (c *Cmd) makeResult() *Result {
 }
 
 func (c *Cmd) GetAttr(name string) (object.Object, error) {
+	if value, ok := commandType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(c), nil
@@ -163,7 +166,7 @@ func (c *Cmd) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Command has no attribute '%s'", name)
 }
 func (c *Cmd) Attributes() []string {
-	return []string{"attributes", "run", "start", "wait", "kill", "pid", "running"}
+	return commandType.Attributes("attributes", "run", "start", "wait", "kill", "pid", "running")
 }
 
 func noArgs(name string, args object.CallArgs) error {

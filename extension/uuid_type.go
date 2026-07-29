@@ -60,6 +60,9 @@ func (u *UUID) Index(object.Object) (object.Object, error) {
 }
 
 func (u *UUID) GetAttr(name string) (object.Object, error) {
+	if value, ok := uuidType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(u), nil
@@ -93,7 +96,7 @@ func (u *UUID) GetAttr(name string) (object.Object, error) {
 }
 
 func (u *UUID) Attributes() []string {
-	return []string{"attributes", "bytes", "urn", "version", "variant", "time", "clock_sequence", "node"}
+	return uuidType.Attributes("attributes", "bytes", "urn", "version", "variant", "time", "clock_sequence", "node")
 }
 
 func (u *UUID) hasTime() bool {

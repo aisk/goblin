@@ -19,6 +19,11 @@ const defaultTimeout = 30 * time.Second
 // mirroring net/http.DefaultClient but with a safety timeout.
 var defaultClient = &stdhttp.Client{Timeout: defaultTimeout}
 
+var (
+	requestType = object.NewNativeConstructor("Request", newRequestObject)
+	clientType  = object.NewNativeConstructor("Client", newClientObject)
+)
+
 // Execute builds the http module. The API mirrors Go's net/http naming in
 // goblin's lowercase style: module-level get/head/post match http.Get/...,
 // while put/patch/delete are convenience helpers modeled on Post. Request and
@@ -33,8 +38,8 @@ func Execute() (object.Object, error) {
 			"post":    &object.Function{Name: "post", Fn: post},
 			"put":     &object.Function{Name: "put", Fn: put},
 			"patch":   &object.Function{Name: "patch", Fn: patch},
-			"Request": &object.Function{Name: "Request", Fn: newRequestObject},
-			"Client":  &object.Function{Name: "Client", Fn: newClientObject},
+			"Request": requestType.Function,
+			"Client":  clientType.Function,
 		},
 	}, nil
 }

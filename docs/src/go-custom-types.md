@@ -164,25 +164,61 @@ For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show
 how to report errors consistently and how to expose methods through GetAttr.
 
-## Expose a constructor
+## Expose a constructor with stable type identity
 
-Most custom values need a constructor function added to a module or to the
-built-ins map. The constructor validates arguments and returns the new value:
+Most custom values need a constructor added to a module or to the built-ins
+map. Use `object.NewNativeConstructor` so the exported callable and every
+instance share one stable identity, matching Goblin-defined types:
 
 ~~~go
-var CounterConstructor = &object.Function{
-    Name: "Counter",
-    Fn: func(args object.CallArgs) (object.Object, error) {
-        p := object.NewArgParser("Counter", args)
-        start := p.IntOr("start", 0)
-        if err := p.Finish(); err != nil {
-            return nil, err
-        }
-        return &Counter{Value: int64(start)}, nil
-    },
+var CounterType = object.NewNativeConstructor(
+	"Counter",
+	func(args object.CallArgs) (object.Object, error) {
+		p := object.NewArgParser("Counter", args)
+		start := p.IntOr("start", 0)
+		if err := p.Finish(); err != nil {
+			return nil, err
+		}
+		return &Counter{Value: int64(start)}, nil
+	},
+)
+~~~
+
+Place `CounterType.Function` in the module members map. The value's `GetAttr`
+and `Attributes` methods must delegate the constructor member to the same
+helper:
+
+~~~go
+func (c *Counter) GetAttr(name string) (object.Object, error) {
+	if value, ok := CounterType.Attribute(name); ok {
+		return value, nil
+	}
+	switch name {
+	case "value":
+		return object.Integer(c.Value), nil
+	case "increment":
+		return &object.Function{Name: "increment", Fn: c.increment}, nil
+	case "attributes":
+		return object.AttributesFunction(c), nil
+	default:
+		return nil, object.NewAttributeError("Counter has no attribute '%s'", name)
+	}
+}
+
+func (c *Counter) Attributes() []string {
+	return CounterType.Attributes("attributes", "increment", "value")
 }
 ~~~
 
-After placing this constructor in an object.Module Members map, Goblin code can
-call it as module.Counter(start=10). See [Functions and
-arguments](./go-functions-and-arguments.md) for the parser used here.
+Goblin can then use the same constructor identity check for native, built-in,
+and source-defined values:
+
+~~~goblin
+var counter = module.Counter(start=10)
+print(counter.constructor == module.Counter) # true
+~~~
+
+Create the helper once at package scope. Constructing it during every module
+load would give the same native type multiple identities. See [Functions and
+arguments](./go-functions-and-arguments.md) for the argument parser used by the
+constructor.

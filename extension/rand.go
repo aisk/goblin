@@ -13,6 +13,7 @@ import (
 var (
 	randSeedCounter atomic.Int64
 	defaultRand     = newRand(autoRandSeed())
+	randType        = object.NewNativeConstructor("Rand", randConstructor)
 )
 
 func autoRandSeed() int64 {
@@ -22,7 +23,7 @@ func autoRandSeed() int64 {
 // ExecuteRand builds the rand module, modelled on Go's math/rand package.
 func ExecuteRand() (object.Object, error) {
 	return &object.Module{Name: "rand", Members: map[string]object.Object{
-		"Rand":       &object.Function{Name: "Rand", Fn: randConstructor},
+		"Rand":       randType.Function,
 		"int":        &object.Function{Name: "int", Fn: defaultRand.randomInt},
 		"float":      &object.Function{Name: "float", Fn: defaultRand.randomFloat},
 		"perm":       &object.Function{Name: "perm", Fn: defaultRand.randomPerm},
@@ -176,6 +177,9 @@ func (r *Rand) Index(object.Object) (object.Object, error) {
 }
 
 func (r *Rand) GetAttr(name string) (object.Object, error) {
+	if value, ok := randType.Attribute(name); ok {
+		return value, nil
+	}
 	if name == "attributes" {
 		return object.AttributesFunction(r), nil
 	}
@@ -191,7 +195,7 @@ func (r *Rand) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Rand) Attributes() []string {
-	return []string{"attributes", "int", "float", "perm", "shuffle", "norm_float", "exp_float"}
+	return randType.Attributes("attributes", "int", "float", "perm", "shuffle", "norm_float", "exp_float")
 }
 
 var _ object.Object = (*Rand)(nil)

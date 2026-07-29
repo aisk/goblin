@@ -6,11 +6,13 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
+var timeType = object.NewNativeConstructor("Time", timeConstructor)
+
 func Execute() (object.Object, error) {
 	return &object.Module{
 		Name: "time",
 		Members: map[string]object.Object{
-			"Time":  &object.Function{Name: "Time", Fn: timeConstructor},
+			"Time":  timeType.Function,
 			"now":   &object.Function{Name: "now", Fn: now},
 			"sleep": &object.Function{Name: "sleep", Fn: sleep},
 			"parse": &object.Function{Name: "parse", Fn: parse},

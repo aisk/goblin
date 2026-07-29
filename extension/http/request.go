@@ -32,6 +32,9 @@ func (r *Request) String() string {
 func (r *Request) ToString() (string, error) { return r.String(), nil }
 
 func (r *Request) GetAttr(name string) (object.Object, error) {
+	if value, ok := requestType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(r), nil
@@ -54,7 +57,7 @@ func (r *Request) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Request) Attributes() []string {
-	return []string{"attributes", "method", "url", "header", "body"}
+	return requestType.Attributes("attributes", "method", "url", "header", "body")
 }
 
 var _ object.Object = (*Request)(nil)

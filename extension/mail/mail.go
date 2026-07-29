@@ -6,9 +6,11 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
+var addressType = object.NewNativeConstructor("Address", addressConstructor)
+
 func Execute() (object.Object, error) {
 	return &object.Module{Name: "mail", Members: map[string]object.Object{
-		"Address":            &object.Function{Name: "Address", Fn: addressConstructor},
+		"Address":            addressType.Function,
 		"parse_address":      &object.Function{Name: "parse_address", Fn: parseAddress},
 		"parse_address_list": &object.Function{Name: "parse_address_list", Fn: parseAddressList},
 	}}, nil

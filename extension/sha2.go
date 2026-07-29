@@ -3,23 +3,30 @@ package extension
 import (
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
 
 	"github.com/aisk/goblin/object"
 )
 
 func ExecuteSHA256() (object.Object, error) {
 	return &object.Module{Name: "sha256", Members: map[string]object.Object{
-		"sum256": &object.Function{Name: "sum256", Fn: sha256Sum256},
-		"sum224": &object.Function{Name: "sum224", Fn: sha256Sum224},
+		"sum":    sha2Function("sum", sha256Digest),
+		"hex":    sha2HexFunction("hex", sha256Digest),
+		"sum224": sha2Function("sum224", sha224Digest),
+		"hex224": sha2HexFunction("hex224", sha224Digest),
 	}}, nil
 }
 
 func ExecuteSHA512() (object.Object, error) {
 	return &object.Module{Name: "sha512", Members: map[string]object.Object{
-		"sum512":     &object.Function{Name: "sum512", Fn: sha512Sum512},
-		"sum384":     &object.Function{Name: "sum384", Fn: sha512Sum384},
-		"sum512_224": &object.Function{Name: "sum512_224", Fn: sha512Sum512224},
-		"sum512_256": &object.Function{Name: "sum512_256", Fn: sha512Sum512256},
+		"sum":    sha2Function("sum", sha512Digest),
+		"hex":    sha2HexFunction("hex", sha512Digest),
+		"sum384": sha2Function("sum384", sha384Digest),
+		"hex384": sha2HexFunction("hex384", sha384Digest),
+		"sum224": sha2Function("sum224", sha512224Digest),
+		"hex224": sha2HexFunction("hex224", sha512224Digest),
+		"sum256": sha2Function("sum256", sha512256Digest),
+		"hex256": sha2HexFunction("hex256", sha512256Digest),
 	}}, nil
 }
 
@@ -29,66 +36,55 @@ func shaData(name string, args object.CallArgs) ([]byte, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	switch v := value.(type) {
-	case object.Bytes:
-		return []byte(v), nil
-	case object.String:
-		return []byte(v), nil
-	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
-	}
+	return bytesOrString(name, "data", value)
 }
 
-func sha256Sum256(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum256", args)
-	if err != nil {
-		return nil, err
-	}
+func sha2Function(name string, digest func([]byte) []byte) *object.Function {
+	return &object.Function{Name: name, Fn: func(args object.CallArgs) (object.Object, error) {
+		data, err := shaData(name, args)
+		if err != nil {
+			return nil, err
+		}
+		return object.NewBytes(digest(data)), nil
+	}}
+}
+
+func sha2HexFunction(name string, digest func([]byte) []byte) *object.Function {
+	return &object.Function{Name: name, Fn: func(args object.CallArgs) (object.Object, error) {
+		data, err := shaData(name, args)
+		if err != nil {
+			return nil, err
+		}
+		return object.String(hex.EncodeToString(digest(data))), nil
+	}}
+}
+
+func sha256Digest(data []byte) []byte {
 	sum := sha256.Sum256(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }
 
-func sha256Sum224(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum224", args)
-	if err != nil {
-		return nil, err
-	}
+func sha224Digest(data []byte) []byte {
 	sum := sha256.Sum224(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }
 
-func sha512Sum512(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum512", args)
-	if err != nil {
-		return nil, err
-	}
+func sha512Digest(data []byte) []byte {
 	sum := sha512.Sum512(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }
 
-func sha512Sum384(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum384", args)
-	if err != nil {
-		return nil, err
-	}
+func sha384Digest(data []byte) []byte {
 	sum := sha512.Sum384(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }
 
-func sha512Sum512224(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum512_224", args)
-	if err != nil {
-		return nil, err
-	}
+func sha512224Digest(data []byte) []byte {
 	sum := sha512.Sum512_224(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }
 
-func sha512Sum512256(args object.CallArgs) (object.Object, error) {
-	data, err := shaData("sum512_256", args)
-	if err != nil {
-		return nil, err
-	}
+func sha512256Digest(data []byte) []byte {
 	sum := sha512.Sum512_256(data)
-	return object.NewBytes(sum[:]), nil
+	return sum[:]
 }

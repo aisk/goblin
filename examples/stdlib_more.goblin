@@ -35,6 +35,7 @@ var bzip_data = Bytes([66, 90, 104, 57, 49, 65, 89, 38, 83, 89, 242, 96, 229, 10
 print(bzip2.decompress(bzip_data).decode())
 
 var address = mail.parse_address("Goblin <goblin@example.com>")
+print(address.constructor == mail.Address)
 print(address.name)
 print(address.address)
 print(mail.parse_address_list("a@example.com, b@example.com").size())

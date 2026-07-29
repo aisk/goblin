@@ -8,6 +8,7 @@ var cmd = exec.Command(
 )
 
 var result = cmd.run()
+print(cmd.constructor == exec.Command)
 print(result.stdout.decode())
 print(result.code)
 print(result.success)

@@ -52,6 +52,9 @@ func (a *Address) Index(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("Address is not indexable")
 }
 func (a *Address) GetAttr(name string) (object.Object, error) {
+	if value, ok := addressType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(a), nil
@@ -62,6 +65,8 @@ func (a *Address) GetAttr(name string) (object.Object, error) {
 	}
 	return nil, object.NewAttributeError("Address has no attribute '%s'", name)
 }
-func (a *Address) Attributes() []string { return []string{"attributes", "name", "address"} }
+func (a *Address) Attributes() []string {
+	return addressType.Attributes("attributes", "name", "address")
+}
 
 var _ object.Object = (*Address)(nil)

@@ -26,6 +26,9 @@ func (c *Client) String() string {
 func (c *Client) ToString() (string, error) { return c.String(), nil }
 
 func (c *Client) GetAttr(name string) (object.Object, error) {
+	if value, ok := clientType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(c), nil
@@ -65,7 +68,7 @@ func (c *Client) GetAttr(name string) (object.Object, error) {
 }
 
 func (c *Client) Attributes() []string {
-	return []string{"attributes", "timeout", "do", "get", "head", "delete", "post", "put", "patch"}
+	return clientType.Attributes("attributes", "timeout", "do", "get", "head", "delete", "post", "put", "patch")
 }
 
 var _ object.Object = (*Client)(nil)

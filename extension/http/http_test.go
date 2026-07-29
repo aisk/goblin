@@ -324,3 +324,23 @@ func TestPost(t *testing.T) {
 		t.Fatalf("status_code = %d, want 204", code)
 	}
 }
+
+func TestPublicTypeConstructorIdentity(t *testing.T) {
+	client, err := clientType.Function.Call(object.CallArgs{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	constructor := attr(t, client, "constructor")
+	if constructor != clientType.Function {
+		t.Fatalf("Client.constructor = %v", constructor)
+	}
+
+	request, err := requestType.Function.Call(object.CallArgs{Positional: object.Args{object.String("GET"), object.String("https://example.com")}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	constructor = attr(t, request, "constructor")
+	if constructor != requestType.Function {
+		t.Fatalf("Request.constructor = %v", constructor)
+	}
+}

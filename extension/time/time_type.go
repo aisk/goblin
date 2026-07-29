@@ -67,6 +67,9 @@ func (t *Time) Index(object.Object) (object.Object, error) {
 }
 
 func (t *Time) GetAttr(name string) (object.Object, error) {
+	if value, ok := timeType.Attribute(name); ok {
+		return value, nil
+	}
 	switch name {
 	case "attributes":
 		return object.AttributesFunction(t), nil
@@ -127,7 +130,7 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 }
 
 func (t *Time) Attributes() []string {
-	return []string{"attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "elapsed", "format"}
+	return timeType.Attributes("attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "elapsed", "format")
 }
 
 var _ object.Object = (*Time)(nil)

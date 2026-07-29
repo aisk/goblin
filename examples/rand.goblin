@@ -7,6 +7,7 @@ print(rand.int(1))
 
 var first = rand.Rand(seed=42)
 var second = rand.Rand(seed=42)
+print(first.constructor == rand.Rand)
 print(first.int(1000) == second.int(1000))
 
 var value = first.float()
