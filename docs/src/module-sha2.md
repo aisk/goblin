@@ -18,3 +18,19 @@ the corresponding `hex` functions return lowercase hexadecimal text.
 Use a module's `hex` variant for hexadecimal text or `base64.encode` for
 Base64 text.
 SHA-2 hashes do not authenticate data or securely store passwords by themselves.
+
+~~~goblin
+import "sha256"
+import "sha512"
+
+var digest = sha256.sum("Goblin")
+print(digest.size())       # 32
+print(sha256.hex("Goblin"))
+print(sha512.sum384("Goblin").size()) # 48
+~~~
+
+Use raw `Bytes` when a binary format has a fixed digest field, and use a `hex`
+function when a textual protocol explicitly expects hexadecimal. For message
+authentication or password storage, use a purpose-built construction rather
+than a bare hash; Goblin does not currently provide one in its standard
+library.

@@ -11,6 +11,7 @@ These names are available without an import.
 | `Int(value)` / `Float(value)` / `Str(value)` / `Bool(value)` | Convert a value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
 | `Chan([size])` | Create a channel; no size means unbuffered |
+| `Function(value)` | Validate and return a callable value unchanged |
 | `spawn(function, args...)` | Run a function concurrently |
 | `Error(message)` | Create an error value |
 
@@ -35,3 +36,26 @@ eprint("ready on port", 8080)
 
 See [Built-in types](./built-in-types.md) for value-specific methods, and
 [Concurrency](./concurrency.md) for channels and spawn.
+
+## Constructors and type identity
+
+Runtime values expose their constructor through `value.constructor` when the
+value has a constructible type. The constructor is the same callable that is
+used to create or convert that type:
+
+~~~goblin
+var values = [1, "text", Bytes("raw"), [1], {"x": 1}, Chan(1)]
+for value in values {
+    print(value.constructor)
+}
+
+func identity(value) {
+    return value
+}
+print(Function(identity) == identity) # true
+print(identity.constructor == Function) # true
+~~~
+
+Goblin-defined instances and native standard-library values follow the same
+rule: `instance.constructor` is identical to the type callable that created
+them. `nil` has no constructor because it represents the absence of a value.

@@ -16,3 +16,23 @@ corresponding Go Reader fields: `comma=","`, `comment=""`,
 `write_all` accepts a list of string lists. It supports `comma=","` and
 `use_crlf=false`, corresponding to Go's Writer fields. Parsing errors raise
 `ParseError`.
+
+~~~goblin
+import "csv"
+
+var rows = csv.read_all("name,score\nAda,10\nGoblin,12\n")
+print(rows[1][0]) # Ada
+
+var output = csv.write_all([
+    ["name", "score"],
+    ["Ada", "10"],
+    ["Goblin", "12"],
+])
+print(output)
+~~~
+
+The delimiter arguments must be a single valid character. With
+`fields_per_record=0`, the reader infers the field count from the first record;
+a negative value allows records of varying lengths. An empty `comment` disables
+comments. CSV values are always strings: numeric conversion, header handling,
+and mapping rows into dictionaries remain explicit application work.

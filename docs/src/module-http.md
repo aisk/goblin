@@ -65,3 +65,36 @@ response.body.close()
 The module-level functions use a finite default timeout. Treat non-success HTTP
 status codes as application-level results: inspect status_code before assuming
 that a response body contains the expected data.
+
+## Reader protocol
+
+HTTP response bodies expose `read(size=nil)`, `close()`, and the read-only
+`closed` attribute. With no size, `read()` consumes all remaining bytes. With a
+non-negative integer size, it returns at most that many bytes; an empty `Bytes`
+value signals end of stream.
+
+Objects supplied as request bodies use the same duck-typed protocol. They must
+provide a callable `read(size)` method. Each call must return `Bytes`, `Str`, or
+`nil`; an empty byte/string value or `nil` signals end of stream. A callable
+`close()` method is optional and is invoked when the HTTP client closes the
+request body. A request-body reader should therefore look like:
+
+~~~goblin
+type Reader(chunks) {
+    func read(self, size) {
+        if self.chunks.size() == 0 {
+            return Bytes("")
+        }
+        return self.chunks.pop(0)
+    }
+
+    func close(self) {
+        self.chunks.clear()
+    }
+}
+~~~
+
+The `size` argument is a requested upper bound. A custom reader may return a
+smaller chunk, but must not require callers to omit it. `fs.File` currently has
+a separate whole-file `read()` API and cannot be passed directly as an HTTP
+request body.

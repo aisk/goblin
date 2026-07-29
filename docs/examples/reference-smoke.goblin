@@ -1,0 +1,53 @@
+# Executable coverage for API names and signatures used by short reference chapters.
+import "hex"
+import "url"
+import "csv"
+import "zip"
+import "gzip"
+import "zlib"
+import "md5"
+import "sha1"
+import "crc32"
+import "adler32"
+import "sha256"
+import "sha512"
+import "mail"
+import "uuid"
+
+var encoded = hex.encode(Bytes("Goblin"))
+hex.decode(encoded)
+hex.dump(Bytes("Goblin"))
+
+var endpoint = url.parse("https://example.com:8443/api?q=goblin#result")
+endpoint.resolve_reference(url.parse("../status"))
+url.join_path("https://example.com/api", ["v1", "items"])
+url.query_escape("name=Goblin language")
+url.path_escape("folder/item")
+
+var rows = csv.read_all("name,score\nAda,10\n")
+csv.write_all(rows)
+
+var archive = zip.write_all({"README.txt": "Goblin archive"})
+zip.read_all(archive)
+
+var source = "Goblin Goblin Goblin"
+gzip.decompress(gzip.compress(source, level=gzip.BEST_SPEED))
+zlib.decompress(zlib.compress(Bytes(source)))
+
+md5.hex("Goblin")
+sha1.sum(Bytes("Goblin"))
+crc32.checksum("Goblin", polynomial=crc32.CASTAGNOLI)
+adler32.checksum("Goblin")
+sha256.sum("Goblin")
+sha512.sum384("Goblin")
+
+var recipient = mail.parse_address("Goblin <goblin@example.com>")
+mail.Address(recipient.name, recipient.address)
+mail.parse_address_list("Ada <ada@example.com>, goblin@example.com")
+uuid.is_valid("550e8400-e29b-41d4-a716-446655440000")
+
+func identity(value) {
+    return value
+}
+Function(identity)
+identity.constructor

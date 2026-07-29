@@ -35,7 +35,7 @@ needed.
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
 | [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
-| [uuid](./module-uuid.md) | Construct, generate, and validate UUID values | UUID(), new(), validate() |
+| [uuid](./module-uuid.md) | Construct, generate, and validate UUID values | UUID(), new(), is_valid() |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
 | [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum(), hex() |

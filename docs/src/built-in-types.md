@@ -14,6 +14,7 @@ operation succeeds only when its value types are compatible.
 | List | [1, "two"] | Ordered, mutable collection |
 | Dict | {"name": "Ada"} | Mutable key/value collection |
 | Chan | Chan(0) | Channel for concurrent functions |
+| Function | func() {} | Callable value |
 
 Custom types are covered in [Types and methods](./types.md).
 
@@ -167,6 +168,8 @@ drained channel raises ValueError, rather than producing a special nil value.
 | List | List(value), size(), push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |
 | Chan | Chan(size), send(value), recv(), close() |
+| Function | Function(value), value(...) |
 
 Use value.attributes() in the REPL to inspect all operations provided by a
-runtime value.
+runtime value. Constructible values also expose `value.constructor`; see
+[Built-in functions](./built-in-functions.md#constructors-and-type-identity).

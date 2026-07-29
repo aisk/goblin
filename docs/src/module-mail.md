@@ -22,4 +22,24 @@ import "mail"
 var recipient = mail.parse_address("Goblin <goblin@example.com>")
 print(recipient.name)
 print(recipient.address)
+print(Str(recipient)) # Goblin <goblin@example.com>
 ~~~
+
+`Address(name, address)` does not send mail or validate that the destination
+exists. It constructs a correctly formatted mailbox value. Use an empty name
+for a bare address:
+
+~~~goblin
+var sender = mail.Address("", "sender@example.com")
+var recipients = mail.parse_address_list(
+    "Ada <ada@example.com>, goblin@example.com"
+)
+for recipient in recipients {
+    print(recipient.name, recipient.address)
+}
+~~~
+
+Address parsing accepts the syntax supported by Go's `net/mail` parser,
+including quoted display names and encoded words. Invalid mailbox syntax raises
+`ParseError`. The module intentionally provides address values only; composing,
+parsing, or transmitting complete messages is outside its current API.

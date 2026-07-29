@@ -31,9 +31,11 @@ operations can raise IOError.
 ## File objects
 
 open(path) returns a read-oriented file object and create(path) returns a file
-that can be written. File objects expose name, closed, read(size=nil),
-write(text), stat(), and close(). read() returns text; write() returns the
-number of bytes written.
+that can be written. File objects expose name, closed, read(), write(text),
+stat(), and close(). read() consumes all remaining data and returns text;
+write() returns the number of bytes written. Unlike an HTTP response body,
+`File.read()` does not currently accept a size argument and is not a streaming
+Reader-protocol implementation.
 
 ~~~goblin
 var file = fs.create("log.txt")
