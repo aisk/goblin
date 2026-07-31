@@ -4,7 +4,8 @@ import "math"
 
 // The numeric helpers below hold Goblin's rules for the Integer/Float pairs in
 // one place: an all-integer expression stays integer, a mixed one widens to
-// float, and division by either kind of zero raises ZeroDivisionError. Both
+// float, and division or modulo by either kind of zero raises
+// ZeroDivisionError. Both
 // the operand types' own methods and the package-level operators call them —
 // the operators would otherwise reach the very same code through an interface
 // call, which is measurable in arithmetic-heavy loops.

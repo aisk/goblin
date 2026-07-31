@@ -67,7 +67,7 @@ The runtime uses named error kinds, which can be raised directly or wrapped.
 | TypeError | An operation receives an incompatible value |
 | ValueError | A valid type has an invalid value |
 | IndexError / KeyError | A missing list index or dictionary key |
-| ZeroDivisionError | Division by zero |
+| ZeroDivisionError | Division or modulo by zero |
 | AttributeError / NameError | A missing member or identifier |
 | ImportError | An unavailable module |
 | ParseError | Invalid JSON or other parsed input |

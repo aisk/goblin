@@ -22,14 +22,16 @@ with `#` and runs to the end of its line.
 
 ## Operators
 
-The ordinary arithmetic operators are `+`, `-`, `*`, and `/`. They follow the
-usual precedence rules; use parentheses to make grouping explicit.
+The ordinary arithmetic operators are `+`, `-`, `*`, `/`, and `%`. The `%`
+operator returns the remainder and has the same precedence as multiplication
+and division. Use parentheses to make grouping explicit.
 
 ```goblin
 print(1 + 2 * 3)       # 7
 print((1 + 2) * 3)     # 9
 print("go" + "blin")  # goblin
 print("ha" * 3)        # hahaha
+print(10 % 3)          # 1
 ```
 
 Comparison operators are `==`, `!=`, `<`, `<=`, `>`, and `>=`; each produces a

@@ -23,17 +23,21 @@ Custom types are covered in [Types and methods](./types.md).
 Integer literals have no decimal point; float literals do. Arithmetic preserves
 an integer result when both operands are integers. If either operand is a
 float, the result is a float. Integer division truncates its fractional part.
+The `%` operator returns the remainder after truncating division; the result
+has the dividend's sign and is a float if either operand is a float.
 
 ~~~goblin
 print(7 / 2)     # 3
 print(7 / 2.0)   # 3.5
 print(2 + 0.5)   # 2.5
 print(-3 * 4)    # -12
+print(-7 % 3)    # -1
+print(7.5 % 2)   # 1.5
 ~~~
 
-Numbers can be compared across integer and float values. Division by zero
-raises ZeroDivisionError. Int() and Float() convert numbers, booleans, and
-numeric strings; converting a float to Int removes its fractional portion.
+Numbers can be compared across integer and float values. Division or modulo by
+zero raises ZeroDivisionError. Int() and Float() convert numbers, booleans,
+and numeric strings; converting a float to Int removes its fractional portion.
 
 ~~~goblin
 print(Int("42"))   # 42

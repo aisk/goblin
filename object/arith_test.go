@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// rightObj stands in for a user type defining __radd and __rdiv only: it
+// rightObj stands in for a user type defining __radd, __rdiv and __rmod: it
 // completes those operations from the right, stays silent about subtraction,
 // and raises from multiplication the way a failing reflected method does.
 type rightObj struct{ Unit }
@@ -18,6 +18,10 @@ func (r *rightObj) RAdd(left Object) (Object, bool, error) {
 
 func (r *rightObj) RDivide(left Object) (Object, bool, error) {
 	return String("rdiv " + inspect(left)), true, nil
+}
+
+func (r *rightObj) RModulo(left Object) (Object, bool, error) {
+	return String("rmod " + inspect(left)), true, nil
 }
 
 func (r *rightObj) RMultiply(Object) (Object, bool, error) {
@@ -49,6 +53,10 @@ func TestArithNumeric(t *testing.T) {
 		{"int * float", func() (Object, error) { return Multiply(Integer(3), Float(0.5)) }, Float(1.5)},
 		{"int / int truncates", func() (Object, error) { return Divide(Integer(7), Integer(2)) }, Integer(3)},
 		{"int / float", func() (Object, error) { return Divide(Integer(7), Float(2)) }, Float(3.5)},
+		{"int % int", func() (Object, error) { return Modulo(Integer(7), Integer(3)) }, Integer(1)},
+		{"negative int % int", func() (Object, error) { return Modulo(Integer(-7), Integer(3)) }, Integer(-1)},
+		{"int % float", func() (Object, error) { return Modulo(Integer(7), Float(2.5)) }, Float(2)},
+		{"float % int", func() (Object, error) { return Modulo(Float(7.5), Integer(2)) }, Float(1.5)},
 		{"string + string", func() (Object, error) { return Add(String("a"), String("b")) }, String("ab")},
 	}
 	for _, tc := range cases {
@@ -74,6 +82,17 @@ func TestArithDivideByZero(t *testing.T) {
 	}
 }
 
+func TestArithModuloByZero(t *testing.T) {
+	for _, divisor := range []Object{Integer(0), Float(0)} {
+		for _, dividend := range []Object{Integer(1), Float(1)} {
+			_, err := Modulo(dividend, divisor)
+			if !errors.Is(err, ZeroDivisionError) {
+				t.Errorf("%s %% %s: error = %v, want ZeroDivisionError", inspect(dividend), inspect(divisor), err)
+			}
+		}
+	}
+}
+
 func TestArithReflected(t *testing.T) {
 	right := &rightObj{}
 
@@ -82,6 +101,9 @@ func TestArithReflected(t *testing.T) {
 	}
 	if got, err := Divide(Integer(8), right); err != nil || inspect(got) != "rdiv 8" {
 		t.Errorf("Divide = %v, %v; want \"rdiv 8\"", got, err)
+	}
+	if got, err := Modulo(Integer(8), right); err != nil || inspect(got) != "rmod 8" {
+		t.Errorf("Modulo = %v, %v; want \"rmod 8\"", got, err)
 	}
 
 	// No RMinus at all: the left operand's error stands.

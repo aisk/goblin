@@ -2,10 +2,11 @@ package object
 
 import "errors"
 
-// Add, Minus, Multiply and Divide are the entry points both backends use for
-// the arithmetic operators. They run the left operand's own method first and
-// fall back to the right operand's reflected method (RAdd and friends, the Go
-// side of __radd) when the left one reports that it does not know the type —
+// Add, Minus, Multiply, Divide and Modulo are the entry points both backends
+// use for the arithmetic operators. They run the left operand's own method
+// first and fall back to the right operand's reflected method (RAdd and
+// friends, the Go side of __radd) when the left one reports that it does not
+// know the type —
 // the same rule Compare and Equals follow, so only a TypeError triggers the
 // fallback and every other failure propagates. Unlike comparison, arithmetic
 // cannot simply swap its operands — `a - b` is not `b - a` — which is why the

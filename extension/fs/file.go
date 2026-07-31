@@ -124,6 +124,9 @@ func (f *File) Multiply(object.Object) (object.Object, error) {
 func (f *File) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide File")
 }
+func (f *File) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo File")
+}
 func (f *File) Not() (object.Object, error) { return object.Bool(f.closed), nil }
 func (f *File) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("File does not support iteration")

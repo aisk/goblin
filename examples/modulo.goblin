@@ -25,3 +25,28 @@ print(100 % 7)         # 2
 # Modulo precedence (same as * and /)
 print(2 + 10 % 3)      # 3
 print(10 % 3 * 2)      # 2
+
+# Custom and reflected modulo protocols
+type Cycle(size) {
+    func __mod(self, other) {
+        return self.size % other
+    }
+    func __rmod(self, other) {
+        return other % self.size
+    }
+}
+var cycle = Cycle(4)
+print(cycle % 3)        # 1
+print(10 % cycle)       # 2
+
+# Modulo by either numeric zero is catchable
+try {
+    print(1 % 0)
+} catch e {
+    print(e.is(ZeroDivisionError))
+}
+try {
+    print(1.0 % 0.0)
+} catch e {
+    print(e.is(ZeroDivisionError))
+}

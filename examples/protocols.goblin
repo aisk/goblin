@@ -76,7 +76,7 @@ if o {
 # Without __not, ! negates truthiness.
 print(!o)
 
-# Reflected operators (__radd/__rsub/__rmul/__rdiv) run when the value is on
+# Reflected operators (__radd/__rsub/__rmul/__rdiv/__rmod) run when the value is on
 # the right of an operand that does not know it, which is the only way an
 # expression like `1 + scaled` can reach a custom type. Comparison needs no
 # such method: __cmp is already consulted from either side.

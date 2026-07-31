@@ -118,7 +118,7 @@ func Call(obj Object, args CallArgs) (Object, error) {
 }
 
 // NoReflectedOps answers "not handled" for every reflected operator. Types
-// with no reflected form embed it instead of spelling out four methods that
+// with no reflected form embed it instead of spelling out five methods that
 // say nothing; a type that supports one operator from the right embeds it and
 // overrides just that method. Go cannot embed into a named non-struct type, so
 // the scalar built-ins declare the methods themselves.

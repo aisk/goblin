@@ -142,10 +142,10 @@ func box(code *jen.Statement, t staticType) *jen.Statement {
 // type; anything else is a bug in one of the two, and is reported as such
 // rather than silently miscompiled.
 //
-// Native expressions have no side effects and, with the sole exception of
-// division, cannot fail — so they collapse into a single Go expression with no
-// error plumbing. Division needs a zero check, and that is a statement, hence
-// the leading []jen.Code most callers will find empty.
+// Native expressions have no side effects and, with the exception of division
+// and modulo, cannot fail — so they collapse into a single Go expression with
+// no error plumbing. Division and modulo need a zero check, and that is a
+// statement, hence the leading []jen.Code most callers will find empty.
 func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch e := expr.(type) {
 	case *ast.Literal:
@@ -224,10 +224,8 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 			if lhsType == tyInt && rhsType == tyInt {
 				return pre, jen.Parens(lhs.Op("%").Id(divisor)), nil
 			}
-			// Float modulo via math.Mod.
-			if lhsType == tyInt {
-				lhs = jen.Float64().Call(lhs)
-			}
+			// Mixed numeric operands were widened above, so both arguments are
+			// float64 whenever this is not the integer-only case.
 			return pre, jen.Parens(jen.Qual("math", "Mod").Call(lhs, jen.Id(divisor))), nil
 		}
 
