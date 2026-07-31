@@ -318,6 +318,10 @@ func (l *List) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide List")
 }
 
+func (l *List) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo List")
+}
+
 func (l *List) Not() (Object, error) {
 	return Bool(len(l.Elements) == 0), nil
 }

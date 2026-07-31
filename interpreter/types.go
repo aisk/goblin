@@ -282,7 +282,14 @@ func (in *instance) Divide(other object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
 }
 
-// RAdd, RMinus, RMultiply and RDivide are the reflected operators, reached
+func (in *instance) Modulo(other object.Object) (object.Object, error) {
+	if v, ok, err := in.callProto("__mod", other); ok {
+		return v, err
+	}
+	return nil, object.NewTypeError("cannot modulo %s", in.typ.name)
+}
+
+// RAdd, RMinus, RMultiply, RDivide and RModulo are the reflected operators, reached
 // when the value stands on the right of an operand that does not know it. They
 // report handled == false when the type defines no such method, leaving the
 // left operand's error in place.
@@ -300,6 +307,10 @@ func (in *instance) RMultiply(left object.Object) (object.Object, bool, error) {
 
 func (in *instance) RDivide(left object.Object) (object.Object, bool, error) {
 	return in.callProto("__rdiv", left)
+}
+
+func (in *instance) RModulo(left object.Object) (object.Object, bool, error) {
+	return in.callProto("__rmod", left)
 }
 
 func (in *instance) Not() (object.Object, error) {

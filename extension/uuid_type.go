@@ -52,6 +52,9 @@ func (u *UUID) Multiply(object.Object) (object.Object, error) {
 func (u *UUID) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide UUID")
 }
+func (u *UUID) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo UUID")
+}
 func (u *UUID) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("UUID does not support iteration")
 }

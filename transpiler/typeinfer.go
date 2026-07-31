@@ -350,7 +350,7 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 		// either panics (integers) or yields ±Inf (floats). emitNative
 		// therefore guards it, which is why native expressions are allowed to
 		// carry preceding statements.
-		case "+", "-", "*", "/":
+		case "+", "-", "*", "/", "%":
 			// Mixed int/float arithmetic widens to float, exactly as
 			// object.Integer's methods do. Only int op int stays integral,
 			// which is what keeps `/` truncating in the same cases Goblin
@@ -392,13 +392,13 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 }
 
 // containsDivision reports whether a native-eligible expression tree performs a
-// division, i.e. whether emitNative would need to hoist a guard for it.
+// division or modulo, i.e. whether emitNative would need to hoist a guard for it.
 func containsDivision(expr ast.Expression) bool {
 	switch e := expr.(type) {
 	case *ast.UnaryOperation:
 		return containsDivision(e.Operand)
 	case *ast.BinaryOperation:
-		return e.Operator == "/" || containsDivision(e.LHS) || containsDivision(e.RHS)
+		return e.Operator == "/" || e.Operator == "%" || containsDivision(e.LHS) || containsDivision(e.RHS)
 	}
 	return false
 }

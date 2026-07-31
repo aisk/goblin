@@ -119,6 +119,7 @@ Expression4
     : Expression5
     | Expression4 "*" Expression5            << ast.NewBinaryOperation($0, "*", $2) >>
     | Expression4 "/" Expression5            << ast.NewBinaryOperation($0, "/", $2) >>
+    | Expression4 "%" Expression5            << ast.NewBinaryOperation($0, "%", $2) >>
 ;
 
 Expression5

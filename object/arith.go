@@ -81,3 +81,20 @@ func Divide(a, b Object) (Object, error) {
 	}
 	return nil, err
 }
+
+func Modulo(a, b Object) (Object, error) {
+	if result, ok, err := numericModulo(a, b); ok {
+		return result, err
+	}
+	res, err := a.Modulo(b)
+	if err == nil {
+		return res, nil
+	}
+	if !errors.Is(err, TypeError) {
+		return nil, err
+	}
+	if res, handled, rerr := b.RModulo(a); handled {
+		return res, rerr
+	}
+	return nil, err
+}

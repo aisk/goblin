@@ -756,6 +756,7 @@ var (
 	Minus          = "-"
 	Multiply       = "*"
 	Divide         = "/"
+	Modulo         = "%"
 	And            = "&&"
 	Or             = "||"
 	Not            = "!"
@@ -776,7 +777,7 @@ type BinaryOperation struct {
 
 func NewBinaryOperation(lhs, operator, rhs any) (any, error) {
 	switch operator.(string) {
-	case Add, Minus, Multiply, Divide, And, Or, Equal, NotEqual, LessThan, GreaterThan, LessOrEqual, GreaterOrEqual:
+	case Add, Minus, Multiply, Divide, Modulo, And, Or, Equal, NotEqual, LessThan, GreaterThan, LessOrEqual, GreaterOrEqual:
 	default:
 		return nil, fmt.Errorf("invalid operator: '%s'", operator)
 	}

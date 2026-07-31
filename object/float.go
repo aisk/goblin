@@ -58,6 +58,13 @@ func (f Float) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Float and %s", other.TypeName())
 }
 
+func (f Float) Modulo(other Object) (Object, error) {
+	if result, ok, err := numericModulo(f, other); ok {
+		return result, err
+	}
+	return nil, NewTypeError("cannot modulo Float and %s", other.TypeName())
+}
+
 // A named float64 type cannot embed NoAssignment and NoReflectedOps, so Float
 // declines assignment and the reflected operators itself.
 func (f Float) SetIndex(Object, Object) (bool, error)  { return false, nil }
@@ -66,6 +73,7 @@ func (f Float) RAdd(Object) (Object, bool, error)      { return nil, false, nil 
 func (f Float) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (f Float) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+func (f Float) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (f Float) Not() (Object, error) {
 	return Bool(f == 0), nil

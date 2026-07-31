@@ -1,5 +1,7 @@
 package object
 
+import "math"
+
 // The numeric helpers below hold Goblin's rules for the Integer/Float pairs in
 // one place: an all-integer expression stays integer, a mixed one widens to
 // float, and division by either kind of zero raises ZeroDivisionError. Both
@@ -98,6 +100,38 @@ func numericDivide(a, b Object) (Object, bool, error) {
 				return nil, true, NewZeroDivisionError("division by zero")
 			}
 			return lhs / Float(rhs), true, nil
+		}
+	}
+	return nil, false, nil
+}
+
+func numericModulo(a, b Object) (Object, bool, error) {
+	switch lhs := a.(type) {
+	case Integer:
+		switch rhs := b.(type) {
+		case Integer:
+			if rhs == 0 {
+				return nil, true, NewZeroDivisionError("modulo by zero")
+			}
+			return lhs % rhs, true, nil
+		case Float:
+			if rhs == 0 {
+				return nil, true, NewZeroDivisionError("modulo by zero")
+			}
+			return Float(math.Mod(float64(lhs), float64(rhs))), true, nil
+		}
+	case Float:
+		switch rhs := b.(type) {
+		case Float:
+			if rhs == 0 {
+				return nil, true, NewZeroDivisionError("modulo by zero")
+			}
+			return Float(math.Mod(float64(lhs), float64(rhs))), true, nil
+		case Integer:
+			if rhs == 0 {
+				return nil, true, NewZeroDivisionError("modulo by zero")
+			}
+			return Float(math.Mod(float64(lhs), float64(rhs))), true, nil
 		}
 	}
 	return nil, false, nil

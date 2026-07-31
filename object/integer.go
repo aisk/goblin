@@ -58,6 +58,13 @@ func (i Integer) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Integer and %s", other.TypeName())
 }
 
+func (i Integer) Modulo(other Object) (Object, error) {
+	if result, ok, err := numericModulo(i, other); ok {
+		return result, err
+	}
+	return nil, NewTypeError("cannot modulo Integer and %s", other.TypeName())
+}
+
 // A named int64 type cannot embed NoAssignment and NoReflectedOps, so Integer
 // declines assignment and the reflected operators itself.
 func (i Integer) SetIndex(Object, Object) (bool, error)  { return false, nil }
@@ -66,6 +73,7 @@ func (i Integer) RAdd(Object) (Object, bool, error)      { return nil, false, ni
 func (i Integer) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (i Integer) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+func (i Integer) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (i Integer) Not() (Object, error) {
 	return Bool(i == 0), nil

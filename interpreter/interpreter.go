@@ -444,6 +444,8 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		return object.Multiply(lhs, rhs)
 	case ast.Divide:
 		return object.Divide(lhs, rhs)
+	case ast.Modulo:
+		return object.Modulo(lhs, rhs)
 	case ast.Equal, ast.NotEqual:
 		eq, err := object.Equals(lhs, rhs)
 		if err != nil {
