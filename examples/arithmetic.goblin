@@ -3,20 +3,63 @@ print(1 + 2)
 print(10 - 3)
 print(4 * 5)
 print(10 / 2)
+print(10 % 3)
+print(7 % 2)
+print(8 % 4)
+print(1 % 5)
+print(-7 % 3)
+print(7 % -3)
 
 # Operator precedence
 print(1 + 2 * 3)
 print((1 + 2) * 3)
+print(2 + 10 % 3)
+print(10 % 3 * 2)
 
 # Float arithmetic
 print(3.14)
 print(2.5 + 1.5)
 print(5.0 * 2.0)
 print(10.0 / 2.0)
+print(10.5 % 3.0)
+print(7.0 % 2.0)
+print(10.0 % 3.5)
 
 # Mixed int/float
 print(3.5 + 2)
 print(10 / 2.5)
+print(10 % 3.5)
+print(10.5 % 3)
+
+# Modulo in expressions
+var x = 17
+print(x % 5)
+print(100 % 7)
+
+# Custom and reflected modulo protocols
+type Cycle(size) {
+    func __mod(self, other) {
+        return self.size % other
+    }
+    func __rmod(self, other) {
+        return other % self.size
+    }
+}
+var cycle = Cycle(4)
+print(cycle % 3)
+print(10 % cycle)
+
+# Modulo by either numeric zero is catchable
+try {
+    print(1 % 0)
+} catch e {
+    print(e.is(ZeroDivisionError))
+}
+try {
+    print(1.0 % 0.0)
+} catch e {
+    print(e.is(ZeroDivisionError))
+}
 
 # Unary plus/minus
 print(+1)

@@ -104,6 +104,9 @@ func (b *PEMBlock) Multiply(object.Object) (object.Object, error) {
 func (b *PEMBlock) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("Block does not support division")
 }
+func (b *PEMBlock) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("Block does not support modulo")
+}
 func (b *PEMBlock) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Block does not support iteration")
 }

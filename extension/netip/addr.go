@@ -40,6 +40,9 @@ func (a *Addr) Multiply(object.Object) (object.Object, error) {
 func (a *Addr) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("Addr does not support division")
 }
+func (a *Addr) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("Addr does not support modulo")
+}
 func (a *Addr) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Addr does not support iteration")
 }
