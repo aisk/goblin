@@ -58,6 +58,9 @@ func (t *Time) Multiply(object.Object) (object.Object, error) {
 func (t *Time) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide Time")
 }
+func (t *Time) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo Time")
+}
 func (t *Time) Not() (object.Object, error) { return object.Bool(t.Value.IsZero()), nil }
 func (t *Time) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Time does not support iteration")

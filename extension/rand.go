@@ -169,6 +169,9 @@ func (r *Rand) Multiply(object.Object) (object.Object, error) {
 func (r *Rand) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide Rand")
 }
+func (r *Rand) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo Rand")
+}
 func (r *Rand) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Rand does not support iteration")
 }

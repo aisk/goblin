@@ -27,7 +27,8 @@ type Object interface {
 	Minus(other Object) (Object, error)
 	Multiply(other Object) (Object, error)
 	Divide(other Object) (Object, error)
-	// RAdd, RMinus, RMultiply and RDivide are the reflected halves of the
+	Modulo(other Object) (Object, error)
+	// RAdd, RMinus, RMultiply, RDivide and RModulo are the reflected halves of the
 	// arithmetic operators, reached when the receiver stands on the right of
 	// an operand that does not recognize it: `1 + money` asks money. The
 	// argument is the LEFT operand, so RMinus(left) computes `left - receiver`.
@@ -38,6 +39,7 @@ type Object interface {
 	RMinus(left Object) (Object, bool, error)
 	RMultiply(left Object) (Object, bool, error)
 	RDivide(left Object) (Object, bool, error)
+	RModulo(left Object) (Object, bool, error)
 	Not() (Object, error)
 	Iter() ([]Object, error)
 	Index(index Object) (Object, error)
@@ -116,7 +118,7 @@ func Call(obj Object, args CallArgs) (Object, error) {
 }
 
 // NoReflectedOps answers "not handled" for every reflected operator. Types
-// with no reflected form embed it instead of spelling out four methods that
+// with no reflected form embed it instead of spelling out five methods that
 // say nothing; a type that supports one operator from the right embeds it and
 // overrides just that method. Go cannot embed into a named non-struct type, so
 // the scalar built-ins declare the methods themselves.
@@ -126,6 +128,7 @@ func (NoReflectedOps) RAdd(Object) (Object, bool, error)      { return nil, fals
 func (NoReflectedOps) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (NoReflectedOps) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (NoReflectedOps) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+func (NoReflectedOps) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 // NoAssignment declines both forms of assignment. Types that accept one embed
 // it and override just that method, the way *List overrides SetIndex.

@@ -84,6 +84,8 @@ func (p *Path) Divide(other Object) (Object, error) {
 	return NewPath(filepath.Join(p.raw, seg)), nil
 }
 
+func (p *Path) Modulo(Object) (Object, error) { return nil, NewTypeError("cannot modulo Path") }
+
 func (p *Path) Not() (Object, error) { return Bool(p.raw == "" || p.raw == "."), nil }
 func (p *Path) Iter() ([]Object, error) {
 	return nil, NewTypeError("Path is not iterable; use iterdir() to list a directory")

@@ -74,6 +74,10 @@ func (b Bool) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Bool")
 }
 
+func (b Bool) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo Bool")
+}
+
 // A named bool type cannot embed NoAssignment and NoReflectedOps, so Bool
 // declines assignment and the reflected operators itself.
 func (b Bool) SetIndex(Object, Object) (bool, error)  { return false, nil }
@@ -82,6 +86,7 @@ func (b Bool) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
 func (b Bool) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
 func (b Bool) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (b Bool) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
+func (b Bool) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (b Bool) Not() (Object, error) {
 	return !b, nil

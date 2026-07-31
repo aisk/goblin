@@ -45,6 +45,9 @@ func (a *Address) Multiply(object.Object) (object.Object, error) {
 func (a *Address) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("Address does not support division")
 }
+func (a *Address) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("Address does not support modulo")
+}
 func (a *Address) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Address does not support iteration")
 }

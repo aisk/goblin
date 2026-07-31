@@ -36,6 +36,9 @@ func (u *URL) Multiply(object.Object) (object.Object, error) {
 func (u *URL) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("URL does not support division")
 }
+func (u *URL) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("URL does not support modulo")
+}
 func (u *URL) Not() (object.Object, error) { return object.False, nil }
 func (u *URL) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("URL does not support iteration")

@@ -107,6 +107,10 @@ func (e *Error) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Error and %s", other.TypeName())
 }
 
+func (e *Error) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo Error and %s", other.TypeName())
+}
+
 func (e *Error) Not() (Object, error) {
 	return nil, NewTypeError("cannot perform NOT operation on Error")
 }

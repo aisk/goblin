@@ -38,6 +38,9 @@ func (b objectBase) Multiply(object.Object) (object.Object, error) {
 func (b objectBase) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide %s", b.typeName)
 }
+func (b objectBase) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo %s", b.typeName)
+}
 func (b objectBase) Not() (object.Object, error) {
 	return object.Bool(false), nil
 }

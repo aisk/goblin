@@ -66,8 +66,8 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 
 | Method | Enables |
 | --- | --- |
-| `__add`, `__sub`, `__mul`, `__div` | Arithmetic operators |
-| `__radd`, `__rsub`, `__rmul`, `__rdiv` | The same operators with the instance on the right |
+| `__add`, `__sub`, `__mul`, `__div`, `__mod` | Arithmetic operators |
+| `__radd`, `__rsub`, `__rmul`, `__rdiv`, `__rmod` | The same operators with the instance on the right |
 | `__not` | Logical `!` operator; without it `!` negates truthiness |
 | `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of a comparison |
 | `__str` | Printing and `Str(value)` |
@@ -103,8 +103,8 @@ print(10 > m) # true, answered by Money.__cmp
 
 Arithmetic cannot flip its operands the same way — `a - b` is not `b - a` — so
 it uses a second set of methods instead. When the left operand does not know
-the right one, the right operand's `__radd`, `__rsub`, `__rmul` or `__rdiv` is
-called with the left operand as its argument:
+the right one, the right operand's `__radd`, `__rsub`, `__rmul`, `__rdiv` or
+`__rmod` is called with the left operand as its argument:
 
 ```goblin
 type Scaled(factor) {

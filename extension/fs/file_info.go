@@ -48,6 +48,9 @@ func (f *FileInfo) Multiply(object.Object) (object.Object, error) {
 func (f *FileInfo) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide FileInfo")
 }
+func (f *FileInfo) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo FileInfo")
+}
 func (f *FileInfo) Not() (object.Object, error) { return object.False, nil }
 func (f *FileInfo) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("FileInfo does not support iteration")

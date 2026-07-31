@@ -433,6 +433,10 @@ func (s String) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide String")
 }
 
+func (s String) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo String")
+}
+
 // A named string type cannot embed NoAssignment and NoReflectedOps. Only
 // repetition reads in both operand orders (see RMultiply above); everything
 // else a string does not accept is declined here.
@@ -441,6 +445,7 @@ func (s String) SetAttr(string, Object) (bool, error)  { return false, nil }
 func (s String) RAdd(Object) (Object, bool, error)     { return nil, false, nil }
 func (s String) RMinus(Object) (Object, bool, error)   { return nil, false, nil }
 func (s String) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
+func (s String) RModulo(Object) (Object, bool, error)  { return nil, false, nil }
 
 func (s String) Not() (Object, error) {
 	return Bool(s == ""), nil

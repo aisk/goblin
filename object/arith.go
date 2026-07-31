@@ -2,10 +2,11 @@ package object
 
 import "errors"
 
-// Add, Minus, Multiply and Divide are the entry points both backends use for
-// the arithmetic operators. They run the left operand's own method first and
-// fall back to the right operand's reflected method (RAdd and friends, the Go
-// side of __radd) when the left one reports that it does not know the type —
+// Add, Minus, Multiply, Divide and Modulo are the entry points both backends
+// use for the arithmetic operators. They run the left operand's own method
+// first and fall back to the right operand's reflected method (RAdd and
+// friends, the Go side of __radd) when the left one reports that it does not
+// know the type —
 // the same rule Compare and Equals follow, so only a TypeError triggers the
 // fallback and every other failure propagates. Unlike comparison, arithmetic
 // cannot simply swap its operands — `a - b` is not `b - a` — which is why the
@@ -77,6 +78,23 @@ func Divide(a, b Object) (Object, error) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RDivide(a); handled {
+		return res, rerr
+	}
+	return nil, err
+}
+
+func Modulo(a, b Object) (Object, error) {
+	if result, ok, err := numericModulo(a, b); ok {
+		return result, err
+	}
+	res, err := a.Modulo(b)
+	if err == nil {
+		return res, nil
+	}
+	if !errors.Is(err, TypeError) {
+		return nil, err
+	}
+	if res, handled, rerr := b.RModulo(a); handled {
 		return res, rerr
 	}
 	return nil, err

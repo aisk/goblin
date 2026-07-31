@@ -36,6 +36,9 @@ func (p *Prefix) Multiply(object.Object) (object.Object, error) {
 func (p *Prefix) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("Prefix does not support division")
 }
+func (p *Prefix) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("Prefix does not support modulo")
+}
 func (p *Prefix) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Prefix does not support iteration")
 }

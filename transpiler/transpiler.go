@@ -150,10 +150,10 @@ func box(code *jen.Statement, t staticType) *jen.Statement {
 // type; anything else is a bug in one of the two, and is reported as such
 // rather than silently miscompiled.
 //
-// Native expressions have no side effects and, with the sole exception of
-// division, cannot fail — so they collapse into a single Go expression with no
-// error plumbing. Division needs a zero check, and that is a statement, hence
-// the leading []jen.Code most callers will find empty.
+// Native expressions have no side effects and, with the exception of division
+// and modulo, cannot fail — so they collapse into a single Go expression with
+// no error plumbing. Division and modulo need a zero check, and that is a
+// statement, hence the leading []jen.Code most callers will find empty.
 func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch e := expr.(type) {
 	case *ast.Literal:
@@ -217,6 +217,26 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 			return pre, jen.Parens(lhs.Op("/").Id(divisor)), nil
 		}
 
+		if e.Operator == "%" {
+			// Modulo needs a zero check like division, and for floats it must
+			// go through math.Mod since Go's % only works on integers.
+			divisor := ctx.localName("mod")
+			errVar := ctx.localName("err")
+			pre = append(pre,
+				jen.Id(divisor).Op(":=").Add(rhs),
+				jen.If(jen.Id(divisor).Op("==").Lit(0)).Block(
+					jen.Id(errVar).Op(":=").Qual(pathObject, "NewZeroDivisionError").Call(jen.Lit("modulo by zero")),
+					onError(errVar),
+				),
+			)
+			if lhsType == tyInt && rhsType == tyInt {
+				return pre, jen.Parens(lhs.Op("%").Id(divisor)), nil
+			}
+			// Mixed numeric operands were widened above, so both arguments are
+			// float64 whenever this is not the integer-only case.
+			return pre, jen.Parens(jen.Qual("math", "Mod").Call(lhs, jen.Id(divisor))), nil
+		}
+
 		// Goblin's operator spellings for arithmetic, comparison, && and ||
 		// are the same as Go's, so the operator carries over verbatim.
 		return pre, jen.Parens(lhs.Op(e.Operator).Add(rhs)), nil
@@ -248,11 +268,11 @@ func exportedName(name string) string {
 // must be mangled so both can coexist on the same receiver.
 var reservedGoMethodNames = map[string]bool{
 	"String": true, "Bool": true, "Equals": true, "Compare": true, "Add": true,
-	"Minus": true, "Multiply": true, "Divide": true,
+	"Minus": true, "Multiply": true, "Divide": true, "Modulo": true,
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 	"TypeName": true,
-	"RAdd":     true, "RMinus": true, "RMultiply": true, "RDivide": true,
+	"RAdd":     true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin
@@ -1522,6 +1542,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		{"Minus", "__sub", "cannot subtract %s"},
 		{"Multiply", "__mul", "cannot multiply %s"},
 		{"Divide", "__div", "cannot divide %s"},
+		{"Modulo", "__mod", "cannot modulo %s"},
 	}
 	for _, op := range binOps {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
@@ -1544,6 +1565,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		{"RMinus", "__rsub"},
 		{"RMultiply", "__rmul"},
 		{"RDivide", "__rdiv"},
+		{"RModulo", "__rmod"},
 	} {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
 			jen.Id("left").Qual(pathObject, "Object"),
@@ -2009,6 +2031,8 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 		methodName = "Multiply"
 	case "/":
 		methodName = "Divide"
+	case "%":
+		methodName = "Modulo"
 	default:
 		return nil, nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}

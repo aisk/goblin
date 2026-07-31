@@ -7,8 +7,8 @@ It includes these groups of methods:
 | Group | Object methods |
 | --- | --- |
 | Display and conversion | ToString(), ToBool() |
-| Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Not() |
-| Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide() |
+| Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Modulo(), Not() |
+| Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide(), RModulo() |
 | Collection protocols | Iter(), Index() |
 | Members | GetAttr(), Attributes(), SetIndex(), SetAttr() |
 | Identity | TypeName() |
@@ -128,7 +128,8 @@ inherits that type's name too, which is exactly the wrong answer.
 The operators do not call Equals, Compare, Add and friends on the left operand
 directly: both backends go through object.Equals(a, b), object.Compare(a, b),
 object.Add(a, b), object.Minus(a, b), object.Multiply(a, b) and
-object.Divide(a, b), which also give the right operand a chance to answer.
+object.Divide(a, b), and object.Modulo(a, b), which also give the right operand
+a chance to answer.
 A custom type therefore only has to recognize the types it knows, and its
 Compare is reached even when it appears on the right of `1 < value`. Report an
 unfit pair with object.NewTypeError so the reflected attempt is made; any other
@@ -136,8 +137,8 @@ error propagates as-is. Equals follows the same rule with its own error return:
 a TypeError from it means "not this type" and leaves `==` total, while any
 other error fails the comparison.
 
-Arithmetic reaches the right operand through RAdd, RMinus, RMultiply and
-RDivide, the Go side of `__radd` and friends. Their argument is the LEFT
+Arithmetic reaches the right operand through RAdd, RMinus, RMultiply, RDivide
+and RModulo, the Go side of `__radd` and friends. Their argument is the LEFT
 operand — RMinus(left) computes `left - receiver` — and the bool they return
 reports whether the receiver handled this operand at all; returning false
 leaves the left operand's error in place. Embed object.NoReflectedOps and

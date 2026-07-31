@@ -49,6 +49,10 @@ func (n Unit) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Nil")
 }
 
+func (n Unit) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo Nil")
+}
+
 func (n Unit) Not() (Object, error) {
 	return True, nil
 }

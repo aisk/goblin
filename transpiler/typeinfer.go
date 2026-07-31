@@ -350,7 +350,7 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 		// either panics (integers) or yields ±Inf (floats). emitNative
 		// therefore guards it, which is why native expressions are allowed to
 		// carry preceding statements.
-		case "+", "-", "*", "/":
+		case "+", "-", "*", "/", "%":
 			// Mixed int/float arithmetic widens to float, exactly as
 			// object.Integer's methods do. Only int op int stays integral,
 			// which is what keeps `/` truncating in the same cases Goblin
@@ -381,7 +381,7 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 			// zero-check hoisted in front of the whole expression, which breaks
 			// short-circuiting: `b != 0 && a / b > 1` would raise the very
 			// error the guard was written to avoid.
-			if lhs == tyBool && rhs == tyBool && !containsDivision(e.RHS) {
+			if lhs == tyBool && rhs == tyBool && !containsZeroCheckedArithmetic(e.RHS) {
 				return tyBool
 			}
 		}
@@ -391,14 +391,16 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 	return tyDynamic
 }
 
-// containsDivision reports whether a native-eligible expression tree performs a
-// division, i.e. whether emitNative would need to hoist a guard for it.
-func containsDivision(expr ast.Expression) bool {
+// containsZeroCheckedArithmetic reports whether a native-eligible expression
+// tree performs division or modulo, i.e. whether emitNative would need to hoist
+// a guard for it.
+func containsZeroCheckedArithmetic(expr ast.Expression) bool {
 	switch e := expr.(type) {
 	case *ast.UnaryOperation:
-		return containsDivision(e.Operand)
+		return containsZeroCheckedArithmetic(e.Operand)
 	case *ast.BinaryOperation:
-		return e.Operator == "/" || containsDivision(e.LHS) || containsDivision(e.RHS)
+		return e.Operator == "/" || e.Operator == "%" ||
+			containsZeroCheckedArithmetic(e.LHS) || containsZeroCheckedArithmetic(e.RHS)
 	}
 	return false
 }

@@ -28,6 +28,9 @@ func (b objectBase) Multiply(object.Object) (object.Object, error) {
 func (b objectBase) Divide(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot divide %s", b.typeName)
 }
+func (b objectBase) Modulo(object.Object) (object.Object, error) {
+	return nil, object.NewTypeError("cannot modulo %s", b.typeName)
+}
 func (b objectBase) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("%s does not support iteration", b.typeName)
 }

@@ -36,6 +36,7 @@ func (c *Chan) Add(Object) (Object, error)      { return nil, NewTypeError("cann
 func (c *Chan) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract Chan") }
 func (c *Chan) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Chan") }
 func (c *Chan) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Chan") }
+func (c *Chan) Modulo(Object) (Object, error)   { return nil, NewTypeError("cannot modulo Chan") }
 func (c *Chan) Not() (Object, error)            { return nil, NewTypeError("cannot perform NOT on Chan") }
 func (c *Chan) Iter() ([]Object, error) {
 	return nil, NewTypeError("Chan does not support iteration")

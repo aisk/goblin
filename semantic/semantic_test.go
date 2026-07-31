@@ -247,6 +247,8 @@ func TestCheckModule(t *testing.T) {
 			name: "protocol method correct arity accepted",
 			source: "type V(x) {\n" +
 				"  func __add(self, other) { return self }\n" +
+				"  func __mod(self, other) { return self }\n" +
+				"  func __rmod(self, other) { return self }\n" +
 				"  func __str(self) { return \"v\" }\n" +
 				"  func __setitem(self, i, val) { return nil }\n" +
 				"}\n" +

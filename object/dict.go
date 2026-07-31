@@ -363,6 +363,10 @@ func (d *Dict) Divide(other Object) (Object, error) {
 	return nil, NewTypeError("cannot divide Dict")
 }
 
+func (d *Dict) Modulo(other Object) (Object, error) {
+	return nil, NewTypeError("cannot modulo Dict")
+}
+
 func (d *Dict) Not() (Object, error) {
 	return Bool(d.count == 0), nil
 }
