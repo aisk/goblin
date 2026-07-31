@@ -64,6 +64,14 @@ var knownModules = map[string]moduleInfo{
 	"flate":           {executorPath: pathExtension, varName: "flate_module", executorFunc: "ExecuteFlate"},
 	"bzip2":           {executorPath: pathExtension, varName: "bzip2_module", executorFunc: "ExecuteBzip2"},
 	"mail":            {executorPath: pathExtension + "/mail", varName: "mail_module", executorFunc: "Execute"},
+	"hmac":            {executorPath: pathExtension, varName: "hmac_module", executorFunc: "ExecuteHMAC"},
+	"crc64":           {executorPath: pathExtension, varName: "crc64_module", executorFunc: "ExecuteCRC64"},
+	"fnv":             {executorPath: pathExtension, varName: "fnv_module", executorFunc: "ExecuteFNV"},
+	"lzw":             {executorPath: pathExtension, varName: "lzw_module", executorFunc: "ExecuteLZW"},
+	"pem":             {executorPath: pathExtension, varName: "pem_module", executorFunc: "ExecutePEM"},
+	"netip":           {executorPath: pathExtension + "/netip", varName: "netip_module", executorFunc: "Execute"},
+	"utf8":            {executorPath: pathExtension, varName: "utf8_module", executorFunc: "ExecuteUTF8"},
+	"unicode":         {executorPath: pathExtension, varName: "unicode_module", executorFunc: "ExecuteUnicode"},
 }
 
 // transpileContext holds state for a single Transpile call.

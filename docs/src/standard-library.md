@@ -45,6 +45,11 @@ needed.
 | [gzip, zlib, flate, and bzip2](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
 | [tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
 | [mail](./module-mail.md) | Construct and parse email addresses | parse_address() |
+| [hmac, crc64, and fnv](./module-crypto-hash.md) | Compute keyed and non-cryptographic hashes | sum(), hex() |
+| [lzw](./module-lzw.md) | Compress and decompress LZW data | compress(), decompress() |
+| [pem](./module-pem.md) | Encode and decode PEM blocks | Block(), decode() |
+| [netip](./module-netip.md) | Parse and calculate with IP addresses and prefixes | Addr(), Prefix() |
+| [utf8 and unicode](./module-unicode.md) | Validate UTF-8 and classify Unicode characters | valid(), is_letter() |
 
 ## Imports and errors
 

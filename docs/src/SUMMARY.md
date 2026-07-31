@@ -51,6 +51,11 @@
 - [gzip, zlib, flate, and bzip2](./module-compression.md)
 - [tar and zip](./module-archive.md)
 - [mail](./module-mail.md)
+- [hmac, crc64, and fnv](./module-crypto-hash.md)
+- [lzw](./module-lzw.md)
+- [pem](./module-pem.md)
+- [netip](./module-netip.md)
+- [utf8 and unicode](./module-unicode.md)
 
 # Extending Goblin with Go
 

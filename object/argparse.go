@@ -197,6 +197,30 @@ func (p *ArgParser) BoolOr(name string, def Bool) Bool {
 	return argValueOr(p, name, "bool", def)
 }
 
+// Bytes returns a required Bytes argument.
+func (p *ArgParser) Bytes(name string) Bytes { return argValue[Bytes](p, name, "Bytes") }
+
+// BytesOr returns an optional Bytes argument, or def when absent.
+func (p *ArgParser) BytesOr(name string, def Bytes) Bytes {
+	return argValueOr(p, name, "Bytes", def)
+}
+
+// List returns a required list argument.
+func (p *ArgParser) List(name string) *List { return argValue[*List](p, name, "list") }
+
+// ListOr returns an optional list argument, or def when absent.
+func (p *ArgParser) ListOr(name string, def *List) *List {
+	return argValueOr(p, name, "list", def)
+}
+
+// Dict returns a required dict argument.
+func (p *ArgParser) Dict(name string) *Dict { return argValue[*Dict](p, name, "dict") }
+
+// DictOr returns an optional dict argument, or def when absent.
+func (p *ArgParser) DictOr(name string, def *Dict) *Dict {
+	return argValueOr(p, name, "dict", def)
+}
+
 // Func returns a required Function argument.
 func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "function") }
 

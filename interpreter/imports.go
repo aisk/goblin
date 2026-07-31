@@ -11,6 +11,7 @@ import (
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
 	mailExt "github.com/aisk/goblin/extension/mail"
+	netipExt "github.com/aisk/goblin/extension/netip"
 	pathExt "github.com/aisk/goblin/extension/path"
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
@@ -59,6 +60,14 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"flate":           extension.ExecuteFlate,
 	"bzip2":           extension.ExecuteBzip2,
 	"mail":            mailExt.Execute,
+	"hmac":            extension.ExecuteHMAC,
+	"crc64":           extension.ExecuteCRC64,
+	"fnv":             extension.ExecuteFNV,
+	"lzw":             extension.ExecuteLZW,
+	"pem":             extension.ExecutePEM,
+	"netip":           netipExt.Execute,
+	"utf8":            extension.ExecuteUTF8,
+	"unicode":         extension.ExecuteUnicode,
 }
 
 func isPathImport(path string) bool {
