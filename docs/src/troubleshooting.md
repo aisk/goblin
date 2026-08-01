@@ -30,7 +30,9 @@ toolchain is installed and run the command again with the generated-build
 message visible. Report the Goblin source, command, full error text, and
 whether the interpreter path succeeds when filing an issue.
 
-`build-exe` compiles against the published Goblin runtime unless it finds a
-local source checkout (from the working directory or the executable's
-location). When developing Goblin itself, set `GOBLIN_ROOT` to the checkout
-path so compiled programs use your local runtime.
+`build-exe` compiles against the same published Goblin runtime version as the
+installed CLI unless it finds a local source checkout (from the working
+directory or the executable's location). Development builds without embedded
+module-version information use a pinned runtime fallback. When developing
+Goblin itself, set `GOBLIN_ROOT` to the checkout path so compiled programs use
+your local runtime.

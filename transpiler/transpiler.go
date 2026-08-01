@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 
 	"github.com/aisk/goblin/ast"
@@ -21,7 +22,7 @@ const (
 	pathBase                    = "github.com/aisk/goblin"
 	pathObject                  = pathBase + "/object"
 	pathExtension               = pathBase + "/extension"
-	defaultGoblinRuntimeVersion = "v0.0.0-20260224172520-e2bc1cc1d8a5"
+	defaultGoblinRuntimeVersion = "v0.0.0-20260731160124-eddbfc600c08"
 )
 
 type moduleInfo struct {
@@ -2394,8 +2395,27 @@ func detectGoblinRoot() string {
 // generateGoMod writes the go.mod file for the output directory.
 func generateGoMod(outputDir, moduleName string) error {
 	goblinRoot := detectGoblinRoot()
-	content := generateGoModContent(moduleName, defaultGoblinRuntimeVersion, goblinRoot)
+	content := generateGoModContent(moduleName, goblinRuntimeVersion(), goblinRoot)
 	return os.WriteFile(filepath.Join(outputDir, "go.mod"), []byte(content), 0644)
+}
+
+// goblinRuntimeVersion returns the version of the Goblin module that built the
+// running CLI. Binaries installed with `go install module@version` carry this
+// information, so generated programs use the matching runtime instead of a
+// potentially stale hard-coded version.
+func goblinRuntimeVersion() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return defaultGoblinRuntimeVersion
+	}
+	return goblinRuntimeVersionFromBuildInfo(info)
+}
+
+func goblinRuntimeVersionFromBuildInfo(info *debug.BuildInfo) string {
+	if info != nil && info.Main.Path == pathBase && info.Main.Version != "" && info.Main.Version != "(devel)" {
+		return info.Main.Version
+	}
+	return defaultGoblinRuntimeVersion
 }
 
 func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string {

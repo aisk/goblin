@@ -2,6 +2,7 @@ package transpiler
 
 import (
 	"bytes"
+	"runtime/debug"
 	"strings"
 	"testing"
 
@@ -10,6 +11,51 @@ import (
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 )
+
+func TestGoblinRuntimeVersionFromBuildInfo(t *testing.T) {
+	tests := []struct {
+		name string
+		info *debug.BuildInfo
+		want string
+	}{
+		{
+			name: "installed module version",
+			info: &debug.BuildInfo{Main: debug.Module{
+				Path:    pathBase,
+				Version: "v1.2.3",
+			}},
+			want: "v1.2.3",
+		},
+		{
+			name: "development build",
+			info: &debug.BuildInfo{Main: debug.Module{
+				Path:    pathBase,
+				Version: "(devel)",
+			}},
+			want: defaultGoblinRuntimeVersion,
+		},
+		{
+			name: "different main module",
+			info: &debug.BuildInfo{Main: debug.Module{
+				Path:    "example.com/wrapper",
+				Version: "v1.2.3",
+			}},
+			want: defaultGoblinRuntimeVersion,
+		},
+		{
+			name: "missing build info",
+			want: defaultGoblinRuntimeVersion,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := goblinRuntimeVersionFromBuildInfo(tc.info); got != tc.want {
+				t.Fatalf("goblinRuntimeVersionFromBuildInfo() = %q, want %q", got, tc.want)
+			}
+		})
+	}
+}
 
 func transpileSource(t *testing.T, source string) string {
 	t.Helper()
