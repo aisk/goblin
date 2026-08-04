@@ -1,6 +1,7 @@
 package fs
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -305,5 +306,34 @@ func TestFsWriteCreateAppendMkdirRemove(t *testing.T) {
 	}
 	if _, err := os.Stat("made_dir"); !os.IsNotExist(err) {
 		t.Fatalf("made_dir should be removed, stat err = %v", err)
+	}
+}
+
+func TestFileWriteAcceptsBytes(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "bytes.bin")
+	native, err := os.Create(path)
+	if err != nil {
+		t.Fatalf("os.Create() error = %v", err)
+	}
+	file := NewFile("bytes.bin", native)
+	n, err := file.Write(object.CallArgs{Positional: object.Args{object.NewBytes([]byte{0x01, 0x02, 0xff})}})
+	if err != nil {
+		t.Fatalf("file.write(Bytes) error = %v", err)
+	}
+	if n.(object.Integer) != 3 {
+		t.Fatalf("file.write(Bytes) = %v, want 3", n)
+	}
+	if _, err := file.Write(object.CallArgs{Positional: object.Args{object.Integer(1)}}); err == nil {
+		t.Fatal("file.write(int) succeeded, want TypeError")
+	}
+	if _, err := file.Close(object.CallArgs{}); err != nil {
+		t.Fatalf("file.close() error = %v", err)
+	}
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("os.ReadFile() error = %v", err)
+	}
+	if !bytes.Equal(content, []byte{0x01, 0x02, 0xff}) {
+		t.Fatalf("file content = %v, want [1 2 255]", content)
 	}
 }

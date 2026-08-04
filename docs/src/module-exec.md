@@ -43,6 +43,25 @@ The standard-stream policies are:
 stderr. Captured values are `Bytes`, because command output is not necessarily
 UTF-8; call `decode()` when text is expected.
 
+Besides the policies, `stdout` and `stderr` accept any writer object — an
+object with a `write(data)` method, such as an open `fs` file. The command's
+output streams into it as `Bytes` chunks, so large output never has to be
+captured in memory:
+
+~~~goblin
+import "exec"
+import "fs"
+
+var log = fs.create("build.log")
+exec.Command("make", stdout=log, stderr=log).run()
+log.close()
+~~~
+
+`exec` never calls the writer's `close()`; close the target yourself when the
+command finishes. With `start()`, chunks may arrive while your program is doing
+other work, so do not write to the same object from Goblin code until `wait()`
+returns.
+
 ## Executing a command
 
 `cmd.run()` starts, waits for, and reaps a command. Output behavior comes only

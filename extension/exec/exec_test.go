@@ -1,6 +1,7 @@
 package exec
 
 import (
+	"bytes"
 	"os"
 	"testing"
 
@@ -113,5 +114,55 @@ func TestFailedStartCannotBeRetried(t *testing.T) {
 	}
 	if _, err := cmd.start(object.CallArgs{}); err == nil {
 		t.Fatal("failed command was started a second time")
+	}
+}
+
+func TestOutputToDuckWriter(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	recorder := func(buffer *bytes.Buffer) object.Object {
+		return &object.Module{Name: "recorder", Members: map[string]object.Object{
+			"write": &object.Function{Name: "write", Fn: func(args object.CallArgs) (object.Object, error) {
+				chunk := args.Positional[0].(object.Bytes)
+				buffer.Write(chunk)
+				return object.Integer(len(chunk)), nil
+			}},
+		}}
+	}
+
+	env := object.NewDict()
+	env.Set(object.String("GO_WANT_HELPER_PROCESS"), object.String("1"))
+	env.Set(object.String("GOCOVERDIR"), object.String(t.TempDir()))
+	obj, err := command(object.CallArgs{
+		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: []object.Object{
+			object.String("-test.run=TestHelperProcess"), object.String("--"),
+			object.String("duck-out"), object.String("duck-err"),
+		}}},
+		Keyword: map[string]object.Object{
+			"env":    env,
+			"stdout": recorder(&stdout),
+			"stderr": recorder(&stderr),
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := obj.(*Cmd).run(object.CallArgs{}); err != nil {
+		t.Fatal(err)
+	}
+	if got := stdout.String(); got != "duck-out" {
+		t.Fatalf("stdout writer received %q, want duck-out", got)
+	}
+	if got := stderr.String(); got != "duck-err" {
+		t.Fatalf("stderr writer received %q, want duck-err", got)
+	}
+}
+
+func TestOutputRejectsNonWriter(t *testing.T) {
+	_, err := command(object.CallArgs{
+		Positional: []object.Object{object.String("true")},
+		Keyword:    map[string]object.Object{"stdout": object.Integer(1)},
+	})
+	if err == nil {
+		t.Fatal("Command(stdout=1) succeeded, want TypeError")
 	}
 }

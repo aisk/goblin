@@ -220,7 +220,10 @@ func bodyArg(fn string, obj object.Object) (io.Reader, error) {
 	case object.Bytes:
 		return bytes.NewReader(v), nil
 	default:
-		reader, err := newDuckReader(fn, obj)
+		if _, err := obj.GetAttr("read"); err != nil {
+			return nil, object.NewTypeError("%s() argument 'body' must be str, Bytes, nil, or an object with a read(size) method, got %s", fn, obj.TypeName())
+		}
+		reader, err := object.NewDuckReader(fn, "body", obj)
 		if err != nil {
 			return nil, err
 		}

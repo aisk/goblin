@@ -2,6 +2,7 @@ package extension
 
 import (
 	"encoding/csv"
+	"io"
 	"strings"
 	"unicode/utf8"
 
@@ -63,6 +64,7 @@ func csvWriteAll(args object.CallArgs) (object.Object, error) {
 	recordsObj := p.Any("records")
 	commaValue := p.StrOr("comma", ",")
 	useCRLF := p.BoolOr("use_crlf", object.False)
+	destObj := p.AnyOr("dest", object.Nil)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -75,12 +77,23 @@ func csvWriteAll(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	var output strings.Builder
-	writer := csv.NewWriter(&output)
+	var sink io.Writer = &output
+	if _, ok := destObj.(object.Unit); !ok {
+		dest, err := object.NewDuckWriter("write_all", "dest", destObj)
+		if err != nil {
+			return nil, err
+		}
+		sink = dest
+	}
+	writer := csv.NewWriter(sink)
 	writer.Comma = comma
 	writer.UseCRLF = bool(useCRLF)
 	writer.WriteAll(records)
 	if err := writer.Error(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "write_all() failed", err)
+	}
+	if sink != &output {
+		return object.Nil, nil
 	}
 	return object.String(output.String()), nil
 }

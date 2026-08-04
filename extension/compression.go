@@ -41,18 +41,20 @@ func ExecuteBzip2() (object.Object, error) {
 	}}, nil
 }
 
-func compressionInput(name string, args object.CallArgs, withLevel bool) ([]byte, int, error) {
+func compressionInput(name string, args object.CallArgs, compressing bool) ([]byte, int, *object.DuckWriter, error) {
 	p := object.NewArgParser(name, args)
 	value := p.Any("data")
 	level := object.Integer(flate.DefaultCompression)
-	if withLevel {
+	destObj := object.Object(object.Nil)
+	if compressing {
 		level = p.IntOr("level", flate.DefaultCompression)
+		destObj = p.AnyOr("dest", object.Nil)
 	}
 	if err := p.Finish(); err != nil {
-		return nil, 0, err
+		return nil, 0, nil, err
 	}
-	if withLevel && (int(level) < flate.HuffmanOnly || int(level) > flate.BestCompression) {
-		return nil, 0, object.NewValueError("%s() argument 'level' must be between %d and %d, got %d", name, flate.HuffmanOnly, flate.BestCompression, int(level))
+	if compressing && (int(level) < flate.HuffmanOnly || int(level) > flate.BestCompression) {
+		return nil, 0, nil, object.NewValueError("%s() argument 'level' must be between %d and %d, got %d", name, flate.HuffmanOnly, flate.BestCompression, int(level))
 	}
 	var data []byte
 	switch v := value.(type) {
@@ -61,18 +63,30 @@ func compressionInput(name string, args object.CallArgs, withLevel bool) ([]byte
 	case object.String:
 		data = []byte(v)
 	default:
-		return nil, 0, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
+		return nil, 0, nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
 	}
-	return data, int(level), nil
+	var dest *object.DuckWriter
+	if _, ok := destObj.(object.Unit); !ok {
+		var err error
+		dest, err = object.NewDuckWriter(name, "dest", destObj)
+		if err != nil {
+			return nil, 0, nil, err
+		}
+	}
+	return data, int(level), dest, nil
 }
 
 func compressedBytes(name string, args object.CallArgs, newWriter func(io.Writer, int) (io.WriteCloser, error)) (object.Object, error) {
-	data, level, err := compressionInput(name, args, true)
+	data, level, dest, err := compressionInput(name, args, true)
 	if err != nil {
 		return nil, err
 	}
 	var output bytes.Buffer
-	writer, err := newWriter(&output, level)
+	var sink io.Writer = &output
+	if dest != nil {
+		sink = dest
+	}
+	writer, err := newWriter(sink, level)
 	if err != nil {
 		return nil, object.WrapError(object.ValueError, name+"() invalid compression level", err)
 	}
@@ -82,11 +96,14 @@ func compressedBytes(name string, args object.CallArgs, newWriter func(io.Writer
 	if err := writer.Close(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, name+"() failed to close stream", err)
 	}
+	if dest != nil {
+		return object.Nil, nil
+	}
 	return object.NewBytes(output.Bytes()), nil
 }
 
 func decompressedBytes(name string, args object.CallArgs, newReader func(io.Reader) (io.ReadCloser, error)) (object.Object, error) {
-	data, _, err := compressionInput(name, args, false)
+	data, _, _, err := compressionInput(name, args, false)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +153,7 @@ func flateDecompress(args object.CallArgs) (object.Object, error) {
 }
 
 func bzip2Decompress(args object.CallArgs) (object.Object, error) {
-	data, _, err := compressionInput("decompress", args, false)
+	data, _, _, err := compressionInput("decompress", args, false)
 	if err != nil {
 		return nil, err
 	}

@@ -128,7 +128,18 @@ func (c *Cmd) configureStdin(value object.Object) error {
 func (c *Cmd) configureOutput(name string, value object.Object) error {
 	policy, ok := value.(*streamPolicy)
 	if !ok {
-		return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, or CAPTURE, got %s", name, value.TypeName())
+		// Any object with a write(data) method (e.g. an fs.File) receives the
+		// stream; exec never calls its close().
+		duck, err := object.NewDuckWriter("Command", name, value)
+		if err != nil {
+			return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, CAPTURE, or an object with a write(data) method, got %s", name, value.TypeName())
+		}
+		if name == "stdout" {
+			c.cmd.Stdout = duck
+		} else {
+			c.cmd.Stderr = duck
+		}
+		return nil
 	}
 	var writer io.Writer
 	switch policy {

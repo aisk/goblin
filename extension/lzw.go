@@ -15,17 +15,21 @@ func ExecuteLZW() (object.Object, error) {
 	}}, nil
 }
 
-func lzwOptions(fnName string, args object.CallArgs) ([]byte, lzw.Order, int, error) {
+func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, lzw.Order, int, *object.DuckWriter, error) {
 	p := object.NewArgParser(fnName, args)
 	dataObj := p.Any("data")
 	orderName := p.StrOr("order", object.String("lsb"))
 	litWidth := p.IntOr("lit_width", 8)
+	destObj := object.Object(object.Nil)
+	if compressing {
+		destObj = p.AnyOr("dest", object.Nil)
+	}
 	if err := p.Finish(); err != nil {
-		return nil, 0, 0, err
+		return nil, 0, 0, nil, err
 	}
 	data, err := bytesOrString(fnName, "data", dataObj)
 	if err != nil {
-		return nil, 0, 0, err
+		return nil, 0, 0, nil, err
 	}
 	var order lzw.Order
 	switch orderName {
@@ -34,32 +38,46 @@ func lzwOptions(fnName string, args object.CallArgs) ([]byte, lzw.Order, int, er
 	case "msb":
 		order = lzw.MSB
 	default:
-		return nil, 0, 0, object.NewValueError("%s() argument 'order' must be \"lsb\" or \"msb\"", fnName)
+		return nil, 0, 0, nil, object.NewValueError("%s() argument 'order' must be \"lsb\" or \"msb\"", fnName)
 	}
 	if litWidth < 2 || litWidth > 8 {
-		return nil, 0, 0, object.NewValueError("%s() argument 'lit_width' must be between 2 and 8", fnName)
+		return nil, 0, 0, nil, object.NewValueError("%s() argument 'lit_width' must be between 2 and 8", fnName)
 	}
-	return data, order, int(litWidth), nil
+	var dest *object.DuckWriter
+	if _, ok := destObj.(object.Unit); !ok {
+		dest, err = object.NewDuckWriter(fnName, "dest", destObj)
+		if err != nil {
+			return nil, 0, 0, nil, err
+		}
+	}
+	return data, order, int(litWidth), dest, nil
 }
 
 func lzwCompress(args object.CallArgs) (object.Object, error) {
-	data, order, litWidth, err := lzwOptions("compress", args)
+	data, order, litWidth, dest, err := lzwOptions("compress", args, true)
 	if err != nil {
 		return nil, err
 	}
 	var output bytes.Buffer
-	writer := lzw.NewWriter(&output, order, litWidth)
+	var sink io.Writer = &output
+	if dest != nil {
+		sink = dest
+	}
+	writer := lzw.NewWriter(sink, order, litWidth)
 	if _, err := writer.Write(data); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "compress() failed to write data", err)
 	}
 	if err := writer.Close(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "compress() failed to close stream", err)
 	}
+	if dest != nil {
+		return object.Nil, nil
+	}
 	return object.NewBytes(output.Bytes()), nil
 }
 
 func lzwDecompress(args object.CallArgs) (object.Object, error) {
-	data, order, litWidth, err := lzwOptions("decompress", args)
+	data, order, litWidth, _, err := lzwOptions("decompress", args, false)
 	if err != nil {
 		return nil, err
 	}

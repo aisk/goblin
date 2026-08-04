@@ -17,6 +17,19 @@ corresponding Go Reader fields: `comma=","`, `comment=""`,
 `use_crlf=false`, corresponding to Go's Writer fields. Parsing errors raise
 `ParseError`.
 
+By default `write_all` returns the CSV text. Passing `dest=` streams the output
+into any writer object — an object with a `write(data)` method, such as an open
+`fs` file — instead, and the function returns `unit`:
+
+~~~goblin
+import "csv"
+import "fs"
+
+var file = fs.create("scores.csv")
+csv.write_all([["name", "score"], ["Ada", "10"]], dest=file)
+file.close()
+~~~
+
 ~~~goblin
 import "csv"
 

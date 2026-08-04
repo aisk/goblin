@@ -82,9 +82,20 @@ func archiveDict(entries []archiveEntry) (*object.Dict, error) {
 	return result, nil
 }
 
+// archiveDest resolves the optional dest keyword shared by the write_all
+// functions: nil keeps buffering into output, anything else must be a duck
+// writer that receives the archive bytes instead.
+func archiveDest(destObj object.Object, output *bytes.Buffer) (io.Writer, error) {
+	if _, ok := destObj.(object.Unit); ok {
+		return output, nil
+	}
+	return object.NewDuckWriter("write_all", "dest", destObj)
+}
+
 func tarWriteAll(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("write_all", args)
 	filesObj := p.Any("files")
+	destObj := p.AnyOr("dest", object.Nil)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -93,7 +104,11 @@ func tarWriteAll(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	var output bytes.Buffer
-	writer := tar.NewWriter(&output)
+	sink, err := archiveDest(destObj, &output)
+	if err != nil {
+		return nil, err
+	}
+	writer := tar.NewWriter(sink)
 	for _, entry := range files {
 		data := entry.data
 		header := &tar.Header{Name: entry.name, Mode: 0o644, Size: int64(len(data))}
@@ -112,6 +127,9 @@ func tarWriteAll(args object.CallArgs) (object.Object, error) {
 	}
 	if err := writer.Close(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "write_all() failed to close archive", err)
+	}
+	if sink != &output {
+		return object.Nil, nil
 	}
 	return object.NewBytes(output.Bytes()), nil
 }
@@ -147,6 +165,7 @@ func zipWriteAll(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("write_all", args)
 	filesObj := p.Any("files")
 	method := p.IntOr("method", object.Integer(zip.Deflate))
+	destObj := p.AnyOr("dest", object.Nil)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -158,7 +177,11 @@ func zipWriteAll(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	var output bytes.Buffer
-	writer := zip.NewWriter(&output)
+	sink, err := archiveDest(destObj, &output)
+	if err != nil {
+		return nil, err
+	}
+	writer := zip.NewWriter(sink)
 	for _, entry := range files {
 		header := &zip.FileHeader{Name: entry.name, Method: uint16(method)}
 		if strings.HasSuffix(entry.name, "/") {
@@ -176,6 +199,9 @@ func zipWriteAll(args object.CallArgs) (object.Object, error) {
 	}
 	if err := writer.Close(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "write_all() failed to close archive", err)
+	}
+	if sink != &output {
+		return object.Nil, nil
 	}
 	return object.NewBytes(output.Bytes()), nil
 }

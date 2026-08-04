@@ -52,12 +52,17 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 
-	content, ok := contentArg.(object.String)
-	if !ok {
-		return nil, object.NewTypeError("write() argument 'content' must be a string, got %s", contentArg.TypeName())
+	var content []byte
+	switch v := contentArg.(type) {
+	case object.String:
+		content = []byte(v)
+	case object.Bytes:
+		content = []byte(v)
+	default:
+		return nil, object.NewTypeError("write() argument 'content' must be str or Bytes, got %s", contentArg.TypeName())
 	}
 
-	n, err := f.File.WriteString(string(content))
+	n, err := f.File.Write(content)
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "write() failed", err)
 	}
