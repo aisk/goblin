@@ -160,6 +160,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			if _, ok := seenMethods[method.Name]; ok {
 				return c.newError(method.Position(), "duplicate type method name: %s", method.Name)
 			}
+			if _, ok := seenFields[method.Name]; ok {
+				return c.newError(method.Position(), "type method name conflicts with field name: %s", method.Name)
+			}
 			seenMethods[method.Name] = struct{}{}
 
 			if len(method.Parameters) == 0 || method.Parameters[0].Name != "self" || method.Parameters[0].VarArgs || method.Parameters[0].KwArgs || method.Parameters[0].HasDefault() {
@@ -313,6 +316,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.checkStatements(v.CatchBody, false)
 		})
 	case *ast.Export:
+		if !isModuleScope {
+			return c.newError(v.Position(), "export is only allowed at module scope")
+		}
 		if !c.currentScope.lookup(v.Name) {
 			return c.newError(v.Position(), "export of undefined identifier: %s", v.Name)
 		}
