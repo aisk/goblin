@@ -74,6 +74,25 @@ type checker struct {
 	funcDepth    int
 }
 
+// goReservedNames lists Go keywords. The transpiler emits user names as Go
+// identifiers verbatim, so allowing them would generate invalid Go code; the
+// ones that double as Goblin keywords never parse as identifiers anyway, but
+// are listed for completeness.
+var goReservedNames = map[string]struct{}{
+	"break": {}, "case": {}, "chan": {}, "const": {}, "continue": {},
+	"default": {}, "defer": {}, "else": {}, "fallthrough": {}, "for": {},
+	"func": {}, "go": {}, "goto": {}, "if": {}, "import": {},
+	"interface": {}, "map": {}, "package": {}, "range": {}, "return": {},
+	"select": {}, "struct": {}, "switch": {}, "type": {}, "var": {},
+}
+
+func (c *checker) checkReservedName(pos token.Pos, name string) error {
+	if _, ok := goReservedNames[name]; ok {
+		return c.newError(pos, "'%s' is a reserved name", name)
+	}
+	return nil
+}
+
 func CheckModule(mod *ast.Module) error {
 	c := &checker{
 		currentScope: newScope(nil),
@@ -95,6 +114,9 @@ func CheckModule(mod *ast.Module) error {
 			name, pos = v.Name, v.Position()
 		default:
 			continue
+		}
+		if err := c.checkReservedName(pos, name); err != nil {
+			return err
 		}
 		if !c.currentScope.declare(name) {
 			return c.newError(pos, "duplicate declaration in same scope: %s", name)
@@ -138,6 +160,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		seenFields := make(map[string]struct{}, len(v.Fields))
 		seenDefault := false
 		for _, field := range v.Fields {
+			if err := c.checkReservedName(field.Pos, field.Name); err != nil {
+				return err
+			}
 			if _, ok := seenFields[field.Name]; ok {
 				return c.newError(field.Pos, "duplicate type field name: %s", field.Name)
 			}
@@ -157,6 +182,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 
 		seenMethods := make(map[string]struct{}, len(v.Methods))
 		for _, method := range v.Methods {
+			if err := c.checkReservedName(method.Position(), method.Name); err != nil {
+				return err
+			}
 			if _, ok := seenMethods[method.Name]; ok {
 				return c.newError(method.Position(), "duplicate type method name: %s", method.Name)
 			}
@@ -204,6 +232,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 				// they must be accessed through self. Declaring only the
 				// parameters here keeps the checker aligned with both backends.
 				for _, param := range method.Parameters {
+					if err := c.checkReservedName(param.Pos, param.Name); err != nil {
+						return err
+					}
 					if !c.currentScope.declare(param.Name) {
 						return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 					}
@@ -217,6 +248,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		return nil
 	case *ast.Declare:
 		if err := c.checkExpression(v.Value); err != nil {
+			return err
+		}
+		if err := c.checkReservedName(v.Position(), v.Name); err != nil {
 			return err
 		}
 		if !c.currentScope.declare(v.Name) {
@@ -245,6 +279,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		// Module-level function names were already hoisted by CheckModule;
 		// nested functions are declared where they appear.
 		if !isModuleScope {
+			if err := c.checkReservedName(v.Position(), v.Name); err != nil {
+				return err
+			}
 			if !c.currentScope.declare(v.Name) {
 				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
 			}
@@ -279,6 +316,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			c.loopDepth++
 			defer func() { c.loopDepth-- }()
 
+			if err := c.checkReservedName(v.Position(), v.Variable); err != nil {
+				return err
+			}
 			if !c.currentScope.declare(v.Variable) {
 				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Variable)
 			}
@@ -312,6 +352,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return err
 		}
 		return c.withScope(func() error {
+			if err := c.checkReservedName(v.Position(), v.CatchVar); err != nil {
+				return err
+			}
 			c.currentScope.declare(v.CatchVar)
 			return c.checkStatements(v.CatchBody, false)
 		})
@@ -348,6 +391,9 @@ func (c *checker) checkFunction(params []*ast.Parameter, body []ast.Statement) e
 		}
 
 		for _, param := range params {
+			if err := c.checkReservedName(param.Pos, param.Name); err != nil {
+				return err
+			}
 			if !c.currentScope.declare(param.Name) {
 				return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 			}
