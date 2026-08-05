@@ -91,6 +91,12 @@ type transpileContext struct {
 	// For directory mode:
 	goModuleName string
 	outputDir    string
+	// Import resolution: relative import paths are resolved against the
+	// directory of the module currently being transpiled (baseDir), and
+	// module identifiers are derived relative to the entry point's
+	// directory (rootDir).
+	baseDir string
+	rootDir string
 }
 
 func newTranspileContext() *transpileContext {
@@ -321,13 +327,47 @@ func isPathImport(path string) bool {
 	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
 }
 
-func pathToFuncName(path string) string {
-	s := strings.TrimPrefix(path, "./")
-	s = strings.TrimPrefix(s, "../")
-	s = strings.ReplaceAll(s, "/", "_")
+// resolveImportPath resolves a relative import path against the directory of
+// the module currently being transpiled, mirroring how the interpreter
+// resolves imports against the importing file's directory.
+func (ctx *transpileContext) resolveImportPath(importPath string) (string, error) {
+	p := importPath + ".goblin"
+	if !filepath.IsAbs(p) && ctx.baseDir != "" {
+		p = filepath.Join(ctx.baseDir, p)
+	}
+	return filepath.Abs(p)
+}
+
+// moduleKey returns a stable slash-separated identifier for a resolved module
+// path, relative to the entry point's directory. Path components above the
+// root are folded into "__up" so distinct modules never collide.
+func (ctx *transpileContext) moduleKey(absPath string) string {
+	p := strings.TrimSuffix(absPath, ".goblin")
+	if ctx.rootDir != "" {
+		if rel, err := filepath.Rel(ctx.rootDir, p); err == nil {
+			p = rel
+		}
+	}
+	p = filepath.ToSlash(p)
+	parts := strings.Split(p, "/")
+	for i, part := range parts {
+		if part == ".." {
+			parts[i] = "__up"
+		}
+	}
+	return strings.Join(parts, "/")
+}
+
+// keyToIdent turns a module key into a Go identifier fragment.
+func keyToIdent(key string) string {
+	s := strings.ReplaceAll(key, "/", "_")
 	s = strings.ReplaceAll(s, ".", "_")
 	s = strings.ReplaceAll(s, "-", "_")
-	return "_execute_" + s
+	return s
+}
+
+func keyToFuncName(key string) string {
+	return "_execute_" + keyToIdent(key)
 }
 
 func Transpile(mod *ast.Module, output io.Writer) error {
@@ -336,6 +376,10 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	}
 
 	ctx := newTranspileContext()
+	if cwd, err := os.Getwd(); err == nil {
+		ctx.baseDir = cwd
+		ctx.rootDir = cwd
+	}
 
 	// Collect imports
 	for _, stmt := range mod.Body {
@@ -423,11 +467,16 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
+		absPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		key := ctx.moduleKey(absPath)
 		errVar := ctx.localName("err")
 		body = append(body,
 			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Id(pathToFuncName(imp.Path)),
+				jen.Lit(key),
+				jen.Id(keyToFuncName(key)),
 			),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 			jen.Id("_").Op("=").Id(imp.Name),
@@ -460,7 +509,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 // transpilePathModule parses and transpiles a .goblin file at the given path,
 // generating a top-level executor function.
 func (ctx *transpileContext) transpilePathModule(importPath string) error {
-	absPath, err := filepath.Abs(importPath + ".goblin")
+	absPath, err := ctx.resolveImportPath(importPath)
 	if err != nil {
 		return fmt.Errorf("failed to resolve path %s: %v", importPath, err)
 	}
@@ -476,6 +525,11 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	}
 	ctx.importing[absPath] = struct{}{}
 	defer delete(ctx.importing, absPath)
+
+	// Imports inside this module resolve against its own directory.
+	savedBaseDir := ctx.baseDir
+	ctx.baseDir = filepath.Dir(absPath)
+	defer func() { ctx.baseDir = savedBaseDir }()
 
 	l, err := lexer.NewLexerFile(absPath)
 	if err != nil {
@@ -557,11 +611,16 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
+		subAbsPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		subKey := ctx.moduleKey(subAbsPath)
 		errVar := ctx.localName("err")
 		funcBody = append(funcBody,
 			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Id(pathToFuncName(imp.Path)),
+				jen.Lit(subKey),
+				jen.Id(keyToFuncName(subKey)),
 			),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 			jen.Id("_").Op("=").Id(imp.Name),
@@ -578,7 +637,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		),
 	)
 
-	funcName := pathToFuncName(importPath)
+	funcName := keyToFuncName(ctx.moduleKey(absPath))
 	fn := jen.Func().Id(funcName).Params().Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
 	)).Block(funcBody...)
@@ -2338,13 +2397,6 @@ func pathToPackageName(importPath string) string {
 	return filepath.Base(importPath)
 }
 
-// pathToRelDir strips the leading "./" prefix from a relative import path.
-func pathToRelDir(importPath string) string {
-	s := strings.TrimPrefix(importPath, "./")
-	s = strings.TrimPrefix(s, "../")
-	return s
-}
-
 // detectGoblinRoot locates a local goblin source checkout so generated code
 // builds against it (via a replace directive) instead of the published module.
 // GOBLIN_ROOT takes precedence; otherwise it walks up from the current working
@@ -2446,6 +2498,13 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 	ctx.goModuleName = moduleName
 	ctx.outputDir = outputDir
 
+	absSource, err := filepath.Abs(sourceFile)
+	if err != nil {
+		return fmt.Errorf("failed to resolve source file %s: %v", sourceFile, err)
+	}
+	ctx.baseDir = filepath.Dir(absSource)
+	ctx.rootDir = ctx.baseDir
+
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory: %v", err)
 	}
@@ -2471,7 +2530,7 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 // transpilePathModuleToFile parses a .goblin file at importPath and writes it
 // as a separate Go package file under ctx.outputDir.
 func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error {
-	absPath, err := filepath.Abs(importPath + ".goblin")
+	absPath, err := ctx.resolveImportPath(importPath)
 	if err != nil {
 		return fmt.Errorf("failed to resolve path %s: %v", importPath, err)
 	}
@@ -2484,6 +2543,11 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	}
 	ctx.importing[absPath] = struct{}{}
 	defer delete(ctx.importing, absPath)
+
+	// Imports inside this module resolve against its own directory.
+	savedBaseDir := ctx.baseDir
+	ctx.baseDir = filepath.Dir(absPath)
+	defer func() { ctx.baseDir = savedBaseDir }()
 
 	l, err := lexer.NewLexerFile(absPath)
 	if err != nil {
@@ -2524,9 +2588,9 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		}
 	}
 
-	pkgName := pathToPackageName(importPath)
-	relDir := pathToRelDir(importPath)
-	pkgDir := filepath.Join(ctx.outputDir, relDir)
+	key := ctx.moduleKey(absPath)
+	pkgName := pathToPackageName(key)
+	pkgDir := filepath.Join(ctx.outputDir, filepath.FromSlash(key))
 	if err := os.MkdirAll(pkgDir, 0755); err != nil {
 		return fmt.Errorf("failed to create package directory %s: %v", pkgDir, err)
 	}
@@ -2539,10 +2603,13 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
-		subPkgName := pathToPackageName(imp.Path)
-		subRelDir := pathToRelDir(imp.Path)
-		subImportPath := ctx.goModuleName + "/" + subRelDir
-		f.ImportAlias(subImportPath, "_pkg_"+subPkgName)
+		subAbsPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		subKey := ctx.moduleKey(subAbsPath)
+		subImportPath := ctx.goModuleName + "/" + subKey
+		f.ImportAlias(subImportPath, "_pkg_"+keyToIdent(subKey))
 	}
 
 	savedImports := ctx.moduleImports
@@ -2594,12 +2661,16 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
-		subRelDir := pathToRelDir(imp.Path)
-		subImportPath := ctx.goModuleName + "/" + subRelDir
+		subAbsPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		subKey := ctx.moduleKey(subAbsPath)
+		subImportPath := ctx.goModuleName + "/" + subKey
 		errVar := ctx.localName("err")
 		funcBody = append(funcBody,
 			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
+				jen.Lit(subKey),
 				jen.Func().Params().Parens(jen.List(
 					jen.Qual(pathObject, "Object"), jen.Error(),
 				)).Block(
@@ -2652,10 +2723,13 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
-		pkgName := pathToPackageName(imp.Path)
-		relDir := pathToRelDir(imp.Path)
-		importPath := ctx.goModuleName + "/" + relDir
-		f.ImportAlias(importPath, "_pkg_"+pkgName)
+		absPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		key := ctx.moduleKey(absPath)
+		importPath := ctx.goModuleName + "/" + key
+		f.ImportAlias(importPath, "_pkg_"+keyToIdent(key))
 	}
 
 	// Emit _registry global if there are any imports.
@@ -2733,12 +2807,16 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
-		relDir := pathToRelDir(imp.Path)
-		importPath := ctx.goModuleName + "/" + relDir
+		absPath, err := ctx.resolveImportPath(imp.Path)
+		if err != nil {
+			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+		}
+		key := ctx.moduleKey(absPath)
+		importPath := ctx.goModuleName + "/" + key
 		errVar := ctx.localName("err")
 		body = append(body,
 			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
+				jen.Lit(key),
 				jen.Func().Params().Parens(jen.List(
 					jen.Qual(pathObject, "Object"), jen.Error(),
 				)).Block(
