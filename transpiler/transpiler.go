@@ -692,7 +692,7 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 		s := jen.Qual(pathObject, "String").Call(jen.Lit(string(v)))
 		return s, nil
 	}
-	return nil, object.NotImplementedError
+	return nil, fmt.Errorf("cannot transpile literal of type %s", obj.TypeName())
 }
 
 func (ctx *transpileContext) transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -839,7 +839,7 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 	case *ast.FunctionLiteral:
 		return ctx.transpileFunctionLiteral(v)
 	}
-	return nil, nil, object.NotImplementedError
+	return nil, nil, fmt.Errorf("%s: cannot transpile expression of type %T", expr.Position(), expr)
 }
 
 func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
@@ -2339,8 +2339,15 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		var pre []jen.Code
 		pre, _, err = ctx.transpileMemberExpression(v, onError)
 		codes = pre
+	case *ast.IndexExpression:
+		var pre []jen.Code
+		var value *jen.Statement
+		pre, value, err = ctx.transpileIndexExpression(v, onError)
+		if err == nil {
+			codes = append(pre, jen.Id("_").Op("=").Add(value))
+		}
 	default:
-		return nil, object.NotImplementedError
+		return nil, fmt.Errorf("%s: cannot transpile statement of type %T", stmt.Position(), stmt)
 	}
 	if err != nil {
 		return nil, err

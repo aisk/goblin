@@ -287,6 +287,10 @@ func collectNestedNames(stmts []ast.Statement, names map[string]struct{}, inner 
 			visitExpr(s.RHS)
 		case *ast.UnaryOperation:
 			visitExpr(s.Operand)
+		case *ast.IndexExpression:
+			visitExpr(s)
+		case *ast.MemberExpression:
+			visitExpr(s)
 		}
 	}
 }
