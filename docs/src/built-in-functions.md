@@ -12,7 +12,8 @@ These names are available without an import.
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
 | `Chan([size])` | Create a channel; no size means unbuffered |
 | `Function(value)` | Validate and return a callable value unchanged |
-| `spawn(function, args...)` | Run a function concurrently |
+| `spawn(function, args...)` | Run a function concurrently, fire-and-forget |
+| `Goblin(function, args...)` | Run a function concurrently, returning a joinable handle |
 | `Error(message)` | Create an error value |
 
 `print` and `eprint` return `nil`. `range` needs both `start` and `end`; it

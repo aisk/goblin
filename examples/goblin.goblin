@@ -1,0 +1,48 @@
+import "time"
+
+# Goblin(fn, args...) starts fn in a new goroutine right away and returns a
+# handle. wait() joins it and returns the function's result.
+func square(n) {
+    return n * n
+}
+var g = Goblin(square, 7)
+print(g.wait())
+
+# The outcome is cached: wait() can be called again, and done() reports
+# completion without blocking.
+print(g.wait())
+print(g.done())
+
+# Joining several goblins in order makes concurrent output deterministic.
+var goblins = []
+for n in [1, 2, 3] {
+    goblins.push(Goblin(square, n))
+}
+var total = 0
+for worker in goblins {
+    total = total + worker.wait()
+}
+print(total)
+
+# An error raised inside the function is re-raised at wait().
+func fail() {
+    raise ValueError.wrap("bad input")
+}
+var failing = Goblin(fail)
+try {
+    failing.wait()
+} catch e {
+    print(e.message)
+    print(e.is(ValueError))
+}
+
+# wait(timeout = seconds) raises TimeoutError if the function is still
+# running when the timeout expires.
+var slow = Goblin(func() {
+    time.sleep(10)
+})
+try {
+    slow.wait(timeout = 0.05)
+} catch e {
+    print(e.is(TimeoutError))
+}

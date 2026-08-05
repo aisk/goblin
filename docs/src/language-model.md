@@ -15,7 +15,7 @@ before designing a larger program:
 | Strings | Unicode-aware iteration and size; no `string[index]` syntax |
 | Lists | Direct indexes are non-negative; some methods such as pop() accept negative indexes |
 | Imports | Module scope only; local paths are relative to the importing file |
-| Concurrency | Goroutines and channels; no select, cancellation, or join primitive |
+| Concurrency | Goroutines, channels, and joinable Goblin handles; no select or cancellation |
 | Errors | Explicit raise and try/catch; spawned-function errors are not propagated |
 
 Goblin favors direct, explicit code over a large amount of syntax. When a

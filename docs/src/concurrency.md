@@ -1,20 +1,65 @@
 # Concurrency
 
-`spawn(function, args...)` starts a Goblin function in a new goroutine. It
-returns nil immediately and accepts only positional arguments. The spawned
-function's return value and unhandled error are discarded, so a channel is the
-normal way to communicate a result back to the caller.
+There are two ways to start a function in a new goroutine. `Goblin(function,
+args...)` starts it immediately and returns a handle; `wait()` on the handle
+joins the function and delivers its result. `spawn(function, args...)` is
+fire-and-forget: it returns nil immediately, and the function's return value
+and unhandled error are discarded. Use a Goblin handle when the caller cares
+about the outcome, and spawn when it does not.
 
 ~~~goblin
-func square(value, result) {
-    result.send(value * value)
+func square(value) {
+    return value * value
 }
 
-var result = Chan()
-spawn(square, 6, result)
-print(result.recv()) # 36
-result.close()
+var worker = Goblin(square, 6)
+print(worker.wait()) # 36
 ~~~
+
+## Goblin handles
+
+Construction starts the function right away; there is no separate start step.
+Arguments after the function are forwarded to it.
+
+| Operation | Behavior |
+| --- | --- |
+| `Goblin(function, args...)` | Start the function in a new goroutine and return a handle |
+| `handle.wait()` | Block until the function finishes, then return its result |
+| `handle.wait(timeout = seconds)` | Same, but raise TimeoutError if the function is still running when the timeout expires |
+| `handle.done()` | Report whether the function has finished, without blocking |
+
+The outcome is computed once and cached, so `wait()` can be called any number
+of times — and from several places at once — with the same answer. An error
+raised inside the function is not printed anywhere; it is stored and re-raised
+by every `wait()` call, where the normal `try`/`catch` machinery applies:
+
+~~~goblin
+func fail() {
+    raise ValueError.wrap("bad input")
+}
+
+var failing = Goblin(fail)
+try {
+    failing.wait()
+} catch err {
+    print(err.is(ValueError)) # true
+}
+~~~
+
+A handle that is never waited on is abandoned: when the program ends, running
+goblins are stopped mid-flight, and a stored error nobody asked for is
+discarded silently. If a function's failure matters, `wait()` for it; if the
+result never matters, `spawn` is the honest way to say so (an uncaught error
+in a spawned function is at least reported on stderr).
+
+## Sharing data with a goblin
+
+Pass data into a goblin through its arguments, and out through its return
+value or a channel. Two goblins — or a goblin and the top-level program —
+reading and writing the same variable concurrently is a data race: no ordering
+is defined, and the compiled backend inherits Go's undefined behavior for
+races. Reading surrounding names that nothing writes concurrently (module
+imports, top-level functions, builtins) is safe.
 
 ## Channels
 
@@ -64,9 +109,11 @@ finishing in the order it was started.
 
 ## Returning errors explicitly
 
-An error raised inside a spawned function is not delivered to the caller.
-Catch it in the worker and send a result record instead when the caller needs
-to handle failures.
+`wait()` re-raises a goblin's error at the call site, which covers the common
+case of one job whose failure the caller handles. When workers stream results
+through a channel instead, an error raised inside a spawned function is not
+delivered to the caller. Catch it in the worker and send a result record when
+the caller needs to handle failures.
 
 ~~~goblin
 func load_number(text, result) {
@@ -104,7 +151,9 @@ print(messages.recv())
 messages.close()
 ~~~
 
-Goblin has no select operation, cancellation primitive, timeout receive, or
-automatic joining of spawned functions. Design each concurrent operation so
-every blocking send has a receiver, every expected result is received, and the
-owner can decide when it is safe to close its channel.
+Goblin has no select operation, no cancellation primitive, and no timeout on
+channel operations; `wait(timeout = seconds)` on a Goblin handle is the only
+time-bounded wait, and functions started with `spawn` cannot be joined at all.
+Design each concurrent operation so every blocking send has a receiver, every
+expected result is received, and the owner can decide when it is safe to close
+its channel.
