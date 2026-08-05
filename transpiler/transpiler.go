@@ -1446,7 +1446,11 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 		return nil, err
 	}
 
-	result := jen.Var().Id(fn.Name).Qual(pathObject, "Object").Op("=").Add(funcValue)
+	// Declare before assigning so the closure body can reference the
+	// function's own name for recursion (a combined `var f = ...` would keep
+	// f out of scope inside its own initializer under Go scoping rules).
+	result := jen.Var().Id(fn.Name).Qual(pathObject, "Object")
+	result.Op(";").Id(fn.Name).Op("=").Add(funcValue)
 	result.Op(";").Id("_").Op("=").Id(fn.Name)
 
 	return []jen.Code{result}, nil
