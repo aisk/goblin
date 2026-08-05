@@ -97,6 +97,9 @@ type transpileContext struct {
 	// directory (rootDir).
 	baseDir string
 	rootDir string
+	// userScopes tracks user-declared names per lexical scope so they shadow
+	// built-in functions the same way the interpreter's environment chain does.
+	userScopes []map[string]struct{}
 }
 
 func newTranspileContext() *transpileContext {
@@ -108,6 +111,29 @@ func newTranspileContext() *transpileContext {
 		moduleFuncs:      nil,
 		topDecls:         nil,
 	}
+}
+
+// pushUserScope opens a lexical scope for user-declared names and returns a
+// function closing it. User names shadow built-in functions, mirroring the
+// interpreter's scope-chain-first name resolution.
+func (ctx *transpileContext) pushUserScope() func() {
+	ctx.userScopes = append(ctx.userScopes, map[string]struct{}{})
+	return func() { ctx.userScopes = ctx.userScopes[:len(ctx.userScopes)-1] }
+}
+
+func (ctx *transpileContext) declareUserName(name string) {
+	if len(ctx.userScopes) > 0 {
+		ctx.userScopes[len(ctx.userScopes)-1][name] = struct{}{}
+	}
+}
+
+func (ctx *transpileContext) isUserName(name string) bool {
+	for _, scope := range ctx.userScopes {
+		if _, ok := scope[name]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // enterScope installs the type environment inferred for a function body and
@@ -770,7 +796,7 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 		if moduleVar, ok := ctx.moduleImports[v.Name]; ok {
 			return nil, jen.Id(moduleVar), nil
 		}
-		if isBuiltinFunction(v.Name) {
+		if !ctx.isUserName(v.Name) && isBuiltinFunction(v.Name) {
 			return nil, jen.Id("builtin").Dot("Members").Index(jen.Lit(v.Name)), nil
 		}
 		return nil, jen.Id(v.Name), nil
@@ -966,6 +992,7 @@ func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHand
 		if err != nil {
 			return nil, err
 		}
+		ctx.declareUserName(decl.Name)
 		declStmt := jen.Var().Id(decl.Name).Id(goTypeOf(t)).Op("=").Add(value)
 		declStmt.Op(";").Id("_").Op("=").Id(decl.Name)
 		return append(pre, declStmt), nil
@@ -975,6 +1002,7 @@ func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHand
 	if err != nil {
 		return nil, err
 	}
+	ctx.declareUserName(decl.Name)
 	declStmt := jen.Var().Id(decl.Name).Qual(pathObject, "Object").Op("=").Add(value)
 	declStmt.Op(";").Id("_").Op("=").Id(decl.Name)
 	return append(preStmts, declStmt), nil
@@ -1144,7 +1172,10 @@ func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]
 	if err != nil {
 		return nil, err
 	}
+	popScope := ctx.pushUserScope()
+	ctx.declareUserName(for_.Variable)
 	body, err := ctx.transpileStatements(for_.Body, onError, "")
+	popScope()
 	if err != nil {
 		return nil, err
 	}
@@ -1175,10 +1206,10 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 	}
 
 	var callee *jen.Statement
-	if isBuiltinFunction(call.Name) {
-		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
-	} else if mapped, ok := ctx.moduleImports[call.Name]; ok {
+	if mapped, ok := ctx.moduleImports[call.Name]; ok {
 		callee = jen.Id(mapped)
+	} else if !ctx.isUserName(call.Name) && isBuiltinFunction(call.Name) {
+		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
 	} else {
 		callee = jen.Id(call.Name)
 	}
@@ -1194,10 +1225,10 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
 		var callee *jen.Statement
-		if isBuiltinFunction(ident.Name) {
-			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
-		} else if mapped, ok := ctx.moduleImports[ident.Name]; ok {
+		if mapped, ok := ctx.moduleImports[ident.Name]; ok {
 			callee = jen.Id(mapped)
+		} else if !ctx.isUserName(ident.Name) && isBuiltinFunction(ident.Name) {
+			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
 		} else {
 			callee = jen.Id(ident.Name)
 		}
@@ -1409,6 +1440,10 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 	// Each function body gets its own inferred types; parameters stay boxed,
 	// since a caller can pass anything.
 	defer ctx.enterScope(body)()
+	defer ctx.pushUserScope()()
+	for _, param := range params {
+		ctx.declareUserName(param.Name)
+	}
 
 	callArgsName := ctx.localName("callArgs")
 
@@ -1441,6 +1476,9 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 }
 
 func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
+	// Declared before the body transpiles so the function can shadow a
+	// built-in even in recursive references to itself.
+	ctx.declareUserName(fn.Name)
 	funcValue, err := ctx.buildFunctionValue(fn.Name, fn.Position(), fn.Parameters, fn.Body)
 	if err != nil {
 		return nil, err
@@ -2322,10 +2360,16 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 	// A module's top level is a function body too — it becomes Execute() — so
 	// its locals are eligible for the same specialisation.
 	defer ctx.enterScope(stmts)()
+	defer ctx.pushUserScope()()
 
 	for _, stmt := range stmts {
-		if typeDef, ok := stmt.(*ast.TypeDefine); ok {
-			ctx.moduleImports[typeDef.Name] = typeDef.Name + "Constructor"
+		switch v := stmt.(type) {
+		case *ast.TypeDefine:
+			ctx.moduleImports[v.Name] = v.Name + "Constructor"
+		case *ast.FunctionDefine:
+			// Function names are hoisted (mirroring the interpreter), so they
+			// shadow built-ins for the whole module body.
+			ctx.declareUserName(v.Name)
 		}
 	}
 
@@ -2360,6 +2404,7 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 				if err != nil {
 					return nil, err
 				}
+				ctx.declareUserName(v.Name)
 				body = append(body, pre...)
 				body = append(body, jen.Id(v.Name).Op("=").Add(value))
 				continue
@@ -2370,6 +2415,7 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 			if err != nil {
 				return nil, err
 			}
+			ctx.declareUserName(v.Name)
 			body = append(body, preStmts...)
 			body = append(body, jen.Id(v.Name).Op("=").Add(value))
 		default:
@@ -2385,6 +2431,9 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 }
 
 func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
+	// Each statement list renders as a Go block, so names declared inside it
+	// must not shadow built-ins beyond the block's end.
+	defer ctx.pushUserScope()()
 	var result []jen.Code
 	for _, stmt := range stmts {
 		codes, err := ctx.transpileStatement(stmt, onError, exportsVar)

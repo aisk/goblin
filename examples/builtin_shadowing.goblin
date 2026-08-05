@@ -1,0 +1,31 @@
+# User-defined names shadow built-in functions, like in the interpreter's
+# environment chain: the innermost binding wins, and the built-in becomes
+# visible again once the shadowing scope ends.
+
+# A module-level variable shadows the built-in max().
+var max = 100
+print(max)
+
+# A function definition shadows the built-in min().
+func min(a, b) {
+    return "user min"
+}
+print(min(1, 2))
+
+# A parameter shadows a built-in inside the function body only.
+func f(spawn) {
+    return spawn
+}
+print(f(7))
+
+# A for-loop variable shadows a built-in inside the loop body only.
+for eprint in [1, 2] {
+    print(eprint)
+}
+
+# A block-scoped declaration stops shadowing after the block ends.
+if true {
+    var print = 5
+}
+print("print is a builtin again")
+print(range(0, 2))
