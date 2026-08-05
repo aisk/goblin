@@ -80,12 +80,15 @@ var buildExeCmd = &cobra.Command{
 			out = filepath.Join(cwd, out)
 		}
 
+		verbose, _ := cmd.Flags().GetBool("verbose")
 		goBuild := exec.Command("go", "build", "-mod=mod", "-o", out, ".")
 		goBuild.Dir = tmpDir
 		goBuild.Stdout = os.Stdout
 		goBuild.Stderr = os.Stderr
-		fmt.Fprintf(os.Stderr, "build dir: %s\n", tmpDir)
-		fmt.Fprintf(os.Stderr, "run: (cd %s && %s)\n", tmpDir, strings.Join(goBuild.Args, " "))
+		if verbose {
+			fmt.Fprintf(os.Stderr, "build dir: %s\n", tmpDir)
+			fmt.Fprintf(os.Stderr, "run: (cd %s && %s)\n", tmpDir, strings.Join(goBuild.Args, " "))
+		}
 		if err = goBuild.Run(); err != nil {
 			return fmt.Errorf("go build failed: %w", err)
 		}
@@ -358,6 +361,7 @@ func requireSourceFirst(args []string) error {
 
 func init() {
 	buildExeCmd.Flags().StringP("output", "o", "", "output binary path (default: <source_name> in current directory)")
+	buildExeCmd.Flags().BoolP("verbose", "v", false, "print the temporary build directory and go build command")
 	rootCmd.AddCommand(buildExeCmd)
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(replCmd)
