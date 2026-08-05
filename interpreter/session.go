@@ -17,9 +17,13 @@ import (
 // completion cannot trigger arbitrary Goblin execution.
 func (s *Session) CompletionCandidates(path []string) []string {
 	if len(path) == 0 {
-		names := make(map[string]struct{}, len(s.global.vars)+len(extension.BuiltinsModule.Members))
+		names := make(map[string]struct{}, len(extension.BuiltinsModule.Members))
 		for name := range extension.BuiltinsModule.Members {
 			names[name] = struct{}{}
+		}
+		if locked := object.InConcurrentMode(); locked {
+			envMu.RLock()
+			defer envMu.RUnlock()
 		}
 		for name := range s.global.vars {
 			names[name] = struct{}{}

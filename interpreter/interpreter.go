@@ -9,6 +9,7 @@ package interpreter
 import (
 	"fmt"
 	"path/filepath"
+	"sync"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
@@ -22,6 +23,14 @@ type Environment struct {
 	parent *Environment
 }
 
+// envMu guards every Environment's vars map once user code runs concurrently:
+// a goblin's function body resolves names (globals, builtins fallback) through
+// the same scope chain the main goroutine keeps defining into, and an unlocked
+// concurrent map write is an unrecoverable runtime fatal. Single-threaded
+// programs never take the lock — object.InConcurrentMode flips to true before
+// the first goroutine starts, so its check is a stable branch until then.
+var envMu sync.RWMutex
+
 // NewEnvironment creates a scope whose lookups fall back to parent.
 func NewEnvironment(parent *Environment) *Environment {
 	// vars is allocated on first Define. Most block scopes (loop bodies, if
@@ -32,6 +41,10 @@ func NewEnvironment(parent *Environment) *Environment {
 
 // Get resolves a name, walking up the scope chain.
 func (e *Environment) Get(name string) (object.Object, bool) {
+	if object.InConcurrentMode() {
+		envMu.RLock()
+		defer envMu.RUnlock()
+	}
 	for s := e; s != nil; s = s.parent {
 		if v, ok := s.vars[name]; ok {
 			return v, true
@@ -42,6 +55,14 @@ func (e *Environment) Get(name string) (object.Object, bool) {
 
 // Define binds a name in the current scope (used by `let`).
 func (e *Environment) Define(name string, v object.Object) {
+	if object.InConcurrentMode() {
+		envMu.Lock()
+		defer envMu.Unlock()
+	}
+	e.define(name, v)
+}
+
+func (e *Environment) define(name string, v object.Object) {
 	if e.vars == nil {
 		e.vars = make(map[string]object.Object)
 	}
@@ -51,13 +72,17 @@ func (e *Environment) Define(name string, v object.Object) {
 // Assign updates an existing binding in the chain, or defines it in the
 // current scope if it does not exist yet.
 func (e *Environment) Assign(name string, v object.Object) {
+	if object.InConcurrentMode() {
+		envMu.Lock()
+		defer envMu.Unlock()
+	}
 	for s := e; s != nil; s = s.parent {
 		if _, ok := s.vars[name]; ok {
 			s.vars[name] = v
 			return
 		}
 	}
-	e.Define(name, v)
+	e.define(name, v)
 }
 
 // Control-flow signals. They implement error so they can propagate up through

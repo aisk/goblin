@@ -1,0 +1,17 @@
+func square(value) {
+    return value * value
+}
+
+var worker = Goblin(square, 6)
+print(worker.wait()) # 36
+
+func fail() {
+    raise ValueError.wrap("bad input")
+}
+
+var failing = Goblin(fail)
+try {
+    failing.wait()
+} catch err {
+    print(err.is(ValueError)) # true
+}

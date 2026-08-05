@@ -14,6 +14,7 @@ operation succeeds only when its value types are compatible.
 | List | [1, "two"] | Ordered, mutable collection |
 | Dict | {"name": "Ada"} | Mutable key/value collection |
 | Chan | Chan(0) | Channel for concurrent functions |
+| Goblin | Goblin(func() {}) | Handle to a function running concurrently |
 | Function | func() {} | Callable value |
 
 Custom types are covered in [Types and methods](./types.md).
@@ -161,6 +162,26 @@ results.close()
 Close a channel only when no more values will be sent. Receiving from a closed,
 drained channel raises ValueError, rather than producing a special nil value.
 
+## Goblin handles
+
+Goblin(function, args...) starts the function in a new goroutine and returns a
+handle. wait() joins it: the function's result is returned, an error it raised
+is re-raised, and the outcome is cached across repeated calls. done() reports
+completion without blocking, and wait(timeout = seconds) raises TimeoutError
+when the function outlives the timeout.
+
+~~~goblin
+func square(value) {
+    return value * value
+}
+
+var worker = Goblin(square, 6)
+print(worker.wait()) # 36
+~~~
+
+See [Concurrency](./concurrency.md) for how handles, channels, and spawn fit
+together.
+
 ## Common operations
 
 | Type | Common constructors and operations |
@@ -172,6 +193,7 @@ drained channel raises ValueError, rather than producing a special nil value.
 | List | List(value), size(), push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |
 | Chan | Chan(size), send(value), recv(), close() |
+| Goblin | Goblin(function, args...), wait(), done() |
 | Function | Function(value), value(...) |
 
 Use value.attributes() in the REPL to inspect all operations provided by a
