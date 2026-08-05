@@ -113,6 +113,9 @@ func inspect(a, b, *rest, **kwargs) {
 var extra = {"y": 20}
 inspect(1, b=2, x=10, **extra)
 
+# Unpacking a dict literal directly
+inspect(1, b=2, x=10, **{"y": 30})
+
 # Keyword arguments to builtins and methods
 print(range(start=0, end=3))
 print("hello".contains(substr="ell"))

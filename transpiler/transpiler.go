@@ -950,7 +950,10 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 			errVar := ctx.localName("err")
 
 			allPreStmts = append(allPreStmts,
-				jen.Id(unpackObjVar).Op(":=").Add(argExpr),
+				// Declare as object.Object explicitly: argExpr may have a
+				// concrete type (e.g. *object.Dict from a dict literal), and
+				// type assertions are only valid on interface types.
+				jen.Var().Id(unpackObjVar).Qual(pathObject, "Object").Op("=").Add(argExpr),
 				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
 				jen.If(jen.Op("!").Id(okVar)).Block(
 					jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
