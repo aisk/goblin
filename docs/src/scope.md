@@ -52,3 +52,24 @@ Other names must be declared before use: local `var` declarations (and nested
 function definitions) are not available before their declaration. Keep
 declarations near the beginning of the block when that makes a function easier
 to read.
+
+## Shadowing built-in functions
+
+A user declaration may reuse a built-in function's name. The innermost binding
+wins, and the built-in becomes visible again once the shadowing scope ends:
+
+~~~goblin
+func min(a, b) {
+    return "user min"
+}
+print(min(1, 2)) # user min
+
+if true {
+    var max = 100
+    print(max)   # 100
+}
+print(max(1, 2)) # 2 — the built-in is back in scope
+~~~
+
+Go keywords such as `map` or `range` cannot be used as names at all; see
+[Syntax and call rules](./syntax.md#names).

@@ -15,8 +15,9 @@ These names are available without an import.
 | `spawn(function, args...)` | Run a function concurrently |
 | `Error(message)` | Create an error value |
 
-`range` needs both `start` and `end`; it has no one-argument form. `min` and
-`max` require at least one numeric argument. Constructors that use an
+`print` and `eprint` return `nil`. `range` needs both `start` and `end`; it
+has no one-argument form. `min` and `max` require at least one numeric
+argument. Constructors that use an
 argument parser, including `range`, numeric conversions, and `Dict`, accept
 their documented keyword names; `print`, `eprint`, and `spawn` are
 positional-only.

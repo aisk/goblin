@@ -19,6 +19,14 @@ List, dictionary, call, parameter, and field lists do not accept a trailing
 comma. Dictionary keys and values are expressions, but keys should be stable
 values such as strings, integers, or booleans.
 
+## Names
+
+Identifiers may not be Go keywords: names such as `map`, `range`, `select`,
+`struct`, `go`, or `defer` are reserved and rejected at check time, because
+compiled programs emit them as Go identifiers. Built-in function names like
+`print` or `max` are not reserved — see
+[Scope and declarations](./scope.md) for how user declarations shadow them.
+
 ## Functions and calls
 
 Function parameters are required unless they declare a default value with `=`

@@ -66,4 +66,8 @@ paths are resolved from the importing file, not from the shell's current
 directory. A local import's final path component becomes its module name, so
 `./modules/greeter` is available as `greeter`.
 
+A module is loaded once and cached; later imports of the same file reuse the
+loaded module. Two modules importing each other is a cycle, reported as
+`circular import detected`.
+
 The remaining chapters document each built-in module separately.
