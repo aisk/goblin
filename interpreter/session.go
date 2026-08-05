@@ -81,7 +81,14 @@ func NewSession(baseDir string) *Session {
 // Eval parses and evaluates a source fragment against the session's scope. If
 // the fragment's last statement is an expression, its value is returned (for
 // REPL display); otherwise it returns nil.
-func (s *Session) Eval(src string) (object.Object, error) {
+func (s *Session) Eval(src string) (result object.Object, err error) {
+	// Keep the REPL alive when a Go-side panic escapes the runtime.
+	defer func() {
+		if r := recover(); r != nil {
+			result, err = nil, object.NewInternalError("internal error: %v", r)
+		}
+	}()
+
 	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(src)))
 	if err != nil {
 		// The grammar only accepts identifier-led expression statements, so a
@@ -105,7 +112,6 @@ func (s *Session) Eval(src string) (object.Object, error) {
 		return nil, err
 	}
 
-	var result object.Object
 	for _, stmt := range mod.Body {
 		if expr, ok := stmt.(ast.Expression); ok {
 			v, err := evalExpr(expr, s.global)

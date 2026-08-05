@@ -305,7 +305,14 @@ var (
 	NetworkError    = NewSentinelError("NetworkError", IOError)
 
 	NotImplementedError = NewSentinelError("NotImplementedError", BaseError)
+	InternalError       = NewSentinelError("InternalError", BaseError)
 )
+
+// NewInternalError creates an InternalError-tagged error. It marks failures of
+// the runtime itself (recovered Go panics) rather than of the user's program.
+func NewInternalError(format string, a ...any) *Error {
+	return typedError(InternalError, format, a...)
+}
 
 // typedError builds an Error whose message is the formatted string and whose
 // cause is base, so the runtime's own failures are matchable with .is(base)

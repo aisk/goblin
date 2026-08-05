@@ -77,7 +77,15 @@ func (returnSignal) Error() string { return "return outside function" }
 // Run interprets a parsed module. sourcePath is the path of the source file,
 // used to resolve relative imports. scriptArgs are forwarded to os.argv() as
 // elements after sourcePath (index 0).
-func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) error {
+func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
+	// A Go-side panic in the runtime must not kill the process with a raw Go
+	// stack trace; surface it as an internal error instead.
+	defer func() {
+		if r := recover(); r != nil {
+			err = object.NewInternalError("internal error: %v", r)
+		}
+	}()
+
 	argv := make([]string, 1+len(scriptArgs))
 	argv[0] = sourcePath
 	copy(argv[1:], scriptArgs)
@@ -92,7 +100,7 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) error {
 		return err
 	}
 
-	err := evalStatements(mod.Body, global)
+	err = evalStatements(mod.Body, global)
 	if err != nil {
 		var pos token.Pos
 		if len(mod.Body) > 0 {

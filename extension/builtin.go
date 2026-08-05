@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -94,7 +95,20 @@ func spawn(args object.CallArgs) (object.Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	go fn.Call(object.CallArgs{Positional: rest})
+	go func() {
+		// A panic inside a goroutine would kill the whole process regardless
+		// of any recovery in main; contain it here. Errors are otherwise
+		// fire-and-forget, but leaving them fully silent makes failures
+		// undebuggable, so report both on stderr.
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Fprintf(os.Stderr, "internal error in spawned function: %v\n", r)
+			}
+		}()
+		if _, err := fn.Call(object.CallArgs{Positional: rest}); err != nil {
+			fmt.Fprintf(os.Stderr, "uncaught error in spawned function: %v\n", err)
+		}
+	}()
 	return object.Nil, nil
 }
 

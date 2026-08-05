@@ -522,14 +522,26 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	f.Func().Id("Execute").Params().Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
 	)).Block(body...)
-	f.Func().Id("main").Params().Block(
+	f.Func().Id("main").Params().Block(mainBody()...)
+	return f.Render(output)
+}
+
+// mainBody emits the generated main(): run Execute, print failures, and turn a
+// Go-side runtime panic into a clean internal error instead of a Go stack dump.
+func mainBody() []jen.Code {
+	return []jen.Code{
+		jen.Defer().Func().Params().Block(
+			jen.If(jen.Id("r").Op(":=").Recover(), jen.Id("r").Op("!=").Nil()).Block(
+				jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("internal error: %v\n"), jen.Id("r")),
+				jen.Qual("os", "Exit").Call(jen.Lit(1)),
+			),
+		).Call(),
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
 			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
 			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
-	)
-	return f.Render(output)
+	}
 }
 
 // transpilePathModule parses and transpiles a .goblin file at the given path,
@@ -2901,13 +2913,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	f.Func().Id("Execute").Params().Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
 	)).Block(body...)
-	f.Func().Id("main").Params().Block(
-		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
-		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
-			jen.Qual("os", "Exit").Call(jen.Lit(1)),
-		),
-	)
+	f.Func().Id("main").Params().Block(mainBody()...)
 
 	outFile := filepath.Join(ctx.outputDir, "main.go")
 	fh, err := os.Create(outFile)
