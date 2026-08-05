@@ -129,8 +129,8 @@ func TestSessionStatementsPersistAndReturnNil(t *testing.T) {
 }
 
 // A call that parses as a statement (identifier-led) goes through the normal
-// path and still yields its return value. print()/eprint() return nil, which
-// the REPL suppresses from display.
+// path and still yields its return value. print()/eprint() return the nil
+// object, which the REPL suppresses from display.
 func TestSessionCallStatement(t *testing.T) {
 	s := NewSession(".")
 	for _, expr := range []string{`print("hi")`, `eprint("hi")`} {
@@ -139,8 +139,8 @@ func TestSessionCallStatement(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Eval(%s) error: %v", expr, err)
 			}
-			if v != nil {
-				t.Errorf("%s returned %v, want nil", expr, v)
+			if v != object.Nil {
+				t.Errorf("%s returned %v, want object.Nil", expr, v)
 			}
 		})
 	}

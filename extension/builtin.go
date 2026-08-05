@@ -80,7 +80,7 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 	if _, err := io.WriteString(w, b.String()); err != nil {
 		return nil, object.WrapNativeError(object.IOError, name+"() failed", err)
 	}
-	return nil, nil
+	return object.Nil, nil
 }
 
 // spawn launches a goblin function in a new goroutine, passing any extra
