@@ -53,7 +53,6 @@ Statement
     | Declare
     | Assign
     | If
-    | IfElse
     | While
     | For
     | Break
@@ -80,53 +79,48 @@ Import
     : "import" string_lit  << ast.NewImport($1) >>
 ;
 
-ExpressionList
-    : Expression                             << ast.NewExpressionList($0) >>
-    | ExpressionList Expression              << ast.AppendExpressionList($0, $1) >>
-;
-
 Expression
-    : Expression1
+    : OrExpression
 ;
 
-Expression1
+OrExpression
     : AndExpression
-    | Expression1 "||" AndExpression         << ast.NewBinaryOperation($0, "||", $2) >>
+    | OrExpression "||" AndExpression        << ast.NewBinaryOperation($0, "||", $2) >>
 ;
 
 AndExpression
-    : Expression2
-    | AndExpression "&&" Expression2         << ast.NewBinaryOperation($0, "&&", $2) >>
+    : ComparisonExpression
+    | AndExpression "&&" ComparisonExpression << ast.NewBinaryOperation($0, "&&", $2) >>
 ;
 
-Expression2
-    : Expression3
-    | Expression2 "==" Expression3           << ast.NewBinaryOperation($0, "==", $2) >>
-    | Expression2 "!=" Expression3           << ast.NewBinaryOperation($0, "!=", $2) >>
-    | Expression2 "<=" Expression3           << ast.NewBinaryOperation($0, "<=", $2) >>
-    | Expression2 ">=" Expression3           << ast.NewBinaryOperation($0, ">=", $2) >>
-    | Expression2 "<" Expression3            << ast.NewBinaryOperation($0, "<", $2) >>
-    | Expression2 ">" Expression3            << ast.NewBinaryOperation($0, ">", $2) >>
+ComparisonExpression
+    : AdditiveExpression
+    | ComparisonExpression "==" AdditiveExpression << ast.NewBinaryOperation($0, "==", $2) >>
+    | ComparisonExpression "!=" AdditiveExpression << ast.NewBinaryOperation($0, "!=", $2) >>
+    | ComparisonExpression "<=" AdditiveExpression << ast.NewBinaryOperation($0, "<=", $2) >>
+    | ComparisonExpression ">=" AdditiveExpression << ast.NewBinaryOperation($0, ">=", $2) >>
+    | ComparisonExpression "<" AdditiveExpression  << ast.NewBinaryOperation($0, "<", $2) >>
+    | ComparisonExpression ">" AdditiveExpression  << ast.NewBinaryOperation($0, ">", $2) >>
 ;
 
-Expression3
-    : Expression4
-    | Expression3 "+" Expression4            << ast.NewBinaryOperation($0, "+", $2) >>
-    | Expression3 "-" Expression4            << ast.NewBinaryOperation($0, "-", $2) >>
+AdditiveExpression
+    : MultiplicativeExpression
+    | AdditiveExpression "+" MultiplicativeExpression << ast.NewBinaryOperation($0, "+", $2) >>
+    | AdditiveExpression "-" MultiplicativeExpression << ast.NewBinaryOperation($0, "-", $2) >>
 ;
 
-Expression4
-    : Expression5
-    | Expression4 "*" Expression5            << ast.NewBinaryOperation($0, "*", $2) >>
-    | Expression4 "/" Expression5            << ast.NewBinaryOperation($0, "/", $2) >>
-    | Expression4 "%" Expression5            << ast.NewBinaryOperation($0, "%", $2) >>
+MultiplicativeExpression
+    : UnaryExpression
+    | MultiplicativeExpression "*" UnaryExpression << ast.NewBinaryOperation($0, "*", $2) >>
+    | MultiplicativeExpression "/" UnaryExpression << ast.NewBinaryOperation($0, "/", $2) >>
+    | MultiplicativeExpression "%" UnaryExpression << ast.NewBinaryOperation($0, "%", $2) >>
 ;
 
-Expression5
+UnaryExpression
     : PostfixExpression
-    | "!" Expression5                        << ast.NewUnaryOperation("!", $1) >>
-    | "+" Expression5                        << ast.NewUnaryOperation("+", $1) >>
-    | "-" Expression5                        << ast.NewUnaryOperation("-", $1) >>
+    | "!" UnaryExpression                    << ast.NewUnaryOperation("!", $1) >>
+    | "+" UnaryExpression                    << ast.NewUnaryOperation("+", $1) >>
+    | "-" UnaryExpression                    << ast.NewUnaryOperation("-", $1) >>
 ;
 
 PostfixExpression
@@ -239,22 +233,14 @@ Block
     : "{" Statements "}"                     << $1, nil >>
 ;
 
-Condition
-    :  Expression
-;
-
 If
-    : "if" Condition Block                   << ast.NewIf($1, $2, nil) >>
-;
-
-IfElse
-    : "if" Condition Block "else" Block      << ast.NewIf($1, $2, $4) >>
-    | "if" Condition Block "else" If         << ast.NewIf($1, $2, $4) >>
-    | "if" Condition Block "else" IfElse     << ast.NewIf($1, $2, $4) >>
+    : "if" Expression Block                  << ast.NewIf($1, $2, nil) >>
+    | "if" Expression Block "else" Block     << ast.NewIf($1, $2, $4) >>
+    | "if" Expression Block "else" If        << ast.NewIf($1, $2, $4) >>
 ;
 
 While
-    : "while" Condition Block                << ast.NewWhile($1, $2) >>
+    : "while" Expression Block               << ast.NewWhile($1, $2) >>
 ;
 
 For
