@@ -35,8 +35,8 @@ print(path.Path(".").exists() == true)
 print(path.Path(".").is_dir() == true)
 print(path.Path("path.goblin").is_file() == true)
 print(path.Path("does-not-exist-xyz").exists() == false)
-print(path.Path(".").iterdir().size() > 0 == true)
-print(path.Path(".").glob("*.goblin").size() > 0 == true)
+print(path.Path(".").iterdir().size() > 0)
+print(path.Path(".").glob("*.goblin").size() > 0)
 
 # constructor identity
 print(p.constructor == path.Path)

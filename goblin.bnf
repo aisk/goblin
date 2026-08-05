@@ -21,11 +21,16 @@ _unicode_char
     | _unicode_byte
 ;
 
-_escaped_char : '\\' ( _unicode_char | '"' | '\\' ) ;
+_escaped_char : '\\' ( 'n' | 't' | 'r' | '"' | '\\' ) ;
 _char         : _unicode_char | _escaped_char ;
 
 string_lit : '"' { _char } '"' ;
 !whitespace : ' ' | '\t' | '\n' | '\r' ;
+
+// The trailing '\n' is required: gocc's generated lexer ends an ignored
+// token at its first accepting state, so acceptance must be deferred to the
+// end of the line. Comments at end-of-file work because source loading
+// (source package) appends a newline when the file lacks one.
 !comment : '#' {.} '\n' ;
 
 
@@ -66,13 +71,24 @@ Statement
     | Import
 ;
 
+// The root of an expression statement is deliberately narrower than
+// PrimaryExpression: statements must not start with "[" or "(" because,
+// with newlines treated as whitespace, they would be indistinguishable
+// from an index/call continuation of the previous statement.
+StatementRoot
+    : id                                     << ast.NewIdentifier($0) >>
+    | StringLiteral
+    | DictLiteral
+    | FunctionLiteral
+;
+
 ExpressionStatement
-    : id "[" Expression "]"                 << ast.NewIndexExpressionFromIdentifier($0, $2) >>
-    | id "(" Arguments ")"                  << ast.NewCallExpressionFromIdentifier($0, $2) >>
-    | id "." id                             << ast.NewMemberExpressionFromIdentifier($0, $2) >>
+    : StatementRoot "[" Expression "]"       << ast.NewIndexExpression($0, $2) >>
+    | StatementRoot "(" Arguments ")"        << ast.NewCallExpression($0, $2) >>
+    | StatementRoot "." id                   << ast.NewMemberExpression($0, $2) >>
     | ExpressionStatement "[" Expression "]" << ast.NewIndexExpression($0, $2) >>
-    | ExpressionStatement "(" Arguments ")" << ast.NewCallExpression($0, $2) >>
-    | ExpressionStatement "." id            << ast.NewMemberExpression($0, $2) >>
+    | ExpressionStatement "(" Arguments ")"  << ast.NewCallExpression($0, $2) >>
+    | ExpressionStatement "." id             << ast.NewMemberExpression($0, $2) >>
 ;
 
 Import
@@ -93,14 +109,16 @@ AndExpression
     | AndExpression "&&" ComparisonExpression << ast.NewBinaryOperation($0, "&&", $2) >>
 ;
 
+// Comparisons are non-associative: `a < b < c` is a parse error rather than
+// the surprising `(a < b) < c`. Use explicit parentheses to compare a result.
 ComparisonExpression
     : AdditiveExpression
-    | ComparisonExpression "==" AdditiveExpression << ast.NewBinaryOperation($0, "==", $2) >>
-    | ComparisonExpression "!=" AdditiveExpression << ast.NewBinaryOperation($0, "!=", $2) >>
-    | ComparisonExpression "<=" AdditiveExpression << ast.NewBinaryOperation($0, "<=", $2) >>
-    | ComparisonExpression ">=" AdditiveExpression << ast.NewBinaryOperation($0, ">=", $2) >>
-    | ComparisonExpression "<" AdditiveExpression  << ast.NewBinaryOperation($0, "<", $2) >>
-    | ComparisonExpression ">" AdditiveExpression  << ast.NewBinaryOperation($0, ">", $2) >>
+    | AdditiveExpression "==" AdditiveExpression << ast.NewBinaryOperation($0, "==", $2) >>
+    | AdditiveExpression "!=" AdditiveExpression << ast.NewBinaryOperation($0, "!=", $2) >>
+    | AdditiveExpression "<=" AdditiveExpression << ast.NewBinaryOperation($0, "<=", $2) >>
+    | AdditiveExpression ">=" AdditiveExpression << ast.NewBinaryOperation($0, ">=", $2) >>
+    | AdditiveExpression "<" AdditiveExpression  << ast.NewBinaryOperation($0, "<", $2) >>
+    | AdditiveExpression ">" AdditiveExpression  << ast.NewBinaryOperation($0, ">", $2) >>
 ;
 
 AdditiveExpression

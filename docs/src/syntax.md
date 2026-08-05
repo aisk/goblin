@@ -8,7 +8,7 @@ continue to the end of the line.
 
 Integer literals such as `42` and float literals such as `3.14` are decimal
 only. Strings use double quotes. They support `\n`, `\t`, `\r`, `\"`, and `\\`.
-An unrecognised escape drops its backslash and keeps the following character.
+Any other escape sequence is a syntax error.
 
 ~~~goblin
 var names = ["Ada", "Linus"]
@@ -18,6 +18,16 @@ var user = {"name": "Ada", "active": true}
 List, dictionary, call, parameter, and field lists do not accept a trailing
 comma. Dictionary keys and values are expressions, but keys should be stable
 values such as strings, integers, or booleans.
+
+## Expression statements
+
+A call, index, or member-access chain can stand alone as a statement when it
+starts from a name, a string literal, a dictionary literal, or a function
+literal — `user.save()`, `"a,b".split(",")`, and `func() { ... }()` are all
+valid statements. A statement cannot start with `[` or `(`: because newlines
+are not statement terminators, such a line would be indistinguishable from an
+index or call continuation of the previous statement. Bind the value with
+`var` first instead.
 
 ## Names
 

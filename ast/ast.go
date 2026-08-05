@@ -191,30 +191,6 @@ func NewIdentifier(x any) (any, error) {
 	}, nil
 }
 
-func NewIndexExpressionFromIdentifier(id, idx any) (any, error) {
-	identifier, err := NewIdentifier(id)
-	if err != nil {
-		return nil, err
-	}
-	return NewIndexExpression(identifier, idx)
-}
-
-func NewCallExpressionFromIdentifier(id, args any) (any, error) {
-	identifier, err := NewIdentifier(id)
-	if err != nil {
-		return nil, err
-	}
-	return NewCallExpression(identifier, args)
-}
-
-func NewMemberExpressionFromIdentifier(id, prop any) (any, error) {
-	identifier, err := NewIdentifier(id)
-	if err != nil {
-		return nil, err
-	}
-	return NewMemberExpression(identifier, prop)
-}
-
 type Assign struct {
 	statementMixin
 	Target string
@@ -400,9 +376,9 @@ func NewStringLiteral(x any) (any, error) {
 }
 
 // unescapeString interprets backslash escape sequences in a string literal's
-// raw body (quotes already stripped). The lexer accepts the escapes but keeps
-// them verbatim, so we resolve them here. Unknown escapes drop the backslash
-// and keep the following character literally.
+// raw body (quotes already stripped). The lexer only accepts \n, \t, \r, \"
+// and \\ (anything else is a lex error) but keeps the sequences verbatim, so
+// we resolve them here.
 func unescapeString(s string) string {
 	if !strings.Contains(s, "\\") {
 		return s

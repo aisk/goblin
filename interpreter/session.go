@@ -6,7 +6,7 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 )
@@ -93,7 +93,7 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 		}
 	}()
 
-	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(src)))
+	st, err := parser.NewParser().Parse(source.NewLexer([]byte(src)))
 	if err != nil {
 		// The grammar only accepts identifier-led expression statements, so a
 		// fragment like `1 + 2` fails to parse as a statement. Retry it as a
@@ -141,7 +141,7 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 // variable). The parsed return value reports whether the wrapped form parsed;
 // when false, callers should surface the original error instead.
 func (s *Session) evalAsExpression(src string) (value object.Object, evalErr error, parsed bool) {
-	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte("return " + src)))
+	st, err := parser.NewParser().Parse(source.NewLexer([]byte("return " + src)))
 	if err != nil {
 		return nil, nil, false
 	}

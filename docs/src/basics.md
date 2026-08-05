@@ -38,7 +38,10 @@ Comparison operators are `==`, `!=`, `<`, `<=`, `>`, and `>=`; each produces a
 boolean. Equality is total across types: values of unrelated types are simply
 unequal, so `x == nil` is always a safe test, and lists and dictionaries
 compare element by element. Ordering comparisons (`<`, `<=`, `>`, `>=`) raise
-TypeError when the operands cannot be ordered. Logical operators are `!`, `&&`, and `||`.
+TypeError when the operands cannot be ordered. Comparisons do not chain:
+`a < b < c` is a syntax error rather than the surprising `(a < b) < c`, so
+write `a < b && b < c`, or parenthesize explicitly when you really mean to
+compare a boolean result. Logical operators are `!`, `&&`, and `||`.
 `&&` and `||` short-circuit, so their right-hand side is evaluated only when
 needed.
 

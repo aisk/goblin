@@ -16,7 +16,7 @@ import (
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
 	urlExt "github.com/aisk/goblin/extension/url"
-	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
@@ -120,7 +120,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv [
 // loadModuleFile interprets a Goblin source file as a module and returns its
 // exported members.
 func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Object, error) {
-	l, err := lexer.NewLexerFile(path)
+	l, err := source.NewLexerFile(path)
 	if err != nil {
 		return nil, object.NewImportError("failed to read module %s: %v", path, err)
 	}

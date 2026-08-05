@@ -1,0 +1,9 @@
+# Expression statements can start from a name, string, dict, or func literal.
+"side".size()
+{"k": 1}.get("k")
+func() {
+    print("iife ran")
+}()
+var parts = "a,b,c".split(",")
+print(parts.size())
+# trailing comment without a newline

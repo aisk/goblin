@@ -10,7 +10,7 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
@@ -569,7 +569,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	ctx.baseDir = filepath.Dir(absPath)
 	defer func() { ctx.baseDir = savedBaseDir }()
 
-	l, err := lexer.NewLexerFile(absPath)
+	l, err := source.NewLexerFile(absPath)
 	if err != nil {
 		return fmt.Errorf("failed to read module %s: %v", importPath, err)
 	}
@@ -2624,7 +2624,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	ctx.baseDir = filepath.Dir(absPath)
 	defer func() { ctx.baseDir = savedBaseDir }()
 
-	l, err := lexer.NewLexerFile(absPath)
+	l, err := source.NewLexerFile(absPath)
 	if err != nil {
 		return fmt.Errorf("failed to read module %s: %v", importPath, err)
 	}

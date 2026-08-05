@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/transpiler"
@@ -47,7 +47,7 @@ func TestExamples(t *testing.T) {
 func parseAndTranspile(t *testing.T, goblinFile string) string {
 	t.Helper()
 
-	l, err := lexer.NewLexerFile(goblinFile)
+	l, err := source.NewLexerFile(goblinFile)
 	if err != nil {
 		t.Fatalf("failed to read file: %v", err)
 	}
