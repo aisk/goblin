@@ -93,7 +93,7 @@ func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 			fields[f.Name] = dv
 			continue
 		}
-		return nil, object.NewTypeError("%s() missing required argument: '%s'", t.name, f.Name)
+		return nil, object.NewTypeError("%s() missing required positional argument: '%s'", t.name, f.Name)
 	}
 
 	return &instance{typ: t, fields: fields}, nil
