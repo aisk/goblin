@@ -81,7 +81,13 @@ var buildExeCmd = &cobra.Command{
 		}
 
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		goBuild := exec.Command("go", "build", "-mod=mod", "-o", out, ".")
+		race, _ := cmd.Flags().GetBool("race")
+		buildArgs := []string{"build", "-mod=mod"}
+		if race {
+			buildArgs = append(buildArgs, "-race")
+		}
+		buildArgs = append(buildArgs, "-o", out, ".")
+		goBuild := exec.Command("go", buildArgs...)
 		goBuild.Dir = tmpDir
 		goBuild.Stdout = os.Stdout
 		goBuild.Stderr = os.Stderr
@@ -362,6 +368,7 @@ func requireSourceFirst(args []string) error {
 func init() {
 	buildExeCmd.Flags().StringP("output", "o", "", "output binary path (default: <source_name> in current directory)")
 	buildExeCmd.Flags().BoolP("verbose", "v", false, "print the temporary build directory and go build command")
+	buildExeCmd.Flags().Bool("race", false, "build with the Go race detector enabled")
 	rootCmd.AddCommand(buildExeCmd)
 	rootCmd.AddCommand(runCmd)
 	rootCmd.AddCommand(replCmd)
