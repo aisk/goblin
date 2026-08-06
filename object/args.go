@@ -19,6 +19,40 @@ func (c CallArgs) keywordOrEmpty() Kwargs {
 	return c.Keyword
 }
 
+// AddKeyword records one keyword argument, rejecting a name that was already
+// supplied. Both backends build keyword arguments through this so duplicate
+// detection behaves identically.
+func (c *CallArgs) AddKeyword(name string, value Object) error {
+	if _, exists := c.Keyword[name]; exists {
+		return NewTypeError("got multiple values for argument '%s'", name)
+	}
+	if c.Keyword == nil {
+		c.Keyword = Kwargs{}
+	}
+	c.Keyword[name] = value
+	return nil
+}
+
+// UnpackKeywords merges a **-unpacked value into the keyword arguments. The
+// value must be a dict with string keys; a name that was already supplied is
+// rejected like any other duplicate keyword.
+func (c *CallArgs) UnpackKeywords(v Object) error {
+	d, ok := v.(*Dict)
+	if !ok {
+		return NewTypeError("argument after ** must be a dict, got %s", v.TypeName())
+	}
+	for _, entry := range d.Entries() {
+		key, ok := entry.Key.(String)
+		if !ok {
+			return NewTypeError("keyword argument name must be a string, got %s", entry.Key.TypeName())
+		}
+		if err := c.AddKeyword(string(key), entry.Value); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Scope is anything argument binding can write bindings into, letting callers
 // skip the intermediate map that BindArguments returns.
 type Scope interface {

@@ -897,12 +897,9 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		return preStmts, callArgs, nil
 	}
 
-	positionalVar := ctx.localName("positional")
-	keywordVar := ctx.localName("keyword")
 	callArgsVar := ctx.localName("callArgs")
 	allPreStmts := []jen.Code{
-		jen.Id(positionalVar).Op(":=").Qual(pathObject, "Args").Values(),
-		jen.Id(keywordVar).Op(":=").Qual(pathObject, "Kwargs").Values(),
+		jen.Id(callArgsVar).Op(":=").Qual(pathObject, "CallArgs").Values(),
 	}
 
 	for _, arg := range args {
@@ -915,7 +912,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		switch arg.Kind {
 		case ast.CallArgumentPositional:
 			allPreStmts = append(allPreStmts,
-				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), argExpr),
+				jen.Id(callArgsVar).Dot("Positional").Op("=").Append(jen.Id(callArgsVar).Dot("Positional"), argExpr),
 			)
 		case ast.CallArgumentStarred:
 			iterVar := ctx.localName("iter")
@@ -923,75 +920,30 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 			allPreStmts = append(allPreStmts,
 				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-				jen.Id(positionalVar).Op("=").Append(jen.Id(positionalVar), jen.Id(iterVar).Op("...")),
+				jen.Id(callArgsVar).Dot("Positional").Op("=").Append(jen.Id(callArgsVar).Dot("Positional"), jen.Id(iterVar).Op("...")),
 			)
 		case ast.CallArgumentKeyword:
-			okVar := ctx.localName("ok")
+			// Duplicate detection lives in AddKeyword, shared with the
+			// interpreter.
 			errVar := ctx.localName("err")
 			allPreStmts = append(allPreStmts,
-				jen.List(jen.Id("_"), jen.Id(okVar)).Op(":=").Id(keywordVar).Index(jen.Lit(arg.Name)),
-				jen.If(jen.Id(okVar)).Block(
-					jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-						jen.Lit("got multiple values for argument '%s'"),
-						jen.Lit(arg.Name),
-					),
-					onError(errVar),
-				),
-				jen.Id(keywordVar).Index(jen.Lit(arg.Name)).Op("=").Add(argExpr),
+				jen.If(
+					jen.Id(errVar).Op(":=").Id(callArgsVar).Dot("AddKeyword").Call(jen.Lit(arg.Name), argExpr),
+					jen.Id(errVar).Op("!=").Nil(),
+				).Block(onError(errVar)),
 			)
 		case ast.CallArgumentKeywordUnpack:
-			unpackObjVar := ctx.localName("unpackObj")
-			dictVar := ctx.localName("dict")
-			okVar := ctx.localName("ok")
-			entryVar := ctx.localName("entry")
-			keyVar := ctx.localName("key")
-			keyObjVar := ctx.localName("keyObj")
-			existsVar := ctx.localName("exists")
+			// Dict/key validation and duplicate detection live in
+			// UnpackKeywords, shared with the interpreter.
 			errVar := ctx.localName("err")
-
 			allPreStmts = append(allPreStmts,
-				// Declare as object.Object explicitly: argExpr may have a
-				// concrete type (e.g. *object.Dict from a dict literal), and
-				// type assertions are only valid on interface types.
-				jen.Var().Id(unpackObjVar).Qual(pathObject, "Object").Op("=").Add(argExpr),
-				jen.List(jen.Id(dictVar), jen.Id(okVar)).Op(":=").Id(unpackObjVar).Assert(jen.Op("*").Qual(pathObject, "Dict")),
-				jen.If(jen.Op("!").Id(okVar)).Block(
-					jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
-						jen.Lit("argument after ** must be a dict, got %s"),
-						jen.Id(unpackObjVar).Dot("TypeName").Call(),
-					),
-					onError(errVar),
-				),
-				jen.For(jen.List(jen.Id("_"), jen.Id(entryVar)).Op(":=").Op("range").Id(dictVar).Dot("Entries").Call()).Block(
-					jen.Id(keyObjVar).Op(":=").Id(entryVar).Dot("Key"),
-					jen.List(jen.Id(keyVar), jen.Id(okVar)).Op(":=").Id(keyObjVar).Assert(jen.Qual(pathObject, "String")),
-					jen.If(jen.Op("!").Id(okVar)).Block(
-						jen.Id(errVar).Op(":=").Qual(pathObject, "NewTypeError").Call(
-							jen.Lit("keyword argument name must be a string, got %s"),
-							jen.Id(keyObjVar).Dot("TypeName").Call(),
-						),
-						onError(errVar),
-					),
-					jen.List(jen.Id("_"), jen.Id(existsVar)).Op(":=").Id(keywordVar).Index(jen.String().Call(jen.Id(keyVar))),
-					jen.If(jen.Id(existsVar)).Block(
-						jen.Id(errVar).Op(":=").Qual("fmt", "Errorf").Call(
-							jen.Lit("got multiple values for argument '%s'"),
-							jen.Id(keyVar),
-						),
-						onError(errVar),
-					),
-					jen.Id(keywordVar).Index(jen.String().Call(jen.Id(keyVar))).Op("=").Id(entryVar).Dot("Value"),
-				),
+				jen.If(
+					jen.Id(errVar).Op(":=").Id(callArgsVar).Dot("UnpackKeywords").Call(argExpr),
+					jen.Id(errVar).Op("!=").Nil(),
+				).Block(onError(errVar)),
 			)
 		}
 	}
-
-	allPreStmts = append(allPreStmts,
-		jen.Id(callArgsVar).Op(":=").Qual(pathObject, "CallArgs").Values(jen.Dict{
-			jen.Id("Positional"): jen.Id(positionalVar),
-			jen.Id("Keyword"):    jen.Id(keywordVar),
-		}),
-	)
 
 	return allPreStmts, jen.Id(callArgsVar), nil
 }

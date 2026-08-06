@@ -108,6 +108,11 @@ var values = [1, 2, 3]
 print(add3(*values))
 ```
 
+A `**`-expanded value must be a dictionary with string keys, and each keyword
+name may only be supplied once per call: naming an argument twice — whether by
+two explicit keywords, two `**` dictionaries that share a key, or one of each —
+raises a TypeError.
+
 ## Recursion and callbacks
 
 A named function can call itself. Functions also work naturally as callbacks

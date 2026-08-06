@@ -551,20 +551,12 @@ func evalArgs(args []ast.CallArgument, env *Environment) (object.CallArgs, error
 			}
 			call.Positional = append(call.Positional, items...)
 		case ast.CallArgumentKeyword:
-			if call.Keyword == nil {
-				call.Keyword = object.Kwargs{}
+			if err := call.AddKeyword(arg.Name, v); err != nil {
+				return call, err
 			}
-			call.Keyword[arg.Name] = v
 		case ast.CallArgumentKeywordUnpack:
-			d, ok := v.(*object.Dict)
-			if !ok {
-				return call, object.NewTypeError("argument after ** must be a dict, got %s", v.TypeName())
-			}
-			if call.Keyword == nil {
-				call.Keyword = object.Kwargs{}
-			}
-			for _, entry := range d.Entries() {
-				call.Keyword[fmt.Sprint(entry.Key)] = entry.Value
+			if err := call.UnpackKeywords(v); err != nil {
+				return call, err
 			}
 		default:
 			return call, fmt.Errorf("interpreter: unsupported call argument kind %v", arg.Kind)

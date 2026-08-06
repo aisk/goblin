@@ -1,0 +1,31 @@
+# **-unpacking merges a dict into the call's keyword arguments. Keys must be
+# strings, and a name that was already supplied is rejected — the same
+# TypeError in both backends, catchable like any other error.
+func show(**kwargs) {
+    print(kwargs)
+}
+
+var defaults = {"color": "red", "size": 3}
+show(**defaults, weight = 10)
+
+# Explicit keyword first, then ** supplies the same name again.
+try {
+    show(color = "blue", **defaults)
+} catch e {
+    print(e.is(TypeError))
+    print(e.message)
+}
+
+# Two ** dicts that share a key collide the same way.
+try {
+    show(**defaults, **{"size": 4})
+} catch e {
+    print(e.message)
+}
+
+# Keyword names must be strings.
+try {
+    show(**{1: "x"})
+} catch e {
+    print(e.message)
+}

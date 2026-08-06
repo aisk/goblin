@@ -1,0 +1,5 @@
+{"color": "red", "size": 3, "weight": 10}
+true
+got multiple values for argument 'color'
+got multiple values for argument 'size'
+keyword argument name must be a string, got Integer
