@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
 	"runtime/debug"
 	"strings"
 
@@ -73,6 +74,18 @@ var knownModules = map[string]moduleInfo{
 	"netip":           {executorPath: pathExtension + "/netip", varName: "netip_module", executorFunc: "Execute"},
 	"utf8":            {executorPath: pathExtension, varName: "utf8_module", executorFunc: "ExecuteUTF8"},
 	"unicode":         {executorPath: pathExtension, varName: "unicode_module", executorFunc: "ExecuteUnicode"},
+}
+
+// KnownModuleNames lists the stdlib modules the transpiler can import, sorted.
+// It is exported so tests can assert the interpreter's builtinModules table
+// stays in sync with this one.
+func KnownModuleNames() []string {
+	names := make([]string, 0, len(knownModules))
+	for name := range knownModules {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
 }
 
 // transpileContext holds state for a single Transpile call.
