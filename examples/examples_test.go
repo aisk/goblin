@@ -43,6 +43,30 @@ func TestExamples(t *testing.T) {
 	}
 }
 
+// raceExamples are the concurrency examples whose transpiled form is also run
+// under the Go race detector, guarding the channel-coordination patterns the
+// book recommends.
+var raceExamples = []string{"chan", "goblin", "shared_counter", "spawn"}
+
+func TestExamplesRace(t *testing.T) {
+	examplesDir := filepath.Join("..", "examples")
+
+	tempDir, err := os.MkdirTemp("", "goblin-race-test-")
+	if err != nil {
+		t.Fatalf("failed to create temp directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	for _, baseName := range raceExamples {
+		t.Run(baseName, func(t *testing.T) {
+			goCode := parseAndTranspile(t, filepath.Join(examplesDir, baseName+".goblin"))
+			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode, "-race")
+			checkOutput(t, examplesDir, baseName, ".stdout", stdout, true)
+			checkOutput(t, examplesDir, baseName, ".stderr", stderr, false)
+		})
+	}
+}
+
 // parseAndTranspile reads a .goblin file, parses and transpiles it to Go code.
 func parseAndTranspile(t *testing.T, goblinFile string) string {
 	t.Helper()
@@ -73,8 +97,9 @@ func parseAndTranspile(t *testing.T, goblinFile string) string {
 	return buf.String()
 }
 
-// writeAndRun writes Go code to a temp file and executes it, returning stdout and stderr.
-func writeAndRun(t *testing.T, tempDir, baseName, goCode string) (string, string) {
+// writeAndRun writes Go code to a temp file and executes it, returning stdout
+// and stderr. Extra buildFlags (such as -race) are passed to go run.
+func writeAndRun(t *testing.T, tempDir, baseName, goCode string, buildFlags ...string) (string, string) {
 	t.Helper()
 
 	goFile := filepath.Join(tempDir, baseName+".go")
@@ -82,7 +107,9 @@ func writeAndRun(t *testing.T, tempDir, baseName, goCode string) (string, string
 		t.Fatalf("failed to write Go file: %v", err)
 	}
 
-	cmd := exec.Command("go", "run", goFile)
+	args := append([]string{"run"}, buildFlags...)
+	args = append(args, goFile)
+	cmd := exec.Command("go", args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr

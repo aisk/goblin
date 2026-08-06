@@ -1,0 +1,28 @@
+# Shared state without locks: lists and dicts are not synchronized, so
+# concurrent writers must never mutate one directly. Instead a single owner
+# holds the state and everyone else talks to it over a channel.
+
+func worker(updates, amount, times) {
+    for ignored in range(0, times) {
+        updates.send(amount)
+    }
+}
+
+# The owner is the only code that touches `total`.
+func owner(updates, expected, result) {
+    var total = 0
+    for ignored in range(0, expected) {
+        total = total + updates.recv()
+    }
+    result.send(total)
+}
+
+var updates = Chan()
+var result = Chan()
+spawn(owner, updates, 200, result)
+spawn(worker, updates, 1, 100)
+spawn(worker, updates, 2, 100)
+
+print(result.recv())
+updates.close()
+result.close()
