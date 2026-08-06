@@ -131,6 +131,7 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 		if len(mod.Body) > 0 {
 			pos = mod.Body[0].Position()
 		}
+		err, pos = takePosition(err, pos)
 		return object.WithFrame(err, stackFrame(moduleName(sourcePath), "<module>", pos))
 	}
 	return nil
@@ -139,7 +140,7 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 func evalStatements(stmts []ast.Statement, env *Environment) error {
 	for _, stmt := range stmts {
 		if err := evalStatement(stmt, env); err != nil {
-			return err
+			return positionError(err, stmt.Position())
 		}
 	}
 	return nil
@@ -295,6 +296,7 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		case breakSignal, continueSignal, returnSignal:
 			return err
 		}
+		err, _ = takePosition(err, token.Pos{})
 		catchEnv := NewEnvironment(env)
 		catchEnv.Define(s.CatchVar, object.ErrorValue(err))
 		return evalBlock(s.CatchBody, catchEnv)
@@ -612,7 +614,10 @@ func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast
 				return rs.value, nil
 			}
 			if err != nil {
-				return nil, object.WithFrame(err, frame)
+				// The frame points at the failing statement inside the
+				// function; the definition position is only a fallback.
+				inner, errPos := takePosition(err, pos)
+				return nil, object.WithFrame(inner, stackFrame(module, name, errPos))
 			}
 			return object.Nil, nil
 		},

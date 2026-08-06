@@ -145,6 +145,7 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 		if len(mod.Body) > 0 {
 			pos = mod.Body[0].Position()
 		}
+		err, pos = takePosition(err, pos)
 		return nil, object.WithFrame(err, stackFrame(moduleName(path), "<module>", pos))
 	}
 

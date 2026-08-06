@@ -46,4 +46,12 @@ func TestRunReturnsGoblinTraceback(t *testing.T) {
 	if !strings.Contains(trace, path) || !strings.Contains(trace, "division by zero") {
 		t.Fatalf("traceback lacks source or cause:\n%s", trace)
 	}
+	// Frames point at the failing statement in each function, not at the
+	// function definitions: outer() on line 7, return inner() on line 5,
+	// return 1 / 0 on line 2.
+	for _, want := range []string{".goblin:7:", ".goblin:5:", ".goblin:2:"} {
+		if !strings.Contains(trace, want) {
+			t.Fatalf("traceback lacks statement position %q:\n%s", want, trace)
+		}
+	}
 }

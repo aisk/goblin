@@ -113,6 +113,21 @@ type transpileContext struct {
 	// userScopes tracks user-declared names per lexical scope so they shadow
 	// built-in functions the same way the interpreter's environment chain does.
 	userScopes []map[string]struct{}
+
+	// errorPos is the position of the statement currently being transpiled.
+	// Frame-producing error handlers read it so tracebacks point at the
+	// failing statement, mirroring the interpreter's positionError tagging.
+	errorPos token.Pos
+}
+
+// framePos returns the position traceback frames should carry: the current
+// statement when one is being transpiled, fallback (typically the enclosing
+// definition) otherwise.
+func (ctx *transpileContext) framePos(fallback token.Pos) token.Pos {
+	if ctx.errorPos.Line != 0 {
+		return ctx.errorPos
+	}
+	return fallback
 }
 
 func newTranspileContext() *transpileContext {
@@ -474,7 +489,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -638,7 +653,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -1438,11 +1453,17 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 
 	callArgsName := ctx.localName("callArgs")
 
+	module := sourceModuleName(pos)
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(pos), name, pos)
+		return tracedReturn(errVar, module, name, ctx.framePos(pos))
 	}
 
+	// Binding errors point at the definition, like the interpreter's frame
+	// for BindArgumentsInto failures.
+	savedPos := ctx.errorPos
+	ctx.errorPos = pos
 	argsDefine := ctx.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)
+	ctx.errorPos = savedPos
 	if defaultsDecl != nil {
 		argsDefine = append([]jen.Code{defaultsDecl}, argsDefine...)
 	}
@@ -1849,9 +1870,13 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		wrapperName := methodWrapperName(method.Name)
 
 		callArgsName := ctx.localName("callArgs")
+		methodModule := sourceModuleName(method.Position())
+		qualifiedName := typeDef.Name + "." + method.Name
 		fnOnError := func(errVar string) jen.Code {
-			return tracedReturn(errVar, sourceModuleName(method.Position()), typeDef.Name+"."+method.Name, method.Position())
+			return tracedReturn(errVar, methodModule, qualifiedName, ctx.framePos(method.Position()))
 		}
+		savedPos := ctx.errorPos
+		ctx.errorPos = method.Position()
 
 		bodyPrefix := []jen.Code{
 			jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
@@ -1873,6 +1898,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		)
 
 		methodBody, err := ctx.transpileStatements(method.Body, fnOnError, "")
+		ctx.errorPos = savedPos
 		if err != nil {
 			return nil, err
 		}
@@ -2383,7 +2409,10 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 		decl.Op(";").Id("_").Op("=").Id(name)
 		decls = append(decls, decl)
 	}
+	savedPos := ctx.errorPos
+	defer func() { ctx.errorPos = savedPos }()
 	for _, stmt := range stmts {
+		ctx.errorPos = stmt.Position()
 		switch v := stmt.(type) {
 		case *ast.FunctionDefine:
 			declare(v.Name)
@@ -2440,7 +2469,10 @@ func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError 
 	defer ctx.pushUserScope()()
 	var result []jen.Code
 	for _, stmt := range stmts {
+		saved := ctx.errorPos
+		ctx.errorPos = stmt.Position()
 		codes, err := ctx.transpileStatement(stmt, onError, exportsVar)
+		ctx.errorPos = saved
 		if err != nil {
 			return nil, err
 		}
@@ -2679,7 +2711,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -2825,7 +2857,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)

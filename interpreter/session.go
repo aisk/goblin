@@ -125,7 +125,8 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 			result = v
 		} else {
 			if err := evalStatement(stmt, s.global); err != nil {
-				return nil, object.WithFrame(err, stackFrame("repl", "<module>", stmt.Position()))
+				inner, pos := takePosition(err, stmt.Position())
+				return nil, object.WithFrame(inner, stackFrame("repl", "<module>", pos))
 			}
 			result = nil
 		}
