@@ -29,3 +29,10 @@ if true {
 }
 print("print is a builtin again")
 print(range(0, 2))
+
+# A catch variable shadows a built-in inside the catch body only.
+try {
+    raise ValueError.wrap("boom")
+} catch spawn {
+    print(spawn.message)
+}

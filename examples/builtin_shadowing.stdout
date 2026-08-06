@@ -5,3 +5,4 @@ user min
 2
 print is a builtin again
 [0, 1]
+boom: ValueError

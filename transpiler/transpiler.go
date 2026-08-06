@@ -2048,7 +2048,13 @@ func (ctx *transpileContext) transpileTryCatch(tc *ast.TryCatch, onError errHand
 	if err != nil {
 		return nil, err
 	}
+	// The catch variable lives in its own scope covering the catch body, and
+	// shadows builtins there like any user name (the interpreter defines it in
+	// a child environment).
+	popCatchScope := ctx.pushUserScope()
+	ctx.declareUserName(tc.CatchVar)
 	catchBody, err := ctx.transpileStatements(tc.CatchBody, onError, "")
+	popCatchScope()
 	if err != nil {
 		return nil, err
 	}
