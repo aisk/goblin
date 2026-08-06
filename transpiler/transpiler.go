@@ -2187,9 +2187,9 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 	case "!":
 		call = operand.Dot("Not").Call()
 	case "+":
-		call = jen.Qual(pathObject, "Integer").Call(jen.Lit(0)).Dot("Add").Call(operand)
+		call = jen.Qual(pathObject, "Positive").Call(operand)
 	case "-":
-		call = jen.Qual(pathObject, "Integer").Call(jen.Lit(0)).Dot("Minus").Call(operand)
+		call = jen.Qual(pathObject, "Negate").Call(operand)
 	default:
 		return nil, nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
 	}

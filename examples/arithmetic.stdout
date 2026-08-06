@@ -48,3 +48,9 @@ true
 2.5
 1
 0
+-7
+7
+-2.5
+-12
+cannot negate Bool
+cannot apply unary + to String

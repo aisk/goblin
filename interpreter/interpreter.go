@@ -519,16 +519,9 @@ func evalUnary(e *ast.UnaryOperation, env *Environment) (object.Object, error) {
 	case ast.Not:
 		return operand.Not()
 	case ast.Add:
-		return operand, nil
+		return object.Positive(operand)
 	case ast.Minus:
-		switch v := operand.(type) {
-		case object.Integer:
-			return object.Integer(-int64(v)), nil
-		case object.Float:
-			return object.Float(-float64(v)), nil
-		default:
-			return nil, object.NewTypeError("cannot negate %s", operand.TypeName())
-		}
+		return object.Negate(operand)
 	default:
 		return nil, fmt.Errorf("interpreter: unknown unary operator %q", e.Operator)
 	}

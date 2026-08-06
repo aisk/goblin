@@ -99,3 +99,24 @@ func Modulo(a, b Object) (Object, error) {
 	}
 	return nil, err
 }
+
+// Positive and Negate are the entry points both backends use for the unary
+// + and - operators. Only numbers have them: + returns the operand unchanged
+// and - flips its sign; anything else is a TypeError.
+func Positive(v Object) (Object, error) {
+	switch v.(type) {
+	case Integer, Float:
+		return v, nil
+	}
+	return nil, NewTypeError("cannot apply unary + to %s", v.TypeName())
+}
+
+func Negate(v Object) (Object, error) {
+	switch n := v.(type) {
+	case Integer:
+		return Integer(-int64(n)), nil
+	case Float:
+		return Float(-float64(n)), nil
+	}
+	return nil, NewTypeError("cannot negate %s", v.TypeName())
+}

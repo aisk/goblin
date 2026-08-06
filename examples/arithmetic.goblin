@@ -85,3 +85,20 @@ print(Float(3.14))
 print(Float("2.5"))
 print(Float(true))
 print(Float())
+
+# Unary + and - work on numbers only; anything else is a TypeError.
+print(-7)
+print(+7)
+print(-2.5)
+var negated = -(3 * 4)
+print(negated)
+try {
+    print(-true)
+} catch e {
+    print(e.message)
+}
+try {
+    print(+"text")
+} catch e {
+    print(e.message)
+}
