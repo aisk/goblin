@@ -46,6 +46,30 @@ func TestCheckModule(t *testing.T) {
 			errContains: "break used outside loop",
 		},
 		{
+			name:        "go keyword is reserved",
+			source:      "var chan = 1\n",
+			wantErr:     true,
+			errContains: "'chan' is a reserved name",
+		},
+		{
+			name:        "transpiler package alias is reserved",
+			source:      "var object = 1\n",
+			wantErr:     true,
+			errContains: "'object' is a reserved name",
+		},
+		{
+			name:        "transpiler helper name is reserved as parameter",
+			source:      "func f(builtin) { return builtin }\n",
+			wantErr:     true,
+			errContains: "'builtin' is a reserved name",
+		},
+		{
+			name:        "top-level wrapper name is reserved for types",
+			source:      "type Execute(x) {}\n",
+			wantErr:     true,
+			errContains: "'Execute' is a reserved name",
+		},
+		{
 			name:    "break inside loop",
 			source:  "while true { break }\n",
 			wantErr: false,

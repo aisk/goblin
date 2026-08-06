@@ -74,16 +74,22 @@ type checker struct {
 	funcDepth    int
 }
 
-// goReservedNames lists Go keywords. The transpiler emits user names as Go
-// identifiers verbatim, so allowing them would generate invalid Go code; the
-// ones that double as Goblin keywords never parse as identifiers anyway, but
-// are listed for completeness.
+// goReservedNames lists names the transpiler cannot emit as user identifiers.
+// User names are emitted as Go identifiers verbatim, so a Go keyword would not
+// compile, and the remaining entries would shadow identifiers every transpiled
+// program references (the object/extension/fmt package aliases, the generated
+// `builtin` and `_registry` helpers, and the top-level Execute/main wrappers)
+// — letting them through leaks Go compiler errors instead of a Goblin
+// diagnostic. The names that double as Goblin keywords never parse as
+// identifiers anyway, but are listed for completeness.
 var goReservedNames = map[string]struct{}{
 	"break": {}, "case": {}, "chan": {}, "const": {}, "continue": {},
 	"default": {}, "defer": {}, "else": {}, "fallthrough": {}, "for": {},
 	"func": {}, "go": {}, "goto": {}, "if": {}, "import": {},
 	"interface": {}, "map": {}, "package": {}, "range": {}, "return": {},
 	"select": {}, "struct": {}, "switch": {}, "type": {}, "var": {},
+	"object": {}, "extension": {}, "builtin": {}, "fmt": {},
+	"_registry": {}, "Execute": {}, "main": {},
 }
 
 func (c *checker) checkReservedName(pos token.Pos, name string) error {

@@ -33,8 +33,10 @@ index or call continuation of the previous statement. Bind the value with
 
 Identifiers may not be Go keywords: names such as `map`, `range`, `select`,
 `struct`, `go`, or `defer` are reserved and rejected at check time, because
-compiled programs emit them as Go identifiers. Built-in function names like
-`print` or `max` are not reserved — see
+compiled programs emit them as Go identifiers. A handful of names the
+generated code itself relies on — `object`, `extension`, `builtin`, `fmt`,
+`_registry`, `Execute`, and `main` — are reserved for the same reason.
+Built-in function names like `print` or `max` are not reserved — see
 [Scope and declarations](./scope.md) for how user declarations shadow them.
 
 ## Functions and calls
