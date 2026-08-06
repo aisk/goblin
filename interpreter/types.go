@@ -116,19 +116,17 @@ type instance struct {
 
 var _ object.Object = (*instance)(nil)
 
-// bindMethod returns the method as a callable with the receiver bound as the
-// leading `self` argument.
+// bindMethod returns the method as a callable with the receiver bound as
+// `self`. The closure carries the Type.method qualified name and binds the
+// parameters after self, so traceback frames and binding diagnostics (names
+// and argument counts alike) match the transpiled backend.
 func (in *instance) bindMethod(def *ast.FunctionDefine) *object.Function {
-	fn := makeFunction(def, in.typ.env)
+	selfEnv := NewEnvironment(in.typ.env)
+	selfEnv.Define("self", in)
+	fn := makeClosure(in.typ.name+"."+def.Name, def.Position(), def.Parameters[1:], def.Body, selfEnv)
 	return &object.Function{
 		Name: def.Name,
-		Fn: func(args object.CallArgs) (object.Object, error) {
-			bound := object.CallArgs{
-				Positional: append(object.Args{in}, args.Positional...),
-				Keyword:    args.Keyword,
-			}
-			return fn.Fn(bound)
-		},
+		Fn:   fn.Fn,
 	}
 }
 

@@ -349,6 +349,17 @@ func modulePosition(mod *ast.Module) token.Pos {
 	return token.Pos{}
 }
 
+// sourceModuleName derives the traceback module name from a position's source
+// file, mirroring the interpreter's moduleName so frames from both backends
+// carry the same module tag.
+func sourceModuleName(pos token.Pos) string {
+	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
+		base := filepath.Base(src.Source())
+		return strings.TrimSuffix(base, filepath.Ext(base))
+	}
+	return ""
+}
+
 func isPathImport(path string) bool {
 	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
 }
@@ -450,7 +461,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -614,7 +625,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -1415,7 +1426,7 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 	callArgsName := ctx.localName("callArgs")
 
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, "", name, pos)
+		return tracedReturn(errVar, sourceModuleName(pos), name, pos)
 	}
 
 	argsDefine := ctx.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)
@@ -1826,7 +1837,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 		callArgsName := ctx.localName("callArgs")
 		fnOnError := func(errVar string) jen.Code {
-			return tracedReturn(errVar, typeDef.Name, typeDef.Name+"."+method.Name, method.Position())
+			return tracedReturn(errVar, sourceModuleName(method.Position()), typeDef.Name+"."+method.Name, method.Position())
 		}
 
 		bodyPrefix := []jen.Code{
@@ -2655,7 +2666,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -2801,7 +2812,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 
 	exportsVar := ctx.localName("exports")
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, mod.Name, "<module>", modulePosition(mod))
+		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", modulePosition(mod))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)

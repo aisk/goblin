@@ -2,6 +2,9 @@ package transpiler
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
+	"regexp"
 	"runtime/debug"
 	"strings"
 	"testing"
@@ -10,6 +13,7 @@ import (
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 )
 
 func TestGoblinRuntimeVersionFromBuildInfo(t *testing.T) {
@@ -152,6 +156,46 @@ func TestTranspileFunctionsAttachGoblinFrames(t *testing.T) {
 	}
 	if strings.Contains(code, "errors.WithStack") {
 		t.Fatalf("generated code still uses errors.WithStack\n%s", code)
+	}
+}
+
+// Frames must carry the module name derived from the source file, matching
+// the interpreter's tracebacks (`at fail [mymod] (mymod.goblin:1:6)`).
+func TestTranspiledFramesCarryModuleName(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "mymod.goblin")
+	prog := "type Box(v) {\n  func get(self) { return self.v }\n}\nfunc fail() { return 1 / 0 }\nfail()\n"
+	if err := os.WriteFile(path, []byte(prog), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	l, err := source.NewLexerFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	st, err := parser.NewParser().Parse(l)
+	if err != nil {
+		t.Fatalf("parse error: %v", err)
+	}
+	mod := st.(*ast.Module)
+	if err := semantic.CheckModule(mod); err != nil {
+		t.Fatalf("semantic error: %v", err)
+	}
+	var buf bytes.Buffer
+	if err := Transpile(mod, &buf); err != nil {
+		t.Fatalf("transpile error: %v", err)
+	}
+	code := buf.String()
+
+	for _, want := range []*regexp.Regexp{
+		regexp.MustCompile(`Module:\s+"mymod"`),
+		regexp.MustCompile(`Function:\s+"Box\.get"`),
+	} {
+		if !want.MatchString(code) {
+			t.Fatalf("expected transpiled code to match %q\n%s", want, code)
+		}
+	}
+	if regexp.MustCompile(`Module:\s+""`).MatchString(code) {
+		t.Fatalf("generated frames still carry an empty module name\n%s", code)
 	}
 }
 
