@@ -2,7 +2,9 @@
 # strings, and a name that was already supplied is rejected — the same
 # TypeError in both backends, catchable like any other error.
 func show(**kwargs) {
-    print(kwargs)
+    # Print individual keys: dict iteration order is deliberately
+    # nondeterministic, so printing the whole dict would be flaky.
+    print(kwargs["color"], kwargs["size"], kwargs["weight"])
 }
 
 var defaults = {"color": "red", "size": 3}

@@ -1,4 +1,4 @@
-{"color": "red", "size": 3, "weight": 10}
+red 3 10
 true
 got multiple values for argument 'color'
 got multiple values for argument 'size'
