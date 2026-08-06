@@ -61,6 +61,22 @@ is defined, and the compiled backend inherits Go's undefined behavior for
 races. Reading surrounding names that nothing writes concurrently (module
 imports, top-level functions, builtins) is safe.
 
+The same rule covers the inside of a shared mutable value: lists and
+dictionaries are not synchronized, and Goblin never locks them for you. The
+consequence of a race is not limited to stale or torn data — two goblins
+writing to the same dictionary can terminate the whole process at once, and
+`try`/`catch` cannot intercept that crash. When several goblins must work on
+the same data, keep one owner that mutates it and let the others send requests
+or results over a channel, as in the examples below.
+
+`goblin build-exe --race` compiles the executable with Go's race detector:
+when a race actually occurs at run time, the program reports both racing
+operations with stack traces and exits with a failure status. The interpreter
+has no equivalent switch — race instrumentation happens when Go code is
+compiled — so a program that only ever ran under `goblin run` may hide a race
+that the compiled backend hits. Build the racy suspect with `--race` and
+exercise it when in doubt.
+
 ## Channels
 
 `Chan()` and `Chan(0)` create an unbuffered channel. A send waits until some
