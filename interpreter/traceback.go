@@ -1,10 +1,8 @@
 package interpreter
 
 import (
-	"path/filepath"
-	"strings"
-
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 )
 
@@ -17,8 +15,7 @@ func stackFrame(module, function string, pos token.Pos) object.Frame {
 }
 
 func moduleName(path string) string {
-	base := filepath.Base(path)
-	return strings.TrimSuffix(base, filepath.Ext(base))
+	return source.ModuleName(path)
 }
 
 // positionedError tags an error with the position of the statement that

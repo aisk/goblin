@@ -378,18 +378,17 @@ func modulePosition(mod *ast.Module) token.Pos {
 }
 
 // sourceModuleName derives the traceback module name from a position's source
-// file, mirroring the interpreter's moduleName so frames from both backends
-// carry the same module tag.
+// file via the shared source.ModuleName, so frames from both backends carry
+// the same module tag.
 func sourceModuleName(pos token.Pos) string {
 	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
-		base := filepath.Base(src.Source())
-		return strings.TrimSuffix(base, filepath.Ext(base))
+		return source.ModuleName(src.Source())
 	}
 	return ""
 }
 
 func isPathImport(path string) bool {
-	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
+	return source.IsPathImport(path)
 }
 
 // resolveImportPath resolves a relative import path against the directory of

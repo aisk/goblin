@@ -3,7 +3,6 @@ package interpreter
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
@@ -71,7 +70,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 }
 
 func isPathImport(path string) bool {
-	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
+	return source.IsPathImport(path)
 }
 
 // loadInto resolves imports and hoists function/type definitions for a module
@@ -159,15 +158,5 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 			members[exp.Name] = v
 		}
 	}
-	return &object.Module{Name: moduleNameFromFile(path), Members: members}, nil
-}
-
-// moduleNameFromFile extracts a clean module name from a file path,
-// e.g. "/path/to/mymod.goblin" → "mymod".
-func moduleNameFromFile(path string) string {
-	base := path
-	if i := strings.LastIndex(base, "/"); i >= 0 {
-		base = base[i+1:]
-	}
-	return strings.TrimSuffix(base, ".goblin")
+	return &object.Module{Name: source.ModuleName(path), Members: members}, nil
 }
