@@ -217,11 +217,8 @@ func (e *Error) Attributes() []string {
 
 // TracebackValue exposes traceback formatting to Goblin as err.traceback().
 func (e *Error) TracebackValue(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("traceback", args); err != nil {
+	if err := RequireNoArgs("traceback", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("traceback() takes no arguments, got %d", len(args.Positional))
 	}
 	return String(e.Traceback()), nil
 }
@@ -240,11 +237,8 @@ func (e *Error) Wrap(args CallArgs) (Object, error) {
 // Unwrapped returns the immediate cause of the receiver, or Nil if it wraps
 // nothing. Usage: err.unwrap(). Traversal is delegated to the standard library.
 func (e *Error) Unwrapped(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("unwrap", args); err != nil {
+	if err := RequireNoArgs("unwrap", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("unwrap() takes no arguments, got %d", len(args.Positional))
 	}
 	cause := errors.Unwrap(e)
 	if cause == nil {

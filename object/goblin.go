@@ -81,11 +81,8 @@ func (g *Goblin) Attributes() []string {
 
 // Done reports without blocking whether the function has finished.
 func (g *Goblin) Done(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("done", args); err != nil {
+	if err := RequireNoArgs("done", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("done() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	select {
 	case <-g.done:

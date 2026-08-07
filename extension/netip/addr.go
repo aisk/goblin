@@ -31,9 +31,8 @@ func (a *Addr) Compare(other object.Object) (int, error) {
 	return a.value.Compare(value.value), nil
 }
 
-func noArgs(name string, args object.CallArgs) error { return object.NewArgParser(name, args).Finish() }
 func (a *Addr) next(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("next", args); err != nil {
+	if err := object.RequireNoArgs("next", args); err != nil {
 		return nil, err
 	}
 	value := a.value.Next()
@@ -43,7 +42,7 @@ func (a *Addr) next(args object.CallArgs) (object.Object, error) {
 	return newAddr(value), nil
 }
 func (a *Addr) prev(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("prev", args); err != nil {
+	if err := object.RequireNoArgs("prev", args); err != nil {
 		return nil, err
 	}
 	value := a.value.Prev()
@@ -53,7 +52,7 @@ func (a *Addr) prev(args object.CallArgs) (object.Object, error) {
 	return newAddr(value), nil
 }
 func (a *Addr) unmap(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("unmap", args); err != nil {
+	if err := object.RequireNoArgs("unmap", args); err != nil {
 		return nil, err
 	}
 	return newAddr(a.value.Unmap()), nil

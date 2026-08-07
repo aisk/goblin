@@ -59,18 +59,17 @@ func (c *Chan) Attributes() []string {
 // Send blocks until the value is delivered or buffered. Sending on a closed
 // channel returns an error instead of panicking.
 func (c *Chan) Send(args CallArgs) (_ Object, err error) {
-	if err := RequireNoKeyword("send", args); err != nil {
+	ap := NewArgParser("send", args)
+	value := ap.Any("value")
+	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("send() takes exactly 1 argument, got %d", len(args.Positional))
 	}
 	defer func() {
 		if recover() != nil {
 			err = NewValueError("send on closed channel")
 		}
 	}()
-	c.ch <- args.Positional[0]
+	c.ch <- value
 	return Nil, nil
 }
 
@@ -78,11 +77,8 @@ func (c *Chan) Send(args CallArgs) (_ Object, err error) {
 // drained it returns an error so the caller can distinguish it from a real
 // nil value being sent.
 func (c *Chan) Recv(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("recv", args); err != nil {
+	if err := RequireNoArgs("recv", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("recv() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	value, ok := <-c.ch
 	if !ok {
@@ -94,11 +90,8 @@ func (c *Chan) Recv(args CallArgs) (Object, error) {
 // Close closes the channel. Closing an already-closed channel returns an error
 // instead of panicking.
 func (c *Chan) Close(args CallArgs) (_ Object, err error) {
-	if err := RequireNoKeyword("close", args); err != nil {
+	if err := RequireNoArgs("close", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("close() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	defer func() {
 		if recover() != nil {

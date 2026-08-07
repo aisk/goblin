@@ -46,21 +46,15 @@ func keysMatch(stored, lookup Object) (bool, error) {
 var _ Object = &Dict{}
 
 func (d *Dict) Size(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("size", args); err != nil {
+	if err := RequireNoArgs("size", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(d.count), nil
 }
 
 func (d *Dict) Keys(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("keys", args); err != nil {
+	if err := RequireNoArgs("keys", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("keys() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	keys := make([]Object, 0, d.count)
 	for _, entry := range d.Entries() {
@@ -70,11 +64,8 @@ func (d *Dict) Keys(args CallArgs) (Object, error) {
 }
 
 func (d *Dict) Values(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("values", args); err != nil {
+	if err := RequireNoArgs("values", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("values() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	values := make([]Object, 0, d.count)
 	for _, entry := range d.Entries() {
@@ -84,7 +75,7 @@ func (d *Dict) Values(args CallArgs) (Object, error) {
 }
 
 func (d *Dict) Items(args CallArgs) (Object, error) {
-	if err := requireNoArgs("items", args); err != nil {
+	if err := RequireNoArgs("items", args); err != nil {
 		return nil, err
 	}
 	items := make([]Object, 0, d.count)
@@ -183,7 +174,7 @@ func (d *Dict) Update(args CallArgs) (Object, error) {
 }
 
 func (d *Dict) Clear(args CallArgs) (Object, error) {
-	if err := requireNoArgs("clear", args); err != nil {
+	if err := RequireNoArgs("clear", args); err != nil {
 		return nil, err
 	}
 	d.buckets = make(map[uint64][]DictEntry)
@@ -192,7 +183,7 @@ func (d *Dict) Clear(args CallArgs) (Object, error) {
 }
 
 func (d *Dict) Copy(args CallArgs) (Object, error) {
-	if err := requireNoArgs("copy", args); err != nil {
+	if err := RequireNoArgs("copy", args); err != nil {
 		return nil, err
 	}
 	result := NewDict()

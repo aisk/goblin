@@ -43,11 +43,8 @@ func (r *testReader) GetAttr(name string) (object.Object, error) {
 		}}, nil
 	case "close":
 		return &object.Function{Name: "close", Fn: func(args object.CallArgs) (object.Object, error) {
-			if err := object.RequireNoKeyword("close", args); err != nil {
+			if err := object.RequireNoArgs("close", args); err != nil {
 				return nil, err
-			}
-			if len(args.Positional) != 0 {
-				return nil, object.NewTypeError("close() takes no arguments")
 			}
 			r.closed = true
 			return object.Nil, nil

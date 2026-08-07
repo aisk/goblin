@@ -83,7 +83,7 @@ func (b Bytes) Index(index Object) (Object, error) {
 }
 
 func (b Bytes) Size(args CallArgs) (Object, error) {
-	if err := requireNoArgs("size", args); err != nil {
+	if err := RequireNoArgs("size", args); err != nil {
 		return nil, err
 	}
 	return Integer(len(b)), nil
@@ -312,7 +312,7 @@ func (b Bytes) SplitAfter(args CallArgs) (Object, error) {
 }
 
 func (b Bytes) Fields(args CallArgs) (Object, error) {
-	if err := requireNoArgs("fields", args); err != nil {
+	if err := RequireNoArgs("fields", args); err != nil {
 		return nil, err
 	}
 	return bytesList(bytes.Fields(b)), nil
@@ -396,19 +396,19 @@ func (b Bytes) TrimSuffix(args CallArgs) (Object, error) {
 }
 
 func (b Bytes) Upper(args CallArgs) (Object, error) {
-	if err := requireNoArgs("upper", args); err != nil {
+	if err := RequireNoArgs("upper", args); err != nil {
 		return nil, err
 	}
 	return NewBytes(bytes.ToUpper(b)), nil
 }
 func (b Bytes) Lower(args CallArgs) (Object, error) {
-	if err := requireNoArgs("lower", args); err != nil {
+	if err := RequireNoArgs("lower", args); err != nil {
 		return nil, err
 	}
 	return NewBytes(bytes.ToLower(b)), nil
 }
 func (b Bytes) Title(args CallArgs) (Object, error) {
-	if err := requireNoArgs("title", args); err != nil {
+	if err := RequireNoArgs("title", args); err != nil {
 		return nil, err
 	}
 	return NewBytes(bytes.Title(b)), nil
@@ -428,7 +428,7 @@ func (b Bytes) ToValidUTF8(args CallArgs) (Object, error) {
 }
 
 func (b Bytes) Decode(args CallArgs) (Object, error) {
-	if err := requireNoArgs("decode", args); err != nil {
+	if err := RequireNoArgs("decode", args); err != nil {
 		return nil, err
 	}
 	if !utf8.Valid(b) {

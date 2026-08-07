@@ -207,7 +207,7 @@ func pathParts(raw string) []Object {
 }
 
 func (p *Path) IsAbsolute(args CallArgs) (Object, error) {
-	if err := requireNoArgs("is_absolute", args); err != nil {
+	if err := RequireNoArgs("is_absolute", args); err != nil {
 		return nil, err
 	}
 	return Bool(filepath.IsAbs(p.raw)), nil
@@ -287,14 +287,14 @@ func (p *Path) Match(args CallArgs) (Object, error) {
 }
 
 func (p *Path) AsPosix(args CallArgs) (Object, error) {
-	if err := requireNoArgs("as_posix", args); err != nil {
+	if err := RequireNoArgs("as_posix", args); err != nil {
 		return nil, err
 	}
 	return String(filepath.ToSlash(p.raw)), nil
 }
 
 func (p *Path) Exists(args CallArgs) (Object, error) {
-	if err := requireNoArgs("exists", args); err != nil {
+	if err := RequireNoArgs("exists", args); err != nil {
 		return nil, err
 	}
 	_, err := os.Stat(p.raw)
@@ -308,21 +308,21 @@ func (p *Path) Exists(args CallArgs) (Object, error) {
 }
 
 func (p *Path) IsDir(args CallArgs) (Object, error) {
-	if err := requireNoArgs("is_dir", args); err != nil {
+	if err := RequireNoArgs("is_dir", args); err != nil {
 		return nil, err
 	}
 	return p.statMode("is_dir", func(m fs.FileMode) bool { return m.IsDir() })
 }
 
 func (p *Path) IsFile(args CallArgs) (Object, error) {
-	if err := requireNoArgs("is_file", args); err != nil {
+	if err := RequireNoArgs("is_file", args); err != nil {
 		return nil, err
 	}
 	return p.statMode("is_file", func(m fs.FileMode) bool { return m.IsRegular() })
 }
 
 func (p *Path) IsSymlink(args CallArgs) (Object, error) {
-	if err := requireNoArgs("is_symlink", args); err != nil {
+	if err := RequireNoArgs("is_symlink", args); err != nil {
 		return nil, err
 	}
 	info, err := os.Lstat(p.raw)
@@ -349,7 +349,7 @@ func (p *Path) statMode(fnName string, pred func(fs.FileMode) bool) (Object, err
 }
 
 func (p *Path) Resolve(args CallArgs) (Object, error) {
-	if err := requireNoArgs("resolve", args); err != nil {
+	if err := RequireNoArgs("resolve", args); err != nil {
 		return nil, err
 	}
 	abs, err := filepath.Abs(p.raw)
@@ -365,7 +365,7 @@ func (p *Path) Resolve(args CallArgs) (Object, error) {
 }
 
 func (p *Path) ReadText(args CallArgs) (Object, error) {
-	if err := requireNoArgs("read_text", args); err != nil {
+	if err := RequireNoArgs("read_text", args); err != nil {
 		return nil, err
 	}
 	data, err := os.ReadFile(p.raw)
@@ -376,7 +376,7 @@ func (p *Path) ReadText(args CallArgs) (Object, error) {
 }
 
 func (p *Path) ReadBytes(args CallArgs) (Object, error) {
-	if err := requireNoArgs("read_bytes", args); err != nil {
+	if err := RequireNoArgs("read_bytes", args); err != nil {
 		return nil, err
 	}
 	data, err := os.ReadFile(p.raw)
@@ -415,7 +415,7 @@ func (p *Path) WriteBytes(args CallArgs) (Object, error) {
 }
 
 func (p *Path) IterDir(args CallArgs) (Object, error) {
-	if err := requireNoArgs("iterdir", args); err != nil {
+	if err := RequireNoArgs("iterdir", args); err != nil {
 		return nil, err
 	}
 	entries, err := os.ReadDir(p.raw)
@@ -469,7 +469,7 @@ func (p *Path) Mkdir(args CallArgs) (Object, error) {
 }
 
 func (p *Path) Unlink(args CallArgs) (Object, error) {
-	if err := requireNoArgs("unlink", args); err != nil {
+	if err := RequireNoArgs("unlink", args); err != nil {
 		return nil, err
 	}
 	if err := os.Remove(p.raw); err != nil {
@@ -492,12 +492,6 @@ func (p *Path) Rename(args CallArgs) (Object, error) {
 		return nil, WrapNativeError(IOError, "rename() failed", err)
 	}
 	return NewPath(targetPath), nil
-}
-
-// requireNoArgs rejects any positional or keyword arguments for the zero-arg
-// query methods.
-func requireNoArgs(fnName string, args CallArgs) error {
-	return NewArgParser(fnName, args).Finish()
 }
 
 // PathConstructorFn builds a Path from zero or more string/Path segments,

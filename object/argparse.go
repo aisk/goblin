@@ -30,6 +30,12 @@ func NewArgParser(funcName string, call CallArgs) *ArgParser {
 	return &ArgParser{funcName: funcName, call: call, used: make(map[string]bool)}
 }
 
+// RequireNoArgs rejects any positional or keyword argument. It is the
+// canonical check for nullary builtins and methods.
+func RequireNoArgs(funcName string, call CallArgs) error {
+	return NewArgParser(funcName, call).Finish()
+}
+
 // Err returns the first error encountered, or nil. Finish should be preferred
 // when the parser owns the full argument list, as it also reports extra
 // arguments.

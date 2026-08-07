@@ -48,16 +48,24 @@ func TestListFirstAndLastDoNotMutate(t *testing.T) {
 	}
 }
 
-func TestChanSendRemainsPositionalOnly(t *testing.T) {
+func TestChanSendAcceptsValueByKeyword(t *testing.T) {
 	channel := NewChan(1)
-	method, err := channel.GetAttr("send")
+	callMethod(t, channel, "send", CallArgs{Keyword: Kwargs{"value": Integer(1)}})
+	if got := callMethod(t, channel, "recv", CallArgs{}); got != Integer(1) {
+		t.Fatalf("recv = %v, want 1", got)
+	}
+	if _, err := Call(mustAttr(t, channel, "send"), CallArgs{Keyword: Kwargs{"bogus": Integer(1)}}); err == nil {
+		t.Fatal("send(bogus=...) should reject an unknown keyword argument")
+	}
+}
+
+func mustAttr(t *testing.T, obj Object, name string) Object {
+	t.Helper()
+	method, err := obj.GetAttr(name)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = Call(method, CallArgs{Keyword: Kwargs{"value": Integer(1)}})
-	if err == nil {
-		t.Fatal("send(value=...) should reject keyword arguments")
-	}
+	return method
 }
 
 func TestListMutationMethods(t *testing.T) {

@@ -49,14 +49,10 @@ func newOsModule(argsFn func() []string) object.Object {
 	}
 }
 
-func noArgs(name string, args object.CallArgs) error {
-	return object.NewArgParser(name, args).Finish()
-}
-
 // makeArgv returns argv(), which yields a fresh Goblin list from argsFn each call.
 func makeArgv(argsFn func() []string) func(object.CallArgs) (object.Object, error) {
 	return func(args object.CallArgs) (object.Object, error) {
-		if err := noArgs("argv", args); err != nil {
+		if err := object.RequireNoArgs("argv", args); err != nil {
 			return nil, err
 		}
 		procArgs := argsFn()
@@ -117,7 +113,7 @@ func unsetenv(args object.CallArgs) (object.Object, error) {
 }
 
 func environ(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("environ", args); err != nil {
+	if err := object.RequireNoArgs("environ", args); err != nil {
 		return nil, err
 	}
 	result := object.NewDict()
@@ -134,7 +130,7 @@ func environ(args object.CallArgs) (object.Object, error) {
 }
 
 func hostname(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("hostname", args); err != nil {
+	if err := object.RequireNoArgs("hostname", args); err != nil {
 		return nil, err
 	}
 	name, err := os.Hostname()
@@ -145,7 +141,7 @@ func hostname(args object.CallArgs) (object.Object, error) {
 }
 
 func getpid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getpid", args); err != nil {
+	if err := object.RequireNoArgs("getpid", args); err != nil {
 		return nil, err
 	}
 	pid := os.Getpid()
@@ -153,7 +149,7 @@ func getpid(args object.CallArgs) (object.Object, error) {
 }
 
 func getppid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getppid", args); err != nil {
+	if err := object.RequireNoArgs("getppid", args); err != nil {
 		return nil, err
 	}
 	ppid := os.Getppid()
@@ -161,7 +157,7 @@ func getppid(args object.CallArgs) (object.Object, error) {
 }
 
 func getuid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getuid", args); err != nil {
+	if err := object.RequireNoArgs("getuid", args); err != nil {
 		return nil, err
 	}
 	uid := os.Getuid()
@@ -169,7 +165,7 @@ func getuid(args object.CallArgs) (object.Object, error) {
 }
 
 func getegid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getegid", args); err != nil {
+	if err := object.RequireNoArgs("getegid", args); err != nil {
 		return nil, err
 	}
 	egid := os.Getegid()
@@ -177,7 +173,7 @@ func getegid(args object.CallArgs) (object.Object, error) {
 }
 
 func geteuid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("geteuid", args); err != nil {
+	if err := object.RequireNoArgs("geteuid", args); err != nil {
 		return nil, err
 	}
 	euid := os.Geteuid()
@@ -185,7 +181,7 @@ func geteuid(args object.CallArgs) (object.Object, error) {
 }
 
 func getgid(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getgid", args); err != nil {
+	if err := object.RequireNoArgs("getgid", args); err != nil {
 		return nil, err
 	}
 	gid := os.Getgid()
@@ -193,7 +189,7 @@ func getgid(args object.CallArgs) (object.Object, error) {
 }
 
 func getgroups(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getgroups", args); err != nil {
+	if err := object.RequireNoArgs("getgroups", args); err != nil {
 		return nil, err
 	}
 	gids, err := os.Getgroups()
@@ -208,14 +204,14 @@ func getgroups(args object.CallArgs) (object.Object, error) {
 }
 
 func getpagesize(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getpagesize", args); err != nil {
+	if err := object.RequireNoArgs("getpagesize", args); err != nil {
 		return nil, err
 	}
 	return object.Integer(os.Getpagesize()), nil
 }
 
 func getwd(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("getwd", args); err != nil {
+	if err := object.RequireNoArgs("getwd", args); err != nil {
 		return nil, err
 	}
 	wd, err := os.Getwd()

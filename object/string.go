@@ -20,31 +20,22 @@ const (
 )
 
 func (s String) Size(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("size", args); err != nil {
+	if err := RequireNoArgs("size", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(len([]rune(string(s)))), nil
 }
 
 func (s String) Upper(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("upper", args); err != nil {
+	if err := RequireNoArgs("upper", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("upper() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return String(strings.ToUpper(string(s))), nil
 }
 
 func (s String) Lower(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("lower", args); err != nil {
+	if err := RequireNoArgs("lower", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("lower() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return String(strings.ToLower(string(s))), nil
 }
@@ -248,21 +239,21 @@ func (s String) SplitAfter(args CallArgs) (Object, error) {
 }
 
 func (s String) Fields(args CallArgs) (Object, error) {
-	if err := noStringArgs("fields", args); err != nil {
+	if err := RequireNoArgs("fields", args); err != nil {
 		return nil, err
 	}
 	return stringsList(strings.Fields(string(s))), nil
 }
 
 func (s String) Title(args CallArgs) (Object, error) {
-	if err := noStringArgs("title", args); err != nil {
+	if err := RequireNoArgs("title", args); err != nil {
 		return nil, err
 	}
 	return String(strings.Title(string(s))), nil //nolint:staticcheck -- mirrors strings.Title
 }
 
 func (s String) ToTitle(args CallArgs) (Object, error) {
-	if err := noStringArgs("to_title", args); err != nil {
+	if err := RequireNoArgs("to_title", args); err != nil {
 		return nil, err
 	}
 	return String(strings.ToTitle(string(s))), nil
@@ -341,16 +332,6 @@ func (s String) CutSuffix(args CallArgs) (Object, error) {
 	}
 	value, found := strings.CutSuffix(string(s), string(suffix))
 	return &List{Elements: []Object{String(value), Bool(found)}}, nil
-}
-
-func noStringArgs(name string, args CallArgs) error {
-	if err := RequireNoKeyword(name, args); err != nil {
-		return err
-	}
-	if len(args.Positional) != 0 {
-		return NewTypeError("%s() takes exactly 0 arguments, got %d", name, len(args.Positional))
-	}
-	return nil
 }
 
 func (s String) TypeName() string { return "String" }
@@ -530,7 +511,7 @@ func (s String) GetAttr(name string) (Object, error) {
 		return &Function{Name: name, Fn: s.CutSuffix}, nil
 	case "encode":
 		return &Function{Name: name, Fn: func(args CallArgs) (Object, error) {
-			if err := requireNoArgs("encode", args); err != nil {
+			if err := RequireNoArgs("encode", args); err != nil {
 				return nil, err
 			}
 			return NewBytes([]byte(s)), nil

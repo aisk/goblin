@@ -85,13 +85,6 @@ func BindArgumentsInto(funcName string, params []string, defaults []ParamDefault
 	return nil
 }
 
-func RequireNoKeyword(funcName string, call CallArgs) error {
-	if len(call.Keyword) == 0 {
-		return nil
-	}
-	return NewTypeError("%s() does not accept keyword arguments", funcName)
-}
-
 // BindArguments binds positional and keyword arguments to parameter names.
 // defaults is either nil or parallel to params, with a nil entry per required
 // parameter. varArgsParam and kwArgsParam are optional capture parameter names.

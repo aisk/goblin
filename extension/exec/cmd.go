@@ -36,7 +36,7 @@ func (c *Cmd) String() string            { return fmt.Sprintf("<exec.Command %s>
 func (c *Cmd) ToString() (string, error) { return c.String(), nil }
 
 func (c *Cmd) start(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("start", args); err != nil {
+	if err := object.RequireNoArgs("start", args); err != nil {
 		return nil, err
 	}
 	c.mu.Lock()
@@ -70,7 +70,7 @@ func (c *Cmd) reap() {
 }
 
 func (c *Cmd) wait(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("wait", args); err != nil {
+	if err := object.RequireNoArgs("wait", args); err != nil {
 		return nil, err
 	}
 	c.mu.Lock()
@@ -95,7 +95,7 @@ func (c *Cmd) wait(args object.CallArgs) (object.Object, error) {
 }
 
 func (c *Cmd) run(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("run", args); err != nil {
+	if err := object.RequireNoArgs("run", args); err != nil {
 		return nil, err
 	}
 	if _, err := c.start(object.CallArgs{}); err != nil {
@@ -105,7 +105,7 @@ func (c *Cmd) run(args object.CallArgs) (object.Object, error) {
 }
 
 func (c *Cmd) kill(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("kill", args); err != nil {
+	if err := object.RequireNoArgs("kill", args); err != nil {
 		return nil, err
 	}
 	c.mu.Lock()
@@ -167,8 +167,4 @@ func (c *Cmd) GetAttr(name string) (object.Object, error) {
 }
 func (c *Cmd) Attributes() []string {
 	return commandType.Attributes("attributes", "run", "start", "wait", "kill", "pid", "running")
-}
-
-func noArgs(name string, args object.CallArgs) error {
-	return object.NewArgParser(name, args).Finish()
 }

@@ -15,20 +15,19 @@ type List struct {
 var _ Object = &List{}
 
 func (l *List) Size(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("size", args); err != nil {
+	if err := RequireNoArgs("size", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("size() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	return Integer(len(l.Elements)), nil
 }
 
 func (l *List) Push(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("push", args); err != nil {
+	ap := NewArgParser("push", args)
+	values := ap.Rest()
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	l.Elements = append(l.Elements, args.Positional...)
+	l.Elements = append(l.Elements, values...)
 	return l, nil
 }
 
@@ -52,7 +51,7 @@ func (l *List) Pop(args CallArgs) (Object, error) {
 }
 
 func (l *List) First(args CallArgs) (Object, error) {
-	if err := requireNoArgs("first", args); err != nil {
+	if err := RequireNoArgs("first", args); err != nil {
 		return nil, err
 	}
 	if len(l.Elements) == 0 {
@@ -62,7 +61,7 @@ func (l *List) First(args CallArgs) (Object, error) {
 }
 
 func (l *List) Last(args CallArgs) (Object, error) {
-	if err := requireNoArgs("last", args); err != nil {
+	if err := RequireNoArgs("last", args); err != nil {
 		return nil, err
 	}
 	if len(l.Elements) == 0 {
@@ -205,7 +204,7 @@ func (l *List) Remove(args CallArgs) (Object, error) {
 }
 
 func (l *List) Reverse(args CallArgs) (Object, error) {
-	if err := requireNoArgs("reverse", args); err != nil {
+	if err := RequireNoArgs("reverse", args); err != nil {
 		return nil, err
 	}
 	for i, j := 0, len(l.Elements)-1; i < j; i, j = i+1, j-1 {
@@ -215,7 +214,7 @@ func (l *List) Reverse(args CallArgs) (Object, error) {
 }
 
 func (l *List) Clear(args CallArgs) (Object, error) {
-	if err := requireNoArgs("clear", args); err != nil {
+	if err := RequireNoArgs("clear", args); err != nil {
 		return nil, err
 	}
 	l.Elements = nil
@@ -223,7 +222,7 @@ func (l *List) Clear(args CallArgs) (Object, error) {
 }
 
 func (l *List) Copy(args CallArgs) (Object, error) {
-	if err := requireNoArgs("copy", args); err != nil {
+	if err := RequireNoArgs("copy", args); err != nil {
 		return nil, err
 	}
 	elements := append([]Object(nil), l.Elements...)
@@ -481,13 +480,11 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) mapMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("map", args); err != nil {
+	ap := NewArgParser("map", args)
+	fn := ap.Any("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("map() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	fn := args.Positional[0]
 	newElems := make([]Object, len(l.Elements))
 	for i, e := range l.Elements {
 		res, err := Call(fn, CallArgs{Positional: []Object{e}})
@@ -500,13 +497,11 @@ func (l *List) mapMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) filterMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("filter", args); err != nil {
+	ap := NewArgParser("filter", args)
+	fn := ap.Any("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("filter() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	fn := args.Positional[0]
 	newElems := []Object{}
 	for _, e := range l.Elements {
 		res, err := Call(fn, CallArgs{Positional: []Object{e}})
@@ -552,13 +547,11 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) eachMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("each", args); err != nil {
+	ap := NewArgParser("each", args)
+	fn := ap.Any("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("each() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	fn := args.Positional[0]
 	for _, e := range l.Elements {
 		_, err := Call(fn, CallArgs{Positional: []Object{e}})
 		if err != nil {
@@ -569,13 +562,11 @@ func (l *List) eachMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) findMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("find", args); err != nil {
+	ap := NewArgParser("find", args)
+	fn := ap.Any("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) != 1 {
-		return nil, NewTypeError("find() takes exactly 1 argument, got %d", len(args.Positional))
-	}
-	fn := args.Positional[0]
 	for _, e := range l.Elements {
 		res, err := Call(fn, CallArgs{Positional: []Object{e}})
 		if err != nil {
@@ -593,14 +584,13 @@ func (l *List) findMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) anyMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("any", args); err != nil {
+	ap := NewArgParser("any", args)
+	fn, supplied := ap.OptionalAny("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 1 {
-		return nil, NewTypeError("any() takes at most 1 argument, got %d", len(args.Positional))
-	}
 
-	if len(args.Positional) == 0 {
+	if !supplied {
 		for _, e := range l.Elements {
 			b, err := e.ToBool()
 			if err != nil {
@@ -613,7 +603,6 @@ func (l *List) anyMethod(args CallArgs) (Object, error) {
 		return False, nil
 	}
 
-	fn := args.Positional[0]
 	for _, e := range l.Elements {
 		res, err := Call(fn, CallArgs{Positional: []Object{e}})
 		if err != nil {
@@ -631,14 +620,13 @@ func (l *List) anyMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) allMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("all", args); err != nil {
+	ap := NewArgParser("all", args)
+	fn, supplied := ap.OptionalAny("fn")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	if len(args.Positional) > 1 {
-		return nil, NewTypeError("all() takes at most 1 argument, got %d", len(args.Positional))
-	}
 
-	if len(args.Positional) == 0 {
+	if !supplied {
 		for _, e := range l.Elements {
 			b, err := e.ToBool()
 			if err != nil {
@@ -651,7 +639,6 @@ func (l *List) allMethod(args CallArgs) (Object, error) {
 		return True, nil
 	}
 
-	fn := args.Positional[0]
 	for _, e := range l.Elements {
 		res, err := Call(fn, CallArgs{Positional: []Object{e}})
 		if err != nil {
@@ -669,11 +656,8 @@ func (l *List) allMethod(args CallArgs) (Object, error) {
 }
 
 func (l *List) sumMethod(args CallArgs) (Object, error) {
-	if err := RequireNoKeyword("sum", args); err != nil {
+	if err := RequireNoArgs("sum", args); err != nil {
 		return nil, err
-	}
-	if len(args.Positional) != 0 {
-		return nil, NewTypeError("sum() takes exactly 0 arguments, got %d", len(args.Positional))
 	}
 	var res Object = Integer(0)
 	for _, e := range l.Elements {

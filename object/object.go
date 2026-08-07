@@ -94,11 +94,8 @@ func literalString(obj Object) (string, error) {
 // cannot mutate shared runtime metadata.
 func AttributesFunction(obj Object) *Function {
 	return &Function{Name: "attributes", Fn: func(args CallArgs) (Object, error) {
-		if err := RequireNoKeyword("attributes", args); err != nil {
+		if err := RequireNoArgs("attributes", args); err != nil {
 			return nil, err
-		}
-		if len(args.Positional) != 0 {
-			return nil, NewTypeError("attributes() takes exactly 0 arguments, got %d", len(args.Positional))
 		}
 		names := obj.Attributes()
 		elements := make([]Object, len(names))

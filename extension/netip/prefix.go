@@ -49,7 +49,7 @@ func (p *Prefix) overlaps(args object.CallArgs) (object.Object, error) {
 	return object.Bool(p.value.Overlaps(other.value)), nil
 }
 func (p *Prefix) masked(args object.CallArgs) (object.Object, error) {
-	if err := noArgs("masked", args); err != nil {
+	if err := object.RequireNoArgs("masked", args); err != nil {
 		return nil, err
 	}
 	return newPrefix(p.value.Masked()), nil
