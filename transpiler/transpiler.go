@@ -332,7 +332,7 @@ var reservedGoMethodNames = map[string]bool{
 	"Minus": true, "Multiply": true, "Divide": true, "Modulo": true,
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
-	"TypeName": true,
+	"TypeName": true, "ToString": true, "ToBool": true,
 	"RAdd":     true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
 }
 
@@ -455,7 +455,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 				if !exists {
 					return fmt.Errorf("unknown module: %s", imp.Path)
 				}
-				ctx.moduleImports[imp.Name] = info.varName
+				ctx.moduleImports[imp.Name] = ctx.localName(info.varName)
 			}
 		}
 	}
@@ -511,19 +511,22 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	}
 
 	// Builtin module imports via registry
-	for _, name := range KnownModuleNames() {
-		info := knownModules[name]
-		if _, ok := ctx.moduleImports[name]; ok {
-			errVar := ctx.localName("err")
-			body = append(body,
-				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-					jen.Lit(name),
-					jen.Qual(info.executorPath, info.executorFunc),
-				),
-				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-				jen.Id("_").Op("=").Id(info.varName),
-			)
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || isPathImport(imp.Path) {
+			continue
 		}
+		info := knownModules[imp.Path]
+		varName := ctx.moduleImports[imp.Name]
+		errVar := ctx.localName("err")
+		body = append(body,
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Qual(info.executorPath, info.executorFunc),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(varName),
+		)
 	}
 
 	// Path module imports via registry
@@ -640,7 +643,7 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 				if !exists {
 					return fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
 				}
-				subModuleImports[imp.Name] = info.varName
+				subModuleImports[imp.Name] = ctx.localName(info.varName)
 			}
 		}
 	}
@@ -668,19 +671,22 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	}
 
 	// Builtin module imports for this sub-module via registry
-	for _, name := range KnownModuleNames() {
-		info := knownModules[name]
-		if _, ok := subModuleImports[name]; ok {
-			errVar := ctx.localName("err")
-			funcBody = append(funcBody,
-				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-					jen.Lit(name),
-					jen.Qual(info.executorPath, info.executorFunc),
-				),
-				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-				jen.Id("_").Op("=").Id(info.varName),
-			)
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || isPathImport(imp.Path) {
+			continue
 		}
+		info := knownModules[imp.Path]
+		varName := subModuleImports[imp.Name]
+		errVar := ctx.localName("err")
+		funcBody = append(funcBody,
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Qual(info.executorPath, info.executorFunc),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(varName),
+		)
 	}
 
 	// Path module imports for this sub-module
@@ -1938,12 +1944,13 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		if err != nil {
 			return nil, err
 		}
+		hasVar := ctx.localName("has")
 		constructorSetup = append(constructorSetup,
 			jen.If(
 				jen.Len(jen.Id(shadowPositionalName)).Op("<=").Lit(index),
 			).BlockFunc(func(group *jen.Group) {
-				group.List(jen.Id("_"), jen.Id("_has_"+field.Name)).Op(":=").Id(shadowKeywordName).Index(jen.Lit(field.Name))
-				group.If(jen.Op("!").Id("_has_" + field.Name)).Block(append(defaultPre,
+				group.List(jen.Id("_"), jen.Id(hasVar)).Op(":=").Id(shadowKeywordName).Index(jen.Lit(field.Name))
+				group.If(jen.Op("!").Id(hasVar)).Block(append(defaultPre,
 					jen.Id(shadowKeywordName).Index(jen.Lit(field.Name)).Op("=").Add(defaultValue),
 				)...)
 			}),
@@ -2674,7 +2681,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 			if !exists {
 				return fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
 			}
-			subModuleImports[imp.Name] = info.varName
+			subModuleImports[imp.Name] = ctx.localName(info.varName)
 		}
 	}
 
@@ -2731,19 +2738,22 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	}
 
 	// Builtin module imports via registry parameter.
-	for _, name := range KnownModuleNames() {
-		info := knownModules[name]
-		if _, ok := subModuleImports[name]; ok {
-			errVar := ctx.localName("err")
-			funcBody = append(funcBody,
-				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
-					jen.Lit(name),
-					jen.Qual(info.executorPath, info.executorFunc),
-				),
-				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-				jen.Id("_").Op("=").Id(info.varName),
-			)
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || isPathImport(imp.Path) {
+			continue
 		}
+		info := knownModules[imp.Path]
+		varName := subModuleImports[imp.Name]
+		errVar := ctx.localName("err")
+		funcBody = append(funcBody,
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Qual(info.executorPath, info.executorFunc),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(varName),
+		)
 	}
 
 	// Path module imports via closure that passes registry down.
@@ -2765,7 +2775,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 				jen.Func().Params().Parens(jen.List(
 					jen.Qual(pathObject, "Object"), jen.Error(),
 				)).Block(
-					jen.Return(jen.Qual(subImportPath, "Execute").Call(jen.Id("registry"))),
+					jen.Return(jen.Qual(subImportPath, "Execute").Call(jen.Id("_registry"))),
 				),
 			),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -2784,7 +2794,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	)
 
 	f.Func().Id("Execute").Params(
-		jen.Id("registry").Op("*").Qual(pathObject, "Registry"),
+		jen.Id("_registry").Op("*").Qual(pathObject, "Registry"),
 	).Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
 	)).Block(funcBody...)
@@ -2845,7 +2855,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 			if !exists {
 				return fmt.Errorf("unknown module: %s", imp.Path)
 			}
-			mainModuleImports[imp.Name] = info.varName
+			mainModuleImports[imp.Name] = ctx.localName(info.varName)
 		}
 	}
 
@@ -2878,19 +2888,22 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	}
 
 	// Builtin module imports via _registry global.
-	for _, name := range KnownModuleNames() {
-		info := knownModules[name]
-		if _, ok := mainModuleImports[name]; ok {
-			errVar := ctx.localName("err")
-			body = append(body,
-				jen.List(jen.Id(info.varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-					jen.Lit(name),
-					jen.Qual(info.executorPath, info.executorFunc),
-				),
-				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-				jen.Id("_").Op("=").Id(info.varName),
-			)
+	for _, stmt := range mod.Body {
+		imp, ok := stmt.(*ast.Import)
+		if !ok || isPathImport(imp.Path) {
+			continue
 		}
+		info := knownModules[imp.Path]
+		varName := mainModuleImports[imp.Name]
+		errVar := ctx.localName("err")
+		body = append(body,
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
+				jen.Lit(imp.Path),
+				jen.Qual(info.executorPath, info.executorFunc),
+			),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.Id("_").Op("=").Id(varName),
+		)
 	}
 
 	// Path module imports via closure passing _registry down.

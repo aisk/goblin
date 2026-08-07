@@ -1,0 +1,36 @@
+# User identifiers that coincide with names the transpiler's generated code
+# uses internally. The generator keeps its own variables out of the user's
+# way, so these all behave the same under `goblin run` and `goblin build-exe`.
+import "math"
+
+# Same spelling as the transpiler's internal module variable for `math`.
+var math_module = 3
+print(math_module)
+print(math.abs(-5))
+
+# Names the generated constructor and registry plumbing use internally.
+var _instance = 5
+var _key = 1
+var _value = 2
+var registry = 10
+var self = 20
+type Box(x) {}
+print(Box(_instance).x)
+print(_key + _value + registry + self)
+
+# Field defaults may reference module-level names freely.
+var fallback = 7
+type WithDefault(n=fallback) {}
+print(WithDefault().n)
+
+# Method names whose exported Go spelling collides with generated interface
+# methods (String/ToString/ToBool) are mangled, not broken.
+type Named(name) {
+    func string(self) { return self.name }
+    func toString(self) { return "custom " + self.name }
+    func toBool(self) { return false }
+}
+var n = Named("gob")
+print(n.string())
+print(n.toString())
+print(n.toBool())

@@ -70,6 +70,23 @@ func TestCheckModule(t *testing.T) {
 			errContains: "'Execute' is a reserved name",
 		},
 		{
+			name:        "transpiler scratch name pattern is reserved",
+			source:      "var _err_0 = 1\n",
+			wantErr:     true,
+			errContains: "'_err_0' is a reserved name",
+		},
+		{
+			name:        "scratch name pattern applies to parameters",
+			source:      "func f(_exports_1) { return _exports_1 }\n",
+			wantErr:     true,
+			errContains: "'_exports_1' is a reserved name",
+		},
+		{
+			name:    "plain underscore names are not reserved",
+			source:  "var _tmp = 1\nvar registry = 2\nvar self = 3\nprint(_tmp + registry + self)\n",
+			wantErr: false,
+		},
+		{
 			name:    "break inside loop",
 			source:  "while true { break }\n",
 			wantErr: false,

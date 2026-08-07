@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"runtime/debug"
 	"strings"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/lexer"
+	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
@@ -139,6 +141,34 @@ func TestTranspileKnownHTTPModuleImport(t *testing.T) {
 	} {
 		if !strings.Contains(code, want) {
 			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
+		}
+	}
+}
+
+// Every method the generator declares on a user type's struct — the whole
+// object.Object interface plus the fmt.Stringer String() — must be listed in
+// reservedGoMethodNames, or a user method with the same exported name would
+// collide with the generated one and leak a Go compile error.
+func TestReservedGoMethodNamesCoverObjectInterface(t *testing.T) {
+	iface := reflect.TypeOf((*object.Object)(nil)).Elem()
+	required := []string{"String"}
+	for i := 0; i < iface.NumMethod(); i++ {
+		required = append(required, iface.Method(i).Name)
+	}
+	for _, name := range required {
+		if !reservedGoMethodNames[name] {
+			t.Errorf("generated method %q is missing from reservedGoMethodNames", name)
+		}
+	}
+}
+
+// A user method whose exported name collides with a generated interface
+// method must be mangled, and calls must reach the user method through it.
+func TestTranspileManglesReservedMethodNames(t *testing.T) {
+	code := transpileSource(t, "type T() {\n  func toString(self) { return \"x\" }\n  func toBool(self) { return true }\n}\nvar t = T()\nprint(t.toString())\n")
+	for _, want := range []string{"ToString_", "ToBool_"} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected transpiled code to mangle reserved method name to %q\n%s", want, code)
 		}
 	}
 }

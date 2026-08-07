@@ -91,7 +91,26 @@ func (c *checker) checkReservedName(pos token.Pos, name string) error {
 	if _, ok := goReservedNames[name]; ok {
 		return c.newError(pos, "'%s' is a reserved name", name)
 	}
+	if isTranspilerScratchName(name) {
+		return c.newError(pos, "'%s' is a reserved name (identifiers of the form _name_N are reserved for the transpiler)", name)
+	}
 	return nil
+}
+
+// isTranspilerScratchName reports whether name matches the shape of the
+// transpiler's generated temporaries: a leading underscore and a trailing
+// underscore-digits suffix (e.g. _err_0, _exports_1, _math_module_2). The
+// whole family is reserved so generated locals can never collide with user
+// identifiers in the same scope.
+func isTranspilerScratchName(name string) bool {
+	if len(name) < 4 || name[0] != '_' {
+		return false
+	}
+	i := len(name) - 1
+	for i > 0 && name[i] >= '0' && name[i] <= '9' {
+		i--
+	}
+	return i < len(name)-1 && i > 1 && name[i] == '_'
 }
 
 func CheckModule(mod *ast.Module) error {
