@@ -95,7 +95,12 @@ type transpileContext struct {
 	importing        map[string]struct{} // paths currently being transpiled (cycle detection)
 	imported         map[string]struct{} // paths already transpiled (dedup)
 	moduleFuncs      []jen.Code          // top-level module executor functions (single-file mode)
-	topDecls         []jen.Code          // top-level type declarations and methods
+	topDecls         []jen.Code          // package-level declarations: types, methods, module variables, direct functions
+	// loadedModuleVars tracks the package-level variables holding imported
+	// module values, keyed by variable name, so a module imported from several
+	// places in one generated file is declared exactly once. Reset alongside
+	// topDecls in directory mode, where every file is its own package.
+	loadedModuleVars map[string]struct{}
 	// localTypes holds the specialised native types for the function body
 	// currently being transpiled (see typeinfer.go). It is swapped on entry to
 	// every function body and restored on exit, so it always describes exactly
@@ -153,6 +158,7 @@ func newTranspileContext() *transpileContext {
 		imported:         make(map[string]struct{}),
 		moduleFuncs:      nil,
 		topDecls:         nil,
+		loadedModuleVars: make(map[string]struct{}),
 	}
 }
 
@@ -458,10 +464,12 @@ func keyToFuncName(key string) string {
 }
 
 // collectModuleImports walks a module's imports and builds the module-name to
-// Go-variable-name map both backends of the transpiler use. Path imports map
-// to their own name and are handed to recurse (when non-nil) so dependent
-// modules are transpiled first; stdlib imports are validated against
-// knownModules and mapped to a fresh local variable name. importPath is the
+// Go-variable-name map both backends of the transpiler use. Modules load into
+// package-level variables (so package-level functions can reference them)
+// named after the module itself, which also makes the variable shared when
+// several modules in one generated file import the same module. Path imports
+// are handed to recurse (when non-nil) so dependent modules are transpiled
+// first; stdlib imports are validated against knownModules. importPath is the
 // import path of the module being collected, empty for the entry module (it
 // only affects error wording).
 func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath string, recurse func(string) error) (map[string]string, error) {
@@ -472,7 +480,11 @@ func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath st
 			continue
 		}
 		if isPathImport(imp.Path) {
-			imports[imp.Name] = imp.Name
+			absPath, err := ctx.resolveImportPath(imp.Path)
+			if err != nil {
+				return nil, fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+			}
+			imports[imp.Name] = "_mod_" + keyToIdent(ctx.moduleKey(absPath))
 			if recurse != nil {
 				if err := recurse(imp.Path); err != nil {
 					return nil, err
@@ -486,7 +498,7 @@ func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath st
 				}
 				return nil, fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
 			}
-			imports[imp.Name] = ctx.localName(info.varName)
+			imports[imp.Name] = "_" + info.varName
 		}
 	}
 	return imports, nil
@@ -563,12 +575,14 @@ func (ctx *transpileContext) registryPathLoader(key string) jen.Code {
 	)
 }
 
-// emitExecuteBody builds the body of a module executor function: the
-// builtin/exports prologue, registry Load calls for stdlib and path imports,
-// the transpiled module statements, and the module-value return. The caller
-// must already have swapped ctx.moduleImports to imports. pathLoader supplies
-// the loader argument for path-import Load calls. When moduleErrPrefix is
-// non-empty, transpile errors are wrapped as
+// emitExecuteBody builds the body of a module executor function: the exports
+// prologue, registry Load calls for stdlib and path imports, the transpiled
+// module statements, and the module-value return. Module state — imported
+// module values, module variables, function values — lives in package-level
+// variables (declared via ctx.topDecls); the executor only assigns them, in
+// source order. The caller must already have swapped ctx.moduleImports to
+// imports. pathLoader supplies the loader argument for path-import Load
+// calls. When moduleErrPrefix is non-empty, transpile errors are wrapped as
 // "transpile error in module <prefix>: ..."; otherwise they are returned bare.
 func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string]string, moduleErrPrefix string, pathLoader func(key string) jen.Code) ([]jen.Code, error) {
 	exportsVar := ctx.localName("exports")
@@ -586,9 +600,24 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 	}
 
 	body := []jen.Code{
-		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
-		jen.Id("_").Op("=").Id("builtin"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
+	}
+
+	// loadModule declares the package-level variable holding a loaded module
+	// (once per generated file — the same module imported elsewhere reuses it)
+	// and emits its registry Load call. Reloading an already-loaded module is
+	// a registry cache hit, so a shared variable is reassigned the same value.
+	loadModule := func(varName string, loadArgs ...jen.Code) {
+		if _, declared := ctx.loadedModuleVars[varName]; !declared {
+			ctx.loadedModuleVars[varName] = struct{}{}
+			ctx.topDecls = append(ctx.topDecls, jen.Var().Id(varName).Qual(pathObject, "Object"))
+		}
+		errVar := ctx.localName("err")
+		body = append(body,
+			jen.Var().Id(errVar).Error(),
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op("=").Id("_registry").Dot("Load").Call(loadArgs...),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
 	}
 
 	// Builtin module imports via registry
@@ -598,16 +627,7 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 			continue
 		}
 		info := knownModules[imp.Path]
-		varName := imports[imp.Name]
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Qual(info.executorPath, info.executorFunc),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(varName),
-		)
+		loadModule(imports[imp.Name], jen.Lit(imp.Path), jen.Qual(info.executorPath, info.executorFunc))
 	}
 
 	// Path module imports via registry
@@ -621,15 +641,7 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 			return nil, fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
 		}
 		key := ctx.moduleKey(absPath)
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(key),
-				pathLoader(key),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(imp.Name),
-		)
+		loadModule(imports[imp.Name], jen.Lit(key), pathLoader(key))
 	}
 
 	body = append(body, stmts...)
@@ -663,6 +675,7 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	ctx.moduleImports = imports
 
 	f := jen.NewFile(mod.Name)
+	f.Var().Id("builtin").Op("=").Qual(pathExtension, "BuiltinsModule")
 
 	// Emit registry global variable
 	hasImports := false
@@ -1600,13 +1613,14 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 	), nil
 }
 
-// buildDirectFunction emits the two assignments for a direct-lowered
-// module-level function: the direct Go closure holding the transpiled body,
-// with one Go parameter per Goblin parameter, and the &object.Function
-// wrapper adapting CallArgs-shaped calls onto it. The wrapper reproduces the
-// fast/slow binding split buildFunctionValue generates, so every call shape
-// that is not lowered — keyword arguments, wrong arity, the function used as
-// a value — behaves exactly as before, diagnostics included.
+// buildDirectFunction generates a direct-lowered module-level function: a
+// package-level Go function holding the transpiled body, with one Go
+// parameter per Goblin parameter, and the returned assignment of the
+// &object.Function wrapper adapting CallArgs-shaped calls onto it. The
+// wrapper reproduces the fast/slow binding split buildFunctionValue
+// generates, so every call shape that is not lowered — keyword arguments,
+// wrong arity, the function used as a value — behaves exactly as before,
+// diagnostics included.
 func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.FunctionDefine) ([]jen.Code, error) {
 	name, pos, params, body := fn.Name, fn.Position(), fn.Parameters, fn.Body
 
@@ -1639,9 +1653,10 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	for _, param := range params {
 		paramDecls = append(paramDecls, jen.Id(param.Name).Qual(pathObject, "Object"))
 	}
-	directClosure := jen.Func().Params(paramDecls...).Parens(jen.List(
-		jen.Qual(pathObject, "Object"), jen.Id("error"),
-	)).Block(bodyCode...)
+	ctx.topDecls = append(ctx.topDecls,
+		jen.Func().Id(info.goName).Params(paramDecls...).Parens(jen.List(
+			jen.Qual(pathObject, "Object"), jen.Id("error"),
+		)).Block(bodyCode...))
 
 	callArgsName := ctx.localName("callArgs")
 	boundName := ctx.localName("bound")
@@ -1702,7 +1717,6 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	)).Block(wrapperBody...)
 
 	return []jen.Code{
-		jen.Id(info.goName).Op("=").Add(directClosure),
 		jen.Id(name).Op("=").Op("&").Qual(pathObject, "Function").Values(
 			jen.Id("Name").Op(":").Lit(name),
 			jen.Id("Fn").Op(":").Add(wrapper),
@@ -2101,10 +2115,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		savedPos := ctx.errorPos
 		ctx.errorPos = method.Position()
 
-		bodyPrefix := []jen.Code{
-			jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
-			jen.Id("_").Op("=").Id("builtin"),
-		}
+		var bodyPrefix []jen.Code
 		defaultsDecl, defaultsName, err := ctx.emitParamDefaults(method.Parameters[1:])
 		if err != nil {
 			return nil, err
@@ -2604,12 +2615,14 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 
 // transpileModuleStatements transpiles a module body with hoisting, mirroring
 // the interpreter, which registers all top-level function and type definitions
-// before executing the module body. Every module-level binding is declared
-// upfront (initialized to nil), all function values are assigned next, and the
-// remaining statements run in source order. This makes forward references —
-// including mutually recursive functions — work in generated code. Type
-// constructor names are pre-registered for the same reason (their variables
-// are emitted as package-level declarations).
+// before executing the module body. Every module-level binding is declared as
+// a package-level variable (initialized to nil), all function values are
+// assigned next, and the remaining statements run in source order. This makes
+// forward references — including mutually recursive functions — work in
+// generated code, and it puts module state where the other package-level
+// definitions (type methods, direct functions) can reach it: those are plain
+// top-level Go functions, not closures over Execute's locals. Type
+// constructor names are pre-registered for the same reason.
 func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	// A module's top level is a function body too — it becomes Execute() — so
 	// its locals are eligible for the same specialisation.
@@ -2639,11 +2652,10 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 	ctx.directFns = ctx.collectDirectFns(stmts)
 	defer ctx.enterScope(stmts)()
 
-	var decls, funcAssigns, body []jen.Code
+	var funcAssigns, body []jen.Code
 	declare := func(name string) {
-		decl := jen.Var().Id(name).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Nil")
-		decl.Op(";").Id("_").Op("=").Id(name)
-		decls = append(decls, decl)
+		ctx.topDecls = append(ctx.topDecls,
+			jen.Var().Id(name).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Nil"))
 	}
 	savedPos := ctx.errorPos
 	defer func() { ctx.errorPos = savedPos }()
@@ -2653,10 +2665,6 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 		case *ast.FunctionDefine:
 			declare(v.Name)
 			if info, ok := ctx.directFns[v.Name]; ok {
-				// The direct closure variable is hoisted with the other
-				// declarations so mutually recursive functions can call each
-				// other directly regardless of definition order.
-				decls = append(decls, directFnDecl(info))
 				assigns, err := ctx.buildDirectFunction(info, v)
 				if err != nil {
 					return nil, err
@@ -2670,16 +2678,14 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 			}
 			funcAssigns = append(funcAssigns, jen.Id(v.Name).Op("=").Add(funcValue))
 		case *ast.Declare:
-			// Split `var x = expr` into a hoisted declaration and an in-place
-			// assignment so function closures may reference the variable
+			// Split `var x = expr` into a package-level declaration and an
+			// in-place assignment so functions may reference the variable
 			// regardless of where their definition appears in the source.
-			// A specialised variable is hoisted with its native type; it can
+			// A specialised variable is declared with its native type; it can
 			// never be captured by a closure, since being named inside a nested
 			// scope is exactly what disqualifies it from specialisation.
 			if t := ctx.typeOf(v.Name); t.native() {
-				decl := jen.Var().Id(v.Name).Id(goTypeOf(t))
-				decl.Op(";").Id("_").Op("=").Id(v.Name)
-				decls = append(decls, decl)
+				ctx.topDecls = append(ctx.topDecls, jen.Var().Id(v.Name).Id(goTypeOf(t)))
 
 				pre, value, err := ctx.emitNative(v.Value, onError)
 				if err != nil {
@@ -2707,8 +2713,7 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 			body = append(body, codes...)
 		}
 	}
-	result := append(decls, funcAssigns...)
-	return append(result, body...), nil
+	return append(funcAssigns, body...), nil
 }
 
 func (ctx *transpileContext) transpileStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
@@ -2882,6 +2887,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		}
 
 		f := jen.NewFile(pkgName)
+		f.Var().Id("builtin").Op("=").Qual(pathExtension, "BuiltinsModule")
 
 		// Register import aliases so jennifer uses _pkg_X for sub-path-imports.
 		for _, stmt := range mod.Body {
@@ -2902,9 +2908,9 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		ctx.moduleImports = imports
 		defer func() { ctx.moduleImports = savedImports }()
 
-		savedTopDecls := ctx.topDecls
-		ctx.topDecls = nil
-		defer func() { ctx.topDecls = savedTopDecls }()
+		savedTopDecls, savedLoaded := ctx.topDecls, ctx.loadedModuleVars
+		ctx.topDecls, ctx.loadedModuleVars = nil, make(map[string]struct{})
+		defer func() { ctx.topDecls, ctx.loadedModuleVars = savedTopDecls, savedLoaded }()
 
 		funcBody, err := ctx.emitExecuteBody(mod, imports, importPath, ctx.registryPathLoader)
 		if err != nil {
@@ -2938,6 +2944,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 // generateMainFile generates output/main.go for the top-level module.
 func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	f := jen.NewFile("main")
+	f.Var().Id("builtin").Op("=").Qual(pathExtension, "BuiltinsModule")
 
 	// Register import aliases for path imports.
 	for _, stmt := range mod.Body {
@@ -2972,9 +2979,9 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	ctx.moduleImports = imports
 	defer func() { ctx.moduleImports = savedImports }()
 
-	savedTopDecls := ctx.topDecls
-	ctx.topDecls = nil
-	defer func() { ctx.topDecls = savedTopDecls }()
+	savedTopDecls, savedLoaded := ctx.topDecls, ctx.loadedModuleVars
+	ctx.topDecls, ctx.loadedModuleVars = nil, make(map[string]struct{})
+	defer func() { ctx.topDecls, ctx.loadedModuleVars = savedTopDecls, savedLoaded }()
 
 	body, err := ctx.emitExecuteBody(mod, imports, "", ctx.registryPathLoader)
 	if err != nil {

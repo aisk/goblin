@@ -15,17 +15,18 @@ import (
 // positional arguments of the right arity) all of that is knowable at
 // transpile time.
 //
-// For such functions the transpiler additionally emits a plain Go closure
+// For such functions the transpiler additionally emits a plain package-level
+// Go function
 //
-//	_direct_fib_N = func(n object.Object) (object.Object, error) { <body> }
+//	func _direct_fib_N(n object.Object) (object.Object, error) { <body> }
 //
 // and the &object.Function wrapper degrades to a thin adapter that forwards to
-// it. Call sites that statically match the fast shape call the closure
-// directly; everything else — the function used as a value, spawn, keyword or
-// unpacked arguments, wrong arity — still goes through the wrapper and behaves
-// exactly as before.
+// it. Call sites that statically match the fast shape call the function
+// directly — a static Go call the compiler can inline; everything else — the
+// function used as a value, spawn, keyword or unpacked arguments, wrong arity
+// — still goes through the wrapper and behaves exactly as before.
 type directFn struct {
-	goName string // name of the generated Go closure variable
+	goName string // name of the generated package-level Go function
 	arity  int    // number of fixed parameters
 }
 
@@ -67,20 +68,6 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) map[string]
 		}
 	}
 	return fns
-}
-
-// directFnDecl emits the hoisted declaration of a direct closure variable,
-// `var _direct_f_N func(object.Object, ...) (object.Object, error)`, so that
-// mutually recursive functions can reference each other before both
-// assignments have run.
-func directFnDecl(info directFn) jen.Code {
-	params := make([]jen.Code, info.arity)
-	for i := range params {
-		params[i] = jen.Qual(pathObject, "Object")
-	}
-	return jen.Var().Id(info.goName).Func().Params(params...).Parens(jen.List(
-		jen.Qual(pathObject, "Object"), jen.Id("error"),
-	))
 }
 
 // tryDirectCall lowers a call through a bare name into a direct Go call when

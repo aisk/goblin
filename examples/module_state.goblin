@@ -1,0 +1,28 @@
+# Module-level state is one shared scope: type methods, named functions, and
+# lambdas all read and write the same top-level bindings, in both backends.
+var counter = 0
+var greeting = "hello"
+
+type Counter(step) {
+    func bump(self) {
+        counter = counter + self.step
+        return counter
+    }
+    func describe(self) {
+        return greeting + " counter"
+    }
+}
+
+func reset() {
+    counter = 0
+}
+
+var peek = func() { return counter }
+
+var c = Counter(5)
+print(c.bump())
+print(c.bump())
+print(c.describe())
+print(peek())
+reset()
+print(counter)
