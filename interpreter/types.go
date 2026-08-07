@@ -14,6 +14,8 @@ import (
 type goblinType struct {
 	name        string
 	fields      []*ast.TypeField
+	params      []string
+	defaults    []object.ParamDefault
 	methods     map[string]*ast.FunctionDefine
 	attributes  []string
 	constructor *object.Function
@@ -48,9 +50,18 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 	t := &goblinType{
 		name:       def.Name,
 		fields:     def.Fields,
+		params:     make([]string, len(def.Fields)),
+		defaults:   make([]object.ParamDefault, len(def.Fields)),
 		methods:    methods,
 		attributes: attributes,
 		env:        env,
+	}
+	for i, f := range def.Fields {
+		t.params[i] = f.Name
+		if f.HasDefault() {
+			expr := f.DefaultValue
+			t.defaults[i] = func() (object.Object, error) { return evalExpr(expr, t.env) }
+		}
 	}
 	t.constructor = &object.Function{
 		Name: def.Name,
@@ -59,43 +70,13 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 	env.Define(def.Name, t.constructor)
 }
 
-// construct binds call arguments to fields, applying defaults, and returns a
-// new instance.
+// construct binds call arguments to fields through the shared
+// object.BindArguments, so diagnostics match the transpiled backend exactly.
 func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
-	if len(args.Positional) > len(t.fields) {
-		return nil, object.NewTypeError("%s() takes %d positional arguments, got %d", t.name, len(t.fields), len(args.Positional))
+	fields, err := object.BindArguments(t.name, t.params, t.defaults, "", "", args)
+	if err != nil {
+		return nil, err
 	}
-
-	fields := make(map[string]object.Object, len(t.fields))
-	for i, p := range args.Positional {
-		fields[t.fields[i].Name] = p
-	}
-
-	for key, value := range args.Keyword {
-		if !t.hasField(key) {
-			return nil, object.NewTypeError("%s() got an unexpected keyword argument '%s'", t.name, key)
-		}
-		if _, exists := fields[key]; exists {
-			return nil, object.NewTypeError("%s() got multiple values for argument '%s'", t.name, key)
-		}
-		fields[key] = value
-	}
-
-	for _, f := range t.fields {
-		if _, ok := fields[f.Name]; ok {
-			continue
-		}
-		if f.HasDefault() {
-			dv, err := evalExpr(f.DefaultValue, t.env)
-			if err != nil {
-				return nil, err
-			}
-			fields[f.Name] = dv
-			continue
-		}
-		return nil, object.NewTypeError("%s() missing required positional argument: '%s'", t.name, f.Name)
-	}
-
 	return &instance{typ: t, fields: fields}, nil
 }
 
