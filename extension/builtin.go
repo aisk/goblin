@@ -80,7 +80,7 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 	}
 	b.WriteByte('\n')
 	if _, err := io.WriteString(w, b.String()); err != nil {
-		return nil, object.WrapNativeError(object.IOError, name+"() failed", err)
+		return nil, object.WrapNativeError(object.IOError, name+"() failed to write output", err)
 	}
 	return object.Nil, nil
 }

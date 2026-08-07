@@ -27,7 +27,7 @@ func cwd(args object.CallArgs) (object.Object, error) {
 	}
 	dir, err := os.Getwd()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "cwd() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "cwd() failed to get working directory", err)
 	}
 	return NewPath(dir), nil
 }
@@ -38,7 +38,7 @@ func home(args object.CallArgs) (object.Object, error) {
 	}
 	dir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "home() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "home() failed to resolve home directory", err)
 	}
 	return NewPath(dir), nil
 }

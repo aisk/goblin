@@ -26,7 +26,7 @@ func parse(args object.CallArgs) (object.Object, error) {
 	}
 	value, err := url.Parse(string(raw))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "parse() failed", err)
+		return nil, object.WrapError(object.ParseError, "parse() invalid URL", err)
 	}
 	return newURL(value), nil
 }
@@ -52,7 +52,7 @@ func joinPath(args object.CallArgs) (object.Object, error) {
 	}
 	value, err := url.JoinPath(string(base), elements...)
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "join_path() failed", err)
+		return nil, object.WrapError(object.ParseError, "join_path() invalid URL", err)
 	}
 	return object.String(value), nil
 }
@@ -74,7 +74,7 @@ func unescape(name string, args object.CallArgs, fn func(string) (string, error)
 	}
 	result, err := fn(string(value))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, name+"() failed", err)
+		return nil, object.WrapError(object.ParseError, name+"() invalid URL", err)
 	}
 	return object.String(result), nil
 }

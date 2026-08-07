@@ -23,7 +23,7 @@ func compile(args object.CallArgs) (object.Object, error) {
 	}
 	re, err := stdregexp.Compile(string(source))
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "compile() failed", err)
+		return nil, object.WrapError(object.ParseError, "compile() invalid pattern", err)
 	}
 	return &Pattern{
 		OpaqueBase: object.MakeOpaqueBase("Pattern"),

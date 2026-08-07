@@ -46,7 +46,7 @@ func (c *Cmd) start(args object.CallArgs) (object.Object, error) {
 	}
 	if err := c.cmd.Start(); err != nil {
 		c.state = stateFailed
-		return nil, object.WrapNativeError(object.IOError, "start() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "start() failed to start command", err)
 	}
 	c.state = stateRunning
 	c.done = make(chan struct{})
@@ -60,7 +60,7 @@ func (c *Cmd) reap() {
 	if err != nil {
 		var exitErr *stdexec.ExitError
 		if !errors.As(err, &exitErr) {
-			c.waitErr = object.WrapNativeError(object.IOError, "wait() failed", err)
+			c.waitErr = object.WrapNativeError(object.IOError, "wait() command failed", err)
 		}
 	}
 	c.result = c.makeResult()
@@ -120,7 +120,7 @@ func (c *Cmd) kill(args object.CallArgs) (object.Object, error) {
 		if errors.Is(err, os.ErrProcessDone) {
 			return object.Nil, nil
 		}
-		return nil, object.WrapNativeError(object.IOError, "kill() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "kill() failed to kill command", err)
 	}
 	return object.Nil, nil
 }

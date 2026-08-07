@@ -43,7 +43,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 	if !hasSize {
 		data, err := io.ReadAll(f.File)
 		if err != nil {
-			return nil, object.WrapNativeError(object.IOError, "read() failed", err)
+			return nil, object.WrapNativeError(object.IOError, "read() failed to read file", err)
 		}
 		return object.NewBytes(data), nil
 	}
@@ -53,7 +53,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 	buf := make([]byte, int(size))
 	n, err := f.File.Read(buf)
 	if err != nil && err != io.EOF {
-		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "read() failed to read file", err)
 	}
 	return object.NewBytes(buf[:n]), nil
 }
@@ -70,7 +70,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 
 	n, err := f.File.Write(content)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "write() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "write() failed to write file", err)
 	}
 	return object.Integer(n), nil
 }
@@ -83,7 +83,7 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 		return object.Nil, nil
 	}
 	if err := f.File.Close(); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "close() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "close() failed to close file", err)
 	}
 	f.closed = true
 	return object.Nil, nil
@@ -99,7 +99,7 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 
 	info, err := f.File.Stat()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "stat() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "stat() failed to stat file", err)
 	}
 	return NewFileInfo(info), nil
 }

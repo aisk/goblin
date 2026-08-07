@@ -54,7 +54,7 @@ func csvReadAll(args object.CallArgs) (object.Object, error) {
 	}
 	records, err := reader.ReadAll()
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "read_all() failed", err)
+		return nil, object.WrapError(object.ParseError, "read_all() invalid CSV data", err)
 	}
 	return csvRecordsObject(records), nil
 }
@@ -90,7 +90,7 @@ func csvWriteAll(args object.CallArgs) (object.Object, error) {
 	writer.UseCRLF = bool(useCRLF)
 	writer.WriteAll(records)
 	if err := writer.Error(); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "write_all() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "write_all() failed to write CSV data", err)
 	}
 	if sink != &output {
 		return object.Nil, nil

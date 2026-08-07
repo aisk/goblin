@@ -47,7 +47,7 @@ func openFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "open() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "open() failed to open file", err)
 	}
 
 	return NewFile(path, file), nil
@@ -61,7 +61,7 @@ func createFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Create(path)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "create() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "create() failed to create file", err)
 	}
 	return NewFile(path, file), nil
 }
@@ -74,13 +74,13 @@ func readFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "read() failed to open file", err)
 	}
 	defer file.Close()
 
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "read() failed to read file", err)
 	}
 	return object.String(data), nil
 }
@@ -110,7 +110,7 @@ func writeFile(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "write() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "write() failed to write file", err)
 	}
 	return object.Integer(len(content)), nil
 }
@@ -123,13 +123,13 @@ func appendFile(args object.CallArgs) (object.Object, error) {
 
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "append() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "append() failed to open file", err)
 	}
 	defer file.Close()
 
 	n, err := file.WriteString(content)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "append() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "append() failed to write file", err)
 	}
 	return object.Integer(n), nil
 }
@@ -147,7 +147,7 @@ func exists(args object.CallArgs) (object.Object, error) {
 	if os.IsNotExist(err) {
 		return object.Bool(false), nil
 	}
-	return nil, object.WrapNativeError(object.IOError, "exists() failed", err)
+	return nil, object.WrapNativeError(object.IOError, "exists() failed to stat path", err)
 }
 
 func stat(args object.CallArgs) (object.Object, error) {
@@ -158,7 +158,7 @@ func stat(args object.CallArgs) (object.Object, error) {
 
 	info, err := os.Stat(path)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "stat() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "stat() failed to stat path", err)
 	}
 	return NewFileInfo(info), nil
 }
@@ -171,14 +171,14 @@ func readDir(args object.CallArgs) (object.Object, error) {
 
 	entries, err := os.ReadDir(path)
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "read_dir() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "read_dir() failed to read directory", err)
 	}
 
 	items := make([]object.Object, len(entries))
 	for i, entry := range entries {
 		info, err := entry.Info()
 		if err != nil {
-			return nil, object.WrapNativeError(object.IOError, "read_dir() failed", err)
+			return nil, object.WrapNativeError(object.IOError, "read_dir() failed to read directory", err)
 		}
 		items[i] = NewFileInfo(info)
 	}
@@ -192,7 +192,7 @@ func mkdir(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.Mkdir(path, 0755); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "mkdir() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "mkdir() failed to create directory", err)
 	}
 	return object.Nil, nil
 }
@@ -204,7 +204,7 @@ func remove(args object.CallArgs) (object.Object, error) {
 	}
 
 	if err := os.Remove(path); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "remove() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "remove() failed to remove path", err)
 	}
 	return object.Nil, nil
 }

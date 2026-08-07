@@ -96,7 +96,7 @@ func setenv(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if err := os.Setenv(string(key), string(value)); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "setenv() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "setenv() failed to set environment variable", err)
 	}
 	return object.Nil, nil
 }
@@ -108,7 +108,7 @@ func unsetenv(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if err := os.Unsetenv(string(key)); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "unsetenv() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "unsetenv() failed to unset environment variable", err)
 	}
 	return object.Nil, nil
 }
@@ -146,7 +146,7 @@ func hostname(args object.CallArgs) (object.Object, error) {
 	}
 	name, err := os.Hostname()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "hostname() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "hostname() failed to query hostname", err)
 	}
 	return object.String(name), nil
 }
@@ -157,7 +157,7 @@ func getgroups(args object.CallArgs) (object.Object, error) {
 	}
 	gids, err := os.Getgroups()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "getgroups() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "getgroups() failed to query group ids", err)
 	}
 	elems := make([]object.Object, len(gids))
 	for i, g := range gids {
@@ -179,7 +179,7 @@ func getwd(args object.CallArgs) (object.Object, error) {
 	}
 	wd, err := os.Getwd()
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "getwd() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "getwd() failed to get working directory", err)
 	}
 	return object.String(wd), nil
 }
@@ -204,7 +204,7 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	}
 	path, err := os.MkdirTemp(dir, string(pattern))
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempdir() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "tempdir() failed to create temporary directory", err)
 	}
 	return object.String(path), nil
 }
@@ -229,7 +229,7 @@ func tempFile(args object.CallArgs) (object.Object, error) {
 	}
 	f, err := os.CreateTemp(dir, string(pattern))
 	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempfile() failed", err)
+		return nil, object.WrapNativeError(object.IOError, "tempfile() failed to create temporary file", err)
 	}
 	f.Close()
 	return object.String(f.Name()), nil
