@@ -277,3 +277,104 @@ func TestTranspileTypeAllowsAttributesOverride(t *testing.T) {
 		t.Fatalf("generated Attributes metadata does not include override\n%s", code)
 	}
 }
+
+func TestDirectCallLowering(t *testing.T) {
+	t.Run("plain and recursive calls lower", func(t *testing.T) {
+		code := transpileSource(t, `func fib(n) {
+    if n < 2 { return n }
+    return fib(n - 1) + fib(n - 2)
+}
+print(fib(10))
+`)
+		if !strings.Contains(code, "_direct_fib_") {
+			t.Fatalf("expected a direct closure for fib\n%s", code)
+		}
+		if strings.Contains(code, `object.Call(fib`) {
+			t.Fatalf("expected no generic call to fib\n%s", code)
+		}
+	})
+
+	t.Run("reassigned function stays generic", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) { return n }
+f = 1
+`)
+		if strings.Contains(code, "_direct_f_") {
+			t.Fatalf("expected no direct closure for a reassigned function\n%s", code)
+		}
+	})
+
+	t.Run("keyword and wrong-arity calls stay generic", func(t *testing.T) {
+		code := transpileSource(t, `func add(a, b) { return a + b }
+add(a = 1, b = 2)
+`)
+		if !strings.Contains(code, `object.Call(add`) {
+			t.Fatalf("expected keyword call to go through object.Call\n%s", code)
+		}
+	})
+
+	t.Run("varargs function stays generic", func(t *testing.T) {
+		code := transpileSource(t, `func f(*rest) { return rest }
+f(1, 2)
+`)
+		if strings.Contains(code, "_direct_f_") {
+			t.Fatalf("expected no direct closure for a varargs function\n%s", code)
+		}
+	})
+
+	t.Run("local shadow blocks lowering", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) { return n }
+func g() {
+    var f = 1
+    return f(2)
+}
+`)
+		if !strings.Contains(code, `object.Call(f`) {
+			t.Fatalf("a call through a shadowing local must stay generic\n%s", code)
+		}
+	})
+}
+
+func TestRangeForLowering(t *testing.T) {
+	t.Run("range loop lowers to a native counter", func(t *testing.T) {
+		code := transpileSource(t, `for i in range(0, 10) {
+    print(i)
+}
+`)
+		if strings.Contains(code, `builtin.Members["range"]`) {
+			t.Fatalf("expected no call to the range builtin\n%s", code)
+		}
+		if !strings.Contains(code, "_range_i_") {
+			t.Fatalf("expected a native counting loop\n%s", code)
+		}
+	})
+
+	t.Run("dynamic bounds validate through RangeBounds", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) {
+    for i in range(0, n) { print(i) }
+}
+`)
+		if !strings.Contains(code, "extension.RangeBounds") {
+			t.Fatalf("expected boxed bounds to go through RangeBounds\n%s", code)
+		}
+	})
+
+	t.Run("range used outside a for stays a builtin call", func(t *testing.T) {
+		code := transpileSource(t, `var xs = range(0, 3)
+print(xs)
+`)
+		if !strings.Contains(code, `builtin.Members["range"]`) {
+			t.Fatalf("expected non-loop range use to call the builtin\n%s", code)
+		}
+	})
+
+	t.Run("mutated loop variable falls back to a boxed binding", func(t *testing.T) {
+		code := transpileSource(t, `for i in range(0, 3) {
+    i = 1.5
+    print(i)
+}
+`)
+		if !strings.Contains(code, "var i object.Object = object.Integer(") {
+			t.Fatalf("expected the loop variable to stay boxed\n%s", code)
+		}
+	})
+}

@@ -114,6 +114,21 @@ type transpileContext struct {
 	// built-in functions the same way the interpreter's environment chain does.
 	userScopes []map[string]struct{}
 
+	// rangeNative reports whether `range` resolves to the builtin throughout
+	// the function body currently being transpiled, making `for x in
+	// range(a, b)` eligible for lowering to a native counting loop. Swapped
+	// alongside localTypes by enterScope; the inference pass and transpileFor
+	// must agree on it, so it is a whole-body property.
+	rangeNative bool
+
+	// directFns holds the module-level functions of the module currently
+	// being transpiled that are eligible for direct-call lowering (see
+	// directcall.go), and moduleScopeIdx is the index of that module's user
+	// scope: a call site may only be lowered while no deeper scope shadows
+	// the function's name.
+	directFns      map[string]directFn
+	moduleScopeIdx int
+
 	// errorPos is the position of the statement currently being transpiled.
 	// Frame-producing error handlers read it so tracebacks point at the
 	// failing statement, mirroring the interpreter's positionError tagging.
@@ -165,11 +180,19 @@ func (ctx *transpileContext) isUserName(name string) bool {
 }
 
 // enterScope installs the type environment inferred for a function body and
-// returns a function restoring the previous one.
+// returns a function restoring the previous one. It must be called after the
+// body's parameters (and, for a module, its hoisted names) are declared in the
+// user scope: whether `range` still means the builtin here depends on them.
 func (ctx *transpileContext) enterScope(body []ast.Statement) func() {
-	saved := ctx.localTypes
-	ctx.localTypes = inferLocals(body)
-	return func() { ctx.localTypes = saved }
+	savedTypes := ctx.localTypes
+	savedRange := ctx.rangeNative
+	_, rangeImported := ctx.moduleImports["range"]
+	ctx.rangeNative = !rangeImported && !ctx.isUserName("range") && !bodyDeclaresName(body, "range")
+	ctx.localTypes = inferLocals(body, ctx.rangeNative)
+	return func() {
+		ctx.localTypes = savedTypes
+		ctx.rangeNative = savedRange
+	}
 }
 
 // typeOf reports the specialised native type of a name, or tyDynamic when the
@@ -1171,6 +1194,16 @@ func (ctx *transpileContext) transpileContinue(continue_ *ast.Continue) ([]jen.C
 }
 
 func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code, error) {
+	// `for x in range(a, b)` runs as a native counting loop when `range` is
+	// known to be the builtin, instead of materialising a list of boxed
+	// integers only to iterate it once. The condition must stay in lockstep
+	// with collectDeclarations, which types the loop variable accordingly.
+	if ctx.rangeNative {
+		if startExpr, endExpr, ok := rangeCallParts(for_.Iterator); ok {
+			return ctx.transpileRangeFor(for_, startExpr, endExpr, onError)
+		}
+	}
+
 	iterPreStmts, iterator, err := ctx.transpileExpression(for_.Iterator, onError)
 	if err != nil {
 		return nil, err
@@ -1202,7 +1235,83 @@ func (ctx *transpileContext) transpileFor(for_ *ast.For, onError errHandler) ([]
 	return []jen.Code{jen.Block(result...)}, nil
 }
 
+// transpileRangeFor lowers `for x in range(a, b)` onto a native Go counting
+// loop. The bounds are evaluated once, before the loop, exactly as range()'s
+// arguments would be; when they are not provably Integer the shared
+// extension.RangeBounds helper validates them, so a bad bound reports the very
+// error range() itself raises. The loop variable is a fresh binding each
+// iteration — assigning it in the body never affects the iteration, matching
+// list iteration semantics — and is declared as a native int64 when the
+// inference pass proved every assignment to it in this body stays Integer.
+func (ctx *transpileContext) transpileRangeFor(for_ *ast.For, startExpr, endExpr ast.Expression, onError errHandler) ([]jen.Code, error) {
+	counterVar := ctx.localName("range_i")
+	endVar := ctx.localName("range_end")
+
+	var pre []jen.Code
+	var startCode *jen.Statement
+	if ctx.nativeTypeOf(startExpr) == tyInt && ctx.nativeTypeOf(endExpr) == tyInt {
+		startPre, start, err := ctx.emitNative(startExpr, onError)
+		if err != nil {
+			return nil, err
+		}
+		endPre, end, err := ctx.emitNative(endExpr, onError)
+		if err != nil {
+			return nil, err
+		}
+		pre = append(append(pre, startPre...), endPre...)
+		pre = append(pre, jen.Id(endVar).Op(":=").Add(end))
+		startCode = start
+	} else {
+		startPre, start, err := ctx.transpileExpression(startExpr, onError)
+		if err != nil {
+			return nil, err
+		}
+		endPre, end, err := ctx.transpileExpression(endExpr, onError)
+		if err != nil {
+			return nil, err
+		}
+		startVar := ctx.localName("range_start")
+		errVar := ctx.localName("err")
+		pre = append(append(append(pre, startPre...), endPre...),
+			jen.List(jen.Id(startVar), jen.Id(endVar), jen.Id(errVar)).Op(":=").Qual(pathExtension, "RangeBounds").Call(start, end),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		startCode = jen.Id(startVar)
+	}
+
+	popScope := ctx.pushUserScope()
+	ctx.declareUserName(for_.Variable)
+	body, err := ctx.transpileStatements(for_.Body, onError, "")
+	popScope()
+	if err != nil {
+		return nil, err
+	}
+
+	loopBody := make([]jen.Code, 0, len(body)+2)
+	if ctx.typeOf(for_.Variable) == tyInt {
+		loopBody = append(loopBody, jen.Id(for_.Variable).Op(":=").Id(counterVar))
+	} else {
+		loopBody = append(loopBody,
+			jen.Var().Id(for_.Variable).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Integer").Call(jen.Id(counterVar)),
+		)
+	}
+	loopBody = append(loopBody, jen.Id("_").Op("=").Id(for_.Variable))
+	loopBody = append(loopBody, body...)
+
+	result := append(pre, jen.For(
+		jen.Id(counterVar).Op(":=").Add(startCode),
+		jen.Id(counterVar).Op("<").Id(endVar),
+		jen.Id(counterVar).Op("++"),
+	).Block(loopBody...))
+
+	return []jen.Code{jen.Block(result...)}, nil
+}
+
 func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if pre, direct, ok, err := ctx.tryDirectCall(call.Name, call.Args, onError); ok || err != nil {
+		return pre, direct, err
+	}
+
 	argPreStmts, args, err := ctx.transpileCallArguments(call.Args, onError)
 	if err != nil {
 		return nil, nil, err
@@ -1221,6 +1330,12 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 }
 
 func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if ident, ok := call.Callee.(*ast.Identifier); ok {
+		if pre, direct, lowered, err := ctx.tryDirectCall(ident.Name, call.Args, onError); lowered || err != nil {
+			return pre, direct, err
+		}
+	}
+
 	argPreStmts, args, err := ctx.transpileCallArguments(call.Args, onError)
 	if err != nil {
 		return nil, nil, err
@@ -1441,12 +1556,13 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 	}
 
 	// Each function body gets its own inferred types; parameters stay boxed,
-	// since a caller can pass anything.
-	defer ctx.enterScope(body)()
+	// since a caller can pass anything. Parameters are declared before
+	// enterScope so the inference pass sees them as potential shadows.
 	defer ctx.pushUserScope()()
 	for _, param := range params {
 		ctx.declareUserName(param.Name)
 	}
+	defer ctx.enterScope(body)()
 
 	callArgsName := ctx.localName("callArgs")
 
@@ -1482,6 +1598,116 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 		jen.Id("Name").Op(":").Lit(name),
 		jen.Id("Fn").Op(":").Add(closure),
 	), nil
+}
+
+// buildDirectFunction emits the two assignments for a direct-lowered
+// module-level function: the direct Go closure holding the transpiled body,
+// with one Go parameter per Goblin parameter, and the &object.Function
+// wrapper adapting CallArgs-shaped calls onto it. The wrapper reproduces the
+// fast/slow binding split buildFunctionValue generates, so every call shape
+// that is not lowered — keyword arguments, wrong arity, the function used as
+// a value — behaves exactly as before, diagnostics included.
+func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.FunctionDefine) ([]jen.Code, error) {
+	name, pos, params, body := fn.Name, fn.Position(), fn.Parameters, fn.Body
+
+	// Default expressions belong to the enclosing scope, so they are
+	// transpiled before the parameters are declared.
+	defaultsDecl, defaultsName, err := ctx.emitParamDefaults(params)
+	if err != nil {
+		return nil, err
+	}
+
+	popScope := ctx.pushUserScope()
+	for _, param := range params {
+		ctx.declareUserName(param.Name)
+	}
+	restoreTypes := ctx.enterScope(body)
+
+	module := sourceModuleName(pos)
+	fnOnError := func(errVar string) jen.Code {
+		return tracedReturn(errVar, module, name, ctx.framePos(pos))
+	}
+
+	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
+	restoreTypes()
+	popScope()
+	if err != nil {
+		return nil, err
+	}
+
+	paramDecls := make([]jen.Code, 0, len(params))
+	for _, param := range params {
+		paramDecls = append(paramDecls, jen.Id(param.Name).Qual(pathObject, "Object"))
+	}
+	directClosure := jen.Func().Params(paramDecls...).Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Id("error"),
+	)).Block(bodyCode...)
+
+	callArgsName := ctx.localName("callArgs")
+	boundName := ctx.localName("bound")
+	errVar := ctx.localName("err")
+
+	fastArgs := make([]jen.Code, 0, len(params))
+	slowArgs := make([]jen.Code, 0, len(params))
+	paramNames := make([]jen.Code, 0, len(params))
+	for i, param := range params {
+		fastArgs = append(fastArgs, jen.Id(callArgsName).Dot("Positional").Index(jen.Lit(i)))
+		slowArgs = append(slowArgs, jen.Id(boundName).Index(jen.Lit(param.Name)))
+		paramNames = append(paramNames, jen.Lit(param.Name))
+	}
+
+	// Binding errors point at the definition, like buildFunctionValue's.
+	savedPos := ctx.errorPos
+	ctx.errorPos = pos
+	bindErrReturn := fnOnError(errVar)
+	ctx.errorPos = savedPos
+
+	defaultsArg := jen.Nil()
+	if defaultsName != "" {
+		defaultsArg = jen.Id(defaultsName)
+	}
+
+	wrapperBody := []jen.Code{
+		jen.If(
+			jen.Len(jen.Id(callArgsName).Dot("Keyword")).Op("==").Lit(0).
+				Op("&&").
+				Len(jen.Id(callArgsName).Dot("Positional")).Op("==").Lit(len(params)),
+		).Block(
+			jen.Return(jen.Id(info.goName).Call(fastArgs...)),
+		),
+	}
+	if defaultsDecl != nil {
+		wrapperBody = append(wrapperBody, defaultsDecl)
+	}
+	wrapperBody = append(wrapperBody,
+		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
+			jen.Lit(name),
+			jen.Index().String().Values(paramNames...),
+			defaultsArg,
+			jen.Lit(""),
+			jen.Lit(""),
+			jen.Id(callArgsName),
+		),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(bindErrReturn),
+		// A zero-parameter function still needs the call for its arity check,
+		// but then never reads the map.
+		jen.Id("_").Op("=").Id(boundName),
+		jen.Return(jen.Id(info.goName).Call(slowArgs...)),
+	)
+
+	wrapper := jen.Func().Params(
+		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
+	).Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Id("error"),
+	)).Block(wrapperBody...)
+
+	return []jen.Code{
+		jen.Id(info.goName).Op("=").Add(directClosure),
+		jen.Id(name).Op("=").Op("&").Qual(pathObject, "Function").Values(
+			jen.Id("Name").Op(":").Lit(name),
+			jen.Id("Fn").Op(":").Add(wrapper),
+		),
+	}, nil
 }
 
 func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
@@ -2387,8 +2613,13 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, onError errHandler, exportsVar string) ([]jen.Code, error) {
 	// A module's top level is a function body too — it becomes Execute() — so
 	// its locals are eligible for the same specialisation.
-	defer ctx.enterScope(stmts)()
 	defer ctx.pushUserScope()()
+
+	savedDirectFns, savedModuleScopeIdx := ctx.directFns, ctx.moduleScopeIdx
+	ctx.moduleScopeIdx = len(ctx.userScopes) - 1
+	defer func() {
+		ctx.directFns, ctx.moduleScopeIdx = savedDirectFns, savedModuleScopeIdx
+	}()
 
 	for _, stmt := range stmts {
 		switch v := stmt.(type) {
@@ -2400,6 +2631,13 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 			ctx.declareUserName(v.Name)
 		}
 	}
+
+	// Direct-call lowering candidates are fixed before any body transpiles, so
+	// recursive and forward calls lower too. Hoisted names are declared above
+	// for the same reason, and enterScope runs after both so the inference
+	// pass sees the final shadowing picture.
+	ctx.directFns = ctx.collectDirectFns(stmts)
+	defer ctx.enterScope(stmts)()
 
 	var decls, funcAssigns, body []jen.Code
 	declare := func(name string) {
@@ -2414,6 +2652,18 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 		switch v := stmt.(type) {
 		case *ast.FunctionDefine:
 			declare(v.Name)
+			if info, ok := ctx.directFns[v.Name]; ok {
+				// The direct closure variable is hoisted with the other
+				// declarations so mutually recursive functions can call each
+				// other directly regardless of definition order.
+				decls = append(decls, directFnDecl(info))
+				assigns, err := ctx.buildDirectFunction(info, v)
+				if err != nil {
+					return nil, err
+				}
+				funcAssigns = append(funcAssigns, assigns...)
+				continue
+			}
 			funcValue, err := ctx.buildFunctionValue(v.Name, v.Position(), v.Parameters, v.Body)
 			if err != nil {
 				return nil, err

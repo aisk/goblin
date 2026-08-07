@@ -133,6 +133,19 @@ func range_(args object.CallArgs) (object.Object, error) {
 	return &object.List{Elements: elements}, nil
 }
 
+// RangeBounds validates two range arguments through the same parser as the
+// range builtin and returns them as native bounds. The transpiler's
+// specialised for-range loops call this instead of materialising the list, so
+// a bad argument reports exactly the error range() itself would.
+func RangeBounds(start, end object.Object) (int64, int64, error) {
+	p := object.NewArgParser("range", object.CallArgs{Positional: object.Args{start, end}})
+	s, e := p.Int("start"), p.Int("end")
+	if err := p.Finish(); err != nil {
+		return 0, 0, err
+	}
+	return int64(s), int64(e), nil
+}
+
 func max(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("max", args)
 	nums := p.Rest()

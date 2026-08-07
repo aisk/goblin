@@ -83,17 +83,19 @@ func goTypeOf(t staticType) string {
 // inferLocals analyses one function body (a module's top level counts as one)
 // and returns the variables that can be declared with a native Go type.
 //
-// Only names introduced by `var` in this body are candidates. Parameters are
-// excluded: a caller may pass anything, and proving otherwise would need
-// interprocedural analysis.
-func inferLocals(body []ast.Statement) map[string]staticType {
+// Only names introduced by `var` in this body are candidates, plus the
+// variables of for-range loops when rangeNative says the range builtin is what
+// `range` resolves to throughout this body. Parameters are excluded: a caller
+// may pass anything, and proving otherwise would need interprocedural
+// analysis.
+func inferLocals(body []ast.Statement, rangeNative bool) map[string]staticType {
 	types := map[string]staticType{}
 
 	// Candidates: every `var` in this body, at any block depth. Block scoping
 	// means two `var x` in sibling blocks are distinct variables, but merging
 	// them under one name is safe — the join can only lose precision, and Go's
 	// own block scoping keeps the generated declarations correct.
-	collectDeclarations(body, types)
+	collectDeclarations(body, types, rangeNative)
 	if len(types) == 0 {
 		return nil
 	}
@@ -140,7 +142,13 @@ func inferLocals(body []ast.Statement) map[string]staticType {
 // for-in variable takes its type from the container, and a catch variable is
 // always an error object. Both would otherwise collide with a same-named
 // specialised variable in the generated Go.
-func collectDeclarations(stmts []ast.Statement, types map[string]staticType) {
+//
+// The one exception is the variable of a `for x in range(a, b)` loop when
+// rangeNative holds: the transpiler lowers that loop to a native Go counter,
+// so the variable is known to take Integer values and joins as tyInt. The
+// predicate here must match transpileFor's lowering condition exactly, or a
+// natively declared loop variable would receive a boxed value.
+func collectDeclarations(stmts []ast.Statement, types map[string]staticType, rangeNative bool) {
 	forEachStatement(stmts, func(stmt ast.Statement) {
 		switch s := stmt.(type) {
 		case *ast.Declare:
@@ -148,11 +156,74 @@ func collectDeclarations(stmts []ast.Statement, types map[string]staticType) {
 				types[s.Name] = tyUnknown
 			}
 		case *ast.For:
+			if rangeNative {
+				if _, _, ok := rangeCallParts(s.Iterator); ok {
+					types[s.Variable] = join(types[s.Variable], tyInt)
+					return
+				}
+			}
 			types[s.Variable] = tyDynamic
 		case *ast.TryCatch:
 			types[s.CatchVar] = tyDynamic
 		}
 	})
+}
+
+// rangeCallParts reports whether expr is a call of the form range(a, b) —
+// exactly two plain positional arguments — and returns the bound expressions.
+// Both call node shapes are matched: the grammar produces *ast.FunctionCall
+// for a bare-name call and *ast.CallExpression for the general form.
+func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
+	var args []ast.CallArgument
+	switch e := expr.(type) {
+	case *ast.FunctionCall:
+		if e.Name != "range" {
+			return nil, nil, false
+		}
+		args = e.Args
+	case *ast.CallExpression:
+		ident, isIdent := e.Callee.(*ast.Identifier)
+		if !isIdent || ident.Name != "range" {
+			return nil, nil, false
+		}
+		args = e.Args
+	default:
+		return nil, nil, false
+	}
+	if len(args) != 2 {
+		return nil, nil, false
+	}
+	for _, arg := range args {
+		if arg.Kind != ast.CallArgumentPositional {
+			return nil, nil, false
+		}
+	}
+	return args[0].Expr, args[1].Expr, true
+}
+
+// bodyDeclaresName reports whether this body introduces a binding for name at
+// any block depth: a `var`, a for-loop variable, a catch variable, or a
+// function or type definition. Nested function bodies are separate scopes and
+// do not count. enterScope uses this to decide whether `range` means the
+// builtin everywhere in a body, which has to be a whole-body property because
+// the type inference above is flow-insensitive.
+func bodyDeclaresName(stmts []ast.Statement, name string) bool {
+	found := false
+	forEachStatement(stmts, func(stmt ast.Statement) {
+		switch s := stmt.(type) {
+		case *ast.Declare:
+			found = found || s.Name == name
+		case *ast.For:
+			found = found || s.Variable == name
+		case *ast.TryCatch:
+			found = found || s.CatchVar == name
+		case *ast.FunctionDefine:
+			found = found || s.Name == name
+		case *ast.TypeDefine:
+			found = found || s.Name == name
+		}
+	})
+	return found
 }
 
 // poisonCaptured pins every name that appears anywhere inside a nested scope to
