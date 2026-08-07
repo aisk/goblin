@@ -32,11 +32,8 @@ func ExecuteSHA512() (object.Object, error) {
 
 func shaData(name string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(name, args)
-	value := p.Any("data")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return bytesOrString(name, "data", value)
+	data := p.BytesLike("data")
+	return data, p.Finish()
 }
 
 func sha2Function(name string, digest func([]byte) []byte) *object.Function {

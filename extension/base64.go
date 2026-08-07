@@ -33,19 +33,9 @@ func base64URLDecode(args object.CallArgs) (object.Object, error) {
 
 func encodeBase64(name string, encoding *base64.Encoding, args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser(name, args)
-	value := ap.Any("data")
+	data := ap.BytesLike("data")
 	if err := ap.Finish(); err != nil {
 		return nil, err
-	}
-
-	var data []byte
-	switch value := value.(type) {
-	case object.Bytes:
-		data = []byte(value)
-	case object.String:
-		data = []byte(value)
-	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be str or Bytes, got %s", name, value.TypeName())
 	}
 	return object.String(encoding.EncodeToString(data)), nil
 }

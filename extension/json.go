@@ -21,21 +21,12 @@ func ExecuteJson() (object.Object, error) {
 
 func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("unmarshal", args)
-	value := ap.Any("data")
+	data := ap.BytesLike("data")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	var data string
-	switch v := value.(type) {
-	case object.String:
-		data = string(v)
-	case object.Bytes:
-		data = string(v)
-	default:
-		return nil, object.NewTypeError("unmarshal() argument 'data' must be str or Bytes, got %s", value.TypeName())
-	}
 
-	dec := json.NewDecoder(strings.NewReader(data))
+	dec := json.NewDecoder(strings.NewReader(string(data)))
 	dec.UseNumber()
 
 	var v any

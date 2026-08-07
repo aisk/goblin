@@ -10,17 +10,6 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-func bytesOrString(funcName, argument string, value object.Object) ([]byte, error) {
-	switch value := value.(type) {
-	case object.Bytes:
-		return []byte(value), nil
-	case object.String:
-		return []byte(value), nil
-	default:
-		return nil, object.NewTypeError("%s() argument '%s' must be Bytes or str, got %s", funcName, argument, value.TypeName())
-	}
-}
-
 func ExecuteASCII85() (object.Object, error) {
 	return &object.Module{Name: "ascii85", Members: map[string]object.Object{
 		"encode": &object.Function{Name: "encode", Fn: ascii85Encode},
@@ -30,12 +19,8 @@ func ExecuteASCII85() (object.Object, error) {
 
 func ascii85Encode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("encode", args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("encode", "data", value)
-	if err != nil {
 		return nil, err
 	}
 	dst := make([]byte, ascii85.MaxEncodedLen(len(data)))
@@ -94,12 +79,8 @@ func ExecuteQuotedPrintable() (object.Object, error) {
 
 func quotedPrintableEncode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("encode", args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("encode", "data", value)
-	if err != nil {
 		return nil, err
 	}
 	var output bytes.Buffer
@@ -115,12 +96,8 @@ func quotedPrintableEncode(args object.CallArgs) (object.Object, error) {
 
 func quotedPrintableDecode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("decode", args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("decode", "data", value)
-	if err != nil {
 		return nil, err
 	}
 	decoded, err := io.ReadAll(quotedprintable.NewReader(bytes.NewReader(data)))

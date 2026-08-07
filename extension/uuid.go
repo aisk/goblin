@@ -76,14 +76,10 @@ func uuidNew(args object.CallArgs) (object.Object, error) {
 		if data == object.Nil {
 			return nil, object.NewTypeError("new() missing required argument for version %d: 'data'", v)
 		}
-		var raw []byte
-		switch value := data.(type) {
-		case object.String:
-			raw = []byte(value)
-		case object.Bytes:
-			raw = []byte(value)
-		default:
-			return nil, object.NewTypeError("new() argument 'data' must be str or Bytes, got %s", data.TypeName())
+		dp := object.NewArgParser("new", object.CallArgs{Positional: object.Args{data}})
+		raw := dp.BytesLike("data")
+		if err := dp.Finish(); err != nil {
+			return nil, err
 		}
 		if v == 3 {
 			return NewUUID(googleuuid.NewMD5(space.Value, raw)), nil

@@ -18,11 +18,8 @@ func ExecuteUTF8() (object.Object, error) {
 
 func utf8Data(fnName string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(fnName, args)
-	value := p.Any("data")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return bytesOrString(fnName, "data", value)
+	data := p.BytesLike("data")
+	return data, p.Finish()
 }
 
 func utf8Valid(args object.CallArgs) (object.Object, error) {

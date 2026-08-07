@@ -102,11 +102,8 @@ func bytesArg(name, param string, value Object) ([]byte, error) {
 
 func parseBytesArg(name, param string, args CallArgs) ([]byte, error) {
 	ap := NewArgParser(name, args)
-	value := ap.Any(param)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return bytesArg(name, param, value)
+	value := ap.BytesLike(param)
+	return value, ap.Finish()
 }
 
 func bytesList(values [][]byte) Object {
@@ -286,17 +283,9 @@ func (b Bytes) Repeat(args CallArgs) (Object, error) {
 
 func (b Bytes) Replace(args CallArgs) (Object, error) {
 	ap := NewArgParser("replace", args)
-	oldObj, newObj := ap.Any("old"), ap.Any("new")
+	old, newValue := ap.BytesLike("old"), ap.BytesLike("new")
 	count := ap.IntOr("count", -1)
 	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	old, err := bytesArg("replace", "old", oldObj)
-	if err != nil {
-		return nil, err
-	}
-	newValue, err := bytesArg("replace", "new", newObj)
-	if err != nil {
 		return nil, err
 	}
 	return NewBytes(bytes.Replace(b, old, newValue, int(count))), nil
@@ -304,13 +293,9 @@ func (b Bytes) Replace(args CallArgs) (Object, error) {
 
 func (b Bytes) Split(args CallArgs) (Object, error) {
 	ap := NewArgParser("split", args)
-	sepObj := ap.Any("sep")
+	sep := ap.BytesLike("sep")
 	count := ap.IntOr("count", -1)
 	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	sep, err := bytesArg("split", "sep", sepObj)
-	if err != nil {
 		return nil, err
 	}
 	return bytesList(bytes.SplitN(b, sep, int(count))), nil
@@ -318,13 +303,9 @@ func (b Bytes) Split(args CallArgs) (Object, error) {
 
 func (b Bytes) SplitAfter(args CallArgs) (Object, error) {
 	ap := NewArgParser("split_after", args)
-	sepObj := ap.Any("sep")
+	sep := ap.BytesLike("sep")
 	count := ap.IntOr("count", -1)
 	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	sep, err := bytesArg("split_after", "sep", sepObj)
-	if err != nil {
 		return nil, err
 	}
 	return bytesList(bytes.SplitAfterN(b, sep, int(count))), nil

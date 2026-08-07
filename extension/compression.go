@@ -43,7 +43,7 @@ func ExecuteBzip2() (object.Object, error) {
 
 func compressionInput(name string, args object.CallArgs, compressing bool) ([]byte, int, *object.DuckWriter, error) {
 	p := object.NewArgParser(name, args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	level := object.Integer(flate.DefaultCompression)
 	destObj := object.Object(object.Nil)
 	if compressing {
@@ -55,15 +55,6 @@ func compressionInput(name string, args object.CallArgs, compressing bool) ([]by
 	}
 	if compressing && (int(level) < flate.HuffmanOnly || int(level) > flate.BestCompression) {
 		return nil, 0, nil, object.NewValueError("%s() argument 'level' must be between %d and %d, got %d", name, flate.HuffmanOnly, flate.BestCompression, int(level))
-	}
-	var data []byte
-	switch v := value.(type) {
-	case object.Bytes:
-		data = []byte(v)
-	case object.String:
-		data = []byte(v)
-	default:
-		return nil, 0, nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
 	}
 	var dest *object.DuckWriter
 	if _, ok := destObj.(object.Unit); !ok {

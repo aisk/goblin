@@ -205,6 +205,25 @@ func (p *ArgParser) BytesOr(name string, def Bytes) Bytes {
 	return argValueOr(p, name, "Bytes", def)
 }
 
+// BytesLike returns a required argument that may be either Bytes or str,
+// coerced to []byte. It backs the ubiquitous "data" parameter of the encoding,
+// hashing and compression builtins.
+func (p *ArgParser) BytesLike(name string) []byte {
+	v, ok := p.required(name)
+	if !ok {
+		return nil
+	}
+	switch b := v.(type) {
+	case Bytes:
+		return []byte(b)
+	case String:
+		return []byte(b)
+	default:
+		p.typeErr(name, "Bytes or str", v)
+		return nil
+	}
+}
+
 // List returns a required list argument.
 func (p *ArgParser) List(name string) *List { return argValue[*List](p, name, "list") }
 

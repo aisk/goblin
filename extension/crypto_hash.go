@@ -40,18 +40,10 @@ func hmacHash(name string) (func() hash.Hash, bool) {
 
 func hmacDigest(fnName string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(fnName, args)
-	keyObj := p.Any("key")
-	dataObj := p.Any("data")
+	key := p.BytesLike("key")
+	data := p.BytesLike("data")
 	algorithm := p.StrOr("algorithm", object.String("sha256"))
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	key, err := bytesOrString(fnName, "key", keyObj)
-	if err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString(fnName, "data", dataObj)
-	if err != nil {
 		return nil, err
 	}
 	newHash, ok := hmacHash(string(algorithm))
@@ -81,23 +73,11 @@ func hmacHex(args object.CallArgs) (object.Object, error) {
 
 func hmacVerify(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("verify", args)
-	expectedObj := p.Any("signature")
-	keyObj := p.Any("key")
-	dataObj := p.Any("data")
+	expected := p.BytesLike("signature")
+	key := p.BytesLike("key")
+	data := p.BytesLike("data")
 	algorithm := p.StrOr("algorithm", object.String("sha256"))
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	expected, err := bytesOrString("verify", "signature", expectedObj)
-	if err != nil {
-		return nil, err
-	}
-	key, err := bytesOrString("verify", "key", keyObj)
-	if err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("verify", "data", dataObj)
-	if err != nil {
 		return nil, err
 	}
 	newHash, ok := hmacHash(string(algorithm))
@@ -118,13 +98,9 @@ func ExecuteCRC64() (object.Object, error) {
 
 func crc64Digest(fnName string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(fnName, args)
-	dataObj := p.Any("data")
+	data := p.BytesLike("data")
 	polynomial := p.StrOr("polynomial", object.String("ecma"))
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString(fnName, "data", dataObj)
-	if err != nil {
 		return nil, err
 	}
 	var poly uint64
@@ -166,13 +142,9 @@ func ExecuteFNV() (object.Object, error) {
 
 func fnvDigest(fnName string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(fnName, args)
-	dataObj := p.Any("data")
+	data := p.BytesLike("data")
 	variant := p.StrOr("variant", object.String("64a"))
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString(fnName, "data", dataObj)
-	if err != nil {
 		return nil, err
 	}
 	var digest hash.Hash

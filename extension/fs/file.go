@@ -43,22 +43,12 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 
 func (f *File) Write(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("write", args)
-	contentArg := ap.Any("content")
+	content := ap.BytesLike("content")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 	if err := f.ensureOpen("write"); err != nil {
 		return nil, err
-	}
-
-	var content []byte
-	switch v := contentArg.(type) {
-	case object.String:
-		content = []byte(v)
-	case object.Bytes:
-		content = []byte(v)
-	default:
-		return nil, object.NewTypeError("write() argument 'content' must be str or Bytes, got %s", contentArg.TypeName())
 	}
 
 	n, err := f.File.Write(content)

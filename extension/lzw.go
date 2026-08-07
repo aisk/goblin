@@ -17,7 +17,7 @@ func ExecuteLZW() (object.Object, error) {
 
 func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, lzw.Order, int, *object.DuckWriter, error) {
 	p := object.NewArgParser(fnName, args)
-	dataObj := p.Any("data")
+	data := p.BytesLike("data")
 	orderName := p.StrOr("order", object.String("lsb"))
 	litWidth := p.IntOr("lit_width", 8)
 	destObj := object.Object(object.Nil)
@@ -25,10 +25,6 @@ func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, 
 		destObj = p.AnyOr("dest", object.Nil)
 	}
 	if err := p.Finish(); err != nil {
-		return nil, 0, 0, nil, err
-	}
-	data, err := bytesOrString(fnName, "data", dataObj)
-	if err != nil {
 		return nil, 0, 0, nil, err
 	}
 	var order lzw.Order
@@ -45,6 +41,7 @@ func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, 
 	}
 	var dest *object.DuckWriter
 	if _, ok := destObj.(object.Unit); !ok {
+		var err error
 		dest, err = object.NewDuckWriter(fnName, "dest", destObj)
 		if err != nil {
 			return nil, 0, 0, nil, err

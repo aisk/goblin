@@ -55,13 +55,9 @@ func ExecuteCRC32() (object.Object, error) {
 
 func crc32Checksum(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("checksum", args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	polynomial := p.IntOr("polynomial", object.Integer(crc32.IEEE))
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("checksum", "data", value)
-	if err != nil {
 		return nil, err
 	}
 	return object.Integer(crc32.Checksum(data, crc32.MakeTable(uint32(polynomial)))), nil
@@ -75,12 +71,8 @@ func ExecuteAdler32() (object.Object, error) {
 
 func adler32Checksum(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("checksum", args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("checksum", "data", value)
-	if err != nil {
 		return nil, err
 	}
 	return object.Integer(adler32.Checksum(data)), nil

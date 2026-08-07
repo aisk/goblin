@@ -35,18 +35,8 @@ type archiveEntry struct {
 
 func archiveData(name string, args object.CallArgs) ([]byte, error) {
 	p := object.NewArgParser(name, args)
-	value := p.Any("data")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	switch v := value.(type) {
-	case object.Bytes:
-		return []byte(v), nil
-	case object.String:
-		return []byte(v), nil
-	default:
-		return nil, object.NewTypeError("%s() argument 'data' must be Bytes or str, got %s", name, value.TypeName())
-	}
+	data := p.BytesLike("data")
+	return data, p.Finish()
 }
 
 func archiveFiles(name string, value object.Object) ([]archiveEntry, error) {

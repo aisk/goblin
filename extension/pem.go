@@ -40,17 +40,13 @@ func pemHeaders(fnName string, dict *object.Dict) (map[string]string, error) {
 func pemBlockConstructor(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("Block", args)
 	typeName := p.Str("label")
-	dataObj := p.Any("data")
+	data := p.BytesLike("data")
 	headersDict := p.DictOr("headers", object.NewDict())
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	if typeName == "" {
 		return nil, object.NewValueError("Block() argument 'label' must not be empty")
-	}
-	data, err := bytesOrString("Block", "data", dataObj)
-	if err != nil {
-		return nil, err
 	}
 	headers, err := pemHeaders("Block", headersDict)
 	if err != nil {
@@ -125,12 +121,8 @@ func (b *PEMBlock) Attributes() []string {
 
 func pemDecode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("decode", args)
-	dataObj := p.Any("data")
+	data := p.BytesLike("data")
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString("decode", "data", dataObj)
-	if err != nil {
 		return nil, err
 	}
 	block, rest := pem.Decode(data)

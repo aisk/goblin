@@ -24,13 +24,9 @@ func base32Encoding(enc *base32.Encoding, padding bool) *base32.Encoding {
 
 func encodeBase32(name string, enc *base32.Encoding, args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser(name, args)
-	value := p.Any("data")
+	data := p.BytesLike("data")
 	padding := p.BoolOr("padding", true)
 	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	data, err := bytesOrString(name, "data", value)
-	if err != nil {
 		return nil, err
 	}
 	return object.String(base32Encoding(enc, bool(padding)).EncodeToString(data)), nil
