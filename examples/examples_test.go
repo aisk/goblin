@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -43,10 +44,32 @@ func TestExamples(t *testing.T) {
 	}
 }
 
-// raceExamples are the concurrency examples whose transpiled form is also run
-// under the Go race detector, guarding the channel-coordination patterns the
-// book recommends.
-var raceExamples = []string{"chan", "goblin", "shared_counter", "spawn"}
+// concurrencyMarkers matches the constructs that start goroutines or use
+// channels; any example using one is also run under the Go race detector.
+// Detection by content means a new concurrency example cannot silently skip
+// the race run.
+var concurrencyMarkers = regexp.MustCompile(`\bspawn\b|\bChan\(|\bGoblin\(`)
+
+// raceExamples lists the examples whose transpiled form is also run under the
+// race detector, guarding the coordination patterns the book recommends.
+func raceExamples(t *testing.T, examplesDir string) []string {
+	t.Helper()
+	files, err := filepath.Glob(filepath.Join(examplesDir, "*.goblin"))
+	if err != nil || len(files) == 0 {
+		t.Fatalf("failed to find .goblin files: %v", err)
+	}
+	var names []string
+	for _, file := range files {
+		src, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatalf("failed to read %s: %v", file, err)
+		}
+		if concurrencyMarkers.Match(src) {
+			names = append(names, strings.TrimSuffix(filepath.Base(file), ".goblin"))
+		}
+	}
+	return names
+}
 
 func TestExamplesRace(t *testing.T) {
 	examplesDir := filepath.Join("..", "examples")
@@ -57,7 +80,7 @@ func TestExamplesRace(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	for _, baseName := range raceExamples {
+	for _, baseName := range raceExamples(t, examplesDir) {
 		t.Run(baseName, func(t *testing.T) {
 			goCode := parseAndTranspile(t, filepath.Join(examplesDir, baseName+".goblin"))
 			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode, "-race")

@@ -464,12 +464,6 @@ func (c *checker) checkParameterOrder(params []*ast.Parameter) error {
 		} else if seenDefault {
 			return c.newError(param.Pos, "required parameter cannot appear after default parameter: %s", param.Name)
 		}
-		if i > 0 {
-			prev := params[i-1]
-			if prev.VarArgs || prev.KwArgs {
-				return c.newError(param.Pos, "required parameter cannot appear after args/kwargs parameters")
-			}
-		}
 	}
 	return nil
 }
