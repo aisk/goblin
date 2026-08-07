@@ -9,7 +9,9 @@ import "adler32"
 
 print(hmac.hex("key", "The quick brown fox jumps over the lazy dog"))
 print(crc64.hex("123456789"))
+print(crc64.hex("123456789", polynomial=crc64.ISO))
 print(fnv.hex("hello"))
+print(fnv.hex("hello", variant=fnv.FNV_32A))
 print(md5.hex("Goblin"))
 print(sha1.hex("Goblin"))
 print(crc32.checksum("Goblin"))

@@ -91,8 +91,10 @@ func hmacVerify(args object.CallArgs) (object.Object, error) {
 
 func ExecuteCRC64() (object.Object, error) {
 	return &object.Module{Name: "crc64", Members: map[string]object.Object{
-		"sum": &object.Function{Name: "sum", Fn: crc64Sum},
-		"hex": &object.Function{Name: "hex", Fn: crc64Hex},
+		"sum":  &object.Function{Name: "sum", Fn: crc64Sum},
+		"hex":  &object.Function{Name: "hex", Fn: crc64Hex},
+		"ECMA": object.String("ecma"),
+		"ISO":  object.String("iso"),
 	}}, nil
 }
 
@@ -110,7 +112,7 @@ func crc64Digest(fnName string, args object.CallArgs) ([]byte, error) {
 	case "iso":
 		poly = crc64.ISO
 	default:
-		return nil, object.NewValueError("%s() argument 'polynomial' must be \"ecma\" or \"iso\"", fnName)
+		return nil, object.NewValueError("%s() argument 'polynomial' must be crc64.ECMA or crc64.ISO", fnName)
 	}
 	value := make([]byte, 8)
 	binary.BigEndian.PutUint64(value, crc64.Checksum(data, crc64.MakeTable(poly)))
@@ -135,8 +137,14 @@ func crc64Hex(args object.CallArgs) (object.Object, error) {
 
 func ExecuteFNV() (object.Object, error) {
 	return &object.Module{Name: "fnv", Members: map[string]object.Object{
-		"sum": &object.Function{Name: "sum", Fn: fnvSum},
-		"hex": &object.Function{Name: "hex", Fn: fnvHex},
+		"sum":      &object.Function{Name: "sum", Fn: fnvSum},
+		"hex":      &object.Function{Name: "hex", Fn: fnvHex},
+		"FNV_32":   object.String("32"),
+		"FNV_32A":  object.String("32a"),
+		"FNV_64":   object.String("64"),
+		"FNV_64A":  object.String("64a"),
+		"FNV_128":  object.String("128"),
+		"FNV_128A": object.String("128a"),
 	}}, nil
 }
 

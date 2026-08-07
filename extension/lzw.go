@@ -12,6 +12,8 @@ func ExecuteLZW() (object.Object, error) {
 	return &object.Module{Name: "lzw", Members: map[string]object.Object{
 		"compress":   &object.Function{Name: "compress", Fn: lzwCompress},
 		"decompress": &object.Function{Name: "decompress", Fn: lzwDecompress},
+		"LSB":        object.String("lsb"),
+		"MSB":        object.String("msb"),
 	}}, nil
 }
 
@@ -34,7 +36,7 @@ func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, 
 	case "msb":
 		order = lzw.MSB
 	default:
-		return nil, 0, 0, nil, object.NewValueError("%s() argument 'order' must be \"lsb\" or \"msb\"", fnName)
+		return nil, 0, 0, nil, object.NewValueError("%s() argument 'order' must be lzw.LSB or lzw.MSB", fnName)
 	}
 	if litWidth < 2 || litWidth > 8 {
 		return nil, 0, 0, nil, object.NewValueError("%s() argument 'lit_width' must be between 2 and 8", fnName)

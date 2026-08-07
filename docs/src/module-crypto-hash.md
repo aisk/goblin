@@ -29,12 +29,14 @@ the raw Bytes returned by `sum()`, not hexadecimal text.
 
 ## CRC-64
 
-`crc64.sum(data, polynomial="ecma")` and `crc64.hex(...)` support the `ecma`
-and `iso` polynomials. Unlike `crc32.checksum()`, CRC-64 returns Bytes because a
-Goblin int is signed and cannot represent every unsigned 64-bit checksum.
+`crc64.sum(data, polynomial=crc64.ECMA)` and `crc64.hex(...)` support the
+`crc64.ECMA` and `crc64.ISO` polynomial constants. Unlike `crc32.checksum()`,
+CRC-64 returns Bytes because a Goblin int is signed and cannot represent every
+unsigned 64-bit checksum.
 
 ## FNV
 
-`fnv.sum(data, variant="64a")` and `fnv.hex(...)` support `32`, `32a`, `64`,
-`64a`, `128`, and `128a`. FNV is a non-cryptographic hash; do not use it for
-passwords, signatures, or integrity checks against an attacker.
+`fnv.sum(data, variant=fnv.FNV_64A)` and `fnv.hex(...)` support the variant
+constants `FNV_32`, `FNV_32A`, `FNV_64`, `FNV_64A`, `FNV_128`, and `FNV_128A`.
+FNV is a non-cryptographic hash; do not use it for passwords, signatures, or
+integrity checks against an attacker.
