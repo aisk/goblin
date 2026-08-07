@@ -512,7 +512,8 @@ func Transpile(mod *ast.Module, output io.Writer) error {
 	}
 
 	// Builtin module imports via registry
-	for name, info := range knownModules {
+	for _, name := range KnownModuleNames() {
+		info := knownModules[name]
 		if _, ok := ctx.moduleImports[name]; ok {
 			errVar := ctx.localName("err")
 			body = append(body,
@@ -668,7 +669,8 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 	}
 
 	// Builtin module imports for this sub-module via registry
-	for name, info := range knownModules {
+	for _, name := range KnownModuleNames() {
+		info := knownModules[name]
 		if _, ok := subModuleImports[name]; ok {
 			errVar := ctx.localName("err")
 			funcBody = append(funcBody,
@@ -2730,7 +2732,8 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 	}
 
 	// Builtin module imports via registry parameter.
-	for name, info := range knownModules {
+	for _, name := range KnownModuleNames() {
+		info := knownModules[name]
 		if _, ok := subModuleImports[name]; ok {
 			errVar := ctx.localName("err")
 			funcBody = append(funcBody,
@@ -2876,7 +2879,8 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	}
 
 	// Builtin module imports via _registry global.
-	for name, info := range knownModules {
+	for _, name := range KnownModuleNames() {
+		info := knownModules[name]
 		if _, ok := mainModuleImports[name]; ok {
 			errVar := ctx.localName("err")
 			body = append(body,

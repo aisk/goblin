@@ -143,6 +143,18 @@ func TestTranspileKnownHTTPModuleImport(t *testing.T) {
 	}
 }
 
+// Generated code must be byte-identical across runs: stdlib module loads are
+// emitted in sorted order, never in Go map iteration order.
+func TestTranspileOutputIsDeterministic(t *testing.T) {
+	src := "import \"hex\"\nimport \"json\"\nimport \"math\"\nimport \"base64\"\n"
+	first := transpileSource(t, src)
+	for i := 0; i < 10; i++ {
+		if got := transpileSource(t, src); got != first {
+			t.Fatalf("transpiled output differs between runs:\n--- first ---\n%s\n--- run %d ---\n%s", first, i+2, got)
+		}
+	}
+}
+
 func TestTranspileFunctionsAttachGoblinFrames(t *testing.T) {
 	code := transpileSource(t, "func fail() { return 1 / 0 }\nfail()\n")
 	for _, want := range []string{
