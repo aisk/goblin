@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/transpiler"
 )
 

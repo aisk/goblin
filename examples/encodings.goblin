@@ -1,0 +1,26 @@
+# Text encoding modules: base32, ascii85, html, quotedprintable, utf8, unicode.
+import "base32"
+import "ascii85"
+import "html"
+import "quotedprintable"
+import "utf8"
+import "unicode"
+
+var encoded32 = base32.encode("Goblin", padding=false)
+print(encoded32)
+print(base32.decode(encoded32, padding=false).decode())
+
+var encoded85 = ascii85.encode("Goblin")
+print(encoded85)
+print(ascii85.decode(encoded85).decode())
+
+print(html.escape("<Goblin & Go>"))
+print(html.unescape("&lt;Goblin&gt;"))
+
+var quoted = quotedprintable.encode("Goblin = Go")
+print(quoted)
+print(quotedprintable.decode(quoted).decode())
+
+print(utf8.valid("Goblin 👺"))
+print(utf8.rune_count("Goblin 👺"))
+print(unicode.is_letter("界"))

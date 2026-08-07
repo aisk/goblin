@@ -1,0 +1,8 @@
+# Parsing email addresses with the mail module.
+import "mail"
+
+var address = mail.parse_address("Goblin <goblin@example.com>")
+print(address.constructor == mail.Address)
+print(address.name)
+print(address.address)
+print(mail.parse_address_list("a@example.com, b@example.com").size())

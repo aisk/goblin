@@ -1,0 +1,7 @@
+# PEM block encoding and decoding.
+import "pem"
+
+var block = pem.Block("MESSAGE", "Goblin")
+var decoded = pem.decode(block.encode())
+print(decoded[0].label)
+print(decoded[0].data)

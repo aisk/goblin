@@ -1,0 +1,8 @@
+# IP address and prefix handling with the netip module.
+import "netip"
+
+var addr = netip.Addr("192.168.1.10")
+var network = netip.Prefix("192.168.1.5/24")
+print(addr.is_private)
+print(network.masked())
+print(network.contains(addr))

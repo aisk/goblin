@@ -1,7 +1,15 @@
 import "gzip"
 import "zlib"
+import "lzw"
+import "flate"
+import "bzip2"
 
 var text = "goblin goblin goblin"
 print(gzip.decompress(gzip.compress(text)).decode())
 print(zlib.decompress(zlib.compress(text)).decode())
 print(gzip.compress(text, level=gzip.BEST_COMPRESSION).constructor == Bytes)
+
+print(lzw.decompress(lzw.compress("Goblin")))
+print(flate.decompress(flate.compress("Goblin compression")).decode())
+var bzip_data = Bytes([66, 90, 104, 57, 49, 65, 89, 38, 83, 89, 242, 96, 229, 101, 0, 0, 0, 149, 128, 64, 0, 0, 128, 26, 39, 216, 0, 32, 0, 34, 152, 6, 141, 8, 6, 128, 47, 193, 116, 26, 140, 75, 13, 166, 143, 11, 185, 34, 156, 40, 72, 121, 48, 114, 178, 128])
+print(bzip2.decompress(bzip_data).decode())
