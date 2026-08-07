@@ -17,31 +17,31 @@ func ExecuteMath() (object.Object, error) {
 			"floor":  &object.Function{Name: "floor", Fn: mathFloor},
 			"round":  &object.Function{Name: "round", Fn: mathRound},
 			"pow":    &object.Function{Name: "pow", Fn: mathPow},
-			"sqrt":   &object.Function{Name: "sqrt", Fn: mathSqrt},
-			"sin":    &object.Function{Name: "sin", Fn: mathSin},
-			"cos":    &object.Function{Name: "cos", Fn: mathCos},
-			"tan":    &object.Function{Name: "tan", Fn: mathTan},
-			"asin":   &object.Function{Name: "asin", Fn: mathAsin},
-			"acos":   &object.Function{Name: "acos", Fn: mathAcos},
-			"atan":   &object.Function{Name: "atan", Fn: mathAtan},
-			"log":    &object.Function{Name: "log", Fn: mathLog},
-			"log10":  &object.Function{Name: "log10", Fn: mathLog10},
-			"exp":    &object.Function{Name: "exp", Fn: mathExp},
+			"sqrt":   mathUnary("sqrt", math.Sqrt),
+			"sin":    mathUnary("sin", math.Sin),
+			"cos":    mathUnary("cos", math.Cos),
+			"tan":    mathUnary("tan", math.Tan),
+			"asin":   mathUnary("asin", math.Asin),
+			"acos":   mathUnary("acos", math.Acos),
+			"atan":   mathUnary("atan", math.Atan),
+			"log":    mathUnary("log", math.Log),
+			"log10":  mathUnary("log10", math.Log10),
+			"exp":    mathUnary("exp", math.Exp),
 			"max":    &object.Function{Name: "max", Fn: mathMax},
 			"min":    &object.Function{Name: "min", Fn: mathMin},
 			"is_nan": &object.Function{Name: "is_nan", Fn: mathIsNaN},
 			"is_inf": &object.Function{Name: "is_inf", Fn: mathIsInf},
 			"inf":    object.Float(math.Inf(1)),
 			"nan":    object.Float(math.NaN()),
-			"cbrt":   &object.Function{Name: "cbrt", Fn: mathCbrt},
+			"cbrt":   mathUnary("cbrt", math.Cbrt),
 			"trunc":  &object.Function{Name: "trunc", Fn: mathTrunc},
-			"log2":   &object.Function{Name: "log2", Fn: mathLog2},
-			"sinh":   &object.Function{Name: "sinh", Fn: mathSinh},
-			"cosh":   &object.Function{Name: "cosh", Fn: mathCosh},
-			"tanh":   &object.Function{Name: "tanh", Fn: mathTanh},
-			"asinh":  &object.Function{Name: "asinh", Fn: mathAsinh},
-			"acosh":  &object.Function{Name: "acosh", Fn: mathAcosh},
-			"atanh":  &object.Function{Name: "atanh", Fn: mathAtanh},
+			"log2":   mathUnary("log2", math.Log2),
+			"sinh":   mathUnary("sinh", math.Sinh),
+			"cosh":   mathUnary("cosh", math.Cosh),
+			"tanh":   mathUnary("tanh", math.Tanh),
+			"asinh":  mathUnary("asinh", math.Asinh),
+			"acosh":  mathUnary("acosh", math.Acosh),
+			"atanh":  mathUnary("atanh", math.Atanh),
 			"atan2":  &object.Function{Name: "atan2", Fn: mathAtan2},
 			"hypot":  &object.Function{Name: "hypot", Fn: mathHypot},
 		},
@@ -64,6 +64,19 @@ func mathIntPreserving(name string, args object.CallArgs, intFn func(int64) int6
 		return object.Float(floatFn(float64(n))), nil
 	}
 	return nil, object.NewTypeError("%s() argument 'x' must be number, got %s", name, v.TypeName())
+}
+
+// mathUnary wraps a float64 -> float64 function from the math package as a
+// builtin taking a single numeric argument x.
+func mathUnary(name string, fn func(float64) float64) *object.Function {
+	return &object.Function{Name: name, Fn: func(args object.CallArgs) (object.Object, error) {
+		p := object.NewArgParser(name, args)
+		x := p.Float64("x")
+		if err := p.Finish(); err != nil {
+			return nil, err
+		}
+		return object.Float(fn(x)), nil
+	}}
 }
 
 func mathAbs(args object.CallArgs) (object.Object, error) {
@@ -114,96 +127,6 @@ func mathPow(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	return object.Float(math.Pow(base, exp)), nil
-}
-
-func mathSqrt(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("sqrt", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sqrt(x)), nil
-}
-
-func mathSin(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("sin", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sin(x)), nil
-}
-
-func mathCos(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("cos", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cos(x)), nil
-}
-
-func mathTan(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("tan", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Tan(x)), nil
-}
-
-func mathAsin(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("asin", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Asin(x)), nil
-}
-
-func mathAcos(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("acos", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Acos(x)), nil
-}
-
-func mathAtan(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("atan", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Atan(x)), nil
-}
-
-func mathLog(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("log", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log(x)), nil
-}
-
-func mathLog10(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("log10", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log10(x)), nil
-}
-
-func mathExp(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("exp", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Exp(x)), nil
 }
 
 func mathMax(args object.CallArgs) (object.Object, error) {
@@ -259,78 +182,6 @@ func mathIsInf(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	return object.Bool(math.IsInf(x, dir)), nil
-}
-
-func mathCbrt(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("cbrt", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cbrt(x)), nil
-}
-
-func mathLog2(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("log2", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Log2(x)), nil
-}
-
-func mathSinh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("sinh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Sinh(x)), nil
-}
-
-func mathCosh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("cosh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Cosh(x)), nil
-}
-
-func mathTanh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("tanh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Tanh(x)), nil
-}
-
-func mathAsinh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("asinh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Asinh(x)), nil
-}
-
-func mathAcosh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("acosh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Acosh(x)), nil
-}
-
-func mathAtanh(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("atanh", args)
-	x := p.Float64("x")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.Float(math.Atanh(x)), nil
 }
 
 func mathAtan2(args object.CallArgs) (object.Object, error) {

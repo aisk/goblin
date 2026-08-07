@@ -30,15 +30,15 @@ func newOsModule(argsFn func() []string) object.Object {
 			"argv":        &object.Function{Name: "argv", Fn: makeArgv(argsFn)},
 			"environ":     &object.Function{Name: "environ", Fn: environ},
 			"exit":        &object.Function{Name: "exit", Fn: exit},
-			"getegid":     &object.Function{Name: "getegid", Fn: getegid},
+			"getegid":     intGetter("getegid", os.Getegid),
 			"getenv":      &object.Function{Name: "getenv", Fn: getenv},
-			"geteuid":     &object.Function{Name: "geteuid", Fn: geteuid},
-			"getgid":      &object.Function{Name: "getgid", Fn: getgid},
+			"geteuid":     intGetter("geteuid", os.Geteuid),
+			"getgid":      intGetter("getgid", os.Getgid),
 			"getgroups":   &object.Function{Name: "getgroups", Fn: getgroups},
 			"getpagesize": &object.Function{Name: "getpagesize", Fn: getpagesize},
-			"getpid":      &object.Function{Name: "getpid", Fn: getpid},
-			"getppid":     &object.Function{Name: "getppid", Fn: getppid},
-			"getuid":      &object.Function{Name: "getuid", Fn: getuid},
+			"getpid":      intGetter("getpid", os.Getpid),
+			"getppid":     intGetter("getppid", os.Getppid),
+			"getuid":      intGetter("getuid", os.Getuid),
 			"getwd":       &object.Function{Name: "getwd", Fn: getwd},
 			"hostname":    &object.Function{Name: "hostname", Fn: hostname},
 			"setenv":      &object.Function{Name: "setenv", Fn: setenv},
@@ -129,6 +129,16 @@ func environ(args object.CallArgs) (object.Object, error) {
 	return result, nil
 }
 
+// intGetter wraps a nullary os query returning an int as a builtin.
+func intGetter(name string, fn func() int) *object.Function {
+	return &object.Function{Name: name, Fn: func(args object.CallArgs) (object.Object, error) {
+		if err := object.RequireNoArgs(name, args); err != nil {
+			return nil, err
+		}
+		return object.Integer(fn()), nil
+	}}
+}
+
 func hostname(args object.CallArgs) (object.Object, error) {
 	if err := object.RequireNoArgs("hostname", args); err != nil {
 		return nil, err
@@ -138,54 +148,6 @@ func hostname(args object.CallArgs) (object.Object, error) {
 		return nil, object.WrapNativeError(object.IOError, "hostname() failed", err)
 	}
 	return object.String(name), nil
-}
-
-func getpid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getpid", args); err != nil {
-		return nil, err
-	}
-	pid := os.Getpid()
-	return object.Integer(pid), nil
-}
-
-func getppid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getppid", args); err != nil {
-		return nil, err
-	}
-	ppid := os.Getppid()
-	return object.Integer(ppid), nil
-}
-
-func getuid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getuid", args); err != nil {
-		return nil, err
-	}
-	uid := os.Getuid()
-	return object.Integer(uid), nil
-}
-
-func getegid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getegid", args); err != nil {
-		return nil, err
-	}
-	egid := os.Getegid()
-	return object.Integer(egid), nil
-}
-
-func geteuid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("geteuid", args); err != nil {
-		return nil, err
-	}
-	euid := os.Geteuid()
-	return object.Integer(euid), nil
-}
-
-func getgid(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getgid", args); err != nil {
-		return nil, err
-	}
-	gid := os.Getgid()
-	return object.Integer(gid), nil
 }
 
 func getgroups(args object.CallArgs) (object.Object, error) {
