@@ -2747,7 +2747,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		varName := subModuleImports[imp.Name]
 		errVar := ctx.localName("err")
 		funcBody = append(funcBody,
-			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
+			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 				jen.Lit(imp.Path),
 				jen.Qual(info.executorPath, info.executorFunc),
 			),
@@ -2770,7 +2770,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		subImportPath := ctx.goModuleName + "/" + subKey
 		errVar := ctx.localName("err")
 		funcBody = append(funcBody,
-			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("registry").Dot("Load").Call(
+			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 				jen.Lit(subKey),
 				jen.Func().Params().Parens(jen.List(
 					jen.Qual(pathObject, "Object"), jen.Error(),

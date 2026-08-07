@@ -138,6 +138,46 @@ print(args[2])
 	}
 }
 
+// Local (path) imports go through the transpiler's directory mode
+// (transpilePathModuleToFile + generateMainFile), which nothing else covers:
+// the examples suite only exercises single-file Transpile.
+func TestBuiltExecutableWithLocalModuleImport(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	dir := t.TempDir()
+	helper := filepath.Join(dir, "helper.goblin")
+	if err := os.WriteFile(helper, []byte(`import "math"
+var greeting = "hi"
+func double(x) {
+    return math.abs(x) * 2
+}
+export double
+export greeting
+`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	script := filepath.Join(dir, "main.goblin")
+	if err := os.WriteFile(script, []byte(`import "./helper"
+import "hex"
+print(helper.double(-21))
+print(helper.greeting)
+print(hex.encode("a"))
+`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	executable := filepath.Join(dir, "local-import-program")
+
+	if out, err := exec.Command(bin, "build-exe", "-o", executable, script).CombinedOutput(); err != nil {
+		t.Fatalf("goblin build-exe: %v\n%s", err, out)
+	}
+	out, err := exec.Command(executable).CombinedOutput()
+	if err != nil {
+		t.Fatalf("compiled program: %v\n%s", err, out)
+	}
+	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "42\nhi\n61\n"; got != want {
+		t.Fatalf("compiled stdout = %q, want %q", got, want)
+	}
+}
+
 func TestRunCLIRejectsLeadingFlag(t *testing.T) {
 	bin := sharedGoblinBin(t)
 	out, err := exec.Command(bin, "run", "-h", "script.goblin").CombinedOutput()
