@@ -21,7 +21,6 @@ func TestTypeName(t *testing.T) {
 		{Nil, "Nil"},
 		{&List{}, "List"},
 		{NewDict(), "Dict"},
-		{NewPath("/tmp"), "Path"},
 		{NewError("boom"), "Error"},
 		{&Function{Name: "f"}, "Function"},
 		{&Module{Name: "m"}, "Module"},

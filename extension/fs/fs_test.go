@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	pathext "github.com/aisk/goblin/extension/path"
 	"github.com/aisk/goblin/object"
 )
 
@@ -99,7 +100,7 @@ func TestFsAcceptsPath(t *testing.T) {
 	// A Path argument must be accepted anywhere a path string is, so fs and the
 	// path module's Path type interoperate without manual string conversion.
 	readObj, err := fsFunction(t, "read").Call(object.CallArgs{
-		Positional: object.Args{object.NewPath(filePath)},
+		Positional: object.Args{pathext.NewPath(filePath)},
 	})
 	if err != nil {
 		t.Fatalf("read(Path) error = %v", err)
@@ -109,7 +110,7 @@ func TestFsAcceptsPath(t *testing.T) {
 	}
 
 	existsObj, err := fsFunction(t, "exists").Call(object.CallArgs{
-		Positional: object.Args{object.NewPath(filePath)},
+		Positional: object.Args{pathext.NewPath(filePath)},
 	})
 	if err != nil {
 		t.Fatalf("exists(Path) error = %v", err)

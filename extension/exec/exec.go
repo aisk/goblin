@@ -7,6 +7,7 @@ import (
 	"os"
 	stdexec "os/exec"
 
+	pathext "github.com/aisk/goblin/extension/path"
 	"github.com/aisk/goblin/object"
 )
 
@@ -69,7 +70,7 @@ func command(args object.CallArgs) (object.Object, error) {
 
 	cmd := stdexec.Command(string(name), argv...)
 	if _, ok := cwdObj.(object.Unit); !ok {
-		cwd, ok := object.PathString(cwdObj)
+		cwd, ok := pathext.PathString(cwdObj)
 		if !ok {
 			return nil, object.NewTypeError("Command() argument 'cwd' must be unit, str, or Path, got %s", cwdObj.TypeName())
 		}

@@ -4,6 +4,7 @@ import (
 	"os"
 	"strings"
 
+	pathext "github.com/aisk/goblin/extension/path"
 	"github.com/aisk/goblin/object"
 )
 
@@ -195,7 +196,7 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, ok := object.PathString(dirObj)
+		d, ok := pathext.PathString(dirObj)
 		if !ok {
 			return nil, object.NewTypeError("tempdir() first argument (dir) must be a string or Path")
 		}
@@ -220,7 +221,7 @@ func tempFile(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, ok := object.PathString(dirObj)
+		d, ok := pathext.PathString(dirObj)
 		if !ok {
 			return nil, object.NewTypeError("tempfile() first argument (dir) must be a string or Path")
 		}

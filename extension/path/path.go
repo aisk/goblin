@@ -14,7 +14,7 @@ func Execute() (object.Object, error) {
 	return &object.Module{
 		Name: "path",
 		Members: map[string]object.Object{
-			"Path": object.PathConstructorFn,
+			"Path": PathConstructorFn,
 			"cwd":  &object.Function{Name: "cwd", Fn: cwd},
 			"home": &object.Function{Name: "home", Fn: home},
 		},
@@ -29,7 +29,7 @@ func cwd(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "cwd() failed", err)
 	}
-	return object.NewPath(dir), nil
+	return NewPath(dir), nil
 }
 
 func home(args object.CallArgs) (object.Object, error) {
@@ -40,5 +40,5 @@ func home(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "home() failed", err)
 	}
-	return object.NewPath(dir), nil
+	return NewPath(dir), nil
 }
