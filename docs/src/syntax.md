@@ -35,7 +35,10 @@ Identifiers may not be Go keywords: names such as `map`, `range`, `select`,
 `struct`, `go`, or `defer` are reserved and rejected at check time, because
 compiled programs emit them as Go identifiers. A handful of names the
 generated code itself relies on — `object`, `extension`, `builtin`, `fmt`,
-`_registry`, `Execute`, and `main` — are reserved for the same reason.
+`_registry`, `Execute`, and `main` — are reserved for the same reason, as is
+the whole family of identifiers shaped like `_name_N` (a leading underscore
+with a trailing `_<digits>` suffix, e.g. `_err_0`), which the transpiler uses
+for its own temporaries.
 Built-in function names like `print` or `max` are not reserved — see
 [Scope and declarations](./scope.md) for how user declarations shadow them.
 

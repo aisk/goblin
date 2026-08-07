@@ -89,6 +89,7 @@ print(directory)
 print(filename)
 ~~~
 
-getpid(), getppid(), getuid(), getgid(), and getgroups() expose identity
-information supplied by the host operating system. Availability and exact
+getpid(), getppid(), getuid(), geteuid(), getgid(), getegid(), and
+getgroups() expose identity information supplied by the host operating
+system; getpagesize() reports the memory page size. Availability and exact
 values can vary by platform.

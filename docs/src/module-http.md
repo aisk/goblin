@@ -21,8 +21,9 @@ var items = response.json()
 ~~~
 
 post(url, content_type, body), put(), and patch() send a String, Bytes, nil,
-or readable object as a request body. Use http.Client(timeout=seconds) and its
-request methods when a non-default timeout is needed. Request(method, url,
+or readable object as a request body. head(url) and delete(url) cover the
+remaining common methods without a body. Use http.Client(timeout=seconds) and
+its request methods when a non-default timeout is needed. Request(method, url,
 body) creates a custom request for client.do().
 
 HTTP operations can raise NetworkError; JSON response parsing can raise

@@ -16,6 +16,11 @@ Common functions include abs(), ceil(), floor(), round(), trunc(), pow(),
 sqrt(), log(), exp(), sin(), cos(), tan(), min(), and max(). Constants include
 pi, e, inf, and nan.
 
+The full trigonometric family is available: the inverses asin(), acos(),
+atan(), and two-argument atan2(y, x); the hyperbolic functions sinh(), cosh(),
+tanh() and their inverses asinh(), acosh(), atanh(). Logarithms come in three
+bases — natural log(), log2(), and log10() — alongside exp() and cbrt().
+
 ~~~goblin
 print(math.floor(3.8))
 print(math.hypot(3, 4))
