@@ -434,161 +434,46 @@ func keyToFuncName(key string) string {
 	return "_execute_" + keyToIdent(key)
 }
 
-func Transpile(mod *ast.Module, output io.Writer) error {
-	if err := semantic.CheckModule(mod); err != nil {
-		return err
-	}
-
-	ctx := newTranspileContext()
-	if cwd, err := os.Getwd(); err == nil {
-		ctx.baseDir = cwd
-		ctx.rootDir = cwd
-	}
-
-	// Collect imports
+// collectModuleImports walks a module's imports and builds the module-name to
+// Go-variable-name map both backends of the transpiler use. Path imports map
+// to their own name and are handed to recurse (when non-nil) so dependent
+// modules are transpiled first; stdlib imports are validated against
+// knownModules and mapped to a fresh local variable name. importPath is the
+// import path of the module being collected, empty for the entry module (it
+// only affects error wording).
+func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath string, recurse func(string) error) (map[string]string, error) {
+	imports := make(map[string]string)
 	for _, stmt := range mod.Body {
-		if imp, ok := stmt.(*ast.Import); ok {
-			if isPathImport(imp.Path) {
-				ctx.moduleImports[imp.Name] = imp.Name
-			} else {
-				info, exists := knownModules[imp.Path]
-				if !exists {
-					return fmt.Errorf("unknown module: %s", imp.Path)
+		imp, ok := stmt.(*ast.Import)
+		if !ok {
+			continue
+		}
+		if isPathImport(imp.Path) {
+			imports[imp.Name] = imp.Name
+			if recurse != nil {
+				if err := recurse(imp.Path); err != nil {
+					return nil, err
 				}
-				ctx.moduleImports[imp.Name] = ctx.localName(info.varName)
 			}
+		} else {
+			info, exists := knownModules[imp.Path]
+			if !exists {
+				if importPath == "" {
+					return nil, fmt.Errorf("unknown module: %s", imp.Path)
+				}
+				return nil, fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
+			}
+			imports[imp.Name] = ctx.localName(info.varName)
 		}
 	}
-
-	// Process path imports: parse and transpile each .goblin module
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
-			continue
-		}
-		if err := ctx.transpilePathModule(imp.Path); err != nil {
-			return err
-		}
-	}
-
-	f := jen.NewFile(mod.Name)
-
-	// Emit registry global variable
-	hasImports := false
-	for _, stmt := range mod.Body {
-		if _, ok := stmt.(*ast.Import); ok {
-			hasImports = true
-			break
-		}
-	}
-	if hasImports {
-		f.Var().Id("_registry").Op("=").Qual(pathObject, "NewRegistry").Call()
-	}
-
-	exportsVar := ctx.localName("exports")
-
-	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
-	}
-
-	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
-	if err != nil {
-		return err
-	}
-
-	for _, decl := range ctx.topDecls {
-		f.Add(decl)
-	}
-
-	for _, fn := range ctx.moduleFuncs {
-		f.Add(fn)
-	}
-
-	body := []jen.Code{
-		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
-		jen.Id("_").Op("=").Id("builtin"),
-		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
-	}
-
-	// Builtin module imports via registry
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || isPathImport(imp.Path) {
-			continue
-		}
-		info := knownModules[imp.Path]
-		varName := ctx.moduleImports[imp.Name]
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Qual(info.executorPath, info.executorFunc),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(varName),
-		)
-	}
-
-	// Path module imports via registry
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
-			continue
-		}
-		absPath, err := ctx.resolveImportPath(imp.Path)
-		if err != nil {
-			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
-		}
-		key := ctx.moduleKey(absPath)
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(key),
-				jen.Id(keyToFuncName(key)),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(imp.Name),
-		)
-	}
-
-	body = append(body, stmts...)
-	body = append(body,
-		jen.Return(
-			jen.Op("&").Qual(pathObject, "Module").Values(
-				jen.Id("Members").Op(":").Id(exportsVar),
-			),
-			jen.Nil(),
-		),
-	)
-
-	f.Func().Id("Execute").Params().Parens(jen.List(
-		jen.Qual(pathObject, "Object"), jen.Error(),
-	)).Block(body...)
-	f.Func().Id("main").Params().Block(mainBody()...)
-	return f.Render(output)
+	return imports, nil
 }
 
-// mainBody emits the generated main(): run Execute, print failures, and turn a
-// Go-side runtime panic into a clean internal error instead of a Go stack dump.
-func mainBody() []jen.Code {
-	return []jen.Code{
-		jen.Defer().Func().Params().Block(
-			jen.If(jen.Id("r").Op(":=").Recover(), jen.Id("r").Op("!=").Nil()).Block(
-				jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("internal error: %v\n"), jen.Id("r")),
-				jen.Qual("os", "Exit").Call(jen.Lit(1)),
-			),
-		).Call(),
-		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
-		jen.If(jen.Id("err").Op("!=").Nil()).Block(
-			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
-			jen.Qual("os", "Exit").Call(jen.Lit(1)),
-		),
-	}
-}
-
-// transpilePathModule parses and transpiles a .goblin file at the given path,
-// generating a top-level executor function.
-func (ctx *transpileContext) transpilePathModule(importPath string) error {
+// loadPathModule resolves, parses, and semantically checks the .goblin module
+// at importPath, with dedup and circular-import detection, then calls emit to
+// generate code for it. Imports inside the module resolve against its own
+// directory for the duration of emit.
+func (ctx *transpileContext) loadPathModule(importPath string, emit func(mod *ast.Module, absPath string) error) error {
 	absPath, err := ctx.resolveImportPath(importPath)
 	if err != nil {
 		return fmt.Errorf("failed to resolve path %s: %v", importPath, err)
@@ -629,30 +514,40 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
 	}
 
-	// Collect sub-module imports
-	subModuleImports := make(map[string]string)
-	for _, stmt := range mod.Body {
-		if imp, ok := stmt.(*ast.Import); ok {
-			if isPathImport(imp.Path) {
-				subModuleImports[imp.Name] = imp.Name
-				if err := ctx.transpilePathModule(imp.Path); err != nil {
-					return err
-				}
-			} else {
-				info, exists := knownModules[imp.Path]
-				if !exists {
-					return fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
-				}
-				subModuleImports[imp.Name] = ctx.localName(info.varName)
-			}
-		}
+	if err := emit(mod, absPath); err != nil {
+		return err
 	}
 
-	// Save and restore module imports for this scope
-	savedImports := ctx.moduleImports
-	ctx.moduleImports = subModuleImports
-	defer func() { ctx.moduleImports = savedImports }()
+	ctx.imported[absPath] = struct{}{}
+	return nil
+}
 
+// singleFilePathLoader emits the loader argument for a path-import Load call
+// in single-file mode: a reference to the module's generated executor func.
+func singleFilePathLoader(key string) jen.Code {
+	return jen.Id(keyToFuncName(key))
+}
+
+// registryPathLoader emits the loader argument for a path-import Load call in
+// directory mode: a closure calling the generated package's Execute with the
+// shared registry.
+func (ctx *transpileContext) registryPathLoader(key string) jen.Code {
+	importPath := ctx.goModuleName + "/" + key
+	return jen.Func().Params().Parens(jen.List(
+		jen.Qual(pathObject, "Object"), jen.Error(),
+	)).Block(
+		jen.Return(jen.Qual(importPath, "Execute").Call(jen.Id("_registry"))),
+	)
+}
+
+// emitExecuteBody builds the body of a module executor function: the
+// builtin/exports prologue, registry Load calls for stdlib and path imports,
+// the transpiled module statements, and the module-value return. The caller
+// must already have swapped ctx.moduleImports to imports. pathLoader supplies
+// the loader argument for path-import Load calls. When moduleErrPrefix is
+// non-empty, transpile errors are wrapped as
+// "transpile error in module <prefix>: ..."; otherwise they are returned bare.
+func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string]string, moduleErrPrefix string, pathLoader func(key string) jen.Code) ([]jen.Code, error) {
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
@@ -661,25 +556,28 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
 	if err != nil {
-		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
+		if moduleErrPrefix != "" {
+			return nil, fmt.Errorf("transpile error in module %s: %v", moduleErrPrefix, err)
+		}
+		return nil, err
 	}
 
-	funcBody := []jen.Code{
+	body := []jen.Code{
 		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
 		jen.Id("_").Op("=").Id("builtin"),
 		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
 	}
 
-	// Builtin module imports for this sub-module via registry
+	// Builtin module imports via registry
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
 		if !ok || isPathImport(imp.Path) {
 			continue
 		}
 		info := knownModules[imp.Path]
-		varName := subModuleImports[imp.Name]
+		varName := imports[imp.Name]
 		errVar := ctx.localName("err")
-		funcBody = append(funcBody,
+		body = append(body,
 			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
 				jen.Lit(imp.Path),
 				jen.Qual(info.executorPath, info.executorFunc),
@@ -689,30 +587,30 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 		)
 	}
 
-	// Path module imports for this sub-module
+	// Path module imports via registry
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
 		if !ok || !isPathImport(imp.Path) {
 			continue
 		}
-		subAbsPath, err := ctx.resolveImportPath(imp.Path)
+		absPath, err := ctx.resolveImportPath(imp.Path)
 		if err != nil {
-			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+			return nil, fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
 		}
-		subKey := ctx.moduleKey(subAbsPath)
+		key := ctx.moduleKey(absPath)
 		errVar := ctx.localName("err")
-		funcBody = append(funcBody,
+		body = append(body,
 			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(subKey),
-				jen.Id(keyToFuncName(subKey)),
+				jen.Lit(key),
+				pathLoader(key),
 			),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 			jen.Id("_").Op("=").Id(imp.Name),
 		)
 	}
 
-	funcBody = append(funcBody, stmts...)
-	funcBody = append(funcBody,
+	body = append(body, stmts...)
+	body = append(body,
 		jen.Return(
 			jen.Op("&").Qual(pathObject, "Module").Values(
 				jen.Id("Members").Op(":").Id(exportsVar),
@@ -720,15 +618,107 @@ func (ctx *transpileContext) transpilePathModule(importPath string) error {
 			jen.Nil(),
 		),
 	)
+	return body, nil
+}
 
-	funcName := keyToFuncName(ctx.moduleKey(absPath))
-	fn := jen.Func().Id(funcName).Params().Parens(jen.List(
+func Transpile(mod *ast.Module, output io.Writer) error {
+	if err := semantic.CheckModule(mod); err != nil {
+		return err
+	}
+
+	ctx := newTranspileContext()
+	if cwd, err := os.Getwd(); err == nil {
+		ctx.baseDir = cwd
+		ctx.rootDir = cwd
+	}
+
+	// Collect imports and transpile each path-imported .goblin module
+	imports, err := ctx.collectModuleImports(mod, "", ctx.transpilePathModule)
+	if err != nil {
+		return err
+	}
+	ctx.moduleImports = imports
+
+	f := jen.NewFile(mod.Name)
+
+	// Emit registry global variable
+	hasImports := false
+	for _, stmt := range mod.Body {
+		if _, ok := stmt.(*ast.Import); ok {
+			hasImports = true
+			break
+		}
+	}
+	if hasImports {
+		f.Var().Id("_registry").Op("=").Qual(pathObject, "NewRegistry").Call()
+	}
+
+	body, err := ctx.emitExecuteBody(mod, imports, "", singleFilePathLoader)
+	if err != nil {
+		return err
+	}
+
+	for _, decl := range ctx.topDecls {
+		f.Add(decl)
+	}
+
+	for _, fn := range ctx.moduleFuncs {
+		f.Add(fn)
+	}
+
+	f.Func().Id("Execute").Params().Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
-	)).Block(funcBody...)
+	)).Block(body...)
+	f.Func().Id("main").Params().Block(mainBody()...)
+	return f.Render(output)
+}
 
-	ctx.moduleFuncs = append(ctx.moduleFuncs, fn)
-	ctx.imported[absPath] = struct{}{}
-	return nil
+// mainBody emits the generated main(): run Execute, print failures, and turn a
+// Go-side runtime panic into a clean internal error instead of a Go stack dump.
+func mainBody() []jen.Code {
+	return []jen.Code{
+		jen.Defer().Func().Params().Block(
+			jen.If(jen.Id("r").Op(":=").Recover(), jen.Id("r").Op("!=").Nil()).Block(
+				jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("internal error: %v\n"), jen.Id("r")),
+				jen.Qual("os", "Exit").Call(jen.Lit(1)),
+			),
+		).Call(),
+		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
+		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
+			jen.Qual("os", "Exit").Call(jen.Lit(1)),
+		),
+	}
+}
+
+// transpilePathModule parses and transpiles a .goblin file at the given path,
+// generating a top-level executor function.
+func (ctx *transpileContext) transpilePathModule(importPath string) error {
+	return ctx.loadPathModule(importPath, func(mod *ast.Module, absPath string) error {
+		// Collect sub-module imports and transpile path imports first
+		imports, err := ctx.collectModuleImports(mod, importPath, ctx.transpilePathModule)
+		if err != nil {
+			return err
+		}
+
+		// Save and restore module imports for this scope
+		savedImports := ctx.moduleImports
+		ctx.moduleImports = imports
+		defer func() { ctx.moduleImports = savedImports }()
+
+		funcBody, err := ctx.emitExecuteBody(mod, imports, importPath, singleFilePathLoader)
+		if err != nil {
+			return err
+		}
+
+		funcName := keyToFuncName(ctx.moduleKey(absPath))
+		fn := jen.Func().Id(funcName).Params().Parens(jen.List(
+			jen.Qual(pathObject, "Object"), jen.Error(),
+		)).Block(funcBody...)
+
+		ctx.moduleFuncs = append(ctx.moduleFuncs, fn)
+		return nil
+	})
 }
 
 func transpileObject(obj object.Object) (*jen.Statement, error) {
@@ -2627,191 +2617,72 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 // transpilePathModuleToFile parses a .goblin file at importPath and writes it
 // as a separate Go package file under ctx.outputDir.
 func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error {
-	absPath, err := ctx.resolveImportPath(importPath)
-	if err != nil {
-		return fmt.Errorf("failed to resolve path %s: %v", importPath, err)
-	}
+	return ctx.loadPathModule(importPath, func(mod *ast.Module, absPath string) error {
+		// Process sub-imports first (depth-first).
+		imports, err := ctx.collectModuleImports(mod, importPath, ctx.transpilePathModuleToFile)
+		if err != nil {
+			return err
+		}
 
-	if _, ok := ctx.imported[absPath]; ok {
+		key := ctx.moduleKey(absPath)
+		pkgName := pathToPackageName(key)
+		pkgDir := filepath.Join(ctx.outputDir, filepath.FromSlash(key))
+		if err := os.MkdirAll(pkgDir, 0755); err != nil {
+			return fmt.Errorf("failed to create package directory %s: %v", pkgDir, err)
+		}
+
+		f := jen.NewFile(pkgName)
+
+		// Register import aliases so jennifer uses _pkg_X for sub-path-imports.
+		for _, stmt := range mod.Body {
+			imp, ok := stmt.(*ast.Import)
+			if !ok || !isPathImport(imp.Path) {
+				continue
+			}
+			subAbsPath, err := ctx.resolveImportPath(imp.Path)
+			if err != nil {
+				return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
+			}
+			subKey := ctx.moduleKey(subAbsPath)
+			subImportPath := ctx.goModuleName + "/" + subKey
+			f.ImportAlias(subImportPath, "_pkg_"+keyToIdent(subKey))
+		}
+
+		savedImports := ctx.moduleImports
+		ctx.moduleImports = imports
+		defer func() { ctx.moduleImports = savedImports }()
+
+		savedTopDecls := ctx.topDecls
+		ctx.topDecls = nil
+		defer func() { ctx.topDecls = savedTopDecls }()
+
+		funcBody, err := ctx.emitExecuteBody(mod, imports, importPath, ctx.registryPathLoader)
+		if err != nil {
+			return err
+		}
+
+		for _, decl := range ctx.topDecls {
+			f.Add(decl)
+		}
+
+		f.Func().Id("Execute").Params(
+			jen.Id("_registry").Op("*").Qual(pathObject, "Registry"),
+		).Parens(jen.List(
+			jen.Qual(pathObject, "Object"), jen.Error(),
+		)).Block(funcBody...)
+
+		outFile := filepath.Join(pkgDir, pkgName+".go")
+		fh, err := os.Create(outFile)
+		if err != nil {
+			return fmt.Errorf("failed to create file %s: %v", outFile, err)
+		}
+		defer fh.Close()
+
+		if err := f.Render(fh); err != nil {
+			return fmt.Errorf("failed to render file %s: %v", outFile, err)
+		}
 		return nil
-	}
-	if _, ok := ctx.importing[absPath]; ok {
-		return fmt.Errorf("circular import detected: %s", importPath)
-	}
-	ctx.importing[absPath] = struct{}{}
-	defer delete(ctx.importing, absPath)
-
-	// Imports inside this module resolve against its own directory.
-	savedBaseDir := ctx.baseDir
-	ctx.baseDir = filepath.Dir(absPath)
-	defer func() { ctx.baseDir = savedBaseDir }()
-
-	l, err := source.NewLexerFile(absPath)
-	if err != nil {
-		return fmt.Errorf("failed to read module %s: %v", importPath, err)
-	}
-	p := parser.NewParser()
-	st, err := p.Parse(l)
-	if err != nil {
-		return fmt.Errorf("parse error in module %s: %v", importPath, err)
-	}
-
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		return fmt.Errorf("internal error: unexpected AST type for module %s", importPath)
-	}
-	if err := semantic.CheckModule(mod); err != nil {
-		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
-	}
-
-	// Process sub-imports first (depth-first).
-	subModuleImports := make(map[string]string)
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok {
-			continue
-		}
-		if isPathImport(imp.Path) {
-			subModuleImports[imp.Name] = imp.Name
-			if err := ctx.transpilePathModuleToFile(imp.Path); err != nil {
-				return err
-			}
-		} else {
-			info, exists := knownModules[imp.Path]
-			if !exists {
-				return fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
-			}
-			subModuleImports[imp.Name] = ctx.localName(info.varName)
-		}
-	}
-
-	key := ctx.moduleKey(absPath)
-	pkgName := pathToPackageName(key)
-	pkgDir := filepath.Join(ctx.outputDir, filepath.FromSlash(key))
-	if err := os.MkdirAll(pkgDir, 0755); err != nil {
-		return fmt.Errorf("failed to create package directory %s: %v", pkgDir, err)
-	}
-
-	f := jen.NewFile(pkgName)
-
-	// Register import aliases so jennifer uses _pkg_X for sub-path-imports.
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
-			continue
-		}
-		subAbsPath, err := ctx.resolveImportPath(imp.Path)
-		if err != nil {
-			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
-		}
-		subKey := ctx.moduleKey(subAbsPath)
-		subImportPath := ctx.goModuleName + "/" + subKey
-		f.ImportAlias(subImportPath, "_pkg_"+keyToIdent(subKey))
-	}
-
-	savedImports := ctx.moduleImports
-	ctx.moduleImports = subModuleImports
-	defer func() { ctx.moduleImports = savedImports }()
-
-	savedTopDecls := ctx.topDecls
-	ctx.topDecls = nil
-	defer func() { ctx.topDecls = savedTopDecls }()
-
-	exportsVar := ctx.localName("exports")
-	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
-	}
-
-	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
-	if err != nil {
-		return fmt.Errorf("transpile error in module %s: %v", importPath, err)
-	}
-
-	for _, decl := range ctx.topDecls {
-		f.Add(decl)
-	}
-
-	funcBody := []jen.Code{
-		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
-		jen.Id("_").Op("=").Id("builtin"),
-		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
-	}
-
-	// Builtin module imports via registry parameter.
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || isPathImport(imp.Path) {
-			continue
-		}
-		info := knownModules[imp.Path]
-		varName := subModuleImports[imp.Name]
-		errVar := ctx.localName("err")
-		funcBody = append(funcBody,
-			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Qual(info.executorPath, info.executorFunc),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(varName),
-		)
-	}
-
-	// Path module imports via closure that passes registry down.
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
-			continue
-		}
-		subAbsPath, err := ctx.resolveImportPath(imp.Path)
-		if err != nil {
-			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
-		}
-		subKey := ctx.moduleKey(subAbsPath)
-		subImportPath := ctx.goModuleName + "/" + subKey
-		errVar := ctx.localName("err")
-		funcBody = append(funcBody,
-			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(subKey),
-				jen.Func().Params().Parens(jen.List(
-					jen.Qual(pathObject, "Object"), jen.Error(),
-				)).Block(
-					jen.Return(jen.Qual(subImportPath, "Execute").Call(jen.Id("_registry"))),
-				),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(imp.Name),
-		)
-	}
-
-	funcBody = append(funcBody, stmts...)
-	funcBody = append(funcBody,
-		jen.Return(
-			jen.Op("&").Qual(pathObject, "Module").Values(
-				jen.Id("Members").Op(":").Id(exportsVar),
-			),
-			jen.Nil(),
-		),
-	)
-
-	f.Func().Id("Execute").Params(
-		jen.Id("_registry").Op("*").Qual(pathObject, "Registry"),
-	).Parens(jen.List(
-		jen.Qual(pathObject, "Object"), jen.Error(),
-	)).Block(funcBody...)
-
-	outFile := filepath.Join(pkgDir, pkgName+".go")
-	fh, err := os.Create(outFile)
-	if err != nil {
-		return fmt.Errorf("failed to create file %s: %v", outFile, err)
-	}
-	defer fh.Close()
-
-	if err := f.Render(fh); err != nil {
-		return fmt.Errorf("failed to render file %s: %v", outFile, err)
-	}
-
-	ctx.imported[absPath] = struct{}{}
-	return nil
+	})
 }
 
 // generateMainFile generates output/main.go for the top-level module.
@@ -2842,37 +2713,20 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	}
 
 	// Build module imports map for this scope.
-	mainModuleImports := make(map[string]string)
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok {
-			continue
-		}
-		if isPathImport(imp.Path) {
-			mainModuleImports[imp.Name] = imp.Name
-		} else {
-			info, exists := knownModules[imp.Path]
-			if !exists {
-				return fmt.Errorf("unknown module: %s", imp.Path)
-			}
-			mainModuleImports[imp.Name] = ctx.localName(info.varName)
-		}
+	imports, err := ctx.collectModuleImports(mod, "", nil)
+	if err != nil {
+		return err
 	}
 
 	savedImports := ctx.moduleImports
-	ctx.moduleImports = mainModuleImports
+	ctx.moduleImports = imports
 	defer func() { ctx.moduleImports = savedImports }()
 
 	savedTopDecls := ctx.topDecls
 	ctx.topDecls = nil
 	defer func() { ctx.topDecls = savedTopDecls }()
 
-	exportsVar := ctx.localName("exports")
-	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
-	}
-
-	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
+	body, err := ctx.emitExecuteBody(mod, imports, "", ctx.registryPathLoader)
 	if err != nil {
 		return err
 	}
@@ -2880,68 +2734,6 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	for _, decl := range ctx.topDecls {
 		f.Add(decl)
 	}
-
-	body := []jen.Code{
-		jen.Id("builtin").Op(":=").Qual(pathExtension, "BuiltinsModule"),
-		jen.Id("_").Op("=").Id("builtin"),
-		jen.Id(exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
-	}
-
-	// Builtin module imports via _registry global.
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || isPathImport(imp.Path) {
-			continue
-		}
-		info := knownModules[imp.Path]
-		varName := mainModuleImports[imp.Name]
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(varName), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(imp.Path),
-				jen.Qual(info.executorPath, info.executorFunc),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(varName),
-		)
-	}
-
-	// Path module imports via closure passing _registry down.
-	for _, stmt := range mod.Body {
-		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
-			continue
-		}
-		absPath, err := ctx.resolveImportPath(imp.Path)
-		if err != nil {
-			return fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
-		}
-		key := ctx.moduleKey(absPath)
-		importPath := ctx.goModuleName + "/" + key
-		errVar := ctx.localName("err")
-		body = append(body,
-			jen.List(jen.Id(imp.Name), jen.Id(errVar)).Op(":=").Id("_registry").Dot("Load").Call(
-				jen.Lit(key),
-				jen.Func().Params().Parens(jen.List(
-					jen.Qual(pathObject, "Object"), jen.Error(),
-				)).Block(
-					jen.Return(jen.Qual(importPath, "Execute").Call(jen.Id("_registry"))),
-				),
-			),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			jen.Id("_").Op("=").Id(imp.Name),
-		)
-	}
-
-	body = append(body, stmts...)
-	body = append(body,
-		jen.Return(
-			jen.Op("&").Qual(pathObject, "Module").Values(
-				jen.Id("Members").Op(":").Id(exportsVar),
-			),
-			jen.Nil(),
-		),
-	)
 
 	f.Func().Id("Execute").Params().Parens(jen.List(
 		jen.Qual(pathObject, "Object"), jen.Error(),
