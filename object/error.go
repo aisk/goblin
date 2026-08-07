@@ -342,21 +342,8 @@ func NewImportError(format string, a ...any) *Error {
 func NewParseError(format string, a ...any) *Error {
 	return typedError(ParseError, format, a...)
 }
-func NewIOError(format string, a ...any) *Error { return typedError(IOError, format, a...) }
-func NewNotExistError(format string, a ...any) *Error {
-	return typedError(NotExistError, format, a...)
-}
-func NewExistError(format string, a ...any) *Error {
-	return typedError(ExistError, format, a...)
-}
-func NewPermissionError(format string, a ...any) *Error {
-	return typedError(PermissionError, format, a...)
-}
 func NewTimeoutError(format string, a ...any) *Error {
 	return typedError(TimeoutError, format, a...)
-}
-func NewNetworkError(format string, a ...any) *Error {
-	return typedError(NetworkError, format, a...)
 }
 
 func ErrorKind(err error, fallback *Error) *Error {

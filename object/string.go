@@ -450,19 +450,19 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(s), nil
 	case "size":
-		return &Function{Name: "size", Fn: s.Size}, nil
+		return &Function{Name: name, Fn: s.Size}, nil
 	case "upper":
-		return &Function{Name: "upper", Fn: s.Upper}, nil
+		return &Function{Name: name, Fn: s.Upper}, nil
 	case "lower":
-		return &Function{Name: "lower", Fn: s.Lower}, nil
+		return &Function{Name: name, Fn: s.Lower}, nil
 	case "has_prefix":
-		return &Function{Name: "has_prefix", Fn: s.HasPrefix}, nil
+		return &Function{Name: name, Fn: s.HasPrefix}, nil
 	case "has_suffix":
-		return &Function{Name: "has_suffix", Fn: s.HasSuffix}, nil
+		return &Function{Name: name, Fn: s.HasSuffix}, nil
 	case "trim":
-		return &Function{Name: "trim", Fn: s.Trim}, nil
+		return &Function{Name: name, Fn: s.Trim}, nil
 	case "contains":
-		return &Function{Name: "contains", Fn: s.Contains}, nil
+		return &Function{Name: name, Fn: s.Contains}, nil
 	case "contains_any":
 		return &Function{Name: name, Fn: s.ContainsAny}, nil
 	case "count":

@@ -50,7 +50,7 @@ func (m *Module) GetAttr(name string) (Object, error) {
 	if name == "attributes" {
 		return AttributesFunction(m), nil
 	}
-	return nil, NewAttributeError("module has no attribute '%s'", name)
+	return nil, NewAttributeError("Module has no attribute '%s'", name)
 }
 
 func (m *Module) Attributes() []string {
@@ -64,5 +64,3 @@ func (m *Module) Attributes() []string {
 	sort.Strings(names)
 	return names
 }
-
-var _ Object = (*Module)(nil)

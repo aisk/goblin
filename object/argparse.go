@@ -36,13 +36,6 @@ func RequireNoArgs(funcName string, call CallArgs) error {
 	return NewArgParser(funcName, call).Finish()
 }
 
-// Err returns the first error encountered, or nil. Finish should be preferred
-// when the parser owns the full argument list, as it also reports extra
-// arguments.
-func (p *ArgParser) Err() error {
-	return p.err
-}
-
 // next returns the raw value bound to name, consuming a positional slot when the
 // value is not supplied by keyword. The second result is false when no value is
 // available (a required argument is missing) or when the parser is already in an
@@ -67,12 +60,6 @@ func (p *ArgParser) next(name string) (Object, bool) {
 		return v, true
 	}
 	return nil, false
-}
-
-// optional returns the raw value for name if present, and whether it was found.
-// Unlike next it never records a "missing argument" error.
-func (p *ArgParser) optional(name string) (Object, bool) {
-	return p.next(name)
 }
 
 // required fetches the raw value for name, recording a missing-argument error
@@ -104,7 +91,7 @@ func (p *ArgParser) Any(name string) Object {
 
 // AnyOr returns the raw Object bound to an optional argument, or def when absent.
 func (p *ArgParser) AnyOr(name string, def Object) Object {
-	v, ok := p.optional(name)
+	v, ok := p.next(name)
 	if !ok {
 		return def
 	}
@@ -114,7 +101,7 @@ func (p *ArgParser) AnyOr(name string, def Object) Object {
 // OptionalAny returns an optional Object and whether it was explicitly
 // supplied. It preserves the distinction between omission and passing nil.
 func (p *ArgParser) OptionalAny(name string) (Object, bool) {
-	return p.optional(name)
+	return p.next(name)
 }
 
 // argValue extracts a required argument, asserting it has the concrete type T
@@ -138,7 +125,7 @@ func argValue[T Object](p *ArgParser, name, want string) T {
 // argValueOr extracts an optional argument of concrete type T, returning def
 // when the argument is absent.
 func argValueOr[T Object](p *ArgParser, name, want string, def T) T {
-	v, ok := p.optional(name)
+	v, ok := p.next(name)
 	if !ok {
 		return def
 	}
@@ -154,7 +141,7 @@ func argValueOr[T Object](p *ArgParser, name, want string, def T) T {
 // reports whether it was supplied.
 func optionalArgValue[T Object](p *ArgParser, name, want string) (T, bool) {
 	var zero T
-	v, ok := p.optional(name)
+	v, ok := p.next(name)
 	if !ok {
 		return zero, false
 	}
@@ -270,7 +257,7 @@ func (p *ArgParser) Number(name string) Object {
 
 // NumberOr returns an optional Integer or Float argument, or def when absent.
 func (p *ArgParser) NumberOr(name string, def Object) Object {
-	v, ok := p.optional(name)
+	v, ok := p.next(name)
 	if !ok {
 		return def
 	}
