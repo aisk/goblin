@@ -9,6 +9,7 @@ import (
 
 func Execute() (object.Object, error) {
 	return &object.Module{
+		Name: "fs",
 		Members: map[string]object.Object{
 			"open":     &object.Function{Name: "open", Fn: openFile},
 			"create":   &object.Function{Name: "create", Fn: createFile},

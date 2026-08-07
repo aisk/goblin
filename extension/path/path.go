@@ -12,6 +12,7 @@ import (
 // call an instance method on.
 func Execute() (object.Object, error) {
 	return &object.Module{
+		Name: "path",
 		Members: map[string]object.Object{
 			"Path": object.PathConstructorFn,
 			"cwd":  &object.Function{Name: "cwd", Fn: cwd},
