@@ -5,20 +5,15 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
+	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/token"
 )
 
-// protocolArity maps a protocol method's conventional name to the exact number
-// of parameters it must declare, including the leading self. A user type
-// customizes built-in behavior (operators, comparison, conversion, iteration,
-// indexing) by defining a method with one of these names.
-var protocolArity = map[string]int{
-	"__add": 2, "__sub": 2, "__mul": 2, "__div": 2, "__mod": 2,
-	"__radd": 2, "__rsub": 2, "__rmul": 2, "__rdiv": 2, "__rmod": 2,
-	"__cmp": 2, "__getitem": 2,
-	"__not": 1, "__str": 1, "__bool": 1, "__iter": 1,
-	"__setitem": 3,
-}
+// protocolArity is the shared authoritative table of protocol methods: the
+// conventional dunder name mapped to the exact number of parameters it must
+// declare, including the leading self. It lives in the object package so the
+// checker and both backends can never disagree on the protocol set.
+var protocolArity = object.ProtocolArity
 
 type Diagnostic struct {
 	Pos     token.Pos

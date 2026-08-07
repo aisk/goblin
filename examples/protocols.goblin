@@ -129,3 +129,41 @@ try {
 } catch e {
     print(e)
 }
+
+# The remaining operator protocols: __div and __mod, the reflected __rsub and
+# __rmod, plus explicit truthiness (__bool) and negation (__not).
+type Modular(n) {
+    func __div(self, other) {
+        return Modular(self.n / other)
+    }
+    func __mod(self, other) {
+        return Modular(self.n % other)
+    }
+    func __rsub(self, other) {
+        return Modular(other - self.n)
+    }
+    func __rmod(self, other) {
+        return Modular(other % self.n)
+    }
+    func __bool(self) {
+        return self.n != 0
+    }
+    func __not(self) {
+        return Modular(-self.n)
+    }
+    func __str(self) {
+        return "Modular(" + Str(self.n) + ")"
+    }
+}
+
+var m = Modular(7)
+print(m / 2)
+print(m % 4)
+print(100 - m)
+print(9 % m)
+if Modular(0) {
+    print("zero is falsy via __bool")
+} else {
+    print("Modular(0) is falsy")
+}
+print(!m)

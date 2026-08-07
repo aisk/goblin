@@ -1571,9 +1571,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	// String() string  <- "__str" (infallible fmt.Stringer, for diagnostics)
 	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
 	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
-	if defined["__str"] {
+	if defined[object.ProtoStr] {
 		strDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoStr)),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
 			jen.Return(jen.Qual("fmt", "Sprint").Call(jen.Id("_res"))),
 		)
@@ -1585,9 +1585,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	// ToString() (string, error)  <- "__str" (error-propagating)
 	toStringReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)), jen.Nil())
 	toStringDecl := jen.Func().Params(receiverParam()).Id("ToString").Params().Parens(jen.List(jen.String(), jen.Error()))
-	if defined["__str"] {
+	if defined[object.ProtoStr] {
 		toStringDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__str")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoStr)),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("ToString").Call()),
 		)
@@ -1598,9 +1598,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 	// ToBool() (bool, error)  <- "__bool" (error-propagating)
 	toBoolDecl := jen.Func().Params(receiverParam()).Id("ToBool").Params().Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined["__bool"] {
+	if defined[object.ProtoBool] {
 		toBoolDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__bool")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoBool)),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("ToBool").Call()),
 		)
@@ -1614,7 +1614,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	equalsDecl := jen.Func().Params(receiverParam()).Id("Equals").Params(
 		jen.Id("other").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined["__cmp"] {
+	if defined[object.ProtoCmp] {
 		equalsDecl.Block(
 			jen.List(jen.Id("_cmp"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("Compare").Call(jen.Id("other")),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
@@ -1632,14 +1632,14 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
 		jen.Id("other").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Int(), jen.Error()))
-	if defined["__cmp"] {
+	if defined[object.ProtoCmp] {
 		cmpDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__cmp", jen.Id("other"))),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoCmp, jen.Id("other"))),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(0), jen.Id("_err"))),
 			jen.List(jen.Id("_i"), jen.Id("_ok")).Op(":=").Id("_res").Assert(jen.Qual(pathObject, "Integer")),
 			jen.If(jen.Op("!").Id("_ok")).Block(
 				jen.Return(jen.Lit(0), jen.Qual(pathObject, "NewTypeError").Call(
-					jen.Lit("%s.__cmp must return Int, got %s"),
+					jen.Lit(object.ErrFmtCmpMustReturnInt),
 					jen.Lit(typeDef.Name),
 					jen.Qual("fmt", "Sprint").Call(jen.Id("_res")),
 				)),
@@ -1647,17 +1647,17 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),
 		)
 	} else {
-		cmpDecl.Block(jen.Return(jen.Lit(0), errorf("cannot compare %s")))
+		cmpDecl.Block(jen.Return(jen.Lit(0), errorf(object.ErrFmtCannotCompare)))
 	}
 	protoDecls = append(protoDecls, cmpDecl)
 
 	// Binary operators (other) (Object, error)
 	binOps := []struct{ goMethod, goblin, errFmt string }{
-		{"Add", "__add", "cannot add %s"},
-		{"Minus", "__sub", "cannot subtract %s"},
-		{"Multiply", "__mul", "cannot multiply %s"},
-		{"Divide", "__div", "cannot divide %s"},
-		{"Modulo", "__mod", "cannot modulo %s"},
+		{"Add", object.ProtoAdd, object.ErrFmtCannotAdd},
+		{"Minus", object.ProtoSub, object.ErrFmtCannotSubtract},
+		{"Multiply", object.ProtoMul, object.ErrFmtCannotMultiply},
+		{"Divide", object.ProtoDiv, object.ErrFmtCannotDivide},
+		{"Modulo", object.ProtoMod, object.ErrFmtCannotModulo},
 	}
 	for _, op := range binOps {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
@@ -1676,11 +1676,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	// satisfied; the bool tells the dispatcher whether the type actually
 	// defines a handler for this operand order.
 	for _, op := range []struct{ goMethod, goblin string }{
-		{"RAdd", "__radd"},
-		{"RMinus", "__rsub"},
-		{"RMultiply", "__rmul"},
-		{"RDivide", "__rdiv"},
-		{"RModulo", "__rmod"},
+		{"RAdd", object.ProtoRAdd},
+		{"RMinus", object.ProtoRSub},
+		{"RMultiply", object.ProtoRMul},
+		{"RDivide", object.ProtoRDiv},
+		{"RModulo", object.ProtoRMod},
 	} {
 		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
 			jen.Id("left").Qual(pathObject, "Object"),
@@ -1700,8 +1700,8 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	notDecl := jen.Func().Params(receiverParam()).Id("Not").Params().Parens(
 		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
 	)
-	if defined["__not"] {
-		notDecl.Block(jen.Return(protoCall("__not")))
+	if defined[object.ProtoNot] {
+		notDecl.Block(jen.Return(protoCall(object.ProtoNot)))
 	} else {
 		// Without __not, ! negates the instance's truthiness, matching the
 		// default behavior of built-in types.
@@ -1717,14 +1717,14 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	iterDecl := jen.Func().Params(receiverParam()).Id("Iter").Params().Parens(
 		jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
 	)
-	if defined["__iter"] {
+	if defined[object.ProtoIter] {
 		iterDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall("__iter")),
+			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoIter)),
 			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
 			jen.Return(jen.Id("_res").Dot("Iter").Call()),
 		)
 	} else {
-		iterDecl.Block(jen.Return(jen.Nil(), errorf("%s does not support iteration")))
+		iterDecl.Block(jen.Return(jen.Nil(), errorf(object.ErrFmtNotIterable)))
 	}
 	protoDecls = append(protoDecls, iterDecl)
 
@@ -1732,10 +1732,10 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	indexDecl := jen.Func().Params(receiverParam()).Id("Index").Params(
 		jen.Id("index").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
-	if defined["__getitem"] {
-		indexDecl.Block(jen.Return(protoCall("__getitem", jen.Id("index"))))
+	if defined[object.ProtoGetItem] {
+		indexDecl.Block(jen.Return(protoCall(object.ProtoGetItem, jen.Id("index"))))
 	} else {
-		indexDecl.Block(jen.Return(jen.Nil(), errorf("%s is not indexable")))
+		indexDecl.Block(jen.Return(jen.Nil(), errorf(object.ErrFmtNotIndexable)))
 	}
 	protoDecls = append(protoDecls, indexDecl)
 
@@ -1744,9 +1744,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
 		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
 	).Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined["__setitem"] {
+	if defined[object.ProtoSetItem] {
 		setIndexDecl.Block(
-			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall("__setitem", jen.Id("index"), jen.Id("value"))),
+			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoSetItem, jen.Id("index"), jen.Id("value"))),
 			jen.Return(jen.True(), jen.Id("_err")),
 		)
 	} else {

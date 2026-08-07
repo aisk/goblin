@@ -25,3 +25,9 @@ ababab
 [1, 2, 1, 2]
 Opaque does not support index assignment
 Integer does not support index assignment
+Modular(3)
+Modular(3)
+Modular(93)
+Modular(2)
+Modular(0) is falsy
+Modular(-7)

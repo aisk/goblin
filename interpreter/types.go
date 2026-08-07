@@ -165,7 +165,7 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 // String satisfies fmt.Stringer. It falls back to the default representation
 // when __str fails because fmt.Stringer cannot return an error.
 func (in *instance) String() string {
-	if v, ok, err := in.callProto("__str"); ok && err == nil {
+	if v, ok, err := in.callProto(object.ProtoStr); ok && err == nil {
 		return fmt.Sprint(v)
 	}
 	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
@@ -173,7 +173,7 @@ func (in *instance) String() string {
 
 // ToString performs Goblin's potentially failing __str conversion.
 func (in *instance) ToString() (string, error) {
-	if v, ok, err := in.callProto("__str"); ok {
+	if v, ok, err := in.callProto(object.ProtoStr); ok {
 		if err != nil {
 			return "", err
 		}
@@ -183,7 +183,7 @@ func (in *instance) ToString() (string, error) {
 }
 
 func (in *instance) ToBool() (bool, error) {
-	if v, ok, err := in.callProto("__bool"); ok {
+	if v, ok, err := in.callProto(object.ProtoBool); ok {
 		if err != nil {
 			return false, err
 		}
@@ -210,7 +210,7 @@ func (in *instance) Equals(other object.Object) (bool, error) {
 func (in *instance) Compare(other object.Object) (int, error) {
 	c, ok, err := in.compareProto(other)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare %s", in.typ.name)
+		return 0, object.NewTypeError(object.ErrFmtCannotCompare, in.typ.name)
 	}
 	return c, err
 }
@@ -219,7 +219,7 @@ func (in *instance) Compare(other object.Object) (int, error) {
 // type defines the method at all, which == and the ordering operators answer
 // differently.
 func (in *instance) compareProto(other object.Object) (int, bool, error) {
-	v, ok, err := in.callProto("__cmp", other)
+	v, ok, err := in.callProto(object.ProtoCmp, other)
 	if !ok {
 		return 0, false, nil
 	}
@@ -228,44 +228,44 @@ func (in *instance) compareProto(other object.Object) (int, bool, error) {
 	}
 	i, isInt := v.(object.Integer)
 	if !isInt {
-		return 0, true, object.NewTypeError("%s.__cmp must return Int, got %s", in.typ.name, fmt.Sprint(v))
+		return 0, true, object.NewTypeError(object.ErrFmtCmpMustReturnInt, in.typ.name, fmt.Sprint(v))
 	}
 	return int(i), true, nil
 }
 
 func (in *instance) Add(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__add", other); ok {
+	if v, ok, err := in.callProto(object.ProtoAdd, other); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot add %s", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtCannotAdd, in.typ.name)
 }
 
 func (in *instance) Minus(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__sub", other); ok {
+	if v, ok, err := in.callProto(object.ProtoSub, other); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot subtract %s", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtCannotSubtract, in.typ.name)
 }
 
 func (in *instance) Multiply(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__mul", other); ok {
+	if v, ok, err := in.callProto(object.ProtoMul, other); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot multiply %s", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtCannotMultiply, in.typ.name)
 }
 
 func (in *instance) Divide(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__div", other); ok {
+	if v, ok, err := in.callProto(object.ProtoDiv, other); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot divide %s", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtCannotDivide, in.typ.name)
 }
 
 func (in *instance) Modulo(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__mod", other); ok {
+	if v, ok, err := in.callProto(object.ProtoMod, other); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("cannot modulo %s", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtCannotModulo, in.typ.name)
 }
 
 // RAdd, RMinus, RMultiply, RDivide and RModulo are the reflected operators, reached
@@ -273,27 +273,27 @@ func (in *instance) Modulo(other object.Object) (object.Object, error) {
 // report handled == false when the type defines no such method, leaving the
 // left operand's error in place.
 func (in *instance) RAdd(left object.Object) (object.Object, bool, error) {
-	return in.callProto("__radd", left)
+	return in.callProto(object.ProtoRAdd, left)
 }
 
 func (in *instance) RMinus(left object.Object) (object.Object, bool, error) {
-	return in.callProto("__rsub", left)
+	return in.callProto(object.ProtoRSub, left)
 }
 
 func (in *instance) RMultiply(left object.Object) (object.Object, bool, error) {
-	return in.callProto("__rmul", left)
+	return in.callProto(object.ProtoRMul, left)
 }
 
 func (in *instance) RDivide(left object.Object) (object.Object, bool, error) {
-	return in.callProto("__rdiv", left)
+	return in.callProto(object.ProtoRDiv, left)
 }
 
 func (in *instance) RModulo(left object.Object) (object.Object, bool, error) {
-	return in.callProto("__rmod", left)
+	return in.callProto(object.ProtoRMod, left)
 }
 
 func (in *instance) Not() (object.Object, error) {
-	if v, ok, err := in.callProto("__not"); ok {
+	if v, ok, err := in.callProto(object.ProtoNot); ok {
 		return v, err
 	}
 	// Without __not, ! negates the instance's truthiness, matching the
@@ -306,20 +306,20 @@ func (in *instance) Not() (object.Object, error) {
 }
 
 func (in *instance) Iter() ([]object.Object, error) {
-	if v, ok, err := in.callProto("__iter"); ok {
+	if v, ok, err := in.callProto(object.ProtoIter); ok {
 		if err != nil {
 			return nil, err
 		}
 		return v.Iter()
 	}
-	return nil, object.NewTypeError("%s does not support iteration", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtNotIterable, in.typ.name)
 }
 
 func (in *instance) Index(index object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto("__getitem", index); ok {
+	if v, ok, err := in.callProto(object.ProtoGetItem, index); ok {
 		return v, err
 	}
-	return nil, object.NewTypeError("%s is not indexable", in.typ.name)
+	return nil, object.NewTypeError(object.ErrFmtNotIndexable, in.typ.name)
 }
 
 // SetIndex dispatches `obj[i] = v` to a user-defined "__setitem" method. It
@@ -327,6 +327,6 @@ func (in *instance) Index(index object.Object) (object.Object, error) {
 // to raise the same "does not support index assignment" error every other type
 // gets.
 func (in *instance) SetIndex(index object.Object, value object.Object) (bool, error) {
-	_, ok, err := in.callProto("__setitem", index, value)
+	_, ok, err := in.callProto(object.ProtoSetItem, index, value)
 	return ok, err
 }
