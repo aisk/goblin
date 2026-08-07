@@ -28,7 +28,7 @@ func parse(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapError(object.ParseError, "parse() failed", err)
 	}
-	return &URL{value: value}, nil
+	return newURL(value), nil
 }
 
 func joinPath(args object.CallArgs) (object.Object, error) {

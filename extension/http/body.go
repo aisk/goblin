@@ -14,13 +14,13 @@ import (
 // Body also implements io.ReadCloser so net/http and Goblin always operate on
 // the same stream and observe the same close state.
 type Body struct {
-	objectBase
+	object.OpaqueBase
 	stream io.ReadCloser
 	closed atomic.Bool
 }
 
 func NewBody(stream io.ReadCloser) *Body {
-	return &Body{objectBase: objectBase{typeName: "Body"}, stream: stream}
+	return &Body{OpaqueBase: object.MakeOpaqueBase("Body"), stream: stream}
 }
 
 func (b *Body) String() string {

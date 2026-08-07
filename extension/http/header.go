@@ -12,7 +12,7 @@ import (
 // the request or response it was obtained from, so mutations made via
 // set/add/del are reflected in the underlying request before it is sent.
 type Header struct {
-	objectBase
+	object.OpaqueBase
 	Header stdhttp.Header
 }
 
@@ -20,7 +20,7 @@ func NewHeader(h stdhttp.Header) *Header {
 	if h == nil {
 		h = stdhttp.Header{}
 	}
-	return &Header{objectBase: objectBase{typeName: "Header"}, Header: h}
+	return &Header{OpaqueBase: object.MakeOpaqueBase("Header"), Header: h}
 }
 
 func (h *Header) String() string {

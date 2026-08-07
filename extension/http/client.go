@@ -11,12 +11,12 @@ import (
 // reuses connections. The Timeout is set at construction via
 // http.Client(timeout=...).
 type Client struct {
-	objectBase
+	object.OpaqueBase
 	Client *stdhttp.Client
 }
 
 func NewClient(c *stdhttp.Client) *Client {
-	return &Client{objectBase: objectBase{typeName: "Client"}, Client: c}
+	return &Client{OpaqueBase: object.MakeOpaqueBase("Client"), Client: c}
 }
 
 func (c *Client) String() string {

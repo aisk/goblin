@@ -7,12 +7,14 @@ import (
 )
 
 type Addr struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	value netip.Addr
 }
 
-func (a *Addr) TypeName() string            { return "Addr" }
+func newAddr(value netip.Addr) *Addr {
+	return &Addr{OpaqueBase: object.MakeOpaqueBase("Addr"), value: value}
+}
+
 func (a *Addr) String() string              { return a.value.String() }
 func (a *Addr) ToString() (string, error)   { return a.String(), nil }
 func (a *Addr) ToBool() (bool, error)       { return a.value.IsValid(), nil }
@@ -28,27 +30,6 @@ func (a *Addr) Compare(other object.Object) (int, error) {
 	}
 	return a.value.Compare(value.value), nil
 }
-func (a *Addr) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support addition")
-}
-func (a *Addr) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support subtraction")
-}
-func (a *Addr) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support multiplication")
-}
-func (a *Addr) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support division")
-}
-func (a *Addr) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support modulo")
-}
-func (a *Addr) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Addr does not support iteration")
-}
-func (a *Addr) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Addr is not indexable")
-}
 
 func noArgs(name string, args object.CallArgs) error { return object.NewArgParser(name, args).Finish() }
 func (a *Addr) next(args object.CallArgs) (object.Object, error) {
@@ -59,7 +40,7 @@ func (a *Addr) next(args object.CallArgs) (object.Object, error) {
 	if !value.IsValid() {
 		return nil, object.NewValueError("next() address has no successor")
 	}
-	return &Addr{value: value}, nil
+	return newAddr(value), nil
 }
 func (a *Addr) prev(args object.CallArgs) (object.Object, error) {
 	if err := noArgs("prev", args); err != nil {
@@ -69,13 +50,13 @@ func (a *Addr) prev(args object.CallArgs) (object.Object, error) {
 	if !value.IsValid() {
 		return nil, object.NewValueError("prev() address has no predecessor")
 	}
-	return &Addr{value: value}, nil
+	return newAddr(value), nil
 }
 func (a *Addr) unmap(args object.CallArgs) (object.Object, error) {
 	if err := noArgs("unmap", args); err != nil {
 		return nil, err
 	}
-	return &Addr{value: a.value.Unmap()}, nil
+	return newAddr(a.value.Unmap()), nil
 }
 
 func (a *Addr) GetAttr(name string) (object.Object, error) {

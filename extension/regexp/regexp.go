@@ -26,7 +26,7 @@ func compile(args object.CallArgs) (object.Object, error) {
 		return nil, object.WrapError(object.ParseError, "compile() failed", err)
 	}
 	return &Pattern{
-		objectBase: objectBase{typeName: "Pattern"},
+		OpaqueBase: object.MakeOpaqueBase("Pattern"),
 		source:     string(source),
 		re:         re,
 		names:      re.SubexpNames(),

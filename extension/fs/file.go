@@ -9,15 +9,14 @@ import (
 )
 
 type File struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	Name   string
 	File   *os.File
 	closed bool
 }
 
 func NewFile(name string, file *os.File) *File {
-	return &File{Name: name, File: file}
+	return &File{OpaqueBase: object.MakeOpaqueBase("File"), Name: name, File: file}
 }
 
 func (f *File) ensureOpen(method string) error {
@@ -98,8 +97,6 @@ func (f *File) Stat(args object.CallArgs) (object.Object, error) {
 	return NewFileInfo(info), nil
 }
 
-func (f *File) TypeName() string { return "File" }
-
 func (f *File) String() string {
 	return fmt.Sprintf("<file %s>", f.Name)
 }
@@ -113,32 +110,7 @@ func (f *File) Equals(other object.Object) (bool, error) {
 	return ok && f == v, nil
 }
 
-func (f *File) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("cannot compare File")
-}
-
-func (f *File) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot add File")
-}
-func (f *File) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot subtract File")
-}
-func (f *File) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot multiply File")
-}
-func (f *File) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot divide File")
-}
-func (f *File) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot modulo File")
-}
 func (f *File) Not() (object.Object, error) { return object.Bool(f.closed), nil }
-func (f *File) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("File does not support iteration")
-}
-func (f *File) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("File is not indexable")
-}
 
 func (f *File) GetAttr(name string) (object.Object, error) {
 	switch name {

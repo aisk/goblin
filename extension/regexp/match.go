@@ -8,7 +8,7 @@ import (
 
 // Match is an immutable snapshot of one match. Offsets are UTF-8 byte offsets.
 type Match struct {
-	objectBase
+	object.OpaqueBase
 	source  string
 	indices []int
 	// names is the compiling Pattern's SubexpNames slice, shared because it is
@@ -18,7 +18,7 @@ type Match struct {
 
 func newMatch(source string, indices []int, names []string) *Match {
 	return &Match{
-		objectBase: objectBase{typeName: "Match"},
+		OpaqueBase: object.MakeOpaqueBase("Match"),
 		source:     source,
 		indices:    append([]int(nil), indices...),
 		names:      names,

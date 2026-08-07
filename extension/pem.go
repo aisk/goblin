@@ -18,11 +18,10 @@ func ExecutePEM() (object.Object, error) {
 }
 
 type PEMBlock struct {
-	object.NoReflectedOps
-	object.NoAssignment
-	typeName string
-	data     []byte
-	headers  map[string]string
+	object.OpaqueBase
+	label   string
+	data    []byte
+	headers map[string]string
 }
 
 func pemHeaders(fnName string, dict *object.Dict) (map[string]string, error) {
@@ -57,11 +56,11 @@ func pemBlockConstructor(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &PEMBlock{typeName: string(typeName), data: append([]byte(nil), data...), headers: headers}, nil
+	return &PEMBlock{OpaqueBase: object.MakeOpaqueBase("Block"), label: string(typeName), data: append([]byte(nil), data...), headers: headers}, nil
 }
 
 func newPEMBlock(block *pem.Block) *PEMBlock {
-	return &PEMBlock{typeName: block.Type, data: append([]byte(nil), block.Bytes...), headers: block.Headers}
+	return &PEMBlock{OpaqueBase: object.MakeOpaqueBase("Block"), label: block.Type, data: append([]byte(nil), block.Bytes...), headers: block.Headers}
 }
 
 func (b *PEMBlock) native() *pem.Block {
@@ -69,17 +68,14 @@ func (b *PEMBlock) native() *pem.Block {
 	for key, value := range b.headers {
 		headers[key] = value
 	}
-	return &pem.Block{Type: b.typeName, Bytes: append([]byte(nil), b.data...), Headers: headers}
+	return &pem.Block{Type: b.label, Bytes: append([]byte(nil), b.data...), Headers: headers}
 }
 
-func (b *PEMBlock) TypeName() string            { return "Block" }
-func (b *PEMBlock) String() string              { return "<pem.Block " + b.typeName + ">" }
-func (b *PEMBlock) ToString() (string, error)   { return b.String(), nil }
-func (b *PEMBlock) ToBool() (bool, error)       { return true, nil }
-func (b *PEMBlock) Not() (object.Object, error) { return object.False, nil }
+func (b *PEMBlock) String() string            { return "<pem.Block " + b.label + ">" }
+func (b *PEMBlock) ToString() (string, error) { return b.String(), nil }
 func (b *PEMBlock) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*PEMBlock)
-	if !ok || b.typeName != value.typeName || !bytes.Equal(b.data, value.data) || len(b.headers) != len(value.headers) {
+	if !ok || b.label != value.label || !bytes.Equal(b.data, value.data) || len(b.headers) != len(value.headers) {
 		return false, nil
 	}
 	for key, item := range b.headers {
@@ -88,30 +84,6 @@ func (b *PEMBlock) Equals(other object.Object) (bool, error) {
 		}
 	}
 	return true, nil
-}
-func (b *PEMBlock) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("Block values are not ordered")
-}
-func (b *PEMBlock) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block does not support addition")
-}
-func (b *PEMBlock) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block does not support subtraction")
-}
-func (b *PEMBlock) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block does not support multiplication")
-}
-func (b *PEMBlock) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block does not support division")
-}
-func (b *PEMBlock) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block does not support modulo")
-}
-func (b *PEMBlock) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Block does not support iteration")
-}
-func (b *PEMBlock) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Block is not indexable")
 }
 
 func (b *PEMBlock) encode(args object.CallArgs) (object.Object, error) {
@@ -126,7 +98,7 @@ func (b *PEMBlock) GetAttr(name string) (object.Object, error) {
 	case "attributes":
 		return object.AttributesFunction(b), nil
 	case "label":
-		return object.String(b.typeName), nil
+		return object.String(b.label), nil
 	case "data":
 		return object.NewBytes(b.data), nil
 	case "headers":

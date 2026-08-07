@@ -24,16 +24,13 @@ func InConcurrentMode() bool { return concurrentMode.Load() }
 // read after done is observed closed, so the channel provides the necessary
 // happens-before edge without a lock.
 type Goblin struct {
-	NoReflectedOps
-	NoAssignment
+	OpaqueBase
 	done   chan struct{}
 	result Object
 	err    error
 }
 
 var _ Object = &Goblin{}
-
-func (g *Goblin) TypeName() string { return "Goblin" }
 
 func (g *Goblin) String() string {
 	select {
@@ -45,7 +42,6 @@ func (g *Goblin) String() string {
 }
 
 func (g *Goblin) ToString() (string, error) { return g.String(), nil }
-func (g *Goblin) ToBool() (bool, error)     { return true, nil }
 
 func (g *Goblin) Equals(other Object) (bool, error) {
 	v, ok := other.(*Goblin)
@@ -62,16 +58,7 @@ func (g *Goblin) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Goblin and %s", other.TypeName())
 }
 
-func (g *Goblin) Add(Object) (Object, error)      { return nil, NewTypeError("cannot add Goblin") }
-func (g *Goblin) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract Goblin") }
-func (g *Goblin) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Goblin") }
-func (g *Goblin) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Goblin") }
-func (g *Goblin) Modulo(Object) (Object, error)   { return nil, NewTypeError("cannot modulo Goblin") }
-func (g *Goblin) Not() (Object, error)            { return nil, NewTypeError("cannot perform NOT on Goblin") }
-func (g *Goblin) Iter() ([]Object, error) {
-	return nil, NewTypeError("Goblin does not support iteration")
-}
-func (g *Goblin) Index(Object) (Object, error) { return nil, NewTypeError("Goblin is not indexable") }
+func (g *Goblin) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Goblin") }
 
 func (g *Goblin) GetAttr(name string) (Object, error) {
 	switch name {
@@ -164,7 +151,7 @@ func GoblinConstructor(args CallArgs) (Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	g := &Goblin{done: make(chan struct{})}
+	g := &Goblin{OpaqueBase: MakeOpaqueBase("Goblin"), done: make(chan struct{})}
 	EnterConcurrentMode()
 	go func() {
 		defer close(g.done)

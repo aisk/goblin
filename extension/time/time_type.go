@@ -8,16 +8,13 @@ import (
 
 // Time wraps Go's time.Time as a goblin object.
 type Time struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	Value stdtime.Time
 }
 
 func NewTime(t stdtime.Time) *Time {
-	return &Time{Value: t}
+	return &Time{OpaqueBase: object.MakeOpaqueBase("Time"), Value: t}
 }
-
-func (t *Time) TypeName() string { return "Time" }
 
 func (t *Time) String() string {
 	return t.Value.Format(stdtime.RFC3339)
@@ -46,28 +43,7 @@ func (t *Time) Compare(other object.Object) (int, error) {
 	return 0, nil
 }
 
-func (t *Time) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot add Time")
-}
-func (t *Time) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot subtract Time")
-}
-func (t *Time) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot multiply Time")
-}
-func (t *Time) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot divide Time")
-}
-func (t *Time) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot modulo Time")
-}
 func (t *Time) Not() (object.Object, error) { return object.Bool(t.Value.IsZero()), nil }
-func (t *Time) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Time does not support iteration")
-}
-func (t *Time) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Time is not indexable")
-}
 
 func (t *Time) GetAttr(name string) (object.Object, error) {
 	if value, ok := timeType.Attribute(name); ok {

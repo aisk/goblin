@@ -10,7 +10,7 @@ import (
 
 // Pattern is an immutable, concurrency-safe compiled regular expression.
 type Pattern struct {
-	objectBase
+	object.OpaqueBase
 	source string
 	re     *stdregexp.Regexp
 	// names is re.SubexpNames(): entry i holds the name of group i, or "" when

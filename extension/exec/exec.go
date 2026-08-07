@@ -11,7 +11,7 @@ import (
 )
 
 type streamPolicy struct {
-	objectBase
+	object.OpaqueBase
 	name string
 }
 
@@ -26,9 +26,9 @@ func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
 func (p *streamPolicy) Attributes() []string { return []string{"attributes"} }
 
 var (
-	inherit     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "INHERIT"}
-	discard     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "DISCARD"}
-	capture     = &streamPolicy{objectBase: objectBase{typeName: "StreamPolicy"}, name: "CAPTURE"}
+	inherit     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "INHERIT"}
+	discard     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "DISCARD"}
+	capture     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "CAPTURE"}
 	commandType = object.NewNativeConstructor("Command", command)
 )
 
@@ -91,7 +91,7 @@ func command(args object.CallArgs) (object.Object, error) {
 		}
 	}
 
-	c := &Cmd{objectBase: objectBase{typeName: "Command"}, cmd: cmd, state: stateCreated}
+	c := &Cmd{OpaqueBase: object.MakeOpaqueBase("Command"), cmd: cmd, state: stateCreated}
 	if err := c.configureStdin(stdinObj); err != nil {
 		return nil, err
 	}

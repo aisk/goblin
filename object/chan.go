@@ -3,19 +3,20 @@ package object
 // Chan wraps a Go channel of Objects, exposing send/recv/close to Goblin.
 // Element typing is dynamic: any Object can flow through the channel.
 type Chan struct {
-	NoReflectedOps
-	NoAssignment
+	OpaqueBase
 	ch chan Object
 }
 
 var _ Object = &Chan{}
 
-func (c *Chan) TypeName() string { return "Chan" }
+// NewChan builds a Chan around a Go channel with the given buffer size.
+func NewChan(size int) *Chan {
+	return &Chan{OpaqueBase: MakeOpaqueBase("Chan"), ch: make(chan Object, size)}
+}
 
 func (c *Chan) String() string { return "<chan>" }
 
 func (c *Chan) ToString() (string, error) { return c.String(), nil }
-func (c *Chan) ToBool() (bool, error)     { return true, nil }
 
 func (c *Chan) Equals(other Object) (bool, error) {
 	v, ok := other.(*Chan)
@@ -32,16 +33,7 @@ func (c *Chan) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Chan and %s", other.TypeName())
 }
 
-func (c *Chan) Add(Object) (Object, error)      { return nil, NewTypeError("cannot add Chan") }
-func (c *Chan) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract Chan") }
-func (c *Chan) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Chan") }
-func (c *Chan) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Chan") }
-func (c *Chan) Modulo(Object) (Object, error)   { return nil, NewTypeError("cannot modulo Chan") }
-func (c *Chan) Not() (Object, error)            { return nil, NewTypeError("cannot perform NOT on Chan") }
-func (c *Chan) Iter() ([]Object, error) {
-	return nil, NewTypeError("Chan does not support iteration")
-}
-func (c *Chan) Index(Object) (Object, error) { return nil, NewTypeError("Chan is not indexable") }
+func (c *Chan) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Chan") }
 
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
@@ -130,5 +122,5 @@ func ChanConstructor(args CallArgs) (Object, error) {
 	if size < 0 {
 		return nil, NewValueError("Chan() size must be non-negative, got %d", int64(size))
 	}
-	return &Chan{ch: make(chan Object, int(size))}, nil
+	return NewChan(int(size)), nil
 }

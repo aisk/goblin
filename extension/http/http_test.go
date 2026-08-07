@@ -11,14 +11,14 @@ import (
 )
 
 type testReader struct {
-	objectBase
+	object.OpaqueBase
 	chunks    []object.Object
 	readSizes []object.Integer
 	closed    bool
 }
 
 func newTestReader(chunks ...object.Object) *testReader {
-	return &testReader{objectBase: objectBase{typeName: "TestReader"}, chunks: chunks}
+	return &testReader{OpaqueBase: object.MakeOpaqueBase("TestReader"), chunks: chunks}
 }
 
 func (r *testReader) String() string            { return "<test_reader>" }

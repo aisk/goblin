@@ -36,7 +36,7 @@ func addrConstructor(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapError(object.ParseError, "Addr() invalid IP address", err)
 	}
-	return &Addr{value: addr}, nil
+	return newAddr(addr), nil
 }
 
 func prefixConstructor(args object.CallArgs) (object.Object, error) {
@@ -56,5 +56,5 @@ func prefixConstructor(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapError(object.ParseError, "Prefix() invalid IP prefix", err)
 	}
-	return &Prefix{value: prefix}, nil
+	return newPrefix(prefix), nil
 }

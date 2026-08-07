@@ -8,16 +8,13 @@ import (
 )
 
 type FileInfo struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	Info stdfs.FileInfo
 }
 
 func NewFileInfo(info stdfs.FileInfo) *FileInfo {
-	return &FileInfo{Info: info}
+	return &FileInfo{OpaqueBase: object.MakeOpaqueBase("FileInfo"), Info: info}
 }
-
-func (f *FileInfo) TypeName() string { return "FileInfo" }
 
 func (f *FileInfo) String() string {
 	return fmt.Sprintf("<file_info %s>", f.Info.Name())
@@ -25,38 +22,9 @@ func (f *FileInfo) String() string {
 
 func (f *FileInfo) ToString() (string, error) { return f.String(), nil }
 
-func (f *FileInfo) ToBool() (bool, error) { return true, nil }
-
 func (f *FileInfo) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*FileInfo)
 	return ok && f == v, nil
-}
-
-func (f *FileInfo) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("cannot compare FileInfo")
-}
-
-func (f *FileInfo) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot add FileInfo")
-}
-func (f *FileInfo) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot subtract FileInfo")
-}
-func (f *FileInfo) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot multiply FileInfo")
-}
-func (f *FileInfo) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot divide FileInfo")
-}
-func (f *FileInfo) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot modulo FileInfo")
-}
-func (f *FileInfo) Not() (object.Object, error) { return object.False, nil }
-func (f *FileInfo) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("FileInfo does not support iteration")
-}
-func (f *FileInfo) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("FileInfo is not indexable")
 }
 
 func (f *FileInfo) GetAttr(name string) (object.Object, error) {

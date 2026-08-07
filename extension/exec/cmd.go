@@ -21,7 +21,7 @@ const (
 )
 
 type Cmd struct {
-	objectBase
+	object.OpaqueBase
 	mu      sync.Mutex
 	cmd     *stdexec.Cmd
 	state   cmdState
@@ -133,7 +133,7 @@ func (c *Cmd) makeResult() *Result {
 	if c.stderr != nil {
 		stderr = object.NewBytes(c.stderr.Bytes())
 	}
-	return &Result{objectBase: objectBase{typeName: "Result"}, code: c.cmd.ProcessState.ExitCode(), stdout: stdout, stderr: stderr}
+	return &Result{OpaqueBase: object.MakeOpaqueBase("Result"), code: c.cmd.ProcessState.ExitCode(), stdout: stdout, stderr: stderr}
 }
 
 func (c *Cmd) GetAttr(name string) (object.Object, error) {

@@ -7,44 +7,19 @@ import (
 )
 
 type URL struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	value *url.URL
 }
 
-func (u *URL) TypeName() string { return "URL" }
+func newURL(value *url.URL) *URL {
+	return &URL{OpaqueBase: object.MakeOpaqueBase("URL"), value: value}
+}
 
 func (u *URL) String() string            { return u.value.String() }
 func (u *URL) ToString() (string, error) { return u.value.String(), nil }
-func (u *URL) ToBool() (bool, error)     { return true, nil }
 func (u *URL) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*URL)
 	return ok && u.value.String() == value.value.String(), nil
-}
-func (u *URL) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("URL values are not ordered")
-}
-func (u *URL) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL does not support addition")
-}
-func (u *URL) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL does not support subtraction")
-}
-func (u *URL) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL does not support multiplication")
-}
-func (u *URL) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL does not support division")
-}
-func (u *URL) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL does not support modulo")
-}
-func (u *URL) Not() (object.Object, error) { return object.False, nil }
-func (u *URL) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("URL does not support iteration")
-}
-func (u *URL) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("URL is not indexable")
 }
 
 func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
@@ -57,7 +32,7 @@ func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
 	if !ok {
 		return nil, object.NewTypeError("resolve_reference() argument 'reference' must be a URL, got %s", reference.TypeName())
 	}
-	return &URL{value: u.value.ResolveReference(other.value)}, nil
+	return newURL(u.value.ResolveReference(other.value)), nil
 }
 
 func (u *URL) GetAttr(name string) (object.Object, error) {

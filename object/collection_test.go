@@ -49,7 +49,7 @@ func TestListFirstAndLastDoNotMutate(t *testing.T) {
 }
 
 func TestChanSendRemainsPositionalOnly(t *testing.T) {
-	channel := &Chan{ch: make(chan Object, 1)}
+	channel := NewChan(1)
 	method, err := channel.GetAttr("send")
 	if err != nil {
 		t.Fatal(err)

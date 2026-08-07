@@ -8,14 +8,14 @@ import (
 )
 
 type Address struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	value *stdmail.Address
 }
 
-func NewAddress(value *stdmail.Address) *Address { return &Address{value: value} }
+func NewAddress(value *stdmail.Address) *Address {
+	return &Address{OpaqueBase: object.MakeOpaqueBase("Address"), value: value}
+}
 
-func (a *Address) TypeName() string          { return "Address" }
 func (a *Address) String() string            { return a.value.String() }
 func (a *Address) ToString() (string, error) { return a.String(), nil }
 func (a *Address) ToBool() (bool, error)     { return a.value.Address != "", nil }
@@ -32,27 +32,6 @@ func (a *Address) Compare(other object.Object) (int, error) {
 		return 0, object.NewTypeError("cannot compare Address with %s", other.TypeName())
 	}
 	return strings.Compare(a.String(), value.String()), nil
-}
-func (a *Address) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address does not support addition")
-}
-func (a *Address) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address does not support subtraction")
-}
-func (a *Address) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address does not support multiplication")
-}
-func (a *Address) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address does not support division")
-}
-func (a *Address) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address does not support modulo")
-}
-func (a *Address) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Address does not support iteration")
-}
-func (a *Address) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Address is not indexable")
 }
 func (a *Address) GetAttr(name string) (object.Object, error) {
 	if value, ok := addressType.Attribute(name); ok {

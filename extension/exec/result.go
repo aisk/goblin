@@ -6,7 +6,7 @@ import (
 )
 
 type Result struct {
-	objectBase
+	object.OpaqueBase
 	code   int
 	stdout object.Object
 	stderr object.Object

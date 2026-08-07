@@ -36,15 +36,14 @@ func ExecuteRand() (object.Object, error) {
 // Rand owns an isolated pseudo-random sequence. The lock makes its methods
 // safe to call from concurrent Goblin code, matching Go's top-level helpers.
 type Rand struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	mu   sync.Mutex
 	rng  *rand.Rand
 	seed int64
 }
 
 func newRand(seed int64) *Rand {
-	return &Rand{rng: rand.New(rand.NewSource(seed)), seed: seed}
+	return &Rand{OpaqueBase: object.MakeOpaqueBase("Rand"), rng: rand.New(rand.NewSource(seed)), seed: seed}
 }
 
 func randConstructor(args object.CallArgs) (object.Object, error) {
@@ -145,38 +144,11 @@ func (r *Rand) randomExpFloat(args object.CallArgs) (object.Object, error) {
 	return object.Float(value), nil
 }
 
-func (r *Rand) TypeName() string            { return "Rand" }
-func (r *Rand) String() string              { return fmt.Sprintf("<rand.Rand seed=%d>", r.seed) }
-func (r *Rand) ToString() (string, error)   { return r.String(), nil }
-func (r *Rand) ToBool() (bool, error)       { return true, nil }
-func (r *Rand) Not() (object.Object, error) { return object.False, nil }
+func (r *Rand) String() string            { return fmt.Sprintf("<rand.Rand seed=%d>", r.seed) }
+func (r *Rand) ToString() (string, error) { return r.String(), nil }
 func (r *Rand) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*Rand)
 	return ok && r == value, nil
-}
-func (r *Rand) Compare(object.Object) (int, error) {
-	return 0, object.NewTypeError("cannot compare Rand")
-}
-func (r *Rand) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot add Rand")
-}
-func (r *Rand) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot subtract Rand")
-}
-func (r *Rand) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot multiply Rand")
-}
-func (r *Rand) Divide(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot divide Rand")
-}
-func (r *Rand) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot modulo Rand")
-}
-func (r *Rand) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Rand does not support iteration")
-}
-func (r *Rand) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Rand is not indexable")
 }
 
 func (r *Rand) GetAttr(name string) (object.Object, error) {

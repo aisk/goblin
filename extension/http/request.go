@@ -11,13 +11,13 @@ import (
 // constructor and consumed by client.do, mirroring Go's http.NewRequest /
 // (*Client).Do flow.
 type Request struct {
-	objectBase
+	object.OpaqueBase
 	Req  *stdhttp.Request
 	body *Body
 }
 
 func NewRequest(req *stdhttp.Request) *Request {
-	r := &Request{objectBase: objectBase{typeName: "Request"}, Req: req}
+	r := &Request{OpaqueBase: object.MakeOpaqueBase("Request"), Req: req}
 	if req.Body != nil {
 		r.body = NewBody(req.Body)
 		req.Body = r.body

@@ -12,7 +12,7 @@ import (
 // Response wraps net/http.Response. Its body remains a streaming Body; json()
 // consumes that same stream.
 type Response struct {
-	objectBase
+	object.OpaqueBase
 	resp *stdhttp.Response
 	body *Body
 }
@@ -20,7 +20,7 @@ type Response struct {
 func NewResponse(resp *stdhttp.Response) *Response {
 	body := NewBody(resp.Body)
 	resp.Body = body
-	return &Response{objectBase: objectBase{typeName: "Response"}, resp: resp, body: body}
+	return &Response{OpaqueBase: object.MakeOpaqueBase("Response"), resp: resp, body: body}
 }
 
 func (r *Response) String() string {
