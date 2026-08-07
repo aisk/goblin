@@ -75,8 +75,9 @@ func TestFsOpenReadClose(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read() error = %v", err)
 	}
-	if got := fmt.Sprint(contentObj); got != "hello from fs" {
-		t.Fatalf("read() = %q, want %q", got, "hello from fs")
+	content, ok := contentObj.(object.Bytes)
+	if !ok || string(content) != "hello from fs" {
+		t.Fatalf("read() = %v (%T), want Bytes %q", contentObj, contentObj, "hello from fs")
 	}
 
 	if _, err := file.Close(object.CallArgs{}); err != nil {

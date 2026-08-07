@@ -26,19 +26,36 @@ func (f *File) ensureOpen(method string) error {
 	return nil
 }
 
+// Read implements the canonical reader shape (STDLIB_DESIGN §5, matching
+// http.Body): read() consumes the whole rest of the file, read(size) returns
+// a chunk of up to size bytes, and end of stream is an empty Bytes. It
+// returns Bytes; call .decode() when the content is known to be text.
 func (f *File) Read(args object.CallArgs) (object.Object, error) {
-	if err := object.NewArgParser("read", args).Finish(); err != nil {
+	p := object.NewArgParser("read", args)
+	size, hasSize := p.OptionalInt("size")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	if err := f.ensureOpen("read"); err != nil {
 		return nil, err
 	}
 
-	data, err := io.ReadAll(f.File)
-	if err != nil {
+	if !hasSize {
+		data, err := io.ReadAll(f.File)
+		if err != nil {
+			return nil, object.WrapNativeError(object.IOError, "read() failed", err)
+		}
+		return object.NewBytes(data), nil
+	}
+	if size < 0 {
+		return nil, object.NewValueError("read() argument 'size' must be non-negative")
+	}
+	buf := make([]byte, int(size))
+	n, err := f.File.Read(buf)
+	if err != nil && err != io.EOF {
 		return nil, object.WrapNativeError(object.IOError, "read() failed", err)
 	}
-	return object.String(data), nil
+	return object.NewBytes(buf[:n]), nil
 }
 
 func (f *File) Write(args object.CallArgs) (object.Object, error) {

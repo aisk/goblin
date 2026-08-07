@@ -31,11 +31,12 @@ operations can raise IOError.
 ## File objects
 
 open(path) returns a read-oriented file object and create(path) returns a file
-that can be written. File objects expose name, closed, read(), write(content),
-stat(), and close(). read() consumes all remaining data and returns text;
-write() accepts str or Bytes and returns the number of bytes written. Unlike an
-HTTP response body, `File.read()` does not currently accept a size argument and
-is not a streaming Reader-protocol implementation.
+that can be written. File objects expose name, closed, read(size),
+write(content), stat(), and close(). read() follows the same Reader protocol
+as an HTTP response body: with no argument it consumes all remaining data,
+read(size) returns a chunk of up to size bytes, end of file is an empty Bytes,
+and the result is always Bytes — call .decode() for text. write() accepts str
+or Bytes and returns the number of bytes written.
 
 Because a File has a `write(data)` method, it already satisfies the writer
 stream shape: it can be passed wherever the standard library accepts a writer
@@ -49,7 +50,7 @@ print(file.name)
 file.close()
 
 var reader = fs.open("log.txt")
-print(reader.read())
+print(reader.read().decode())
 print(reader.stat().size)
 reader.close()
 fs.remove("log.txt")
