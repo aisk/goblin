@@ -9,13 +9,12 @@ complete value and do not expose Go readers or writers.
 
 | Function | Result |
 | --- | --- |
-| `encode(data, padding=true)` | Encode `Bytes` or `Str` with the standard alphabet |
-| `decode(data, padding=true)` | Decode a string to `Bytes` |
-| `hex_encode(data, padding=true)` | Encode with the extended-hex alphabet |
-| `hex_decode(data, padding=true)` | Decode the extended-hex alphabet to `Bytes` |
+| `encode(data, hex=false, padding=true)` | Encode `Bytes` or `Str` |
+| `decode(data, hex=false, padding=true)` | Decode a string to `Bytes` |
 
-Set `padding=false` on both encoding and decoding to use the unpadded form.
-Malformed input raises `ParseError`.
+Set `hex=true` to use the extended-hex alphabet and `padding=false` for the
+unpadded form; the two keywords compose freely and must match between
+encoding and decoding. Malformed input raises `ParseError`.
 
 ## ascii85
 

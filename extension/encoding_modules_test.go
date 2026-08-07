@@ -30,18 +30,18 @@ func callModuleFunction(t *testing.T, execute object.ModuleExecutor, name string
 }
 
 func TestBase32Variants(t *testing.T) {
-	encoded := callModuleFunction(t, ExecuteBase32, "encode", object.CallArgs{Positional: object.Args{object.String("Goblin"), object.False}})
+	encoded := callModuleFunction(t, ExecuteBase32, "encode", object.CallArgs{Positional: object.Args{object.String("Goblin")}, Keyword: object.Kwargs{"padding": object.False}})
 	if encoded != object.String("I5XWE3DJNY") {
 		t.Fatalf("encode() = %v", encoded)
 	}
-	decoded := callModuleFunction(t, ExecuteBase32, "decode", object.CallArgs{Positional: object.Args{encoded, object.False}})
+	decoded := callModuleFunction(t, ExecuteBase32, "decode", object.CallArgs{Positional: object.Args{encoded}, Keyword: object.Kwargs{"padding": object.False}})
 	if !objectEquals(decoded, object.NewBytes([]byte("Goblin"))) {
 		t.Fatalf("decode() = %v", decoded)
 	}
-	hexEncoded := callModuleFunction(t, ExecuteBase32, "hex_encode", object.CallArgs{Positional: object.Args{object.String("Goblin")}})
-	hexDecoded := callModuleFunction(t, ExecuteBase32, "hex_decode", object.CallArgs{Positional: object.Args{hexEncoded}})
+	hexEncoded := callModuleFunction(t, ExecuteBase32, "encode", object.CallArgs{Positional: object.Args{object.String("Goblin")}, Keyword: object.Kwargs{"hex": object.True}})
+	hexDecoded := callModuleFunction(t, ExecuteBase32, "decode", object.CallArgs{Positional: object.Args{hexEncoded}, Keyword: object.Kwargs{"hex": object.True}})
 	if !objectEquals(hexDecoded, object.NewBytes([]byte("Goblin"))) {
-		t.Fatalf("hex_decode() = %v", hexDecoded)
+		t.Fatalf("decode(hex=true) = %v", hexDecoded)
 	}
 }
 

@@ -8,6 +8,7 @@ import "unicode"
 
 var encoded32 = base32.encode("Goblin", padding=false)
 print(encoded32)
+print(base32.encode("Goblin", hex=true))
 print(base32.decode(encoded32, padding=false).decode())
 
 var encoded85 = ascii85.encode("Goblin")

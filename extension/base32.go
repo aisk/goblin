@@ -8,56 +8,47 @@ import (
 
 func ExecuteBase32() (object.Object, error) {
 	return &object.Module{Name: "base32", Members: map[string]object.Object{
-		"encode":     &object.Function{Name: "encode", Fn: base32Encode},
-		"decode":     &object.Function{Name: "decode", Fn: base32Decode},
-		"hex_encode": &object.Function{Name: "hex_encode", Fn: base32HexEncode},
-		"hex_decode": &object.Function{Name: "hex_decode", Fn: base32HexDecode},
+		"encode": &object.Function{Name: "encode", Fn: base32Encode},
+		"decode": &object.Function{Name: "decode", Fn: base32Decode},
 	}}, nil
 }
 
-func base32Encoding(enc *base32.Encoding, padding bool) *base32.Encoding {
-	if padding {
-		return enc
+// base32Encoding selects the alphabet (standard or extended hex) and padding
+// from the two config knobs, mirroring base64's url/padding keywords. The
+// former hex_encode/hex_decode variants are folded into these keywords.
+func base32Encoding(hex, padding bool) *base32.Encoding {
+	enc := base32.StdEncoding
+	if hex {
+		enc = base32.HexEncoding
 	}
-	return enc.WithPadding(base32.NoPadding)
-}
-
-func encodeBase32(name string, enc *base32.Encoding, args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser(name, args)
-	data := p.BytesLike("data")
-	padding := p.BoolOr("padding", true)
-	if err := p.Finish(); err != nil {
-		return nil, err
+	if !padding {
+		enc = enc.WithPadding(base32.NoPadding)
 	}
-	return object.String(base32Encoding(enc, bool(padding)).EncodeToString(data)), nil
-}
-
-func decodeBase32(name string, enc *base32.Encoding, args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser(name, args)
-	data := p.Str("data")
-	padding := p.BoolOr("padding", true)
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	decoded, err := base32Encoding(enc, bool(padding)).DecodeString(string(data))
-	if err != nil {
-		return nil, object.WrapError(object.ParseError, name+"() invalid base32 data", err)
-	}
-	return object.NewBytes(decoded), nil
+	return enc
 }
 
 func base32Encode(args object.CallArgs) (object.Object, error) {
-	return encodeBase32("encode", base32.StdEncoding, args)
+	p := object.NewArgParser("encode", args)
+	data := p.BytesLike("data")
+	hex := p.BoolOr("hex", false)
+	padding := p.BoolOr("padding", true)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return object.String(base32Encoding(bool(hex), bool(padding)).EncodeToString(data)), nil
 }
 
 func base32Decode(args object.CallArgs) (object.Object, error) {
-	return decodeBase32("decode", base32.StdEncoding, args)
-}
-
-func base32HexEncode(args object.CallArgs) (object.Object, error) {
-	return encodeBase32("hex_encode", base32.HexEncoding, args)
-}
-
-func base32HexDecode(args object.CallArgs) (object.Object, error) {
-	return decodeBase32("hex_decode", base32.HexEncoding, args)
+	p := object.NewArgParser("decode", args)
+	data := p.Str("data")
+	hex := p.BoolOr("hex", false)
+	padding := p.BoolOr("padding", true)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	decoded, err := base32Encoding(bool(hex), bool(padding)).DecodeString(string(data))
+	if err != nil {
+		return nil, object.WrapError(object.ParseError, "decode() invalid base32 data", err)
+	}
+	return object.NewBytes(decoded), nil
 }

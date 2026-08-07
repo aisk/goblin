@@ -41,13 +41,41 @@ func TestBase64StandardRoundTrip(t *testing.T) {
 }
 
 func TestBase64URLRoundTripWithoutPadding(t *testing.T) {
-	encoded := callBase64(t, "url_encode", object.String("Goblin?"))
-	if encoded != object.String("R29ibGluPw") {
-		t.Fatalf("url_encode() = %v", encoded)
+	urlUnpadded := object.Kwargs{"url": object.True, "padding": object.False}
+	encoded, err := base64Function(t, "encode").Call(object.CallArgs{
+		Positional: object.Args{object.String("Goblin?")},
+		Keyword:    urlUnpadded,
+	})
+	if err != nil {
+		t.Fatalf("encode() error = %v", err)
 	}
-	decoded := callBase64(t, "url_decode", encoded)
+	if encoded != object.String("R29ibGluPw") {
+		t.Fatalf("encode(url=true, padding=false) = %v", encoded)
+	}
+	decoded, err := base64Function(t, "decode").Call(object.CallArgs{
+		Positional: object.Args{encoded},
+		Keyword:    object.Kwargs{"url": object.True, "padding": object.False},
+	})
+	if err != nil {
+		t.Fatalf("decode() error = %v", err)
+	}
 	if !objectEquals(decoded, object.NewBytes([]byte("Goblin?"))) {
-		t.Fatalf("url_decode() = %v", decoded)
+		t.Fatalf("decode(url=true, padding=false) = %v", decoded)
+	}
+}
+
+// The alphabet and padding knobs compose independently: URL alphabet with
+// padding kept.
+func TestBase64URLAlphabetKeepsPaddingByDefault(t *testing.T) {
+	encoded, err := base64Function(t, "encode").Call(object.CallArgs{
+		Positional: object.Args{object.NewBytes([]byte{251, 255})},
+		Keyword:    object.Kwargs{"url": object.True},
+	})
+	if err != nil {
+		t.Fatalf("encode() error = %v", err)
+	}
+	if encoded != object.String("-_8=") {
+		t.Fatalf("encode(url=true) = %v", encoded)
 	}
 }
 
