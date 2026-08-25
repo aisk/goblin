@@ -17,7 +17,7 @@ text produces Go's correctly quoted and encoded mailbox representation.
 Its `constructor` attribute is the same callable as `mail.Address`.
 
 ~~~goblin
-import "mail"
+import "x/net/mail"
 
 var recipient = mail.parse_address("Goblin <goblin@example.com>")
 print(recipient.name)

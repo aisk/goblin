@@ -1,10 +1,10 @@
 # Text encoding modules: base32, ascii85, html, quotedprintable, utf8, unicode.
-import "base32"
-import "ascii85"
-import "html"
-import "quotedprintable"
-import "utf8"
-import "unicode"
+import "x/encoding/base32"
+import "x/encoding/ascii85"
+import "x/html"
+import "x/mime/quotedprintable"
+import "x/unicode/utf8"
+import "x/unicode"
 
 var encoded32 = base32.encode("Goblin", padding=false)
 print(encoded32)

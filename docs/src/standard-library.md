@@ -19,13 +19,25 @@ For example, print(), eprint(), range(), Int(), List(), Dict(), and Chan() are
 available without an import. Import a module only when its capabilities are
 needed.
 
-## Module map
+## Two tiers: core and x/
+
+The standard library has two tiers. Core modules have curated, Goblin-shaped
+APIs and simple names such as "json" and "fs". Modules under the `x/` prefix
+are direct adaptations of Go packages and keep Go's package hierarchy in their
+import path, so `compress/gzip` becomes `x/compress/gzip`. In both tiers the
+imported name is the last path component:
+
+~~~goblin
+import "x/compress/gzip"
+
+var packed = gzip.compress("hello")
+~~~
+
+## Core modules
 
 | Module | Main purpose | Start with |
 | --- | --- | --- |
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
-| [base64](./module-base64.md) | Encode and decode Base64 text | encode(), decode() |
-| [base32, ascii85, html, and quotedprintable](./module-text-encoding.md) | Encode text and escape HTML | encode(), escape() |
 | [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
 | [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
 | [exec](./module-exec.md) | Configure and execute external commands | Command() |
@@ -34,28 +46,37 @@ needed.
 | [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
-| [mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
 | [uuid](./module-uuid.md) | Construct, generate, and validate UUID values | UUID(), new(), is_valid() |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
-| [hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
-| [sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum(), hex() |
-| [md5, sha1, crc32, and adler32](./module-checksum.md) | Compute compatibility digests and checksums | hex(), checksum() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
-| [gzip, zlib, flate, and bzip2](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
-| [tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
-| [mail](./module-mail.md) | Construct and parse email addresses | parse_address() |
-| [hmac, crc64, and fnv](./module-crypto-hash.md) | Compute keyed and non-cryptographic hashes | sum(), hex() |
-| [lzw](./module-lzw.md) | Compress and decompress LZW data | compress(), decompress() |
-| [pem](./module-pem.md) | Encode and decode PEM blocks | Block(), decode() |
-| [netip](./module-netip.md) | Parse and calculate with IP addresses and prefixes | Addr(), Prefix() |
-| [utf8 and unicode](./module-unicode.md) | Validate UTF-8 and classify Unicode characters | valid(), is_letter() |
+
+## x/ modules
+
+| Module | Main purpose | Start with |
+| --- | --- | --- |
+| [x/encoding/base64](./module-base64.md) | Encode and decode Base64 text | encode(), decode() |
+| [x/encoding/base32, ascii85, html, quotedprintable](./module-text-encoding.md) | Encode text and escape HTML | encode(), escape() |
+| [x/encoding/hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
+| [x/encoding/pem](./module-pem.md) | Encode and decode PEM blocks | Block(), decode() |
+| [x/mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
+| [x/crypto/sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum(), hex() |
+| [x/crypto/md5, sha1, x/hash/crc32, adler32](./module-checksum.md) | Compute compatibility digests and checksums | hex(), checksum() |
+| [x/crypto/hmac, x/hash/crc64, fnv](./module-crypto-hash.md) | Compute keyed and non-cryptographic hashes | sum(), hex() |
+| [x/compress/gzip, zlib, flate, bzip2](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
+| [x/compress/lzw](./module-lzw.md) | Compress and decompress LZW data | compress(), decompress() |
+| [x/archive/tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
+| [x/net/mail](./module-mail.md) | Construct and parse email addresses | parse_address() |
+| [x/net/netip](./module-netip.md) | Parse and calculate with IP addresses and prefixes | Addr(), Prefix() |
+| [x/unicode and x/unicode/utf8](./module-unicode.md) | Validate UTF-8 and classify Unicode characters | valid(), is_letter() |
 
 ## Imports and errors
 
-Built-in module names are simple strings such as "json" and "fs". Local source
-modules use a relative import such as "./modules/greeter"; those are documented
-in [Modules and imports](./modules.md) because they use the same import syntax.
+Standard-library module names never start with "./" or "../"; core names are
+plain ("json", "fs") and x/ names carry their Go-style path
+("x/compress/gzip"). Local source modules use a relative import such as
+"./modules/greeter"; those are documented in
+[Modules and imports](./modules.md) because they use the same import syntax.
 
 Most standard-library operations that touch the outside world can fail. JSON
 parsing may raise ParseError, a missing file may raise an I/O-related error, and

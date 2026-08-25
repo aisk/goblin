@@ -1,5 +1,5 @@
 # Parsing email addresses with the mail module.
-import "mail"
+import "x/net/mail"
 
 var address = mail.parse_address("Goblin <goblin@example.com>")
 print(address.constructor == mail.Address)

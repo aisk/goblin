@@ -13,8 +13,9 @@ greeter.greet("world")
 
 ## Local modules
 
-Local paths normally start with ./ or ../ and are resolved relative to the file
-that imports them. Omit the .goblin suffix. A local module chooses its public
+Local paths must start with ./ or ../ and are resolved relative to the file
+that imports them; any other path, slashes included, names a standard-library
+module (like "x/compress/gzip"). Omit the .goblin suffix. A local module chooses its public
 names with export.
 
 ~~~goblin

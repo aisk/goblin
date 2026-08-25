@@ -13,8 +13,8 @@ protocols. They are cryptographically broken and must not be used for password
 storage, signatures, certificates, or other security decisions.
 
 ~~~goblin
-import "md5"
-import "sha1"
+import "x/crypto/md5"
+import "x/crypto/sha1"
 
 print(md5.hex("Goblin"))
 print(sha1.sum(Bytes("Goblin")).size()) # 20 bytes
@@ -34,8 +34,8 @@ CRC-32 and Adler-32 detect accidental corruption; they do not authenticate
 data and are not cryptographic hashes.
 
 ~~~goblin
-import "crc32"
-import "adler32"
+import "x/hash/crc32"
+import "x/hash/adler32"
 
 print(crc32.checksum("Goblin"))
 print(crc32.checksum("Goblin", polynomial=crc32.CASTAGNOLI))

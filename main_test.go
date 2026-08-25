@@ -157,7 +157,7 @@ export greeting
 	}
 	script := filepath.Join(dir, "main.goblin")
 	if err := os.WriteFile(script, []byte(`import "./helper"
-import "hex"
+import "x/encoding/hex"
 print(helper.double(-21))
 print(helper.greeting)
 print(hex.encode("a"))

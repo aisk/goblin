@@ -1,5 +1,5 @@
 # PEM block encoding and decoding.
-import "pem"
+import "x/encoding/pem"
 
 var block = pem.Block("MESSAGE", "Goblin")
 var decoded = pem.decode(block.encode())

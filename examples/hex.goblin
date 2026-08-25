@@ -1,4 +1,4 @@
-import "hex"
+import "x/encoding/hex"
 
 var encoded = hex.encode("Goblin")
 print(encoded)

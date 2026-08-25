@@ -4,7 +4,7 @@ The pem module encodes and decodes PEM blocks using Go's `encoding/pem`
 package.
 
 ~~~goblin
-import "pem"
+import "x/encoding/pem"
 
 var block = pem.Block("MESSAGE", "Goblin", {"Source": "example"})
 var encoded = block.encode()

@@ -1,5 +1,5 @@
-import "tar"
-import "zip"
+import "x/archive/tar"
+import "x/archive/zip"
 
 var files = {
     "README.txt": "Goblin",

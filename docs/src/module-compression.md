@@ -16,7 +16,7 @@ the compressed output into any writer object — an object with a `write(data)`
 method, such as an open `fs` file — and the function returns `unit`:
 
 ~~~goblin
-import "gzip"
+import "x/compress/gzip"
 import "fs"
 
 var report = "line 1\nline 2\n"
@@ -29,8 +29,8 @@ The `bzip2` module exposes only `decompress(data)`, returning `Bytes`. This
 mirrors Go's `compress/bzip2`, which provides a reader but no compressor.
 
 ~~~goblin
-import "gzip"
-import "zlib"
+import "x/compress/gzip"
+import "x/compress/zlib"
 
 var source = "Goblin Goblin Goblin"
 var gz = gzip.compress(source, level=gzip.BEST_SPEED)

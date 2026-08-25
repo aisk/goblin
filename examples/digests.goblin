@@ -1,11 +1,11 @@
 # Digest and checksum modules: hmac, crc64, fnv, md5, sha1, crc32, adler32.
-import "hmac"
-import "crc64"
-import "fnv"
-import "md5"
-import "sha1"
-import "crc32"
-import "adler32"
+import "x/crypto/hmac"
+import "x/hash/crc64"
+import "x/hash/fnv"
+import "x/crypto/md5"
+import "x/crypto/sha1"
+import "x/hash/crc32"
+import "x/hash/adler32"
 
 print(hmac.hex("key", "The quick brown fox jumps over the lazy dog"))
 print(crc64.hex("123456789"))

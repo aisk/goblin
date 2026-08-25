@@ -1,5 +1,5 @@
 # IP address and prefix handling with the netip module.
-import "netip"
+import "x/net/netip"
 
 var addr = netip.Addr("192.168.1.10")
 var network = netip.Prefix("192.168.1.5/24")

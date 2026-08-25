@@ -4,7 +4,7 @@ The netip module wraps Go's immutable `net/netip` address and prefix values.
 It performs parsing and address calculations without opening network sockets.
 
 ~~~goblin
-import "netip"
+import "x/net/netip"
 
 var addr = netip.Addr("192.168.1.10")
 var network = netip.Prefix("192.168.1.5/24")

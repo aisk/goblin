@@ -1,8 +1,8 @@
-import "gzip"
-import "zlib"
-import "lzw"
-import "flate"
-import "bzip2"
+import "x/compress/gzip"
+import "x/compress/zlib"
+import "x/compress/lzw"
+import "x/compress/flate"
+import "x/compress/bzip2"
 
 var text = "goblin goblin goblin"
 print(gzip.decompress(gzip.compress(text)).decode())

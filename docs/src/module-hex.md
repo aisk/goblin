@@ -12,7 +12,7 @@ Encoding accepts `Bytes` or `Str` and returns lowercase hexadecimal text.
 Decoding returns `Bytes` and raises `ParseError` for malformed input.
 
 ~~~goblin
-import "hex"
+import "x/encoding/hex"
 
 var encoded = hex.encode(Bytes("Goblin"))
 print(encoded)                    # 476f626c696e

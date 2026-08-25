@@ -14,7 +14,9 @@ func ModuleName(path string) string {
 }
 
 // IsPathImport reports whether an import path refers to a .goblin file on
-// disk (relative or slash-separated) rather than a built-in stdlib module.
+// disk rather than a built-in stdlib module. File imports must be explicitly
+// relative ("./" or "../"); every other path, slashes included, is a stdlib
+// module name (e.g. "x/compress/gzip").
 func IsPathImport(path string) bool {
-	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../") || strings.Contains(path, "/")
+	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../")
 }

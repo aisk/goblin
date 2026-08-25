@@ -8,7 +8,8 @@ Existing modules are cited below as illustrations, not as canon: they predate th
 
 - Goblin's stdlib is modelled on the Go standard library. When deciding what a module should contain and what its functions should be called, start from the corresponding Go package and stay conceptually close to it.
 - "Near-standard" Go libraries are acceptable as a base too: packages under `golang.org/x/*`, or de-facto standards maintained by trusted stewards with a stable API (e.g. `github.com/google/uuid`). Anything else needs human review before being added as a dependency.
-- Module names are flat, lowercase, and drop Go's package hierarchy: `encoding/json` → `json`, `compress/gzip` → `gzip`, `archive/tar` → `tar`, `crypto/sha256` → `sha256`. The mapping is per registered module, not per Go source file (`compression.go` implements the `gzip` and `zlib` modules).
+- The stdlib has two tiers. **Core** modules are the curated, Goblin-shaped surface (`json`, `fs`, `path`, `time`, `http`, …): flat, lowercase names at the top level. **`x/` modules** are direct adaptations of Go packages that have not (yet) earned a curated redesign: they keep Go's package hierarchy under the `x/` prefix (`compress/gzip` → `x/compress/gzip`, `crypto/sha256` → `x/crypto/sha256`, top-level Go packages just gain the prefix, `mime` → `x/mime`). The imported binding is always the last path segment, so member access looks the same in both tiers (`gzip.compress(...)`).
+- A new module that is a thin wrapper starts in `x/` under its Go path. Moving it to core requires an actual API redesign per §2/§3, human review, and is a breaking rename — core status is earned, not default. The mapping is per registered module, not per Go source file (`compression.go` implements the `x/compress/gzip` and `x/compress/zlib` modules).
 - Function and method names are lowercase (snake_case when multi-word); type names are Capitalized (`Path`, `UUID`, `File`). Snake-casing a Go name whose words all carry meaning is fine (`csv.read_all` ← `ReadAll`, `s.to_title` ← `strings.ToTitle`); what gets dropped are the parts of a Go name that only exist to tell overload-family variants apart (`ParseInt`'s `Int`, `EncodeToString`'s `ToString` vs buffer-writing `Encode`) — once §3 collapses the family into one function, the discriminating suffix has nothing left to discriminate. The binding rule is cross-module consistency: the same concept gets the same name everywhere. For example, `hex.encode` was formerly exposed as `hex.encode_to_string`, despite naming the same concept as `base64.encode`; dropping the Go-specific `to_string` suffix fixed that inconsistency.
 - Module-level constants are UPPER_CASE snake_case (`exec.INHERIT`, `gzip.BEST_SPEED`, `uuid.NAMESPACE_DNS`), visually distinct from functions and methods.
 - Snake-casing applies to names that are genuinely multi-word in Goblin's vocabulary. POSIX-heritage identifiers that read as single lexemes (`getenv`, `getpid`, `getwd`, …) are kept as-is, not force-segmented. And when the Go name itself is awkward, choosing a deliberately different, better name is allowed with review — `os.tempdir`/`os.tempfile` ← `os.MkdirTemp`/`os.CreateTemp` is the precedent.
@@ -62,8 +63,9 @@ Some Go APIs are too abstraction-heavy to wrap simply: many interacting concepts
 ## 7. Checklist for a new module
 
 1. Identify the Go (or near-standard) package it maps to; note every intentional deviation.
-2. Decide the shape: plain functions (Go-like) or central type + factories (`path.Path`-like), per §2.
-3. Collapse overload families using keyword arguments with defaults, per §3.
-4. Implement with `ArgParser` and the sentinel error hierarchy.
-5. Register in both backends, add `examples/`, tests, and a Goblin Book chapter (see `CLAUDE.md`).
-6. List skipped/deviating surface area in the PR for review, per §6.
+2. Decide the tier per §1: a direct wrapper registers as `x/<go package path>`; a curated Goblin-shaped API earns a flat core name.
+3. Decide the shape: plain functions (Go-like) or central type + factories (`path.Path`-like), per §2.
+4. Collapse overload families using keyword arguments with defaults, per §3.
+5. Implement with `ArgParser` and the sentinel error hierarchy.
+6. Register in both backends, add `examples/`, tests, and a Goblin Book chapter (see `CLAUDE.md`).
+7. List skipped/deviating surface area in the PR for review, per §6.

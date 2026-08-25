@@ -5,9 +5,9 @@ packages. They accept either str or Bytes input. Digest values are returned as
 Bytes by `sum()` and lowercase text by `hex()`.
 
 ~~~goblin
-import "hmac"
-import "crc64"
-import "fnv"
+import "x/crypto/hmac"
+import "x/hash/crc64"
+import "x/hash/fnv"
 
 var signature = hmac.sum("secret", "message")
 print(hmac.verify(signature, "secret", "message"))

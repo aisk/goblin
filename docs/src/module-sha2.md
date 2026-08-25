@@ -20,8 +20,8 @@ Base64 text.
 SHA-2 hashes do not authenticate data or securely store passwords by themselves.
 
 ~~~goblin
-import "sha256"
-import "sha512"
+import "x/crypto/sha256"
+import "x/crypto/sha512"
 
 var digest = sha256.sum("Goblin")
 print(digest.size())       # 32

@@ -5,16 +5,16 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"runtime/debug"
+	"sort"
 	"strings"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
 )
@@ -33,47 +33,47 @@ type moduleInfo struct {
 }
 
 var knownModules = map[string]moduleInfo{
-	"os":              {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
-	"rand":            {executorPath: pathExtension, varName: "rand_module", executorFunc: "ExecuteRand"},
-	"math":            {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
-	"base64":          {executorPath: pathExtension, varName: "base64_module", executorFunc: "ExecuteBase64"},
-	"http":            {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},
-	"fs":              {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
-	"mime":            {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
-	"json":            {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},
-	"uuid":            {executorPath: pathExtension, varName: "uuid_module", executorFunc: "ExecuteUUID"},
-	"path":            {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
-	"time":            {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
-	"exec":            {executorPath: pathExtension + "/exec", varName: "exec_module", executorFunc: "Execute"},
-	"regexp":          {executorPath: pathExtension + "/regexp", varName: "regexp_module", executorFunc: "Execute"},
-	"hex":             {executorPath: pathExtension, varName: "hex_module", executorFunc: "ExecuteHex"},
-	"sha256":          {executorPath: pathExtension, varName: "sha256_module", executorFunc: "ExecuteSHA256"},
-	"sha512":          {executorPath: pathExtension, varName: "sha512_module", executorFunc: "ExecuteSHA512"},
-	"url":             {executorPath: pathExtension + "/url", varName: "url_module", executorFunc: "Execute"},
-	"csv":             {executorPath: pathExtension, varName: "csv_module", executorFunc: "ExecuteCSV"},
-	"gzip":            {executorPath: pathExtension, varName: "gzip_module", executorFunc: "ExecuteGzip"},
-	"zlib":            {executorPath: pathExtension, varName: "zlib_module", executorFunc: "ExecuteZlib"},
-	"tar":             {executorPath: pathExtension, varName: "tar_module", executorFunc: "ExecuteTar"},
-	"zip":             {executorPath: pathExtension, varName: "zip_module", executorFunc: "ExecuteZip"},
-	"base32":          {executorPath: pathExtension, varName: "base32_module", executorFunc: "ExecuteBase32"},
-	"ascii85":         {executorPath: pathExtension, varName: "ascii85_module", executorFunc: "ExecuteASCII85"},
-	"html":            {executorPath: pathExtension, varName: "html_module", executorFunc: "ExecuteHTML"},
-	"quotedprintable": {executorPath: pathExtension, varName: "quotedprintable_module", executorFunc: "ExecuteQuotedPrintable"},
-	"md5":             {executorPath: pathExtension, varName: "md5_module", executorFunc: "ExecuteMD5"},
-	"sha1":            {executorPath: pathExtension, varName: "sha1_module", executorFunc: "ExecuteSHA1"},
-	"crc32":           {executorPath: pathExtension, varName: "crc32_module", executorFunc: "ExecuteCRC32"},
-	"adler32":         {executorPath: pathExtension, varName: "adler32_module", executorFunc: "ExecuteAdler32"},
-	"flate":           {executorPath: pathExtension, varName: "flate_module", executorFunc: "ExecuteFlate"},
-	"bzip2":           {executorPath: pathExtension, varName: "bzip2_module", executorFunc: "ExecuteBzip2"},
-	"mail":            {executorPath: pathExtension + "/mail", varName: "mail_module", executorFunc: "Execute"},
-	"hmac":            {executorPath: pathExtension, varName: "hmac_module", executorFunc: "ExecuteHMAC"},
-	"crc64":           {executorPath: pathExtension, varName: "crc64_module", executorFunc: "ExecuteCRC64"},
-	"fnv":             {executorPath: pathExtension, varName: "fnv_module", executorFunc: "ExecuteFNV"},
-	"lzw":             {executorPath: pathExtension, varName: "lzw_module", executorFunc: "ExecuteLZW"},
-	"pem":             {executorPath: pathExtension, varName: "pem_module", executorFunc: "ExecutePEM"},
-	"netip":           {executorPath: pathExtension + "/netip", varName: "netip_module", executorFunc: "Execute"},
-	"utf8":            {executorPath: pathExtension, varName: "utf8_module", executorFunc: "ExecuteUTF8"},
-	"unicode":         {executorPath: pathExtension, varName: "unicode_module", executorFunc: "ExecuteUnicode"},
+	"os":                     {executorPath: pathExtension, varName: "os_module", executorFunc: "ExecuteOs"},
+	"rand":                   {executorPath: pathExtension, varName: "rand_module", executorFunc: "ExecuteRand"},
+	"math":                   {executorPath: pathExtension, varName: "math_module", executorFunc: "ExecuteMath"},
+	"x/encoding/base64":      {executorPath: pathExtension, varName: "base64_module", executorFunc: "ExecuteBase64"},
+	"http":                   {executorPath: pathExtension + "/http", varName: "http_module", executorFunc: "Execute"},
+	"fs":                     {executorPath: pathExtension + "/fs", varName: "fs_module", executorFunc: "Execute"},
+	"x/mime":                 {executorPath: pathExtension, varName: "mime_module", executorFunc: "ExecuteMime"},
+	"json":                   {executorPath: pathExtension, varName: "json_module", executorFunc: "ExecuteJson"},
+	"uuid":                   {executorPath: pathExtension, varName: "uuid_module", executorFunc: "ExecuteUUID"},
+	"path":                   {executorPath: pathExtension + "/path", varName: "path_module", executorFunc: "Execute"},
+	"time":                   {executorPath: pathExtension + "/time", varName: "time_module", executorFunc: "Execute"},
+	"exec":                   {executorPath: pathExtension + "/exec", varName: "exec_module", executorFunc: "Execute"},
+	"regexp":                 {executorPath: pathExtension + "/regexp", varName: "regexp_module", executorFunc: "Execute"},
+	"x/encoding/hex":         {executorPath: pathExtension, varName: "hex_module", executorFunc: "ExecuteHex"},
+	"x/crypto/sha256":        {executorPath: pathExtension, varName: "sha256_module", executorFunc: "ExecuteSHA256"},
+	"x/crypto/sha512":        {executorPath: pathExtension, varName: "sha512_module", executorFunc: "ExecuteSHA512"},
+	"url":                    {executorPath: pathExtension + "/url", varName: "url_module", executorFunc: "Execute"},
+	"csv":                    {executorPath: pathExtension, varName: "csv_module", executorFunc: "ExecuteCSV"},
+	"x/compress/gzip":        {executorPath: pathExtension, varName: "gzip_module", executorFunc: "ExecuteGzip"},
+	"x/compress/zlib":        {executorPath: pathExtension, varName: "zlib_module", executorFunc: "ExecuteZlib"},
+	"x/archive/tar":          {executorPath: pathExtension, varName: "tar_module", executorFunc: "ExecuteTar"},
+	"x/archive/zip":          {executorPath: pathExtension, varName: "zip_module", executorFunc: "ExecuteZip"},
+	"x/encoding/base32":      {executorPath: pathExtension, varName: "base32_module", executorFunc: "ExecuteBase32"},
+	"x/encoding/ascii85":     {executorPath: pathExtension, varName: "ascii85_module", executorFunc: "ExecuteASCII85"},
+	"x/html":                 {executorPath: pathExtension, varName: "html_module", executorFunc: "ExecuteHTML"},
+	"x/mime/quotedprintable": {executorPath: pathExtension, varName: "quotedprintable_module", executorFunc: "ExecuteQuotedPrintable"},
+	"x/crypto/md5":           {executorPath: pathExtension, varName: "md5_module", executorFunc: "ExecuteMD5"},
+	"x/crypto/sha1":          {executorPath: pathExtension, varName: "sha1_module", executorFunc: "ExecuteSHA1"},
+	"x/hash/crc32":           {executorPath: pathExtension, varName: "crc32_module", executorFunc: "ExecuteCRC32"},
+	"x/hash/adler32":         {executorPath: pathExtension, varName: "adler32_module", executorFunc: "ExecuteAdler32"},
+	"x/compress/flate":       {executorPath: pathExtension, varName: "flate_module", executorFunc: "ExecuteFlate"},
+	"x/compress/bzip2":       {executorPath: pathExtension, varName: "bzip2_module", executorFunc: "ExecuteBzip2"},
+	"x/net/mail":             {executorPath: pathExtension + "/mail", varName: "mail_module", executorFunc: "Execute"},
+	"x/crypto/hmac":          {executorPath: pathExtension, varName: "hmac_module", executorFunc: "ExecuteHMAC"},
+	"x/hash/crc64":           {executorPath: pathExtension, varName: "crc64_module", executorFunc: "ExecuteCRC64"},
+	"x/hash/fnv":             {executorPath: pathExtension, varName: "fnv_module", executorFunc: "ExecuteFNV"},
+	"x/compress/lzw":         {executorPath: pathExtension, varName: "lzw_module", executorFunc: "ExecuteLZW"},
+	"x/encoding/pem":         {executorPath: pathExtension, varName: "pem_module", executorFunc: "ExecutePEM"},
+	"x/net/netip":            {executorPath: pathExtension + "/netip", varName: "netip_module", executorFunc: "Execute"},
+	"x/unicode/utf8":         {executorPath: pathExtension, varName: "utf8_module", executorFunc: "ExecuteUTF8"},
+	"x/unicode":              {executorPath: pathExtension, varName: "unicode_module", executorFunc: "ExecuteUnicode"},
 }
 
 // KnownModuleNames lists the stdlib modules the transpiler can import, sorted.
@@ -362,7 +362,7 @@ var reservedGoMethodNames = map[string]bool{
 	"Not": true, "Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 	"TypeName": true, "ToString": true, "ToBool": true,
-	"RAdd":     true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
+	"RAdd": true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin

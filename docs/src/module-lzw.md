@@ -4,7 +4,7 @@ The lzw module wraps Go's `compress/lzw` package as whole-value operations.
 It deliberately does not expose Go readers and writers.
 
 ~~~goblin
-import "lzw"
+import "x/compress/lzw"
 
 var compressed = lzw.compress("Goblin data")
 print(lzw.decompress(compressed))

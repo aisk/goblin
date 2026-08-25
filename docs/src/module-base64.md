@@ -5,7 +5,7 @@ back to Bytes. The alphabet (standard or URL-safe) and padding are independent
 keyword arguments.
 
 ~~~goblin
-import "base64"
+import "x/encoding/base64"
 
 var encoded = base64.encode("hello")
 print(encoded)

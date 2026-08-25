@@ -1,5 +1,5 @@
-import "sha256"
-import "sha512"
+import "x/crypto/sha256"
+import "x/crypto/sha512"
 
 print(sha256.sum("goblin").size())
 print(sha256.sum224("goblin").size())

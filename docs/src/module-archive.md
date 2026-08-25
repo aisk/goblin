@@ -14,7 +14,7 @@ object — an object with a `write(data)` method, such as an open `fs` file — 
 the function returns `unit` instead of `Bytes`:
 
 ~~~goblin
-import "tar"
+import "x/archive/tar"
 import "fs"
 
 var file = fs.create("backup.tar")
@@ -26,7 +26,7 @@ file.close()
 Malformed archives raise `ParseError`.
 
 ~~~goblin
-import "zip"
+import "x/archive/zip"
 
 var archive = zip.write_all({
     "README.txt": "Goblin archive",

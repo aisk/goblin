@@ -1,4 +1,4 @@
-import "base64"
+import "x/encoding/base64"
 
 var encoded = base64.encode("hello, Goblin")
 print(encoded)

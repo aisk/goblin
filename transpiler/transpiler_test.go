@@ -176,7 +176,7 @@ func TestTranspileManglesReservedMethodNames(t *testing.T) {
 // Generated code must be byte-identical across runs: stdlib module loads are
 // emitted in sorted order, never in Go map iteration order.
 func TestTranspileOutputIsDeterministic(t *testing.T) {
-	src := "import \"hex\"\nimport \"json\"\nimport \"math\"\nimport \"base64\"\n"
+	src := "import \"x/encoding/hex\"\nimport \"json\"\nimport \"math\"\nimport \"x/encoding/base64\"\n"
 	first := transpileSource(t, src)
 	for i := 0; i < 10; i++ {
 		if got := transpileSource(t, src); got != first {

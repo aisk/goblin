@@ -4,7 +4,7 @@ The mime module maps filename extensions and MIME types. It is useful when
 constructing HTTP Content-Type headers or categorizing uploaded files.
 
 ~~~goblin
-import "mime"
+import "x/mime"
 
 print(mime.type_by_extension(".json"))
 print(mime.extensions_by_type("application/json"))

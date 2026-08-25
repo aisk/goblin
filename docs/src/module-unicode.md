@@ -23,8 +23,8 @@ character. The mapping functions `to_upper`, `to_lower`, and `to_title` return
 one mapped character.
 
 ~~~goblin
-import "utf8"
-import "unicode"
+import "x/unicode/utf8"
+import "x/unicode"
 
 print(utf8.rune_count("Goblin 👺"))
 print(unicode.is_letter("界"))
