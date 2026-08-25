@@ -5,16 +5,47 @@ import (
 	"path/filepath"
 
 	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/extension"
+	csvExt "github.com/aisk/goblin/extension/csv"
 	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
-	mailExt "github.com/aisk/goblin/extension/mail"
-	netipExt "github.com/aisk/goblin/extension/netip"
+	jsonExt "github.com/aisk/goblin/extension/json"
+	mathExt "github.com/aisk/goblin/extension/math"
+	osExt "github.com/aisk/goblin/extension/os"
 	pathExt "github.com/aisk/goblin/extension/path"
+	randExt "github.com/aisk/goblin/extension/rand"
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
 	urlExt "github.com/aisk/goblin/extension/url"
+	uuidExt "github.com/aisk/goblin/extension/uuid"
+	tarExt "github.com/aisk/goblin/extension/x/archive/tar"
+	zipExt "github.com/aisk/goblin/extension/x/archive/zip"
+	bzip2Ext "github.com/aisk/goblin/extension/x/compress/bzip2"
+	flateExt "github.com/aisk/goblin/extension/x/compress/flate"
+	gzipExt "github.com/aisk/goblin/extension/x/compress/gzip"
+	lzwExt "github.com/aisk/goblin/extension/x/compress/lzw"
+	zlibExt "github.com/aisk/goblin/extension/x/compress/zlib"
+	hmacExt "github.com/aisk/goblin/extension/x/crypto/hmac"
+	md5Ext "github.com/aisk/goblin/extension/x/crypto/md5"
+	sha1Ext "github.com/aisk/goblin/extension/x/crypto/sha1"
+	sha256Ext "github.com/aisk/goblin/extension/x/crypto/sha256"
+	sha512Ext "github.com/aisk/goblin/extension/x/crypto/sha512"
+	ascii85Ext "github.com/aisk/goblin/extension/x/encoding/ascii85"
+	base32Ext "github.com/aisk/goblin/extension/x/encoding/base32"
+	base64Ext "github.com/aisk/goblin/extension/x/encoding/base64"
+	hexExt "github.com/aisk/goblin/extension/x/encoding/hex"
+	pemExt "github.com/aisk/goblin/extension/x/encoding/pem"
+	adler32Ext "github.com/aisk/goblin/extension/x/hash/adler32"
+	crc32Ext "github.com/aisk/goblin/extension/x/hash/crc32"
+	crc64Ext "github.com/aisk/goblin/extension/x/hash/crc64"
+	fnvExt "github.com/aisk/goblin/extension/x/hash/fnv"
+	htmlExt "github.com/aisk/goblin/extension/x/html"
+	mimeExt "github.com/aisk/goblin/extension/x/mime"
+	qpExt "github.com/aisk/goblin/extension/x/mime/quotedprintable"
+	mailExt "github.com/aisk/goblin/extension/x/net/mail"
+	netipExt "github.com/aisk/goblin/extension/x/net/netip"
+	unicodeExt "github.com/aisk/goblin/extension/x/unicode"
+	utf8Ext "github.com/aisk/goblin/extension/x/unicode/utf8"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
@@ -24,49 +55,49 @@ import (
 
 // builtinModules maps a built-in module name to its executor, mirroring the
 // transpiler's knownModules table. "os" is intentionally absent: the
-// interpreter binds it per run via ExecuteOsWithFrozenArgs so argv is scoped to the
-// script (or REPL) without process-global state.
+// interpreter binds it per run via os.ExecuteWithFrozenArgs so argv is scoped
+// to the script (or REPL) without process-global state.
 var builtinModules = map[string]object.ModuleExecutor{
-	"rand":                   extension.ExecuteRand,
-	"math":                   extension.ExecuteMath,
-	"x/encoding/base64":      extension.ExecuteBase64,
-	"http":                   httpExt.Execute,
-	"fs":                     fs.Execute,
-	"x/mime":                 extension.ExecuteMime,
-	"json":                   extension.ExecuteJson,
-	"uuid":                   extension.ExecuteUUID,
-	"path":                   pathExt.Execute,
-	"time":                   timeExt.Execute,
+	"csv":                    csvExt.Execute,
 	"exec":                   execExt.Execute,
+	"fs":                     fs.Execute,
+	"http":                   httpExt.Execute,
+	"json":                   jsonExt.Execute,
+	"math":                   mathExt.Execute,
+	"path":                   pathExt.Execute,
+	"rand":                   randExt.Execute,
 	"regexp":                 regexpExt.Execute,
-	"x/encoding/hex":         extension.ExecuteHex,
-	"x/crypto/sha256":        extension.ExecuteSHA256,
-	"x/crypto/sha512":        extension.ExecuteSHA512,
+	"time":                   timeExt.Execute,
 	"url":                    urlExt.Execute,
-	"csv":                    extension.ExecuteCSV,
-	"x/compress/gzip":        extension.ExecuteGzip,
-	"x/compress/zlib":        extension.ExecuteZlib,
-	"x/archive/tar":          extension.ExecuteTar,
-	"x/archive/zip":          extension.ExecuteZip,
-	"x/encoding/base32":      extension.ExecuteBase32,
-	"x/encoding/ascii85":     extension.ExecuteASCII85,
-	"x/html":                 extension.ExecuteHTML,
-	"x/mime/quotedprintable": extension.ExecuteQuotedPrintable,
-	"x/crypto/md5":           extension.ExecuteMD5,
-	"x/crypto/sha1":          extension.ExecuteSHA1,
-	"x/hash/crc32":           extension.ExecuteCRC32,
-	"x/hash/adler32":         extension.ExecuteAdler32,
-	"x/compress/flate":       extension.ExecuteFlate,
-	"x/compress/bzip2":       extension.ExecuteBzip2,
+	"uuid":                   uuidExt.Execute,
+	"x/archive/tar":          tarExt.Execute,
+	"x/archive/zip":          zipExt.Execute,
+	"x/compress/bzip2":       bzip2Ext.Execute,
+	"x/compress/flate":       flateExt.Execute,
+	"x/compress/gzip":        gzipExt.Execute,
+	"x/compress/lzw":         lzwExt.Execute,
+	"x/compress/zlib":        zlibExt.Execute,
+	"x/crypto/hmac":          hmacExt.Execute,
+	"x/crypto/md5":           md5Ext.Execute,
+	"x/crypto/sha1":          sha1Ext.Execute,
+	"x/crypto/sha256":        sha256Ext.Execute,
+	"x/crypto/sha512":        sha512Ext.Execute,
+	"x/encoding/ascii85":     ascii85Ext.Execute,
+	"x/encoding/base32":      base32Ext.Execute,
+	"x/encoding/base64":      base64Ext.Execute,
+	"x/encoding/hex":         hexExt.Execute,
+	"x/encoding/pem":         pemExt.Execute,
+	"x/hash/adler32":         adler32Ext.Execute,
+	"x/hash/crc32":           crc32Ext.Execute,
+	"x/hash/crc64":           crc64Ext.Execute,
+	"x/hash/fnv":             fnvExt.Execute,
+	"x/html":                 htmlExt.Execute,
+	"x/mime":                 mimeExt.Execute,
+	"x/mime/quotedprintable": qpExt.Execute,
 	"x/net/mail":             mailExt.Execute,
-	"x/crypto/hmac":          extension.ExecuteHMAC,
-	"x/hash/crc64":           extension.ExecuteCRC64,
-	"x/hash/fnv":             extension.ExecuteFNV,
-	"x/compress/lzw":         extension.ExecuteLZW,
-	"x/encoding/pem":         extension.ExecutePEM,
 	"x/net/netip":            netipExt.Execute,
-	"x/unicode/utf8":         extension.ExecuteUTF8,
-	"x/unicode":              extension.ExecuteUnicode,
+	"x/unicode":              unicodeExt.Execute,
+	"x/unicode/utf8":         utf8Ext.Execute,
 }
 
 func isPathImport(path string) bool {
@@ -106,7 +137,7 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv [
 	}
 	if imp.Path == "os" {
 		return reg.Load(imp.Path, func() (object.Object, error) {
-			return extension.ExecuteOsWithFrozenArgs(argv)
+			return osExt.ExecuteWithFrozenArgs(argv)
 		})
 	}
 	exec, ok := builtinModules[imp.Path]

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	stdhttp "net/http"
 
-	"github.com/aisk/goblin/extension"
+	goblinjson "github.com/aisk/goblin/extension/json"
 	"github.com/aisk/goblin/object"
 )
 
@@ -64,7 +64,7 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 	if err := dec.Decode(&v); err != nil {
 		return nil, object.WrapError(object.ParseError, "json() failed to parse response body", err)
 	}
-	return extension.JSONToGoblin(v, "json")
+	return goblinjson.ToGoblin(v, "json")
 }
 
 var _ object.Object = (*Response)(nil)

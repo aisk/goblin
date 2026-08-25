@@ -6,9 +6,9 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
+	"github.com/aisk/goblin/source"
 )
 
 // CompletionCandidates returns names available at the end of a simple member
