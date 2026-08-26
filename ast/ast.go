@@ -35,6 +35,17 @@ func AppendStatementList(l any, x any) (any, error) {
 	return append(l.([]Statement), x.(Statement)), nil
 }
 
+// statements converts a reduced Statements node to a slice. An empty block
+// (and an empty module) reduces through `Statements : empty`, which yields a
+// nil any rather than an empty slice, so every constructor taking a block
+// must go through here instead of asserting the type directly.
+func statements(x any) []Statement {
+	if x == nil {
+		return nil
+	}
+	return x.([]Statement)
+}
+
 type Expression interface {
 	Statement
 	IsExpression()
@@ -257,12 +268,12 @@ type IfElse struct {
 
 func NewIf(x, y, z any) (any, error) {
 	condition := x.(Expression)
-	ifBody := y.([]Statement)
+	ifBody := statements(y)
 	var elseBody []Statement = nil
 	if ifElse, ok := z.(*IfElse); ok {
 		elseBody = []Statement{ifElse}
 	} else if z != nil {
-		elseBody = z.([]Statement)
+		elseBody = statements(z)
 	}
 	return &IfElse{
 		statementMixin: statementMixin{Pos: PositionOf(x)},
@@ -280,7 +291,7 @@ type While struct {
 
 func NewWhile(x, y any) (any, error) {
 	condition := x.(Expression)
-	body := y.([]Statement)
+	body := statements(y)
 	return &While{
 		statementMixin: statementMixin{Pos: PositionOf(x)},
 		Condition:      condition,
@@ -299,7 +310,7 @@ func NewFor(x, y, z any) (any, error) {
 	tok := x.(*token.Token)
 	variable := string(tok.Lit)
 	iterator := y.(Expression)
-	body := z.([]Statement)
+	body := statements(z)
 	return &For{
 		statementMixin: statementMixin{Pos: tok.Pos},
 		Variable:       variable,
@@ -332,7 +343,7 @@ type Module struct {
 func NewModule(x any) (any, error) {
 	return &Module{
 		Name: "main",
-		Body: x.([]Statement),
+		Body: statements(x),
 	}, nil
 }
 
@@ -597,10 +608,7 @@ func NewFunctionDefine(x, params, y any) (any, error) {
 	if params != nil {
 		parameters = params.([]*Parameter)
 	}
-	var body []Statement
-	if y != nil {
-		body = y.([]Statement)
-	}
+	body := statements(y)
 	// Always insert a return block at the end of function define.
 	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionDefine{
@@ -625,10 +633,7 @@ func NewFunctionLiteral(fn, params, y any) (any, error) {
 	if params != nil {
 		parameters = params.([]*Parameter)
 	}
-	var body []Statement
-	if y != nil {
-		body = y.([]Statement)
-	}
+	body := statements(y)
 	// Always insert a return block at the end, mirroring NewFunctionDefine.
 	body = append(body, &Return{Value: &Literal{Value: object.Nil}})
 	return &FunctionLiteral{
@@ -721,9 +726,9 @@ func NewTryCatch(tryTok, tryBody, catchVar, catchBody any) (any, error) {
 	varTok := catchVar.(*token.Token)
 	return &TryCatch{
 		statementMixin: statementMixin{Pos: tok.Pos},
-		TryBody:        tryBody.([]Statement),
+		TryBody:        statements(tryBody),
 		CatchVar:       string(varTok.Lit),
-		CatchBody:      catchBody.([]Statement),
+		CatchBody:      statements(catchBody),
 	}, nil
 }
 

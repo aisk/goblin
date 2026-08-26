@@ -41,3 +41,11 @@ while i < 10 {
     }
     print(i)
 }
+
+# empty bodies are allowed and simply do nothing
+if true { }
+if false { } else { }
+while false { }
+for x in [1, 2] { }
+try { } catch e { }
+print("empty blocks work")
