@@ -87,11 +87,7 @@ collection must still be treated as a present value.
 
 ~~~goblin
 var nickname = ""
-if nickname {
-    print(nickname)
-} else {
-    print("anonymous")
-}
+print(nickname || "anonymous") # anonymous
 
 var limit = 0
 if limit == nil {

@@ -71,7 +71,7 @@ binary operators and comparison, and `self, index, value` for `__setitem`.
 | `__not` | Logical `!` operator; without it `!` negates truthiness |
 | `__cmp` | `==`, `!=`, `<`, `<=`, `>`, `>=`; return `-1`, `0`, or `1`. Consulted from either side of a comparison |
 | `__str` | Printing and `Str(value)` |
-| `__bool` | Conditions and `Bool(value)` |
+| `__bool` | Conditions, `Bool(value)`, and the truthiness test in `&&` / `||` |
 | `__iter` | `for value in instance` |
 | `__getitem`, `__setitem` | `instance[index]` read and assignment |
 

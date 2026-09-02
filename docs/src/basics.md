@@ -43,10 +43,15 @@ TypeError when the operands cannot be ordered. Comparisons do not chain:
 write `a < b && b < c`, or parenthesize explicitly when you really mean to
 compare a boolean result. Logical operators are `!`, `&&`, and `||`.
 `&&` and `||` short-circuit, so their right-hand side is evaluated only when
-needed.
+needed, and they produce the operand that decided the result rather than a
+boolean: `a || b` is `a` when `a` is truthy and `b` otherwise, `a && b` is `a`
+when `a` is falsy and `b` otherwise. That makes `||` the way to write "use
+this, or a default". Wrap the expression in `Bool()` when you need a plain
+true/false. `!` always produces a boolean.
 
 ```goblin
 var allowed = age >= 18 && !banned
+var nickname = supplied || "anonymous"
 ```
 
 `&&` binds tighter than `||`, as in most languages: `ready || retry &&
@@ -54,5 +59,5 @@ connected` evaluates as `ready || (retry && connected)`, and
 `true || false && false` produces `true`.
 
 Conditions use truthiness. `false`, `nil`, numeric zero, and empty strings or
-collections are false. Logical expressions always produce booleans. Continue
+collections are false. Continue
 with [Built-in types](./built-in-types.md) for the values that Goblin provides.
