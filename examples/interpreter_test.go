@@ -7,9 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/interpreter"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 )
@@ -44,13 +42,9 @@ func runInterpreter(t *testing.T, goblinFile string) (stdout, stderr string) {
 	if err != nil {
 		t.Fatalf("failed to read file: %v", err)
 	}
-	st, err := parser.NewParser().Parse(l)
+	module, err := source.Parse(l)
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
-	}
-	module, ok := st.(*ast.Module)
-	if !ok {
-		t.Fatalf("failed to convert AST to Module")
 	}
 	if err := semantic.CheckModule(module); err != nil {
 		t.Fatalf("semantic error: %v", err)

@@ -31,9 +31,15 @@ func TestBlockDeclarationsDoNotEscape(t *testing.T) {
 	env := runScopeProgram(t, `
 var outer = 1
 if true { var from_if = 2 }
-while true { var from_while = 3 break }
+while true {
+	var from_while = 3
+	break
+}
 for item in [4] { var from_for = item }
-try { var from_try = 5 raise Error("stop") } catch caught { var from_catch = caught }
+try {
+	var from_try = 5
+	raise Error("stop")
+} catch caught { var from_catch = caught }
 `)
 
 	for _, name := range []string{"from_if", "from_while", "item", "from_for", "from_try", "caught", "from_catch"} {
@@ -60,5 +66,5 @@ for item in [3] { value = item }
 }
 
 func TestForBodyCanShadowIterationBinding(t *testing.T) {
-	runScopeProgram(t, `for item in [1] { var item = 2 print(item) }`)
+	runScopeProgram(t, "for item in [1] {\n\tvar item = 2\n\tprint(item)\n}\n")
 }

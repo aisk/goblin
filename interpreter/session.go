@@ -1,13 +1,11 @@
 package interpreter
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/source"
 )
 
@@ -93,19 +91,9 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 		}
 	}()
 
-	st, err := parser.NewParser().Parse(source.NewLexer([]byte(src)))
+	mod, err := source.Parse(source.NewLexer([]byte(src)))
 	if err != nil {
-		// The grammar only accepts identifier-led expression statements, so a
-		// fragment like `1 + 2` fails to parse as a statement. Retry it as a
-		// bare expression for REPL display.
-		if v, evalErr, parsed := s.evalAsExpression(src); parsed {
-			return v, evalErr
-		}
 		return nil, err
-	}
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		return nil, fmt.Errorf("internal error: unexpected AST type")
 	}
 	// No static semantic check here: it analyses a fragment in isolation and
 	// would reject references to names declared on earlier REPL lines. The
@@ -132,28 +120,4 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 		}
 	}
 	return result, nil
-}
-
-// evalAsExpression evaluates src as a bare expression. Because the grammar
-// rejects most bare expressions in statement position, we coerce parsing by
-// wrapping the fragment in a `return` statement — which accepts any
-// expression — then evaluate the extracted expression against the live scope.
-// This leaves no trace in the session's scope (unlike binding to a throwaway
-// variable). The parsed return value reports whether the wrapped form parsed;
-// when false, callers should surface the original error instead.
-func (s *Session) evalAsExpression(src string) (value object.Object, evalErr error, parsed bool) {
-	st, err := parser.NewParser().Parse(source.NewLexer([]byte("return " + src)))
-	if err != nil {
-		return nil, nil, false
-	}
-	mod, ok := st.(*ast.Module)
-	if !ok || len(mod.Body) != 1 {
-		return nil, nil, false
-	}
-	ret, ok := mod.Body[0].(*ast.Return)
-	if !ok {
-		return nil, nil, false
-	}
-	v, evalErr := evalExpr(ret.Value, s.global)
-	return v, evalErr, true
 }

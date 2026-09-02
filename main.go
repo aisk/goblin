@@ -9,12 +9,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/interpreter"
-	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/transpiler"
 	"github.com/chzyer/readline"
 	"github.com/spf13/cobra"
@@ -40,14 +38,9 @@ var buildExeCmd = &cobra.Command{
 			return fmt.Errorf("failed to read file %s: %w", sourceFile, err)
 		}
 
-		p := parser.NewParser()
-		st, err := p.Parse(l)
+		m, err := source.Parse(l)
 		if err != nil {
 			return err
-		}
-		m, ok := st.(*ast.Module)
-		if !ok {
-			return fmt.Errorf("internal error: unexpected AST type")
 		}
 		if err := semantic.CheckModule(m); err != nil {
 			return err
@@ -131,14 +124,9 @@ or "goblin help run" (alone, with no source file).`,
 			return fmt.Errorf("failed to read file %s: %w", sourceFile, err)
 		}
 
-		p := parser.NewParser()
-		st, err := p.Parse(l)
+		m, err := source.Parse(l)
 		if err != nil {
 			return err
-		}
-		m, ok := st.(*ast.Module)
-		if !ok {
-			return fmt.Errorf("internal error: unexpected AST type")
 		}
 		if err := semantic.CheckModule(m); err != nil {
 			return err

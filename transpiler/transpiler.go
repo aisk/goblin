@@ -12,7 +12,6 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
@@ -546,15 +545,9 @@ func (ctx *transpileContext) loadPathModule(importPath string, emit func(mod *as
 	if err != nil {
 		return fmt.Errorf("failed to read module %s: %v", importPath, err)
 	}
-	p := parser.NewParser()
-	st, err := p.Parse(l)
+	mod, err := source.Parse(l)
 	if err != nil {
 		return fmt.Errorf("parse error in module %s: %v", importPath, err)
-	}
-
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		return fmt.Errorf("internal error: unexpected AST type for module %s", importPath)
 	}
 	if err := semantic.CheckModule(mod); err != nil {
 		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
@@ -2611,6 +2604,15 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		var pre []jen.Code
 		var value *jen.Statement
 		pre, value, err = ctx.transpileIndexExpression(v, onError)
+		if err == nil {
+			codes = append(pre, jen.Id("_").Op("=").Add(value))
+		}
+	case ast.Expression:
+		// Any other bare expression statement: evaluate it for its side
+		// effects and discard the value.
+		var pre []jen.Code
+		var value *jen.Statement
+		pre, value, err = ctx.transpileExpression(v, onError)
 		if err == nil {
 			codes = append(pre, jen.Id("_").Op("=").Add(value))
 		}
