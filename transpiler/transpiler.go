@@ -2412,8 +2412,9 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 
 // transpileLogicalOperation lowers && and || with short-circuit evaluation: the
 // RHS is only evaluated (and may therefore only error or produce side effects)
-// when the LHS does not already fix the result. The result is always a Bool,
-// matching the previous truthiness-based behavior.
+// when the LHS does not already fix the result. The value of the expression is
+// the operand that decided it rather than a coerced Bool, so `x || fallback`
+// yields x when x is truthy.
 func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
 	if err != nil {
@@ -2430,36 +2431,22 @@ func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOper
 	lhsTruthyVar := ctx.localName("cond")
 	errVar := ctx.localName("err")
 	tmpVar := ctx.localName("tmp")
-	rhsVar := ctx.localName("rhs")
-	rhsTruthyVar := ctx.localName("cond")
-	rhsErrVar := ctx.localName("err")
 
 	rhsBlock := append([]jen.Code{}, rhsPre...)
-	rhsBlock = append(rhsBlock,
-		jen.Id(rhsVar).Op(":=").Add(rhs),
-		jen.List(jen.Id(rhsTruthyVar), jen.Id(rhsErrVar)).Op(":=").Id(rhsVar).Dot("ToBool").Call(),
-		jen.If(jen.Id(rhsErrVar).Op("!=").Nil()).Block(onError(rhsErrVar)),
-		jen.Id(tmpVar).Op("=").Qual(pathObject, "Bool").Call(jen.Id(rhsTruthyVar)),
-	)
+	rhsBlock = append(rhsBlock, jen.Id(tmpVar).Op("=").Add(rhs))
+
+	guard := jen.Id(lhsTruthyVar)
+	if operation.Operator == ast.Or {
+		guard = jen.Op("!").Id(lhsTruthyVar)
+	}
 
 	preStmts := append([]jen.Code{}, lhsPre...)
 	preStmts = append(preStmts,
-		jen.List(jen.Id(lhsTruthyVar), jen.Id(errVar)).Op(":=").Add(lhs).Dot("ToBool").Call(),
+		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Add(lhs),
+		jen.List(jen.Id(lhsTruthyVar), jen.Id(errVar)).Op(":=").Id(tmpVar).Dot("ToBool").Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		jen.Var().Id(tmpVar).Qual(pathObject, "Object"),
+		jen.If(guard).Block(rhsBlock...),
 	)
-
-	if operation.Operator == ast.And {
-		preStmts = append(preStmts,
-			jen.Id(tmpVar).Op("=").Qual(pathObject, "False"),
-			jen.If(jen.Id(lhsTruthyVar)).Block(rhsBlock...),
-		)
-	} else { // ast.Or
-		preStmts = append(preStmts,
-			jen.Id(tmpVar).Op("=").Qual(pathObject, "True"),
-			jen.If(jen.Op("!").Id(lhsTruthyVar)).Block(rhsBlock...),
-		)
-	}
 
 	return preStmts, jen.Id(tmpVar), nil
 }

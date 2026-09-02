@@ -434,7 +434,9 @@ func resolveName(name string, env *Environment) (object.Object, error) {
 func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error) {
 	// Short-circuit logical operators: the RHS is only evaluated when the LHS
 	// does not already determine the result, so side effects (and errors) in
-	// the skipped operand never run.
+	// the skipped operand never run. The value of the expression is the operand
+	// that decided it, not a coerced Bool, which is what makes
+	// `x || fallback` usable as a default.
 	if e.Operator == ast.And || e.Operator == ast.Or {
 		lhs, err := evalExpr(e.LHS, env)
 		if err != nil {
@@ -444,21 +446,10 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		if err != nil {
 			return nil, err
 		}
-		if e.Operator == ast.And && !lhsTruthy {
-			return object.False, nil
+		if lhsTruthy != (e.Operator == ast.And) {
+			return lhs, nil
 		}
-		if e.Operator == ast.Or && lhsTruthy {
-			return object.True, nil
-		}
-		rhs, err := evalExpr(e.RHS, env)
-		if err != nil {
-			return nil, err
-		}
-		rhsTruthy, err := rhs.ToBool()
-		if err != nil {
-			return nil, err
-		}
-		return object.Bool(rhsTruthy), nil
+		return evalExpr(e.RHS, env)
 	}
 
 	lhs, err := evalExpr(e.LHS, env)

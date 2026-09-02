@@ -10,14 +10,16 @@ print(!false)
 print(!!true)
 print(!!!true)
 
-# Truthiness with integers
+# Truthiness decides which side wins, and the winning operand is the value:
+# && yields its left operand when that is falsy, || when it is truthy.
 print(1 && 0)
 print(1 || 0)
 print(0 || 1)
 
-# Truthiness with strings
+# Truthiness with strings, same rule (the third line prints an empty string).
 print("hello" && "")
 print("" || "hello")
+print(Bool("hello" && ""))
 
 # Compound expressions
 print((1 && 0) || true)

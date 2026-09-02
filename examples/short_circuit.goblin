@@ -15,8 +15,20 @@ print(true || boom())
 print(true && boom())
 print(false || boom())
 
-# The result is still a Bool derived from truthiness.
+# The value of the expression is the operand that decided it, not a Bool, so
+# || reads as "use this, or a default" and && as "guard, then value".
 print(0 && 1)
 print(1 || 0)
-print("x" && "")
 print("" || "y")
+
+var name = nil
+print(name || "anonymous")
+
+var configured = "custom"
+print(configured || "anonymous")
+
+var enabled = true
+print(enabled && "feature on")
+
+# Wrap in Bool() when a plain true/false is what you want.
+print(Bool("x" && ""))

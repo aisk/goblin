@@ -53,9 +53,9 @@ print(1 + 2 * 3)          # 7
 print("ha" * 3)           # hahaha
 print("hello" + " world") # hello world
 
-# Comparisons and logic use truthiness and return booleans
+# Comparisons return booleans; && and || short-circuit to an operand
 print(1 < 2 && !false)    # true
-print(0 || "fallback")    # true
+print(0 || "fallback")    # fallback
 
 # Control flow
 if age > 1 {
