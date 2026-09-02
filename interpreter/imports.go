@@ -47,7 +47,6 @@ import (
 	unicodeExt "github.com/aisk/goblin/extension/x/unicode"
 	utf8Ext "github.com/aisk/goblin/extension/x/unicode/utf8"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
@@ -154,13 +153,9 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 	if err != nil {
 		return nil, object.NewImportError("failed to read module %s: %v", path, err)
 	}
-	st, err := parser.NewParser().Parse(l)
+	mod, err := source.Parse(l)
 	if err != nil {
 		return nil, err
-	}
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		return nil, fmt.Errorf("internal error: unexpected AST type in module %s", path)
 	}
 	if err := semantic.CheckModule(mod); err != nil {
 		return nil, err

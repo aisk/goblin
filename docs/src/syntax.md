@@ -1,8 +1,8 @@
 # Syntax and call rules
 
-Goblin uses braces for blocks and does not use semicolons. Whitespace separates
-tokens, while newlines are mainly for readability. Comments begin with `#` and
-continue to the end of the line.
+Goblin uses braces for blocks and does not use semicolons. A newline ends a
+statement, so each statement sits on its own line. Comments begin with `#`
+and continue to the end of the line.
 
 ## Literals and collection syntax
 
@@ -19,15 +19,39 @@ List, dictionary, call, parameter, and field lists do not accept a trailing
 comma. Dictionary keys and values are expressions, but keys should be stable
 values such as strings, integers, or booleans.
 
-## Expression statements
+## Statements and line breaks
 
-A call, index, or member-access chain can stand alone as a statement when it
-starts from a name, a string literal, a dictionary literal, or a function
-literal — `user.save()`, `"a,b".split(",")`, and `func() { ... }()` are all
-valid statements. A statement cannot start with `[` or `(`: because newlines
-are not statement terminators, such a line would be indistinguishable from an
-index or call continuation of the previous statement. Bind the value with
-`var` first instead.
+Any expression can stand alone as a statement, but only a call, index, or
+member access may do so in a program: `user.save()`, `"a,b".split(",")`, and
+`func() { ... }()` are valid statements, while `a + b` or a lone `- 2` is
+rejected with `expression value is not used`, since a value that is computed
+and dropped is almost always a mistake. The REPL is the exception: there a bare
+expression such as `1 + 2` is evaluated and displayed.
+
+Because a newline ends a statement, a line can only continue the previous one
+in places where the expression is visibly unfinished: after a binary operator,
+a comma, a dictionary colon, or inside an open `(`, `[`, or `{` of a literal.
+Ending a line with a complete expression and starting the next with an
+operator does not continue it. `var a = 10` followed by a line `- 2` is two
+statements, and the second is the unused-value error above rather than a
+silent `10 - 2`.
+
+~~~goblin
+var total = price * quantity +
+    shipping
+var discounted = (
+    total - coupon
+)
+var files = {
+    "a.txt": "first",
+    "b.txt": "second"
+}
+print(files["a.txt"],
+      files["b.txt"])
+~~~
+
+The same rule means `else` must follow the closing brace of its `if` on the
+same line, and two statements cannot share a line.
 
 ## Names
 

@@ -23,6 +23,23 @@ func TestCheckModule(t *testing.T) {
 			errContains: "undefined identifier: x",
 		},
 		{
+			name:        "unused expression value",
+			source:      "var a = 10\n- 2\nprint(a)\n",
+			wantErr:     true,
+			errContains: "2:1: semantic error: expression value is not used",
+		},
+		{
+			name:        "unused binary expression",
+			source:      "var a = 1\nvar b = 2\na + b\n",
+			wantErr:     true,
+			errContains: "expression value is not used",
+		},
+		{
+			name:    "call, index and member expressions may stand alone",
+			source:  "var l = [1]\nvar s = \"a\"\nprint(l)\nl[0]\ns.len\n",
+			wantErr: false,
+		},
+		{
 			name:        "assignment to undefined identifier",
 			source:      "x = 1\n",
 			wantErr:     true,
@@ -36,7 +53,7 @@ func TestCheckModule(t *testing.T) {
 		},
 		{
 			name:    "shadowing in child scope is allowed",
-			source:  "var a = 1\nif true { var a = 2 print(a) }\nprint(a)\n",
+			source:  "var a = 1\nif true {\n\tvar a = 2\n\tprint(a)\n}\nprint(a)\n",
 			wantErr: false,
 		},
 		{
@@ -147,7 +164,7 @@ func TestCheckModule(t *testing.T) {
 		},
 		{
 			name:    "loop body may shadow iteration variable",
-			source:  "for x in [1] { var x = 2 print(x) }\n",
+			source:  "for x in [1] {\n\tvar x = 2\n\tprint(x)\n}\n",
 			wantErr: false,
 		},
 		{

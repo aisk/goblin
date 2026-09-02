@@ -240,6 +240,12 @@ type SetAttr struct {
 func NewSetAssign(target, value any) (any, error) {
 	v := value.(Expression)
 	switch t := target.(type) {
+	case *Identifier:
+		return &Assign{
+			statementMixin: statementMixin{Pos: t.Position()},
+			Target:         t.Name,
+			Value:          v,
+		}, nil
 	case *IndexExpression:
 		return &SetIndex{
 			statementMixin: statementMixin{Pos: t.Position()},
@@ -777,15 +783,17 @@ type UnaryOperation struct {
 }
 
 func NewUnaryOperation(operator, operand any) (any, error) {
-	switch operator.(string) {
+	tok := operator.(*token.Token)
+	op := string(tok.Lit)
+	switch op {
 	case Add, Minus, Not:
 	default:
-		return nil, fmt.Errorf("invalid unary operator: '%s'", operator)
+		return nil, fmt.Errorf("invalid unary operator: '%s'", op)
 	}
 	return &UnaryOperation{
-		expressionMixin: expressionMixin{statementMixin{Pos: operand.(Expression).Position()}},
+		expressionMixin: expressionMixin{statementMixin{Pos: tok.Pos}},
 		Operand:         operand.(Expression),
-		Operator:        operator.(string),
+		Operator:        op,
 	}, nil
 }
 

@@ -387,10 +387,27 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		}
 		return nil
 	case ast.Expression:
+		if !hasEffect(v) {
+			return c.newError(v.Position(), "expression value is not used")
+		}
 		return c.checkExpression(v)
 	default:
 		return nil
 	}
+}
+
+// hasEffect reports whether an expression may do something when evaluated on
+// its own, and so is allowed to stand as a statement. Calls run code, and
+// index and member access can invoke protocol methods. Anything else, such
+// as `a + b` or a lone literal, only computes a value, so as a statement it
+// is almost certainly a mistake: with newlines ending statements, a stray
+// `- 2` line is exactly this shape.
+func hasEffect(expr ast.Expression) bool {
+	switch expr.(type) {
+	case *ast.CallExpression, *ast.FunctionCall, *ast.IndexExpression, *ast.MemberExpression:
+		return true
+	}
+	return false
 }
 
 // checkFunction validates a function's parameter list and body in a fresh

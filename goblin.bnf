@@ -25,13 +25,21 @@ _escaped_char : '\\' ( 'n' | 't' | 'r' | '"' | '\\' ) ;
 _char         : _unicode_char | _escaped_char ;
 
 string_lit : '"' { _char } '"' ;
-!whitespace : ' ' | '\t' | '\n' | '\r' ;
 
-// The trailing '\n' is required: gocc's generated lexer ends an ignored
-// token at its first accepting state, so acceptance must be deferred to the
-// end of the line. Comments at end-of-file work because source loading
-// (source package) appends a newline when the file lacks one.
-!comment : '#' {.} '\n' ;
+// Newlines are significant: they terminate statements. Carriage returns are
+// plain whitespace so CRLF sources work unchanged.
+!whitespace : ' ' | '\t' | '\r' ;
+newline : '\n' ;
+
+// A comment runs to the end of its line and carries the newline with it, so
+// the grammar treats it as a statement terminator. Every character except
+// '\n' may appear in the body.
+_comment_char
+    : '\x01' - '\x09'
+    | '\x0B' - '\uFFFC'
+    | '\uFFFE' - '\U0010FFFF'
+;
+comment : '#' { _comment_char } '\n' ;
 
 
 << import (
@@ -40,21 +48,34 @@ string_lit : '"' { _char } '"' ;
 
 
 Module
-    : Statements                             << ast.NewModule($0) >>
+    : OptNewlines                                   << ast.NewModule(nil) >>
+    | OptNewlines StatementList OptNewlines         << ast.NewModule($1) >>
 ;
 
-Statements
+// Terminator is anything that ends a source line. Newlines is one or more of
+// them, so blank lines and comment-only lines collapse into one separator.
+Terminator
+    : newline
+    | comment
+;
+
+Newlines
+    : Terminator
+    | Newlines Terminator
+;
+
+OptNewlines
     : empty
-    | StatementList
+    | Newlines
 ;
 
 StatementList
     : Statement                              << ast.NewStatementList($0) >>
-    | StatementList Statement                << ast.AppendStatementList($0, $1) >>
+    | StatementList Newlines Statement       << ast.AppendStatementList($0, $2) >>
 ;
 
 Statement
-    : ExpressionStatement
+    : Expression
     | Declare
     | Assign
     | If
@@ -71,81 +92,65 @@ Statement
     | Import
 ;
 
-// The root of an expression statement is deliberately narrower than
-// PrimaryExpression: statements must not start with "[" or "(" because,
-// with newlines treated as whitespace, they would be indistinguishable
-// from an index/call continuation of the previous statement.
-StatementRoot
-    : id                                     << ast.NewIdentifier($0) >>
-    | StringLiteral
-    | DictLiteral
-    | FunctionLiteral
-;
-
-ExpressionStatement
-    : StatementRoot "[" Expression "]"       << ast.NewIndexExpression($0, $2) >>
-    | StatementRoot "(" Arguments ")"        << ast.NewCallExpression($0, $2) >>
-    | StatementRoot "." id                   << ast.NewMemberExpression($0, $2) >>
-    | ExpressionStatement "[" Expression "]" << ast.NewIndexExpression($0, $2) >>
-    | ExpressionStatement "(" Arguments ")"  << ast.NewCallExpression($0, $2) >>
-    | ExpressionStatement "." id             << ast.NewMemberExpression($0, $2) >>
-;
-
 Import
     : "import" string_lit  << ast.NewImport($1) >>
 ;
 
+// A line may continue onto the next one only after a binary operator, a
+// comma, a colon, or an opening bracket. This keeps a newline after a
+// complete expression unambiguous as a statement end.
 Expression
     : OrExpression
 ;
 
 OrExpression
     : AndExpression
-    | OrExpression "||" AndExpression        << ast.NewBinaryOperation($0, "||", $2) >>
+    | OrExpression "||" OptNewlines AndExpression        << ast.NewBinaryOperation($0, "||", $3) >>
 ;
 
 AndExpression
     : ComparisonExpression
-    | AndExpression "&&" ComparisonExpression << ast.NewBinaryOperation($0, "&&", $2) >>
+    | AndExpression "&&" OptNewlines ComparisonExpression << ast.NewBinaryOperation($0, "&&", $3) >>
 ;
 
 // Comparisons are non-associative: `a < b < c` is a parse error rather than
 // the surprising `(a < b) < c`. Use explicit parentheses to compare a result.
 ComparisonExpression
     : AdditiveExpression
-    | AdditiveExpression "==" AdditiveExpression << ast.NewBinaryOperation($0, "==", $2) >>
-    | AdditiveExpression "!=" AdditiveExpression << ast.NewBinaryOperation($0, "!=", $2) >>
-    | AdditiveExpression "<=" AdditiveExpression << ast.NewBinaryOperation($0, "<=", $2) >>
-    | AdditiveExpression ">=" AdditiveExpression << ast.NewBinaryOperation($0, ">=", $2) >>
-    | AdditiveExpression "<" AdditiveExpression  << ast.NewBinaryOperation($0, "<", $2) >>
-    | AdditiveExpression ">" AdditiveExpression  << ast.NewBinaryOperation($0, ">", $2) >>
+    | AdditiveExpression "==" OptNewlines AdditiveExpression << ast.NewBinaryOperation($0, "==", $3) >>
+    | AdditiveExpression "!=" OptNewlines AdditiveExpression << ast.NewBinaryOperation($0, "!=", $3) >>
+    | AdditiveExpression "<=" OptNewlines AdditiveExpression << ast.NewBinaryOperation($0, "<=", $3) >>
+    | AdditiveExpression ">=" OptNewlines AdditiveExpression << ast.NewBinaryOperation($0, ">=", $3) >>
+    | AdditiveExpression "<" OptNewlines AdditiveExpression  << ast.NewBinaryOperation($0, "<", $3) >>
+    | AdditiveExpression ">" OptNewlines AdditiveExpression  << ast.NewBinaryOperation($0, ">", $3) >>
 ;
 
 AdditiveExpression
     : MultiplicativeExpression
-    | AdditiveExpression "+" MultiplicativeExpression << ast.NewBinaryOperation($0, "+", $2) >>
-    | AdditiveExpression "-" MultiplicativeExpression << ast.NewBinaryOperation($0, "-", $2) >>
+    | AdditiveExpression "+" OptNewlines MultiplicativeExpression << ast.NewBinaryOperation($0, "+", $3) >>
+    | AdditiveExpression "-" OptNewlines MultiplicativeExpression << ast.NewBinaryOperation($0, "-", $3) >>
 ;
 
 MultiplicativeExpression
     : UnaryExpression
-    | MultiplicativeExpression "*" UnaryExpression << ast.NewBinaryOperation($0, "*", $2) >>
-    | MultiplicativeExpression "/" UnaryExpression << ast.NewBinaryOperation($0, "/", $2) >>
-    | MultiplicativeExpression "%" UnaryExpression << ast.NewBinaryOperation($0, "%", $2) >>
+    | MultiplicativeExpression "*" OptNewlines UnaryExpression << ast.NewBinaryOperation($0, "*", $3) >>
+    | MultiplicativeExpression "/" OptNewlines UnaryExpression << ast.NewBinaryOperation($0, "/", $3) >>
+    | MultiplicativeExpression "%" OptNewlines UnaryExpression << ast.NewBinaryOperation($0, "%", $3) >>
 ;
 
 UnaryExpression
     : PostfixExpression
-    | "!" UnaryExpression                    << ast.NewUnaryOperation("!", $1) >>
-    | "+" UnaryExpression                    << ast.NewUnaryOperation("+", $1) >>
-    | "-" UnaryExpression                    << ast.NewUnaryOperation("-", $1) >>
+    | "!" UnaryExpression                    << ast.NewUnaryOperation($0, $1) >>
+    | "+" UnaryExpression                    << ast.NewUnaryOperation($0, $1) >>
+    | "-" UnaryExpression                    << ast.NewUnaryOperation($0, $1) >>
 ;
 
 PostfixExpression
     : PrimaryExpression
-    | PostfixExpression "[" Expression "]"   << ast.NewIndexExpression($0, $2) >>
-    | PostfixExpression "(" Arguments ")"    << ast.NewCallExpression($0, $2) >>
-    | PostfixExpression "." id               << ast.NewMemberExpression($0, $2) >>
+    | PostfixExpression "[" OptNewlines Expression OptNewlines "]"   << ast.NewIndexExpression($0, $3) >>
+    | PostfixExpression "(" OptNewlines ")"                          << ast.NewCallExpression($0, nil) >>
+    | PostfixExpression "(" OptNewlines ArgumentList OptNewlines ")" << ast.NewCallExpression($0, $3) >>
+    | PostfixExpression "." id                                       << ast.NewMemberExpression($0, $2) >>
 ;
 
 PrimaryExpression
@@ -159,11 +164,11 @@ PrimaryExpression
     | DictLiteral
     | FunctionLiteral
     | id                                     << ast.NewIdentifier($0) >>
-    | "(" Expression ")"                     << $1, nil >>
+    | "(" OptNewlines Expression OptNewlines ")"   << $2, nil >>
 ;
 
 FunctionLiteral
-    : "func" "(" Parameters ")" Block        << ast.NewFunctionLiteral($0, $2, $4) >>
+    : "func" Parameters Block                << ast.NewFunctionLiteral($0, $1, $2) >>
 ;
 
 IntegerLiteral
@@ -190,45 +195,32 @@ NilLiteral
 ;
 
 ListLiteral
-    : "[" ListElements "]"                   << ast.NewListLiteral($1) >>
-;
-
-ListElements
-    : empty
-    | ListElementList
+    : "[" OptNewlines "]"                                << ast.NewListLiteral(nil) >>
+    | "[" OptNewlines ListElementList OptNewlines "]"    << ast.NewListLiteral($2) >>
 ;
 
 ListElementList
-    : Expression                             << ast.NewExpressionList($0) >>
-    | ListElementList "," Expression        << ast.AppendExpressionList($0, $2) >>
+    : Expression                                         << ast.NewExpressionList($0) >>
+    | ListElementList "," OptNewlines Expression         << ast.AppendExpressionList($0, $3) >>
 ;
 
 DictLiteral
-    : "{" DictElements "}"                   << ast.NewDictLiteral($1) >>
-;
-
-DictElements
-    : empty
-    | DictElementList
+    : "{" OptNewlines "}"                                << ast.NewDictLiteral(nil) >>
+    | "{" OptNewlines DictElementList OptNewlines "}"    << ast.NewDictLiteral($2) >>
 ;
 
 DictElementList
-    : DictElement                            << ast.NewDictElementList($0) >>
-    | DictElementList "," DictElement        << ast.AppendDictElementList($0, $2) >>
+    : DictElement                                        << ast.NewDictElementList($0) >>
+    | DictElementList "," OptNewlines DictElement        << ast.AppendDictElementList($0, $3) >>
 ;
 
 DictElement
-    : Expression ":" Expression              << ast.NewDictElement($0, $2) >>
-;
-
-Arguments
-    : empty
-    | ArgumentList
+    : Expression ":" OptNewlines Expression              << ast.NewDictElement($0, $3) >>
 ;
 
 ArgumentList
-    : Argument                               << ast.NewCallArgumentList($0) >>
-    | ArgumentList "," Argument              << ast.AppendCallArgumentList($0, $2) >>
+    : Argument                                           << ast.NewCallArgumentList($0) >>
+    | ArgumentList "," OptNewlines Argument              << ast.AppendCallArgumentList($0, $3) >>
 ;
 
 Argument
@@ -243,12 +235,12 @@ Declare
 ;
 
 Assign
-    : id "=" Expression                      << ast.NewAssign($0, $2) >>
-    | ExpressionStatement "=" Expression      << ast.NewSetAssign($0, $2) >>
+    : PostfixExpression "=" Expression       << ast.NewSetAssign($0, $2) >>
 ;
 
 Block
-    : "{" Statements "}"                     << $1, nil >>
+    : "{" OptNewlines "}"                                << nil, nil >>
+    | "{" OptNewlines StatementList OptNewlines "}"      << $2, nil >>
 ;
 
 If
@@ -273,14 +265,16 @@ Continue
     : "continue"                             << ast.NewContinue() >>
 ;
 
+// Parameters includes the parentheses so that newlines inside them can be
+// accepted without an ambiguous run of two optional newline sequences.
 Parameters
-    : empty
-    | ParameterList
+    : "(" OptNewlines ")"                                << nil, nil >>
+    | "(" OptNewlines ParameterList OptNewlines ")"      << $2, nil >>
 ;
 
 ParameterList
-    : Parameter                              << ast.NewParameterList($0) >>
-    | ParameterList "," Parameter            << ast.AppendParameterList($0, $2) >>
+    : Parameter                                          << ast.NewParameterList($0) >>
+    | ParameterList "," OptNewlines Parameter            << ast.AppendParameterList($0, $3) >>
 ;
 
 Parameter
@@ -291,13 +285,13 @@ Parameter
 ;
 
 TypeFields
-    : empty
-    | TypeFieldList
+    : "(" OptNewlines ")"                                << nil, nil >>
+    | "(" OptNewlines TypeFieldList OptNewlines ")"      << $2, nil >>
 ;
 
 TypeFieldList
-    : TypeField                              << ast.NewTypeFieldList($0) >>
-    | TypeFieldList "," TypeField            << ast.AppendTypeFieldList($0, $2) >>
+    : TypeField                                          << ast.NewTypeFieldList($0) >>
+    | TypeFieldList "," OptNewlines TypeField            << ast.AppendTypeFieldList($0, $3) >>
 ;
 
 TypeField
@@ -306,21 +300,21 @@ TypeField
 ;
 
 FunctionDefine
-    : "func" id "(" Parameters ")" Block     << ast.NewFunctionDefine($1, $3, $5) >>
+    : "func" id Parameters Block             << ast.NewFunctionDefine($1, $2, $3) >>
 ;
 
 TypeMethods
-    : empty
-    | TypeMethodList
+    : "{" OptNewlines "}"                                << nil, nil >>
+    | "{" OptNewlines TypeMethodList OptNewlines "}"     << $2, nil >>
 ;
 
 TypeMethodList
-    : FunctionDefine                         << ast.NewTypeMethodList($0) >>
-    | TypeMethodList FunctionDefine          << ast.AppendTypeMethodList($0, $1) >>
+    : FunctionDefine                                     << ast.NewTypeMethodList($0) >>
+    | TypeMethodList Newlines FunctionDefine             << ast.AppendTypeMethodList($0, $2) >>
 ;
 
 TypeDefine
-    : "type" id "(" TypeFields ")" "{" TypeMethods "}" << ast.NewTypeDefine($1, $3, $6) >>
+    : "type" id TypeFields TypeMethods       << ast.NewTypeDefine($1, $2, $3) >>
 ;
 
 Return
