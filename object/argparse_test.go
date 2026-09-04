@@ -19,7 +19,7 @@ func TestArgParserPositional(t *testing.T) {
 func TestArgParserKeywordPrecedence(t *testing.T) {
 	p := NewArgParser("f", CallArgs{
 		Positional: Args{Integer(1)},
-		Keyword:    Kwargs{"b": Integer(2)},
+		Keyword:    Kwargs{{Name: "b", Value: Integer(2)}},
 	})
 	a, b := p.Int("a"), p.Int("b")
 	if err := p.Finish(); err != nil {
@@ -61,7 +61,7 @@ func TestArgParserTooManyPositional(t *testing.T) {
 func TestArgParserUnexpectedKeyword(t *testing.T) {
 	p := NewArgParser("f", CallArgs{
 		Positional: Args{Integer(1)},
-		Keyword:    Kwargs{"x": Integer(9)},
+		Keyword:    Kwargs{{Name: "x", Value: Integer(9)}},
 	})
 	p.Int("a")
 	err := p.Finish()
@@ -103,7 +103,7 @@ func TestArgParserOptionalInt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p = NewArgParser("f", CallArgs{Keyword: Kwargs{"value": Integer(7)}})
+	p = NewArgParser("f", CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(7)}}})
 	if value, ok := p.OptionalInt("value"); !ok || value != 7 {
 		t.Fatalf("supplied OptionalInt = (%v, %v), want (7, true)", value, ok)
 	}
@@ -119,7 +119,7 @@ func TestArgParserOptionalInt(t *testing.T) {
 }
 
 func TestArgParserKeywordOnly(t *testing.T) {
-	p := NewArgParser("f", CallArgs{Keyword: Kwargs{"a": Integer(1), "b": Integer(2)}})
+	p := NewArgParser("f", CallArgs{Keyword: Kwargs{{Name: "a", Value: Integer(1)}, {Name: "b", Value: Integer(2)}}})
 	a, b := p.Int("a"), p.Int("b")
 	if err := p.Finish(); err != nil {
 		t.Fatalf("expected nil error, got %v", err)
@@ -135,7 +135,7 @@ func TestArgParserDuplicateArgument(t *testing.T) {
 	// next parameter.
 	p := NewArgParser("split", CallArgs{
 		Positional: Args{String("x")},
-		Keyword:    Kwargs{"sep": String(",")},
+		Keyword:    Kwargs{{Name: "sep", Value: String(",")}},
 	})
 	p.Str("sep")
 	p.IntOr("count", -1)
@@ -149,7 +149,7 @@ func TestArgParserDuplicateArgumentLaterParam(t *testing.T) {
 	// f(1, 2, b=9): the second positional slot already binds b.
 	p := NewArgParser("f", CallArgs{
 		Positional: Args{Integer(1), Integer(2)},
-		Keyword:    Kwargs{"b": Integer(9)},
+		Keyword:    Kwargs{{Name: "b", Value: Integer(9)}},
 	})
 	p.Int("a")
 	p.Int("b")
@@ -163,7 +163,7 @@ func TestArgParserKeywordAfterPositionalNoConflict(t *testing.T) {
 	// f(1, b=2): the positional slot binds a, the keyword binds b — no conflict.
 	p := NewArgParser("f", CallArgs{
 		Positional: Args{Integer(1)},
-		Keyword:    Kwargs{"b": Integer(2)},
+		Keyword:    Kwargs{{Name: "b", Value: Integer(2)}},
 	})
 	a := p.Int("a")
 	b := p.IntOr("b", -1)
@@ -180,7 +180,7 @@ func TestArgParserRestThenKeywordNoConflict(t *testing.T) {
 	// accessor after Rest must not report a duplicate.
 	p := NewArgParser("f", CallArgs{
 		Positional: Args{Integer(1), Integer(2), Integer(3)},
-		Keyword:    Kwargs{"key": Integer(9)},
+		Keyword:    Kwargs{{Name: "key", Value: Integer(9)}},
 	})
 	first := p.Int("first")
 	rest := p.Rest()

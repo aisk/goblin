@@ -42,7 +42,9 @@ func TestStringReplaceDefaultsAndKeywords(t *testing.T) {
 		t.Fatalf("default count: got %q", got)
 	}
 	got = callStringMethod(t, "one one one", "replace", nil, Kwargs{
-		"old": String("one"), "new": String("two"), "count": Integer(2),
+		{Name: "old", Value: String("one")},
+		{Name: "new", Value: String("two")},
+		{Name: "count", Value: Integer(2)},
 	})
 	if got != String("two two one") {
 		t.Fatalf("named count: got %q", got)
@@ -63,9 +65,9 @@ func TestStringSplitOverloads(t *testing.T) {
 		}
 	}
 	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, nil), String("a"), String("b"), String("c"))
-	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, Kwargs{"count": Integer(2)}), String("a"), String("b,c"))
-	assertList(callStringMethod(t, "a,b,c", "split_after", nil, Kwargs{"sep": String(",")}), String("a,"), String("b,"), String("c"))
-	assertList(callStringMethod(t, "a,b,c", "split_after", Args{String(",")}, Kwargs{"count": Integer(2)}), String("a,"), String("b,c"))
+	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(2)}}), String("a"), String("b,c"))
+	assertList(callStringMethod(t, "a,b,c", "split_after", nil, Kwargs{{Name: "sep", Value: String(",")}}), String("a,"), String("b,"), String("c"))
+	assertList(callStringMethod(t, "a,b,c", "split_after", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(2)}}), String("a,"), String("b,c"))
 	assertList(callStringMethod(t, " a\t b\n", "fields", nil, nil), String("a"), String("b"))
 }
 
@@ -82,10 +84,10 @@ func TestStringTrimCutAndRepeat(t *testing.T) {
 	if got := callStringMethod(t, "xyhello", "trim_left", Args{String("xy")}, nil); got != String("hello") {
 		t.Fatal(got)
 	}
-	if got := callStringMethod(t, "hello.go", "trim_suffix", nil, Kwargs{"suffix": String(".go")}); got != String("hello") {
+	if got := callStringMethod(t, "hello.go", "trim_suffix", nil, Kwargs{{Name: "suffix", Value: String(".go")}}); got != String("hello") {
 		t.Fatal(got)
 	}
-	if got := callStringMethod(t, "go", "repeat", nil, Kwargs{"count": Integer(3)}); got != String("gogogo") {
+	if got := callStringMethod(t, "go", "repeat", nil, Kwargs{{Name: "count", Value: Integer(3)}}); got != String("gogogo") {
 		t.Fatal(got)
 	}
 	cut := callStringMethod(t, "key=value", "cut", Args{String("=")}, nil).(*List)
@@ -99,7 +101,7 @@ func TestStringMethodArgumentErrors(t *testing.T) {
 	if _, err := Call(fn, CallArgs{Positional: Args{Integer(-1)}}); err == nil {
 		t.Fatal("negative repeat count should fail")
 	}
-	if _, err := Call(fn, CallArgs{Keyword: Kwargs{"unknown": Integer(1)}}); err == nil {
+	if _, err := Call(fn, CallArgs{Keyword: Kwargs{{Name: "unknown", Value: Integer(1)}}}); err == nil {
 		t.Fatal("unknown keyword should fail")
 	}
 }

@@ -44,7 +44,7 @@ func TestUUIDNewVersions(t *testing.T) {
 	for _, version := range []int64{1, 4, 6, 7} {
 		t.Run(strconv.FormatInt(version, 10), func(t *testing.T) {
 			got, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{
-				"version": object.Integer(version),
+				{Name: "version", Value: object.Integer(version)},
 			}})
 			if err != nil {
 				t.Fatalf("new(version=%d) error = %v", version, err)
@@ -66,9 +66,9 @@ func TestUUIDNewNameBased(t *testing.T) {
 		{5, object.Bytes("example.com"), googleuuid.NewSHA1(googleuuid.NameSpaceDNS, []byte("example.com"))},
 	} {
 		got, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{
-			"version":   object.Integer(test.version),
-			"namespace": NewUUID(googleuuid.NameSpaceDNS),
-			"data":      test.data,
+			{Name: "version", Value: object.Integer(test.version)},
+			{Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)},
+			{Name: "data", Value: test.data},
 		}})
 		if err != nil {
 			t.Fatalf("new(version=%d) error = %v", test.version, err)
@@ -85,12 +85,12 @@ func TestUUIDNewRejectsInvalidArgumentCombinations(t *testing.T) {
 		args object.CallArgs
 		kind *object.Error
 	}{
-		{"unsupported version", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(2)}}, object.ValueError},
-		{"missing namespace", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(5), "data": object.String("x")}}, object.TypeError},
-		{"missing data", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(5), "namespace": NewUUID(googleuuid.NameSpaceDNS)}}, object.TypeError},
-		{"wrong namespace type", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(5), "namespace": object.String("dns"), "data": object.String("x")}}, object.TypeError},
-		{"wrong data type", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(5), "namespace": NewUUID(googleuuid.NameSpaceDNS), "data": object.Integer(1)}}, object.TypeError},
-		{"data with random version", object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(4), "data": object.String("x")}}, object.TypeError},
+		{"unsupported version", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(2)}}}, object.ValueError},
+		{"missing namespace", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
+		{"missing data", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)}}}, object.TypeError},
+		{"wrong namespace type", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: object.String("dns")}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
+		{"wrong data type", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)}, {Name: "data", Value: object.Integer(1)}}}, object.TypeError},
+		{"data with random version", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(4)}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -136,7 +136,7 @@ func TestUUIDConstructorAcceptsUUIDStringAndBytes(t *testing.T) {
 		object.String(want.String()),
 		object.Bytes(want[:]),
 	} {
-		got, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{"value": value}})
+		got, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: value}}})
 		if err != nil || got.(*UUID).Value != want {
 			t.Fatalf("UUID(%s) = %v, %v; want %s, nil", value.TypeName(), got, err, want)
 		}
@@ -156,10 +156,10 @@ func TestUUIDConstructorRejectsInvalidValue(t *testing.T) {
 
 func TestUUIDFunctionsAcceptKeywords(t *testing.T) {
 	const input = "550e8400-e29b-41d4-a716-446655440000"
-	if _, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{"value": object.String(input)}}); err != nil {
+	if _, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: object.String(input)}}}); err != nil {
 		t.Fatalf("UUID(value=...) error = %v", err)
 	}
-	got, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Keyword: object.Kwargs{"value": object.String(input)}})
+	got, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: object.String(input)}}})
 	if err != nil || got != object.True {
 		t.Fatalf("validate(value=...) = %v, %v; want true, nil", got, err)
 	}
@@ -186,7 +186,7 @@ func TestUUIDAttributes(t *testing.T) {
 }
 
 func TestUUIDVersionSpecificAttributes(t *testing.T) {
-	v1, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{"version": object.Integer(1)}})
+	v1, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(1)}}})
 	if err != nil {
 		t.Fatalf("new(version=1) error = %v", err)
 	}

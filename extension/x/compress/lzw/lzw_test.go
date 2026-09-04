@@ -12,7 +12,7 @@ func TestLZWCompressToDest(t *testing.T) {
 	var buffer bytes.Buffer
 	result, err := lzwCompress(object.CallArgs{
 		Positional: object.Args{object.String("stream me")},
-		Keyword:    map[string]object.Object{"dest": modtest.DestRecorder(&buffer)},
+		Keyword:    object.Kwargs{{Name: "dest", Value: modtest.DestRecorder(&buffer)}},
 	})
 	if err != nil {
 		t.Fatalf("compress() error = %v", err)

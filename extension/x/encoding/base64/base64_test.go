@@ -42,7 +42,7 @@ func TestBase64StandardRoundTrip(t *testing.T) {
 }
 
 func TestBase64URLRoundTripWithoutPadding(t *testing.T) {
-	urlUnpadded := object.Kwargs{"url": object.True, "padding": object.False}
+	urlUnpadded := object.Kwargs{{Name: "url", Value: object.True}, {Name: "padding", Value: object.False}}
 	encoded, err := base64Function(t, "encode").Call(object.CallArgs{
 		Positional: object.Args{object.String("Goblin?")},
 		Keyword:    urlUnpadded,
@@ -55,7 +55,7 @@ func TestBase64URLRoundTripWithoutPadding(t *testing.T) {
 	}
 	decoded, err := base64Function(t, "decode").Call(object.CallArgs{
 		Positional: object.Args{encoded},
-		Keyword:    object.Kwargs{"url": object.True, "padding": object.False},
+		Keyword:    object.Kwargs{{Name: "url", Value: object.True}, {Name: "padding", Value: object.False}},
 	})
 	if err != nil {
 		t.Fatalf("decode() error = %v", err)
@@ -70,7 +70,7 @@ func TestBase64URLRoundTripWithoutPadding(t *testing.T) {
 func TestBase64URLAlphabetKeepsPaddingByDefault(t *testing.T) {
 	encoded, err := base64Function(t, "encode").Call(object.CallArgs{
 		Positional: object.Args{object.NewBytes([]byte{251, 255})},
-		Keyword:    object.Kwargs{"url": object.True},
+		Keyword:    object.Kwargs{{Name: "url", Value: object.True}},
 	})
 	if err != nil {
 		t.Fatalf("encode() error = %v", err)

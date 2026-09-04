@@ -40,7 +40,7 @@ func TestZipWriteAllToDest(t *testing.T) {
 	var buffer bytes.Buffer
 	result, err := zipWriteAll(object.CallArgs{
 		Positional: object.Args{files},
-		Keyword:    map[string]object.Object{"dest": modtest.DestRecorder(&buffer)},
+		Keyword:    object.Kwargs{{Name: "dest", Value: modtest.DestRecorder(&buffer)}},
 	})
 	if err != nil {
 		t.Fatalf("write_all() error = %v", err)
