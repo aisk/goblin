@@ -1055,6 +1055,41 @@ func isBuiltinFunction(name string) bool {
 	return ok
 }
 
+// directBuiltin names the Go function behind a built-in, so a call to it can
+// be emitted as a plain Go call instead of a map lookup followed by
+// object.Call through a function value. Skipping the function value is also
+// what lets the argument list stay on the stack: escape analysis cannot see
+// through an indirect call.
+//
+// fn is the same function the builtins module holds, and
+// TestDirectBuiltinsMatchModule checks that pair by pointer, so a rename or a
+// re-pointed member cannot make the emitted call go somewhere else.
+type directBuiltin struct {
+	path string
+	name string
+	fn   func(object.CallArgs) (object.Object, error)
+}
+
+var directBuiltins = map[string]directBuiltin{
+	"print":    {pathExtension, "Print", extension.Print},
+	"eprint":   {pathExtension, "Eprint", extension.Eprint},
+	"spawn":    {pathExtension, "Spawn", extension.Spawn},
+	"range":    {pathExtension, "Range", extension.Range},
+	"max":      {pathExtension, "Max", extension.Max},
+	"min":      {pathExtension, "Min", extension.Min},
+	"Error":    {pathObject, "ErrorConstructor", object.ErrorConstructor},
+	"Int":      {pathObject, "IntConstructor", object.IntConstructor},
+	"Float":    {pathObject, "FloatConstructor", object.FloatConstructor},
+	"Str":      {pathObject, "StrConstructor", object.StrConstructor},
+	"Bytes":    {pathObject, "BytesConstructor", object.BytesConstructor},
+	"Bool":     {pathObject, "BoolConstructor", object.BoolConstructor},
+	"List":     {pathObject, "ListConstructor", object.ListConstructor},
+	"Dict":     {pathObject, "DictConstructor", object.DictConstructor},
+	"Chan":     {pathObject, "ChanConstructor", object.ChanConstructor},
+	"Goblin":   {pathObject, "GoblinConstructor", object.GoblinConstructor},
+	"Function": {pathObject, "FunctionConstructor", object.FunctionConstructor},
+}
+
 func (ctx *transpileContext) transpileDeclare(decl *ast.Declare, onError errHandler) ([]jen.Code, error) {
 	if t := ctx.typeOf(decl.Name); t.native() {
 		pre, value, err := ctx.emitNative(decl.Value, onError)
@@ -1389,6 +1424,9 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		if mapped, ok := ctx.moduleImports[ident.Name]; ok {
 			callee = jen.Id(mapped)
 		} else if !ctx.isUserName(ident.Name) && isBuiltinFunction(ident.Name) {
+			if direct, ok := directBuiltins[ident.Name]; ok {
+				return argPreStmts, jen.Qual(direct.path, direct.name).Call(args), nil
+			}
 			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
 		} else {
 			callee = jen.Id(ident.Name)
