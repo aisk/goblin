@@ -1,0 +1,26 @@
+# Functions as values: closures, composition, and list methods that call back
+# into a function for every element.
+func compose(f, g) {
+    return func(x) { return f(g(x)) }
+}
+
+var double = func(x) { return x * 2 }
+var increment = func(x) { return x + 1 }
+var step = compose(increment, double)
+
+var xs = []
+var i = 0
+while i < 2000 {
+    xs.push(i)
+    i = i + 1
+}
+
+var total = 0
+var round = 0
+while round < 1600 {
+    var mapped = xs.map(step)
+    var kept = mapped.filter(func(x) { return x % 3 == 0 })
+    total = total + kept.reduce(func(acc, x) { return acc + x }, 0)
+    round = round + 1
+}
+print(total)

@@ -1,0 +1,38 @@
+# User-defined types: construction, method calls, attribute reads and writes,
+# and an overloaded operator.
+type Vec(x, y) {
+    func __add(self, other) {
+        return Vec(self.x + other.x, self.y + other.y)
+    }
+
+    func norm(self) {
+        return self.x * self.x + self.y * self.y
+    }
+}
+
+type Particle(pos, vel) {
+    func step(self) {
+        self.pos = self.pos + self.vel
+    }
+}
+
+var particles = []
+var i = 0
+while i < 400 {
+    particles.push(Particle(Vec(i, i + 1), Vec(1, 2)))
+    i = i + 1
+}
+
+var total = 0
+var t = 0
+while t < 4500 {
+    var j = 0
+    while j < particles.size() {
+        var p = particles[j]
+        p.step()
+        total = total + p.pos.norm()
+        j = j + 1
+    }
+    t = t + 1
+}
+print(total)
