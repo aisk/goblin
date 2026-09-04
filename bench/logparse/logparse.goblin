@@ -1,0 +1,33 @@
+# Log line parsing: string building, trimming, splitting, prefix tests and
+# integer conversion, with the results counted in a dict.
+var lines = []
+var i = 0
+while i < 4000 {
+    lines.push("  level=info user=u" + Str(i % 97) + " ms=" + Str(i % 31) + "  ")
+    i = i + 1
+}
+
+var users = {}
+var elapsed = 0
+var round = 0
+while round < 280 {
+    var j = 0
+    while j < lines.size() {
+        var fields = lines[j].trim().split(" ")
+        var k = 0
+        while k < fields.size() {
+            var field = fields[k]
+            if field.has_prefix("user=") {
+                var user = field.trim_prefix("user=")
+                users[user] = users.get(user, default=0) + 1
+            }
+            if field.has_prefix("ms=") {
+                elapsed = elapsed + Int(field.trim_prefix("ms="))
+            }
+            k = k + 1
+        }
+        j = j + 1
+    }
+    round = round + 1
+}
+print(users.size(), elapsed)

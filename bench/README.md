@@ -1,15 +1,18 @@
 # Goblin Benchmarks
 
-Six classic compute-only microbenchmarks, each implemented in **Goblin, Go,
-JavaScript, Lua and Python**. They exist to track Goblin's interpreter and
-transpiler performance against well-understood reference points, and to catch
-behavioural drift between the two Goblin backends — every implementation must
-print byte-identical output.
+Ten benchmarks, each implemented in **Goblin, Go, JavaScript, Lua and Python**.
+They exist to track Goblin's interpreter and transpiler performance against
+well-understood reference points, and to catch behavioural drift between the
+two Goblin backends — every implementation must print byte-identical output.
 
 Nothing here touches the filesystem, the network or the clock, so runs are
 reproducible and the numbers are pure CPU.
 
 ## The benchmarks
+
+Six are classic compute-only microbenchmarks. They are scalar and loop
+dominated, and they say almost nothing about the cost of calling a method or
+passing a keyword argument.
 
 | directory | what it measures | parameters | expected output |
 |---|---|---|---|
@@ -19,6 +22,17 @@ reproducible and the numbers are pure CPU.
 | `nqueens/` | recursive backtracking | `N = 11` | `2680` |
 | `matmul/` | nested loops over indexed 2-D lists | 240×240 | `66354048000` |
 | `hanoi/` | deep recursion, mutating an outer variable | 21 disks | `2097151` |
+
+The other four are shaped like ordinary scripts, and exist because the six
+above missed a whole class of cost: built-in method calls, keyword arguments,
+user types, and functions passed around as values.
+
+| directory | what it measures | parameters | expected output |
+|---|---|---|---|
+| `wordfreq/` | string split, dict updates, sort with a key | 28 words × 150000 rounds | 7 lines of `word count` |
+| `objects/` | user types, method calls, attribute writes, an overloaded operator | 400 particles × 4500 steps | `65827383000000` |
+| `callbacks/` | closures, composition, one call per element through `map`/`filter`/`reduce` | 2000 elements × 1600 rounds | `2135467200` |
+| `logparse/` | string building, trim/split/prefix tests, `Int` conversion, dict counting | 4000 lines × 280 rounds | `97 16795800` |
 
 Sizes are tuned so the Goblin interpreter takes a few seconds per benchmark.
 That makes the compiled languages finish in milliseconds — their numbers
@@ -57,16 +71,19 @@ Latest measurements: [RESULTS.md](RESULTS.md).
 - **Goblin uses `while` loops** rather than `for x in range(...)`, because
   `range()` materialises a real list. That is the idiomatic way to write a hot
   counting loop in Goblin today.
-- Goblin has no `%` operator and no compound assignment (`+=`), so the
-  algorithms are written to avoid both; the other languages follow the same
-  structure for comparability.
+- Goblin has no compound assignment (`+=`), so the algorithms are written
+  without it; the other languages follow the same structure for comparability.
+- Where a language has no counterpart for a Goblin feature, the closest
+  idiomatic thing stands in: Go and JavaScript call an `Add` method where
+  Goblin, Lua and Python overload `+`, and Go, Lua and Python spell out the
+  `map`/`filter`/`reduce` helpers that Goblin and JavaScript have built in.
 
 ## Checking correctness
 
 `run.sh` does not diff outputs. To verify all five languages agree:
 
 ```sh
-for b in fib sieve mandelbrot nqueens matmul hanoi; do
+for b in fib sieve mandelbrot nqueens matmul hanoi wordfreq objects callbacks logparse; do
     go run ./$b/$b.go > /tmp/$b.ref
     for cmd in "python3 $b/$b.py" "lua $b/$b.lua" "node $b/$b.js" "goblin run $b/$b.goblin"; do
         $cmd | diff -q /tmp/$b.ref - >/dev/null || echo "MISMATCH: $b <- $cmd"

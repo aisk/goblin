@@ -12,7 +12,9 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 REPEATS="${1:-5}"
-BENCHES=(fib sieve mandelbrot nqueens matmul hanoi)
+# Two groups: six compute-only microbenchmarks, then four programs shaped like
+# ordinary scripts, which is where the call path shows up.
+BENCHES=(fib sieve mandelbrot nqueens matmul hanoi wordfreq objects callbacks logparse)
 
 GOBLIN="${GOBLIN:-goblin}"
 PYTHON="${PYTHON:-python3}"

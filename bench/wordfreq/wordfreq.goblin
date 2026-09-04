@@ -1,0 +1,35 @@
+# Word frequency counting: string split, dict updates, and a sort with a key.
+var vocab = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta"]
+
+var words = []
+var v = 0
+while v < 7 {
+    var n = 0
+    while n <= v {
+        words.push(vocab[v])
+        n = n + 1
+    }
+    v = v + 1
+}
+var line = words.join(" ")
+
+var counts = {}
+var round = 0
+while round < 150000 {
+    var parts = line.split(" ")
+    var i = 0
+    while i < parts.size() {
+        var w = parts[i]
+        counts[w] = counts.get(w, default=0) + 1
+        i = i + 1
+    }
+    round = round + 1
+}
+
+var items = counts.items()
+items.sort(key=func(item) { return item[1] }, reverse=true)
+var j = 0
+while j < items.size() {
+    print(items[j][0], items[j][1])
+    j = j + 1
+}
