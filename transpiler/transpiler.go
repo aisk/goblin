@@ -1504,7 +1504,7 @@ func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Cod
 // emitParameterBinding emits the statements that bind a CallArgs value (the
 // local named callArgsName) to one Go variable per parameter. It splits params
 // into fixed / *varargs / **kwargs, calls object.BindArguments, and unpacks the
-// resulting map. name is used only for BindArguments diagnostics, defaultsName
+// slice it returns. name is used only for BindArguments diagnostics, defaultsName
 // names the enclosing []object.ParamDefault emitted by emitParamDefaults (""
 // when no parameter has a default), and fnOnError builds the error-return
 // emitted when binding fails. It is shared by named functions, anonymous
@@ -1556,7 +1556,7 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 	}
 
 	// A function without varargs/kwargs that is called with exactly its fixed
-	// parameters, all positional, needs no binding map at all: the parameter
+	// parameters, all positional, needs no binding at all: the parameter
 	// names and their positions are known here, at transpile time. The call
 	// shape is not — functions are first-class values — so the check is emitted
 	// into the generated code, with BindArguments kept as the fallback so
@@ -1581,7 +1581,7 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 			bindCall(),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(fnOnError(errVar)),
 			// A zero-parameter function still needs the call for its arity
-			// check, but then never reads the map.
+			// check, but then never reads the result.
 			jen.Id("_").Op("=").Id(boundName),
 		}
 		for i, param := range fixedParams {
@@ -1775,7 +1775,7 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(bindErrReturn),
 		// A zero-parameter function still needs the call for its arity check,
-		// but then never reads the map.
+		// but then never reads the result.
 		jen.Id("_").Op("=").Id(boundName),
 		jen.Return(jen.Id(info.goName).Call(slowArgs...)),
 	)
