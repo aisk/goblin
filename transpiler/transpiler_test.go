@@ -91,42 +91,45 @@ func transpileSource(t *testing.T, source string) string {
 	return buf.String()
 }
 
-func TestTranspileMemberCallUsesGetAttr(t *testing.T) {
+func TestTranspileMemberCallUsesCallMethod(t *testing.T) {
 	cases := []struct {
 		name     string
 		source   string
-		wantAttr string
+		wantCall string
 	}{
 		{
 			name:     "list literal",
 			source:   "print([1, 2].push(3))\n",
-			wantAttr: `.GetAttr("push")`,
+			wantCall: `"push"`,
 		},
 		{
 			name:     "dict literal",
 			source:   "print({\"a\": 1}.keys())\n",
-			wantAttr: `.GetAttr("keys")`,
+			wantCall: `"keys"`,
 		},
 		{
 			name:     "string literal",
 			source:   "print(\" x \".trim())\n",
-			wantAttr: `.GetAttr("trim")`,
+			wantCall: `"trim"`,
 		},
 		{
 			name:     "variable receiver",
 			source:   "var xs = [1, 2]\nprint(xs.push(3))\n",
-			wantAttr: `.GetAttr("push")`,
+			wantCall: `"push"`,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			code := transpileSource(t, tc.source)
-			if !strings.Contains(code, tc.wantAttr) {
-				t.Fatalf("expected transpiled code to contain %q\n%s", tc.wantAttr, code)
+			if !strings.Contains(code, "object.CallMethod(") {
+				t.Fatalf("expected transpiled code to use object.CallMethod\n%s", code)
 			}
-			if !strings.Contains(code, "object.Call") {
-				t.Fatalf("expected transpiled code to call object.Call fallback\n%s", code)
+			if !strings.Contains(code, tc.wantCall) {
+				t.Fatalf("expected transpiled code to contain %q\n%s", tc.wantCall, code)
+			}
+			if strings.Contains(code, ".GetAttr(") {
+				t.Fatalf("a method call should not go through GetAttr\n%s", code)
 			}
 		})
 	}

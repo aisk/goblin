@@ -106,6 +106,51 @@ func AttributesFunction(obj Object) *Function {
 	}}
 }
 
+// MethodCaller is implemented by types that can run one of their own methods
+// without handing out a bound *Function first. handled reports whether the
+// name is one of the receiver's methods; when it is false the caller falls
+// back to GetAttr, so fields holding a function, "constructor", "attributes"
+// and unknown-attribute errors all keep their original behavior.
+type MethodCaller interface {
+	CallMethod(name string, args CallArgs) (Object, bool, error)
+}
+
+// CallMethod performs `obj.name(args)`. The built-in collection types are
+// dispatched by concrete type rather than through the MethodCaller interface:
+// an interface call is opaque to escape analysis, and args flowing into one is
+// enough to push every call site's argument literal onto the heap. The two
+// paths that do go through something opaque hand over a copy for the same
+// reason.
+func CallMethod(obj Object, name string, args CallArgs) (Object, error) {
+	switch v := obj.(type) {
+	case *List:
+		if result, handled, err := v.CallMethod(name, args); handled {
+			return result, err
+		}
+	case String:
+		if result, handled, err := v.CallMethod(name, args); handled {
+			return result, err
+		}
+	case *Dict:
+		if result, handled, err := v.CallMethod(name, args); handled {
+			return result, err
+		}
+	case Bytes:
+		if result, handled, err := v.CallMethod(name, args); handled {
+			return result, err
+		}
+	case MethodCaller:
+		if result, handled, err := v.CallMethod(name, args.copy()); handled {
+			return result, err
+		}
+	}
+	attr, err := obj.GetAttr(name)
+	if err != nil {
+		return nil, err
+	}
+	return Call(attr, args.copy())
+}
+
 func Call(obj Object, args CallArgs) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:
