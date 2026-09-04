@@ -944,32 +944,59 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 }
 
 func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	// Fast path: when every argument is a plain positional (no *, **, or keyword
-	// argument), the result is a simple slice literal. This avoids emitting the
-	// positional/keyword/callArgs temporaries and per-argument append statements
-	// that the general path below needs, which is the common case for most calls.
-	allPositional := true
+	// Fast path: without * and ** the whole argument list is known here, so it
+	// can be one composite literal instead of a callArgs temporary plus an
+	// append or AddKeyword statement per argument. Beyond the statements it
+	// saves, this is what keeps the argument slice on the stack: a value that
+	// is only ever built and passed does not escape, while one that is
+	// assigned to a local and mutated does.
+	//
+	// Duplicate keyword names are the one case that still needs AddKeyword,
+	// which raises the same error both backends raise.
+	staticShape := true
+	seenKeyword := make(map[string]bool, len(args))
 	for _, arg := range args {
-		if arg.Kind != ast.CallArgumentPositional {
-			allPositional = false
+		switch arg.Kind {
+		case ast.CallArgumentPositional:
+		case ast.CallArgumentKeyword:
+			if seenKeyword[arg.Name] {
+				staticShape = false
+			}
+			seenKeyword[arg.Name] = true
+		default:
+			staticShape = false
+		}
+		if !staticShape {
 			break
 		}
 	}
-	if allPositional {
+	if staticShape {
 		var preStmts []jen.Code
-		argExprs := make([]jen.Code, 0, len(args))
+		positional := make([]jen.Code, 0, len(args))
+		keyword := make([]jen.Code, 0, len(args))
 		for _, arg := range args {
 			argPreStmts, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
 			if err != nil {
 				return nil, nil, err
 			}
 			preStmts = append(preStmts, argPreStmts...)
-			argExprs = append(argExprs, argExpr)
+			if arg.Kind == ast.CallArgumentKeyword {
+				keyword = append(keyword, jen.Values(
+					jen.Id("Name").Op(":").Lit(arg.Name),
+					jen.Id("Value").Op(":").Add(argExpr),
+				))
+				continue
+			}
+			positional = append(positional, argExpr)
 		}
-		callArgs := jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
-			jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(argExprs...),
-		})
-		return preStmts, callArgs, nil
+		fields := jen.Dict{}
+		if len(positional) > 0 {
+			fields[jen.Id("Positional")] = jen.Qual(pathObject, "Args").Values(positional...)
+		}
+		if len(keyword) > 0 {
+			fields[jen.Id("Keyword")] = jen.Qual(pathObject, "Kwargs").Values(keyword...)
+		}
+		return preStmts, jen.Qual(pathObject, "CallArgs").Values(fields), nil
 	}
 
 	callArgsVar := ctx.localName("callArgs")
