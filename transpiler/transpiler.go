@@ -1521,9 +1521,9 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 			// check, but then never reads the map.
 			jen.Id("_").Op("=").Id(boundName),
 		}
-		for _, param := range fixedParams {
+		for i, param := range fixedParams {
 			slowBody = append(slowBody,
-				jen.Id(param.Name).Op("=").Id(boundName).Index(jen.Lit(param.Name)),
+				jen.Id(param.Name).Op("=").Id(boundName).Index(jen.Lit(i)),
 			)
 		}
 
@@ -1540,11 +1540,15 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 		jen.Id("_").Op("=").Id(boundName),
 	}
 
+	// BindArguments returns one slot per fixed parameter in declaration
+	// order, followed by the *varargs list and the **kwargs dict.
+	slot := 0
 	emit := func(param *ast.Parameter) {
 		stmts = append(stmts,
-			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(param.Name)),
+			jen.Var().Id(param.Name).Qual(pathObject, "Object").Op("=").Id(boundName).Index(jen.Lit(slot)),
 			jen.Id("_").Op("=").Id(param.Name),
 		)
+		slot++
 	}
 	for _, param := range fixedParams {
 		emit(param)
@@ -1670,7 +1674,7 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	paramNames := make([]jen.Code, 0, len(params))
 	for i, param := range params {
 		fastArgs = append(fastArgs, jen.Id(callArgsName).Dot("Positional").Index(jen.Lit(i)))
-		slowArgs = append(slowArgs, jen.Id(boundName).Index(jen.Lit(param.Name)))
+		slowArgs = append(slowArgs, jen.Id(boundName).Index(jen.Lit(i)))
 		paramNames = append(paramNames, jen.Lit(param.Name))
 	}
 
@@ -2150,78 +2154,79 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	}
 
 	callArgsName := ctx.localName("callArgs")
-	shadowPositionalName := ctx.localName("positional")
-	shadowKeywordName := ctx.localName("keyword")
-	enrichedCallArgsName := ctx.localName("enriched")
 	boundName := ctx.localName("bound")
 	errVar := ctx.localName("err")
-
-	constructorSetup := []jen.Code{
-		jen.Id(shadowPositionalName).Op(":=").Append(jen.Qual(pathObject, "Args").Values(), jen.Id(callArgsName).Dot("Positional").Op("...")),
-		jen.Id(shadowKeywordName).Op(":=").Qual(pathObject, "Kwargs").Values(),
-	}
-	constructorSetup = append(constructorSetup,
-		jen.For(jen.List(jen.Id("_key"), jen.Id("_value")).Op(":=").Op("range").Id(callArgsName).Dot("Keyword")).Block(
-			jen.Id(shadowKeywordName).Index(jen.Id("_key")).Op("=").Id("_value"),
-		),
-	)
-
-	for index, field := range typeDef.Fields {
-		if !field.HasDefault() {
-			continue
-		}
-		defaultPre, defaultValue, err := ctx.transpileExpression(field.DefaultValue, onError)
-		if err != nil {
-			return nil, err
-		}
-		hasVar := ctx.localName("has")
-		constructorSetup = append(constructorSetup,
-			jen.If(
-				jen.Len(jen.Id(shadowPositionalName)).Op("<=").Lit(index),
-			).BlockFunc(func(group *jen.Group) {
-				group.List(jen.Id("_"), jen.Id(hasVar)).Op(":=").Id(shadowKeywordName).Index(jen.Lit(field.Name))
-				group.If(jen.Op("!").Id(hasVar)).Block(append(defaultPre,
-					jen.Id(shadowKeywordName).Index(jen.Lit(field.Name)).Op("=").Add(defaultValue),
-				)...)
-			}),
-		)
-	}
 
 	fieldNames := make([]jen.Code, 0, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
 		fieldNames = append(fieldNames, jen.Lit(field.Name))
 	}
 
-	constructorSetup = append(constructorSetup,
-		jen.Id(enrichedCallArgsName).Op(":=").Qual(pathObject, "CallArgs").Values(jen.Dict{
-			jen.Id("Positional"): jen.Id(shadowPositionalName),
-			jen.Id("Keyword"):    jen.Id(shadowKeywordName),
-		}),
+	// Field defaults reach BindArguments as lazy closures, so a default is
+	// evaluated only for the call that omits its field, exactly like a
+	// function parameter default.
+	defaultsArg := jen.Nil()
+	hasDefault := false
+	for _, field := range typeDef.Fields {
+		if field.HasDefault() {
+			hasDefault = true
+			break
+		}
+	}
+	if hasDefault {
+		entries := make([]jen.Code, 0, len(typeDef.Fields))
+		for _, field := range typeDef.Fields {
+			if !field.HasDefault() {
+				entries = append(entries, jen.Nil())
+				continue
+			}
+			defaultPre, defaultValue, err := ctx.transpileExpression(field.DefaultValue, func(errVar string) jen.Code {
+				return jen.Return(jen.Nil(), jen.Id(errVar))
+			})
+			if err != nil {
+				return nil, err
+			}
+			entries = append(entries, jen.Func().Params().Parens(jen.List(
+				jen.Qual(pathObject, "Object"), jen.Id("error"),
+			)).Block(append(defaultPre, jen.Return(defaultValue, jen.Nil()))...))
+		}
+		defaultsArg = jen.Index().Qual(pathObject, "ParamDefault").Values(entries...)
+	}
+
+	fastValues := make([]jen.Code, 0, len(typeDef.Fields))
+	slowValues := make([]jen.Code, 0, len(typeDef.Fields))
+	for index, field := range typeDef.Fields {
+		fastValues = append(fastValues,
+			jen.Id(field.Name).Op(":").Id(callArgsName).Dot("Positional").Index(jen.Lit(index)))
+		slowValues = append(slowValues,
+			jen.Id(field.Name).Op(":").Id(boundName).Index(jen.Lit(index)))
+	}
+
+	// A construction that supplies every field positionally needs no binding
+	// at all: the field order is known here. Every other shape goes through
+	// BindArguments, so its diagnostics stay identical.
+	constructorBody := []jen.Code{
+		jen.If(
+			jen.Len(jen.Id(callArgsName).Dot("Keyword")).Op("==").Lit(0).
+				Op("&&").
+				Len(jen.Id(callArgsName).Dot("Positional")).Op("==").Lit(len(typeDef.Fields)),
+		).Block(
+			jen.Return(jen.Op("&").Id(goTypeName).Values(fastValues...), jen.Nil()),
+		),
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(typeDef.Name),
 			jen.Index().String().Values(fieldNames...),
-			jen.Nil(),
+			defaultsArg,
 			jen.Lit(""),
 			jen.Lit(""),
-			jen.Id(enrichedCallArgsName),
+			jen.Id(callArgsName),
 		),
-		jen.Id("_").Op("=").Id(boundName),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(
 			jen.Return(jen.Nil(), jen.Id(errVar)),
 		),
-	)
-
-	instanceValues := make([]jen.Code, 0, len(typeDef.Fields))
-	for _, field := range typeDef.Fields {
-		instanceValues = append(instanceValues,
-			jen.Id(field.Name).Op(":").Id(boundName).Index(jen.Lit(field.Name)),
-		)
+		jen.Id("_").Op("=").Id(boundName),
+		jen.Return(jen.Op("&").Id(goTypeName).Values(slowValues...), jen.Nil()),
 	}
-
-	constructorBody := append(constructorSetup,
-		jen.Id("_instance").Op(":=").Op("&").Id(goTypeName).Values(instanceValues...),
-		jen.Return(jen.Id("_instance"), jen.Nil()),
-	)
 
 	constructorClosure := jen.Func().Params(
 		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),

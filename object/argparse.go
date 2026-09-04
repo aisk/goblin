@@ -1,5 +1,7 @@
 package object
 
+import "strconv"
+
 // ArgParser is a fluent helper for extracting and type-checking the arguments
 // of a builtin function. It removes the boilerplate of manually asserting types
 // and constructing TypeErrors for every parameter.
@@ -17,17 +19,56 @@ package object
 //	if err := p.Finish(); err != nil {
 //		return nil, err
 //	}
+//
+// ArgParser holds nothing that points back into the call arguments. Go's
+// escape analysis does not distinguish a struct's fields: anything the parser
+// hands out, an *Error included, would make the caller's argument slice escape
+// with it. So the pending failure is kept as the message *suffix* (a fresh
+// string, not derived from the arguments) and Finish builds the Error from it,
+// which is what lets a call site's object.Args literal stay on the stack.
 type ArgParser struct {
 	funcName string
 	call     CallArgs
 	pos      int
-	used     map[string]bool
-	err      error
+	// used marks consumed keyword arguments by their index in call.Keyword.
+	// A call with more than 64 keyword arguments spills into usedHigh, which
+	// no real call reaches.
+	used     uint64
+	usedHigh []bool
+	failed   bool
+	errMsg   string
 }
 
 // NewArgParser creates an ArgParser for the given function name and call arguments.
 func NewArgParser(funcName string, call CallArgs) *ArgParser {
-	return &ArgParser{funcName: funcName, call: call, used: make(map[string]bool)}
+	return &ArgParser{funcName: funcName, call: call}
+}
+
+// fail records the first failure, as the part of the message that follows the
+// function name.
+func (p *ArgParser) fail(msg string) {
+	if !p.failed {
+		p.failed = true
+		p.errMsg = msg
+	}
+}
+
+func (p *ArgParser) isUsed(i int) bool {
+	if i < 64 {
+		return p.used&(1<<uint(i)) != 0
+	}
+	return i-64 < len(p.usedHigh) && p.usedHigh[i-64]
+}
+
+func (p *ArgParser) markUsed(i int) {
+	if i < 64 {
+		p.used |= 1 << uint(i)
+		return
+	}
+	if p.usedHigh == nil {
+		p.usedHigh = make([]bool, len(p.call.Keyword)-64)
+	}
+	p.usedHigh[i-64] = true
 }
 
 // RequireNoArgs rejects any positional or keyword argument. It is the
@@ -41,18 +82,21 @@ func RequireNoArgs(funcName string, call CallArgs) error {
 // available (a required argument is missing) or when the parser is already in an
 // error state.
 func (p *ArgParser) next(name string) (Object, bool) {
-	if p.err != nil {
+	if p.failed {
 		return nil, false
 	}
-	if v, ok := p.call.Keyword[name]; ok {
+	for i := range p.call.Keyword {
+		if p.call.Keyword[i].Name != name {
+			continue
+		}
 		// An unconsumed positional slot would have bound to this parameter,
 		// so the caller supplied it both positionally and by keyword.
-		if p.used[name] || p.pos < len(p.call.Positional) {
-			p.err = NewTypeError("%s() got multiple values for argument '%s'", p.funcName, name)
+		if p.isUsed(i) || p.pos < len(p.call.Positional) {
+			p.fail("() got multiple values for argument '" + name + "'")
 			return nil, false
 		}
-		p.used[name] = true
-		return v, true
+		p.markUsed(i)
+		return p.call.Keyword[i].Value, true
 	}
 	if p.pos < len(p.call.Positional) {
 		v := p.call.Positional[p.pos]
@@ -66,8 +110,8 @@ func (p *ArgParser) next(name string) (Object, bool) {
 // when absent.
 func (p *ArgParser) required(name string) (Object, bool) {
 	v, ok := p.next(name)
-	if !ok && p.err == nil {
-		p.err = NewTypeError("%s() missing required argument: '%s'", p.funcName, name)
+	if !ok {
+		p.fail("() missing required argument: '" + name + "'")
 	}
 	return v, ok
 }
@@ -75,9 +119,7 @@ func (p *ArgParser) required(name string) (Object, bool) {
 // typeErr records a type mismatch error for the given argument, unless one is
 // already pending.
 func (p *ArgParser) typeErr(name, want string, got Object) {
-	if p.err == nil {
-		p.err = NewTypeError("%s() argument '%s' must be %s, got %s", p.funcName, name, want, got.TypeName())
-	}
+	p.fail("() argument '" + name + "' must be " + want + ", got " + got.TypeName())
 }
 
 // Any returns the raw Object bound to a required argument.
@@ -288,7 +330,7 @@ func (p *ArgParser) Float64(name string) float64 {
 // Rest consumes and returns all remaining positional arguments. It should be
 // called after the fixed positional accessors and captures the variadic tail.
 func (p *ArgParser) Rest() Args {
-	if p.err != nil {
+	if p.failed {
 		return nil
 	}
 	rest := p.call.Positional[p.pos:]
@@ -300,15 +342,16 @@ func (p *ArgParser) Rest() Args {
 // unconsumed positional arguments or unexpected keyword arguments. Callers that
 // accept an open-ended argument list should call Rest before Finish.
 func (p *ArgParser) Finish() error {
-	if p.err != nil {
-		return p.err
+	if p.failed {
+		return NewTypeErrorText(p.funcName + p.errMsg)
 	}
 	if p.pos < len(p.call.Positional) {
-		return NewTypeError("%s() takes %d positional arguments, got %d", p.funcName, p.pos, len(p.call.Positional))
+		return NewTypeErrorText(p.funcName + "() takes " + strconv.Itoa(p.pos) +
+			" positional arguments, got " + strconv.Itoa(len(p.call.Positional)))
 	}
-	for key := range p.call.Keyword {
-		if !p.used[key] {
-			return NewTypeError("%s() got an unexpected keyword argument '%s'", p.funcName, key)
+	for i := range p.call.Keyword {
+		if !p.isUsed(i) {
+			return NewTypeErrorText(p.funcName + "() got an unexpected keyword argument '" + p.call.Keyword[i].Name + "'")
 		}
 	}
 	return nil

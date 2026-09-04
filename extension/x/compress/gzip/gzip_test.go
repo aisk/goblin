@@ -26,7 +26,7 @@ func TestGzipCompressToDest(t *testing.T) {
 	var buffer bytes.Buffer
 	result, err := gzipCompress(object.CallArgs{
 		Positional: object.Args{object.String("stream me")},
-		Keyword:    map[string]object.Object{"dest": modtest.DestRecorder(&buffer)},
+		Keyword:    object.Kwargs{{Name: "dest", Value: modtest.DestRecorder(&buffer)}},
 	})
 	if err != nil {
 		t.Fatalf("compress() error = %v", err)
@@ -47,7 +47,7 @@ func TestGzipCompressToDest(t *testing.T) {
 func TestDestMustBeWriter(t *testing.T) {
 	_, err := gzipCompress(object.CallArgs{
 		Positional: object.Args{object.String("data")},
-		Keyword:    map[string]object.Object{"dest": object.Integer(1)},
+		Keyword:    object.Kwargs{{Name: "dest", Value: object.Integer(1)}},
 	})
 	if err == nil {
 		t.Fatal("compress(dest=1) succeeded, want TypeError")

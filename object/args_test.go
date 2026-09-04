@@ -16,11 +16,8 @@ func TestBindArgumentsSuccess(t *testing.T) {
 	if len(bound) != 2 {
 		t.Fatalf("expected 2 bound values, got %d", len(bound))
 	}
-	if _, ok := bound["a"]; !ok {
-		t.Fatalf("expected 'a' to be bound")
-	}
-	if _, ok := bound["b"]; !ok {
-		t.Fatalf("expected 'b' to be bound")
+	if bound[0] != Integer(1) || bound[1] != Integer(2) {
+		t.Fatalf("unexpected bound values: %#v", bound)
 	}
 }
 
@@ -52,13 +49,13 @@ func TestBindArgumentsKeyword(t *testing.T) {
 	bound, err := BindArguments("f", []string{"a", "b"}, nil, "", "", CallArgs{
 		Positional: Args{Integer(1)},
 		Keyword: Kwargs{
-			"b": Integer(2),
+			{Name: "b", Value: Integer(2)},
 		},
 	})
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	if bound["a"] != Integer(1) || bound["b"] != Integer(2) {
+	if bound[0] != Integer(1) || bound[1] != Integer(2) {
 		t.Fatalf("unexpected bound values: %#v", bound)
 	}
 }
@@ -67,7 +64,7 @@ func TestBindArgumentsDuplicateValue(t *testing.T) {
 	_, err := BindArguments("f", []string{"a"}, nil, "", "", CallArgs{
 		Positional: Args{Integer(1)},
 		Keyword: Kwargs{
-			"a": Integer(2),
+			{Name: "a", Value: Integer(2)},
 		},
 	})
 	if err == nil {
@@ -81,7 +78,7 @@ func TestBindArgumentsDuplicateValue(t *testing.T) {
 func TestBindArgumentsUnexpectedKeyword(t *testing.T) {
 	_, err := BindArguments("f", []string{"a"}, nil, "", "", CallArgs{
 		Keyword: Kwargs{
-			"x": Integer(1),
+			{Name: "x", Value: Integer(1)},
 		},
 	})
 	if err == nil {
@@ -96,20 +93,20 @@ func TestBindArgumentsVarArgsAndKwArgs(t *testing.T) {
 	bound, err := BindArguments("f", []string{"a"}, nil, "args", "kwargs", CallArgs{
 		Positional: Args{Integer(1), Integer(2), Integer(3)},
 		Keyword: Kwargs{
-			"x": Integer(4),
+			{Name: "x", Value: Integer(4)},
 		},
 	})
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 
-	args, ok := bound["args"].(*List)
+	args, ok := bound[1].(*List)
 	if !ok || len(args.Elements) != 2 {
-		t.Fatalf("expected args list, got %#v", bound["args"])
+		t.Fatalf("expected args list, got %#v", bound[1])
 	}
-	kwargs, ok := bound["kwargs"].(*Dict)
+	kwargs, ok := bound[2].(*Dict)
 	if !ok {
-		t.Fatalf("expected kwargs dict, got %#v", bound["kwargs"])
+		t.Fatalf("expected kwargs dict, got %#v", bound[2])
 	}
 	if _, ok, _ := kwargs.Get(String("x")); !ok {
 		t.Fatalf("expected kwargs to contain key x")
@@ -124,7 +121,7 @@ func TestBindArgumentsDefaultUsed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	if bound["a"] != Integer(1) || bound["b"] != Integer(42) {
+	if bound[0] != Integer(1) || bound[1] != Integer(42) {
 		t.Fatalf("unexpected bound values: %#v", bound)
 	}
 }
@@ -138,13 +135,13 @@ func TestBindArgumentsDefaultOverridden(t *testing.T) {
 	bound, err := BindArguments("f", []string{"a", "b"}, defaults, "", "", CallArgs{
 		Positional: Args{Integer(1)},
 		Keyword: Kwargs{
-			"b": Integer(2),
+			{Name: "b", Value: Integer(2)},
 		},
 	})
 	if err != nil {
 		t.Fatalf("expected nil error, got %v", err)
 	}
-	if bound["b"] != Integer(2) {
+	if bound[1] != Integer(2) {
 		t.Fatalf("unexpected bound values: %#v", bound)
 	}
 	if called {

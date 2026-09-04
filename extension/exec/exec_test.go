@@ -42,10 +42,10 @@ func helperCommand(t *testing.T, helperArgs ...string) *Cmd {
 	env.Set(object.String("GOCOVERDIR"), object.String(t.TempDir()))
 	obj, err := command(object.CallArgs{
 		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: argObjects}},
-		Keyword: map[string]object.Object{
-			"env":    env,
-			"stdout": capture,
-			"stderr": capture,
+		Keyword: object.Kwargs{
+			{Name: "env", Value: env},
+			{Name: "stdout", Value: capture},
+			{Name: "stderr", Value: capture},
 		},
 	})
 	if err != nil {
@@ -137,10 +137,10 @@ func TestOutputToDuckWriter(t *testing.T) {
 			object.String("-test.run=TestHelperProcess"), object.String("--"),
 			object.String("duck-out"), object.String("duck-err"),
 		}}},
-		Keyword: map[string]object.Object{
-			"env":    env,
-			"stdout": recorder(&stdout),
-			"stderr": recorder(&stderr),
+		Keyword: object.Kwargs{
+			{Name: "env", Value: env},
+			{Name: "stdout", Value: recorder(&stdout)},
+			{Name: "stderr", Value: recorder(&stderr)},
 		},
 	})
 	if err != nil {
@@ -160,7 +160,7 @@ func TestOutputToDuckWriter(t *testing.T) {
 func TestOutputRejectsNonWriter(t *testing.T) {
 	_, err := command(object.CallArgs{
 		Positional: []object.Object{object.String("true")},
-		Keyword:    map[string]object.Object{"stdout": object.Integer(1)},
+		Keyword:    object.Kwargs{{Name: "stdout", Value: object.Integer(1)}},
 	})
 	if err == nil {
 		t.Fatal("Command(stdout=1) succeeded, want TypeError")

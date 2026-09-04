@@ -35,7 +35,7 @@ func TestCSVWriteAllToDest(t *testing.T) {
 	var buffer bytes.Buffer
 	result, err := csvWriteAll(object.CallArgs{
 		Positional: object.Args{records},
-		Keyword:    map[string]object.Object{"dest": modtest.DestRecorder(&buffer)},
+		Keyword:    object.Kwargs{{Name: "dest", Value: modtest.DestRecorder(&buffer)}},
 	})
 	if err != nil {
 		t.Fatalf("write_all() error = %v", err)

@@ -17,7 +17,7 @@ func TestRandIntForms(t *testing.T) {
 		if unbounded.(object.Integer) < 0 {
 			t.Fatalf("int() = %d, want non-negative", unbounded)
 		}
-		bounded, err := r.randomInt(object.CallArgs{Keyword: object.Kwargs{"max": object.Integer(10)}})
+		bounded, err := r.randomInt(object.CallArgs{Keyword: object.Kwargs{{Name: "max", Value: object.Integer(10)}}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -57,7 +57,7 @@ func TestRandSeedIsReproducible(t *testing.T) {
 }
 
 func TestRandConstructorSeed(t *testing.T) {
-	obj, err := randConstructor(object.CallArgs{Keyword: object.Kwargs{"seed": object.Integer(-9)}})
+	obj, err := randConstructor(object.CallArgs{Keyword: object.Kwargs{{Name: "seed", Value: object.Integer(-9)}}})
 	if err != nil {
 		t.Fatal(err)
 	}

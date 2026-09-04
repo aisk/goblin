@@ -429,8 +429,8 @@ func DictConstructor(args CallArgs) (Object, error) {
 		return nil, NewTypeError("Dict() takes no positional arguments, got %d", len(args.Positional))
 	}
 	result := NewDict()
-	for k, v := range args.Keyword {
-		if err := result.Set(String(k), v); err != nil {
+	for _, kw := range args.Keyword {
+		if err := result.Set(String(kw.Name), kw.Value); err != nil {
 			return nil, err
 		}
 	}

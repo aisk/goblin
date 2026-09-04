@@ -5,31 +5,53 @@ import (
 )
 
 type Args []Object
-type Kwargs map[string]Object
+
+// KwArg is one keyword argument, paired with the name it was supplied under.
+type KwArg struct {
+	Name  string
+	Value Object
+}
+
+// Kwargs holds a call's keyword arguments in the order they were supplied. A
+// call carries a handful of keywords at most, so a linear scan beats the map
+// this used to be: the map had to be allocated on every call that passed even
+// one keyword argument, which the argument-parsing path then paid for again.
+type Kwargs []KwArg
+
+// Get returns the value supplied under name, reporting whether it was present.
+func (k Kwargs) Get(name string) (Object, bool) {
+	for i := range k {
+		if k[i].Name == name {
+			return k[i].Value, true
+		}
+	}
+	return nil, false
+}
+
+// Set binds name to value, replacing an existing binding of that name.
+func (k *Kwargs) Set(name string, value Object) {
+	for i := range *k {
+		if (*k)[i].Name == name {
+			(*k)[i].Value = value
+			return
+		}
+	}
+	*k = append(*k, KwArg{Name: name, Value: value})
+}
 
 type CallArgs struct {
 	Positional Args
 	Keyword    Kwargs
 }
 
-func (c CallArgs) keywordOrEmpty() Kwargs {
-	if c.Keyword == nil {
-		return Kwargs{}
-	}
-	return c.Keyword
-}
-
 // AddKeyword records one keyword argument, rejecting a name that was already
 // supplied. Both backends build keyword arguments through this so duplicate
 // detection behaves identically.
 func (c *CallArgs) AddKeyword(name string, value Object) error {
-	if _, exists := c.Keyword[name]; exists {
+	if _, exists := c.Keyword.Get(name); exists {
 		return NewTypeError("got multiple values for argument '%s'", name)
 	}
-	if c.Keyword == nil {
-		c.Keyword = Kwargs{}
-	}
-	c.Keyword[name] = value
+	c.Keyword = append(c.Keyword, KwArg{Name: name, Value: value})
 	return nil
 }
 
@@ -54,7 +76,7 @@ func (c *CallArgs) UnpackKeywords(v Object) error {
 }
 
 // Scope is anything argument binding can write bindings into, letting callers
-// skip the intermediate map that BindArguments returns.
+// skip the intermediate slice that BindArguments returns.
 type Scope interface {
 	Define(name string, v Object)
 }
@@ -79,63 +101,77 @@ func BindArgumentsInto(funcName string, params []string, defaults []ParamDefault
 	if err != nil {
 		return err
 	}
-	for name, value := range bound {
-		scope.Define(name, value)
+	for i, param := range params {
+		scope.Define(param, bound[i])
+	}
+	next := len(params)
+	if varArgsParam != "" {
+		scope.Define(varArgsParam, bound[next])
+		next++
+	}
+	if kwArgsParam != "" {
+		scope.Define(kwArgsParam, bound[next])
 	}
 	return nil
 }
 
-// BindArguments binds positional and keyword arguments to parameter names.
-// defaults is either nil or parallel to params, with a nil entry per required
-// parameter. varArgsParam and kwArgsParam are optional capture parameter names.
-func BindArguments(funcName string, params []string, defaults []ParamDefault, varArgsParam, kwArgsParam string, call CallArgs) (map[string]Object, error) {
+// BindArguments binds positional and keyword arguments to parameters, returning
+// one value per parameter in declaration order, followed by the *varargs list
+// and the **kwargs dict when those capture parameters are declared. defaults is
+// either nil or parallel to params, with a nil entry per required parameter.
+func BindArguments(funcName string, params []string, defaults []ParamDefault, varArgsParam, kwArgsParam string, call CallArgs) ([]Object, error) {
 	if varArgsParam == "" && len(call.Positional) > len(params) {
 		return nil, NewTypeError("%s() takes %d positional arguments, got %d", funcName, len(params), len(call.Positional))
 	}
 
-	// Fast path for the overwhelmingly common call shape: only fixed
-	// parameters, all supplied positionally. Skips the index and kwExtras
-	// maps, which the general path below allocates on every single call.
-	if varArgsParam == "" && kwArgsParam == "" && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
-		bound := make(map[string]Object, len(params))
-		for i, param := range params {
-			bound[param] = call.Positional[i]
-		}
-		return bound, nil
+	extra := 0
+	if varArgsParam != "" {
+		extra++
 	}
+	if kwArgsParam != "" {
+		extra++
+	}
+	bound := make([]Object, len(params)+extra)
 
-	bound := make(map[string]Object, len(params)+2)
-	index := make(map[string]int, len(params))
-	for i, param := range params {
-		index[param] = i
+	// Fast path for the overwhelmingly common call shape: only fixed
+	// parameters, all supplied positionally.
+	if extra == 0 && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
+		copy(bound, call.Positional)
+		return bound, nil
 	}
 
 	fixedCount := len(call.Positional)
 	if fixedCount > len(params) {
 		fixedCount = len(params)
 	}
+	copy(bound, call.Positional[:fixedCount])
 
-	for i := 0; i < fixedCount; i++ {
-		bound[params[i]] = call.Positional[i]
-	}
-
-	kwExtras := make(map[string]Object)
-	for key, value := range call.keywordOrEmpty() {
-		if _, ok := index[key]; ok {
-			if _, exists := bound[key]; exists {
-				return nil, NewTypeError("%s() got multiple values for argument '%s'", funcName, key)
+	var kwExtras Kwargs
+	for _, kw := range call.Keyword {
+		index := -1
+		for i, param := range params {
+			if param == kw.Name {
+				index = i
+				break
 			}
-			bound[key] = value
+		}
+		if index >= 0 {
+			// Every slot below fixedCount already took a positional
+			// argument, so a keyword naming one is a second value for it.
+			if index < fixedCount {
+				return nil, NewTypeError("%s() got multiple values for argument '%s'", funcName, kw.Name)
+			}
+			bound[index] = kw.Value
 			continue
 		}
 		if kwArgsParam == "" {
-			return nil, NewTypeError("%s() got an unexpected keyword argument '%s'", funcName, key)
+			return nil, NewTypeError("%s() got an unexpected keyword argument '%s'", funcName, kw.Name)
 		}
-		kwExtras[key] = value
+		kwExtras = append(kwExtras, kw)
 	}
 
 	for i, param := range params {
-		if _, ok := bound[param]; ok {
+		if bound[i] != nil {
 			continue
 		}
 		if i < len(defaults) && defaults[i] != nil {
@@ -143,34 +179,31 @@ func BindArguments(funcName string, params []string, defaults []ParamDefault, va
 			if err != nil {
 				return nil, err
 			}
-			bound[param] = value
+			bound[i] = value
 			continue
 		}
 		return nil, NewTypeError("%s() missing required positional argument: '%s'", funcName, param)
 	}
 
+	next := len(params)
 	if varArgsParam != "" {
 		rest := []Object{}
 		if len(call.Positional) > len(params) {
 			rest = append(rest, call.Positional[len(params):]...)
 		}
-		bound[varArgsParam] = &List{Elements: rest}
+		bound[next] = &List{Elements: rest}
+		next++
 	}
 
 	if kwArgsParam != "" {
-		keys := make([]string, 0, len(kwExtras))
-		for key := range kwExtras {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-
+		sort.Slice(kwExtras, func(i, j int) bool { return kwExtras[i].Name < kwExtras[j].Name })
 		d := NewDict()
-		for _, key := range keys {
-			if err := d.Set(String(key), kwExtras[key]); err != nil {
+		for _, kw := range kwExtras {
+			if err := d.Set(String(kw.Name), kw.Value); err != nil {
 				return nil, err
 			}
 		}
-		bound[kwArgsParam] = d
+		bound[next] = d
 	}
 
 	return bound, nil

@@ -91,7 +91,7 @@ func TestGoblinWaitTimeout(t *testing.T) {
 		<-release
 		return Nil, nil
 	})
-	_, err := g.Wait(CallArgs{Keyword: map[string]Object{"timeout": Float(0.01)}})
+	_, err := g.Wait(CallArgs{Keyword: Kwargs{{Name: "timeout", Value: Float(0.01)}}})
 	if !errors.Is(err, TimeoutError) {
 		t.Fatalf("wait(timeout) error = %v, want TimeoutError", err)
 	}
@@ -102,7 +102,7 @@ func TestGoblinWaitNilTimeoutMeansForever(t *testing.T) {
 		time.Sleep(10 * time.Millisecond)
 		return Integer(3), nil
 	})
-	got, err := g.Wait(CallArgs{Keyword: map[string]Object{"timeout": Nil}})
+	got, err := g.Wait(CallArgs{Keyword: Kwargs{{Name: "timeout", Value: Nil}}})
 	if err != nil || got != Integer(3) {
 		t.Fatalf("wait(timeout=nil) = %v, %v", got, err)
 	}
@@ -110,10 +110,10 @@ func TestGoblinWaitNilTimeoutMeansForever(t *testing.T) {
 
 func TestGoblinWaitRejectsBadTimeout(t *testing.T) {
 	g := startGoblin(t, func(CallArgs) (Object, error) { return Nil, nil })
-	if _, err := g.Wait(CallArgs{Keyword: map[string]Object{"timeout": String("x")}}); err == nil {
+	if _, err := g.Wait(CallArgs{Keyword: Kwargs{{Name: "timeout", Value: String("x")}}}); err == nil {
 		t.Fatal("wait(timeout=str) should fail")
 	}
-	if _, err := g.Wait(CallArgs{Keyword: map[string]Object{"timeout": Float(-1)}}); err == nil {
+	if _, err := g.Wait(CallArgs{Keyword: Kwargs{{Name: "timeout", Value: Float(-1)}}}); err == nil {
 		t.Fatal("wait(timeout=-1) should fail")
 	}
 }

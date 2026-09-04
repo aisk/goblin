@@ -56,7 +56,7 @@ func TestOsArgv(t *testing.T) {
 	if _, err := fn.Call(object.CallArgs{Positional: object.Args{object.Integer(1)}}); err == nil {
 		t.Fatal("os.argv(1) should fail")
 	}
-	if _, err := fn.Call(object.CallArgs{Keyword: object.Kwargs{"x": object.Integer(1)}}); err == nil {
+	if _, err := fn.Call(object.CallArgs{Keyword: object.Kwargs{{Name: "x", Value: object.Integer(1)}}}); err == nil {
 		t.Fatal("os.argv(x=1) should fail")
 	}
 }

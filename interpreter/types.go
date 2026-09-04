@@ -80,19 +80,24 @@ func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 	return &instance{typ: t, fields: fields}, nil
 }
 
-func (t *goblinType) hasField(name string) bool {
-	for _, f := range t.fields {
+// fieldIndex locates a declared field by name, returning -1 when the type has
+// no such field. Instances store their fields as a slice in declaration order,
+// so this is how a name reaches a slot.
+func (t *goblinType) fieldIndex(name string) int {
+	for i, f := range t.fields {
 		if f.Name == name {
-			return true
+			return i
 		}
 	}
-	return false
+	return -1
 }
 
 // instance is a value of a user-defined type. It implements object.Object.
+// Fields are stored in declaration order, matching what object.BindArguments
+// returns, so construction needs no per-instance map.
 type instance struct {
 	typ    *goblinType
-	fields map[string]object.Object
+	fields []object.Object
 }
 
 var _ object.Object = (*instance)(nil)
@@ -132,8 +137,8 @@ func (in *instance) GetAttr(name string) (object.Object, error) {
 	if name == "constructor" {
 		return in.typ.constructor, nil
 	}
-	if v, ok := in.fields[name]; ok {
-		return v, nil
+	if i := in.typ.fieldIndex(name); i >= 0 {
+		return in.fields[i], nil
 	}
 	if name == "attributes" {
 		return object.AttributesFunction(in), nil
@@ -155,8 +160,8 @@ func (in *instance) Attributes() []string {
 // SetAttr always handles the assignment: an instance accepts writes to its own
 // fields and reports any other name as a missing attribute.
 func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
-	if in.typ.hasField(name) {
-		in.fields[name] = value
+	if i := in.typ.fieldIndex(name); i >= 0 {
+		in.fields[i] = value
 		return true, nil
 	}
 	return true, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)

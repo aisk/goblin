@@ -67,7 +67,7 @@ func TestPrintAndEprintRejectKeywords(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := tc.fn(object.CallArgs{
 				Positional: []object.Object{object.String("x")},
-				Keyword:    object.Kwargs{"file": object.String("stderr")},
+				Keyword:    object.Kwargs{{Name: "file", Value: object.String("stderr")}},
 			})
 			if err == nil {
 				t.Fatal("expected error for keyword args")

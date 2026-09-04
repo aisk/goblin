@@ -21,7 +21,7 @@ func callMethod(t *testing.T, obj Object, name string, args CallArgs) Object {
 func TestListMethodsUseNamedAndDefaultArguments(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(2), Integer(2), Integer(3)}}
 
-	if got := callMethod(t, list, "index", CallArgs{Keyword: map[string]Object{"value": Integer(2), "start": Integer(2)}}); got != Integer(2) {
+	if got := callMethod(t, list, "index", CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(2)}, {Name: "start", Value: Integer(2)}}}); got != Integer(2) {
 		t.Fatalf("index = %v, want 2", got)
 	}
 	if got := callMethod(t, list, "count", CallArgs{Positional: Args{Integer(2)}}); got != Integer(2) {
@@ -30,7 +30,7 @@ func TestListMethodsUseNamedAndDefaultArguments(t *testing.T) {
 	if got := callMethod(t, list, "pop", CallArgs{}); got != Integer(3) {
 		t.Fatalf("pop() = %v, want 3", got)
 	}
-	if got := callMethod(t, list, "pop", CallArgs{Keyword: map[string]Object{"index": Integer(-2)}}); got != Integer(2) {
+	if got := callMethod(t, list, "pop", CallArgs{Keyword: Kwargs{{Name: "index", Value: Integer(-2)}}}); got != Integer(2) {
 		t.Fatalf("pop(index=-2) = %v, want 2", got)
 	}
 }
@@ -50,11 +50,11 @@ func TestListFirstAndLastDoNotMutate(t *testing.T) {
 
 func TestChanSendAcceptsValueByKeyword(t *testing.T) {
 	channel := NewChan(1)
-	callMethod(t, channel, "send", CallArgs{Keyword: Kwargs{"value": Integer(1)}})
+	callMethod(t, channel, "send", CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(1)}}})
 	if got := callMethod(t, channel, "recv", CallArgs{}); got != Integer(1) {
 		t.Fatalf("recv = %v, want 1", got)
 	}
-	if _, err := Call(mustAttr(t, channel, "send"), CallArgs{Keyword: Kwargs{"bogus": Integer(1)}}); err == nil {
+	if _, err := Call(mustAttr(t, channel, "send"), CallArgs{Keyword: Kwargs{{Name: "bogus", Value: Integer(1)}}}); err == nil {
 		t.Fatal("send(bogus=...) should reject an unknown keyword argument")
 	}
 }
@@ -70,7 +70,7 @@ func mustAttr(t *testing.T, obj Object, name string) Object {
 
 func TestListMutationMethods(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(3)}}
-	callMethod(t, list, "insert", CallArgs{Keyword: map[string]Object{"index": Integer(1), "value": Integer(2)}})
+	callMethod(t, list, "insert", CallArgs{Keyword: Kwargs{{Name: "index", Value: Integer(1)}, {Name: "value", Value: Integer(2)}}})
 	if list.String() != "[1, 2, 3]" {
 		t.Fatalf("insert result = %s", list)
 	}
@@ -88,13 +88,13 @@ func TestDictQueryMutationAndDefaults(t *testing.T) {
 	dict := NewDict()
 	dict.Set(String("a"), Integer(1))
 
-	if got := callMethod(t, dict, "get", CallArgs{Keyword: map[string]Object{"key": String("missing"), "default": Integer(9)}}); got != Integer(9) {
+	if got := callMethod(t, dict, "get", CallArgs{Keyword: Kwargs{{Name: "key", Value: String("missing")}, {Name: "default", Value: Integer(9)}}}); got != Integer(9) {
 		t.Fatalf("get default = %v, want 9", got)
 	}
 	if got := callMethod(t, dict, "set_default", CallArgs{Positional: Args{String("b"), Integer(2)}}); got != Integer(2) {
 		t.Fatalf("set_default = %v, want 2", got)
 	}
-	if got := callMethod(t, dict, "pop", CallArgs{Keyword: map[string]Object{"key": String("b")}}); got != Integer(2) {
+	if got := callMethod(t, dict, "pop", CallArgs{Keyword: Kwargs{{Name: "key", Value: String("b")}}}); got != Integer(2) {
 		t.Fatalf("pop = %v, want 2", got)
 	}
 	if got := callMethod(t, dict, "contains", CallArgs{Positional: Args{String("b")}}); got != False {
@@ -118,10 +118,10 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		args CallArgs
 		want string
 	}{
-		{IntConstructorFn, CallArgs{Keyword: map[string]Object{"value": String("12")}}, "12"},
-		{FloatConstructorFn, CallArgs{Keyword: map[string]Object{"value": Integer(2)}}, "2"},
-		{BoolConstructorFn, CallArgs{Keyword: map[string]Object{"value": String("")}}, "false"},
-		{ListConstructorFn, CallArgs{Keyword: map[string]Object{"iterable": String("ab")}}, `["a", "b"]`},
+		{IntConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: String("12")}}}, "12"},
+		{FloatConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(2)}}}, "2"},
+		{BoolConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: String("")}}}, "false"},
+		{ListConstructorFn, CallArgs{Keyword: Kwargs{{Name: "iterable", Value: String("ab")}}}, `["a", "b"]`},
 	}
 	for _, tt := range tests {
 		got, err := tt.fn.Call(tt.args)
@@ -191,7 +191,7 @@ func TestListFunctionalMethods(t *testing.T) {
 		Positional: Args{&Function{Fn: func(args CallArgs) (Object, error) {
 			return args.Positional[0].(Integer) + args.Positional[1].(Integer), nil
 		}}},
-		Keyword: Kwargs{"initial": Integer(10)},
+		Keyword: Kwargs{{Name: "initial", Value: Integer(10)}},
 	})
 	if gotReduceInitial != Integer(20) {
 		t.Fatalf("reduce with initial result = %v, want 20", gotReduceInitial)
@@ -254,7 +254,7 @@ func TestListSort(t *testing.T) {
 	}
 
 	// reverse sort
-	callMethod(t, list, "sort", CallArgs{Keyword: Kwargs{"reverse": True}})
+	callMethod(t, list, "sort", CallArgs{Keyword: Kwargs{{Name: "reverse", Value: True}}})
 	if list.String() != "[4, 3, 2, 1]" {
 		t.Fatalf("reverse sort result = %s", list)
 	}
@@ -264,9 +264,11 @@ func TestListSort(t *testing.T) {
 		&List{Elements: []Object{Integer(2), String("b")}},
 		&List{Elements: []Object{Integer(1), String("a")}},
 	}}
-	callMethod(t, list2, "sort", CallArgs{Keyword: Kwargs{"key": &Function{Fn: func(args CallArgs) (Object, error) {
-		return args.Positional[0].(*List).Elements[0], nil
-	}}}})
+	callMethod(t, list2, "sort", CallArgs{Keyword: Kwargs{
+		{Name: "key", Value: &Function{Fn: func(args CallArgs) (Object, error) {
+			return args.Positional[0].(*List).Elements[0], nil
+		}}},
+	}})
 	if list2.Elements[0].(*List).Elements[0] != Integer(1) {
 		t.Fatalf("sort with key result = %s", list2)
 	}
@@ -393,7 +395,7 @@ func TestConversionErrorsPropagate(t *testing.T) {
 	}
 
 	sortable := &List{Elements: []Object{Integer(3), Integer(1)}}
-	args := CallArgs{Keyword: map[string]Object{"reverse": obj}}
+	args := CallArgs{Keyword: Kwargs{{Name: "reverse", Value: obj}}}
 	if _, err := sortable.sortMethod(args); err == nil {
 		t.Fatal("sort() should propagate a failing ToBool for reverse")
 	}

@@ -320,6 +320,14 @@ func typedError(base *Error, format string, a ...any) *Error {
 // used throughout the runtime in place of fmt.Errorf so that raised failures can
 // be caught by kind.
 func NewTypeError(format string, a ...any) *Error { return typedError(TypeError, format, a...) }
+
+// NewTypeErrorText tags a ready-made message as a TypeError. It skips the
+// fmt pass, which matters on the argument-parsing path: passing a value
+// through ...any boxes it, and that box is enough to make the caller's whole
+// argument list escape to the heap.
+func NewTypeErrorText(message string) *Error {
+	return &Error{Value: message, Wrapped: TypeError}
+}
 func NewValueError(format string, a ...any) *Error {
 	return typedError(ValueError, format, a...)
 }

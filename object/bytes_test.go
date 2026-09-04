@@ -61,26 +61,26 @@ func TestStringEncode(t *testing.T) {
 
 func TestBytesSearchMethodsAcceptStringAndKeywords(t *testing.T) {
 	b := Bytes("one two one")
-	if got := callBytesMethod(t, b, "contains", CallArgs{Keyword: Kwargs{"sub": String("two")}}); got != True {
+	if got := callBytesMethod(t, b, "contains", CallArgs{Keyword: Kwargs{{Name: "sub", Value: String("two")}}}); got != True {
 		t.Fatalf("contains = %v", got)
 	}
 	if got := callBytesMethod(t, b, "count", CallArgs{Positional: Args{Bytes("one")}}); got != Integer(2) {
 		t.Fatalf("count = %v", got)
 	}
-	if got := callBytesMethod(t, b, "last_index", CallArgs{Keyword: Kwargs{"sub": String("one")}}); got != Integer(8) {
+	if got := callBytesMethod(t, b, "last_index", CallArgs{Keyword: Kwargs{{Name: "sub", Value: String("one")}}}); got != Integer(8) {
 		t.Fatalf("last_index = %v", got)
 	}
 }
 
 func TestBytesReplaceSplitAndTrimDefaults(t *testing.T) {
 	replaced := callBytesMethod(t, Bytes("a-a-a"), "replace", CallArgs{
-		Positional: Args{String("a"), Bytes("b")}, Keyword: Kwargs{"count": Integer(2)},
+		Positional: Args{String("a"), Bytes("b")}, Keyword: Kwargs{{Name: "count", Value: Integer(2)}},
 	}).(Bytes)
 	if string(replaced) != "b-b-a" {
 		t.Fatalf("replace = %q", replaced)
 	}
 	parts := callBytesMethod(t, Bytes("a,b,c"), "split", CallArgs{
-		Keyword: Kwargs{"sep": String(","), "count": Integer(2)},
+		Keyword: Kwargs{{Name: "sep", Value: String(",")}, {Name: "count", Value: Integer(2)}},
 	}).(*List)
 	if len(parts.Elements) != 2 || string(parts.Elements[1].(Bytes)) != "b,c" {
 		t.Fatalf("split = %#v", parts.Elements)
@@ -92,7 +92,7 @@ func TestBytesReplaceSplitAndTrimDefaults(t *testing.T) {
 }
 
 func TestBytesCutCaseAndValidUTF8(t *testing.T) {
-	cut := callBytesMethod(t, Bytes("key=value"), "cut", CallArgs{Keyword: Kwargs{"sep": String("=")}}).(*List)
+	cut := callBytesMethod(t, Bytes("key=value"), "cut", CallArgs{Keyword: Kwargs{{Name: "sep", Value: String("=")}}}).(*List)
 	if string(cut.Elements[0].(Bytes)) != "key" || string(cut.Elements[1].(Bytes)) != "value" || cut.Elements[2] != True {
 		t.Fatalf("cut = %#v", cut.Elements)
 	}
@@ -101,7 +101,7 @@ func TestBytesCutCaseAndValidUTF8(t *testing.T) {
 		t.Fatalf("upper = %q", upper)
 	}
 	valid := callBytesMethod(t, Bytes{'a', 0xff, 'b'}, "to_valid_utf8", CallArgs{
-		Keyword: Kwargs{"replacement": String("?")},
+		Keyword: Kwargs{{Name: "replacement", Value: String("?")}},
 	}).(Bytes)
 	if string(valid) != "a?b" {
 		t.Fatalf("to_valid_utf8 = %q", valid)
