@@ -1374,14 +1374,12 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		if err != nil {
 			return nil, nil, err
 		}
-		attrVar := ctx.localName("attr")
-		errVar := ctx.localName("err")
+		// object.CallMethod runs a method without materializing the bound
+		// function that GetAttr would have to allocate. It falls back to
+		// GetAttr itself for anything that is not a method, so a field
+		// holding a function still works and error messages are unchanged.
 		preStmts := append(objPre, argPreStmts...)
-		preStmts = append(preStmts,
-			jen.List(jen.Id(attrVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(obj)).Dot("GetAttr").Call(jen.Lit(member.Property)),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		)
-		return preStmts, jen.Qual(pathObject, "Call").Call(jen.Id(attrVar), args), nil
+		return preStmts, jen.Qual(pathObject, "CallMethod").Call(obj, jen.Lit(member.Property), args), nil
 	}
 
 	calleePre, callee, err := ctx.transpileExpression(call.Callee, onError)
@@ -2084,6 +2082,38 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			jen.Return(jen.Index().String().Values(attributeNames...)),
 		),
 	)
+
+	// CallMethod satisfies object.MethodCaller, so `p.step()` calls the
+	// method body directly instead of allocating the bound function GetAttr
+	// hands out. Only real methods are answered here: a field shadowing a
+	// method name, "constructor" and "attributes" all fall through to
+	// GetAttr, which keeps their behavior exactly as it was.
+	fieldNamed := make(map[string]bool, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		fieldNamed[field.Name] = true
+	}
+	callMethodCases := make([]jen.Code, 0, len(typeDef.Methods))
+	for _, method := range typeDef.Methods {
+		if fieldNamed[method.Name] {
+			continue
+		}
+		callMethodCases = append(callMethodCases,
+			jen.Case(jen.Lit(method.Name)).Block(
+				jen.List(jen.Id("_value"), jen.Id("_err")).Op(":=").Id(receiverName).Dot(methodWrapperName(method.Name)).Call(jen.Id("_args")),
+				jen.Return(jen.Id("_value"), jen.True(), jen.Id("_err")),
+			),
+		)
+	}
+	if len(callMethodCases) > 0 {
+		ctx.topDecls = append(ctx.topDecls,
+			jen.Func().Params(jen.Id(receiverName).Op("*").Id(goTypeName)).Id("CallMethod").Params(
+				jen.Id("name").String(), jen.Id("_args").Qual(pathObject, "CallArgs"),
+			).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Bool(), jen.Error())).Block(
+				jen.Switch(jen.Id("name")).Block(callMethodCases...),
+				jen.Return(jen.Nil(), jen.False(), jen.Nil()),
+			),
+		)
+	}
 
 	setAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+1)
 	for _, field := range typeDef.Fields {

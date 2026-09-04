@@ -75,6 +75,22 @@ func (c *CallArgs) UnpackKeywords(v Object) error {
 	return nil
 }
 
+// copy returns the same arguments backed by fresh storage. Passing arguments
+// into a callee escape analysis cannot see through (an interface method, a
+// function value) marks them as escaping, which would force every call site's
+// literal onto the heap. Copying at the boundary keeps that cost on the paths
+// that actually take it.
+func (c CallArgs) copy() CallArgs {
+	var out CallArgs
+	if len(c.Positional) > 0 {
+		out.Positional = append(Args(nil), c.Positional...)
+	}
+	if len(c.Keyword) > 0 {
+		out.Keyword = append(Kwargs(nil), c.Keyword...)
+	}
+	return out
+}
+
 // Scope is anything argument binding can write bindings into, letting callers
 // skip the intermediate slice that BindArguments returns.
 type Scope interface {

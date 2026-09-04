@@ -12,11 +12,14 @@ import (
 // `instance.constructor` returns, so identity comparisons (`p.constructor ==
 // Point`) work via object.Equals.
 type goblinType struct {
-	name        string
-	fields      []*ast.TypeField
-	params      []string
-	defaults    []object.ParamDefault
-	methods     map[string]*ast.FunctionDefine
+	name     string
+	fields   []*ast.TypeField
+	params   []string
+	defaults []object.ParamDefault
+	methods  map[string]*ast.FunctionDefine
+	// methodSpecs holds the same methods pre-analysed, so calling one costs
+	// a scope and nothing else. See closureSpec.
+	methodSpecs map[string]*closureSpec
 	attributes  []string
 	constructor *object.Function
 	env         *Environment
@@ -25,6 +28,7 @@ type goblinType struct {
 // defineType registers a user type's constructor in the current scope.
 func defineType(def *ast.TypeDefine, env *Environment) {
 	methods := make(map[string]*ast.FunctionDefine, len(def.Methods))
+	methodSpecs := make(map[string]*closureSpec, len(def.Methods))
 	attributes := make([]string, 0, len(def.Methods)+len(def.Fields)+2)
 	seen := make(map[string]bool, cap(attributes))
 	for _, f := range def.Fields {
@@ -35,6 +39,7 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 	}
 	for _, m := range def.Methods {
 		methods[m.Name] = m
+		methodSpecs[m.Name] = newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters[1:], m.Body)
 		if !seen[m.Name] {
 			attributes = append(attributes, m.Name)
 			seen[m.Name] = true
@@ -48,13 +53,14 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 		attributes = append(attributes, "attributes")
 	}
 	t := &goblinType{
-		name:       def.Name,
-		fields:     def.Fields,
-		params:     make([]string, len(def.Fields)),
-		defaults:   make([]object.ParamDefault, len(def.Fields)),
-		methods:    methods,
-		attributes: attributes,
-		env:        env,
+		name:        def.Name,
+		fields:      def.Fields,
+		params:      make([]string, len(def.Fields)),
+		defaults:    make([]object.ParamDefault, len(def.Fields)),
+		methods:     methods,
+		methodSpecs: methodSpecs,
+		attributes:  attributes,
+		env:         env,
 	}
 	for i, f := range def.Fields {
 		t.params[i] = f.Name
@@ -107,13 +113,33 @@ var _ object.Object = (*instance)(nil)
 // parameters after self, so traceback frames and binding diagnostics (names
 // and argument counts alike) match the transpiled backend.
 func (in *instance) bindMethod(def *ast.FunctionDefine) *object.Function {
-	selfEnv := NewEnvironment(in.typ.env)
-	selfEnv.Define("self", in)
-	fn := makeClosure(in.typ.name+"."+def.Name, def.Position(), def.Parameters[1:], def.Body, selfEnv)
+	spec := in.typ.methodSpecs[def.Name]
 	return &object.Function{
 		Name: def.Name,
-		Fn:   fn.Fn,
+		Fn: func(args object.CallArgs) (object.Object, error) {
+			return in.invoke(spec, args)
+		},
 	}
+}
+
+// invoke runs a method body with the receiver bound as `self`.
+func (in *instance) invoke(spec *closureSpec, args object.CallArgs) (object.Object, error) {
+	selfEnv := NewEnvironment(in.typ.env)
+	selfEnv.Define("self", in)
+	return spec.call(selfEnv, args)
+}
+
+// CallMethod satisfies object.MethodCaller: `p.step()` runs the method body
+// without building the callable that GetAttr hands out. Anything that is not a
+// method (a field, "constructor", "attributes") is declined, so the caller
+// falls back to GetAttr and behavior is unchanged.
+func (in *instance) CallMethod(name string, args object.CallArgs) (object.Object, bool, error) {
+	spec, ok := in.typ.methodSpecs[name]
+	if !ok {
+		return nil, false, nil
+	}
+	v, err := in.invoke(spec, args)
+	return v, true, err
 }
 
 // callProto invokes a user-defined protocol method (e.g. "add", "compare",
@@ -124,7 +150,7 @@ func (in *instance) callProto(name string, args ...object.Object) (result object
 	if !defined {
 		return nil, false, nil
 	}
-	result, err = in.bindMethod(m).Fn(object.CallArgs{Positional: append(object.Args{}, args...)})
+	result, err = in.invoke(in.typ.methodSpecs[m.Name], object.CallArgs{Positional: args})
 	return result, true, err
 }
 

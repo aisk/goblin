@@ -406,6 +406,21 @@ func evalExpr(expr ast.Expression, env *Environment) (object.Object, error) {
 		return object.Call(callee, args)
 
 	case *ast.CallExpression:
+		// A method call resolves the receiver and dispatches in one step,
+		// skipping the bound function that reading the attribute would
+		// allocate. object.CallMethod falls back to GetAttr for anything
+		// that is not a method, so a field holding a function still works.
+		if member, ok := e.Callee.(*ast.MemberExpression); ok {
+			receiver, err := evalExpr(member.Object, env)
+			if err != nil {
+				return nil, err
+			}
+			args, err := evalArgs(e.Args, env)
+			if err != nil {
+				return nil, err
+			}
+			return object.CallMethod(receiver, member.Property, args)
+		}
 		callee, err := evalExpr(e.Callee, env)
 		if err != nil {
 			return nil, err
@@ -557,60 +572,99 @@ func makeFunction(def *ast.FunctionDefine, env *Environment) *object.Function {
 	return makeClosure(def.Name, def.Position(), def.Parameters, def.Body, env)
 }
 
-// makeClosure builds a callable object.Function from parameters and a body,
-// capturing env for closures. It backs both named definitions and anonymous
-// function literals. name is used for repr and BindArguments diagnostics.
-func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
-	var fixed []string
-	var defaults []object.ParamDefault
-	var varArgs, kwArgs string
+// closureSpec is everything about a function body that does not depend on the
+// scope it runs in: the split parameter list, the traceback frame, and the
+// body itself. Deriving it once and calling spec.call is what lets a method
+// call on a user type allocate nothing but its own scope.
+type closureSpec struct {
+	name     string
+	pos      token.Pos
+	frame    object.Frame
+	module   string
+	fixed    []string
+	defaults []ast.Expression
+	varArgs  string
+	kwArgs   string
+	body     []ast.Statement
+}
+
+// newClosureSpec derives the per-definition half of a callable. name is used
+// for repr and BindArguments diagnostics.
+func newClosureSpec(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) *closureSpec {
+	spec := &closureSpec{name: name, pos: pos, body: body}
+	anyDefault := false
 	for _, p := range params {
 		switch {
 		case p.VarArgs:
-			varArgs = p.Name
+			spec.varArgs = p.Name
 		case p.KwArgs:
-			kwArgs = p.Name
+			spec.kwArgs = p.Name
 		default:
-			fixed = append(fixed, p.Name)
+			spec.fixed = append(spec.fixed, p.Name)
+			spec.defaults = append(spec.defaults, p.Default)
 			if p.HasDefault() {
-				// Defaults are evaluated per call in the defining environment,
-				// matching type-field defaults (types.go construct).
-				expr := p.Default
-				defaults = append(defaults, func() (object.Object, error) {
-					return evalExpr(expr, env)
-				})
-			} else {
-				defaults = append(defaults, nil)
+				anyDefault = true
 			}
 		}
 	}
-	module := ""
-	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
-		module = moduleName(src.Source())
+	if !anyDefault {
+		spec.defaults = nil
 	}
-	frame := stackFrame(module, name, pos)
+	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
+		spec.module = moduleName(src.Source())
+	}
+	spec.frame = stackFrame(spec.module, name, pos)
+	return spec
+}
 
+// call runs the body in a fresh child of env, which is the defining scope for
+// a closure and the receiver's scope for a method.
+func (s *closureSpec) call(env *Environment, args object.CallArgs) (object.Object, error) {
+	local := NewEnvironment(env)
+
+	// Defaults are evaluated per call in the defining environment, matching
+	// type-field defaults (types.go construct). Only a definition that has
+	// one pays for the closures.
+	var defaults []object.ParamDefault
+	if s.defaults != nil {
+		defaults = make([]object.ParamDefault, len(s.defaults))
+		for i, expr := range s.defaults {
+			if expr == nil {
+				continue
+			}
+			expr := expr
+			defaults[i] = func() (object.Object, error) { return evalExpr(expr, env) }
+		}
+	}
+
+	if err := object.BindArgumentsInto(s.name, s.fixed, defaults, s.varArgs, s.kwArgs, args, local); err != nil {
+		return nil, object.WithFrame(err, s.frame)
+	}
+	err := evalStatements(s.body, local)
+	if rs, ok := err.(returnSignal); ok {
+		if rs.value == nil {
+			return object.Nil, nil
+		}
+		return rs.value, nil
+	}
+	if err != nil {
+		// The frame points at the failing statement inside the function;
+		// the definition position is only a fallback.
+		inner, errPos := takePosition(err, s.pos)
+		return nil, object.WithFrame(inner, stackFrame(s.module, s.name, errPos))
+	}
+	return object.Nil, nil
+}
+
+// makeClosure builds a callable object.Function from parameters and a body,
+// capturing env for closures. It backs both named definitions and anonymous
+// function literals.
+func makeClosure(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement, env *Environment) *object.Function {
+	spec := newClosureSpec(name, pos, params, body)
 	return &object.Function{
 		Name: name,
 		Fn: func(args object.CallArgs) (object.Object, error) {
-			local := NewEnvironment(env)
-			if err := object.BindArgumentsInto(name, fixed, defaults, varArgs, kwArgs, args, local); err != nil {
-				return nil, object.WithFrame(err, frame)
-			}
-			err := evalStatements(body, local)
-			if rs, ok := err.(returnSignal); ok {
-				if rs.value == nil {
-					return object.Nil, nil
-				}
-				return rs.value, nil
-			}
-			if err != nil {
-				// The frame points at the failing statement inside the
-				// function; the definition position is only a fallback.
-				inner, errPos := takePosition(err, pos)
-				return nil, object.WithFrame(inner, stackFrame(module, name, errPos))
-			}
-			return object.Nil, nil
+			return spec.call(env, args)
 		},
 	}
 }
