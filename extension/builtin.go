@@ -12,12 +12,12 @@ import (
 var BuiltinsModule = &object.Module{
 	Name: "builtin",
 	Members: map[string]object.Object{
-		"print":               &object.Function{Name: "print", Fn: print},
-		"eprint":              &object.Function{Name: "eprint", Fn: eprint},
-		"spawn":               &object.Function{Name: "spawn", Fn: spawn},
-		"range":               &object.Function{Name: "range", Fn: range_},
-		"max":                 &object.Function{Name: "max", Fn: max},
-		"min":                 &object.Function{Name: "min", Fn: min},
+		"print":               &object.Function{Name: "print", Fn: Print},
+		"eprint":              &object.Function{Name: "eprint", Fn: Eprint},
+		"spawn":               &object.Function{Name: "spawn", Fn: Spawn},
+		"range":               &object.Function{Name: "range", Fn: Range},
+		"max":                 &object.Function{Name: "max", Fn: Max},
+		"min":                 &object.Function{Name: "min", Fn: Min},
 		"Error":               object.ErrorConstructorFn,
 		"TypeError":           object.TypeError,
 		"ValueError":          object.ValueError,
@@ -50,14 +50,14 @@ var BuiltinsModule = &object.Module{
 	},
 }
 
-// print writes values to stdout, separated by spaces, ending with a newline.
+// Print writes values to stdout, separated by spaces, ending with a newline.
 // Positional-only.
-func print(args object.CallArgs) (object.Object, error) {
+func Print(args object.CallArgs) (object.Object, error) {
 	return writeLine("print", os.Stdout, args)
 }
 
-// eprint is like print, but writes to stderr. Positional-only.
-func eprint(args object.CallArgs) (object.Object, error) {
+// Eprint is like Print, but writes to stderr. Positional-only.
+func Eprint(args object.CallArgs) (object.Object, error) {
 	return writeLine("eprint", os.Stderr, args)
 }
 
@@ -89,7 +89,7 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 // positional arguments along to it. Goroutines are fire-and-forget: the
 // function's return value and error are discarded, mirroring Go's `go`
 // statement. Use a Chan to communicate results back.
-func spawn(args object.CallArgs) (object.Object, error) {
+func Spawn(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("spawn", args)
 	fn := p.Func("fn")
 	rest := p.Rest()
@@ -114,7 +114,7 @@ func spawn(args object.CallArgs) (object.Object, error) {
 	return object.Nil, nil
 }
 
-func range_(args object.CallArgs) (object.Object, error) {
+func Range(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("range", args)
 	start, end := p.Int("start"), p.Int("end")
 	if err := p.Finish(); err != nil {
@@ -146,7 +146,7 @@ func RangeBounds(start, end object.Object) (int64, int64, error) {
 	return int64(s), int64(e), nil
 }
 
-func max(args object.CallArgs) (object.Object, error) {
+func Max(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("max", args)
 	nums := p.Rest()
 	if err := p.Finish(); err != nil {
@@ -196,7 +196,7 @@ func max(args object.CallArgs) (object.Object, error) {
 	return object.Integer(maxIntValue), nil
 }
 
-func min(args object.CallArgs) (object.Object, error) {
+func Min(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("min", args)
 	nums := p.Rest()
 	if err := p.Finish(); err != nil {

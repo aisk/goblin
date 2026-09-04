@@ -12,7 +12,7 @@ import (
 
 func TestEprintWritesToStderr(t *testing.T) {
 	stdout, stderr := captureStdio(t, func() {
-		_, err := eprint(object.CallArgs{
+		_, err := Eprint(object.CallArgs{
 			Positional: []object.Object{object.String("warn"), object.Integer(7)},
 		})
 		if err != nil {
@@ -29,7 +29,7 @@ func TestEprintWritesToStderr(t *testing.T) {
 
 func TestEprintEmptyArgsWritesNewline(t *testing.T) {
 	_, stderr := captureStdio(t, func() {
-		_, err := eprint(object.CallArgs{})
+		_, err := Eprint(object.CallArgs{})
 		if err != nil {
 			t.Fatalf("eprint: %v", err)
 		}
@@ -41,7 +41,7 @@ func TestEprintEmptyArgsWritesNewline(t *testing.T) {
 
 func TestPrintWritesToStdout(t *testing.T) {
 	stdout, stderr := captureStdio(t, func() {
-		_, err := print(object.CallArgs{
+		_, err := Print(object.CallArgs{
 			Positional: []object.Object{object.String("hi"), object.Integer(1)},
 		})
 		if err != nil {
@@ -61,8 +61,8 @@ func TestPrintAndEprintRejectKeywords(t *testing.T) {
 		name string
 		fn   func(object.CallArgs) (object.Object, error)
 	}{
-		{"print", print},
-		{"eprint", eprint},
+		{"print", Print},
+		{"eprint", Eprint},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := tc.fn(object.CallArgs{

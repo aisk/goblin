@@ -6,11 +6,13 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"runtime"
 	"runtime/debug"
 	"strings"
 	"testing"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/parser"
@@ -365,7 +367,7 @@ func TestRangeForLowering(t *testing.T) {
 		code := transpileSource(t, `var xs = range(0, 3)
 print(xs)
 `)
-		if !strings.Contains(code, `builtin.Members["range"]`) {
+		if !strings.Contains(code, "extension.Range(") {
 			t.Fatalf("expected non-loop range use to call the builtin\n%s", code)
 		}
 	})
@@ -380,4 +382,28 @@ print(xs)
 			t.Fatalf("expected the loop variable to stay boxed\n%s", code)
 		}
 	})
+}
+
+// TestDirectBuiltinsMatchModule pins each direct-call target to the function
+// the builtins module actually holds. Without it a rename or a re-pointed
+// member would silently make the emitted call run different code.
+func TestDirectBuiltinsMatchModule(t *testing.T) {
+	for name, direct := range directBuiltins {
+		member, ok := extension.BuiltinsModule.Members[name]
+		if !ok {
+			t.Errorf("%s is not a builtin", name)
+			continue
+		}
+		fn, ok := member.(*object.Function)
+		if !ok {
+			t.Errorf("builtin %s is a %T, not a function", name, member)
+			continue
+		}
+		want := reflect.ValueOf(fn.Fn).Pointer()
+		got := reflect.ValueOf(direct.fn).Pointer()
+		if got != want {
+			t.Errorf("directBuiltins[%q] points at %s, not at the module's implementation",
+				name, runtime.FuncForPC(got).Name())
+		}
+	}
 }
