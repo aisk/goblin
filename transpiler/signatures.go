@@ -234,7 +234,7 @@ func alwaysReturns(stmts []ast.Statement) bool {
 // mentioned in a parameter default, and it has no defaults of its own (the
 // generic wrapper that would evaluate them is what closedness removes).
 func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[string]*ast.FunctionDefine {
-	declared := map[string]int{}
+	declared := declaredNames(stmts)
 	excluded := map[string]struct{}{}
 
 	fastShape := func(name string, args []ast.CallArgument) bool {
@@ -249,9 +249,8 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 		}
 		return true
 	}
-	declareParams := func(params []*ast.Parameter) {
+	excludeDefaults := func(params []*ast.Parameter) {
 		for _, param := range params {
-			declared[param.Name]++
 			if param.Default != nil {
 				walkExpr(param.Default, func(node ast.Statement) {
 					switch n := node.(type) {
@@ -269,24 +268,14 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 
 	walkNodes(stmts, true, func(node ast.Statement) {
 		switch n := node.(type) {
-		case *ast.Declare:
-			declared[n.Name]++
-		case *ast.For:
-			declared[n.Variable]++
-		case *ast.TryCatch:
-			declared[n.CatchVar]++
-		case *ast.Import:
-			declared[n.Name]++
 		case *ast.TypeDefine:
-			declared[n.Name]++
 			for _, method := range n.Methods {
-				declareParams(method.Parameters)
+				excludeDefaults(method.Parameters)
 			}
 		case *ast.FunctionDefine:
-			declared[n.Name]++
-			declareParams(n.Parameters)
+			excludeDefaults(n.Parameters)
 		case *ast.FunctionLiteral:
-			declareParams(n.Parameters)
+			excludeDefaults(n.Parameters)
 		case *ast.Export:
 			excluded[n.Name] = struct{}{}
 		case *ast.Identifier:
@@ -320,6 +309,60 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 		closed[fn.Name] = fn
 	}
 	return closed
+}
+
+// declaredNames counts how many times each name is bound anywhere in a
+// module: by a `var`, a for-loop or catch variable, a function, type or
+// import, or a parameter of any function, literal or method.
+func declaredNames(stmts []ast.Statement) map[string]int {
+	declared := map[string]int{}
+	params := func(ps []*ast.Parameter) {
+		for _, p := range ps {
+			declared[p.Name]++
+		}
+	}
+	walkNodes(stmts, true, func(node ast.Statement) {
+		switch n := node.(type) {
+		case *ast.Declare:
+			declared[n.Name]++
+		case *ast.For:
+			declared[n.Variable]++
+		case *ast.TryCatch:
+			declared[n.CatchVar]++
+		case *ast.Import:
+			declared[n.Name]++
+		case *ast.TypeDefine:
+			declared[n.Name]++
+			for _, method := range n.Methods {
+				params(method.Parameters)
+			}
+		case *ast.FunctionDefine:
+			declared[n.Name]++
+			params(n.Parameters)
+		case *ast.FunctionLiteral:
+			params(n.Parameters)
+		}
+	})
+	return declared
+}
+
+// bodyRebinds reports whether a body declares or assigns name anywhere in its
+// own scope, nested bodies excluded.
+func bodyRebinds(stmts []ast.Statement, name string) bool {
+	found := false
+	walkNodes(stmts, false, func(node ast.Statement) {
+		switch n := node.(type) {
+		case *ast.Declare:
+			found = found || n.Name == name
+		case *ast.Assign:
+			found = found || n.Target == name
+		case *ast.For:
+			found = found || n.Variable == name
+		case *ast.TryCatch:
+			found = found || n.CatchVar == name
+		}
+	})
+	return found
 }
 
 // collectBodies lists every function body in the module, the top level

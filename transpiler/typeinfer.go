@@ -207,35 +207,7 @@ func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
 // which has to be a whole-module property because the signature inference
 // types every body before any of them is generated.
 func declaresNameAnywhere(stmts []ast.Statement, name string) bool {
-	found := false
-	params := func(ps []*ast.Parameter) {
-		for _, p := range ps {
-			found = found || p.Name == name
-		}
-	}
-	walkNodes(stmts, true, func(node ast.Statement) {
-		switch n := node.(type) {
-		case *ast.Declare:
-			found = found || n.Name == name
-		case *ast.For:
-			found = found || n.Variable == name
-		case *ast.TryCatch:
-			found = found || n.CatchVar == name
-		case *ast.Import:
-			found = found || n.Name == name
-		case *ast.FunctionDefine:
-			found = found || n.Name == name
-			params(n.Parameters)
-		case *ast.FunctionLiteral:
-			params(n.Parameters)
-		case *ast.TypeDefine:
-			found = found || n.Name == name
-			for _, m := range n.Methods {
-				params(m.Parameters)
-			}
-		}
-	})
-	return found
+	return declaredNames(stmts)[name] > 0
 }
 
 // poisonCaptured pins every name that appears anywhere inside a nested scope to

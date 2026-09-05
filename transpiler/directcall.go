@@ -32,14 +32,22 @@ type directFn struct {
 	arity  int    // number of fixed parameters
 }
 
-// collectDirectFns decides which of a module's top-level functions qualify
-// for direct-call lowering and assigns each one its Go closure name. A name
+// collectDirectFns decides which of a module's top-level functions and types
+// qualify for direct-call lowering and assigns each one its Go name. A name
 // qualifies only when this module binds it exactly once — a second definition,
 // a `var`, a type, an import, or any assignment anywhere in the module means
 // the binding may not hold the function by the time a call runs.
-func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) map[string]directFn {
+//
+// A type's constructor lowers the same way: a construction supplying every
+// field positionally becomes a call to a generated `_new_T(fields...)` that
+// returns the struct literal, skipping object.Call and the argument slice it
+// forces onto the heap. A type additionally has to be the only declaration of
+// its name anywhere in the module, so that no parameter or local of the same
+// name can make a call site mean something else.
+func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors map[string]directFn) {
 	rebound := map[string]struct{}{}
 	collectAssignTargets(stmts, rebound)
+	declared := declaredNames(stmts)
 
 	bindings := map[string]int{}
 	for _, stmt := range stmts {
@@ -55,21 +63,35 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) map[string]
 		}
 	}
 
-	fns := map[string]directFn{}
+	fns = map[string]directFn{}
+	ctors = map[string]directFn{}
 	for _, stmt := range stmts {
-		fn, ok := stmt.(*ast.FunctionDefine)
-		if !ok || !directCallEligible(fn) || bindings[fn.Name] > 1 {
-			continue
-		}
-		if _, ok := rebound[fn.Name]; ok {
-			continue
-		}
-		fns[fn.Name] = directFn{
-			goName: ctx.localName("direct_" + fn.Name),
-			arity:  len(fn.Parameters),
+		switch v := stmt.(type) {
+		case *ast.FunctionDefine:
+			if !directCallEligible(v) || bindings[v.Name] > 1 {
+				continue
+			}
+			if _, ok := rebound[v.Name]; ok {
+				continue
+			}
+			fns[v.Name] = directFn{
+				goName: ctx.localName("direct_" + v.Name),
+				arity:  len(v.Parameters),
+			}
+		case *ast.TypeDefine:
+			if bindings[v.Name] > 2 || declared[v.Name] != 1 {
+				continue
+			}
+			if _, ok := rebound[v.Name]; ok {
+				continue
+			}
+			ctors[v.Name] = directFn{
+				goName: ctx.localName("new_" + v.Name),
+				arity:  len(v.Fields),
+			}
 		}
 	}
-	return fns
+	return fns, ctors
 }
 
 // tryDirectCall lowers a call through a bare name into a direct Go call when
@@ -80,10 +102,18 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) map[string]
 // through the generic path.
 func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument, onError errHandler) (pre []jen.Code, call *jen.Statement, ok bool, err error) {
 	info, isDirect := ctx.directFns[name]
-	if !isDirect || ctx.shadowedBelowModule(name) {
+	if !isDirect {
+		// A type name is registered in moduleImports to route the bare
+		// identifier to its constructor variable, so it is looked up before
+		// that check rejects it.
+		info, isDirect = ctx.directCtors[name]
+		if !isDirect {
+			return nil, nil, false, nil
+		}
+	} else if _, imported := ctx.moduleImports[name]; imported {
 		return nil, nil, false, nil
 	}
-	if _, imported := ctx.moduleImports[name]; imported {
+	if ctx.shadowedBelowModule(name) {
 		return nil, nil, false, nil
 	}
 	if len(args) != info.arity {
@@ -119,6 +149,17 @@ func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument,
 		argExprs = append(argExprs, argExpr)
 	}
 	return pre, jen.Id(info.goName).Call(argExprs...), true, nil
+}
+
+// moduleBinding resolves a name to the Go variable holding an imported module
+// or a type constructor, unless a scope below the module's own has declared
+// the name, in which case the name means that local instead.
+func (ctx *transpileContext) moduleBinding(name string) (string, bool) {
+	mapped, ok := ctx.moduleImports[name]
+	if !ok || ctx.shadowedBelowModule(name) {
+		return "", false
+	}
+	return mapped, true
 }
 
 // shadowedBelowModule reports whether any scope opened after the module's own

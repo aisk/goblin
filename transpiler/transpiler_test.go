@@ -431,6 +431,88 @@ print(f(1))
 	})
 }
 
+func TestDirectConstructorLowering(t *testing.T) {
+	t.Run("positional construction lowers", func(t *testing.T) {
+		code := transpileSource(t, `type Vec(x, y) {}
+print(Vec(1, 2))
+`)
+		if !strings.Contains(code, "_new_Vec_") || !strings.Contains(code, "_new_Vec_1(object.Integer(int64(1)), object.Integer(int64(2)))") {
+			t.Fatalf("expected a direct construction\n%s", code)
+		}
+	})
+
+	t.Run("keyword, wrong arity and shadowed constructions stay generic", func(t *testing.T) {
+		code := transpileSource(t, `type Vec(x, y) {}
+print(Vec(x = 1, y = 2))
+print(Vec(1))
+func f() {
+    var Vec = 1
+    return Vec(1, 2)
+}
+`)
+		if n := strings.Count(code, "object.Call(VecConstructor"); n != 2 {
+			t.Fatalf("expected two generic constructions, got %d\n%s", n, code)
+		}
+		if strings.Contains(code, "_new_Vec_1(") {
+			t.Fatalf("a shadowed or non-positional construction must not lower\n%s", code)
+		}
+	})
+
+	t.Run("reassigned type name is never lowered", func(t *testing.T) {
+		code := transpileSource(t, `type Vec(x, y) {}
+func f(Vec) { return Vec }
+print(Vec(1, 2))
+`)
+		if strings.Contains(code, "_new_Vec_") {
+			t.Fatalf("a type whose name is bound elsewhere must not lower\n%s", code)
+		}
+	})
+}
+
+func TestDirectSelfAccess(t *testing.T) {
+	t.Run("fields and sibling methods on self are direct", func(t *testing.T) {
+		code := transpileSource(t, `type C(count) {
+    func bump(self) {
+        self.count = self.count + 1
+        return self.count
+    }
+    func twice(self) {
+        self.bump()
+        return self.bump()
+    }
+}
+`)
+		if strings.Contains(code, `(self).GetAttr("count")`) || strings.Contains(code, `object.SetAttr(self, "count"`) {
+			t.Fatalf("self.count must be a direct field access\n%s", code)
+		}
+		if !strings.Contains(code, "c.count = ") || !strings.Contains(code, "c.Bump(object.CallArgs{})") {
+			t.Fatalf("expected direct field store and method call on the receiver\n%s", code)
+		}
+	})
+
+	t.Run("rebound self, unknown members and function fields stay generic", func(t *testing.T) {
+		code := transpileSource(t, `type C(f) {
+    func rebind(self) {
+        self = C(1)
+        return self.f
+    }
+    func call(self) {
+        return self.f(1)
+    }
+    func missing(self) {
+        return self.nope
+    }
+}
+`)
+		if !strings.Contains(code, `(self).GetAttr("f")`) || !strings.Contains(code, `(self).GetAttr("nope")`) {
+			t.Fatalf("expected generic attribute access\n%s", code)
+		}
+		if !strings.Contains(code, `object.CallMethod(self, "f"`) {
+			t.Fatalf("calling a function held in a field must stay generic\n%s", code)
+		}
+	})
+}
+
 func TestRangeForLowering(t *testing.T) {
 	t.Run("range loop lowers to a native counter", func(t *testing.T) {
 		code := transpileSource(t, `for i in range(0, 10) {

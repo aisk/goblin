@@ -1,0 +1,74 @@
+# Inside a method the transpiler may turn `self.field`, `self.field = v` and
+# `self.method()` into direct Go access on the receiver, and a construction
+# that supplies every field positionally into a direct struct literal. This
+# file pins down the cases where that must not change behaviour.
+
+type Counter(count, step) {
+    func bump(self) {
+        self.count = self.count + self.step
+        return self.count
+    }
+
+    func bump_twice(self) {
+        self.bump()
+        return self.bump()
+    }
+
+    func rebind(self) {
+        # self is rebound: attribute access goes through the new value.
+        self = Counter(100, 1)
+        return self.bump()
+    }
+
+    func missing(self) {
+        return self.nothing
+    }
+}
+
+var c = Counter(0, 5)
+print(c.bump())
+print(c.bump_twice())
+print(c.rebind())
+print(c.count)
+try {
+    c.missing()
+} catch e {
+    print("caught:", e)
+}
+
+# A field holding a function is called through the field, not a method.
+type Holder(f) {
+    func run(self, x) {
+        return self.f(x)
+    }
+}
+var h = Holder(func(x) { return x * 3 })
+print(h.run(4))
+
+# Keyword and defaulted constructions still go through argument binding.
+type Point(x, y = 10) {
+    func sum(self) {
+        return self.x + self.y
+    }
+}
+print(Point(1, 2).sum())
+print(Point(1).sum())
+print(Point(y = 3, x = 4).sum())
+try {
+    Point(1, 2, 3)
+} catch e {
+    print("caught:", e)
+}
+
+# A local shadowing the type name refers to the local, not the constructor.
+type Box(v) {
+    func label(self) {
+        return "box " + Str(self.v)
+    }
+}
+func make_other(v) {
+    var Box = func(v) { return "not a box " + Str(v) }
+    return Box(v)
+}
+print(Box(1).label())
+print(make_other(2))

@@ -1,0 +1,12 @@
+5
+15
+101
+15
+caught: Counter has no attribute 'nothing'
+12
+3
+11
+7
+caught: Point() takes 2 positional arguments, got 3
+box 1
+not a box 2

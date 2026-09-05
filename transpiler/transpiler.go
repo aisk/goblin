@@ -143,7 +143,15 @@ type transpileContext struct {
 	// scope: a call site may only be lowered while no deeper scope shadows
 	// the function's name.
 	directFns      map[string]directFn
+	directCtors    map[string]directFn
 	moduleScopeIdx int
+
+	// selfType describes the receiver while a type method body is being
+	// transpiled, so `self.field` and `self.method(...)` can be generated as
+	// direct Go field access and method calls. It is nil outside method
+	// bodies, inside nested function bodies, and in a method that rebinds
+	// self.
+	selfType *selfInfo
 
 	// sigs holds the inferred native signatures of the current module's
 	// closed direct functions (see signatures.go); retType is the native
@@ -156,6 +164,28 @@ type transpileContext struct {
 	// Frame-producing error handlers read it so tracebacks point at the
 	// failing statement, mirroring the interpreter's positionError tagging.
 	errorPos token.Pos
+}
+
+// selfInfo is what direct self access needs to know about the enclosing
+// type: the Go receiver variable, the field names, and the Go wrapper name of
+// each method.
+type selfInfo struct {
+	receiver string
+	fields   map[string]bool
+	methods  map[string]string
+}
+
+// selfMember reports whether expr is `self.name` for a field or method of the
+// enclosing type, in a position where self is still the receiver.
+func (ctx *transpileContext) selfMember(expr ast.Expression, name string) (info *selfInfo, ok bool) {
+	if ctx.selfType == nil {
+		return nil, false
+	}
+	ident, isIdent := expr.(*ast.Identifier)
+	if !isIdent || ident.Name != "self" {
+		return nil, false
+	}
+	return ctx.selfType, true
 }
 
 // framePos returns the position traceback frames should carry: the current
@@ -233,6 +263,14 @@ func (ctx *transpileContext) typeOf(name string) staticType {
 // expression in the current scope, and with what type.
 func (ctx *transpileContext) nativeTypeOf(expr ast.Expression) staticType {
 	return staticTypeOf(expr, ctx.localTypes, ctx.sigs)
+}
+
+// withSelfType installs the receiver description for a method body (or nil to
+// leave one) and returns a function restoring the previous value.
+func (ctx *transpileContext) withSelfType(info *selfInfo) func() {
+	saved := ctx.selfType
+	ctx.selfType = info
+	return func() { ctx.selfType = saved }
 }
 
 // zeroOf is the Go zero value of a native type, or nil for a boxed result;
@@ -899,6 +937,12 @@ func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError
 }
 
 func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	// `self.field` inside a method is a plain Go field read on the receiver:
+	// no GetAttr dispatch, no error path.
+	if info, ok := ctx.selfMember(expr.Object, expr.Property); ok && info.fields[expr.Property] {
+		return nil, jen.Id(info.receiver).Dot(expr.Property), nil
+	}
+
 	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
@@ -934,7 +978,7 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 		}
 		return nil, obj, nil
 	case *ast.Identifier:
-		if moduleVar, ok := ctx.moduleImports[v.Name]; ok {
+		if moduleVar, ok := ctx.moduleBinding(v.Name); ok {
 			return nil, jen.Id(moduleVar), nil
 		}
 		if !ctx.isUserName(v.Name) && isBuiltinFunction(v.Name) {
@@ -1215,6 +1259,15 @@ func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandl
 }
 
 func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler) ([]jen.Code, error) {
+	// `self.field = v` inside a method is a plain Go field store.
+	if info, ok := ctx.selfMember(s.Object, s.Property); ok && info.fields[s.Property] {
+		valPre, val, err := ctx.transpileExpression(s.Value, onError)
+		if err != nil {
+			return nil, err
+		}
+		return append(valPre, jen.Id(info.receiver).Dot(s.Property).Op("=").Add(val)), nil
+	}
+
 	objPre, obj, err := ctx.transpileExpression(s.Object, onError)
 	if err != nil {
 		return nil, err
@@ -1454,7 +1507,7 @@ func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onErr
 	}
 
 	var callee *jen.Statement
-	if mapped, ok := ctx.moduleImports[call.Name]; ok {
+	if mapped, ok := ctx.moduleBinding(call.Name); ok {
 		callee = jen.Id(mapped)
 	} else if !ctx.isUserName(call.Name) && isBuiltinFunction(call.Name) {
 		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
@@ -1479,7 +1532,7 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
 		var callee *jen.Statement
-		if mapped, ok := ctx.moduleImports[ident.Name]; ok {
+		if mapped, ok := ctx.moduleBinding(ident.Name); ok {
 			callee = jen.Id(mapped)
 		} else if !ctx.isUserName(ident.Name) && isBuiltinFunction(ident.Name) {
 			if direct, ok := directBuiltins[ident.Name]; ok {
@@ -1493,6 +1546,14 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 	}
 
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
+		// `self.method(...)` inside a method calls the sibling's Go wrapper
+		// directly. A field of the same name would take precedence at
+		// runtime (GetAttr checks fields first), so it stays generic then.
+		if info, isSelf := ctx.selfMember(member.Object, member.Property); isSelf && !info.fields[member.Property] {
+			if wrapper, isMethod := info.methods[member.Property]; isMethod {
+				return argPreStmts, jen.Id(info.receiver).Dot(wrapper).Call(args), nil
+			}
+		}
 		objPre, obj, err := ctx.transpileExpression(member.Object, onError)
 		if err != nil {
 			return nil, nil, err
@@ -1704,6 +1765,7 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 		ctx.declareUserName(param.Name)
 	}
 	defer ctx.enterScope(body, nil, tyDynamic)()
+	defer ctx.withSelfType(nil)()
 
 	callArgsName := ctx.localName("callArgs")
 
@@ -1783,6 +1845,7 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		ctx.declareUserName(param.Name)
 	}
 	restoreTypes := ctx.enterScope(body, seed, retType)
+	defer ctx.withSelfType(nil)()
 
 	module := sourceModuleName(pos)
 	zero := zeroOf(retType)
@@ -2296,6 +2359,15 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		),
 	)
 
+	fieldSet := make(map[string]bool, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		fieldSet[field.Name] = true
+	}
+	methodWrappers := make(map[string]string, len(typeDef.Methods))
+	for _, method := range typeDef.Methods {
+		methodWrappers[method.Name] = methodWrapperName(method.Name)
+	}
+
 	for _, method := range typeDef.Methods {
 		wrapperName := methodWrapperName(method.Name)
 
@@ -2306,6 +2378,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			ctx.declareUserName(param.Name)
 		}
 		restoreMethodTypes := ctx.enterScope(method.Body, nil, tyDynamic)
+		var self *selfInfo
+		if !bodyRebinds(method.Body, "self") {
+			self = &selfInfo{receiver: receiverName, fields: fieldSet, methods: methodWrappers}
+		}
+		restoreSelf := ctx.withSelfType(self)
 
 		callArgsName := ctx.localName("callArgs")
 		methodModule := sourceModuleName(method.Position())
@@ -2334,6 +2411,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 		methodBody, err := ctx.transpileStatements(method.Body, fnOnError, "")
 		ctx.errorPos = savedPos
+		restoreSelf()
 		restoreMethodTypes()
 		popMethodScope()
 		if err != nil {
@@ -2433,6 +2511,22 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	ctx.topDecls = append(ctx.topDecls,
 		jen.Var().Id(ctorVarName).Qual(pathObject, "Object"),
 	)
+
+	// The direct constructor lowered call sites use (see collectDirectFns):
+	// one Go parameter per field, returning the struct literal.
+	if info, ok := ctx.directCtors[typeDef.Name]; ok {
+		params := make([]jen.Code, 0, len(typeDef.Fields))
+		values := make([]jen.Code, 0, len(typeDef.Fields))
+		for _, field := range typeDef.Fields {
+			params = append(params, jen.Id(field.Name).Qual(pathObject, "Object"))
+			values = append(values, jen.Id(field.Name).Op(":").Id(field.Name))
+		}
+		ctx.topDecls = append(ctx.topDecls,
+			jen.Func().Id(info.goName).Params(params...).Parens(jen.List(
+				jen.Qual(pathObject, "Object"), jen.Error(),
+			)).Block(jen.Return(jen.Op("&").Id(goTypeName).Values(values...), jen.Nil())),
+		)
+	}
 
 	constructor := jen.Id(ctorVarName).Op("=").Op("&").Qual(pathObject, "Function").Values(
 		jen.Id("Name").Op(":").Lit(typeDef.Name),
@@ -2849,10 +2943,10 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 	// its locals are eligible for the same specialisation.
 	defer ctx.pushUserScope()()
 
-	savedDirectFns, savedModuleScopeIdx := ctx.directFns, ctx.moduleScopeIdx
+	savedDirectFns, savedDirectCtors, savedModuleScopeIdx := ctx.directFns, ctx.directCtors, ctx.moduleScopeIdx
 	ctx.moduleScopeIdx = len(ctx.userScopes) - 1
 	defer func() {
-		ctx.directFns, ctx.moduleScopeIdx = savedDirectFns, savedModuleScopeIdx
+		ctx.directFns, ctx.directCtors, ctx.moduleScopeIdx = savedDirectFns, savedDirectCtors, savedModuleScopeIdx
 	}()
 
 	for _, stmt := range stmts {
@@ -2880,7 +2974,7 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 	defer func() { ctx.rangeNative, ctx.sigs = savedRange, savedSigs }()
 	_, rangeImported := ctx.moduleImports["range"]
 	ctx.rangeNative = !rangeImported && !ctx.isUserName("range") && !declaresNameAnywhere(stmts, "range")
-	ctx.directFns = ctx.collectDirectFns(stmts)
+	ctx.directFns, ctx.directCtors = ctx.collectDirectFns(stmts)
 	ctx.sigs = inferSignatures(stmts, ctx.directFns, ctx.rangeNative)
 	defer ctx.enterScope(stmts, nil, tyDynamic)()
 
