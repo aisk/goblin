@@ -513,6 +513,34 @@ func TestDirectSelfAccess(t *testing.T) {
 	})
 }
 
+func TestNativeRightOperands(t *testing.T) {
+	code := transpileSource(t, `var xs = [1, 2, 3]
+var i = 1
+var total = xs[0]
+total = total + i
+total = total * 2
+if xs[i] == i {
+    print(total)
+}
+while xs[0] < i {
+    i = i - 1
+}
+var s = "a"
+print(s + "b")
+`)
+	for _, want := range []string{
+		"object.AddInt(total, i)", "object.MultiplyInt(total, int64(2))",
+		"object.EqualsInt(", "object.CompareInt(", `object.Add(s, object.String("b"))`,
+	} {
+		if !strings.Contains(code, want) {
+			t.Fatalf("expected %s in\n%s", want, code)
+		}
+	}
+	if strings.Contains(code, ".ToBool()") {
+		t.Fatalf("comparison conditions must not go through ToBool\n%s", code)
+	}
+}
+
 func TestRangeForLowering(t *testing.T) {
 	t.Run("range loop lowers to a native counter", func(t *testing.T) {
 		code := transpileSource(t, `for i in range(0, 10) {

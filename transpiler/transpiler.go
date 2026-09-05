@@ -1287,25 +1287,7 @@ func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler
 }
 
 func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHandler) ([]jen.Code, error) {
-	// A natively-typed bool condition is already a Go bool: no boxing, no
-	// ToBool() call, no error path.
-	if ctx.nativeTypeOf(ifelse.Condition) == tyBool {
-		pre, cond, err := ctx.emitNative(ifelse.Condition, onError)
-		if err != nil {
-			return nil, err
-		}
-		body, err := ctx.transpileStatements(ifelse.IfBody, onError, "")
-		if err != nil {
-			return nil, err
-		}
-		elseBody, err := ctx.transpileStatements(ifelse.ElseBody, onError, "")
-		if err != nil {
-			return nil, err
-		}
-		return append(pre, jen.If(cond).Block(body...).Else().Block(elseBody...)), nil
-	}
-
-	condPreStmts, cond, err := ctx.transpileExpression(ifelse.Condition, onError)
+	pre, cond, err := ctx.transpileCondition(ifelse.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -1317,43 +1299,11 @@ func (ctx *transpileContext) transpileIfElse(ifelse *ast.IfElse, onError errHand
 	if err != nil {
 		return nil, err
 	}
-	condVar := ctx.localName("cond")
-	errVar := ctx.localName("err")
-	stmts := append([]jen.Code{}, condPreStmts...)
-	stmts = append(stmts,
-		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(cond).Dot("ToBool").Call(),
-		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		jen.If(jen.Id(condVar)).Block(body...).Else().Block(elseBody...),
-	)
-	return stmts, nil
+	return append(pre, jen.If(cond).Block(body...).Else().Block(elseBody...)), nil
 }
 
 func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandler) ([]jen.Code, error) {
-	// Same as in transpileIfElse: a native bool condition becomes the loop
-	// condition directly, which is what lets a hot numeric loop compile down to
-	// an ordinary Go `for`.
-	if ctx.nativeTypeOf(while_.Condition) == tyBool {
-		condPre, cond, err := ctx.emitNative(while_.Condition, onError)
-		if err != nil {
-			return nil, err
-		}
-		body, err := ctx.transpileStatements(while_.Body, onError, "")
-		if err != nil {
-			return nil, err
-		}
-		// With no guard to hoist this is a plain Go for-condition; a division
-		// in the condition needs its check re-run each iteration, so the loop
-		// becomes `for { guard; if !cond { break }; body }`.
-		if len(condPre) == 0 {
-			return []jen.Code{jen.For(cond).Block(body...)}, nil
-		}
-		loopBody := append([]jen.Code{}, condPre...)
-		loopBody = append(loopBody, jen.If(jen.Op("!").Add(cond)).Block(jen.Break()))
-		loopBody = append(loopBody, body...)
-		return []jen.Code{jen.For().Block(loopBody...)}, nil
-	}
-
-	condPreStmts, cond, err := ctx.transpileExpression(while_.Condition, onError)
+	condPre, cond, err := ctx.transpileCondition(while_.Condition, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -1361,15 +1311,16 @@ func (ctx *transpileContext) transpileWhile(while_ *ast.While, onError errHandle
 	if err != nil {
 		return nil, err
 	}
-
-	condVar := ctx.localName("cond")
-	errVar := ctx.localName("err")
-	loopBody := append([]jen.Code{}, condPreStmts...)
-	loopBody = append(loopBody,
-		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(cond).Dot("ToBool").Call(),
-		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		jen.If(jen.Op("!").Id(condVar)).Block(jen.Break()),
-	)
+	// A condition without preceding statements is a plain Go for-condition,
+	// which is what lets a hot numeric loop compile down to an ordinary Go
+	// `for`. Statements the condition needs (a zero check, a call, a boxed
+	// comparison) have to run every iteration, so the loop then becomes
+	// `for { statements; if !cond { break }; body }`.
+	if len(condPre) == 0 {
+		return []jen.Code{jen.For(cond).Block(body...)}, nil
+	}
+	loopBody := append([]jen.Code{}, condPre...)
+	loopBody = append(loopBody, jen.If(jen.Op("!").Parens(cond)).Block(jen.Break()))
 	loopBody = append(loopBody, body...)
 	return []jen.Code{jen.For().Block(loopBody...)}, nil
 }
@@ -2639,16 +2590,28 @@ func isComparisonOperator(op string) bool {
 }
 
 func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, result, err := ctx.transpileComparisonBool(operation, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	tmpVar := ctx.localName("tmp")
+	preStmts = append(preStmts,
+		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(result),
+	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
+// transpileComparisonBool evaluates a comparison of boxed operands down to a
+// Go bool expression, which the operator boxes and a condition uses as is.
+func (ctx *transpileContext) transpileComparisonBool(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
+	rhsPre, rhs, nativeRHS, err := ctx.transpileNativeIntOperand(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	tmpVar := ctx.localName("tmp")
 	preStmts := append(lhsPre, rhsPre...)
 
 	// Equality is total for the built-in types, but a user-defined __cmp may
@@ -2661,23 +2624,56 @@ func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryO
 			result = jen.Op("!").Id(eqVar)
 		}
 		preStmts = append(preStmts,
-			jen.List(jen.Id(eqVar), jen.Id(eqErrVar)).Op(":=").Qual(pathObject, "Equals").Call(lhs, rhs),
+			jen.List(jen.Id(eqVar), jen.Id(eqErrVar)).Op(":=").Qual(pathObject, nativeRHS("Equals")).Call(lhs, rhs),
 			jen.If(jen.Id(eqErrVar).Op("!=").Nil()).Block(onError(eqErrVar)),
-			jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(result),
 		)
-		return preStmts, jen.Id(tmpVar), nil
+		return preStmts, result, nil
 	}
 
 	cmpVar := ctx.localName("cmp")
 	errVar := ctx.localName("err")
 	preStmts = append(preStmts,
-		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Compare").Call(lhs, rhs),
+		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS("Compare")).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(
-			jen.Id(cmpVar).Op(operation.Operator).Lit(0),
-		),
 	)
-	return preStmts, jen.Id(tmpVar), nil
+	return preStmts, jen.Id(cmpVar).Op(operation.Operator).Lit(0), nil
+}
+
+// transpileNativeIntOperand renders the right operand of a binary operator
+// whose left operand is boxed. A statically integer right operand stays a
+// native int64 and the returned function maps an operator entry point to its
+// native-right variant (Add to AddInt, and so on); otherwise the operand is
+// boxed and the mapping is the identity.
+func (ctx *transpileContext) transpileNativeIntOperand(operand ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, variant func(string) string, err error) {
+	if ctx.nativeTypeOf(operand) == tyInt {
+		pre, code, err = ctx.emitNative(operand, onError)
+		return pre, code, func(op string) string { return op + "Int" }, err
+	}
+	pre, code, err = ctx.transpileExpression(operand, onError)
+	return pre, code, func(op string) string { return op }, err
+}
+
+// transpileCondition evaluates an if or while condition to a Go bool: a
+// native bool expression as it is, a comparison of boxed operands through the
+// comparison's own bool result, anything else through ToBool.
+func (ctx *transpileContext) transpileCondition(cond ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if ctx.nativeTypeOf(cond) == tyBool {
+		return ctx.emitNative(cond, onError)
+	}
+	if op, ok := cond.(*ast.BinaryOperation); ok && isComparisonOperator(op.Operator) {
+		return ctx.transpileComparisonBool(op, onError)
+	}
+	pre, value, err := ctx.transpileExpression(cond, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	condVar := ctx.localName("cond")
+	errVar := ctx.localName("err")
+	pre = append(pre,
+		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(value).Dot("ToBool").Call(),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return pre, jen.Id(condVar), nil
 }
 
 func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -2692,7 +2688,7 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
+	rhsPre, rhs, nativeRHS, err := ctx.transpileNativeIntOperand(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -2717,7 +2713,7 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 	errVar := ctx.localName("err")
 	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
-		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, methodName).Call(lhs, rhs),
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS(methodName)).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil
