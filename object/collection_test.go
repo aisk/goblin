@@ -400,3 +400,39 @@ func TestConversionErrorsPropagate(t *testing.T) {
 		t.Fatal("sort() should propagate a failing ToBool for reverse")
 	}
 }
+
+func TestIndexIntMatchesBoxedIndexing(t *testing.T) {
+	list := &List{Elements: []Object{Integer(10), Integer(20)}}
+
+	got, err := IndexInt(list, 1)
+	if err != nil || got != Integer(20) {
+		t.Fatalf("IndexInt(list, 1) = %v, %v", got, err)
+	}
+	if err := SetIndexInt(list, 0, String("x")); err != nil || list.Elements[0] != String("x") {
+		t.Fatalf("SetIndexInt did not store: %v, %v", list.Elements[0], err)
+	}
+
+	// Out-of-range and non-list receivers must report exactly what the boxed
+	// path reports, since the transpiler picks between the two statically.
+	_, fast := IndexInt(list, 5)
+	_, slow := list.Index(Integer(5))
+	if fast == nil || fast.Error() != slow.Error() {
+		t.Fatalf("out-of-range mismatch: %v vs %v", fast, slow)
+	}
+	fast = SetIndexInt(list, -1, Nil)
+	_, slow = list.SetIndex(Integer(-1), Nil)
+	if fast == nil || fast.Error() != slow.Error() {
+		t.Fatalf("out-of-range set mismatch: %v vs %v", fast, slow)
+	}
+	dict := NewDict()
+	dict.Set(Integer(1), String("one"))
+	got, err = IndexInt(dict, 1)
+	if err != nil || got != String("one") {
+		t.Fatalf("IndexInt(dict, 1) = %v, %v", got, err)
+	}
+	fast = SetIndexInt(Integer(1), 0, Nil)
+	slow = SetIndex(Integer(1), Integer(0), Nil)
+	if fast == nil || fast.Error() != slow.Error() {
+		t.Fatalf("unsupported receiver mismatch: %v vs %v", fast, slow)
+	}
+}

@@ -339,6 +339,30 @@ func g() {
 	})
 }
 
+func TestNativeIndexLowering(t *testing.T) {
+	code := transpileSource(t, `var xs = [1, 2, 3]
+var i = 1
+var k = "a"
+print(xs[i])
+print(xs[0])
+print(xs[k])
+xs[i] = 5
+xs[k] = 6
+`)
+	if n := strings.Count(code, "object.IndexInt(xs, "); n != 2 {
+		t.Fatalf("expected two native index reads, got %d\n%s", n, code)
+	}
+	if !strings.Contains(code, "xs.Index(k)") {
+		t.Fatalf("a dynamic index must stay on the Index method\n%s", code)
+	}
+	if !strings.Contains(code, "object.SetIndexInt(xs, i, ") {
+		t.Fatalf("expected a native index store\n%s", code)
+	}
+	if !strings.Contains(code, "object.SetIndex(xs, k, ") {
+		t.Fatalf("a dynamic index store must stay on object.SetIndex\n%s", code)
+	}
+}
+
 func TestRangeForLowering(t *testing.T) {
 	t.Run("range loop lowers to a native counter", func(t *testing.T) {
 		code := transpileSource(t, `for i in range(0, 10) {

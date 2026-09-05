@@ -193,6 +193,28 @@ func SetIndex(obj Object, index Object, value Object) error {
 	return nil
 }
 
+// IndexInt performs `obj[i]` for an index the caller already holds as a native
+// integer. Lists are the overwhelmingly common receiver, so they are handled
+// here directly without boxing the index and dispatching through the
+// interface; every other receiver, including user types with __getitem, sees
+// exactly the boxed call it would have seen anyway.
+func IndexInt(obj Object, i int64) (Object, error) {
+	if l, ok := obj.(*List); ok && i >= 0 && i < int64(len(l.Elements)) {
+		return l.Elements[i], nil
+	}
+	return obj.Index(Integer(i))
+}
+
+// SetIndexInt performs `obj[i] = value` for a native integer index, with the
+// same list fast path as IndexInt.
+func SetIndexInt(obj Object, i int64, value Object) error {
+	if l, ok := obj.(*List); ok && i >= 0 && i < int64(len(l.Elements)) {
+		l.Elements[i] = value
+		return nil
+	}
+	return SetIndex(obj, Integer(i), value)
+}
+
 // SetAttr performs a member assignment.
 func SetAttr(obj Object, name string, value Object) error {
 	handled, err := obj.SetAttr(name, value)

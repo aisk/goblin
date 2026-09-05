@@ -798,7 +798,7 @@ func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression,
 	if err != nil {
 		return nil, nil, err
 	}
-	idxPre, idx, err := ctx.transpileExpression(expr.Index, onError)
+	idxPre, idx, native, err := ctx.transpileIndexOperand(expr.Index, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -806,11 +806,31 @@ func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression,
 	tmpVar := ctx.localName("tmp")
 	errVar := ctx.localName("err")
 	preStmts := append(objPre, idxPre...)
+	var call *jen.Statement
+	if native {
+		call = jen.Qual(pathObject, "IndexInt").Call(obj, idx)
+	} else {
+		call = jen.Add(obj).Dot("Index").Call(idx)
+	}
 	preStmts = append(preStmts,
-		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(obj).Dot("Index").Call(idx),
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil
+}
+
+// transpileIndexOperand renders the index of `obj[index]` or `obj[index] = v`.
+// An index that is statically an integer stays a native int64 and native
+// reports true, so the caller can reach for object.IndexInt / SetIndexInt and
+// skip both the boxing (an allocation for anything above 255) and the
+// interface dispatch; anything else is boxed as usual.
+func (ctx *transpileContext) transpileIndexOperand(index ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, native bool, err error) {
+	if ctx.nativeTypeOf(index) == tyInt {
+		pre, code, err = ctx.emitNative(index, onError)
+		return pre, code, true, err
+	}
+	pre, code, err = ctx.transpileExpression(index, onError)
+	return pre, code, false, err
 }
 
 func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -1137,7 +1157,7 @@ func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandl
 	if err != nil {
 		return nil, err
 	}
-	idxPre, idx, err := ctx.transpileExpression(s.Index, onError)
+	idxPre, idx, native, err := ctx.transpileIndexOperand(s.Index, onError)
 	if err != nil {
 		return nil, err
 	}
@@ -1146,11 +1166,15 @@ func (ctx *transpileContext) transpileSetIndex(s *ast.SetIndex, onError errHandl
 		return nil, err
 	}
 
+	setter := "SetIndex"
+	if native {
+		setter = "SetIndexInt"
+	}
 	errVar := ctx.localName("err")
 	stmts := append(objPre, idxPre...)
 	stmts = append(stmts, valPre...)
 	stmts = append(stmts,
-		jen.Id(errVar).Op(":=").Qual(pathObject, "SetIndex").Call(obj, idx, val),
+		jen.Id(errVar).Op(":=").Qual(pathObject, setter).Call(obj, idx, val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return stmts, nil
