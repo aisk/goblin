@@ -6,10 +6,10 @@ double quote or a backslash with a backslash.
 ~~~goblin
 var message = "say: \"hello\""
 print(message)        # say: "hello"
-print(message.size()) # 12
+print(message.size) # 12
 ~~~
 
-size() counts Unicode characters, not bytes. Strings iterate by character, but
+size counts Unicode characters, not bytes; it is a property, not a method. Strings iterate by character, but
 they cannot be indexed with `[]`; use index() or last_index() when a character
 position is needed.
 
@@ -45,7 +45,7 @@ print(label)
 
 | Method | Purpose |
 | --- | --- |
-| size() | Character count |
+| size | Character count (property) |
 | upper() / lower() / title() | Change letter case |
 | contains(substring) | Test for a substring |
 | has_prefix(prefix) / has_suffix(suffix) | Test the beginning or end |

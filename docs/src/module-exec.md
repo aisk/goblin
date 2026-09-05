@@ -89,7 +89,7 @@ A command can be started only once. `wait()` before `start()` and a second
 execution attempt raise `ValueError`. Repeated calls to `wait()` return the
 same cached result. `kill()` terminates a started command; call `wait()`
 afterward to obtain its result. `cmd.pid` is `unit` before startup, and
-`cmd.running` reports whether the command has not yet been reaped.
+`cmd.running()` reports whether the command has not yet been reaped.
 
 ## Result
 

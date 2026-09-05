@@ -35,7 +35,7 @@ print(source.parent)
 ~~~
 
 with_name(name) and with_suffix(suffix) create adjusted paths. relative_to()
-and as_posix() are useful when producing portable display strings.
+and as_posix are useful when producing portable display strings.
 
 ## Filesystem operations on Path
 

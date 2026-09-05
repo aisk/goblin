@@ -2685,8 +2685,11 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		codes = pre
 	case *ast.MemberExpression:
 		var pre []jen.Code
-		pre, _, err = ctx.transpileMemberExpression(v, onError)
-		codes = pre
+		var value *jen.Statement
+		pre, value, err = ctx.transpileMemberExpression(v, onError)
+		if err == nil {
+			codes = append(pre, jen.Id("_").Op("=").Add(value))
+		}
 	case *ast.IndexExpression:
 		var pre []jen.Code
 		var value *jen.Statement

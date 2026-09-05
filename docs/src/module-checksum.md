@@ -17,7 +17,7 @@ import "x/crypto/md5"
 import "x/crypto/sha1"
 
 print(md5.hex("Goblin"))
-print(sha1.sum(Bytes("Goblin")).size()) # 20 bytes
+print(sha1.sum(Bytes("Goblin")).size) # 20 bytes
 ~~~
 
 ## CRC-32

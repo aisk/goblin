@@ -15,20 +15,11 @@ package object
 
 func (l *List) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	switch name {
-	case "size":
-		v, err := l.Size(args)
-		return v, true, err
 	case "push":
 		v, err := l.Push(args)
 		return v, true, err
 	case "pop":
 		v, err := l.Pop(args)
-		return v, true, err
-	case "first":
-		v, err := l.First(args)
-		return v, true, err
-	case "last":
-		v, err := l.Last(args)
 		return v, true, err
 	case "join":
 		v, err := l.Join(args)
@@ -90,9 +81,6 @@ func (l *List) CallMethod(name string, args CallArgs) (Object, bool, error) {
 
 func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	switch name {
-	case "size":
-		v, err := s.Size(args)
-		return v, true, err
 	case "upper":
 		v, err := s.Upper(args)
 		return v, true, err
@@ -191,9 +179,6 @@ func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 
 func (d *Dict) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	switch name {
-	case "size":
-		v, err := d.Size(args)
-		return v, true, err
 	case "keys":
 		v, err := d.Keys(args)
 		return v, true, err
@@ -230,9 +215,6 @@ func (d *Dict) CallMethod(name string, args CallArgs) (Object, bool, error) {
 
 func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	switch name {
-	case "size":
-		v, err := b.Size(args)
-		return v, true, err
 	case "decode":
 		v, err := b.Decode(args)
 		return v, true, err

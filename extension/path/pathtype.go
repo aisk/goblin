@@ -120,9 +120,11 @@ func (p *Path) GetAttr(name string) (object.Object, error) {
 		return NewPath(filepath.Dir(p.raw)), nil
 	case "parts":
 		return &object.List{Elements: pathParts(p.raw)}, nil
-	// Pure methods.
 	case "is_absolute":
-		return &object.Function{Name: "is_absolute", Fn: p.IsAbsolute}, nil
+		return object.Bool(filepath.IsAbs(p.raw)), nil
+	case "as_posix":
+		return object.String(filepath.ToSlash(p.raw)), nil
+	// Pure methods.
 	case "with_name":
 		return &object.Function{Name: "with_name", Fn: p.WithName}, nil
 	case "with_suffix":
@@ -133,8 +135,6 @@ func (p *Path) GetAttr(name string) (object.Object, error) {
 		return &object.Function{Name: "relative_to", Fn: p.RelativeTo}, nil
 	case "match":
 		return &object.Function{Name: "match", Fn: p.Match}, nil
-	case "as_posix":
-		return &object.Function{Name: "as_posix", Fn: p.AsPosix}, nil
 	// IO methods.
 	case "exists":
 		return &object.Function{Name: "exists", Fn: p.Exists}, nil
@@ -172,8 +172,8 @@ func (p *Path) GetAttr(name string) (object.Object, error) {
 
 func (p *Path) Attributes() []string {
 	return []string{
-		"attributes", "name", "stem", "suffix", "parent", "parts",
-		"is_absolute", "with_name", "with_suffix", "join", "relative_to", "match", "as_posix",
+		"attributes", "name", "stem", "suffix", "parent", "parts", "is_absolute", "as_posix",
+		"with_name", "with_suffix", "join", "relative_to", "match",
 		"exists", "is_dir", "is_file", "is_symlink", "resolve",
 		"read_text", "read_bytes", "write_text", "write_bytes",
 		"iterdir", "glob", "mkdir", "unlink", "rename", "constructor",
@@ -216,13 +216,6 @@ func pathParts(raw string) []object.Object {
 		}
 	}
 	return parts
-}
-
-func (p *Path) IsAbsolute(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("is_absolute", args); err != nil {
-		return nil, err
-	}
-	return object.Bool(filepath.IsAbs(p.raw)), nil
 }
 
 func (p *Path) WithName(args object.CallArgs) (object.Object, error) {
@@ -296,13 +289,6 @@ func (p *Path) Match(args object.CallArgs) (object.Object, error) {
 		return nil, object.WrapError(object.ParseError, "match() invalid pattern", err)
 	}
 	return object.Bool(matched), nil
-}
-
-func (p *Path) AsPosix(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("as_posix", args); err != nil {
-		return nil, err
-	}
-	return object.String(filepath.ToSlash(p.raw)), nil
 }
 
 func (p *Path) Exists(args object.CallArgs) (object.Object, error) {

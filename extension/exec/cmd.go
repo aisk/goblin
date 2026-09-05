@@ -104,6 +104,18 @@ func (c *Cmd) run(args object.CallArgs) (object.Object, error) {
 	return c.wait(object.CallArgs{})
 }
 
+// running reports whether the process has been started and not yet reaped.
+// It is a method rather than a property because the answer changes on its
+// own as the child exits.
+func (c *Cmd) running(args object.CallArgs) (object.Object, error) {
+	if err := object.RequireNoArgs("running", args); err != nil {
+		return nil, err
+	}
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return object.Bool(c.state == stateRunning), nil
+}
+
 func (c *Cmd) kill(args object.CallArgs) (object.Object, error) {
 	if err := object.RequireNoArgs("kill", args); err != nil {
 		return nil, err
@@ -159,9 +171,7 @@ func (c *Cmd) GetAttr(name string) (object.Object, error) {
 		}
 		return object.Integer(c.cmd.Process.Pid), nil
 	case "running":
-		c.mu.Lock()
-		defer c.mu.Unlock()
-		return object.Bool(c.state == stateRunning), nil
+		return &object.Function{Name: "running", Fn: c.running}, nil
 	}
 	return nil, object.NewAttributeError("Command has no attribute '%s'", name)
 }

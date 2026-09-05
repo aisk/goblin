@@ -53,7 +53,7 @@ configuration that should not be visible on the command line.
 
 ~~~goblin
 var args = os.argv()
-if args.size() < 2 {
+if args.size < 2 {
     print("usage:", args[0], "<file>")
     os.exit(1)
 }

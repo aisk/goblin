@@ -52,7 +52,7 @@ type Grid(cells) {
         return self.cells
     }
     func size(self) {
-        return self.cells.size()
+        return self.cells.size
     }
 }
 

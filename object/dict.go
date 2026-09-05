@@ -45,11 +45,10 @@ func keysMatch(stored, lookup Object) (bool, error) {
 
 var _ Object = &Dict{}
 
-func (d *Dict) Size(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("size", args); err != nil {
-		return nil, err
-	}
-	return Integer(d.count), nil
+// Size returns the number of entries, exposed to Goblin as the read-only
+// property dict.size.
+func (d *Dict) Size() Integer {
+	return Integer(d.count)
 }
 
 func (d *Dict) Keys(args CallArgs) (Object, error) {
@@ -390,7 +389,7 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(d), nil
 	case "size":
-		return &Function{Name: "size", Fn: d.Size}, nil
+		return d.Size(), nil
 	case "keys":
 		return &Function{Name: "keys", Fn: d.Keys}, nil
 	case "values":

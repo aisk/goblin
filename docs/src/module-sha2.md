@@ -24,9 +24,9 @@ import "x/crypto/sha256"
 import "x/crypto/sha512"
 
 var digest = sha256.sum("Goblin")
-print(digest.size())       # 32
+print(digest.size)       # 32
 print(sha256.hex("Goblin"))
-print(sha512.sum384("Goblin").size()) # 48
+print(sha512.sum384("Goblin").size) # 48
 ~~~
 
 Use raw `Bytes` when a binary format has a fixed digest field, and use a `hex`

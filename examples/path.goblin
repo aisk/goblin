@@ -24,19 +24,19 @@ print(p.with_suffix(".md") == path.Path("/home/user/file.md"))
 print(path.Path("/a/b/c/d/e").relative_to("/a/b/c") == path.Path("d/e"))
 
 # --- predicates ---
-print(path.Path("/home/user").is_absolute() == true)
-print(path.Path("home/user").is_absolute() == false)
+print(path.Path("/home/user").is_absolute == true)
+print(path.Path("home/user").is_absolute == false)
 print(p.match("*.txt") == true)
 print(p.match("*.go") == false)
-print(path.Path("a/b").as_posix() == "a/b")
+print(path.Path("a/b").as_posix == "a/b")
 
 # --- read-only filesystem queries against known-present entries ---
 print(path.Path(".").exists() == true)
 print(path.Path(".").is_dir() == true)
 print(path.Path("path.goblin").is_file() == true)
 print(path.Path("does-not-exist-xyz").exists() == false)
-print(path.Path(".").iterdir().size() > 0)
-print(path.Path(".").glob("*.goblin").size() > 0)
+print(path.Path(".").iterdir().size > 0)
+print(path.Path(".").glob("*.goblin").size > 0)
 
 # constructor identity
 print(p.constructor == path.Path)

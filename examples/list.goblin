@@ -22,21 +22,21 @@ grid[0][1] = 99
 print(grid)
 
 # List methods
-print(list.size())
+print(list.size)
 list.push(4)
-print(list.size())
+print(list.size)
 print(list.pop())
 print(list)
 
-# first() and last() inspect without removing; pop() removes an element.
+# first and last inspect without removing; pop() removes an element.
 var nums = [1, 2, 3, 4, 5]
-print(nums.first())
-print(nums.last())
+print(nums.first)
+print(nums.last)
 
-# Test first() and last() on single element
+# Test first and last on single element
 var single = [42]
-print(single.first())
-print(single.last())
+print(single.first)
+print(single.last)
 
 # Test join()
 var words = ["hello", "world"]

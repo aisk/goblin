@@ -14,7 +14,7 @@ import (
 func TestRunForwardsArgv(t *testing.T) {
 	const source = `import "os"
 var a = os.argv()
-if a.size() != 3 {
+if a.size != 3 {
     raise Error("bad size")
 }
 if a[0] != "myscript.goblin" {
@@ -49,7 +49,7 @@ func TestImportedModuleSeesEntryArgv(t *testing.T) {
 	dep := filepath.Join(dir, "dep.goblin")
 	if err := os.WriteFile(dep, []byte(`import "os"
 var a = os.argv()
-if a.size() != 2 || a[1] != "from-entry" {
+if a.size != 2 || a[1] != "from-entry" {
     raise Error("dependency saw the wrong argv")
 }
 `), 0644); err != nil {

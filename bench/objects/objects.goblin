@@ -27,7 +27,7 @@ var total = 0
 var t = 0
 while t < 4500 {
     var j = 0
-    while j < particles.size() {
+    while j < particles.size {
         var p = particles[j]
         p.step()
         total = total + p.pos.norm()

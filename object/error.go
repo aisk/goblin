@@ -206,21 +206,13 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return ErrorConstructorFn, nil
 	case "traceback":
-		return &Function{Name: "traceback", Fn: e.TracebackValue}, nil
+		return String(e.Traceback()), nil
 	}
 	return nil, NewAttributeError("Error has no attribute '%s'", name)
 }
 
 func (e *Error) Attributes() []string {
 	return []string{"attributes", "message", "wrap", "unwrap", "is", "constructor", "traceback"}
-}
-
-// TracebackValue exposes traceback formatting to Goblin as err.traceback().
-func (e *Error) TracebackValue(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("traceback", args); err != nil {
-		return nil, err
-	}
-	return String(e.Traceback()), nil
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its

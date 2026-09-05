@@ -19,11 +19,10 @@ const (
 	trimRight
 )
 
-func (s String) Size(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("size", args); err != nil {
-		return nil, err
-	}
-	return Integer(len([]rune(string(s)))), nil
+// Size returns the length in runes, exposed to Goblin as the read-only
+// property str.size.
+func (s String) Size() Integer {
+	return Integer(len([]rune(string(s))))
 }
 
 func (s String) Upper(args CallArgs) (Object, error) {
@@ -450,7 +449,7 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(s), nil
 	case "size":
-		return &Function{Name: name, Fn: s.Size}, nil
+		return s.Size(), nil
 	case "upper":
 		return &Function{Name: name, Fn: s.Upper}, nil
 	case "lower":

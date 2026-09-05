@@ -12,10 +12,10 @@ var elapsed = 0
 var round = 0
 while round < 280 {
     var j = 0
-    while j < lines.size() {
+    while j < lines.size {
         var fields = lines[j].trim().split(" ")
         var k = 0
-        while k < fields.size() {
+        while k < fields.size {
             var field = fields[k]
             if field.has_prefix("user=") {
                 var user = field.trim_prefix("user=")
@@ -30,4 +30,4 @@ while round < 280 {
     }
     round = round + 1
 }
-print(users.size(), elapsed)
+print(users.size, elapsed)

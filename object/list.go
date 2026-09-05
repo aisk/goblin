@@ -14,11 +14,8 @@ type List struct {
 
 var _ Object = &List{}
 
-func (l *List) Size(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("size", args); err != nil {
-		return nil, err
-	}
-	return Integer(len(l.Elements)), nil
+func (l *List) Size() Integer {
+	return Integer(len(l.Elements))
 }
 
 func (l *List) Push(args CallArgs) (Object, error) {
@@ -50,22 +47,20 @@ func (l *List) Pop(args CallArgs) (Object, error) {
 	return value, nil
 }
 
-func (l *List) First(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("first", args); err != nil {
-		return nil, err
-	}
+// First returns the first element, exposed to Goblin as the read-only
+// property list.first.
+func (l *List) First() (Object, error) {
 	if len(l.Elements) == 0 {
-		return nil, NewIndexError("first() called on empty list")
+		return nil, NewIndexError("first of empty list")
 	}
 	return l.Elements[0], nil
 }
 
-func (l *List) Last(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("last", args); err != nil {
-		return nil, err
-	}
+// Last returns the last element, exposed to Goblin as the read-only
+// property list.last.
+func (l *List) Last() (Object, error) {
 	if len(l.Elements) == 0 {
-		return nil, NewIndexError("last() called on empty list")
+		return nil, NewIndexError("last of empty list")
 	}
 	return l.Elements[len(l.Elements)-1], nil
 }
@@ -359,15 +354,15 @@ func (l *List) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(l), nil
 	case "size":
-		return &Function{Name: "size", Fn: l.Size}, nil
+		return l.Size(), nil
 	case "push":
 		return &Function{Name: "push", Fn: l.Push}, nil
 	case "pop":
 		return &Function{Name: "pop", Fn: l.Pop}, nil
 	case "first":
-		return &Function{Name: "first", Fn: l.First}, nil
+		return l.First()
 	case "last":
-		return &Function{Name: "last", Fn: l.Last}, nil
+		return l.Last()
 	case "join":
 		return &Function{Name: "join", Fn: l.Join}, nil
 	case "insert":

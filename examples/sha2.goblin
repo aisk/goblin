@@ -1,10 +1,10 @@
 import "x/crypto/sha256"
 import "x/crypto/sha512"
 
-print(sha256.sum("goblin").size())
-print(sha256.sum224("goblin").size())
+print(sha256.sum("goblin").size)
+print(sha256.sum224("goblin").size)
 print(sha256.hex("goblin"))
-print(sha512.sum("goblin").size())
-print(sha512.sum384("goblin").size())
-print(sha512.sum224("goblin").size())
-print(sha512.sum256("goblin").size())
+print(sha512.sum("goblin").size)
+print(sha512.sum384("goblin").size)
+print(sha512.sum224("goblin").size)
+print(sha512.sum256("goblin").size)

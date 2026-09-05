@@ -83,7 +83,7 @@ request body. A request-body reader should therefore look like:
 ~~~goblin
 type Reader(chunks) {
     func read(self, size) {
-        if self.chunks.size() == 0 {
+        if self.chunks.size == 0 {
             return Bytes("")
         }
         return self.chunks.pop(0)

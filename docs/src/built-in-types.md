@@ -184,9 +184,9 @@ together.
 | --- | --- |
 | Integer / Float | Int(value), Float(value), max(...), min(...) |
 | Bool / Nil | Bool(value), !value, value && other, value \|\| other |
-| String | Str(value), size(), contains(), split(), replace() |
-| Bytes | Bytes(value), size(), decode(), contains(), split() |
-| List | List(value), size(), push(), pop(), sort(), copy() |
+| String | Str(value), size, contains(), split(), replace() |
+| Bytes | Bytes(value), size, decode(), contains(), split() |
+| List | List(value), size, first, last, push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |
 | Chan | Chan(size), send(value), recv(), close() |
 | Goblin | Goblin(function, args...), wait(), done() |

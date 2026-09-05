@@ -37,10 +37,10 @@ func TestListMethodsUseNamedAndDefaultArguments(t *testing.T) {
 
 func TestListFirstAndLastDoNotMutate(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(2), Integer(3)}}
-	if got := callMethod(t, list, "first", CallArgs{}); got != Integer(1) {
-		t.Fatalf("first = %v, want 1", got)
+	if got, err := list.GetAttr("first"); err != nil || got != Integer(1) {
+		t.Fatalf("first = %v, %v, want 1", got, err)
 	}
-	if got := callMethod(t, list, "last", CallArgs{}); got != Integer(3) {
+	if got, err := list.GetAttr("last"); err != nil || got != Integer(3) {
 		t.Fatalf("last = %v, want 3", got)
 	}
 	if len(list.Elements) != 3 {

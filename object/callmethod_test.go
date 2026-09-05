@@ -10,7 +10,7 @@ func TestCallMethodMatchesGetAttr(t *testing.T) {
 	// Every probe gets a fresh receiver: the methods run for real, and some
 	// of them mutate.
 	types := map[string]func() (Object, MethodCaller){
-		"List":   func() (Object, MethodCaller) { l := &List{}; return l, l },
+		"List":   func() (Object, MethodCaller) { l := &List{Elements: []Object{Integer(1)}}; return l, l },
 		"String": func() (Object, MethodCaller) { s := String("x"); return s, s },
 		"Dict":   func() (Object, MethodCaller) { d := NewDict(); return d, d },
 		"Bytes":  func() (Object, MethodCaller) { b := Bytes("x"); return b, b },
@@ -19,12 +19,18 @@ func TestCallMethodMatchesGetAttr(t *testing.T) {
 	for typeName, fresh := range types {
 		obj, _ := fresh()
 		for _, name := range obj.Attributes() {
+			attr, err := obj.GetAttr(name)
+			if err != nil {
+				t.Fatalf("%s.GetAttr(%q): %v", typeName, name, err)
+			}
+			_, isMethod := attr.(*Function)
 			_, caller := fresh()
 			_, handled, _ := caller.CallMethod(name, CallArgs{})
+			// Properties (size, first, last) are plain values, and
 			// "attributes" and "constructor" are not methods of the
 			// receiver, so CallMethod declines them and the GetAttr
 			// fallback answers instead.
-			want := name != "attributes" && name != "constructor"
+			want := isMethod && name != "attributes" && name != "constructor"
 			if handled != want {
 				t.Errorf("%s.CallMethod(%q) handled = %v, want %v", typeName, name, handled, want)
 			}
@@ -53,8 +59,9 @@ func TestCallMethodFallsBack(t *testing.T) {
 		t.Fatalf("expected a list from the constructor, got %T", ctor)
 	}
 
-	size, err := CallMethod(list, "size", CallArgs{})
-	if err != nil || size != Integer(1) {
-		t.Fatalf("size via CallMethod = %v, %v", size, err)
+	// size is a property, not a method: calling it falls through to GetAttr
+	// and fails the same way `list.size()` does in Goblin.
+	if _, err := CallMethod(list, "size", CallArgs{}); err == nil {
+		t.Fatal("expected calling the size property to fail")
 	}
 }

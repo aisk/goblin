@@ -82,11 +82,10 @@ func (b Bytes) Index(index Object) (Object, error) {
 	return Integer(b[pos]), nil
 }
 
-func (b Bytes) Size(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("size", args); err != nil {
-		return nil, err
-	}
-	return Integer(len(b)), nil
+// Size returns the length in bytes, exposed to Goblin as the read-only
+// property bytes.size.
+func (b Bytes) Size() Integer {
+	return Integer(len(b))
 }
 
 func bytesArg(name, param string, value Object) ([]byte, error) {
@@ -442,7 +441,7 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(b), nil
 	case "size":
-		return &Function{Name: name, Fn: b.Size}, nil
+		return b.Size(), nil
 	case "decode":
 		return &Function{Name: name, Fn: b.Decode}, nil
 	case "contains":

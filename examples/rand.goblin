@@ -16,7 +16,7 @@ print(value < 1.0)
 
 var values = [1, 2, 3]
 first.shuffle(values)
-print(values.size())
+print(values.size)
 var indexes = first.perm(4)
 indexes.sort()
 print(indexes)

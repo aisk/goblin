@@ -9,9 +9,9 @@ Existing modules are cited below as illustrations, not as canon: they predate th
 - Goblin's stdlib is modelled on the Go standard library. When deciding what a module should contain and what its functions should be called, start from the corresponding Go package and stay conceptually close to it.
 - "Near-standard" Go libraries are acceptable as a base too: packages under `golang.org/x/*`, or de-facto standards maintained by trusted stewards with a stable API (e.g. `github.com/google/uuid`). Anything else needs human review before being added as a dependency.
 - The stdlib has two tiers. **Core** modules are the curated, Goblin-shaped surface (`json`, `fs`, `path`, `time`, `http`, …): flat, lowercase names at the top level. **`x/` modules** are direct adaptations of Go packages that have not (yet) earned a curated redesign: they keep Go's package hierarchy under the `x/` prefix (`compress/gzip` → `x/compress/gzip`, `crypto/sha256` → `x/crypto/sha256`, top-level Go packages just gain the prefix, `mime` → `x/mime`). The imported binding is always the last path segment, so member access looks the same in both tiers (`gzip.compress(...)`).
-- A new module that is a thin wrapper starts in `x/` under its Go path. Moving it to core requires an actual API redesign per §2/§3, human review, and is a breaking rename — core status is earned, not default.
+- A new module that is a thin wrapper starts in `x/` under its Go path. Moving it to core requires an actual API redesign per §2/§4, human review, and is a breaking rename — core status is earned, not default.
 - Every module is its own Go package at `extension/<module name>` (`extension/json`, `extension/x/compress/gzip`) exposing an `Execute` constructor, so a compiled program links only the modules it imports. Plumbing shared between modules lives under `extension/internal/`, never in a sibling module's package.
-- Function and method names are lowercase (snake_case when multi-word); type names are Capitalized (`Path`, `UUID`, `File`). Snake-casing a Go name whose words all carry meaning is fine (`csv.read_all` ← `ReadAll`, `s.to_title` ← `strings.ToTitle`); what gets dropped are the parts of a Go name that only exist to tell overload-family variants apart (`ParseInt`'s `Int`, `EncodeToString`'s `ToString` vs buffer-writing `Encode`) — once §3 collapses the family into one function, the discriminating suffix has nothing left to discriminate. The binding rule is cross-module consistency: the same concept gets the same name everywhere. For example, `hex.encode` was formerly exposed as `hex.encode_to_string`, despite naming the same concept as `base64.encode`; dropping the Go-specific `to_string` suffix fixed that inconsistency.
+- Function and method names are lowercase (snake_case when multi-word); type names are Capitalized (`Path`, `UUID`, `File`). Snake-casing a Go name whose words all carry meaning is fine (`csv.read_all` ← `ReadAll`, `s.to_title` ← `strings.ToTitle`); what gets dropped are the parts of a Go name that only exist to tell overload-family variants apart (`ParseInt`'s `Int`, `EncodeToString`'s `ToString` vs buffer-writing `Encode`) — once §4 collapses the family into one function, the discriminating suffix has nothing left to discriminate. The binding rule is cross-module consistency: the same concept gets the same name everywhere. For example, `hex.encode` was formerly exposed as `hex.encode_to_string`, despite naming the same concept as `base64.encode`; dropping the Go-specific `to_string` suffix fixed that inconsistency.
 - Module-level constants are UPPER_CASE snake_case (`exec.INHERIT`, `gzip.BEST_SPEED`, `uuid.NAMESPACE_DNS`), visually distinct from functions and methods.
 - Snake-casing applies to names that are genuinely multi-word in Goblin's vocabulary. POSIX-heritage identifiers that read as single lexemes (`getenv`, `getpid`, `getwd`, …) are kept as-is, not force-segmented. And when the Go name itself is awkward, choosing a deliberately different, better name is allowed with review — `os.tempdir`/`os.tempfile` ← `os.MkdirTemp`/`os.CreateTemp` is the precedent.
 
@@ -28,7 +28,16 @@ Do **not** invent object wrappers for APIs that are already value-oriented or fu
 
 Module-level members should be only what cannot be a method — constructors, factories, and true module-level operations. If a function could be a method on an existing type, it must be. **Resolved exception:** `fs` keeps its path-first procedural layer alongside `path.Path`'s methods by design, mirroring the dual surface of Go (`os.ReadFile` next to `path/filepath`) and Python (`open`/`os` next to `pathlib`). The two surfaces must stay behaviorally identical for the operations they share; `fs` additionally owns everything file-handle-shaped (`open`/`create`/`File`), which has no Path counterpart. New overlapping free functions still need to justify themselves against this rule.
 
-## 3. Merging Go's overload families
+## 3. Properties versus methods
+
+A member that carries no arguments is either a property (`p.name`) or a nullary method (`p.exists()`). The choice is part of the API and follows one rule, so that the same kind of member looks the same on every type.
+
+- **Property** when the value is derived purely from the receiver's own state: cheap, no I/O, no side effects, same answer for the same receiver until the caller mutates it. This covers components (`Path.parent`, `URL.host`, `Time.year`, `Result.code`), sizes (`list.size`, `str.size`, `dict.size`, `bytes.size`, `FileInfo.size`), element access (`list.first`, `list.last`), predicates about the value itself (`Path.is_absolute`, `Addr.is_loopback`, `Result.success`), and alternative renderings that are pure functions of the value (`Path.as_posix`, `Error.traceback`, `UUID.urn`). A property may raise when it has no meaning for this particular value (`list.first` on an empty list, `UUID.time` on a v4 UUID); it must not silently return a placeholder instead.
+- **Method** when any of the following holds: it takes arguments; it performs I/O or otherwise leaves the receiver (`Path.exists()`, `Path.is_dir()`, `File.stat()`); it mutates the receiver or the world (`list.pop()`, `File.close()`); it returns a fresh snapshot the caller is free to modify (`dict.keys()`, `list.copy()`); it is a transformation that yields a new value of the same kind (`str.upper()`, `Addr.next()`); it is expensive enough that a reader should see the cost at the call site; or its answer changes on its own between two reads because something other than the caller drives it (`Goblin.done()`, `Command.running()`). `File.closed` and `Body.closed` stay properties because only the caller can close them.
+- Module-level members are never properties: a `Module` is a static namespace, so process-level facts remain functions (`os.getpid()`, `os.getwd()`, `os.argv()`), mirroring Go and POSIX.
+- Go's `Method()` accessors on value types (`u.Hostname()`, `t.Year()`, `a.IsLoopback()`) are almost always properties by this rule; do not carry the parentheses over just because Go needed them.
+
+## 4. Merging Go's overload families
 
 Go has no default arguments or overloading, so it grows function families like `Split`/`SplitN`, `Encode`/`EncodeToString`, `NewWriter`/`NewWriterLevel`. Goblin call sites support positional and keyword arguments plus `*`/`**` unpacking, and Go-implemented stdlib functions can give any parameter a default via `ArgParser` — use that to collapse each family into **one** function.
 
@@ -40,20 +49,20 @@ Go has no default arguments or overloading, so it grows function families like `
 
 All argument handling goes through `object.ArgParser` (`object/argparse.go`): it defines positional order, keyword precedence, defaults, and uniform `TypeError` messages. Do not hand-roll argument validation — every module (and the `object/` runtime itself) now parses through `ArgParser`; there is no second acceptable style. Typed accessors exist for the common shapes (`Int`, `Str`, `Bool`, `Bytes`, `List`, `Dict`, `Func`, `Number`, `Float64`, `BytesLike` for the ubiquitous Bytes-or-str `data` parameter, plus `*Or`/`Optional*` variants and `RequireNoArgs` for nullary functions). For a parameter shape with no accessor yet, add the accessor rather than hand-rolling the assertion.
 
-## 4. Errors
+## 5. Errors
 
 - Never return raw Go errors and never panic across the boundary. Wrap native errors with `object.WrapNativeError` / `object.WrapError`, attaching the appropriate sentinel from the hierarchy in `object/error.go` (`IOError`, `ParseError`, `PermissionError`, …).
 - Add a new sentinel error kind only when callers realistically need to catch that case distinctly; otherwise use the nearest existing parent.
 - Error messages follow the existing format: `funcname() <what failed>`. A bare `funcname() failed` says nothing — name the failure (`decode() invalid hex data`, `read() failed to read HTTP body`).
 
-## 5. Values, not Go internals
+## 6. Values, not Go internals
 
 - Accept and return Goblin runtime types (`object/`). Go-specific machinery — channels, `context.Context`, struct configs, interfaces-as-extension-points — must not leak into a module's API as-is.
 - Ubiquitous Go interfaces like `io.Reader`/`io.Writer` are the exception: the *concept* (a stream you can read from / write to) is worth keeping, expressed through duck typing rather than a declared interface. There is no predefined `Reader` type to import or implement — the method shape *is* the contract, and stdlib functions that consume streams accept any object providing it (the mechanism exists: extension code can call user-object methods via `GetAttr`, symmetric in both backends; `http`'s body reader is the precedent). The canonical reader shape, matching what `http` produces and consumes today: `read(size)` where `size` is a non-negative int (a producer may additionally allow calling with no argument to read everything); it returns a chunk as Bytes (consumers should also tolerate str); end of stream is signalled by returning an **empty chunk or `nil` — consumers must accept both**, and producers should return an empty Bytes like `http.Body` does. The canonical writer shape is symmetric: `write(data)` where `data` is a chunk (consumers pass Bytes; producers should also accept str, as `fs.File.write` does); it returns the number of bytes written as a non-negative int — returning `nil` counts as the whole chunk, and **consumers must accept both**. A `close()` method is optional, and writer consumers never call it: the stream's owner decides when it ends. Go-side consumers adapt duck streams via `object.NewDuckReader` / `object.NewDuckWriter` instead of reimplementing the shapes; current writer consumers are `exec.Command`'s `stdout=`/`stderr=` and the `dest=` keyword on `csv.write_all`, `tar`/`zip` `write_all`, and `gzip`/`zlib`/`flate`/`lzw` `compress`. New stream-shaped APIs must follow the canonical shape, must not invent a variant, and must document the expected shape in user-facing docs — a Go-side comment is not documentation (the Goblin Book `http` chapter's "Reader protocol" section is the reference). `fs.File.read(size)` conforms since 2026-08; any stream API that still deviates falls under the general rule above: bugs to fix, not variants to accommodate.
 - APIs whose Go counterpart takes a `context.Context` are wrapped **without** any context parameter for now: pass `context.TODO()` internally and do not invent ad-hoc timeout/cancellation arguments. Mirroring a timeout Go itself exposes as plain configuration (e.g. `http.Client(timeout=...)` ← `http.Client.Timeout`) is fine — the ban is on per-call cancellation plumbing, not on native config knobs. The Thread-style object this rule was waiting for now exists in part: the core `Goblin` type wraps a goroutine and scopes time-bounding to the handle (`wait(timeout=...)`), but it deliberately has no cancellation yet, and stdlib calls running inside a goblin cannot observe its handle — so `context.TODO()` remains the rule. Cancellation, when it lands, will ride on the Goblin handle (it first needs `select`/channel timeouts and a way for stdlib calls to reach the current goblin's context); per-call context plumbing added today would still only have to be unwound then.
 - Where Go returns `[]byte` vs `string` variants, pick the one natural Goblin type and provide the other via an argument or method only if genuinely needed.
 
-## 6. Skip and flag for review
+## 7. Skip and flag for review
 
 Some Go APIs are too abstraction-heavy to wrap simply: many interacting concepts, config structs, interface-based extension points (e.g. large parts of `net/http`'s server side, `reflect`, `database/sql` drivers). For these:
 
@@ -61,12 +70,13 @@ Some Go APIs are too abstraction-heavy to wrap simply: many interacting concepts
 - Every deliberate omission or nontrivial deviation from the Go API must be called out for human review — in the PR description and, when user-visible, in the module's Goblin Book chapter — instead of being silently dropped.
 - A wrong abstraction shipped is worse than a missing one: when in doubt, leave it out and note it.
 
-## 7. Checklist for a new module
+## 8. Checklist for a new module
 
 1. Identify the Go (or near-standard) package it maps to; note every intentional deviation.
 2. Decide the tier per §1: a direct wrapper registers as `x/<go package path>`; a curated Goblin-shaped API earns a flat core name.
 3. Decide the shape: plain functions (Go-like) or central type + factories (`path.Path`-like), per §2.
-4. Collapse overload families using keyword arguments with defaults, per §3.
-5. Implement with `ArgParser` and the sentinel error hierarchy.
-6. Register in both backends, add `examples/`, tests, and a Goblin Book chapter (see `CLAUDE.md`).
-7. List skipped/deviating surface area in the PR for review, per §6.
+4. Decide property versus method for every argument-free member, per §3.
+5. Collapse overload families using keyword arguments with defaults, per §4.
+6. Implement with `ArgParser` and the sentinel error hierarchy.
+7. Register in both backends, add `examples/`, tests, and a Goblin Book chapter (see `CLAUDE.md`).
+8. List skipped/deviating surface area in the PR for review, per §7.

@@ -16,11 +16,11 @@ print(match.group("key"))
 print(match.group("unit"))
 # named_groups is a dict, so print single lookups: dict order is unspecified.
 print(match.named_groups.get("key"))
-print(match.named_groups.size())
+print(match.named_groups.size)
 print(assignment.find("missing"))
 
 var words = regexp.compile("[a-z]+")
-print(words.find_all("one two three", count=2).size())
+print(words.find_all("one two three", count=2).size)
 print(assignment.replace("a=1 b=2", "${key}:$2", count=1))
 
 # count means the same thing as it does on the built-in str methods: for split
@@ -34,4 +34,4 @@ print(regexp.compile(regexp.escape("a.c")).match("a.c"))
 
 # Match offsets follow Go regexp and count UTF-8 bytes, not Unicode characters.
 print(words.find("日abc").start)
-print(regexp.compile("^|$").find_all("ab").size())
+print(regexp.compile("^|$").find_all("ab").size)

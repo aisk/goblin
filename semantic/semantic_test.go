@@ -194,7 +194,7 @@ func TestCheckModule(t *testing.T) {
 			name: "varargs function and starred call",
 			source: "func f(a, *rest) {\n" +
 				"  print(a)\n" +
-				"  print(rest.size())\n" +
+				"  print(rest.size)\n" +
 				"}\n" +
 				"var xs = [2, 3]\n" +
 				"f(1, *xs)\n",

@@ -30,10 +30,10 @@ print(combined) # [1, 2, 3, 4]
 
 | Method | Purpose |
 | --- | --- |
-| size() | Number of elements |
+| size | Number of elements (property) |
 | push(value, ...) | Append one or more values |
 | pop(index=-1) | Remove and return an element; defaults to the last |
-| first() / last() | Read the first or last element without removing it |
+| first / last | Read the first or last element without removing it (properties) |
 | insert(index, value) | Insert before an index |
 | remove(value) | Remove the first matching value |
 | contains(value) / count(value) | Test for or count a value |
@@ -42,7 +42,7 @@ print(combined) # [1, 2, 3, 4]
 | reverse() / sort() | Reorder the list in place |
 | copy() / clear() | Duplicate or empty the list |
 
-pop(), first(), and last() raise IndexError when the requested element is
+pop(), first, and last raise IndexError when the requested element is
 unavailable. pop() accepts a negative index, so its default `-1` removes the
 last element. index() returns `-1` when a value is absent, and remove() returns
 true when it removed a value or false when it did not.
@@ -127,7 +127,7 @@ for pair in settings.items() {
 
 | Method | Purpose |
 | --- | --- |
-| size() | Number of entries |
+| size | Number of entries (property) |
 | contains(key) | Test whether a key exists |
 | get(key, default=nil) | Read a key without raising for a missing key |
 | set_default(key, default=nil) | Get an existing value or insert a default |
