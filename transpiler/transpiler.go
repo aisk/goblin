@@ -145,6 +145,13 @@ type transpileContext struct {
 	directFns      map[string]directFn
 	moduleScopeIdx int
 
+	// sigs holds the inferred native signatures of the current module's
+	// closed direct functions (see signatures.go); retType is the native
+	// return type of the function body being transpiled, tyDynamic for an
+	// ordinary object.Object result. Both are swapped like localTypes.
+	sigs    map[string]*fnSig
+	retType staticType
+
 	// errorPos is the position of the statement currently being transpiled.
 	// Frame-producing error handlers read it so tracebacks point at the
 	// failing statement, mirroring the interpreter's positionError tagging.
@@ -197,27 +204,25 @@ func (ctx *transpileContext) isUserName(name string) bool {
 }
 
 // enterScope installs the type environment inferred for a function body and
-// returns a function restoring the previous one. It must be called after the
-// body's parameters (and, for a module, its hoisted names) are declared in the
-// user scope: whether `range` still means the builtin here depends on them.
-func (ctx *transpileContext) enterScope(body []ast.Statement) func() {
-	savedTypes := ctx.localTypes
-	savedRange := ctx.rangeNative
-	_, rangeImported := ctx.moduleImports["range"]
-	ctx.rangeNative = !rangeImported && !ctx.isUserName("range") && !bodyDeclaresName(body, "range")
-	ctx.localTypes = inferLocals(body, ctx.rangeNative)
+// returns a function restoring the previous one. seed and ret are the body's
+// parameter types and native return type when it belongs to a closed direct
+// function, nil and tyDynamic otherwise.
+//
+// The environment must come out identical to the one the signature inference
+// computed for this body, which is why it is built by the same function from
+// the same inputs: the module-wide rangeNative, the seed and the signatures.
+func (ctx *transpileContext) enterScope(body []ast.Statement, seed map[string]staticType, ret staticType) func() {
+	savedTypes, savedRet := ctx.localTypes, ctx.retType
+	ctx.localTypes = inferLocals(body, ctx.rangeNative, seed, ctx.sigs)
+	ctx.retType = ret
 	return func() {
-		ctx.localTypes = savedTypes
-		ctx.rangeNative = savedRange
+		ctx.localTypes, ctx.retType = savedTypes, savedRet
 	}
 }
 
 // typeOf reports the specialised native type of a name, or tyDynamic when the
 // name is an ordinary boxed value.
 func (ctx *transpileContext) typeOf(name string) staticType {
-	if ctx.localTypes == nil {
-		return tyDynamic
-	}
 	if t, ok := ctx.localTypes[name]; ok {
 		return t
 	}
@@ -227,10 +232,19 @@ func (ctx *transpileContext) typeOf(name string) staticType {
 // nativeTypeOf reports whether an expression can be evaluated as a native Go
 // expression in the current scope, and with what type.
 func (ctx *transpileContext) nativeTypeOf(expr ast.Expression) staticType {
-	if ctx.localTypes == nil {
-		return tyDynamic
+	return staticTypeOf(expr, ctx.localTypes, ctx.sigs)
+}
+
+// zeroOf is the Go zero value of a native type, or nil for a boxed result;
+// error paths return it alongside the error.
+func zeroOf(t staticType) *jen.Statement {
+	switch t {
+	case tyInt, tyFloat:
+		return jen.Lit(0)
+	case tyBool:
+		return jen.False()
 	}
-	return staticTypeOf(expr, ctx.localTypes)
+	return jen.Nil()
 }
 
 // box wraps a native Go expression back into an object.Object.
@@ -269,6 +283,26 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 
 	case *ast.Identifier:
 		return nil, jen.Id(e.Name), nil
+
+	case *ast.FunctionCall, *ast.CallExpression:
+		// A call to a closed direct function with a native return type. The
+		// call and its error check are hoisted as preceding statements and
+		// the expression is the result variable.
+		name, args, _ := bareCall(expr)
+		pre, call, ok, err := ctx.tryDirectCall(name, args, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		if !ok {
+			return nil, nil, fmt.Errorf("%s: internal error: call to %s typed native but not lowered", expr.Position(), name)
+		}
+		tmpVar := ctx.localName("tmp")
+		errVar := ctx.localName("err")
+		pre = append(pre,
+			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+		)
+		return pre, jen.Id(tmpVar), nil
 
 	case *ast.UnaryOperation:
 		pre, operand, err := ctx.emitNative(e.Operand, onError)
@@ -404,8 +438,8 @@ func frameCode(module, function string, pos token.Pos) *jen.Statement {
 	})
 }
 
-func tracedReturn(errVar, module, function string, pos token.Pos) jen.Code {
-	return jen.Return(jen.Nil(), jen.Qual(pathObject, "WithFrame").Call(
+func tracedReturn(zero *jen.Statement, errVar, module, function string, pos token.Pos) jen.Code {
+	return jen.Return(zero, jen.Qual(pathObject, "WithFrame").Call(
 		jen.Id(errVar), frameCode(module, function, pos),
 	))
 }
@@ -592,7 +626,7 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 	exportsVar := ctx.localName("exports")
 
 	onError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
+		return tracedReturn(jen.Nil(), errVar, sourceModuleName(modulePosition(mod)), "<module>", ctx.framePos(modulePosition(mod)))
 	}
 
 	stmts, err := ctx.transpileModuleStatements(mod.Body, onError, exportsVar)
@@ -1669,13 +1703,13 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 	for _, param := range params {
 		ctx.declareUserName(param.Name)
 	}
-	defer ctx.enterScope(body)()
+	defer ctx.enterScope(body, nil, tyDynamic)()
 
 	callArgsName := ctx.localName("callArgs")
 
 	module := sourceModuleName(pos)
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, module, name, ctx.framePos(pos))
+		return tracedReturn(jen.Nil(), errVar, module, name, ctx.framePos(pos))
 	}
 
 	// Binding errors point at the definition, like the interpreter's frame
@@ -1718,22 +1752,42 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.FunctionDefine) ([]jen.Code, error) {
 	name, pos, params, body := fn.Name, fn.Position(), fn.Parameters, fn.Body
 
-	// Default expressions belong to the enclosing scope, so they are
-	// transpiled before the parameters are declared.
-	defaultsDecl, defaultsName, err := ctx.emitParamDefaults(params)
-	if err != nil {
-		return nil, err
+	// A closed function (see signatures.go) carries an inferred signature:
+	// its parameters and result take the native Go types the signature
+	// says, and it needs no generic wrapper since nothing can reach it
+	// other than the lowered call sites. Closedness excludes parameter
+	// defaults, so there are none to evaluate for it.
+	sig := ctx.sigs[name]
+	var seed map[string]staticType
+	retType := tyDynamic
+	var defaultsDecl jen.Code
+	defaultsName := ""
+	if sig != nil {
+		seed = make(map[string]staticType, len(params))
+		for i, param := range params {
+			seed[param.Name] = sig.params[i]
+		}
+		retType = sig.ret
+	} else {
+		// Default expressions belong to the enclosing scope, so they are
+		// transpiled before the parameters are declared.
+		var err error
+		defaultsDecl, defaultsName, err = ctx.emitParamDefaults(params)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	popScope := ctx.pushUserScope()
 	for _, param := range params {
 		ctx.declareUserName(param.Name)
 	}
-	restoreTypes := ctx.enterScope(body)
+	restoreTypes := ctx.enterScope(body, seed, retType)
 
 	module := sourceModuleName(pos)
+	zero := zeroOf(retType)
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(errVar, module, name, ctx.framePos(pos))
+		return tracedReturn(zero, errVar, module, name, ctx.framePos(pos))
 	}
 
 	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
@@ -1743,14 +1797,27 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		return nil, err
 	}
 
+	goType := func(t staticType) *jen.Statement {
+		if t.native() {
+			return jen.Id(goTypeOf(t))
+		}
+		return jen.Qual(pathObject, "Object")
+	}
 	paramDecls := make([]jen.Code, 0, len(params))
-	for _, param := range params {
-		paramDecls = append(paramDecls, jen.Id(param.Name).Qual(pathObject, "Object"))
+	for i, param := range params {
+		paramType := tyDynamic
+		if sig != nil {
+			paramType = sig.params[i]
+		}
+		paramDecls = append(paramDecls, jen.Id(param.Name).Add(goType(paramType)))
 	}
 	ctx.topDecls = append(ctx.topDecls,
 		jen.Func().Id(info.goName).Params(paramDecls...).Parens(jen.List(
-			jen.Qual(pathObject, "Object"), jen.Id("error"),
+			goType(retType), jen.Id("error"),
 		)).Block(bodyCode...))
+	if sig != nil {
+		return nil, nil
+	}
 
 	callArgsName := ctx.localName("callArgs")
 	boundName := ctx.localName("bound")
@@ -2232,11 +2299,19 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	for _, method := range typeDef.Methods {
 		wrapperName := methodWrapperName(method.Name)
 
+		// A method body is a scope of its own, with its own inferred
+		// environment, like any other function body.
+		popMethodScope := ctx.pushUserScope()
+		for _, param := range method.Parameters {
+			ctx.declareUserName(param.Name)
+		}
+		restoreMethodTypes := ctx.enterScope(method.Body, nil, tyDynamic)
+
 		callArgsName := ctx.localName("callArgs")
 		methodModule := sourceModuleName(method.Position())
 		qualifiedName := typeDef.Name + "." + method.Name
 		fnOnError := func(errVar string) jen.Code {
-			return tracedReturn(errVar, methodModule, qualifiedName, ctx.framePos(method.Position()))
+			return tracedReturn(jen.Nil(), errVar, methodModule, qualifiedName, ctx.framePos(method.Position()))
 		}
 		savedPos := ctx.errorPos
 		ctx.errorPos = method.Position()
@@ -2259,6 +2334,8 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 
 		methodBody, err := ctx.transpileStatements(method.Body, fnOnError, "")
 		ctx.errorPos = savedPos
+		restoreMethodTypes()
+		popMethodScope()
 		if err != nil {
 			return nil, err
 		}
@@ -2366,6 +2443,24 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 }
 
 func (ctx *transpileContext) transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
+	if ctx.retType.native() {
+		// The signature inference only makes a return type native when every
+		// reachable return agrees with it; the parser's implicit `return nil`
+		// is then unreachable and only has to keep Go's terminating-statement
+		// rule satisfied.
+		if ctx.nativeTypeOf(return_.Value) == ctx.retType {
+			pre, value, err := ctx.emitNative(return_.Value, onError)
+			if err != nil {
+				return nil, err
+			}
+			return append(pre, jen.Return(jen.List(value, jen.Nil()))), nil
+		}
+		if isImplicitReturn(return_) {
+			return []jen.Code{jen.Return(jen.List(zeroOf(ctx.retType), jen.Nil()))}, nil
+		}
+		return nil, fmt.Errorf("%s: internal error: return does not match the inferred native return type", return_.Position())
+	}
+
 	preStmts, r, err := ctx.transpileExpression(return_.Value, onError)
 	if err != nil {
 		return nil, err
@@ -2775,8 +2870,19 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 	// recursive and forward calls lower too. Hoisted names are declared above
 	// for the same reason, and enterScope runs after both so the inference
 	// pass sees the final shadowing picture.
+	//
+	// Whether `range` means the builtin is decided once for the whole module:
+	// the signature inference types every body up front, and it has to see
+	// exactly the environments the generator will, so both work from this one
+	// answer. A module that binds the name `range` anywhere gives up range
+	// lowering everywhere.
+	savedRange, savedSigs := ctx.rangeNative, ctx.sigs
+	defer func() { ctx.rangeNative, ctx.sigs = savedRange, savedSigs }()
+	_, rangeImported := ctx.moduleImports["range"]
+	ctx.rangeNative = !rangeImported && !ctx.isUserName("range") && !declaresNameAnywhere(stmts, "range")
 	ctx.directFns = ctx.collectDirectFns(stmts)
-	defer ctx.enterScope(stmts)()
+	ctx.sigs = inferSignatures(stmts, ctx.directFns, ctx.rangeNative)
+	defer ctx.enterScope(stmts, nil, tyDynamic)()
 
 	var funcAssigns, body []jen.Code
 	declare := func(name string) {

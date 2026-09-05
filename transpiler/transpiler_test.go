@@ -363,6 +363,74 @@ xs[k] = 6
 	}
 }
 
+func TestSignatureInference(t *testing.T) {
+	t.Run("recursive int function gets a native signature", func(t *testing.T) {
+		code := transpileSource(t, `func fib(n) {
+    if n < 2 { return n }
+    return fib(n - 1) + fib(n - 2)
+}
+print(fib(10))
+`)
+		if !strings.Contains(code, "(n int64) (int64, error)") {
+			t.Fatalf("expected fib to take and return int64\n%s", code)
+		}
+		if strings.Contains(code, "&object.Function{Name: \"fib\"") {
+			t.Fatalf("a closed function needs no generic wrapper\n%s", code)
+		}
+	})
+
+	t.Run("mixed call sites keep the parameter boxed", func(t *testing.T) {
+		code := transpileSource(t, `func id(v) { return v }
+print(id(1))
+print(id("s"))
+`)
+		if !strings.Contains(code, "(v object.Object) (object.Object, error)") {
+			t.Fatalf("expected id to stay dynamic\n%s", code)
+		}
+	})
+
+	t.Run("reachable implicit return makes the result dynamic", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) {
+    if n > 0 { return n }
+}
+print(f(1))
+`)
+		if !strings.Contains(code, "(n int64) (object.Object, error)") {
+			t.Fatalf("expected a native parameter with a boxed result\n%s", code)
+		}
+	})
+
+	t.Run("value use, keyword call, export and defaults keep the wrapper", func(t *testing.T) {
+		for name, source := range map[string]string{
+			"value":   "func f(n) { return n }\nvar g = f\nprint(f(1))\n",
+			"keyword": "func f(n) { return n }\nprint(f(n = 1))\nprint(f(2))\n",
+			"export":  "func f(n) { return n }\nexport f\nprint(f(1))\n",
+			"default": "func f(n = 1) { return n }\nprint(f(2))\n",
+			"shadow":  "func f(n) { return n }\nfunc g() {\n    var f = 1\n    return f\n}\nprint(f(1))\n",
+		} {
+			code := transpileSource(t, source)
+			if !strings.Contains(code, "&object.Function{Name: \"f\"") {
+				t.Fatalf("%s: expected f to keep its generic wrapper\n%s", name, code)
+			}
+			if strings.Contains(code, "(n int64)") {
+				t.Fatalf("%s: expected f to keep boxed parameters\n%s", name, code)
+			}
+		}
+	})
+
+	t.Run("call sites inside methods and literals count", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) { return n }
+type T(x) {
+    func m(self) { return f(self.x) }
+}
+print(f(1))
+`)
+		if !strings.Contains(code, "(n object.Object) (object.Object, error)") {
+			t.Fatalf("a call passing a field must keep the parameter boxed\n%s", code)
+		}
+	})
+}
+
 func TestRangeForLowering(t *testing.T) {
 	t.Run("range loop lowers to a native counter", func(t *testing.T) {
 		code := transpileSource(t, `for i in range(0, 10) {

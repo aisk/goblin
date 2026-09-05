@@ -1,0 +1,126 @@
+# Module-level functions whose every use is a plain positional call may get
+# native Go parameter and return types in the transpiler. This file pins down
+# the behaviour that has to survive that: recursion, mixed native and dynamic
+# parameters, every return shape, errors raised inside such a function, and
+# the shapes that must keep the function generic.
+
+# Recursion resolves through the fixed point: fib(n) is int -> int.
+func fib(n) {
+    if n < 2 {
+        return n
+    }
+    return fib(n - 1) + fib(n - 2)
+}
+print(fib(20))
+
+# Several parameters, one of them a list, another reassigned in the body.
+func weighted(xs, scale, offset) {
+    scale = scale * 2
+    var total = 0
+    for x in xs {
+        total = total + x
+    }
+    return total * scale + offset
+}
+print(weighted([1, 2, 3], 2, 1))
+print(weighted([], 5, -1))
+
+# Float and bool results.
+func half(x) {
+    return x / 2.0
+}
+print(half(3))
+print(half(2.5))
+
+func is_even(n) {
+    return n % 2 == 0
+}
+print(is_even(4))
+print(is_even(7))
+
+# A body that can fall off the end returns nil on that path.
+func first_over(limit, step) {
+    var i = 0
+    while i < 100 {
+        if i > limit {
+            return i
+        }
+        i = i + step
+    }
+}
+print(first_over(10, 3))
+print(first_over(1000, 3))
+
+# Both branches return: the implicit trailing return is unreachable.
+func sign(x) {
+    if x < 0 {
+        return -1
+    } else {
+        return 1
+    }
+}
+print(sign(-5))
+print(sign(5))
+
+# Errors inside a native function are still catchable by the caller.
+func ratio(a, b) {
+    return a / b
+}
+try {
+    print(ratio(10, 0))
+} catch e {
+    print("caught:", e)
+}
+print(ratio(10, 4))
+
+# Native calls in conditions and short-circuit expressions.
+var k = 0
+while fib(k) < 50 {
+    k = k + 1
+}
+print(k)
+if k > 5 && is_even(fib(k)) {
+    print("even fib")
+} else {
+    print("odd fib")
+}
+
+# Called with different types at different sites: parameter stays dynamic.
+func describe(v) {
+    return v
+}
+print(describe(1))
+print(describe("one"))
+
+# Used as a value: stays a generic function object.
+func twice(x) {
+    return x * 2
+}
+var apply = func(f, v) {
+    return f(v)
+}
+print(apply(twice, 21))
+print(twice(4))
+
+# Called with a keyword at one site: stays generic everywhere.
+func power(base, exp) {
+    var result = 1
+    var i = 0
+    while i < exp {
+        result = result * base
+        i = i + 1
+    }
+    return result
+}
+print(power(2, 10))
+print(power(base = 3, exp = 3))
+
+# A parameter reassigned to another type is dynamic; the rest still work.
+func mixed(a, b) {
+    if b > 0 {
+        a = "positive"
+    }
+    return a
+}
+print(mixed(1, 1))
+print(mixed(1, 0))

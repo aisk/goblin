@@ -85,11 +85,36 @@ func goTypeOf(t staticType) string {
 //
 // Only names introduced by `var` in this body are candidates, plus the
 // variables of for-range loops when rangeNative says the range builtin is what
-// `range` resolves to throughout this body. Parameters are excluded: a caller
-// may pass anything, and proving otherwise would need interprocedural
-// analysis.
-func inferLocals(body []ast.Statement, rangeNative bool) map[string]staticType {
+// `range` resolves to throughout this body, plus whatever seed supplies.
+// Parameters are otherwise excluded: a caller may pass anything, and proving
+// otherwise is the interprocedural analysis in signatures.go, which is what
+// hands parameters in through seed.
+func inferLocals(body []ast.Statement, rangeNative bool, seed map[string]staticType, sigs map[string]*fnSig) map[string]staticType {
+	types := inferTypes(body, rangeNative, seed, sigs)
+	for name, t := range types {
+		if !t.native() {
+			delete(types, name)
+		}
+	}
+	if len(types) == 0 {
+		return nil
+	}
+	return types
+}
+
+// inferTypes is inferLocals before the final filter: it returns every
+// candidate with its lattice value, tyUnknown included. The signature
+// inference in signatures.go needs the unfiltered view, because a name still
+// at tyUnknown may yet resolve once a callee's signature is known.
+//
+// seed pre-populates candidates with a starting type; the parameters of a
+// closed function arrive this way, carrying the join of their call sites.
+// sigs supplies the return types of calls to closed functions.
+func inferTypes(body []ast.Statement, rangeNative bool, seed map[string]staticType, sigs map[string]*fnSig) map[string]staticType {
 	types := map[string]staticType{}
+	for name, t := range seed {
+		types[name] = t
+	}
 
 	// Candidates: every `var` in this body, at any block depth. Block scoping
 	// means two `var x` in sibling blocks are distinct variables, but merging
@@ -115,7 +140,7 @@ func inferLocals(body []ast.Statement, rangeNative bool) map[string]staticType {
 			if !ok || cur == tyDynamic {
 				return
 			}
-			next := join(cur, staticTypeOf(value, types))
+			next := join(cur, staticTypeOf(value, types, sigs))
 			if next != cur {
 				types[name] = next
 				changed = true
@@ -124,15 +149,6 @@ func inferLocals(body []ast.Statement, rangeNative bool) map[string]staticType {
 		if !changed {
 			break
 		}
-	}
-
-	for name, t := range types {
-		if !t.native() {
-			delete(types, name)
-		}
-	}
-	if len(types) == 0 {
-		return nil
 	}
 	return types
 }
@@ -171,26 +187,9 @@ func collectDeclarations(stmts []ast.Statement, types map[string]staticType, ran
 
 // rangeCallParts reports whether expr is a call of the form range(a, b) —
 // exactly two plain positional arguments — and returns the bound expressions.
-// Both call node shapes are matched: the grammar produces *ast.FunctionCall
-// for a bare-name call and *ast.CallExpression for the general form.
 func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
-	var args []ast.CallArgument
-	switch e := expr.(type) {
-	case *ast.FunctionCall:
-		if e.Name != "range" {
-			return nil, nil, false
-		}
-		args = e.Args
-	case *ast.CallExpression:
-		ident, isIdent := e.Callee.(*ast.Identifier)
-		if !isIdent || ident.Name != "range" {
-			return nil, nil, false
-		}
-		args = e.Args
-	default:
-		return nil, nil, false
-	}
-	if len(args) != 2 {
+	name, args, isCall := bareCall(expr)
+	if !isCall || name != "range" || len(args) != 2 {
 		return nil, nil, false
 	}
 	for _, arg := range args {
@@ -201,26 +200,39 @@ func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
 	return args[0].Expr, args[1].Expr, true
 }
 
-// bodyDeclaresName reports whether this body introduces a binding for name at
-// any block depth: a `var`, a for-loop variable, a catch variable, or a
-// function or type definition. Nested function bodies are separate scopes and
-// do not count. enterScope uses this to decide whether `range` means the
-// builtin everywhere in a body, which has to be a whole-body property because
-// the type inference above is flow-insensitive.
-func bodyDeclaresName(stmts []ast.Statement, name string) bool {
+// declaresNameAnywhere reports whether a module binds name at any depth: a
+// `var`, a for-loop or catch variable, a function, type or import, or a
+// parameter of any function, literal or method. transpileModuleStatements
+// uses it to decide whether `range` means the builtin throughout the module,
+// which has to be a whole-module property because the signature inference
+// types every body before any of them is generated.
+func declaresNameAnywhere(stmts []ast.Statement, name string) bool {
 	found := false
-	forEachStatement(stmts, func(stmt ast.Statement) {
-		switch s := stmt.(type) {
+	params := func(ps []*ast.Parameter) {
+		for _, p := range ps {
+			found = found || p.Name == name
+		}
+	}
+	walkNodes(stmts, true, func(node ast.Statement) {
+		switch n := node.(type) {
 		case *ast.Declare:
-			found = found || s.Name == name
+			found = found || n.Name == name
 		case *ast.For:
-			found = found || s.Variable == name
+			found = found || n.Variable == name
 		case *ast.TryCatch:
-			found = found || s.CatchVar == name
+			found = found || n.CatchVar == name
+		case *ast.Import:
+			found = found || n.Name == name
 		case *ast.FunctionDefine:
-			found = found || s.Name == name
+			found = found || n.Name == name
+			params(n.Parameters)
+		case *ast.FunctionLiteral:
+			params(n.Parameters)
 		case *ast.TypeDefine:
-			found = found || s.Name == name
+			found = found || n.Name == name
+			for _, m := range n.Methods {
+				params(m.Parameters)
+			}
 		}
 	})
 	return found
@@ -383,7 +395,14 @@ func walkAssignments(stmts []ast.Statement, fn func(name string, value ast.Expre
 // evaluated natively, and as what". emitNative below mirrors it exactly; if the
 // two ever disagree, the generated code stops compiling rather than silently
 // misbehaving, because a native declaration would receive a boxed value.
-func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
+//
+// tyUnknown is the lattice bottom and propagates: an operator whose operand
+// is still unknown is itself unknown rather than dynamic, so a variable whose
+// value depends on a not-yet-resolved name (a later declaration, a parameter
+// whose call sites are still being joined) keeps its chance of becoming
+// native. Whatever is still unknown when the fixed point ends is dropped by
+// inferLocals, so nothing is ever generated for an unresolved type.
+func staticTypeOf(expr ast.Expression, types map[string]staticType, sigs map[string]*fnSig) staticType {
 	switch e := expr.(type) {
 	case *ast.Literal:
 		switch e.Value.(type) {
@@ -403,7 +422,10 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 		return tyDynamic
 
 	case *ast.UnaryOperation:
-		operand := staticTypeOf(e.Operand, types)
+		operand := staticTypeOf(e.Operand, types, sigs)
+		if operand == tyUnknown {
+			return tyUnknown
+		}
 		switch e.Operator {
 		case "-", "+":
 			if operand == tyInt || operand == tyFloat {
@@ -417,8 +439,14 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 		return tyDynamic
 
 	case *ast.BinaryOperation:
-		lhs := staticTypeOf(e.LHS, types)
-		rhs := staticTypeOf(e.RHS, types)
+		lhs := staticTypeOf(e.LHS, types, sigs)
+		rhs := staticTypeOf(e.RHS, types, sigs)
+		if lhs == tyDynamic || rhs == tyDynamic {
+			return tyDynamic
+		}
+		if lhs == tyUnknown || rhs == tyUnknown {
+			return tyUnknown
+		}
 		switch e.Operator {
 		// Division is included, but unlike the other operators it cannot be a
 		// bare Go `/`: Goblin raises a catchable ZeroDivisionError where Go
@@ -456,8 +484,19 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 			// zero-check hoisted in front of the whole expression, which breaks
 			// short-circuiting: `b != 0 && a / b > 1` would raise the very
 			// error the guard was written to avoid.
-			if lhs == tyBool && rhs == tyBool && !containsZeroCheckedArithmetic(e.RHS) {
+			if lhs == tyBool && rhs == tyBool && !hoistsStatements(e.RHS) {
 				return tyBool
+			}
+		}
+		return tyDynamic
+
+	case *ast.FunctionCall, *ast.CallExpression:
+		// A call to a closed direct function has the return type of its
+		// signature. Closedness guarantees the name is bound nowhere else in
+		// the module, so no scope lookup is needed to know what it refers to.
+		if name, _, ok := bareCall(expr); ok {
+			if sig, ok := sigs[name]; ok {
+				return sig.ret
 			}
 		}
 		return tyDynamic
@@ -466,18 +505,36 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType) staticType {
 	return tyDynamic
 }
 
-// containsZeroCheckedArithmetic reports whether a native-eligible expression
-// tree performs division or modulo, i.e. whether emitNative would need to hoist
-// a guard for it.
-func containsZeroCheckedArithmetic(expr ast.Expression) bool {
+// hoistsStatements reports whether emitting a native-eligible expression tree
+// needs preceding statements: a zero check for division or modulo, or the
+// call-and-error-check pair of a lowered call. Both would be hoisted in front
+// of the whole expression, which is what makes them incompatible with the
+// short-circuit operators.
+func hoistsStatements(expr ast.Expression) bool {
 	switch e := expr.(type) {
 	case *ast.UnaryOperation:
-		return containsZeroCheckedArithmetic(e.Operand)
+		return hoistsStatements(e.Operand)
 	case *ast.BinaryOperation:
 		return e.Operator == "/" || e.Operator == "%" ||
-			containsZeroCheckedArithmetic(e.LHS) || containsZeroCheckedArithmetic(e.RHS)
+			hoistsStatements(e.LHS) || hoistsStatements(e.RHS)
+	case *ast.FunctionCall, *ast.CallExpression:
+		return true
 	}
 	return false
+}
+
+// bareCall matches a call through a plain name, in either of the two node
+// shapes the grammar produces for it, and returns the name and arguments.
+func bareCall(expr ast.Expression) (name string, args []ast.CallArgument, ok bool) {
+	switch e := expr.(type) {
+	case *ast.FunctionCall:
+		return e.Name, e.Args, true
+	case *ast.CallExpression:
+		if ident, isIdent := e.Callee.(*ast.Identifier); isIdent {
+			return ident.Name, e.Args, true
+		}
+	}
+	return "", nil, false
 }
 
 // forEachStatement visits every statement in the current function body,

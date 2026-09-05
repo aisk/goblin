@@ -1,6 +1,8 @@
 package transpiler
 
 import (
+	"fmt"
+
 	"github.com/aisk/goblin/ast"
 	"github.com/dave/jennifer/jen"
 )
@@ -93,9 +95,23 @@ func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument,
 		}
 	}
 
+	// A closed function's native parameters take the argument unboxed. The
+	// signature inference has verified that every call site agrees, so a
+	// mismatch here is a bug in one of the two and is reported as such.
+	sig := ctx.sigs[name]
 	argExprs := make([]jen.Code, 0, len(args))
-	for _, arg := range args {
-		argPre, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
+	for i, arg := range args {
+		var argPre []jen.Code
+		var argExpr *jen.Statement
+		var err error
+		if sig != nil && sig.params[i].native() {
+			if got := ctx.nativeTypeOf(arg.Expr); got != sig.params[i] {
+				return nil, nil, false, fmt.Errorf("%s: internal error: argument %d of %s inferred as %s but the parameter is %s", arg.Expr.Position(), i, name, goTypeOf(got), goTypeOf(sig.params[i]))
+			}
+			argPre, argExpr, err = ctx.emitNative(arg.Expr, onError)
+		} else {
+			argPre, argExpr, err = ctx.transpileExpression(arg.Expr, onError)
+		}
 		if err != nil {
 			return nil, nil, false, err
 		}
