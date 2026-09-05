@@ -433,17 +433,20 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 	}
 
 	var sortErr error
+	argv := make(Args, 1)
 	less := func(i, j int) bool {
 		if sortErr != nil {
 			return false
 		}
 		var a, b Object
 		if key != Nil {
-			a, sortErr = Call(key, CallArgs{Positional: []Object{l.Elements[i]}})
+			argv[0] = l.Elements[i]
+			a, sortErr = Call(key, CallArgs{Positional: argv})
 			if sortErr != nil {
 				return false
 			}
-			b, sortErr = Call(key, CallArgs{Positional: []Object{l.Elements[j]}})
+			argv[0] = l.Elements[j]
+			b, sortErr = Call(key, CallArgs{Positional: argv})
 			if sortErr != nil {
 				return false
 			}
@@ -481,8 +484,10 @@ func (l *List) mapMethod(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	newElems := make([]Object, len(l.Elements))
+	argv := make(Args, 1)
 	for i, e := range l.Elements {
-		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		res, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -498,8 +503,10 @@ func (l *List) filterMethod(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	newElems := []Object{}
+	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		res, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -531,9 +538,11 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 		acc = l.Elements[0]
 		start = 1
 	}
+	argv := make(Args, 2)
 	for i := start; i < len(l.Elements); i++ {
 		var err error
-		acc, err = Call(fn, CallArgs{Positional: []Object{acc, l.Elements[i]}})
+		argv[0], argv[1] = acc, l.Elements[i]
+		acc, err = Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -547,8 +556,10 @@ func (l *List) eachMethod(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
+	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		_, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		_, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -562,8 +573,10 @@ func (l *List) findMethod(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
+	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		res, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -598,8 +611,10 @@ func (l *List) anyMethod(args CallArgs) (Object, error) {
 		return False, nil
 	}
 
+	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		res, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -634,8 +649,10 @@ func (l *List) allMethod(args CallArgs) (Object, error) {
 		return True, nil
 	}
 
+	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		res, err := Call(fn, CallArgs{Positional: []Object{e}})
+		argv[0] = e
+		res, err := Call(fn, CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}

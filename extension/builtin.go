@@ -92,7 +92,9 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 func Spawn(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("spawn", args)
 	fn := p.Func("fn")
-	rest := p.Rest()
+	// The arguments only live for this call (see object.CallArgs); the
+	// goroutine runs after it returns, so it gets its own copy.
+	rest := append(object.Args(nil), p.Rest()...)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}

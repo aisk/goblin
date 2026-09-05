@@ -39,6 +39,11 @@ func (k *Kwargs) Set(name string, value Object) {
 	*k = append(*k, KwArg{Name: name, Value: value})
 }
 
+// CallArgs carries the arguments of one call. Both slices belong to the
+// caller and are valid only for the duration of the call: a callee that needs
+// them afterwards (to run later, or on another goroutine) must copy what it
+// keeps. The runtime relies on this to reuse one argument slice across the
+// many calls a callback-taking method such as List.map makes.
 type CallArgs struct {
 	Positional Args
 	Keyword    Kwargs
