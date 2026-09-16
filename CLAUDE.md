@@ -47,10 +47,10 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 
 - `goblin.bnf` — Master grammar. All changes to syntax start here.
 - `ast/ast.go` — AST node types and `New*`/`Append*` constructors required by gocc reduce actions.
-- `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `eprint`, `range`, `max`, `min`) are resolved here.
+- `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `eprint`, `range`, `max`, `min`) are resolved here. AST walkers in `transpiler/{directcall,signatures,typeinfer}.go` must visit impl and trait method bodies too (`TypeDefine.AllMethods()`, `TraitDefine.Methods`).
 - `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST.
 - `semantic/semantic.go` — Semantic checks run on the module before either backend.
-- `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration.
+- `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration; user types dispatch through traits (see below).
 - `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.
 - `main.go` — CLI entry point (cobra commands: `run`, `build-exe`, `repl`).
 
@@ -58,9 +58,9 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 
 Importable modules are implemented in Go under `extension/` and come in two tiers: curated core modules with flat names (`os`, `json`, `http`, …) and direct Go wrappers registered under the `x/` prefix with Go's package hierarchy (`x/compress/gzip`, `x/crypto/sha256`, …). Each module is its own Go package at `extension/<module name>` exposing `Execute`, so compiled programs only link the modules they import; shared plumbing lives in `extension/internal/` (`digest`, `compress`, `archive`, plus the `modtest` test helpers). A new module must be registered in **two places**: `builtinModules` in `interpreter/imports.go` and `knownModules` in `transpiler/transpiler.go` (the registries derive the Go import path from the module name). API design and tier placement follow `STDLIB_DESIGN.md`.
 
-### Custom-Type Operator Overloading
+### Traits
 
-User-defined types implement operators/protocols via single-leading-underscore dunder methods — `__add`, `__radd` (and the other reflected operators), `__cmp`, `__bool`, `__str`, `__iter`, `__getitem`, `__setitem`, `__not`, etc. (this style, **not** Python's `__add__` with trailing underscores). The authoritative list is `object.ProtocolArity` in `object/protocol.go` (shared by the semantic checker and both backends); `&&` and `||` are **not** overloadable, they go through `ToBool()`.
+User types take part in operators and conversions by implementing traits in `impl` blocks inside the type body (`impl Eq {}`, `impl Num { func add(self, other) { ... } }`); `trait Name: Deps { ... }` declares user traits, where a body-less method is required and one with a body is a default. There are no dunder methods. The built-in traits (`Eq`, `Ord`, `Hashable`, `Show`, `Truth`, `Num`, `Iter`, `Index`) and all dispatch live in `object/`: `traits_builtin.go` defines them (method indexes, defaults, routes to `object.Object` methods for built-in values, structural implementations), `trait.go` is the trait value, and `usertype.go` holds `UserType`/`TraitImpl`, the shared `CheckImpls` validation (used by both the semantic checker and runtime `Seal`), and the `User*` helpers that both the interpreter's instances and the transpiler's generated structs call from their `Object` methods. Trait methods are never instance attributes; they are called as `Trait.method(receiver, ...)`. `!x` is always the negation of `ToBool`, so `Object` has no `Not` method.
 
 ### Generated Code (do not edit)
 

@@ -1,0 +1,83 @@
+# Runnable version of the examples in the Traits chapter.
+trait Shape {
+    func area(self)
+    func describe(self) {
+        return "area " + Str(Shape.area(self))
+    }
+}
+
+type Rect(w, h) {
+    impl Eq {}
+    impl Show {}
+    impl Shape {
+        func area(self) {
+            return self.w * self.h
+        }
+    }
+}
+
+var r = Rect(2, 3)
+print(r)
+print(r == Rect(2, 3))
+print(Shape.describe(r))
+print(r.traits())
+print(Shape.area(r))
+print(Ord.max(3, 7))
+
+trait Named {
+    func name(self)
+}
+
+trait Titled: Named, Show {
+    func title(self)
+}
+
+trait Loud {
+    func shout(self) {
+        return Str(self).upper() + "!"
+    }
+}
+
+type Word(text) {
+    impl Show {
+        func show(self) {
+            return self.text
+        }
+    }
+    impl Loud {}
+}
+print(Loud.shout(Word("hey")))
+
+type Money(amount) {
+    impl Ord {
+        func compare(self, other) {
+            return self.amount - other
+        }
+    }
+}
+
+var m = Money(5)
+print(m < 10)
+print(10 > m)
+print(m == 5)
+
+type Vector(x, y) {
+    impl Num {
+        func add(self, other) {
+            return Vector(self.x + other.x, self.y + other.y)
+        }
+        func neg(self) {
+            return Vector(-self.x, -self.y)
+        }
+        func rmul(self, k) {
+            return Vector(k * self.x, k * self.y)
+        }
+    }
+    impl Show {}
+}
+
+var v = Vector(1, 2)
+print(v - Vector(1, 1))
+print(2 * v)
+print(-v)
+print(Eq.ne("a", "b"), Num.rsub(1, 10))

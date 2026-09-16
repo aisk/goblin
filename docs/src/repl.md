@@ -47,6 +47,11 @@ types, loops, and try/catch blocks.
 Enter a blank line to force evaluation of a malformed fragment, or press
 Ctrl-C to discard the input currently being collected.
 
+Entering a `type` or `trait` declaration again rebinds its name. A trait is
+identified by the value, not the name, so types defined against the old trait
+keep implementing the old one: define those types again after redefining a
+trait.
+
 ## Completion and history
 
 Press Tab to complete visible names, keywords, and member paths. For example,

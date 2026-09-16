@@ -39,6 +39,21 @@ eprint("ready on port", 8080)
 See [Built-in types](./built-in-types.md) for value-specific methods, and
 [Concurrency](./concurrency.md) for channels and spawn.
 
+## Built-in traits
+
+The traits behind operators and conversions are globals as well: `Eq`, `Ord`,
+`Hashable`, `Show`, `Truth`, `Num`, `Iter` and `Index`. Types implement them in
+`impl` blocks, and their methods can be called directly with the receiver
+first, on any value:
+
+~~~goblin
+print(Ord.max(3, 7))            # 7
+print(Eq.ne("a", "b"))          # true
+print(Num.rsub(1, 10))          # 9, that is 10 - 1
+~~~
+
+See [Traits](./traits.md) for the methods of each trait.
+
 ## Constructors and type identity
 
 Runtime values expose their constructor through `value.constructor` when the

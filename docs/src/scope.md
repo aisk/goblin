@@ -29,10 +29,12 @@ print(readers[0](), readers[1](), readers[2]()) # 1 2 3
 
 ## Declarations at module scope
 
-`import`, `type`, and `export` are allowed only at module scope. Module-level
-`import`, `func`, and `type` names are hoisted: they are visible throughout
-the module regardless of where the definition appears, so functions may call
-functions defined later — including mutually recursive pairs.
+`import`, `type`, `trait`, and `export` are allowed only at module scope. Module-level
+`import`, `func`, `type`, and `trait` names are hoisted: they are visible
+throughout the module regardless of where the definition appears, so functions
+may call functions defined later, including mutually recursive pairs. The one
+ordering rule is that a trait must be declared before a type implementing it. Type
+and trait names cannot be reassigned.
 
 ~~~goblin
 func is_even(n) {

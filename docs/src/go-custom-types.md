@@ -6,8 +6,8 @@ It includes these groups of methods:
 
 | Group | Object methods |
 | --- | --- |
-| Display and conversion | ToString(), ToBool() |
-| Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Modulo(), Not() |
+| Display and conversion | ToString(), ToBool() (which `!` negates) |
+| Comparison and operators | Equals(), Compare(), Add(), Minus(), Multiply(), Divide(), Modulo() |
 | Reflected operators | RAdd(), RMinus(), RMultiply(), RDivide(), RModulo() |
 | Collection protocols | Iter(), Index() |
 | Members | GetAttr(), Attributes(), SetIndex(), SetAttr() |
@@ -19,7 +19,8 @@ through them: embed object.NoReflectedOps and they all answer "not handled".
 Types should also implement String() string, satisfying fmt.Stringer. It is
 not part of the interface, but diagnostics and formatting use fmt.Stringer
 and fall back to TypeName() when String is not available.
-ToString is the failing counterpart that may run a user-defined __str.
+ToString is the failing counterpart, which for a Goblin-defined type runs its
+Show impl.
 
 Assignment is part of the interface too: SetIndex and SetAttr return a bool
 saying whether the value accepts that form of assignment at all. A value that
@@ -126,10 +127,11 @@ inherits that type's name too, which is exactly the wrong answer.
 ## Operators dispatch through package-level helpers
 
 The operators do not call Equals, Compare, Add and friends on the left operand
-directly: both backends go through object.Equals(a, b), object.Compare(a, b),
-object.Add(a, b), object.Minus(a, b), object.Multiply(a, b) and
-object.Divide(a, b), and object.Modulo(a, b), which also give the right operand
-a chance to answer.
+directly: both backends go through object.Equals and object.NotEquals, the
+ordering helpers object.Less, object.LessEqual, object.Greater and
+object.GreaterEqual, and object.Add, object.Minus, object.Multiply,
+object.Divide and object.Modulo, which also give the right operand a chance to
+answer.
 A custom type therefore only has to recognize the types it knows, and its
 Compare is reached even when it appears on the right of `1 < value`. Report an
 unfit pair with object.NewTypeError so the reflected attempt is made; any other
@@ -138,7 +140,7 @@ a TypeError from it means "not this type" and leaves `==` total, while any
 other error fails the comparison.
 
 Arithmetic reaches the right operand through RAdd, RMinus, RMultiply, RDivide
-and RModulo, the Go side of `__radd` and friends. Their argument is the LEFT
+and RModulo, the Go side of `Num.radd` and friends. Their argument is the LEFT
 operand — RMinus(left) computes `left - receiver` — and the bool they return
 reports whether the receiver handled this operand at all; returning false
 leaves the left operand's error in place. Embed object.NoReflectedOps and
@@ -160,6 +162,13 @@ func (v Vector) RMultiply(left object.Object) (object.Object, bool, error) {
     return Vector{X: v.X * float64(n), Y: v.Y * float64(n)}, true, nil
 }
 ~~~
+
+A Go type does not implement traits: it implements the object.Object methods,
+and the built-in trait objects route to them. `Ord.compare(a, b)` on a Go value
+calls object.Compare, `Show.show(x)` calls ToString, `Num.add(a, b)` calls
+object.Add, and so on, so a Go type that implements Compare works with
+`Ord.max` and `sort` without further work. Only Goblin-defined types have impls
+and `traits()`.
 
 For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show
