@@ -442,10 +442,11 @@ func exportedName(name string) string {
 var reservedGoMethodNames = map[string]bool{
 	"String": true, "Bool": true, "Equals": true, "Compare": true, "Add": true,
 	"Minus": true, "Multiply": true, "Divide": true, "Modulo": true,
-	"Not": true, "Iter": true, "Index": true,
+	"Iter": true, "Index": true,
 	"GetAttr": true, "Attributes": true, "SetAttr": true, "SetIndex": true,
 	"TypeName": true, "ToString": true, "ToBool": true,
 	"RAdd": true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
+	"Hash": true, "UserType": true, "FieldValues": true, "CallMethod": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin
@@ -940,7 +941,7 @@ func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpressio
 	// `self.field` inside a method is a plain Go field read on the receiver:
 	// no GetAttr dispatch, no error path.
 	if info, ok := ctx.selfMember(expr.Object, expr.Property); ok && info.fields[expr.Property] {
-		return nil, jen.Id(info.receiver).Dot(expr.Property), nil
+		return nil, jen.Id(info.receiver).Dot(fieldGoName(expr.Property)), nil
 	}
 
 	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
@@ -1265,7 +1266,7 @@ func (ctx *transpileContext) transpileSetAttr(s *ast.SetAttr, onError errHandler
 		if err != nil {
 			return nil, err
 		}
-		return append(valPre, jen.Id(info.receiver).Dot(s.Property).Op("=").Add(val)), nil
+		return append(valPre, jen.Id(info.receiver).Dot(fieldGoName(s.Property)).Op("=").Add(val)), nil
 	}
 
 	objPre, obj, err := ctx.transpileExpression(s.Object, onError)
@@ -1930,240 +1931,102 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	ctorVarName := typeDef.Name + "Constructor"
 	ctx.moduleImports[typeDef.Name] = ctorVarName
 	goTypeName := ctx.goTypeName(typeDef.Name)
-	receiverName := strings.ToLower(typeDef.Name[:1])
-	if receiverName == "_" {
-		receiverName = "self"
-	}
+	receiverName := receiverGoName
 
 	structFields := make([]jen.Code, 0, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
-		structFields = append(structFields, jen.Id(field.Name).Qual(pathObject, "Object"))
+		structFields = append(structFields, jen.Id(fieldGoName(field.Name)).Qual(pathObject, "Object"))
 	}
 
 	ctx.topDecls = append(ctx.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
 
-	reprFormat := fmt.Sprintf("<%s@%%p>", typeDef.Name)
+	// typeVar holds the type's object.UserType: its impls, built when the type
+	// statement runs, since the traits they name are runtime values.
+	typeVar := ctx.localName("type_" + typeDef.Name)
+	ctx.topDecls = append(ctx.topDecls, jen.Var().Id(typeVar).Op("*").Qual(pathObject, "UserType"))
 
-	// A user type may customize protocol behavior (operators, iteration,
-	// string/bool conversion, indexing) by defining a method with the matching
-	// conventional name. When defined, the generated interface method delegates
-	// to that method's wrapper; otherwise it falls back to a type error.
-	defined := make(map[string]bool, len(typeDef.Methods))
-	for _, m := range typeDef.Methods {
-		defined[m.Name] = true
-	}
 	receiverParam := func() jen.Code { return jen.Id(receiverName).Op("*").Id(goTypeName) }
-	// Protocol fallbacks raise the same TypeError the interpreter and the
-	// built-in types raise, so `catch TypeError` and object.Compare's reflected
-	// dispatch behave identically on user types across both backends.
-	errorf := func(format string) jen.Code {
-		return jen.Qual(pathObject, "NewTypeError").Call(jen.Lit(format), jen.Lit(typeDef.Name))
+	obj := func() *jen.Statement { return jen.Qual(pathObject, "Object") }
+	// userCall builds `return object.<helper>(receiver, args...)`: every
+	// operator and conversion dispatches through the type's impls in the
+	// object package, exactly as the interpreter's instances do.
+	userCall := func(helper string, args ...jen.Code) jen.Code {
+		return jen.Return(jen.Qual(pathObject, helper).Call(append([]jen.Code{jen.Id(receiverName)}, args...)...))
 	}
-	// protoCall builds `receiver.Wrapper(object.CallArgs{Positional: {args}})`.
-	protoCall := func(goblinName string, args ...jen.Code) *jen.Statement {
-		var callArgs jen.Code
-		if len(args) == 0 {
-			callArgs = jen.Qual(pathObject, "CallArgs").Values()
-		} else {
-			callArgs = jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
-				jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(args...),
-			})
-		}
-		return jen.Id(receiverName).Dot(methodWrapperName(goblinName)).Call(callArgs)
+	protoDecls := make([]jen.Code, 0, 24)
+	method := func(name string, params []jen.Code, results jen.Code, body ...jen.Code) {
+		protoDecls = append(protoDecls, jen.Func().Params(receiverParam()).Id(name).Params(params...).Add(results).Block(body...))
 	}
-	protoDecls := make([]jen.Code, 0, 18)
+	other := func(name string) []jen.Code { return []jen.Code{jen.Id(name).Add(obj())} }
 
 	// TypeName() string — the declared Goblin name, so diagnostics never leak
 	// the generated Go type (the interpreter reports the same name here).
-	protoDecls = append(protoDecls, jen.Func().Params(receiverParam()).Id("TypeName").Params().String().Block(
-		jen.Return(jen.Lit(typeDef.Name)),
-	))
-
-	// String() string  <- "__str" (infallible fmt.Stringer, for diagnostics)
-	reprReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)))
-	strDecl := jen.Func().Params(receiverParam()).Id("String").Params().String()
-	if defined[object.ProtoStr] {
-		strDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoStr)),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(reprReturn),
-			jen.Return(jen.Qual("fmt", "Sprint").Call(jen.Id("_res"))),
-		)
-	} else {
-		strDecl.Block(reprReturn)
+	method("TypeName", nil, jen.String(), jen.Return(jen.Lit(typeDef.Name)))
+	method("UserType", nil, jen.Op("*").Qual(pathObject, "UserType"), jen.Return(jen.Id(typeVar)))
+	fieldValues := make([]jen.Code, 0, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		fieldValues = append(fieldValues, jen.Id(receiverName).Dot(fieldGoName(field.Name)))
 	}
-	protoDecls = append(protoDecls, strDecl)
+	method("FieldValues", nil, jen.Index().Add(obj()), jen.Return(jen.Index().Add(obj()).Values(fieldValues...)))
+	method("String", nil, jen.String(), userCall("UserString"))
+	method("ToString", nil, jen.Parens(jen.List(jen.String(), jen.Error())), userCall("UserToString"))
+	method("ToBool", nil, jen.Parens(jen.List(jen.Bool(), jen.Error())), userCall("UserToBool"))
+	method("Hash", nil, jen.Parens(jen.List(jen.Uint64(), jen.Error())), userCall("UserHash"))
+	method("Equals", other("other"), jen.Parens(jen.List(jen.Bool(), jen.Error())), userCall("UserEquals", jen.Id("other")))
+	method("Compare", other("other"), jen.Parens(jen.List(jen.Int(), jen.Error())), userCall("UserCompare", jen.Id("other")))
 
-	// ToString() (string, error)  <- "__str" (error-propagating)
-	toStringReturn := jen.Return(jen.Qual("fmt", "Sprintf").Call(jen.Lit(reprFormat), jen.Id(receiverName)), jen.Nil())
-	toStringDecl := jen.Func().Params(receiverParam()).Id("ToString").Params().Parens(jen.List(jen.String(), jen.Error()))
-	if defined[object.ProtoStr] {
-		toStringDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoStr)),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(""), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("ToString").Call()),
-		)
-	} else {
-		toStringDecl.Block(toStringReturn)
-	}
-	protoDecls = append(protoDecls, toStringDecl)
-
-	// ToBool() (bool, error)  <- "__bool" (error-propagating)
-	toBoolDecl := jen.Func().Params(receiverParam()).Id("ToBool").Params().Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined[object.ProtoBool] {
-		toBoolDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoBool)),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("ToBool").Call()),
-		)
-	} else {
-		toBoolDecl.Block(jen.Return(jen.True(), jen.Nil()))
-	}
-	protoDecls = append(protoDecls, toBoolDecl)
-
-	// Equals(other) (bool, error) — __cmp when defined, identity otherwise. A
-	// __cmp that fails fails the comparison rather than reporting "not equal".
-	equalsDecl := jen.Func().Params(receiverParam()).Id("Equals").Params(
-		jen.Id("other").Qual(pathObject, "Object"),
-	).Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined[object.ProtoCmp] {
-		equalsDecl.Block(
-			jen.List(jen.Id("_cmp"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("Compare").Call(jen.Id("other")),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.False(), jen.Id("_err"))),
-			jen.Return(jen.Id("_cmp").Op("==").Lit(0), jen.Nil()),
-		)
-	} else {
-		equalsDecl.Block(
-			jen.List(jen.Id("_o"), jen.Id("_ok")).Op(":=").Id("other").Assert(jen.Op("*").Id(goTypeName)),
-			jen.Return(jen.Id("_ok").Op("&&").Id("_o").Op("==").Id(receiverName), jen.Nil()),
-		)
-	}
-	protoDecls = append(protoDecls, equalsDecl)
-
-	// Compare(other) (int, error)  <- "__cmp" (returns Int -1/0/1)
-	cmpDecl := jen.Func().Params(receiverParam()).Id("Compare").Params(
-		jen.Id("other").Qual(pathObject, "Object"),
-	).Parens(jen.List(jen.Int(), jen.Error()))
-	if defined[object.ProtoCmp] {
-		cmpDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoCmp, jen.Id("other"))),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Lit(0), jen.Id("_err"))),
-			jen.List(jen.Id("_i"), jen.Id("_ok")).Op(":=").Id("_res").Assert(jen.Qual(pathObject, "Integer")),
-			jen.If(jen.Op("!").Id("_ok")).Block(
-				jen.Return(jen.Lit(0), jen.Qual(pathObject, "NewTypeError").Call(
-					jen.Lit(object.ErrFmtCmpMustReturnInt),
-					jen.Lit(typeDef.Name),
-					jen.Qual("fmt", "Sprint").Call(jen.Id("_res")),
-				)),
-			),
-			jen.Return(jen.Int().Parens(jen.Id("_i")), jen.Nil()),
-		)
-	} else {
-		cmpDecl.Block(jen.Return(jen.Lit(0), errorf(object.ErrFmtCannotCompare)))
-	}
-	protoDecls = append(protoDecls, cmpDecl)
-
-	// Binary operators (other) (Object, error)
-	binOps := []struct{ goMethod, goblin, errFmt string }{
-		{"Add", object.ProtoAdd, object.ErrFmtCannotAdd},
-		{"Minus", object.ProtoSub, object.ErrFmtCannotSubtract},
-		{"Multiply", object.ProtoMul, object.ErrFmtCannotMultiply},
-		{"Divide", object.ProtoDiv, object.ErrFmtCannotDivide},
-		{"Modulo", object.ProtoMod, object.ErrFmtCannotModulo},
-	}
-	for _, op := range binOps {
-		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
-			jen.Id("other").Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
-		if defined[op.goblin] {
-			d.Block(jen.Return(protoCall(op.goblin, jen.Id("other"))))
-		} else {
-			d.Block(jen.Return(jen.Nil(), errorf(op.errFmt)))
+	// A binary operator whose method this type's impl of the built-in Num
+	// defines calls the method's wrapper directly, skipping the impl lookup
+	// and the argument slice the generic dispatch allocates. Everything else,
+	// derived sub and the missing-operator error included, goes through the
+	// shared helper.
+	implWrappers := make(map[*ast.FunctionDefine]string)
+	for _, block := range typeDef.Impls {
+		for _, m := range block.Methods {
+			implWrappers[m] = ctx.localName("impl_" + m.Name)
 		}
-		protoDecls = append(protoDecls, d)
 	}
-
-	// Reflected operators (Object, bool, error) <- "__radd" and friends. The
-	// methods are always generated so the object.Right* interfaces are
-	// satisfied; the bool tells the dispatcher whether the type actually
-	// defines a handler for this operand order.
-	for _, op := range []struct{ goMethod, goblin string }{
-		{"RAdd", object.ProtoRAdd},
-		{"RMinus", object.ProtoRSub},
-		{"RMultiply", object.ProtoRMul},
-		{"RDivide", object.ProtoRDiv},
-		{"RModulo", object.ProtoRMod},
+	numMethods := map[string]string{}
+	for _, block := range typeDef.Impls {
+		if ctx.builtinTrait(block.Trait) == object.NumTrait {
+			for _, m := range block.Methods {
+				numMethods[m.Name] = implWrappers[m]
+			}
+		}
+	}
+	for _, op := range []struct {
+		goMethod, trait, index string
+	}{
+		{"Add", "add", "NumAdd"},
+		{"Minus", "sub", "NumSub"},
+		{"Multiply", "mul", "NumMul"},
+		{"Divide", "div", "NumDiv"},
+		{"Modulo", "mod", "NumMod"},
 	} {
-		d := jen.Func().Params(receiverParam()).Id(op.goMethod).Params(
-			jen.Id("left").Qual(pathObject, "Object"),
-		).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Bool(), jen.Error()))
-		if defined[op.goblin] {
-			d.Block(
-				jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(op.goblin, jen.Id("left"))),
-				jen.Return(jen.Id("_res"), jen.True(), jen.Id("_err")),
-			)
-		} else {
-			d.Block(jen.Return(jen.Nil(), jen.False(), jen.Nil()))
+		if wrapper, ok := numMethods[op.trait]; ok {
+			method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
+				jen.Return(jen.Id(receiverName).Dot(wrapper).Call(jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
+					jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(jen.Id("other")),
+				}))))
+			continue
 		}
-		protoDecls = append(protoDecls, d)
+		method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
+			userCall("UserArith", jen.Qual(pathObject, op.index), jen.Id("other")))
 	}
-
-	// Not() (Object, error)  <- "not"
-	notDecl := jen.Func().Params(receiverParam()).Id("Not").Params().Parens(
-		jen.List(jen.Qual(pathObject, "Object"), jen.Error()),
-	)
-	if defined[object.ProtoNot] {
-		notDecl.Block(jen.Return(protoCall(object.ProtoNot)))
-	} else {
-		// Without __not, ! negates the instance's truthiness, matching the
-		// default behavior of built-in types.
-		notDecl.Block(
-			jen.List(jen.Id("_b"), jen.Id("_err")).Op(":=").Id(receiverName).Dot("ToBool").Call(),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
-			jen.Return(jen.Qual(pathObject, "Bool").Call(jen.Op("!").Id("_b")), jen.Nil()),
-		)
+	for _, op := range []struct{ goMethod, index string }{
+		{"RAdd", "NumRAdd"},
+		{"RMinus", "NumRSub"},
+		{"RMultiply", "NumRMul"},
+		{"RDivide", "NumRDiv"},
+		{"RModulo", "NumRMod"},
+	} {
+		method(op.goMethod, other("left"), jen.Parens(jen.List(obj(), jen.Bool(), jen.Error())),
+			userCall("UserReflected", jen.Qual(pathObject, op.index), jen.Id("left")))
 	}
-	protoDecls = append(protoDecls, notDecl)
-
-	// Iter() ([]Object, error)  <- "iter" (returns an iterable)
-	iterDecl := jen.Func().Params(receiverParam()).Id("Iter").Params().Parens(
-		jen.List(jen.Index().Qual(pathObject, "Object"), jen.Error()),
-	)
-	if defined[object.ProtoIter] {
-		iterDecl.Block(
-			jen.List(jen.Id("_res"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoIter)),
-			jen.If(jen.Id("_err").Op("!=").Nil()).Block(jen.Return(jen.Nil(), jen.Id("_err"))),
-			jen.Return(jen.Id("_res").Dot("Iter").Call()),
-		)
-	} else {
-		iterDecl.Block(jen.Return(jen.Nil(), errorf(object.ErrFmtNotIterable)))
-	}
-	protoDecls = append(protoDecls, iterDecl)
-
-	// Index(index) (Object, error)  <- "get_item"
-	indexDecl := jen.Func().Params(receiverParam()).Id("Index").Params(
-		jen.Id("index").Qual(pathObject, "Object"),
-	).Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error()))
-	if defined[object.ProtoGetItem] {
-		indexDecl.Block(jen.Return(protoCall(object.ProtoGetItem, jen.Id("index"))))
-	} else {
-		indexDecl.Block(jen.Return(jen.Nil(), errorf(object.ErrFmtNotIndexable)))
-	}
-	protoDecls = append(protoDecls, indexDecl)
-
-	// SetIndex(index, value) (bool, error)  <- "__setitem". Without it the type
-	// reports "not handled" and object.SetIndex raises the shared error.
-	setIndexDecl := jen.Func().Params(receiverParam()).Id("SetIndex").Params(
-		jen.Id("index").Qual(pathObject, "Object"), jen.Id("value").Qual(pathObject, "Object"),
-	).Parens(jen.List(jen.Bool(), jen.Error()))
-	if defined[object.ProtoSetItem] {
-		setIndexDecl.Block(
-			jen.List(jen.Id("_"), jen.Id("_err")).Op(":=").Add(protoCall(object.ProtoSetItem, jen.Id("index"), jen.Id("value"))),
-			jen.Return(jen.True(), jen.Id("_err")),
-		)
-	} else {
-		setIndexDecl.Block(jen.Return(jen.False(), jen.Nil()))
-	}
-	protoDecls = append(protoDecls, setIndexDecl)
+	method("Iter", nil, jen.Parens(jen.List(jen.Index().Add(obj()), jen.Error())), userCall("UserIter"))
+	method("Index", other("index"), jen.Parens(jen.List(obj(), jen.Error())), userCall("UserIndex", jen.Id("index")))
+	method("SetIndex", []jen.Code{jen.Id("index").Add(obj()), jen.Id("value").Add(obj())}, jen.Parens(jen.List(jen.Bool(), jen.Error())),
+		userCall("UserSetIndex", jen.Id("index"), jen.Id("value")))
 
 	ctx.topDecls = append(ctx.topDecls, protoDecls...)
 
@@ -2173,7 +2036,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	for _, field := range typeDef.Fields {
 		getAttrCases = append(getAttrCases,
 			jen.Case(jen.Lit(field.Name)).Block(
-				jen.Return(jen.Id(receiverName).Dot(field.Name), jen.Nil()),
+				jen.Return(jen.Id(receiverName).Dot(fieldGoName(field.Name)), jen.Nil()),
 			),
 		)
 		if !seenAttributes[field.Name] {
@@ -2230,6 +2093,15 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			),
 		)
 		attributeNames = append(attributeNames, jen.Lit("attributes"))
+		seenAttributes["attributes"] = true
+	}
+	if !seenAttributes["traits"] {
+		getAttrCases = append(getAttrCases,
+			jen.Case(jen.Lit("traits")).Block(
+				jen.Return(jen.Qual(pathObject, "TraitsFunction").Call(jen.Id(receiverName)), jen.Nil()),
+			),
+		)
+		attributeNames = append(attributeNames, jen.Lit("traits"))
 	}
 	getAttrCases = append(getAttrCases,
 		jen.Default().Block(
@@ -2289,7 +2161,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	for _, field := range typeDef.Fields {
 		setAttrCases = append(setAttrCases,
 			jen.Case(jen.Lit(field.Name)).Block(
-				jen.Id(receiverName).Dot(field.Name).Op("=").Id("value"),
+				jen.Id(receiverName).Dot(fieldGoName(field.Name)).Op("=").Id("value"),
 				jen.Return(jen.True(), jen.Nil()),
 			),
 		)
@@ -2319,8 +2191,25 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		methodWrappers[method.Name] = methodWrapperName(method.Name)
 	}
 
+	// Ordinary methods and impl methods compile alike, to a Go method taking
+	// the arguments after self. Impl methods get their own wrapper names, so
+	// they never collide with an ordinary method or with each other.
+	type methodDef struct {
+		def     *ast.FunctionDefine
+		wrapper string
+	}
+	methodDefs := make([]methodDef, 0, len(typeDef.AllMethods()))
 	for _, method := range typeDef.Methods {
-		wrapperName := methodWrapperName(method.Name)
+		methodDefs = append(methodDefs, methodDef{method, methodWrapperName(method.Name)})
+	}
+	for _, block := range typeDef.Impls {
+		for _, method := range block.Methods {
+			methodDefs = append(methodDefs, methodDef{method, implWrappers[method]})
+		}
+	}
+
+	for _, md := range methodDefs {
+		method, wrapperName := md.def, md.wrapper
 
 		// A method body is a scope of its own, with its own inferred
 		// environment, like any other function body.
@@ -2353,7 +2242,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			bodyPrefix = append(bodyPrefix, defaultsDecl)
 		}
 		bodyPrefix = append(bodyPrefix,
-			ctx.emitParameterBinding(typeDef.Name+"."+method.Name, method.Parameters[1:], defaultsName, callArgsName, fnOnError)...,
+			ctx.emitParameterBinding(qualifiedName, method.Parameters[1:], defaultsName, callArgsName, fnOnError)...,
 		)
 		bodyPrefix = append(bodyPrefix,
 			jen.Var().Id("self").Qual(pathObject, "Object").Op("=").Id(receiverName),
@@ -2377,6 +2266,47 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			),
 		)
 	}
+
+	// The impls are registered when the type statement runs: a trait is a
+	// runtime value, and an impl may name one from an imported module.
+	fieldNameLits := make([]jen.Code, 0, len(typeDef.Fields))
+	for _, field := range typeDef.Fields {
+		fieldNameLits = append(fieldNameLits, jen.Lit(field.Name))
+	}
+	registration := []jen.Code{
+		jen.Id(typeVar).Op("=").Qual(pathObject, "NewUserType").Call(jen.Lit(typeDef.Name), jen.Index().String().Values(fieldNameLits...)),
+	}
+	for _, block := range typeDef.Impls {
+		pre, trait, err := ctx.transpileTraitRef(block.Trait, "impl "+block.Trait.String(), onError)
+		if err != nil {
+			return nil, err
+		}
+		registration = append(registration, pre...)
+		methods := make([]jen.Code, 0, len(block.Methods))
+		for _, method := range block.Methods {
+			argsName := ctx.localName("implArgs")
+			call := jen.Id(argsName).Dot("Positional").Index(jen.Lit(0)).Assert(jen.Op("*").Id(goTypeName)).
+				Dot(implWrappers[method]).Call(jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
+				jen.Id("Positional"): jen.Id(argsName).Dot("Positional").Index(jen.Lit(1), jen.Empty()),
+			}))
+			methods = append(methods, jen.Values(jen.Dict{
+				jen.Id("Name"):  jen.Lit(method.Name),
+				jen.Id("Arity"): jen.Lit(len(method.Parameters)),
+				jen.Id("Fn"): jen.Op("&").Qual(pathObject, "Function").Values(jen.Dict{
+					jen.Id("Name"): jen.Lit(method.Name),
+					jen.Id("Fn"): jen.Func().Params(jen.Id(argsName).Qual(pathObject, "CallArgs")).
+						Parens(jen.List(jen.Qual(pathObject, "Object"), jen.Error())).Block(jen.Return(call)),
+				}),
+			}))
+		}
+		registration = append(registration,
+			jen.Id(typeVar).Dot("Implement").Call(trait, jen.Index().Qual(pathObject, "ImplMethod").Values(methods...)),
+		)
+	}
+	sealErr := ctx.localName("err")
+	registration = append(registration,
+		jen.If(jen.Id(sealErr).Op(":=").Id(typeVar).Dot("Seal").Call(), jen.Id(sealErr).Op("!=").Nil()).Block(onError(sealErr)),
+	)
 
 	callArgsName := ctx.localName("callArgs")
 	boundName := ctx.localName("bound")
@@ -2422,9 +2352,9 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	slowValues := make([]jen.Code, 0, len(typeDef.Fields))
 	for index, field := range typeDef.Fields {
 		fastValues = append(fastValues,
-			jen.Id(field.Name).Op(":").Id(callArgsName).Dot("Positional").Index(jen.Lit(index)))
+			jen.Id(fieldGoName(field.Name)).Op(":").Id(callArgsName).Dot("Positional").Index(jen.Lit(index)))
 		slowValues = append(slowValues,
-			jen.Id(field.Name).Op(":").Id(boundName).Index(jen.Lit(index)))
+			jen.Id(fieldGoName(field.Name)).Op(":").Id(boundName).Index(jen.Lit(index)))
 	}
 
 	// A construction that supplies every field positionally needs no binding
@@ -2470,7 +2400,7 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		values := make([]jen.Code, 0, len(typeDef.Fields))
 		for _, field := range typeDef.Fields {
 			params = append(params, jen.Id(field.Name).Qual(pathObject, "Object"))
-			values = append(values, jen.Id(field.Name).Op(":").Id(field.Name))
+			values = append(values, jen.Id(fieldGoName(field.Name)).Op(":").Id(field.Name))
 		}
 		ctx.topDecls = append(ctx.topDecls,
 			jen.Func().Id(info.goName).Params(params...).Parens(jen.List(
@@ -2484,7 +2414,104 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 		jen.Id("Fn").Op(":").Add(constructorClosure),
 	)
 
-	return []jen.Code{constructor}, nil
+	return append(registration, constructor), nil
+}
+
+// receiverGoName is the receiver of every generated method. It has the shape
+// of a transpiler scratch name, which the checker reserves, so no parameter
+// can shadow it.
+const receiverGoName = "_recv_0"
+
+// fieldGoName is the Go struct field holding a Goblin field. The prefix keeps
+// fields apart from the generated methods: those start uppercase, and impl
+// and scratch names start with an underscore.
+func fieldGoName(name string) string {
+	return "f_" + name
+}
+
+// builtinTrait reports the built-in trait a reference statically names: a bare
+// built-in trait name that no module-level declaration or import shadows at
+// this point. It returns nil for anything else.
+func (ctx *transpileContext) builtinTrait(ref *ast.TraitRef) *object.Trait {
+	if ref.Module != "" || ctx.isUserName(ref.Name) {
+		return nil
+	}
+	if _, bound := ctx.moduleBinding(ref.Name); bound {
+		return nil
+	}
+	return object.BuiltinTraits[ref.Name]
+}
+
+// transpileTraitRef evaluates the trait an impl block or a dependency list
+// names to a *object.Trait expression.
+// site says where the reference appears, for the runtime messages.
+func (ctx *transpileContext) transpileTraitRef(ref *ast.TraitRef, site string, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if trait := ctx.builtinTrait(ref); trait != nil {
+		return nil, jen.Qual(pathObject, trait.Name+"Trait"), nil
+	}
+	name := ref.Name
+	if ref.Module != "" {
+		name = ref.Module
+	}
+	ident, err := ast.NewIdentifier(&token.Token{Lit: []byte(name), Pos: ref.Pos})
+	if err != nil {
+		return nil, nil, err
+	}
+	pre, value, err := ctx.transpileExpression(ident.(*ast.Identifier), onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	traitVar := ctx.localName("trait")
+	errVar := ctx.localName("err")
+	var call *jen.Statement
+	if ref.Module != "" {
+		call = jen.Qual(pathObject, "ModuleTrait").Call(value, jen.Lit(ref.Name), jen.Lit(site), jen.Lit(ref.String()))
+	} else {
+		call = jen.Qual(pathObject, "AsTrait").Call(value, jen.Lit(site), jen.Lit(ref.String()))
+	}
+	pre = append(pre,
+		jen.List(jen.Id(traitVar), jen.Id(errVar)).Op(":=").Add(call),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return pre, jen.Id(traitVar), nil
+}
+
+// transpileTraitDefine emits the assignment of a trait declaration's trait
+// object. Default methods compile to function values taking self first, like
+// the interpreter's closures.
+func (ctx *transpileContext) transpileTraitDefine(def *ast.TraitDefine, onError errHandler) ([]jen.Code, error) {
+	var pre []jen.Code
+	deps := make([]jen.Code, 0, len(def.Deps))
+	for _, ref := range def.Deps {
+		depPre, dep, err := ctx.transpileTraitRef(ref, "trait "+def.Name, onError)
+		if err != nil {
+			return nil, err
+		}
+		pre = append(pre, depPre...)
+		deps = append(deps, dep)
+	}
+	methods := make([]jen.Code, 0, len(def.Methods))
+	for _, method := range def.Methods {
+		fields := jen.Dict{
+			jen.Id("Name"):  jen.Lit(method.Name),
+			jen.Id("Arity"): jen.Lit(len(method.Parameters)),
+		}
+		if method.Body == nil {
+			fields[jen.Id("Required")] = jen.True()
+		} else {
+			fn, err := ctx.buildFunctionValue(def.Name+"."+method.Name, method.Position(), method.Parameters, method.Body)
+			if err != nil {
+				return nil, err
+			}
+			fields[jen.Id("Default")] = fn
+		}
+		methods = append(methods, jen.Values(fields))
+	}
+	return append(pre, jen.Id(def.Name).Op("=").Qual(pathObject, "NewTrait").Call(
+		jen.Lit(def.Name),
+		jen.Index().Op("*").Qual(pathObject, "Trait").Values(deps...),
+		jen.Index().Qual(pathObject, "TraitMethod").Values(methods...),
+	)), nil
 }
 
 func (ctx *transpileContext) transpileReturn(return_ *ast.Return, onError errHandler) ([]jen.Code, error) {
@@ -2614,29 +2641,20 @@ func (ctx *transpileContext) transpileComparisonBool(operation *ast.BinaryOperat
 	}
 	preStmts := append(lhsPre, rhsPre...)
 
-	// Equality is total for the built-in types, but a user-defined __cmp may
-	// fail; like ordering, that error propagates.
-	if operation.Operator == ast.Equal || operation.Operator == ast.NotEqual {
-		eqVar := ctx.localName("eq")
-		eqErrVar := ctx.localName("err")
-		result := jen.Id(eqVar)
-		if operation.Operator == ast.NotEqual {
-			result = jen.Op("!").Id(eqVar)
-		}
-		preStmts = append(preStmts,
-			jen.List(jen.Id(eqVar), jen.Id(eqErrVar)).Op(":=").Qual(pathObject, nativeRHS("Equals")).Call(lhs, rhs),
-			jen.If(jen.Id(eqErrVar).Op("!=").Nil()).Block(onError(eqErrVar)),
-		)
-		return preStmts, result, nil
-	}
-
-	cmpVar := ctx.localName("cmp")
+	// Equality is total for the built-in types, but a user type's eq may fail;
+	// like ordering, that error propagates.
+	entry := map[string]string{
+		ast.Equal: "Equals", ast.NotEqual: "NotEquals",
+		ast.LessThan: "Less", ast.LessOrEqual: "LessEqual",
+		ast.GreaterThan: "Greater", ast.GreaterOrEqual: "GreaterEqual",
+	}[operation.Operator]
+	resultVar := ctx.localName("cmp")
 	errVar := ctx.localName("err")
 	preStmts = append(preStmts,
-		jen.List(jen.Id(cmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS("Compare")).Call(lhs, rhs),
+		jen.List(jen.Id(resultVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS(entry)).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
-	return preStmts, jen.Id(cmpVar).Op(operation.Operator).Lit(0), nil
+	return preStmts, jen.Id(resultVar), nil
 }
 
 // transpileNativeIntOperand renders the right operand of a binary operator
@@ -2769,7 +2787,7 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 	var call *jen.Statement
 	switch operation.Operator {
 	case "!":
-		call = operand.Dot("Not").Call()
+		call = jen.Qual(pathObject, "Not").Call(operand)
 	case "+":
 		call = jen.Qual(pathObject, "Positive").Call(operand)
 	case "-":
@@ -2788,8 +2806,14 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 }
 
 func (ctx *transpileContext) transpileExport(export *ast.Export, exportsVar string) ([]jen.Code, error) {
+	// A type's name is its Go struct; the value to export is the constructor
+	// variable, which moduleBinding maps it to (imported modules likewise).
+	value := jen.Id(export.Name)
+	if mapped, ok := ctx.moduleBinding(export.Name); ok {
+		value = jen.Id(mapped)
+	}
 	return []jen.Code{
-		jen.Id(exportsVar).Index(jen.Lit(export.Name)).Op("=").Id(export.Name),
+		jen.Id(exportsVar).Index(jen.Lit(export.Name)).Op("=").Add(value),
 	}, nil
 }
 
@@ -2949,10 +2973,10 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 		switch v := stmt.(type) {
 		case *ast.TypeDefine:
 			ctx.moduleImports[v.Name] = v.Name + "Constructor"
-		case *ast.FunctionDefine:
-			// Function names are hoisted (mirroring the interpreter), so they
-			// shadow built-ins for the whole module body.
-			ctx.declareUserName(v.Name)
+		case *ast.FunctionDefine, *ast.TraitDefine:
+			// Function and trait names are hoisted (mirroring the
+			// interpreter), so they shadow built-ins for the whole module body.
+			ctx.declareUserName(statementName(v))
 		}
 	}
 
@@ -2999,6 +3023,22 @@ func (ctx *transpileContext) transpileModuleStatements(stmts []ast.Statement, on
 				return nil, err
 			}
 			funcAssigns = append(funcAssigns, jen.Id(v.Name).Op("=").Add(funcValue))
+		case *ast.TraitDefine:
+			// Traits and types are bound with the functions, in source order,
+			// as the interpreter binds them when it loads a module: a type's
+			// impls resolve the traits declared above it.
+			declare(v.Name)
+			codes, err := ctx.transpileTraitDefine(v, onError)
+			if err != nil {
+				return nil, err
+			}
+			funcAssigns = append(funcAssigns, codes...)
+		case *ast.TypeDefine:
+			codes, err := ctx.transpileTypeDefine(v, onError)
+			if err != nil {
+				return nil, err
+			}
+			funcAssigns = append(funcAssigns, codes...)
 		case *ast.Declare:
 			// Split `var x = expr` into a package-level declaration and an
 			// in-place assignment so functions may reference the variable

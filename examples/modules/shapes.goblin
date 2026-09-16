@@ -1,0 +1,19 @@
+# A module exporting a trait and a type implementing it.
+trait Shape: Show {
+    func area(self)
+    func describe(self) {
+        return Show.show(self) + " has area " + Str(Shape.area(self))
+    }
+}
+
+type Square(side) {
+    impl Show {}
+    impl Shape {
+        func area(self) {
+            return self.side * self.side
+        }
+    }
+}
+
+export Shape
+export Square

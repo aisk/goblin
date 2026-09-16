@@ -122,7 +122,7 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 	// references (including recursion and forward references) resolve
 	// regardless of source order.
 	if err := loadInto(mod, global, filepath.Dir(sourcePath), reg, argv); err != nil {
-		return err
+		return loadError(err, moduleName(sourcePath))
 	}
 
 	err = evalStatements(mod.Body, global)
@@ -306,8 +306,10 @@ func evalStatement(stmt ast.Statement, env *Environment) error {
 		env.Define(s.Name, makeFunction(s, env))
 		return nil
 
-	case *ast.TypeDefine:
-		defineType(s, env)
+	case *ast.TypeDefine, *ast.TraitDefine:
+		// Bound once, when the module is loaded (see loadInto). Defining one
+		// again here would make the values created in between belong to a
+		// different type or trait.
 		return nil
 
 	case *ast.Import, *ast.Export:
@@ -487,35 +489,27 @@ func evalBinary(e *ast.BinaryOperation, env *Environment) (object.Object, error)
 		return object.Divide(lhs, rhs)
 	case ast.Modulo:
 		return object.Modulo(lhs, rhs)
-	case ast.Equal, ast.NotEqual:
+	case ast.Equal:
 		eq, err := object.Equals(lhs, rhs)
-		if err != nil {
-			return nil, err
-		}
-		return object.Bool(eq == (e.Operator == ast.Equal)), nil
-	case ast.LessThan, ast.GreaterThan, ast.LessOrEqual, ast.GreaterOrEqual:
-		c, err := object.Compare(lhs, rhs)
-		if err != nil {
-			return nil, err
-		}
-		return object.Bool(compareResult(e.Operator, c)), nil
+		return object.Bool(eq), err
+	case ast.NotEqual:
+		ne, err := object.NotEquals(lhs, rhs)
+		return object.Bool(ne), err
+	case ast.LessThan:
+		r, err := object.Less(lhs, rhs)
+		return object.Bool(r), err
+	case ast.LessOrEqual:
+		r, err := object.LessEqual(lhs, rhs)
+		return object.Bool(r), err
+	case ast.GreaterThan:
+		r, err := object.Greater(lhs, rhs)
+		return object.Bool(r), err
+	case ast.GreaterOrEqual:
+		r, err := object.GreaterEqual(lhs, rhs)
+		return object.Bool(r), err
 	default:
 		return nil, fmt.Errorf("interpreter: unknown operator %q", e.Operator)
 	}
-}
-
-func compareResult(op string, c int) bool {
-	switch op {
-	case ast.LessThan:
-		return c < 0
-	case ast.GreaterThan:
-		return c > 0
-	case ast.LessOrEqual:
-		return c <= 0
-	case ast.GreaterOrEqual:
-		return c >= 0
-	}
-	return false
 }
 
 func evalUnary(e *ast.UnaryOperation, env *Environment) (object.Object, error) {
@@ -525,7 +519,7 @@ func evalUnary(e *ast.UnaryOperation, env *Environment) (object.Object, error) {
 	}
 	switch e.Operator {
 	case ast.Not:
-		return operand.Not()
+		return object.Not(operand)
 	case ast.Add:
 		return object.Positive(operand)
 	case ast.Minus:

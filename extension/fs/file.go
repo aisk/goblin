@@ -117,8 +117,6 @@ func (f *File) Equals(other object.Object) (bool, error) {
 	return ok && f == v, nil
 }
 
-func (f *File) Not() (object.Object, error) { return object.Bool(f.closed), nil }
-
 func (f *File) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":

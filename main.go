@@ -221,8 +221,8 @@ func runREPL() error {
 
 var replKeywords = []string{
 	"break", "catch", "continue", "else", "export", "false", "for", "func",
-	"if", "import", "in", "nil", "raise", "return", "true", "try", "type",
-	"var", "while",
+	"if", "impl", "import", "in", "nil", "raise", "return", "trait", "true",
+	"try", "type", "var", "while",
 }
 
 type replCompleter struct {

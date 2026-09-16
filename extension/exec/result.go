@@ -12,10 +12,9 @@ type Result struct {
 	stderr object.Object
 }
 
-func (r *Result) String() string              { return fmt.Sprintf("<exec.Result code=%d>", r.code) }
-func (r *Result) ToString() (string, error)   { return r.String(), nil }
-func (r *Result) ToBool() (bool, error)       { return r.code == 0, nil }
-func (r *Result) Not() (object.Object, error) { return object.Bool(r.code != 0), nil }
+func (r *Result) String() string            { return fmt.Sprintf("<exec.Result code=%d>", r.code) }
+func (r *Result) ToString() (string, error) { return r.String(), nil }
+func (r *Result) ToBool() (bool, error)     { return r.code == 0, nil }
 func (r *Result) GetAttr(name string) (object.Object, error) {
 	switch name {
 	case "attributes":

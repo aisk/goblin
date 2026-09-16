@@ -1,0 +1,24 @@
+hello, Ada
+Dr. Lovelace
+Ada Lovelace
+BEEP unit 7
+HEY!
+[<trait Named>, <trait Titled>]
+true
+["first", "last", "name", "constructor", "attributes", "traits"]
+<trait Named> true false
+BEEP unit 1
+-1 b false
+3 9 [1, "a"] false
+["a", "b"] 6
+Square(side=3) has area 9
+Circle(2) has area 12
+Integer does not implement Named
+Word does not implement Named
+Named.greet() takes 1 positional arguments, got 2
+trait Ord has no method 'eq'
+Liar.show must return String, got Integer true
+Liar.eq must return Bool, got String
+Pair(Hash=1, v=2) true
+Pair(Hash=4, v=6)
+Impostor.show must return String, got user type String

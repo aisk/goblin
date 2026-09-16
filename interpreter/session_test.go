@@ -44,7 +44,7 @@ func TestSessionCompletionCandidates(t *testing.T) {
 	if _, err := s.Eval(`var user = User("alice")`); err != nil {
 		t.Fatal(err)
 	}
-	if names := s.CompletionCandidates([]string{"user"}); !reflect.DeepEqual(names, []string{"name", "hello", "constructor", "attributes"}) {
+	if names := s.CompletionCandidates([]string{"user"}); !reflect.DeepEqual(names, []string{"name", "hello", "constructor", "attributes", "traits"}) {
 		t.Fatalf("user completion candidates = %v", names)
 	}
 	if names := s.CompletionCandidates([]string{"user", "name"}); !containsString(names, "trim") {
@@ -178,7 +178,7 @@ func TestSessionUserTypeAttributes(t *testing.T) {
 	if _, err := s.Eval(`var user = User("alice")`); err != nil {
 		t.Fatal(err)
 	}
-	if got := evalString(t, s, "user.attributes()"); got != `["name", "hello", "constructor", "attributes"]` {
+	if got := evalString(t, s, "user.attributes()"); got != `["name", "hello", "constructor", "attributes", "traits"]` {
 		t.Fatalf("user.attributes() = %q", got)
 	}
 }

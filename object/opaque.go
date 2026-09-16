@@ -24,8 +24,6 @@ func (b OpaqueBase) ToBool() (bool, error) { return true, nil }
 
 func (b OpaqueBase) Equals(Object) (bool, error) { return false, nil }
 
-func (b OpaqueBase) Not() (Object, error) { return False, nil }
-
 func (b OpaqueBase) Compare(Object) (int, error) {
 	return 0, NewTypeError(ErrFmtCannotCompare, b.typeName)
 }

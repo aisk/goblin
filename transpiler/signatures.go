@@ -269,7 +269,7 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 	walkNodes(stmts, true, func(node ast.Statement) {
 		switch n := node.(type) {
 		case *ast.TypeDefine:
-			for _, method := range n.Methods {
+			for _, method := range n.AllMethods() {
 				excludeDefaults(method.Parameters)
 			}
 		case *ast.FunctionDefine:
@@ -333,6 +333,11 @@ func declaredNames(stmts []ast.Statement) map[string]int {
 			declared[n.Name]++
 		case *ast.TypeDefine:
 			declared[n.Name]++
+			for _, method := range n.AllMethods() {
+				params(method.Parameters)
+			}
+		case *ast.TraitDefine:
+			declared[n.Name]++
 			for _, method := range n.Methods {
 				params(method.Parameters)
 			}
@@ -380,8 +385,14 @@ func collectBodies(stmts []ast.Statement, closed map[string]*ast.FunctionDefine)
 		case *ast.FunctionLiteral:
 			bodies = append(bodies, bodyRef{stmts: n.Body, params: n.Parameters})
 		case *ast.TypeDefine:
-			for _, method := range n.Methods {
+			for _, method := range n.AllMethods() {
 				bodies = append(bodies, bodyRef{stmts: method.Body, params: method.Parameters})
+			}
+		case *ast.TraitDefine:
+			for _, method := range n.Methods {
+				if method.Body != nil {
+					bodies = append(bodies, bodyRef{stmts: method.Body, params: method.Parameters})
+				}
 			}
 		}
 	})
@@ -451,6 +462,12 @@ func walkNodes(stmts []ast.Statement, nested bool, visit func(node ast.Statement
 				walkNodes(s.Body, nested, visit)
 			}
 		case *ast.TypeDefine:
+			if nested {
+				for _, method := range s.AllMethods() {
+					walkNodes(method.Body, nested, visit)
+				}
+			}
+		case *ast.TraitDefine:
 			if nested {
 				for _, method := range s.Methods {
 					walkNodes(method.Body, nested, visit)

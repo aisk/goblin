@@ -314,6 +314,10 @@ func collectNestedNames(stmts []ast.Statement, names map[string]struct{}, inner 
 		case *ast.FunctionDefine:
 			collectNestedNames(s.Body, names, true)
 		case *ast.TypeDefine:
+			for _, m := range s.AllMethods() {
+				collectNestedNames(m.Body, names, true)
+			}
+		case *ast.TraitDefine:
 			for _, m := range s.Methods {
 				collectNestedNames(m.Body, names, true)
 			}

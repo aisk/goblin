@@ -357,10 +357,6 @@ func (d *Dict) Modulo(other Object) (Object, error) {
 	return nil, NewTypeError("cannot modulo Dict")
 }
 
-func (d *Dict) Not() (Object, error) {
-	return Bool(d.count == 0), nil
-}
-
 func (d *Dict) Iter() ([]Object, error) {
 	keys := make([]Object, 0, d.count)
 	for _, entry := range d.Entries() {

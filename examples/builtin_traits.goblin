@@ -1,0 +1,179 @@
+# User types opt into operators and conversions by implementing the built-in
+# traits: Num (arithmetic), Eq and Ord (comparison), Show (string conversion),
+# Truth (conditions), Iter (for loops) and Index (subscripts).
+
+type Vector(x, y) {
+    impl Num {
+        func add(self, other) {
+            return Vector(self.x + other.x, self.y + other.y)
+        }
+        # sub is derived from add and neg when an impl does not define it.
+        func neg(self) {
+            return Vector(-self.x, -self.y)
+        }
+        # Reflected methods run when the value is on the right of an operand
+        # that does not know it, which is how `2 * v` reaches Vector.
+        func rmul(self, k) {
+            return Vector(k * self.x, k * self.y)
+        }
+    }
+    impl Show {
+        func show(self) {
+            return "Vector(" + Str(self.x) + ", " + Str(self.y) + ")"
+        }
+    }
+    # Ordering by length. compare is the one required method; the operators
+    # run lt, le, gt and ge, whose defaults derive from it.
+    impl Ord {
+        func compare(self, other) {
+            return self.x * self.x + self.y * self.y - (other.x * other.x + other.y * other.y)
+        }
+    }
+}
+
+var v = Vector(1, 2)
+var w = Vector(3, 4)
+print(v + w)
+print(w - v)
+print(-v)
+print(2 * v)
+print(v)
+print(v < w, v > w, v <= w)
+# Ord without Eq gets an eq of its own: compare answering 0.
+print(v == Vector(2, 1), v == w)
+print(Ord.max(v, w), Ord.min(v, w))
+
+# An impl may override a default; the operator then runs the override.
+type Version(major, minor) {
+    impl Ord {
+        func compare(self, other) {
+            if self.major != other.major {
+                return self.major - other.major
+            }
+            return self.minor - other.minor
+        }
+        func lt(self, other) {
+            print("custom lt")
+            return Ord.compare(self, other) < 0
+        }
+    }
+}
+print(Version(1, 2) < Version(1, 3))
+print(Version(1, 2) > Version(1, 3))
+
+# Iteration and indexing. An Index impl without set is read-only.
+type Grid(cells) {
+    impl Index {
+        func get(self, i) {
+            return self.cells[i]
+        }
+        func set(self, i, value) {
+            self.cells[i] = value
+        }
+    }
+    impl Iter {
+        func iter(self) {
+            return self.cells
+        }
+    }
+}
+
+var g = Grid([10, 20, 30])
+print(g[0])
+g[1] = 99
+print(g[1])
+for x in g {
+    print(x)
+}
+
+type Frozen(cells) {
+    impl Index {
+        func get(self, i) {
+            return self.cells[i]
+        }
+    }
+}
+var frozen = Frozen([1, 2])
+print(frozen[1])
+try {
+    frozen[0] = 5
+} catch e {
+    print(e)
+}
+
+# A type without any of these traits keeps the defaults: it is always truthy,
+# and ! negates that.
+type Opaque() {}
+var o = Opaque()
+if o {
+    print("opaque is truthy")
+}
+print(!o)
+try {
+    o[0] = 1
+} catch e {
+    print(e)
+}
+try {
+    print(o + 1)
+} catch e {
+    print(e)
+}
+try {
+    print(-o)
+} catch e {
+    print(e)
+}
+
+# Truth decides conditions, && and ||, !, and Bool().
+type Counter(n) {
+    impl Truth {
+        func truth(self) {
+            return self.n != 0
+        }
+    }
+}
+if Counter(0) {
+    print("unreachable")
+} else {
+    print("Counter(0) is falsy")
+}
+print(!Counter(3), Bool(Counter(0)))
+print((Counter(0) || "fallback"))
+
+# The remaining Num methods, and a missing reflected method: the left
+# operand's error stands.
+type Modular(n) {
+    impl Num {
+        func div(self, other) {
+            return Modular(self.n / other)
+        }
+        func mod(self, other) {
+            return Modular(self.n % other)
+        }
+        func rsub(self, other) {
+            return Modular(other - self.n)
+        }
+        func rmod(self, other) {
+            return Modular(other % self.n)
+        }
+    }
+    impl Show {}
+}
+
+var m = Modular(7)
+print(m / 2)
+print(m % 4)
+print(100 - m)
+print(9 % m)
+try {
+    print(1 + m)
+} catch e {
+    print(e)
+}
+
+# Repetition of the built-in sequences reads in either operand order too.
+print("ab" * 3)
+print(3 * "ab")
+print([1, 2] * 2)
+print(2 * [1, 2])

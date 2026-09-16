@@ -251,15 +251,16 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 
 	for _, want := range []string{
 		"type User struct",
-		"func (u *User) Hello(",
-		"func (u *User) GetAttr(",
-		"func (u *User) Attributes() []string",
-		`fmt.Sprintf("<User@%p>", u)`,
+		"func (_recv_0 *User) Hello(",
+		"func (_recv_0 *User) GetAttr(",
+		"func (_recv_0 *User) Attributes() []string",
+		"func (_recv_0 *User) UserType() *object.UserType",
+		"return object.UserString(_recv_0)",
 		`case "name":`,
 		`case "hello":`,
 		`case "constructor":`,
 		`case "attributes":`,
-		`return []string{"name", "age", "hello", "constructor", "attributes"}`,
+		`return []string{"name", "age", "hello", "constructor", "attributes", "traits"}`,
 		`var UserConstructor object.Object`,
 		`UserConstructor = &object.Function{`,
 	} {
@@ -278,7 +279,7 @@ func TestTranspileTypeAllowsAttributesOverride(t *testing.T) {
 		return object.AttributesFunction`) {
 		t.Fatalf("generated default attributes method despite user override\n%s", code)
 	}
-	if !strings.Contains(code, `return []string{"attributes", "constructor"}`) {
+	if !strings.Contains(code, `return []string{"attributes", "constructor", "traits"}`) {
 		t.Fatalf("generated Attributes metadata does not include override\n%s", code)
 	}
 }
@@ -485,7 +486,7 @@ func TestDirectSelfAccess(t *testing.T) {
 		if strings.Contains(code, `(self).GetAttr("count")`) || strings.Contains(code, `object.SetAttr(self, "count"`) {
 			t.Fatalf("self.count must be a direct field access\n%s", code)
 		}
-		if !strings.Contains(code, "c.count = ") || !strings.Contains(code, "c.Bump(object.CallArgs{})") {
+		if !strings.Contains(code, "_recv_0.f_count = ") || !strings.Contains(code, "_recv_0.Bump(object.CallArgs{})") {
 			t.Fatalf("expected direct field store and method call on the receiver\n%s", code)
 		}
 	})
@@ -530,7 +531,7 @@ print(s + "b")
 `)
 	for _, want := range []string{
 		"object.AddInt(total, i)", "object.MultiplyInt(total, int64(2))",
-		"object.EqualsInt(", "object.CompareInt(", `object.Add(s, object.String("b"))`,
+		"object.EqualsInt(", "object.LessInt(", `object.Add(s, object.String("b"))`,
 	} {
 		if !strings.Contains(code, want) {
 			t.Fatalf("expected %s in\n%s", want, code)

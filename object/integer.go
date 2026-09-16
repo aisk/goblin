@@ -75,10 +75,6 @@ func (i Integer) RMultiply(Object) (Object, bool, error) { return nil, false, ni
 func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (i Integer) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (i Integer) Not() (Object, error) {
-	return Bool(i == 0), nil
-}
-
 func (i Integer) Iter() ([]Object, error) {
 	return nil, NewTypeError("Integer does not support iteration")
 }

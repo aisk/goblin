@@ -1,0 +1,182 @@
+import "./modules/shapes"
+
+# A trait bundles methods. One without a body is required, one with a body is
+# a default. A dependency list names traits an implementing type must also
+# implement.
+trait Named {
+    func name(self)
+    func greet(self) {
+        return "hello, " + Named.name(self)
+    }
+}
+
+trait Titled: Named {
+    func title(self)
+}
+
+type Person(first, last) {
+    impl Named {
+        func name(self) {
+            return self.first
+        }
+    }
+    impl Titled {
+        func title(self) {
+            return "Dr. " + self.last
+        }
+    }
+    # An ordinary method may share a trait method's name: trait methods are
+    # never attributes of the instance.
+    func name(self) {
+        return self.first + " " + self.last
+    }
+}
+
+var ada = Person("Ada", "Lovelace")
+print(Named.greet(ada))
+print(Titled.title(ada))
+print(ada.name())
+
+# Implementations override defaults.
+type Robot(id) {
+    impl Named {
+        func name(self) {
+            return "unit " + Str(self.id)
+        }
+        func greet(self) {
+            return "BEEP " + Named.name(self)
+        }
+    }
+}
+print(Named.greet(Robot(7)))
+
+# A trait with only defaults is a mixin: an empty impl is enough.
+trait Loud {
+    func shout(self) {
+        return Str(self).upper() + "!"
+    }
+}
+type Word(text) {
+    impl Show {
+        func show(self) {
+            return self.text
+        }
+    }
+    impl Loud {}
+}
+print(Loud.shout(Word("hey")))
+
+# traits() lists what a value implements, in declaration order.
+print(ada.traits())
+print(Word("x").traits().contains(Loud))
+print(ada.attributes())
+print(Named, Named == Named, Named == Titled)
+
+# Trait objects are values, and so are their methods.
+var greeters = [Named.greet, Named.name]
+print(greeters[0](Robot(1)))
+
+# Built-in traits work on built-in values too.
+print(Ord.compare(1, 2), Ord.max("a", "b"), Eq.ne(1, 1.0))
+print(Num.add(1, 2), Num.rsub(1, 10), Show.show([1, "a"]), Truth.truth(""))
+print(Iter.iter("ab"), Index.get([5, 6], 1))
+
+# A trait imported from another module.
+var sq = shapes.Square(3)
+print(shapes.Shape.describe(sq))
+
+type Circle(r) {
+    impl Show {
+        func show(self) {
+            return "Circle(" + Str(self.r) + ")"
+        }
+    }
+    impl shapes.Shape {
+        func area(self) {
+            return 3 * self.r * self.r
+        }
+    }
+}
+print(shapes.Shape.describe(Circle(2)))
+
+# Calling a trait method on a value without an impl, or with the wrong number
+# of arguments, is a TypeError.
+try {
+    print(Named.name(5))
+} catch e {
+    print(e)
+}
+try {
+    print(Named.name(Word("w")))
+} catch e {
+    print(e)
+}
+try {
+    print(Named.greet(ada, 1))
+} catch e {
+    print(e)
+}
+try {
+    print(Ord.eq)
+} catch e {
+    print(e)
+}
+
+# Methods backing operators must return the right type.
+type Liar() {
+    impl Show {
+        func show(self) {
+            return 42
+        }
+    }
+    impl Eq {
+        func eq(self, other) {
+            return "yes"
+        }
+    }
+}
+try {
+    print(Liar())
+} catch e {
+    print(e, e.is(TypeError))
+}
+try {
+    print(Liar() == 1)
+} catch e {
+    print(e)
+}
+
+# Types and traits are bound when the module loads, so a function can build a
+# value before the type statement is reached.
+func early() {
+    return Pair(1, 2)
+}
+var first = early()
+print(first, first == Pair(1, 2))
+
+# Field and parameter names never clash with what the compiler generates.
+type Pair(Hash, v) {
+    impl Eq {}
+    impl Show {}
+    impl Num {
+        func add(self, p) {
+            return Pair(self.Hash + p.Hash, self.v + p.v)
+        }
+    }
+}
+print(Pair(1, 2) + Pair(3, 4))
+
+# A user type named like a built-in one is not the built-in type.
+type String(text) {}
+type Impostor() {
+    impl Show {
+        func show(self) {
+            return String("fake")
+        }
+    }
+}
+try {
+    print(Impostor())
+} catch e {
+    print(e)
+}

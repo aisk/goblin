@@ -56,8 +56,8 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors
 			bindings[v.Name]++
 		case *ast.Declare:
 			bindings[v.Name] += 2
-		case *ast.TypeDefine:
-			bindings[v.Name] += 2
+		case *ast.TypeDefine, *ast.TraitDefine:
+			bindings[statementName(v)] += 2
 		case *ast.Import:
 			bindings[v.Name] += 2
 		}
@@ -265,6 +265,10 @@ func collectAssignTargets(stmts []ast.Statement, out map[string]struct{}) {
 		case *ast.FunctionDefine:
 			collectAssignTargets(s.Body, out)
 		case *ast.TypeDefine:
+			for _, m := range s.AllMethods() {
+				collectAssignTargets(m.Body, out)
+			}
+		case *ast.TraitDefine:
 			for _, m := range s.Methods {
 				collectAssignTargets(m.Body, out)
 			}
@@ -292,4 +296,15 @@ func collectAssignTargets(stmts []ast.Statement, out map[string]struct{}) {
 			visitExpr(s)
 		}
 	}
+}
+
+// statementName is the name a type or trait declaration binds.
+func statementName(stmt ast.Statement) string {
+	switch v := stmt.(type) {
+	case *ast.TypeDefine:
+		return v.Name
+	case *ast.TraitDefine:
+		return v.Name
+	}
+	return ""
 }

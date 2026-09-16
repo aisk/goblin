@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// ordObj stands in for a user-defined type with __cmp: it orders itself
+// ordObj stands in for a user-defined type with an Ord impl: it orders itself
 // against Integers only, the way a user type that compares against a built-in
 // does. Anything else is unordered.
 type ordObj struct {
@@ -29,7 +29,7 @@ func (o *ordObj) Compare(other Object) (int, error) {
 	return 0, nil
 }
 
-// raisingObj stands in for a user type whose __cmp fails for a reason other
+// raisingObj stands in for a user type whose compare fails for a reason other
 // than an unordered pair; that failure must not be swallowed by a reflected
 // retry.
 type raisingObj struct{ Unit }
@@ -82,7 +82,7 @@ func TestCompareUnordered(t *testing.T) {
 }
 
 func TestCompareKeepsNonTypeErrors(t *testing.T) {
-	// A failure raised inside a user __cmp is not a "these operands have no
+	// A failure raised inside a user compare is not a "these operands have no
 	// ordering" signal, so there is no reflected retry and the original error
 	// survives.
 	if _, err := Compare(&raisingObj{}, Integer(1)); !errors.Is(err, errBoom) {

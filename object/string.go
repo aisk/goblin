@@ -427,10 +427,6 @@ func (s String) RMinus(Object) (Object, bool, error)   { return nil, false, nil 
 func (s String) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
 func (s String) RModulo(Object) (Object, bool, error)  { return nil, false, nil }
 
-func (s String) Not() (Object, error) {
-	return Bool(s == ""), nil
-}
-
 func (s String) Iter() ([]Object, error) {
 	// String can be iterated character by character
 	var result []Object

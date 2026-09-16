@@ -6,9 +6,8 @@ import (
 	"testing"
 )
 
-// cmpObj stands in for a user-defined type with __cmp: its Compare reports
-// equality with any Integer and its Equals delegates to Compare, mirroring
-// how instances and generated user types implement equality.
+// cmpObj stands in for a user-defined type with an Eq impl that considers
+// itself equal to any Integer.
 type cmpObj struct{ Unit }
 
 func (c *cmpObj) Compare(other Object) (int, error) {
@@ -26,7 +25,7 @@ func (c *cmpObj) Equals(other Object) (bool, error) {
 	return cmp == 0, nil
 }
 
-// plainObj stands in for a user-defined type without __cmp: no structural
+// plainObj stands in for a user-defined type without Eq: no structural
 // equality of its own, so it is equal only to itself via the identity
 // backstop in the package-level Equals. The pad field keeps the struct
 // non-zero sized so distinct allocations have distinct addresses.
@@ -105,7 +104,7 @@ func TestEqualsDict(t *testing.T) {
 	}
 }
 
-// raisingCmp stands in for a user type whose __cmp fails: == must report that
+// raisingCmp stands in for a user type whose eq fails: == must report that
 // failure rather than answering "not equal".
 type raisingCmp struct{ Unit }
 
@@ -118,7 +117,7 @@ func (r *raisingCmp) Equals(other Object) (bool, error) {
 	return false, err
 }
 
-// typeErrorCmp stands in for the common __cmp shape, written only for the
+// typeErrorCmp stands in for the common eq shape, written only for the
 // operands the type really compares against: `Money(5) == nil` must stay false
 // rather than surfacing the TypeError from inside the method.
 type typeErrorCmp struct{ Unit }

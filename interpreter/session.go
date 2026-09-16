@@ -101,7 +101,7 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 
 	// Resolve imports and hoist definitions into the persistent scope.
 	if err := loadInto(mod, s.global, s.baseDir, s.reg, s.argv); err != nil {
-		return nil, err
+		return nil, loadError(err, "repl")
 	}
 
 	for _, stmt := range mod.Body {

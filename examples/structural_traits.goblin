@@ -1,0 +1,99 @@
+# An empty impl of Eq, Ord, Hashable or Show gets the structural
+# implementation, which works field by field in declaration order.
+type Point(x, y) {
+    impl Eq {}
+    impl Ord {}
+    impl Hashable {}
+    impl Show {}
+}
+
+var a = Point(1, 2)
+print(a)
+print(a == Point(1, 2), a != Point(1, 2), a == Point(2, 1))
+# Values of another type are simply unequal.
+print(a == [1, 2], a == nil)
+# Ordering is lexicographic.
+print(a < Point(1, 3), a < Point(0, 9), a >= Point(1, 2))
+var points = [Point(2, 0), Point(1, 5), Point(1, 2)]
+points.sort()
+print(points)
+print(Ord.max(Point(0, 1), Point(0, 2)))
+
+# Structural hash agrees with structural equality, so equal points are one
+# dict key.
+var seen = {a: "first"}
+seen[Point(1, 2)] = "second"
+print(seen.size, seen[Point(1, 2)])
+print(Hashable.hash(a) == Hashable.hash(Point(1, 2)))
+
+# Show renders nested values the way collections do.
+type Line(start, end, label = "line") {
+    impl Show {}
+}
+print(Line(a, Point(3, 4)))
+type Empty() {
+    impl Show {}
+}
+print(Empty(), Str(Empty()))
+
+# A field that cannot be hashed or ordered raises when it is needed.
+type Bag(items) {
+    impl Eq {}
+    impl Ord {}
+    impl Hashable {}
+}
+print(Bag([1]) == Bag([1]))
+try {
+    print({Bag([1]): 1})
+} catch e {
+    print(e)
+}
+try {
+    print(Bag([1]) < Bag({}))
+} catch e {
+    print(e)
+}
+try {
+    print(Point(1, 2) < Bag([]))
+} catch e {
+    print(e)
+}
+
+# A structural impl may still override a default, and a custom Eq may
+# override ne.
+type Temperature(degrees) {
+    impl Ord {
+        func max(self, other) {
+            print("custom max")
+            return self
+        }
+    }
+}
+print(Ord.max(Temperature(1), Temperature(5)).degrees)
+print(Temperature(1) == Temperature(1), Temperature(1).traits())
+
+type Approx(value) {
+    impl Eq {
+        func eq(self, other) {
+            return self.value - other.value < 1 && other.value - self.value < 1
+        }
+        func ne(self, other) {
+            print("custom ne")
+            return !Eq.eq(self, other)
+        }
+    }
+}
+print(Approx(1.0) == Approx(1.5), Approx(1.0) != Approx(3.0))
+
+# A structural Ord implies the structural Eq, which also covers fields that
+# can be compared for equality but not ordered.
+type Tag(name) {
+    impl Eq {}
+    impl Hashable {}
+}
+type Key(tag) {
+    impl Ord {}
+    impl Hashable {}
+}
+var index = {Key(Tag("a")): "found"}
+print(Key(Tag("a")) == Key(Tag("a")), index[Key(Tag("a"))])

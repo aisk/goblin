@@ -36,13 +36,15 @@ var x = 17
 print(x % 5)
 print(100 % 7)
 
-# Custom and reflected modulo protocols
+# Custom and reflected modulo through Num
 type Cycle(size) {
-    func __mod(self, other) {
-        return self.size % other
-    }
-    func __rmod(self, other) {
-        return other % self.size
+    impl Num {
+        func mod(self, other) {
+            return self.size % other
+        }
+        func rmod(self, other) {
+            return other % self.size
+        }
     }
 }
 var cycle = Cycle(4)

@@ -3,15 +3,15 @@ package object
 import "fmt"
 
 type Object interface {
-	// ToString performs Goblin's string conversion protocol. It may invoke a
-	// user-defined __str method and propagate its error. Types additionally
+	// ToString performs Goblin's string conversion. It may run a user type's
+	// Show impl and propagate its error. Types additionally
 	// implement fmt.Stringer for the infallible representation used by
 	// diagnostics (see inspect).
 	ToString() (string, error)
 	ToBool() (bool, error)
 	// Equals reports whether the receiver equals other. Unrelated types are
 	// simply unequal, so a built-in never fails here; the error exists for a
-	// user-defined __cmp, whose failure must not be mistaken for "not equal".
+	// user type's Eq impl, whose failure must not be mistaken for "not equal".
 	// A TypeError is the exception: it reads as "I do not know this type",
 	// which the package-level Equals turns back into "unequal". That function
 	// is what the == operator uses, and it consults both operands, so an
@@ -40,7 +40,6 @@ type Object interface {
 	RMultiply(left Object) (Object, bool, error)
 	RDivide(left Object) (Object, bool, error)
 	RModulo(left Object) (Object, bool, error)
-	Not() (Object, error)
 	Iter() ([]Object, error)
 	Index(index Object) (Object, error)
 	GetAttr(name string) (Object, error)
@@ -61,7 +60,7 @@ type Object interface {
 // inspect returns an infallible representation for diagnostics, formatting,
 // and code paths that must always be able to produce text. Every object type
 // provides it by implementing fmt.Stringer; ToString is the failing,
-// __str-dispatching counterpart.
+// Show-dispatching counterpart.
 func inspect(obj Object) string {
 	if s, ok := obj.(fmt.Stringer); ok {
 		return s.String()
@@ -80,7 +79,7 @@ func literal(obj Object) string {
 }
 
 // literalString is literal's failing twin, used by the collections' ToString.
-// Rendering a collection runs the __str of every value inside it, and those
+// Rendering a collection runs the Show of every value inside it, and those
 // may fail; a collection must not swallow what its elements report.
 func literalString(obj Object) (string, error) {
 	if s, ok := obj.(String); ok {
@@ -196,7 +195,7 @@ func SetIndex(obj Object, index Object, value Object) error {
 // IndexInt performs `obj[i]` for an index the caller already holds as a native
 // integer. Lists are the overwhelmingly common receiver, so they are handled
 // here directly without boxing the index and dispatching through the
-// interface; every other receiver, including user types with __getitem, sees
+// interface; every other receiver, including user types implementing Index, sees
 // exactly the boxed call it would have seen anyway.
 func IndexInt(obj Object, i int64) (Object, error) {
 	if l, ok := obj.(*List); ok && i >= 0 && i < int64(len(l.Elements)) {

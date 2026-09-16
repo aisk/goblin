@@ -33,8 +33,6 @@ func (c *Chan) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Chan and %s", other.TypeName())
 }
 
-func (c *Chan) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Chan") }
-
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
 	case "attributes":

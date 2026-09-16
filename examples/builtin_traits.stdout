@@ -1,0 +1,35 @@
+Vector(4, 6)
+Vector(2, 2)
+Vector(-1, -2)
+Vector(2, 4)
+Vector(1, 2)
+true false true
+true false
+Vector(3, 4) Vector(1, 2)
+custom lt
+true
+false
+10
+99
+10
+99
+30
+2
+Frozen does not support index assignment
+opaque is truthy
+false
+Opaque does not support index assignment
+cannot add Opaque
+cannot negate Opaque
+Counter(0) is falsy
+false false
+fallback
+Modular(n=3)
+Modular(n=3)
+Modular(n=93)
+Modular(n=2)
+cannot add Integer and Modular
+ababab
+ababab
+[1, 2, 1, 2]
+[1, 2, 1, 2]

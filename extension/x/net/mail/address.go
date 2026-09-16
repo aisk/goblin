@@ -19,9 +19,6 @@ func NewAddress(value *stdmail.Address) *Address {
 func (a *Address) String() string            { return a.value.String() }
 func (a *Address) ToString() (string, error) { return a.String(), nil }
 func (a *Address) ToBool() (bool, error)     { return a.value.Address != "", nil }
-func (a *Address) Not() (object.Object, error) {
-	return object.Bool(a.value.Address == ""), nil
-}
 func (a *Address) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*Address)
 	return ok && a.value.Name == value.value.Name && a.value.Address == value.value.Address, nil

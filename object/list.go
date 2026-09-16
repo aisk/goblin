@@ -316,10 +316,6 @@ func (l *List) Modulo(other Object) (Object, error) {
 	return nil, NewTypeError("cannot modulo List")
 }
 
-func (l *List) Not() (Object, error) {
-	return Bool(len(l.Elements) == 0), nil
-}
-
 func (l *List) Iter() ([]Object, error) {
 	return l.Elements, nil
 }

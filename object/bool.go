@@ -88,10 +88,6 @@ func (b Bool) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
 func (b Bool) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (b Bool) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (b Bool) Not() (Object, error) {
-	return !b, nil
-}
-
 func (b Bool) Iter() ([]Object, error) {
 	return nil, NewTypeError("Bool does not support iteration")
 }

@@ -654,6 +654,23 @@ type TypeDefine struct {
 	Name    string
 	Fields  []*TypeField
 	Methods []*FunctionDefine
+	// Impls lists the type's impl blocks in declaration order.
+	Impls []*ImplBlock
+}
+
+// AllMethods lists every method body the type declares: its ordinary methods
+// followed by the methods of each impl block. Passes that only care about
+// function bodies (name collection, inference) walk this instead of the two
+// lists separately.
+func (t *TypeDefine) AllMethods() []*FunctionDefine {
+	if len(t.Impls) == 0 {
+		return t.Methods
+	}
+	all := append([]*FunctionDefine(nil), t.Methods...)
+	for _, impl := range t.Impls {
+		all = append(all, impl.Methods...)
+	}
+	return all
 }
 
 func NewTypeMethodList(x any) (any, error) {
@@ -664,7 +681,102 @@ func AppendTypeMethodList(l any, x any) (any, error) {
 	return append(l.([]*FunctionDefine), x.(*FunctionDefine)), nil
 }
 
-func NewTypeDefine(name, fields, methods any) (any, error) {
+func NewTypeMemberList(x any) (any, error) {
+	return []any{x}, nil
+}
+
+func AppendTypeMemberList(l any, x any) (any, error) {
+	return append(l.([]any), x), nil
+}
+
+// TraitRef names a trait in an impl block or a dependency list, either bare
+// (`Eq`) or qualified by an imported module (`shapes.Shape`).
+type TraitRef struct {
+	Module string
+	Name   string
+	Pos    token.Pos
+}
+
+// String spells the reference the way the source did.
+func (r *TraitRef) String() string {
+	if r.Module == "" {
+		return r.Name
+	}
+	return r.Module + "." + r.Name
+}
+
+func NewTraitRef(module, name any) (any, error) {
+	tok := name.(*token.Token)
+	ref := &TraitRef{Name: string(tok.Lit), Pos: tok.Pos}
+	if module != nil {
+		modTok := module.(*token.Token)
+		ref.Module = string(modTok.Lit)
+		ref.Pos = modTok.Pos
+	}
+	return ref, nil
+}
+
+func NewTraitRefList(x any) (any, error) {
+	return []*TraitRef{x.(*TraitRef)}, nil
+}
+
+func AppendTraitRefList(l any, x any) (any, error) {
+	return append(l.([]*TraitRef), x.(*TraitRef)), nil
+}
+
+// ImplBlock is one type's implementation of one trait.
+type ImplBlock struct {
+	Trait   *TraitRef
+	Methods []*FunctionDefine
+}
+
+func NewImplBlock(trait, methods any) (any, error) {
+	impl := &ImplBlock{Trait: trait.(*TraitRef)}
+	if methods != nil {
+		impl.Methods = methods.([]*FunctionDefine)
+	}
+	return impl, nil
+}
+
+// TraitDefine declares a trait. A method with a nil Body is required; one
+// with a body is a default.
+type TraitDefine struct {
+	statementMixin
+	Name    string
+	Deps    []*TraitRef
+	Methods []*FunctionDefine
+}
+
+func NewTraitDefine(name, deps, methods any) (any, error) {
+	tok := name.(*token.Token)
+	def := &TraitDefine{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           string(tok.Lit),
+	}
+	if deps != nil {
+		def.Deps = deps.([]*TraitRef)
+	}
+	if methods != nil {
+		def.Methods = methods.([]*FunctionDefine)
+	}
+	return def, nil
+}
+
+// NewRequiredMethod builds a body-less trait method declaration.
+func NewRequiredMethod(name, params any) (any, error) {
+	tok := name.(*token.Token)
+	var parameters []*Parameter
+	if params != nil {
+		parameters = params.([]*Parameter)
+	}
+	return &FunctionDefine{
+		statementMixin: statementMixin{Pos: tok.Pos},
+		Name:           string(tok.Lit),
+		Parameters:     parameters,
+	}, nil
+}
+
+func NewTypeDefine(name, fields, members any) (any, error) {
 	tok := name.(*token.Token)
 
 	var typeFields []*TypeField
@@ -672,17 +784,22 @@ func NewTypeDefine(name, fields, methods any) (any, error) {
 		typeFields = fields.([]*TypeField)
 	}
 
-	var typeMethods []*FunctionDefine
-	if methods != nil {
-		typeMethods = methods.([]*FunctionDefine)
-	}
-
-	return &TypeDefine{
+	def := &TypeDefine{
 		statementMixin: statementMixin{Pos: tok.Pos},
 		Name:           string(tok.Lit),
 		Fields:         typeFields,
-		Methods:        typeMethods,
-	}, nil
+	}
+	if members != nil {
+		for _, member := range members.([]any) {
+			switch m := member.(type) {
+			case *FunctionDefine:
+				def.Methods = append(def.Methods, m)
+			case *ImplBlock:
+				def.Impls = append(def.Impls, m)
+			}
+		}
+	}
+	return def, nil
 }
 
 type Return struct {

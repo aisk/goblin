@@ -15,10 +15,9 @@ func newPrefix(value netip.Prefix) *Prefix {
 	return &Prefix{OpaqueBase: object.MakeOpaqueBase("Prefix"), value: value}
 }
 
-func (p *Prefix) String() string              { return p.value.String() }
-func (p *Prefix) ToString() (string, error)   { return p.String(), nil }
-func (p *Prefix) ToBool() (bool, error)       { return p.value.IsValid(), nil }
-func (p *Prefix) Not() (object.Object, error) { return object.Bool(!p.value.IsValid()), nil }
+func (p *Prefix) String() string            { return p.value.String() }
+func (p *Prefix) ToString() (string, error) { return p.String(), nil }
+func (p *Prefix) ToBool() (bool, error)     { return p.value.IsValid(), nil }
 func (p *Prefix) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*Prefix)
 	return ok && p.value == value.value, nil

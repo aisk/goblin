@@ -53,10 +53,6 @@ func (n Unit) Modulo(other Object) (Object, error) {
 	return nil, NewTypeError("cannot modulo Nil")
 }
 
-func (n Unit) Not() (Object, error) {
-	return True, nil
-}
-
 func (n Unit) Iter() ([]Object, error) {
 	return nil, NewTypeError("Nil does not support iteration")
 }

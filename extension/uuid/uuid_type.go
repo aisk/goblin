@@ -21,10 +21,9 @@ func NewUUID(value googleuuid.UUID) *UUID {
 	return &UUID{OpaqueBase: object.MakeOpaqueBase("UUID"), Value: value}
 }
 
-func (u *UUID) String() string              { return u.Value.String() }
-func (u *UUID) ToString() (string, error)   { return u.String(), nil }
-func (u *UUID) ToBool() (bool, error)       { return u.Value != googleuuid.Nil, nil }
-func (u *UUID) Not() (object.Object, error) { return object.Bool(u.Value == googleuuid.Nil), nil }
+func (u *UUID) String() string            { return u.Value.String() }
+func (u *UUID) ToString() (string, error) { return u.String(), nil }
+func (u *UUID) ToBool() (bool, error)     { return u.Value != googleuuid.Nil, nil }
 
 func (u *UUID) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*UUID)

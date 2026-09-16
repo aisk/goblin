@@ -75,10 +75,6 @@ func (f Float) RMultiply(Object) (Object, bool, error) { return nil, false, nil 
 func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (f Float) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (f Float) Not() (Object, error) {
-	return Bool(f == 0), nil
-}
-
 func (f Float) Iter() ([]Object, error) {
 	return nil, NewTypeError("Float does not support iteration")
 }

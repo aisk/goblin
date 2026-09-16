@@ -1,11 +1,9 @@
 package object
 
-import "errors"
-
 // Add, Minus, Multiply, Divide and Modulo are the entry points both backends
 // use for the arithmetic operators. They run the left operand's own method
 // first and fall back to the right operand's reflected method (RAdd and
-// friends, the Go side of __radd) when the left one reports that it does not
+// friends, the Go side of Num.radd) when the left one reports that it does not
 // know the type —
 // the same rule Compare and Equals follow, so only a TypeError triggers the
 // fallback and every other failure propagates. Unlike comparison, arithmetic
@@ -23,7 +21,7 @@ func Add(a, b Object) (Object, error) {
 	if err == nil {
 		return res, nil
 	}
-	if !errors.Is(err, TypeError) {
+	if !notHandled(err) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RAdd(a); handled {
@@ -40,7 +38,7 @@ func Minus(a, b Object) (Object, error) {
 	if err == nil {
 		return res, nil
 	}
-	if !errors.Is(err, TypeError) {
+	if !notHandled(err) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RMinus(a); handled {
@@ -57,7 +55,7 @@ func Multiply(a, b Object) (Object, error) {
 	if err == nil {
 		return res, nil
 	}
-	if !errors.Is(err, TypeError) {
+	if !notHandled(err) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RMultiply(a); handled {
@@ -74,7 +72,7 @@ func Divide(a, b Object) (Object, error) {
 	if err == nil {
 		return res, nil
 	}
-	if !errors.Is(err, TypeError) {
+	if !notHandled(err) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RDivide(a); handled {
@@ -91,7 +89,7 @@ func Modulo(a, b Object) (Object, error) {
 	if err == nil {
 		return res, nil
 	}
-	if !errors.Is(err, TypeError) {
+	if !notHandled(err) {
 		return nil, err
 	}
 	if res, handled, rerr := b.RModulo(a); handled {
@@ -100,9 +98,20 @@ func Modulo(a, b Object) (Object, error) {
 	return nil, err
 }
 
+// Not is the entry point both backends use for the ! operator: the negation of
+// the operand's truth value, with no separate overload.
+func Not(v Object) (Object, error) {
+	b, err := v.ToBool()
+	if err != nil {
+		return nil, err
+	}
+	return Bool(!b), nil
+}
+
 // Positive and Negate are the entry points both backends use for the unary
-// + and - operators. Only numbers have them: + returns the operand unchanged
-// and - flips its sign; anything else is a TypeError.
+// + and - operators. + is for numbers only and returns the operand unchanged;
+// - flips a number's sign and negates a user value through Num.neg. Anything
+// else is a TypeError.
 func Positive(v Object) (Object, error) {
 	switch v.(type) {
 	case Integer, Float:
@@ -117,6 +126,10 @@ func Negate(v Object) (Object, error) {
 		return Integer(-int64(n)), nil
 	case Float:
 		return Float(-float64(n)), nil
+	case UserValue:
+		if impl := n.UserType().num; impl != nil {
+			return impl.call(n, NumNeg, []Object{n})
+		}
 	}
-	return nil, NewTypeError("cannot negate %s", v.TypeName())
+	return nil, NewTypeError(ErrFmtCannotNegate, v.TypeName())
 }

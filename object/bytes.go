@@ -60,8 +60,6 @@ func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil 
 func (b Bytes) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (b Bytes) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (b Bytes) Not() (Object, error) { return Bool(len(b) == 0), nil }
-
 func (b Bytes) Iter() ([]Object, error) {
 	result := make([]Object, len(b))
 	for i, value := range b {

@@ -94,9 +94,6 @@ func (p *Path) Modulo(object.Object) (object.Object, error) {
 	return nil, object.NewTypeError("cannot modulo Path")
 }
 
-func (p *Path) Not() (object.Object, error) {
-	return object.Bool(p.raw == "" || p.raw == "."), nil
-}
 func (p *Path) Iter() ([]object.Object, error) {
 	return nil, object.NewTypeError("Path is not iterable; use iterdir() to list a directory")
 }

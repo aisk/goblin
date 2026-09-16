@@ -103,8 +103,10 @@ func isPathImport(path string) bool {
 	return source.IsPathImport(path)
 }
 
-// loadInto resolves imports and hoists function/type definitions for a module
-// body into env, so references resolve regardless of source order. argv is the
+// loadInto resolves imports and hoists function, type and trait definitions
+// for a module body into env, so references resolve regardless of source
+// order. Types and traits are bound here once, in source order, so a type's
+// impls resolve the traits declared above it. argv is the
 // script command line closed over by import "os".
 func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Registry, argv []string) error {
 	for _, stmt := range mod.Body {
@@ -121,10 +123,25 @@ func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Reg
 		case *ast.FunctionDefine:
 			env.Define(s.Name, makeFunction(s, env))
 		case *ast.TypeDefine:
-			defineType(s, env)
+			if err := defineType(s, env); err != nil {
+				return positionError(err, s.Position())
+			}
+		case *ast.TraitDefine:
+			if err := defineTrait(s, env); err != nil {
+				return positionError(err, s.Position())
+			}
 		}
 	}
 	return nil
+}
+
+// loadError attaches the module frame to an error loadInto reported for a
+// statement.
+func loadError(err error, module string) error {
+	if p, ok := err.(*positionedError); ok {
+		return object.WithFrame(p.err, stackFrame(module, "<module>", p.pos))
+	}
+	return err
 }
 
 func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv []string) (object.Object, error) {
@@ -163,7 +180,7 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 
 	env := NewEnvironment(nil)
 	if err := loadInto(mod, env, filepath.Dir(path), reg, argv); err != nil {
-		return nil, err
+		return nil, loadError(err, moduleName(path))
 	}
 	if err := evalStatements(mod.Body, env); err != nil {
 		var pos token.Pos

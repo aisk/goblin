@@ -111,10 +111,6 @@ func (e *Error) Modulo(other Object) (Object, error) {
 	return nil, NewTypeError("cannot modulo Error and %s", other.TypeName())
 }
 
-func (e *Error) Not() (Object, error) {
-	return nil, NewTypeError("cannot perform NOT operation on Error")
-}
-
 func (e *Error) Iter() ([]Object, error) {
 	return nil, NewTypeError("Error does not support iteration")
 }

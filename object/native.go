@@ -7,8 +7,8 @@ package object
 // entry points would first box it — an allocation for anything above 255 —
 // and then dispatch on both sides. These variants take the integer as it is
 // and answer the numeric cases directly. Every other receiver reaches exactly
-// the boxed call it would have reached anyway, so a user type's __add or
-// __cmp sees the same Integer operand and produces the same error text.
+// the boxed call it would have reached anyway, so a user type's Num or
+// Ord impl sees the same Integer operand and produces the same error text.
 //
 // Only the boxed-left, native-right shape has a variant: the operators are
 // not symmetric (`a - b`, and which side's error is reported when neither
@@ -68,11 +68,34 @@ func ModuloInt(a Object, b int64) (Object, error) {
 	return Modulo(a, Integer(b))
 }
 
-func CompareInt(a Object, b int64) (int, error) {
+// LessInt, LessEqualInt, GreaterInt and GreaterEqualInt are the ordering
+// operators with a native integer on the right.
+func LessInt(a Object, b int64) (bool, error) {
 	if lhs, ok := a.(Integer); ok {
-		return compareOrdered(lhs, Integer(b)), nil
+		return int64(lhs) < b, nil
 	}
-	return Compare(a, Integer(b))
+	return Less(a, Integer(b))
+}
+
+func LessEqualInt(a Object, b int64) (bool, error) {
+	if lhs, ok := a.(Integer); ok {
+		return int64(lhs) <= b, nil
+	}
+	return LessEqual(a, Integer(b))
+}
+
+func GreaterInt(a Object, b int64) (bool, error) {
+	if lhs, ok := a.(Integer); ok {
+		return int64(lhs) > b, nil
+	}
+	return Greater(a, Integer(b))
+}
+
+func GreaterEqualInt(a Object, b int64) (bool, error) {
+	if lhs, ok := a.(Integer); ok {
+		return int64(lhs) >= b, nil
+	}
+	return GreaterEqual(a, Integer(b))
 }
 
 // EqualsInt is symmetric like Equals, so the transpiler may use it for the
@@ -82,4 +105,11 @@ func EqualsInt(a Object, b int64) (bool, error) {
 		return int64(lhs) == b, nil
 	}
 	return Equals(a, Integer(b))
+}
+
+func NotEqualsInt(a Object, b int64) (bool, error) {
+	if lhs, ok := a.(Integer); ok {
+		return int64(lhs) != b, nil
+	}
+	return NotEquals(a, Integer(b))
 }

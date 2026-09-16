@@ -37,10 +37,21 @@ func TestNativeRightOperatorsMatchBoxed(t *testing.T) {
 
 	for _, a := range lefts {
 		for _, b := range rights {
-			got, gotErr := CompareInt(a, b)
-			want, wantErr := Compare(a, Integer(b))
-			if (gotErr == nil) != (wantErr == nil) || got != want || (gotErr != nil && gotErr.Error() != wantErr.Error()) {
-				t.Fatalf("CompareInt(%v, %d) = %d, %v; boxed %d, %v", a, b, got, gotErr, want, wantErr)
+			orders := []struct {
+				name   string
+				native func(Object, int64) (bool, error)
+				boxed  func(Object, Object) (bool, error)
+			}{
+				{"Less", LessInt, Less}, {"LessEqual", LessEqualInt, LessEqual},
+				{"Greater", GreaterInt, Greater}, {"GreaterEqual", GreaterEqualInt, GreaterEqual},
+				{"NotEquals", NotEqualsInt, NotEquals},
+			}
+			for _, op := range orders {
+				got, gotErr := op.native(a, b)
+				want, wantErr := op.boxed(a, Integer(b))
+				if (gotErr == nil) != (wantErr == nil) || got != want || (gotErr != nil && gotErr.Error() != wantErr.Error()) {
+					t.Fatalf("%sInt(%v, %d) = %v, %v; boxed %v, %v", op.name, a, b, got, gotErr, want, wantErr)
+				}
 			}
 			eq, err := EqualsInt(a, b)
 			wantEq, wantEqErr := Equals(a, Integer(b))

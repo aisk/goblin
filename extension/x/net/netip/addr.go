@@ -15,10 +15,9 @@ func newAddr(value netip.Addr) *Addr {
 	return &Addr{OpaqueBase: object.MakeOpaqueBase("Addr"), value: value}
 }
 
-func (a *Addr) String() string              { return a.value.String() }
-func (a *Addr) ToString() (string, error)   { return a.String(), nil }
-func (a *Addr) ToBool() (bool, error)       { return a.value.IsValid(), nil }
-func (a *Addr) Not() (object.Object, error) { return object.Bool(!a.value.IsValid()), nil }
+func (a *Addr) String() string            { return a.value.String() }
+func (a *Addr) ToString() (string, error) { return a.String(), nil }
+func (a *Addr) ToBool() (bool, error)     { return a.value.IsValid(), nil }
 func (a *Addr) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*Addr)
 	return ok && a.value == value.value, nil

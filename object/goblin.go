@@ -58,8 +58,6 @@ func (g *Goblin) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Goblin and %s", other.TypeName())
 }
 
-func (g *Goblin) Not() (Object, error) { return nil, NewTypeError("cannot perform NOT on Goblin") }
-
 func (g *Goblin) GetAttr(name string) (Object, error) {
 	switch name {
 	case "attributes":

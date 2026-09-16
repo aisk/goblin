@@ -1,0 +1,21 @@
+Point(x=1, y=2)
+true false false
+false false
+true false true
+[Point(x=1, y=2), Point(x=1, y=5), Point(x=2, y=0)]
+Point(x=0, y=2)
+1 second
+true
+Line(start=Point(x=1, y=2), end=Point(x=3, y=4), label="line")
+Empty() Empty()
+true
+unhashable dict key: [1]
+cannot compare List and Dict
+cannot compare Point and Bag
+custom max
+1
+true [<trait Ord>, <trait Eq>]
+custom ne
+custom ne
+true true
+true found

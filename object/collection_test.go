@@ -373,7 +373,7 @@ func TestDictUnhashableKey(t *testing.T) {
 }
 
 // failingConv is an Object whose user-level conversions fail, standing in for
-// an instance whose __bool/__str raise.
+// an instance whose truth/show raise.
 type failingConv struct {
 	Unit
 	pad int

@@ -85,6 +85,7 @@ Statement
     | Continue
     | FunctionDefine
     | TypeDefine
+    | TraitDefine
     | Return
     | Raise
     | Try
@@ -303,18 +304,67 @@ FunctionDefine
     : "func" id Parameters Block             << ast.NewFunctionDefine($1, $2, $3) >>
 ;
 
-TypeMethods
-    : "{" OptNewlines "}"                                << nil, nil >>
-    | "{" OptNewlines TypeMethodList OptNewlines "}"     << $2, nil >>
-;
-
 TypeMethodList
     : FunctionDefine                                     << ast.NewTypeMethodList($0) >>
     | TypeMethodList Newlines FunctionDefine             << ast.AppendTypeMethodList($0, $2) >>
 ;
 
+// A type body holds ordinary methods and impl blocks, in any order.
+TypeBody
+    : "{" OptNewlines "}"                                << nil, nil >>
+    | "{" OptNewlines TypeMemberList OptNewlines "}"     << $2, nil >>
+;
+
+TypeMemberList
+    : TypeMember                                         << ast.NewTypeMemberList($0) >>
+    | TypeMemberList Newlines TypeMember                 << ast.AppendTypeMemberList($0, $2) >>
+;
+
+TypeMember
+    : FunctionDefine
+    | ImplBlock
+;
+
+ImplBlock
+    : "impl" TraitRef "{" OptNewlines "}"                              << ast.NewImplBlock($1, nil) >>
+    | "impl" TraitRef "{" OptNewlines TypeMethodList OptNewlines "}"   << ast.NewImplBlock($1, $4) >>
+;
+
+TraitRef
+    : id                                     << ast.NewTraitRef(nil, $0) >>
+    | id "." id                              << ast.NewTraitRef($0, $2) >>
+;
+
+TraitRefList
+    : TraitRef                                           << ast.NewTraitRefList($0) >>
+    | TraitRefList "," OptNewlines TraitRef              << ast.AppendTraitRefList($0, $3) >>
+;
+
 TypeDefine
-    : "type" id TypeFields TypeMethods       << ast.NewTypeDefine($1, $2, $3) >>
+    : "type" id TypeFields TypeBody          << ast.NewTypeDefine($1, $2, $3) >>
+;
+
+// A trait member without a body is a required method; one with a body is a
+// default. The body-less form lives only here, so it stays a syntax error
+// everywhere else.
+TraitDefine
+    : "trait" id TraitDeps "{" OptNewlines "}"                              << ast.NewTraitDefine($1, $2, nil) >>
+    | "trait" id TraitDeps "{" OptNewlines TraitMemberList OptNewlines "}"  << ast.NewTraitDefine($1, $2, $5) >>
+;
+
+TraitDeps
+    : empty                                  << nil, nil >>
+    | ":" TraitRefList                       << $1, nil >>
+;
+
+TraitMemberList
+    : TraitMember                                        << ast.NewTypeMethodList($0) >>
+    | TraitMemberList Newlines TraitMember               << ast.AppendTypeMethodList($0, $2) >>
+;
+
+TraitMember
+    : FunctionDefine
+    | "func" id Parameters                   << ast.NewRequiredMethod($1, $2) >>
 ;
 
 Return

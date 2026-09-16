@@ -1,8 +1,6 @@
 package interpreter
 
 import (
-	"fmt"
-
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/object"
 )
@@ -23,10 +21,13 @@ type goblinType struct {
 	attributes  []string
 	constructor *object.Function
 	env         *Environment
+	// info carries the impls trait dispatch consults.
+	info *object.UserType
 }
 
-// defineType registers a user type's constructor in the current scope.
-func defineType(def *ast.TypeDefine, env *Environment) {
+// defineType registers a user type's constructor in the current scope. Each
+// impl block resolves its trait now, so the trait must already be defined.
+func defineType(def *ast.TypeDefine, env *Environment) error {
 	methods := make(map[string]*ast.FunctionDefine, len(def.Methods))
 	methodSpecs := make(map[string]*closureSpec, len(def.Methods))
 	attributes := make([]string, 0, len(def.Methods)+len(def.Fields)+2)
@@ -51,6 +52,10 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 	}
 	if !seen["attributes"] {
 		attributes = append(attributes, "attributes")
+		seen["attributes"] = true
+	}
+	if !seen["traits"] {
+		attributes = append(attributes, "traits")
 	}
 	t := &goblinType{
 		name:        def.Name,
@@ -69,11 +74,77 @@ func defineType(def *ast.TypeDefine, env *Environment) {
 			t.defaults[i] = func() (object.Object, error) { return evalExpr(expr, t.env) }
 		}
 	}
+	t.info = object.NewUserType(def.Name, t.params)
+	for _, block := range def.Impls {
+		trait, err := resolveTrait(block.Trait, "impl "+block.Trait.String(), env)
+		if err != nil {
+			return err
+		}
+		methods := make([]object.ImplMethod, len(block.Methods))
+		for i, m := range block.Methods {
+			spec := newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters, m.Body)
+			methods[i] = object.ImplMethod{
+				Name:  m.Name,
+				Arity: len(m.Parameters),
+				Fn: &object.Function{Name: m.Name, Fn: func(args object.CallArgs) (object.Object, error) {
+					return spec.call(env, args)
+				}},
+			}
+		}
+		t.info.Implement(trait, methods)
+	}
+	if err := t.info.Seal(); err != nil {
+		return err
+	}
 	t.constructor = &object.Function{
 		Name: def.Name,
 		Fn:   t.construct,
 	}
 	env.Define(def.Name, t.constructor)
+	return nil
+}
+
+// defineTrait binds a trait declaration's trait object. Default methods are
+// closures over the declaring scope taking self as their first argument.
+func defineTrait(def *ast.TraitDefine, env *Environment) error {
+	deps := make([]*object.Trait, len(def.Deps))
+	for i, ref := range def.Deps {
+		dep, err := resolveTrait(ref, "trait "+def.Name, env)
+		if err != nil {
+			return err
+		}
+		deps[i] = dep
+	}
+	methods := make([]object.TraitMethod, len(def.Methods))
+	for i, m := range def.Methods {
+		methods[i] = object.TraitMethod{Name: m.Name, Arity: len(m.Parameters), Required: m.Body == nil}
+		if m.Body != nil {
+			spec := newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters, m.Body)
+			methods[i].Default = &object.Function{Name: m.Name, Fn: func(args object.CallArgs) (object.Object, error) {
+				return spec.call(env, args)
+			}}
+		}
+	}
+	env.Define(def.Name, object.NewTrait(def.Name, deps, methods))
+	return nil
+}
+
+// resolveTrait looks up the trait an impl block or dependency list names.
+// site says where the reference appears, for the messages.
+func resolveTrait(ref *ast.TraitRef, site string, env *Environment) (*object.Trait, error) {
+	notDefined := object.NewNameError(object.ErrFmtTraitNotDefined, site, ref)
+	if ref.Module != "" {
+		module, err := resolveName(ref.Module, env)
+		if err != nil {
+			return nil, notDefined
+		}
+		return object.ModuleTrait(module, ref.Name, site, ref.String())
+	}
+	value, err := resolveName(ref.Name, env)
+	if err != nil {
+		return nil, notDefined
+	}
+	return object.AsTrait(value, site, ref.String())
 }
 
 // construct binds call arguments to fields through the shared
@@ -142,18 +213,6 @@ func (in *instance) CallMethod(name string, args object.CallArgs) (object.Object
 	return v, true, err
 }
 
-// callProto invokes a user-defined protocol method (e.g. "add", "compare",
-// "str") with the given arguments if the type defines it. ok reports whether
-// the method exists; when false the caller falls back to the default behavior.
-func (in *instance) callProto(name string, args ...object.Object) (result object.Object, ok bool, err error) {
-	m, defined := in.typ.methods[name]
-	if !defined {
-		return nil, false, nil
-	}
-	result, err = in.invoke(in.typ.methodSpecs[m.Name], object.CallArgs{Positional: args})
-	return result, true, err
-}
-
 func (in *instance) GetAttr(name string) (object.Object, error) {
 	// A user-defined method (including one named "constructor") shadows the
 	// built-in constructor attribute and any field.
@@ -168,6 +227,9 @@ func (in *instance) GetAttr(name string) (object.Object, error) {
 	}
 	if name == "attributes" {
 		return object.AttributesFunction(in), nil
+	}
+	if name == "traits" {
+		return object.TraitsFunction(in), nil
 	}
 	return nil, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
@@ -193,171 +255,71 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 	return true, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }
 
-// String satisfies fmt.Stringer. It falls back to the default representation
-// when __str fails because fmt.Stringer cannot return an error.
-func (in *instance) String() string {
-	if v, ok, err := in.callProto(object.ProtoStr); ok && err == nil {
-		return fmt.Sprint(v)
-	}
-	return fmt.Sprintf("<%s@%p>", in.typ.name, in)
-}
+// UserType and FieldValues satisfy object.UserValue, through which the
+// object package dispatches operators and conversions to the type's impls.
+func (in *instance) UserType() *object.UserType { return in.typ.info }
 
-// ToString performs Goblin's potentially failing __str conversion.
-func (in *instance) ToString() (string, error) {
-	if v, ok, err := in.callProto(object.ProtoStr); ok {
-		if err != nil {
-			return "", err
-		}
-		return v.ToString()
-	}
-	return fmt.Sprintf("<%s@%p>", in.typ.name, in), nil
-}
+func (in *instance) FieldValues() []object.Object { return in.fields }
 
-func (in *instance) ToBool() (bool, error) {
-	if v, ok, err := in.callProto(object.ProtoBool); ok {
-		if err != nil {
-			return false, err
-		}
-		return v.ToBool()
-	}
-	return true, nil
-}
+func (in *instance) String() string            { return object.UserString(in) }
+func (in *instance) ToString() (string, error) { return object.UserToString(in) }
+func (in *instance) ToBool() (bool, error)     { return object.UserToBool(in) }
+func (in *instance) Hash() (uint64, error)     { return object.UserHash(in) }
 
-// Equals dispatches __cmp when defined; without it an instance is equal only
-// to itself. A __cmp that fails makes == fail too: a raised error is not the
-// same answer as "not equal".
 func (in *instance) Equals(other object.Object) (bool, error) {
-	c, ok, err := in.compareProto(other)
-	if !ok {
-		o, isInstance := other.(*instance)
-		return isInstance && o == in, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	return c == 0, nil
+	return object.UserEquals(in, other)
 }
 
 func (in *instance) Compare(other object.Object) (int, error) {
-	c, ok, err := in.compareProto(other)
-	if !ok {
-		return 0, object.NewTypeError(object.ErrFmtCannotCompare, in.typ.name)
-	}
-	return c, err
-}
-
-// compareProto runs __cmp and validates its result. ok reports whether the
-// type defines the method at all, which == and the ordering operators answer
-// differently.
-func (in *instance) compareProto(other object.Object) (int, bool, error) {
-	v, ok, err := in.callProto(object.ProtoCmp, other)
-	if !ok {
-		return 0, false, nil
-	}
-	if err != nil {
-		return 0, true, err
-	}
-	i, isInt := v.(object.Integer)
-	if !isInt {
-		return 0, true, object.NewTypeError(object.ErrFmtCmpMustReturnInt, in.typ.name, fmt.Sprint(v))
-	}
-	return int(i), true, nil
+	return object.UserCompare(in, other)
 }
 
 func (in *instance) Add(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoAdd, other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtCannotAdd, in.typ.name)
+	return object.UserArith(in, object.NumAdd, other)
 }
 
 func (in *instance) Minus(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoSub, other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtCannotSubtract, in.typ.name)
+	return object.UserArith(in, object.NumSub, other)
 }
 
 func (in *instance) Multiply(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoMul, other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtCannotMultiply, in.typ.name)
+	return object.UserArith(in, object.NumMul, other)
 }
 
 func (in *instance) Divide(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoDiv, other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtCannotDivide, in.typ.name)
+	return object.UserArith(in, object.NumDiv, other)
 }
 
 func (in *instance) Modulo(other object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoMod, other); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtCannotModulo, in.typ.name)
+	return object.UserArith(in, object.NumMod, other)
 }
 
-// RAdd, RMinus, RMultiply, RDivide and RModulo are the reflected operators, reached
-// when the value stands on the right of an operand that does not know it. They
-// report handled == false when the type defines no such method, leaving the
-// left operand's error in place.
 func (in *instance) RAdd(left object.Object) (object.Object, bool, error) {
-	return in.callProto(object.ProtoRAdd, left)
+	return object.UserReflected(in, object.NumRAdd, left)
 }
 
 func (in *instance) RMinus(left object.Object) (object.Object, bool, error) {
-	return in.callProto(object.ProtoRSub, left)
+	return object.UserReflected(in, object.NumRSub, left)
 }
 
 func (in *instance) RMultiply(left object.Object) (object.Object, bool, error) {
-	return in.callProto(object.ProtoRMul, left)
+	return object.UserReflected(in, object.NumRMul, left)
 }
 
 func (in *instance) RDivide(left object.Object) (object.Object, bool, error) {
-	return in.callProto(object.ProtoRDiv, left)
+	return object.UserReflected(in, object.NumRDiv, left)
 }
 
 func (in *instance) RModulo(left object.Object) (object.Object, bool, error) {
-	return in.callProto(object.ProtoRMod, left)
+	return object.UserReflected(in, object.NumRMod, left)
 }
 
-func (in *instance) Not() (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoNot); ok {
-		return v, err
-	}
-	// Without __not, ! negates the instance's truthiness, matching the
-	// default behavior of built-in types.
-	b, err := in.ToBool()
-	if err != nil {
-		return nil, err
-	}
-	return object.Bool(!b), nil
-}
-
-func (in *instance) Iter() ([]object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoIter); ok {
-		if err != nil {
-			return nil, err
-		}
-		return v.Iter()
-	}
-	return nil, object.NewTypeError(object.ErrFmtNotIterable, in.typ.name)
-}
+func (in *instance) Iter() ([]object.Object, error) { return object.UserIter(in) }
 
 func (in *instance) Index(index object.Object) (object.Object, error) {
-	if v, ok, err := in.callProto(object.ProtoGetItem, index); ok {
-		return v, err
-	}
-	return nil, object.NewTypeError(object.ErrFmtNotIndexable, in.typ.name)
+	return object.UserIndex(in, index)
 }
 
-// SetIndex dispatches `obj[i] = v` to a user-defined "__setitem" method. It
-// reports handled == false without one, leaving object.SetIndex
-// to raise the same "does not support index assignment" error every other type
-// gets.
 func (in *instance) SetIndex(index object.Object, value object.Object) (bool, error) {
-	_, ok, err := in.callProto(object.ProtoSetItem, index, value)
-	return ok, err
+	return object.UserSetIndex(in, index, value)
 }

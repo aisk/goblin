@@ -19,7 +19,7 @@ var nested = [[1], [2]]
 print(nested.contains([1]))
 print(nested.index([2]))
 
-# Instances without __cmp are equal only to themselves.
+# Instances without Eq are equal only to themselves.
 type Point(x, y) {}
 var p = Point(1, 2)
 var q = Point(1, 2)
@@ -27,27 +27,32 @@ print(p == p)
 print(p == q)
 print(p.constructor == Point)
 
-# __cmp defines equality for a type, and works on either side of ==.
+# An Eq impl defines equality for a type, and works on either side of ==.
 type Money(amount) {
-    func __cmp(self, other) {
-        return self.amount - other
+    impl Eq {
+        func eq(self, other) {
+            return self.amount - other == 0
+        }
     }
 }
 var m = Money(5)
 print(m == 5)
 print(5 == m)
 print(m == 6)
+print(m != 6)
 
-# A __cmp written only for the operands it really compares against keeps
-# working as a guard: the type mismatch inside it reads as "unequal".
+# An eq written only for the operands it really compares against keeps working
+# as a guard: the type mismatch inside it reads as "unequal".
 print(m == nil)
 print(m == "5")
 
-# A __cmp that fails for a reason of its own is not an answer, so == reports
-# the failure instead of quietly saying "not equal".
+# An eq that fails for a reason of its own is not an answer, so == reports the
+# failure instead of quietly saying "not equal".
 type Fragile(v) {
-    func __cmp(self, other) {
-        return self.v / 0
+    impl Eq {
+        func eq(self, other) {
+            return self.v / 0 == other
+        }
     }
 }
 try {
@@ -56,11 +61,13 @@ try {
     print(e)
 }
 
-# Rendering a collection runs the __str of everything inside it, and a failure
+# Rendering a collection runs the Show of everything inside it, and a failure
 # there is not swallowed either.
 type Loud() {
-    func __str(self) {
-        raise Error("cannot render")
+    impl Show {
+        func show(self) {
+            raise Error("cannot render")
+        }
     }
 }
 try {

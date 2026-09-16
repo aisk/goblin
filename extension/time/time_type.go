@@ -43,8 +43,6 @@ func (t *Time) Compare(other object.Object) (int, error) {
 	return 0, nil
 }
 
-func (t *Time) Not() (object.Object, error) { return object.Bool(t.Value.IsZero()), nil }
-
 func (t *Time) GetAttr(name string) (object.Object, error) {
 	if value, ok := timeType.Attribute(name); ok {
 		return value, nil

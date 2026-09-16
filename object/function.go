@@ -41,7 +41,6 @@ func (f *Function) Multiply(Object) (Object, error) {
 }
 func (f *Function) Divide(Object) (Object, error) { return nil, NewTypeError("cannot divide Function") }
 func (f *Function) Modulo(Object) (Object, error) { return nil, NewTypeError("cannot modulo Function") }
-func (f *Function) Not() (Object, error)          { return nil, NewTypeError("cannot perform NOT on Function") }
 func (f *Function) Iter() ([]Object, error) {
 	return nil, NewTypeError("Function does not support iteration")
 }

@@ -47,6 +47,14 @@ var BuiltinsModule = &object.Module{
 		"Chan":                object.ChanConstructorFn,
 		"Goblin":              object.GoblinConstructorFn,
 		"Function":            object.FunctionConstructorFn,
+		"Eq":                  object.EqTrait,
+		"Ord":                 object.OrdTrait,
+		"Hashable":            object.HashableTrait,
+		"Show":                object.ShowTrait,
+		"Truth":               object.TruthTrait,
+		"Num":                 object.NumTrait,
+		"Iter":                object.IterTrait,
+		"Index":               object.IndexTrait,
 	},
 }
 

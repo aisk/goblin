@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-// rightObj stands in for a user type defining __radd, __rdiv and __rmod: it
+// rightObj stands in for a user type whose Num impl defines radd, rdiv and rmod: it
 // completes those operations from the right, stays silent about subtraction,
 // and raises from multiplication the way a failing reflected method does.
 type rightObj struct{ Unit }
