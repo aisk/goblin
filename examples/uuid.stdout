@@ -1,4 +1,18 @@
 true
-true
+4
+7
 550e8400-e29b-41d4-a716-446655440000
+urn:uuid:550e8400-e29b-41d4-a716-446655440000
+true
+true
+00000000-0000-0000-0000-000000000000
+true
+true
+true
+true
 false
+parsed
+1645557742
+UUID() invalid UUID string: invalid uuid
+cannot add UUID
+UUID.time is only defined for version 7

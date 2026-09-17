@@ -44,7 +44,7 @@ sha512.sum384("Goblin")
 var recipient = mail.parse_address("Goblin <goblin@example.com>")
 mail.Address(recipient.name, recipient.address)
 mail.parse_address_list("Ada <ada@example.com>, goblin@example.com")
-uuid.is_valid("550e8400-e29b-41d4-a716-446655440000")
+uuid.UUID("550e8400-e29b-41d4-a716-446655440000").version
 
 func identity(value) {
     return value

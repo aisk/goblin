@@ -2,11 +2,11 @@ package uuid
 
 import (
 	"errors"
-	"strconv"
 	"testing"
+	stduuid "uuid"
 
+	goblintime "github.com/aisk/goblin/extension/time"
 	"github.com/aisk/goblin/object"
-	googleuuid "github.com/google/uuid"
 )
 
 func uuidFunction(t *testing.T, name string) *object.Function {
@@ -24,154 +24,94 @@ func uuidFunction(t *testing.T, name string) *object.Function {
 }
 
 func TestUUIDNew(t *testing.T) {
-	got, err := uuidFunction(t, "new").Call(object.CallArgs{})
-	if err != nil {
-		t.Fatalf("new() error = %v", err)
-	}
-	value, ok := got.(*UUID)
-	if !ok {
-		t.Fatalf("new() returned %T, want *UUID", got)
-	}
-	if err := googleuuid.Validate(value.String()); err != nil {
-		t.Fatalf("new() returned invalid UUID %q: %v", value, err)
-	}
-	if value.Value.Version() != 4 {
-		t.Fatalf("new() version = %d, want 4", value.Value.Version())
-	}
-}
-
-func TestUUIDNewVersions(t *testing.T) {
-	for _, version := range []int64{1, 4, 6, 7} {
-		t.Run(strconv.FormatInt(version, 10), func(t *testing.T) {
-			got, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{
-				{Name: "version", Value: object.Integer(version)},
-			}})
-			if err != nil {
-				t.Fatalf("new(version=%d) error = %v", version, err)
-			}
-			if got.(*UUID).Value.Version() != googleuuid.Version(version) {
-				t.Fatalf("new(version=%d) returned version %d", version, got.(*UUID).Value.Version())
-			}
-		})
-	}
-}
-
-func TestUUIDNewNameBased(t *testing.T) {
 	for _, test := range []struct {
-		version int64
-		data    object.Object
-		want    googleuuid.UUID
-	}{
-		{3, object.String("example.com"), googleuuid.NewMD5(googleuuid.NameSpaceDNS, []byte("example.com"))},
-		{5, object.Bytes("example.com"), googleuuid.NewSHA1(googleuuid.NameSpaceDNS, []byte("example.com"))},
-	} {
-		got, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{
-			{Name: "version", Value: object.Integer(test.version)},
-			{Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)},
-			{Name: "data", Value: test.data},
-		}})
-		if err != nil {
-			t.Fatalf("new(version=%d) error = %v", test.version, err)
-		}
-		if got.(*UUID).Value != test.want {
-			t.Fatalf("new(version=%d) = %s, want %s", test.version, got, test.want)
-		}
-	}
-}
-
-func TestUUIDNewRejectsInvalidArgumentCombinations(t *testing.T) {
-	tests := []struct {
 		name string
 		args object.CallArgs
-		kind *object.Error
+		want int
 	}{
-		{"unsupported version", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(2)}}}, object.ValueError},
-		{"missing namespace", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
-		{"missing data", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)}}}, object.TypeError},
-		{"wrong namespace type", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: object.String("dns")}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
-		{"wrong data type", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(5)}, {Name: "namespace", Value: NewUUID(googleuuid.NameSpaceDNS)}, {Name: "data", Value: object.Integer(1)}}}, object.TypeError},
-		{"data with random version", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(4)}, {Name: "data", Value: object.String("x")}}}, object.TypeError},
-	}
-	for _, test := range tests {
+		{"default", object.CallArgs{}, 4},
+		{"v4", object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(4)}}}, 4},
+		{"v7", object.CallArgs{Positional: object.Args{object.Integer(7)}}, 7},
+	} {
 		t.Run(test.name, func(t *testing.T) {
-			_, err := uuidFunction(t, "new").Call(test.args)
-			if err == nil || !errors.Is(err, test.kind) {
-				t.Fatalf("new() error = %v, want %s", err, test.kind)
+			got, err := uuidFunction(t, "new").Call(test.args)
+			if err != nil {
+				t.Fatalf("new() error = %v", err)
+			}
+			value, ok := got.(*UUID)
+			if !ok {
+				t.Fatalf("new() returned %T, want *UUID", got)
+			}
+			if value.version() != test.want {
+				t.Fatalf("new() version = %d, want %d", value.version(), test.want)
 			}
 		})
 	}
 }
 
-func TestUUIDConstructAndValidate(t *testing.T) {
-	const input = "550E8400-E29B-41D4-A716-446655440000"
-	got, err := uuidFunction(t, "UUID").Call(object.CallArgs{Positional: object.Args{object.String(input)}})
-	if err != nil {
-		t.Fatalf("UUID() error = %v", err)
+func TestUUIDNewRejectsUnsupportedVersion(t *testing.T) {
+	for _, version := range []int64{1, 3, 5, 6, 8} {
+		_, err := uuidFunction(t, "new").Call(object.CallArgs{Positional: object.Args{object.Integer(version)}})
+		if err == nil || !errors.Is(err, object.ValueError) {
+			t.Fatalf("new(%d) error = %v, want ValueError", version, err)
+		}
 	}
-	parsed, ok := got.(*UUID)
-	if !ok || parsed.String() != "550e8400-e29b-41d4-a716-446655440000" {
-		t.Fatalf("parse() = %v, want canonical UUID", got)
-	}
-
-	valid, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{object.String(input)}})
-	if err != nil {
-		t.Fatalf("validate() error = %v", err)
-	}
-	if valid != object.True {
-		t.Fatalf("validate(valid UUID) = %v, want true", valid)
-	}
-	invalid, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{object.String("not-a-uuid")}})
-	if err != nil {
-		t.Fatalf("validate() error = %v", err)
-	}
-	if invalid != object.False {
-		t.Fatalf("validate(invalid UUID) = %v, want false", invalid)
+	_, err := uuidFunction(t, "new").Call(object.CallArgs{Positional: object.Args{object.String("4")}})
+	if err == nil || !errors.Is(err, object.TypeError) {
+		t.Fatalf("new(str) error = %v, want TypeError", err)
 	}
 }
 
 func TestUUIDConstructorAcceptsUUIDStringAndBytes(t *testing.T) {
-	want := googleuuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+	want := stduuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
 	for _, value := range []object.Object{
 		NewUUID(want),
-		object.String(want.String()),
+		object.String("550E8400-E29B-41D4-A716-446655440000"),
+		object.String("{550e8400-e29b-41d4-a716-446655440000}"),
+		object.String("urn:uuid:550e8400-e29b-41d4-a716-446655440000"),
+		object.String("550e8400e29b41d4a716446655440000"),
 		object.Bytes(want[:]),
 	} {
 		got, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: value}}})
 		if err != nil || got.(*UUID).Value != want {
-			t.Fatalf("UUID(%s) = %v, %v; want %s, nil", value.TypeName(), got, err, want)
+			t.Fatalf("UUID(%v) = %v, %v; want %s, nil", value, got, err, want)
 		}
 	}
 }
 
 func TestUUIDConstructorRejectsInvalidValue(t *testing.T) {
-	_, err := uuidFunction(t, "UUID").Call(object.CallArgs{Positional: object.Args{object.String("not-a-uuid")}})
-	if err == nil || !errors.Is(err, object.ParseError) {
-		t.Fatalf("UUID() error = %v, want ParseError", err)
+	for _, value := range []object.Object{object.String("not-a-uuid"), object.Bytes("short")} {
+		_, err := uuidFunction(t, "UUID").Call(object.CallArgs{Positional: object.Args{value}})
+		if err == nil || !errors.Is(err, object.ParseError) {
+			t.Fatalf("UUID(%v) error = %v, want ParseError", value, err)
+		}
 	}
-	_, err = uuidFunction(t, "UUID").Call(object.CallArgs{Positional: object.Args{object.Bytes("short")}})
-	if err == nil || !errors.Is(err, object.ParseError) {
-		t.Fatalf("UUID(short Bytes) error = %v, want ParseError", err)
+	_, err := uuidFunction(t, "UUID").Call(object.CallArgs{Positional: object.Args{object.Integer(1)}})
+	if err == nil || !errors.Is(err, object.TypeError) {
+		t.Fatalf("UUID(int) error = %v, want TypeError", err)
 	}
 }
 
-func TestUUIDFunctionsAcceptKeywords(t *testing.T) {
-	const input = "550e8400-e29b-41d4-a716-446655440000"
-	if _, err := uuidFunction(t, "UUID").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: object.String(input)}}}); err != nil {
-		t.Fatalf("UUID(value=...) error = %v", err)
+func TestUUIDConstants(t *testing.T) {
+	modObj, _ := Execute()
+	members := modObj.(*object.Module).Members
+	if got := members["NIL"].(*UUID).String(); got != "00000000-0000-0000-0000-000000000000" {
+		t.Fatalf("NIL = %s", got)
 	}
-	got, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "value", Value: object.String(input)}}})
-	if err != nil || got != object.True {
-		t.Fatalf("validate(value=...) = %v, %v; want true, nil", got, err)
+	if got := members["MAX"].(*UUID).String(); got != "ffffffff-ffff-ffff-ffff-ffffffffffff" {
+		t.Fatalf("MAX = %s", got)
+	}
+	if truthy, _ := members["NIL"].(*UUID).ToBool(); !truthy {
+		t.Fatal("NIL should be truthy like every other UUID")
 	}
 }
 
 func TestUUIDAttributes(t *testing.T) {
-	id := NewUUID(googleuuid.MustParse("550e8400-e29b-41d4-a716-446655440000"))
+	id := NewUUID(stduuid.MustParse("550e8400-e29b-41d4-a716-446655440000"))
 	checks := map[string]object.Object{
 		"bytes":   object.Bytes(id.Value[:]),
 		"urn":     object.String("urn:uuid:550e8400-e29b-41d4-a716-446655440000"),
 		"version": object.Integer(4),
-		"variant": object.String("RFC4122"),
 	}
 	for name, want := range checks {
 		got, err := id.GetAttr(name)
@@ -183,30 +123,66 @@ func TestUUIDAttributes(t *testing.T) {
 			t.Fatalf("UUID.%s = %v, want %v", name, got, want)
 		}
 	}
+	if _, err := id.GetAttr("time"); err == nil || !errors.Is(err, object.ValueError) {
+		t.Fatalf("v4.time error = %v, want ValueError", err)
+	}
 }
 
-func TestUUIDVersionSpecificAttributes(t *testing.T) {
-	v1, err := uuidFunction(t, "new").Call(object.CallArgs{Keyword: object.Kwargs{{Name: "version", Value: object.Integer(1)}}})
+func TestUUIDTimeV7(t *testing.T) {
+	// 0x017f22e279b0 ms is 2022-02-22T19:22:22Z, the RFC 9562 Appendix A.6 example.
+	id := NewUUID(stduuid.MustParse("017f22e2-79b0-7cc3-98c4-dc0c0c07398f"))
+	got, err := id.GetAttr("time")
 	if err != nil {
-		t.Fatalf("new(version=1) error = %v", err)
+		t.Fatalf("UUID.time error = %v", err)
 	}
-	for _, name := range []string{"time", "clock_sequence", "node"} {
-		if _, err := v1.(*UUID).GetAttr(name); err != nil {
-			t.Fatalf("v1.%s error = %v", name, err)
-		}
-	}
-
-	v4 := NewUUID(googleuuid.New())
-	for _, name := range []string{"time", "clock_sequence", "node"} {
-		if _, err := v4.GetAttr(name); err == nil || !errors.Is(err, object.ValueError) {
-			t.Fatalf("v4.%s error = %v, want ValueError", name, err)
-		}
+	if ms := got.(*goblintime.Time).Value.UnixMilli(); ms != 0x017f22e279b0 {
+		t.Fatalf("UUID.time = %d ms, want %d", ms, int64(0x017f22e279b0))
 	}
 }
 
-func TestUUIDValidateRequiresString(t *testing.T) {
-	_, err := uuidFunction(t, "is_valid").Call(object.CallArgs{Positional: object.Args{NewUUID(googleuuid.NameSpaceDNS)}})
+func TestUUIDTraits(t *testing.T) {
+	a := NewUUID(stduuid.MustParse("00000000-0000-0000-0000-000000000001"))
+	b := NewUUID(stduuid.MustParse("00000000-0000-0000-0000-000000000002"))
+	call := func(trait *object.Trait, method string, args ...object.Object) object.Object {
+		t.Helper()
+		i, ok := trait.MethodIndex(method)
+		if !ok {
+			t.Fatalf("%s has no method %s", trait.Name, method)
+		}
+		got, err := trait.Invoke(i, object.CallArgs{Positional: args})
+		if err != nil {
+			t.Fatalf("%s.%s error = %v", trait.Name, method, err)
+		}
+		return got
+	}
+
+	if got := call(object.EqTrait, "eq", a, NewUUID(a.Value)); got != object.True {
+		t.Fatalf("Eq.eq(a, copy of a) = %v, want true", got)
+	}
+	if got := call(object.EqTrait, "eq", a, object.String(a.String())); got != object.False {
+		t.Fatalf("Eq.eq(a, str) = %v, want false", got)
+	}
+	if got := call(object.OrdTrait, "compare", a, b); got != object.Integer(-1) {
+		t.Fatalf("Ord.compare(a, b) = %v, want -1", got)
+	}
+	if got := call(object.OrdTrait, "max", a, b); got != b {
+		t.Fatalf("Ord.max(a, b) = %v, want b", got)
+	}
+	if call(object.HashableTrait, "hash", a) != call(object.HashableTrait, "hash", NewUUID(a.Value)) {
+		t.Fatal("equal UUIDs must hash equal")
+	}
+	if got := call(object.ShowTrait, "show", a); got != object.String(a.String()) {
+		t.Fatalf("Show.show(a) = %v", got)
+	}
+	if got := call(object.TruthTrait, "truth", NewUUID(stduuid.Nil())); got != object.True {
+		t.Fatalf("Truth.truth(NIL) = %v, want true", got)
+	}
+
+	_, err := object.Compare(a, object.String(a.String()))
 	if err == nil || !errors.Is(err, object.TypeError) {
-		t.Fatalf("validate(UUID) error = %v, want TypeError", err)
+		t.Fatalf("compare with str error = %v, want TypeError", err)
+	}
+	if _, err := object.Add(a, b); err == nil || !errors.Is(err, object.TypeError) {
+		t.Fatalf("a + b error = %v, want TypeError", err)
 	}
 }

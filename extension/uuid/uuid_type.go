@@ -1,29 +1,34 @@
 package uuid
 
 import (
-	"bytes"
+	"encoding/binary"
+	"hash/maphash"
 	stdtime "time"
-
-	googleuuid "github.com/google/uuid"
+	stduuid "uuid"
 
 	goblintime "github.com/aisk/goblin/extension/time"
 	"github.com/aisk/goblin/object"
 )
 
-// UUID is Goblin's UUID value. It is deliberately defined in extension so the
-// core object package remains independent of the Google UUID implementation.
+// hashSeed keys UUID hashes. Hashes never leave the process, so a per-process
+// seed is fine.
+var hashSeed = maphash.MakeSeed()
+
+// UUID is Goblin's UUID value, a thin wrapper around Go's uuid.UUID. It takes
+// part in the built-in traits Eq, Ord, Hashable and Show through its Object
+// methods. Truth keeps OpaqueBase's always-true answer, as Go has no notion of
+// a zero UUID beyond Nil() being an ordinary value.
 type UUID struct {
 	object.OpaqueBase
-	Value googleuuid.UUID
+	Value stduuid.UUID
 }
 
-func NewUUID(value googleuuid.UUID) *UUID {
+func NewUUID(value stduuid.UUID) *UUID {
 	return &UUID{OpaqueBase: object.MakeOpaqueBase("UUID"), Value: value}
 }
 
 func (u *UUID) String() string            { return u.Value.String() }
 func (u *UUID) ToString() (string, error) { return u.String(), nil }
-func (u *UUID) ToBool() (bool, error)     { return u.Value != googleuuid.Nil, nil }
 
 func (u *UUID) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*UUID)
@@ -35,8 +40,10 @@ func (u *UUID) Compare(other object.Object) (int, error) {
 	if !ok {
 		return 0, object.NewTypeError("cannot compare UUID with %s", other.TypeName())
 	}
-	return bytes.Compare(u.Value[:], v.Value[:]), nil
+	return u.Value.Compare(v.Value), nil
 }
+
+func (u *UUID) Hash() (uint64, error) { return maphash.Bytes(hashSeed, u.Value[:]), nil }
 
 func (u *UUID) GetAttr(name string) (object.Object, error) {
 	if value, ok := uuidType.Attribute(name); ok {
@@ -46,41 +53,32 @@ func (u *UUID) GetAttr(name string) (object.Object, error) {
 	case "attributes":
 		return object.AttributesFunction(u), nil
 	case "version":
-		return object.Integer(u.Value.Version()), nil
-	case "variant":
-		return object.String(u.Value.Variant().String()), nil
+		return object.Integer(u.version()), nil
 	case "bytes":
 		return object.Bytes(append([]byte(nil), u.Value[:]...)), nil
 	case "urn":
-		return object.String(u.Value.URN()), nil
+		return object.String("urn:uuid:" + u.Value.String()), nil
 	case "time":
-		if !u.hasTime() {
-			return nil, object.NewValueError("UUID.time is only defined for versions 1, 6, and 7")
+		if u.version() != 7 {
+			return nil, object.NewValueError("UUID.time is only defined for version 7")
 		}
-		sec, nsec := u.Value.Time().UnixTime()
-		return goblintime.NewTime(stdtime.Unix(sec, nsec)), nil
-	case "clock_sequence":
-		if u.Value.Version() != 1 {
-			return nil, object.NewValueError("UUID.clock_sequence is only defined for version 1")
-		}
-		return object.Integer(u.Value.ClockSequence()), nil
-	case "node":
-		if u.Value.Version() != 1 && u.Value.Version() != 6 {
-			return nil, object.NewValueError("UUID.node is only defined for versions 1 and 6")
-		}
-		return object.Bytes(u.Value.NodeID()), nil
+		// RFC 9562 §5.7: the top 48 bits are milliseconds since the Unix epoch.
+		var ms [8]byte
+		copy(ms[2:], u.Value[:6])
+		return goblintime.NewTime(stdtime.UnixMilli(int64(binary.BigEndian.Uint64(ms[:])))), nil
 	default:
 		return nil, object.NewAttributeError("UUID has no attribute '%s'", name)
 	}
 }
 
 func (u *UUID) Attributes() []string {
-	return uuidType.Attributes("attributes", "bytes", "urn", "version", "variant", "time", "clock_sequence", "node")
+	return uuidType.Attributes("attributes", "bytes", "urn", "version", "time")
 }
 
-func (u *UUID) hasTime() bool {
-	version := u.Value.Version()
-	return version == 1 || version == 6 || version == 7
-}
+// version reads the version field from the high nibble of octet 6.
+func (u *UUID) version() int { return int(u.Value[6] >> 4) }
 
-var _ object.Object = (*UUID)(nil)
+var (
+	_ object.Object   = (*UUID)(nil)
+	_ object.Hashable = (*UUID)(nil)
+)

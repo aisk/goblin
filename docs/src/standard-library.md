@@ -46,7 +46,7 @@ var packed = gzip.compress("hello")
 | [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
-| [uuid](./module-uuid.md) | Construct, generate, and validate UUID values | UUID(), new(), is_valid() |
+| [uuid](./module-uuid.md) | Generate and parse UUID values | UUID(), new(), NIL |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |

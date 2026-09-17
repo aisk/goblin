@@ -2,6 +2,41 @@ import "uuid"
 
 var id = uuid.new()
 print(id.constructor == uuid.UUID)
-print(uuid.is_valid("550e8400-e29b-41d4-a716-446655440000"))
-print(uuid.UUID("550E8400-E29B-41D4-A716-446655440000"))
-print(uuid.is_valid("not-a-uuid"))
+print(id.version)
+print(uuid.new(version=7).version)
+
+var parsed = uuid.UUID("550E8400-E29B-41D4-A716-446655440000")
+print(parsed)
+print(parsed.urn)
+print(uuid.UUID(parsed.bytes) == parsed)
+print(uuid.UUID("{550e8400-e29b-41d4-a716-446655440000}") == parsed)
+
+print(uuid.NIL)
+print(uuid.NIL < parsed && parsed < uuid.MAX)
+print(Ord.max(uuid.NIL, parsed) == parsed)
+print(Hashable.hash(parsed) == Hashable.hash(uuid.UUID(parsed.bytes)))
+print(Show.show(parsed) == Str(parsed))
+print(parsed == Str(parsed))
+
+var names = {parsed: "parsed"}
+print(names[uuid.UUID("550e8400e29b41d4a716446655440000")])
+
+print(uuid.UUID("017f22e2-79b0-7cc3-98c4-dc0c0c07398f").time.unix)
+
+try {
+    uuid.UUID("not-a-uuid")
+} catch e {
+    print(e)
+}
+
+try {
+    print(parsed + parsed)
+} catch e {
+    print(e)
+}
+
+try {
+    print(parsed.time)
+} catch e {
+    print(e)
+}
