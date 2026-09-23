@@ -60,6 +60,20 @@ if time.now() > deadline {
 }
 ~~~
 
+Arithmetic counts in seconds, like sleep() and elapsed(). Adding or subtracting
+an integer or float number of seconds shifts a Time and keeps its location, and
+subtracting one Time from another gives the Float number of seconds between
+them. A shift is exact elapsed time, not calendar arithmetic: adding 86400
+across a daylight-saving change lands at a different wall-clock hour. A shift
+that leaves the representable range raises ValueError.
+
+~~~goblin
+var meeting = time.Time(2026, 7, 19, hour=9, minute=30)
+var reminder = meeting - 15 * 60
+print(reminder.format("15:04"))    # 09:15
+print(meeting - reminder)          # 900
+~~~
+
 sleep() blocks the current execution path. It is appropriate for a deliberate
 delay or simple retry loop, but it is not a substitute for channel-based
 coordination between spawned functions.

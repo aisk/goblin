@@ -2,6 +2,7 @@ package time
 
 import (
 	"hash/maphash"
+	"math"
 	stdtime "time"
 
 	"github.com/aisk/goblin/object"
@@ -51,6 +52,73 @@ func (t *Time) Compare(other object.Object) (int, error) {
 		return 1, nil
 	}
 	return 0, nil
+}
+
+// Arithmetic follows the module's convention that a duration is a number of
+// seconds: t + seconds and t - seconds shift a time, and t - u is the Float
+// number of seconds from u to t.
+func (t *Time) Add(other object.Object) (object.Object, error) {
+	if result, ok, err := t.shift(other, 1); ok {
+		return result, err
+	}
+	return nil, object.NewTypeError("cannot add Time and %s", other.TypeName())
+}
+
+func (t *Time) RAdd(left object.Object) (object.Object, bool, error) {
+	return t.shift(left, 1)
+}
+
+func (t *Time) Minus(other object.Object) (object.Object, error) {
+	if u, ok := other.(*Time); ok {
+		seconds := float64(t.Value.Unix()) - float64(u.Value.Unix())
+		nanos := t.Value.Nanosecond() - u.Value.Nanosecond()
+		return object.Float(seconds + float64(nanos)/float64(stdtime.Second)), nil
+	}
+	if result, ok, err := t.shift(other, -1); ok {
+		return result, err
+	}
+	return nil, object.NewTypeError("cannot subtract Time and %s", other.TypeName())
+}
+
+// maxShiftUnix bounds the Unix seconds a shifted time may reach. Go's time
+// package stores seconds since year 1, so values near the int64 limits would
+// overflow inside time.Unix.
+const maxShiftUnix = math.MaxInt64 / 2
+
+// shift moves t by sign * seconds. ok is false when seconds is not a number,
+// leaving the caller to report the operator's TypeError.
+func (t *Time) shift(seconds object.Object, sign int64) (result object.Object, ok bool, err error) {
+	var whole, nanos int64
+	switch v := seconds.(type) {
+	case object.Integer:
+		if v < -maxShiftUnix || v > maxShiftUnix {
+			return nil, true, errTimeRange()
+		}
+		whole = int64(v) * sign
+	case object.Float:
+		f := float64(v) * float64(sign)
+		if math.IsNaN(f) || math.IsInf(f, 0) {
+			return nil, true, object.NewValueError("cannot shift Time by %v seconds", float64(v))
+		}
+		floor := math.Floor(f)
+		if floor < -maxShiftUnix || floor > maxShiftUnix {
+			return nil, true, errTimeRange()
+		}
+		whole = int64(floor)
+		nanos = int64(math.Round((f - floor) * float64(stdtime.Second)))
+	default:
+		return nil, false, nil
+	}
+	unix := t.Value.Unix() + whole
+	if unix < -maxShiftUnix || unix > maxShiftUnix {
+		return nil, true, errTimeRange()
+	}
+	shifted := stdtime.Unix(unix, int64(t.Value.Nanosecond())+nanos).In(t.Value.Location())
+	return NewTime(shifted), true, nil
+}
+
+func errTimeRange() error {
+	return object.NewValueError("Time arithmetic result is out of range")
 }
 
 func (t *Time) GetAttr(name string) (object.Object, error) {

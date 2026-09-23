@@ -27,3 +27,15 @@ print(built.constructor == time.Time)
 # Times are hashable, so equal instants are one dict key
 var events = {time.Time(2026, 7, 19): "launch"}
 print(events[time.Time(2026, 7, 19)])
+
+# Arithmetic counts in seconds: shifting gives a Time, and the difference of
+# two times is a Float number of seconds
+var start = time.Time(2026, 7, 19, hour=9, minute=30)
+print((start + 90).format("15:04:05"), (1.5 + start).format("15:04:05.000"))
+print((start - 3600).hour)
+print(start + 7200 - start)
+try {
+    print(start + "soon")
+} catch e {
+    print(e)
+}
