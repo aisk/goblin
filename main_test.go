@@ -138,6 +138,28 @@ print(args[2])
 	}
 }
 
+// The generated Go module is named after the source file, which must not
+// collide with a standard library package path.
+func TestBuiltExecutableNamedAfterStdlibPackage(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	dir := t.TempDir()
+	script := filepath.Join(dir, "io.goblin")
+	executable := filepath.Join(dir, "io-program")
+	if err := os.WriteFile(script, []byte("print(\"ok\")\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if out, err := exec.Command(bin, "build-exe", "-o", executable, script).CombinedOutput(); err != nil {
+		t.Fatalf("goblin build-exe: %v\n%s", err, out)
+	}
+	out, err := exec.Command(executable).CombinedOutput()
+	if err != nil {
+		t.Fatalf("compiled program: %v\n%s", err, out)
+	}
+	if got := strings.ReplaceAll(string(out), "\r\n", "\n"); got != "ok\n" {
+		t.Fatalf("compiled stdout = %q, want %q", got, "ok\n")
+	}
+}
+
 // Local (path) imports go through the transpiler's directory mode
 // (transpilePathModuleToFile + generateMainFile), which nothing else covers:
 // the examples suite only exercises single-file Transpile.

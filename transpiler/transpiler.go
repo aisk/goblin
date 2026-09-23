@@ -3198,8 +3198,10 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 		return err
 	}
 
+	// The Go module path gets a prefix so a program named after a standard
+	// library package (io.goblin, time.goblin) does not shadow it.
 	base := filepath.Base(sourceFile)
-	moduleName := strings.TrimSuffix(base, ".goblin")
+	moduleName := "goblin.program/" + strings.TrimSuffix(base, ".goblin")
 
 	ctx := newTranspileContext()
 	ctx.goModuleName = moduleName
