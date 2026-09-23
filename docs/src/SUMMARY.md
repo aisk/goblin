@@ -43,6 +43,7 @@
 - [regexp](./module-regexp.md)
 - [url](./module-url.md)
 - [csv](./module-csv.md)
+- [io](./module-io.md)
 - [x/encoding/base64](./module-base64.md)
 - [x/encoding/base32, ascii85, html, and quotedprintable](./module-text-encoding.md)
 - [x/encoding/hex](./module-hex.md)

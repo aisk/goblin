@@ -77,8 +77,8 @@ HTTP response bodies expose `read(size=nil)`, `close()`, and the read-only
 non-negative integer size, it returns at most that many bytes; an empty `Bytes`
 value signals end of stream.
 
-Objects supplied as request bodies use the same duck-typed protocol. They must
-provide a callable `read(size)` method. Each call must return `Bytes`, `Str`, or
+Objects supplied as request bodies use the same protocol. They must provide a
+callable `read(size)` method or implement [`io.Reader`](./module-io.md). Each call must return `Bytes`, `Str`, or
 `nil`; an empty byte/string value or `nil` signals end of stream. A callable
 `close()` method is optional and is invoked when the HTTP client closes the
 request body. A request-body reader should therefore look like:

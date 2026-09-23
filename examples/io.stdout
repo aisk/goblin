@@ -1,0 +1,11 @@
+a,b
+1,2
+
+1 2
+b"hello" b""
+closed
+[b"z\n", b"!"]
+b"hello"
+true
+Integer does not implement Reader
+write_all() argument 'dest' must implement io.Writer or have a write(data) method, got Integer

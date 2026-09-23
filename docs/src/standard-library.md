@@ -50,6 +50,7 @@ var packed = gzip.compress("hello")
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
+| [io](./module-io.md) | Implement readers and writers as traits | Reader, Writer |
 
 ## x/ modules
 

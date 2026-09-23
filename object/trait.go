@@ -31,6 +31,9 @@ type Trait struct {
 	// supplies none of the required methods receives. Only Eq, Ord, Hashable
 	// and Show have one.
 	structural []*Function
+	// duck lets a user value without an impl fall through to route, for the
+	// stream traits, whose shape a type may also provide as plain methods.
+	duck bool
 }
 
 // TraitMethod describes one method of a trait. Arity counts self. A required
@@ -97,11 +100,12 @@ func (t *Trait) Invoke(i int, args CallArgs) (Object, error) {
 func (t *Trait) call(i int, args []Object) (Object, error) {
 	recv := args[0]
 	if uv, ok := recv.(UserValue); ok {
-		impl := uv.UserType().Impl(t)
-		if impl == nil {
+		if impl := uv.UserType().Impl(t); impl != nil {
+			return impl.call(recv, i, args)
+		}
+		if !t.duck {
 			return nil, NewTypeError(ErrFmtNotImplemented, recv.TypeName(), t.Name)
 		}
-		return impl.call(recv, i, args)
 	}
 	if t.route != nil {
 		if r := t.route[i]; r != nil {

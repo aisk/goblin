@@ -9,6 +9,7 @@ import (
 	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
 	httpExt "github.com/aisk/goblin/extension/http"
+	ioExt "github.com/aisk/goblin/extension/io"
 	jsonExt "github.com/aisk/goblin/extension/json"
 	mathExt "github.com/aisk/goblin/extension/math"
 	osExt "github.com/aisk/goblin/extension/os"
@@ -61,6 +62,7 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"exec":                   execExt.Execute,
 	"fs":                     fs.Execute,
 	"http":                   httpExt.Execute,
+	"io":                     ioExt.Execute,
 	"json":                   jsonExt.Execute,
 	"math":                   mathExt.Execute,
 	"path":                   pathExt.Execute,

@@ -1,0 +1,64 @@
+# The io module exports the stream shapes as traits. Every stdlib API that
+# takes a reader or writer accepts a trait impl or plain read/write methods.
+import "io"
+import "csv"
+import "fs"
+
+# A writer through the trait: write is not an attribute of the instance.
+type Collector(chunks) {
+    impl io.Writer {
+        func write(self, data) {
+            self.chunks.push(data.decode())
+            return data.size
+        }
+    }
+}
+var c = Collector([])
+csv.write_all([["a", "b"], ["1", "2"]], dest=c)
+print(c.chunks.join(""))
+print(io.Writer.write(c, Bytes("x")), c.chunks.size)
+io.Writer.close(c)
+
+# A reader through the trait.
+type Once(data, done) {
+    impl io.Reader {
+        func read(self, size) {
+            if self.done {
+                return Bytes("")
+            }
+            self.done = true
+            return Bytes(self.data)
+        }
+        func close(self) {
+            print("closed")
+        }
+    }
+}
+var r = Once("hello", false)
+print(io.Reader.read(r, 10), io.Reader.read(r, 10))
+io.Reader.close(r)
+
+# Plain methods keep working, through the trait call too.
+type Plain(chunks) {
+    func write(self, data) {
+        self.chunks.push(data)
+    }
+}
+var p = Plain([])
+csv.write_all([["z"]], dest=p)
+io.Writer.write(p, Bytes("!"))
+print(p.chunks)
+
+# Built-in streams answer the trait calls.
+var f = fs.open("fs_fixture.txt")
+print(io.Reader.read(f, 5))
+io.Reader.close(f)
+print(f.closed)
+
+for bad in [func() { return io.Reader.read(5, 1) }, func() { return csv.write_all([["a"]], dest=5) }] {
+    try {
+        bad()
+    } catch e {
+        print(e)
+    }
+}

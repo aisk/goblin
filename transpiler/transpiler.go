@@ -34,6 +34,7 @@ var knownModules = map[string]struct{}{
 	"exec":                   {},
 	"fs":                     {},
 	"http":                   {},
+	"io":                     {},
 	"json":                   {},
 	"math":                   {},
 	"os":                     {},
