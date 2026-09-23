@@ -68,3 +68,11 @@ try {
 } catch e {
     print(e)
 }
+
+# Values whose equality is identity hash by identity, so functions, traits
+# and error kinds can key a dispatch table
+func greet() {
+    return "hi"
+}
+var handlers = {greet: "greet", Show: "show", TypeError: "type"}
+print(handlers[greet], handlers[Show], handlers[TypeError])

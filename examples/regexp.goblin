@@ -35,3 +35,7 @@ print(regexp.compile(regexp.escape("a.c")).match("a.c"))
 # Match offsets follow Go regexp and count UTF-8 bytes, not Unicode characters.
 print(words.find("日abc").start)
 print(regexp.compile("^|$").find_all("ab").size)
+
+# Patterns are hashable by their source
+var cache = {regexp.compile("a+"): "as"}
+print(cache[regexp.compile("a+")])

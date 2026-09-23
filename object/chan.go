@@ -23,6 +23,9 @@ func (c *Chan) Equals(other Object) (bool, error) {
 	return ok && c == v, nil
 }
 
+// Hash follows identity, so channels can be dict keys.
+func (c *Chan) Hash() (uint64, error) { return identityHash(c), nil }
+
 func (c *Chan) Compare(other Object) (int, error) {
 	if o, ok := other.(*Chan); ok {
 		if c == o {

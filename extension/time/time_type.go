@@ -1,10 +1,15 @@
 package time
 
 import (
+	"hash/maphash"
 	stdtime "time"
 
 	"github.com/aisk/goblin/object"
 )
+
+// hashSeed keys Time hashes. Hashes never leave the process, so a per-process
+// seed is fine.
+var hashSeed = maphash.MakeSeed()
 
 // Time wraps Go's time.Time as a goblin object.
 type Time struct {
@@ -27,6 +32,11 @@ func (t *Time) ToBool() (bool, error) { return !t.Value.IsZero(), nil }
 func (t *Time) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*Time)
 	return ok && t.Value.Equal(v.Value), nil
+}
+
+// Hash agrees with Equals, which compares instants regardless of location.
+func (t *Time) Hash() (uint64, error) {
+	return maphash.Comparable(hashSeed, [2]int64{t.Value.Unix(), int64(t.Value.Nanosecond())}), nil
 }
 
 func (t *Time) Compare(other object.Object) (int, error) {

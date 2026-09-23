@@ -27,6 +27,9 @@ func (f *Function) Equals(other Object) (bool, error) {
 	return ok && f == v, nil
 }
 
+// Hash follows identity, so functions can be dict keys.
+func (f *Function) Hash() (uint64, error) { return identityHash(f), nil }
+
 // Compare always fails: functions support equality (identity, handled by
 // Equals) but have no ordering.
 func (f *Function) Compare(other Object) (int, error) {

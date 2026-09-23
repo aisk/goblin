@@ -26,3 +26,4 @@ string key
 second
 1
 unhashable dict key: [1, 2]
+greet show type

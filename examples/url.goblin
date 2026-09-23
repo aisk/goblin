@@ -9,3 +9,7 @@ print(parsed.resolve_reference(url.parse("../c")))
 print(url.query_escape("a b"))
 print(url.path_escape("a/b"))
 print(url.join_path("https://example.com/a", ["b", "c"]))
+
+# URLs are hashable, so equal URLs are one dict key
+var visits = {url.parse("https://example.com/a"): 2}
+print(visits[url.parse("https://example.com/a")])

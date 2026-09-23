@@ -105,11 +105,15 @@ user["active"] = true
 print(user.get("role", default="reader"))
 ~~~
 
-Keys may be strings, integers, floats, booleans, or nil. Key identity
-follows `==`: keys of different types stay distinct (`d[1]` and `d["1"]`
-are separate entries), while equal numbers name the same entry (`d[1]`
-and `d[1.0]` are one key). Using a mutable value (a list, dictionary, or
-custom instance) as a key raises TypeError.
+Keys may be strings, integers, floats, booleans, nil, or any other value that
+implements `Hashable`. Key identity follows `==`: keys of different types stay
+distinct (`d[1]` and `d["1"]` are separate entries), while equal numbers name
+the same entry (`d[1]` and `d[1.0]` are one key). Values whose equality is
+identity, such as functions, traits, error kinds and channels, hash by
+identity. Standard library values like `Time`, `Path`, `URL`, `UUID` and
+`Pattern` hash by the value they compare equal on. Using a list, dictionary,
+Bytes value, or a user type without an `impl Hashable` as a key raises
+TypeError.
 
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
 missing value is expected. Dictionary iteration yields keys; items() yields

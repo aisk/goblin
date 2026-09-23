@@ -46,6 +46,9 @@ func (v Bool) Hash() (uint64, error) {
 
 func (Unit) Hash() (uint64, error) { return hashNil, nil }
 
+// identityHash hashes a value whose equality is identity, by its address.
+func identityHash[T any](p *T) uint64 { return maphash.Comparable(hashSeed, p) }
+
 // hashNumber hashes a number by its float64 bits. -0.0 folds into +0.0 (they
 // compare equal), and every NaN takes one canonical pattern because the dict
 // treats all NaNs as a single key (see keysMatch). No mixing is needed: the

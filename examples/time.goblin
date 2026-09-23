@@ -23,3 +23,7 @@ print(t1 < t2)
 var built = time.Time(2026, 7, 19, hour=9, minute=30)
 print(built.format("2006-01-02 15:04"))
 print(built.constructor == time.Time)
+
+# Times are hashable, so equal instants are one dict key
+var events = {time.Time(2026, 7, 19): "launch"}
+print(events[time.Time(2026, 7, 19)])

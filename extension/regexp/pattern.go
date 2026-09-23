@@ -33,6 +33,9 @@ func (p *Pattern) Equals(other object.Object) (bool, error) {
 	return ok && p.source == v.source, nil
 }
 
+// Hash agrees with Equals, which compares the source.
+func (p *Pattern) Hash() (uint64, error) { return object.String(p.source).Hash() }
+
 // matcher returns the engine for a match request. The full=true engine wraps
 // the source in a non-capturing group, so group numbers and names are the same
 // in both engines and Match can always be built from p.names.

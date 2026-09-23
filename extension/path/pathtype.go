@@ -55,6 +55,9 @@ func (p *Path) Equals(other object.Object) (bool, error) {
 	return ok && p.raw == v.raw, nil
 }
 
+// Hash agrees with Equals, which compares the cleaned path text.
+func (p *Path) Hash() (uint64, error) { return object.String(p.raw).Hash() }
+
 func (p *Path) Compare(other object.Object) (int, error) {
 	v, ok := other.(*Path)
 	if !ok {

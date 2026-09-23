@@ -30,6 +30,9 @@ func (m *Module) Equals(other Object) (bool, error) {
 	return ok && m == v, nil
 }
 
+// Hash follows identity, so modules can be dict keys.
+func (m *Module) Hash() (uint64, error) { return identityHash(m), nil }
+
 func (m *Module) Compare(Object) (int, error) {
 	return 0, NewTypeError("cannot compare Module")
 }

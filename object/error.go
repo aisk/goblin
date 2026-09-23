@@ -87,6 +87,9 @@ func (e *Error) Equals(other Object) (bool, error) {
 	return ok && e == v, nil
 }
 
+// Hash follows identity, so errors and error kinds can be dict keys.
+func (e *Error) Hash() (uint64, error) { return identityHash(e), nil }
+
 func (e *Error) Compare(other Object) (int, error) {
 	return 0, NewTypeError("cannot compare Error and %s", other.TypeName())
 }

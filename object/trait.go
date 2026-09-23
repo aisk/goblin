@@ -3,7 +3,6 @@ package object
 import (
 	"errors"
 	"fmt"
-	"unsafe"
 )
 
 // Trait is the runtime value of a trait: a named bundle of methods a user type
@@ -129,7 +128,7 @@ func (t *Trait) Equals(other Object) (bool, error) {
 }
 
 // Hash follows identity, so trait objects can be dict keys.
-func (t *Trait) Hash() (uint64, error) { return uint64(uintptr(unsafe.Pointer(t))), nil }
+func (t *Trait) Hash() (uint64, error) { return identityHash(t), nil }
 
 func (t *Trait) Compare(Object) (int, error) {
 	return 0, NewTypeError(ErrFmtCannotCompare, "Trait")

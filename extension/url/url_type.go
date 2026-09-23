@@ -21,6 +21,7 @@ func (u *URL) Equals(other object.Object) (bool, error) {
 	value, ok := other.(*URL)
 	return ok && u.value.String() == value.value.String(), nil
 }
+func (u *URL) Hash() (uint64, error) { return object.String(u.value.String()).Hash() }
 
 func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("resolve_reference", args)
