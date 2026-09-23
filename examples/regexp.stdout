@@ -21,3 +21,6 @@ true
 3
 2
 as
+count=12 12 count nil
+no such capture group: 9
+Match index must be int or str, got Float

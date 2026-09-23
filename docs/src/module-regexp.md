@@ -97,6 +97,9 @@ indices, so it remains usable independently of later Pattern operations.
 | `group(key=0)` | Returns one capture by non-negative number or name. |
 | `span(key=0)` | Returns the `[start, end]` offsets of one capture. |
 
+Indexing a match is the same lookup as `group()`: `match[1]` and
+`match["key"]` return a capture by number or name.
+
 An optional group that did not participate is represented by `nil`, preserving
 the distinction from a participating group that matched an empty string. `span`
 returns `nil` for the same reason. An unknown number or name raises

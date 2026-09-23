@@ -41,7 +41,8 @@ func (m *Match) substring(index int) string {
 
 // groupIndex resolves a group key to a group number. It returns -1, nil when
 // the group exists but did not participate in the match, and an IndexError when
-// no such group exists at all.
+// no such group exists at all. method names the caller in a TypeError, or is
+// "" for indexing.
 func (m *Match) groupIndex(method string, key object.Object) (int, error) {
 	switch value := key.(type) {
 	case object.Integer:
@@ -65,6 +66,9 @@ func (m *Match) groupIndex(method string, key object.Object) (int, error) {
 			return -1, nil
 		}
 	default:
+		if method == "" {
+			return 0, object.NewTypeError("Match index must be int or str, got %s", key.TypeName())
+		}
 		return 0, object.NewTypeError("%s() argument 'key' must be int or str, got %s", method, key.TypeName())
 	}
 	return 0, object.NewIndexError("no such capture group: %s", fmt.Sprint(key))
@@ -76,7 +80,16 @@ func (m *Match) group(args object.CallArgs) (object.Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	index, err := m.groupIndex("group", key)
+	return m.lookup("group", key)
+}
+
+// Index makes m[key] the same lookup as m.group(key).
+func (m *Match) Index(key object.Object) (object.Object, error) {
+	return m.lookup("", key)
+}
+
+func (m *Match) lookup(method string, key object.Object) (object.Object, error) {
+	index, err := m.groupIndex(method, key)
 	if err != nil {
 		return nil, err
 	}

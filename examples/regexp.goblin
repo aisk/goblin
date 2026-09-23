@@ -39,3 +39,16 @@ print(regexp.compile("^|$").find_all("ab").size)
 # Patterns are hashable by their source
 var cache = {regexp.compile("a+"): "as"}
 print(cache[regexp.compile("a+")])
+
+# Indexing a match is group(): by number or by name
+print(match[0], match[2], match["key"], match["unit"])
+try {
+    print(match[9])
+} catch e {
+    print(e)
+}
+try {
+    print(match[1.5])
+} catch e {
+    print(e)
+}
