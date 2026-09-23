@@ -43,7 +43,7 @@ print(v < w, v > w, v <= w)
 print(v == Vector(2, 1), v == w)
 print(Ord.max(v, w), Ord.min(v, w))
 
-# An impl may override a default; the operator then runs the override.
+# The operators and sorting all order through compare.
 type Version(major, minor) {
     impl Ord {
         func compare(self, other) {
@@ -52,14 +52,18 @@ type Version(major, minor) {
             }
             return self.minor - other.minor
         }
-        func lt(self, other) {
-            print("custom lt")
-            return Ord.compare(self, other) < 0
+    }
+    impl Show {
+        func show(self) {
+            return Str(self.major) + "." + Str(self.minor)
         }
     }
 }
 print(Version(1, 2) < Version(1, 3))
 print(Version(1, 2) > Version(1, 3))
+var versions = [Version(2, 0), Version(1, 3), Version(1, 2)]
+versions.sort()
+print(versions, min(*versions))
 
 # Iteration and indexing. An Index impl without set is read-only.
 type Grid(cells) {

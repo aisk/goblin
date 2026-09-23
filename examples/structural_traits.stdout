@@ -12,10 +12,7 @@ true
 unhashable dict key: [1]
 cannot compare List and Dict
 cannot compare Point and Bag
-custom max
-1
+5
 true [<trait Ord>, <trait Eq>]
-custom ne
-custom ne
 true true
 true found

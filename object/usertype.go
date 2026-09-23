@@ -199,7 +199,7 @@ type ImplIssue struct {
 }
 
 // CheckImpls validates a type's impls: every method belongs to its trait with
-// the declared arity, every required method is present (or the trait's
+// the declared arity and overrides no derived method, every required method is present (or the trait's
 // structural default applies), dependencies are implemented, and structural
 // Ord and Hashable only sit on a structural Eq. The semantic checker and
 // UserType.Seal share it, so both report identical messages.
@@ -221,6 +221,9 @@ func CheckImpls(typeName string, impls []ImplSpec) *ImplIssue {
 			k, ok := tr.MethodIndex(m.Name)
 			if !ok {
 				return &ImplIssue{i, j, fmt.Sprintf("impl %s for %s: %s has no method '%s'", tr.Name, typeName, tr.Name, m.Name)}
+			}
+			if tr.Methods[k].Derived {
+				return &ImplIssue{i, j, fmt.Sprintf("impl %s for %s: method '%s' derives from the required methods and cannot be overridden", tr.Name, typeName, m.Name)}
 			}
 			if want := tr.Methods[k].Arity; m.Arity != want {
 				return &ImplIssue{i, j, fmt.Sprintf("impl %s for %s: method '%s' must declare %d parameters including self, got %d", tr.Name, typeName, m.Name, want, m.Arity)}
@@ -330,20 +333,6 @@ func UserCompare(v UserValue, other Object) (int, error) {
 		return 0, err
 	}
 	return int(r.(Integer)), nil
-}
-
-// userOrder answers one side of <, <=, > or >= through the Ord method for op,
-// so an impl overriding lt is what `<` runs.
-func userOrder(v UserValue, op orderOp, other Object) (bool, error) {
-	impl := v.UserType().ord
-	if impl == nil {
-		return false, NewTypeError(ErrFmtCannotCompare, v.TypeName())
-	}
-	r, err := impl.call(v, OrdLt+int(op), []Object{v, other})
-	if err != nil {
-		return false, err
-	}
-	return bool(r.(Bool)), nil
 }
 
 var numErrFmts = [...]string{

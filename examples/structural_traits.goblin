@@ -59,27 +59,18 @@ try {
     print(e)
 }
 
-# A structural impl may still override a default, and a custom Eq may
-# override ne.
+# The built-in max() and min() order through Ord, like the operators do.
 type Temperature(degrees) {
-    impl Ord {
-        func max(self, other) {
-            print("custom max")
-            return self
-        }
-    }
+    impl Ord {}
 }
-print(Ord.max(Temperature(1), Temperature(5)).degrees)
+print(max(Temperature(1), Temperature(5), Temperature(3)).degrees)
 print(Temperature(1) == Temperature(1), Temperature(1).traits())
 
+# != is always the negation of ==, so a custom eq covers both.
 type Approx(value) {
     impl Eq {
         func eq(self, other) {
             return self.value - other.value < 1 && other.value - self.value < 1
-        }
-        func ne(self, other) {
-            print("custom ne")
-            return !Eq.eq(self, other)
         }
     }
 }

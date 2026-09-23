@@ -244,6 +244,7 @@ func TestCheckImpls(t *testing.T) {
 		{[]ImplSpec{spec(ShowTrait), spec(shape, named("area", 2))}, "impl Shape for T: method 'area' must declare 1 parameters including self, got 2"},
 		{[]ImplSpec{spec(ShowTrait), spec(ShowTrait)}, "duplicate impl Show for T"},
 		{[]ImplSpec{spec(NumTrait)}, "impl Num for T defines no methods"},
+		{[]ImplSpec{spec(OrdTrait, named("compare", 2), named("max", 2))}, "impl Ord for T: method 'max' derives from the required methods and cannot be overridden"},
 		{[]ImplSpec{spec(OrdTrait), spec(HashableTrait)}, ""},
 		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait)}, "structural Ord requires structural Eq on T"},
 		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait, named("compare", 2)), spec(HashableTrait, named("hash", 1))}, ""},
@@ -268,23 +269,6 @@ func TestReviewRegressions(t *testing.T) {
 	}})
 	if _, err := UserToString(&fakeValue{typ: liar}); err == nil || !errors.Is(err, TypeError) {
 		t.Fatalf("impostor String result = %v", err)
-	}
-
-	// == and != must never both hold for one pair: != walks both sides like ==.
-	plain := sealed(t, "Plain", nil, ImplSpec{Trait: EqTrait, Methods: []ImplMethod{
-		method("eq", 2, func([]Object) (Object, error) { return True, nil }),
-	}})
-	strict := sealed(t, "Strict", nil, ImplSpec{Trait: EqTrait, Methods: []ImplMethod{
-		method("eq", 2, func([]Object) (Object, error) { return False, nil }),
-		method("ne", 2, func([]Object) (Object, error) { return True, nil }),
-	}})
-	a, b := &fakeValue{typ: plain}, &fakeValue{typ: strict}
-	for _, pair := range [][2]Object{{a, b}, {b, a}} {
-		eq, _ := Equals(pair[0], pair[1])
-		ne, _ := NotEquals(pair[0], pair[1])
-		if eq == ne {
-			t.Fatalf("Equals and NotEquals agree (%v) for %v", eq, pair)
-		}
 	}
 
 	// A failure on the right side of a reflected ordering is reported.

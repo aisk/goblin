@@ -484,6 +484,16 @@ func TestCheckTraits(t *testing.T) {
 			err:    "1:41: semantic error: trait method 'get' cannot use variadic or keyword parameters",
 		},
 		{
+			name:   "override of a derived method",
+			source: "type P() { impl Ord { func lt(self, o) { return true } } }\n",
+			err:    "1:28: semantic error: impl Ord for P: method 'lt' derives from the required methods and cannot be overridden",
+		},
+		{
+			name:   "override of ne",
+			source: "type P() { impl Eq {\n  func eq(self, o) { return true }\n  func ne(self, o) { return false }\n} }\n",
+			err:    "3:8: semantic error: impl Eq for P: method 'ne' derives from the required methods and cannot be overridden",
+		},
+		{
 			name:   "duplicate impl",
 			source: "type P() {\n  impl Show {}\n  impl Show {}\n}\n",
 			err:    "3:8: semantic error: duplicate impl Show for P",

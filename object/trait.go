@@ -41,7 +41,10 @@ type TraitMethod struct {
 	Name     string
 	Arity    int
 	Required bool
-	Default  *Function
+	// Derived marks a default an impl may not override: it is defined by the
+	// required methods, so an override could only disagree with them.
+	Derived bool
+	Default *Function
 	// Returns is the type name an implementation's result must have, or ""
 	// when any value is accepted.
 	Returns string

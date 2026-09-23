@@ -109,14 +109,19 @@ order, so `r.traits().contains(Shape)` answers whether `r` is a Shape.
 
 | Trait | Required | Defaults | Enables | Empty impl |
 | --- | --- | --- | --- | --- |
-| `Eq` | `eq(self, other)` | `ne` | `==`, `!=` | structural |
-| `Ord` (needs `Eq`) | `compare(self, other)` | `lt le gt ge max min` | `<`, `<=`, `>`, `>=`, `sort` | structural |
+| `Eq` | `eq(self, other)` | `ne` (derived) | `==`, `!=` | structural |
+| `Ord` (needs `Eq`) | `compare(self, other)` | `lt le gt ge max min` (derived) | `<`, `<=`, `>`, `>=`, `sort`, `max`, `min` | structural |
 | `Hashable` (needs `Eq`) | `hash(self)` | | dict keys | structural |
 | `Show` | `show(self)` | | `print`, `Str`, string rendering | structural |
 | `Truth` | `truth(self)` | | `if`, `while`, `&&`, `\|\|`, `!`, `Bool` | not allowed |
 | `Num` | at least one method | `add sub mul div mod neg radd rsub rmul rdiv rmod` | arithmetic operators, unary `-` | not allowed |
 | `Iter` | `iter(self)` | | `for x in value` | not allowed |
 | `Index` | `get(self, index)` | `set(self, index, value)` | `value[i]`, `value[i] = x` | not allowed |
+
+Derived defaults are defined by the required method and cannot be overridden,
+so `<`, `sort` and `max` can never disagree about an order. Defining one in an
+impl is an error: `impl Ord for Point: method 'lt' derives from the required
+methods and cannot be overridden`.
 
 `compare` returns a negative Integer, zero, or a positive Integer. `compare` and
 `hash` must return an Integer, `show` a String, and `eq`, `ne`, `truth` and the
@@ -140,9 +145,6 @@ implementation, which works on the fields in declaration order:
 - `Show`: `Point(x=1, y="a")`, with fields rendered the way collections
   render their elements.
 
-An impl may keep the structural method and still override a default, for
-example `impl Ord { func max(self, other) { ... } }`.
-
 A structural `Ord` or `Hashable` must sit on a structural `Eq`: a structural
 hash cannot know which fields a custom `eq` ignores. The checker reports
 `structural Hashable requires structural Eq on Point` otherwise.
@@ -157,13 +159,13 @@ automatically.
 Equality never raises over a type mismatch. `a == b` asks the left operand's
 `eq`, then the right one's, and falls back to identity; a TypeError raised
 inside an `eq` means "unequal", so `money == nil` stays false for an `eq`
-written only for numbers. Any other error propagates. `!=` is the negation of
-the same walk, where a side whose impl overrides `ne` answers through it.
+written only for numbers. Any other error propagates. `!=` is always the
+negation of `==`.
 
-The ordering operators run `lt`, `le`, `gt` and `ge`, so an impl overriding one
-of them changes the operator; `sort` uses `compare`. When the left operand
-cannot order the pair, the right operand answers the mirrored question, which
-is how `10 > money` reaches Money's impl:
+The ordering operators, `sort`, and the built-in `max` and `min` all order
+through `compare`. When the left operand cannot order the pair, the right
+operand's `compare` answers with the result negated, which is how
+`10 > money` reaches Money's impl:
 
 ~~~goblin
 type Money(amount) {
@@ -176,7 +178,7 @@ type Money(amount) {
 
 var m = Money(5)
 print(m < 10)                           # true
-print(10 > m)                           # true, answered by Money's lt
+print(10 > m)                           # true, answered by Money's compare
 print(m == 5)                           # true, eq derived from compare
 ~~~
 

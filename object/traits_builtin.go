@@ -107,7 +107,7 @@ func init() {
 func initEq() {
 	EqTrait.init(nil, []TraitMethod{
 		{Name: "eq", Arity: 2, Required: true, Returns: "Bool"},
-		{Name: "ne", Arity: 2, Returns: "Bool", Default: goFn("ne", func(args []Object) (Object, error) {
+		{Name: "ne", Arity: 2, Returns: "Bool", Derived: true, Default: goFn("ne", func(args []Object) (Object, error) {
 			eq, err := EqTrait.call(EqEq, args)
 			if err != nil {
 				return nil, err
@@ -127,7 +127,7 @@ func initEq() {
 
 func initOrd() {
 	test := func(name string, op orderOp) TraitMethod {
-		return TraitMethod{Name: name, Arity: 2, Returns: "Bool", Default: goFn(name, func(args []Object) (Object, error) {
+		return TraitMethod{Name: name, Arity: 2, Returns: "Bool", Derived: true, Default: goFn(name, func(args []Object) (Object, error) {
 			c, err := OrdTrait.call(OrdCompare, args)
 			if err != nil {
 				return nil, err
@@ -137,7 +137,7 @@ func initOrd() {
 	}
 	// max and min follow Haskell: on a tie max answers other and min self.
 	pick := func(name string, max bool) TraitMethod {
-		return TraitMethod{Name: name, Arity: 2, Default: goFn(name, func(args []Object) (Object, error) {
+		return TraitMethod{Name: name, Arity: 2, Derived: true, Default: goFn(name, func(args []Object) (Object, error) {
 			le, err := OrdTrait.call(OrdLe, args)
 			if err != nil {
 				return nil, err
