@@ -13,3 +13,6 @@ nil
 ]
 {"y":null}
 nil
+{"at":{"x":1,"y":2},"temp":"21C"}
+5C
+marshal() unsupported type: Plain

@@ -23,3 +23,24 @@ print(json.marshal([1, 2, 3], 2))
 print(json.marshal({"y": nil}))
 var s2 = json.marshal({"x": 1, "y": [true, nil]})
 print(json.unmarshal(s2)["y"][1])
+
+# User types opt into marshal with json.ToJSON. An empty impl encodes the
+# fields as an object; to_json can return any other value to encode instead.
+type Point(x, y) {
+    impl json.ToJSON {}
+}
+type Celsius(degrees) {
+    impl json.ToJSON {
+        func to_json(self) {
+            return Str(self.degrees) + "C"
+        }
+    }
+}
+type Plain(a) {}
+print(json.marshal({"at": Point(1, 2), "temp": Celsius(21)}))
+print(json.ToJSON.to_json(Celsius(5)))
+try {
+    json.marshal(Plain(1))
+} catch e {
+    print(e)
+}

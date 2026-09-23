@@ -16,8 +16,28 @@ func Execute() (object.Object, error) {
 		Members: map[string]object.Object{
 			"marshal":   &object.Function{Name: "marshal", Fn: jsonMarshal},
 			"unmarshal": &object.Function{Name: "unmarshal", Fn: jsonUnmarshal},
+			"ToJSON":    ToJSONTrait,
 		},
 	}, nil
+}
+
+// ToJSONTrait lets a user type take part in marshal: to_json(self) returns
+// the value to encode in its place. The default, which an empty impl gets,
+// is a dict of the fields in declaration order. It is a package-level value
+// so every import of the module sees the same trait.
+var ToJSONTrait = object.NewTrait("ToJSON", nil, []object.TraitMethod{
+	{Name: "to_json", Arity: 1, Default: &object.Function{Name: "to_json", Fn: fieldsDict}},
+})
+
+func fieldsDict(args object.CallArgs) (object.Object, error) {
+	v := args.Positional[0].(object.UserValue)
+	result := object.NewDict()
+	for i, name := range v.UserType().Fields {
+		if err := result.Set(object.String(name), v.FieldValues()[i]); err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }
 
 func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
@@ -138,6 +158,18 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 		return goblinListToJSON(v.Elements, buf, indent, level)
 	case *object.Dict:
 		return goblinDictToJSON(v, buf, indent, level)
+	case object.UserValue:
+		if v.UserType().Impl(ToJSONTrait) == nil {
+			break
+		}
+		encoded, err := ToJSONTrait.Invoke(0, object.CallArgs{Positional: []object.Object{v}})
+		if err != nil {
+			return err
+		}
+		if encoded == obj {
+			return object.NewValueError("marshal() %s.to_json returned the value itself", v.TypeName())
+		}
+		return goblinToJSON(encoded, buf, indent, level)
 	}
 	return object.NewTypeError("marshal() unsupported type: %s", obj.TypeName())
 }

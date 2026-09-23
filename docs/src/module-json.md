@@ -45,6 +45,29 @@ print(json.marshal(payload, 2))
 When decoding, inspect the resulting values with ordinary list and dictionary
 operations. A JSON integer becomes Int while a decimal number becomes Float.
 
+## Encoding your own types
+
+A user type takes part in marshal by implementing the module's `ToJSON` trait.
+Its one method, `to_json(self)`, returns the value to encode in the instance's
+place, which may itself contain other `ToJSON` values. An empty impl encodes the
+fields as a JSON object keyed by field name. marshal raises TypeError for a user
+type without the impl.
+
+~~~goblin
+type Point(x, y) {
+    impl json.ToJSON {}
+}
+type Celsius(degrees) {
+    impl json.ToJSON {
+        func to_json(self) {
+            return Str(self.degrees) + "C"
+        }
+    }
+}
+print(json.marshal({"at": Point(1, 2), "temp": Celsius(21)}))
+# {"at":{"x":1,"y":2},"temp":"21C"}
+~~~
+
 ## Handling untrusted input
 
 JSON from a file or HTTP response is external input. Keep parsing and
