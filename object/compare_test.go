@@ -53,6 +53,9 @@ func TestCompare(t *testing.T) {
 		{"cmp dispatch lhs", obj, Integer(5), -1},
 		{"cmp dispatch rhs (reflected)", Integer(5), obj, 1},
 		{"reflected equal", Integer(3), obj, 0},
+		{"list first difference", &List{Elements: []Object{Integer(1), Integer(3)}}, &List{Elements: []Object{Integer(2)}}, -1},
+		{"list prefix first", &List{Elements: []Object{Integer(1)}}, &List{Elements: []Object{Integer(1), Integer(0)}}, -1},
+		{"list numeric equal", &List{Elements: []Object{Integer(1)}}, &List{Elements: []Object{Float(1.0)}}, 0},
 	}
 	for _, tc := range cases {
 		got, err := Compare(tc.a, tc.b)

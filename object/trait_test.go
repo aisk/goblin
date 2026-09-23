@@ -83,8 +83,8 @@ func TestStructuralImpls(t *testing.T) {
 	if lt, err := Less(p(Integer(1), Integer(9)), p(Integer(2), Integer(0))); err != nil || !lt {
 		t.Fatalf("lexicographic compare = %v, %v", lt, err)
 	}
-	if _, err := Compare(p(&List{}, Integer(0)), p(&List{}, Integer(0))); err == nil {
-		t.Fatal("comparing List fields must fail")
+	if _, err := Compare(p(&Dict{}, Integer(0)), p(&Dict{}, Integer(0))); err == nil {
+		t.Fatal("comparing Dict fields must fail")
 	}
 	h1, err1 := UserHash(p(Integer(1), String("a")))
 	h2, err2 := UserHash(p(Float(1), String("a")))

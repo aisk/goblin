@@ -27,6 +27,13 @@ print(true != false)
 # Nil comparison
 print(nil == nil)
 
+# Lists order lexicographically: the first unequal pair decides, and a prefix
+# sorts first. That makes a list a sort key over several fields.
+print([1, 2] < [1, 3], [1] < [1, 0], ["b"] > ["a", "z"])
+var people = [["Bo", 30], ["Al", 30], ["Cy", 25]]
+people.sort(key=func(p) { return [p[1], p[0]] })
+print(people)
+
 # Comparison in if
 if 10 > 5 {
     print("10 is greater")

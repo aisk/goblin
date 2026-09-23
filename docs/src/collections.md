@@ -70,6 +70,16 @@ print(ordered)  # [1, 2, 3]
 Use contains() for membership tests. Use index() when the position matters;
 check for a missing value before using its result as an index.
 
+Lists compare lexicographically with `<`, `<=`, `>` and `>=`: the first
+unequal pair of elements decides, and a list that is a prefix of another sorts
+first. This makes a list a convenient sort key over several fields:
+
+~~~goblin
+var people = [["Bo", 30], ["Al", 30], ["Cy", 25]]
+people.sort(key=func(p) { return [p[1], p[0]] })
+print(people) # [["Cy", 25], ["Al", 30], ["Bo", 30]]
+~~~
+
 ### Transforming lists with callbacks
 
 Lists also provide callback-based helpers. map() returns transformed values,

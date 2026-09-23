@@ -1,6 +1,7 @@
 package object
 
 import (
+	"cmp"
 	"fmt"
 	"sort"
 	"strings"
@@ -262,8 +263,20 @@ func (l *List) Equals(other Object) (bool, error) {
 	return true, nil
 }
 
+// Compare orders lists lexicographically: the first unequal pair of elements
+// decides, and a list that is a prefix of the other sorts first.
 func (l *List) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare List and %s", other.TypeName())
+	v, ok := other.(*List)
+	if !ok {
+		return 0, NewTypeError("cannot compare List and %s", other.TypeName())
+	}
+	for i := 0; i < len(l.Elements) && i < len(v.Elements); i++ {
+		c, err := Compare(l.Elements[i], v.Elements[i])
+		if err != nil || c != 0 {
+			return c, err
+		}
+	}
+	return cmp.Compare(len(l.Elements), len(v.Elements)), nil
 }
 
 func (l *List) Add(other Object) (Object, error) {
