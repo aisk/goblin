@@ -96,9 +96,9 @@ func TestJsonMarshalCompact(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal error: %v", err)
 	}
-	// Key order is unspecified, so accept either ordering of the compact form.
-	if s := fmt.Sprint(got); s != `{"a":1,"b":2}` && s != `{"b":2,"a":1}` {
-		t.Errorf("marshal = %q, want compact two-key object", fmt.Sprint(got))
+	// Keys are sorted, whatever order the dict iterates in.
+	if s := fmt.Sprint(got); s != `{"a":1,"b":2}` {
+		t.Errorf("marshal = %q, want %q", s, `{"a":1,"b":2}`)
 	}
 }
 

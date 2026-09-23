@@ -28,8 +28,8 @@ input.
 
 marshal accepts every standard Goblin value that has a JSON equivalent:
 dictionaries, lists, strings, integers, floats, booleans, and nil. Dictionary
-keys must be strings and are encoded as JSON object keys; a non-string key
-raises TypeError. The optional indent argument controls pretty printing; omit
+keys must be strings and are encoded as JSON object keys in sorted order, so
+the output is deterministic; a non-string key raises TypeError. The optional indent argument controls pretty printing; omit
 it for compact data sent over a network.
 
 ~~~goblin

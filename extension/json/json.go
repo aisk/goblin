@@ -3,6 +3,7 @@ package json
 import (
 	"bytes"
 	"encoding/json"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -137,9 +138,8 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 		return goblinListToJSON(v.Elements, buf, indent, level)
 	case *object.Dict:
 		return goblinDictToJSON(v, buf, indent, level)
-	default:
-		return object.NewTypeError("marshal() unsupported type: %s", obj.TypeName())
 	}
+	return object.NewTypeError("marshal() unsupported type: %s", obj.TypeName())
 }
 
 func goblinListToJSON(elements []object.Object, buf *bytes.Buffer, indent, level int) error {
@@ -174,23 +174,28 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 		buf.WriteString("{}")
 		return nil
 	}
+	// Keys are written in sorted order, as Go's encoding/json does for maps,
+	// so the output does not depend on the dict's unspecified iteration order.
+	entries := d.Entries()
+	for _, entry := range entries {
+		if _, ok := entry.Key.(object.String); !ok {
+			return object.NewTypeError("marshal() dict keys must be str, got %s", entry.Key.TypeName())
+		}
+	}
+	slices.SortFunc(entries, func(a, b object.DictEntry) int {
+		return strings.Compare(string(a.Key.(object.String)), string(b.Key.(object.String)))
+	})
 	pretty := indent > 0
 	buf.WriteByte('{')
-	i := 0
-	for _, entry := range d.Entries() {
+	for i, entry := range entries {
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		i++
 		if pretty {
 			buf.WriteByte('\n')
 			writeSpaces(buf, indent*(level+1))
 		}
-		key, ok := entry.Key.(object.String)
-		if !ok {
-			return object.NewTypeError("marshal() dict keys must be str, got %s", entry.Key.TypeName())
-		}
-		kb, err := json.Marshal(string(key))
+		kb, err := json.Marshal(string(entry.Key.(object.String)))
 		if err != nil {
 			return object.WrapError(object.ValueError, "marshal() invalid dict key", err)
 		}
