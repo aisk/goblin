@@ -3,3 +3,6 @@ name,score
 Goblin,10
 
 [["a", "b"], ["1", "2"]]
+Ada,10,2.5,true,12pt
+
+write_all() field 1 in record 0 must be a string, number, bool or a value implementing Show, got Nil

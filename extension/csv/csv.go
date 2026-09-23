@@ -123,12 +123,35 @@ func csvObjectRecords(value object.Object) ([][]string, error) {
 		}
 		records[i] = make([]string, len(row.Elements))
 		for j, fieldObj := range row.Elements {
-			field, ok := fieldObj.(object.String)
-			if !ok {
-				return nil, object.NewTypeError("write_all() field %d in record %d must be a string, got %s", j, i, fieldObj.TypeName())
+			field, ok, err := csvField(fieldObj)
+			if err != nil {
+				return nil, err
 			}
-			records[i][j] = string(field)
+			if !ok {
+				return nil, object.NewTypeError("write_all() field %d in record %d must be a string, number, bool or a value implementing Show, got %s", j, i, fieldObj.TypeName())
+			}
+			records[i][j] = field
 		}
 	}
 	return records, nil
+}
+
+// csvField renders one field. Strings are written as they are; numbers,
+// bools and user values with a Show impl go through Show, as Str() would.
+// Anything else (nil, collections, a user value without Show) has no text a
+// reader could expect back, so ok is false.
+func csvField(value object.Object) (text string, ok bool, err error) {
+	switch v := value.(type) {
+	case object.String:
+		return string(v), true, nil
+	case object.Integer, object.Float, object.Bool:
+	case object.UserValue:
+		if v.UserType().Impl(object.ShowTrait) == nil {
+			return "", false, nil
+		}
+	default:
+		return "", false, nil
+	}
+	text, err = value.ToString()
+	return text, true, err
 }

@@ -13,9 +13,11 @@ corresponding Go Reader fields: `comma=","`, `comment=""`,
 `fields_per_record=0`, `lazy_quotes=false`, and
 `trim_leading_space=false`.
 
-`write_all` accepts a list of string lists. It supports `comma=","` and
-`use_crlf=false`, corresponding to Go's Writer fields. Parsing errors raise
-`ParseError`.
+`write_all` accepts a list of records, each a list of fields. A string field is
+written as it is; an integer, float, bool, or a user value implementing `Show`
+is written as its `Show` text, the same as `Str()` gives. Any other field, such
+as nil, a list, or a user value without `Show`, raises TypeError. It supports `comma=","` and `use_crlf=false`,
+corresponding to Go's Writer fields. Parsing errors raise `ParseError`.
 
 By default `write_all` returns the CSV text. Passing `dest=` streams the output
 into any writer object — an object with a `write(data)` method, such as an open
@@ -47,5 +49,5 @@ print(output)
 The delimiter arguments must be a single valid character. With
 `fields_per_record=0`, the reader infers the field count from the first record;
 a negative value allows records of varying lengths. An empty `comment` disables
-comments. CSV values are always strings: numeric conversion, header handling,
+comments. `read_all` always returns strings: numeric conversion, header handling,
 and mapping rows into dictionaries remain explicit application work.

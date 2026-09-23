@@ -4,3 +4,18 @@ var records = csv.read_all("name,score\nGoblin,10\n")
 print(records)
 print(csv.write_all(records))
 print(csv.read_all("a;b\n1;2\n", comma=";"))
+
+# Numbers, bools and values implementing Show are written through Show
+type Score(points) {
+    impl Show {
+        func show(self) {
+            return Str(self.points) + "pt"
+        }
+    }
+}
+print(csv.write_all([["Ada", 10, 2.5, true, Score(12)]]))
+try {
+    csv.write_all([["Ada", nil]])
+} catch e {
+    print(e)
+}
