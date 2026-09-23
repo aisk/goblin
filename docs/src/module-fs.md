@@ -38,6 +38,12 @@ read(size) returns a chunk of up to size bytes, end of file is an empty Bytes,
 and the result is always Bytes — call .decode() for text. write() accepts str
 or Bytes and returns the number of bytes written.
 
+Iterating a file with `for line in file` reads the rest of it as text lines.
+Each line is a str without its `\n` or `\r\n` terminator, and a final line
+without a terminator is still included. Invalid UTF-8 raises ValueError. The
+lines are all read before the loop body runs, so use read(size) for a file too
+large to hold in memory.
+
 Because a File has a `write(data)` method, it already satisfies the writer
 stream shape: it can be passed wherever the standard library accepts a writer
 object, such as `exec.Command(stdout=...)` or the `dest=` keyword of

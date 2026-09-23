@@ -339,3 +339,50 @@ func TestFileWriteAcceptsBytes(t *testing.T) {
 		t.Fatalf("file content = %v, want [1 2 255]", content)
 	}
 }
+
+func TestFileIterLines(t *testing.T) {
+	cases := []struct {
+		content string
+		want    []string
+	}{
+		{"a\r\nb\n\nc", []string{"a", "b", "", "c"}},
+		{"a\n", []string{"a"}},
+		{"", nil},
+	}
+	for _, tc := range cases {
+		path := filepath.Join(t.TempDir(), "lines.txt")
+		if err := os.WriteFile(path, []byte(tc.content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		handle, err := os.Open(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		file := NewFile(path, handle)
+		items, err := file.Iter()
+		if err != nil {
+			t.Fatalf("Iter(%q) error = %v", tc.content, err)
+		}
+		var got []string
+		for _, item := range items {
+			got = append(got, string(item.(object.String)))
+		}
+		if fmt.Sprint(got) != fmt.Sprint(tc.want) {
+			t.Errorf("Iter(%q) = %q, want %q", tc.content, got, tc.want)
+		}
+		handle.Close()
+	}
+
+	path := filepath.Join(t.TempDir(), "bad.txt")
+	if err := os.WriteFile(path, []byte("ok\n\xff\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	handle, err := os.Open(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer handle.Close()
+	if _, err := NewFile(path, handle).Iter(); err == nil || !strings.Contains(err.Error(), "line 2") {
+		t.Errorf("invalid UTF-8 error = %v, want one naming line 2", err)
+	}
+}

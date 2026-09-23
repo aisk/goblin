@@ -1,9 +1,12 @@
 package fs
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/aisk/goblin/object"
 )
@@ -56,6 +59,36 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 		return nil, object.WrapNativeError(object.IOError, "read() failed to read file", err)
 	}
 	return object.NewBytes(buf[:n]), nil
+}
+
+// Iter makes `for line in file` read the rest of the file as text lines. A
+// line ends at "\n" or "\r\n", which is not part of it, and a last line
+// without a terminator still counts. Iteration materializes every line before
+// the loop starts, so stream a large file with read(size) instead.
+func (f *File) Iter() ([]object.Object, error) {
+	if f.closed {
+		return nil, object.NewValueError("cannot iterate a closed file")
+	}
+	var lines []object.Object
+	r := bufio.NewReader(f.File)
+	for {
+		line, err := r.ReadString('\n')
+		if err != nil && err != io.EOF {
+			return nil, object.WrapNativeError(object.IOError, "failed to read file lines", err)
+		}
+		if line == "" && err == io.EOF {
+			return lines, nil
+		}
+		if !utf8.ValidString(line) {
+			return nil, object.NewValueError("line %d of %s is not valid UTF-8", len(lines)+1, f.Name)
+		}
+		line = strings.TrimSuffix(line, "\n")
+		line = strings.TrimSuffix(line, "\r")
+		lines = append(lines, object.String(line))
+		if err == io.EOF {
+			return lines, nil
+		}
+	}
 }
 
 func (f *File) Write(args object.CallArgs) (object.Object, error) {

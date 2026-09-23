@@ -41,3 +41,10 @@ print(chunked.read(5).decode())
 print(chunked.read(100).size)
 print(chunked.read(5).size)
 chunked.close()
+
+# Iterating a file reads the rest of it as text lines, without terminators.
+var lined = fs.open("fs_fixture.txt")
+for line in lined {
+    print("line: " + line)
+}
+lined.close()
