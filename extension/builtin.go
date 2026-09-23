@@ -156,102 +156,37 @@ func RangeBounds(start, end object.Object) (int64, int64, error) {
 	return int64(s), int64(e), nil
 }
 
+// Max and Min pick among their arguments by Compare, so they order anything
+// `<` orders, including a user type's Ord impl. Like Ord.max and Ord.min, on
+// a tie max answers the later argument and min the earlier one.
 func Max(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("max", args)
-	nums := p.Rest()
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	if len(nums) == 0 {
-		return nil, object.NewTypeError("max() requires at least 1 argument")
-	}
-
-	var hasFloat bool
-	for _, arg := range nums {
-		if _, ok := arg.(object.Float); ok {
-			hasFloat = true
-			break
-		}
-	}
-
-	var maxValue float64
-	if hasFloat {
-		for i, arg := range nums {
-			switch v := arg.(type) {
-			case object.Float:
-				if i == 0 || float64(v) > maxValue {
-					maxValue = float64(v)
-				}
-			case object.Integer:
-				if i == 0 || float64(v) > maxValue {
-					maxValue = float64(v)
-				}
-			default:
-				return nil, object.NewTypeError("max() argument %d: invalid type %s", i, arg.TypeName())
-			}
-		}
-		return object.Float(maxValue), nil
-	}
-
-	maxIntValue := int64(0)
-	for i, arg := range nums {
-		if v, ok := arg.(object.Integer); ok {
-			if i == 0 || int64(v) > maxIntValue {
-				maxIntValue = int64(v)
-			}
-		} else {
-			return nil, object.NewTypeError("max() argument %d: invalid type %s", i, arg.TypeName())
-		}
-	}
-	return object.Integer(maxIntValue), nil
+	return extreme("max", args, func(c int) bool { return c >= 0 })
 }
 
 func Min(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("min", args)
-	nums := p.Rest()
+	return extreme("min", args, func(c int) bool { return c < 0 })
+}
+
+// extreme returns the argument that replaces every earlier one; replaces
+// reports whether a candidate does, given Compare(candidate, best).
+func extreme(name string, args object.CallArgs, replaces func(c int) bool) (object.Object, error) {
+	p := object.NewArgParser(name, args)
+	values := p.Rest()
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(nums) == 0 {
-		return nil, object.NewTypeError("min() requires at least 1 argument")
+	if len(values) == 0 {
+		return nil, object.NewTypeError("%s() requires at least 1 argument", name)
 	}
-
-	var hasFloat bool
-	for _, arg := range nums {
-		if _, ok := arg.(object.Float); ok {
-			hasFloat = true
-			break
+	best := values[0]
+	for _, v := range values[1:] {
+		c, err := object.Compare(v, best)
+		if err != nil {
+			return nil, err
+		}
+		if replaces(c) {
+			best = v
 		}
 	}
-
-	var minValue float64
-	if hasFloat {
-		for i, arg := range nums {
-			switch v := arg.(type) {
-			case object.Float:
-				if i == 0 || float64(v) < minValue {
-					minValue = float64(v)
-				}
-			case object.Integer:
-				if i == 0 || float64(v) < minValue {
-					minValue = float64(v)
-				}
-			default:
-				return nil, object.NewTypeError("min() argument %d: invalid type %s", i, arg.TypeName())
-			}
-		}
-		return object.Float(minValue), nil
-	}
-
-	minIntValue := int64(0)
-	for i, arg := range nums {
-		if v, ok := arg.(object.Integer); ok {
-			if i == 0 || int64(v) < minIntValue {
-				minIntValue = int64(v)
-			}
-		} else {
-			return nil, object.NewTypeError("min() argument %d: invalid type %s", i, arg.TypeName())
-		}
-	}
-	return object.Integer(minIntValue), nil
+	return best, nil
 }
