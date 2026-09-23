@@ -52,7 +52,10 @@ response.body.close()
 
 For custom methods or headers, construct Request(method, url, body=nil), then send
 it through Client(timeout=seconds). Request.header supports get(), values(),
-set(), add(), and del().
+set(), add(), and del(). A header also indexes like a dict with
+case-insensitive names: `header["Accept"]` reads the first value and raises
+KeyError when the header is absent, `header["Accept"] = "text/plain"` is set(),
+and iterating yields the canonical header names in sorted order.
 
 ~~~goblin
 var client = http.Client(timeout=5)

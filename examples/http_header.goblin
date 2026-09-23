@@ -1,0 +1,24 @@
+import "http"
+
+# A Header indexes like a dict: names are case-insensitive, a missing name
+# raises KeyError, and iteration yields the canonical names in sorted order.
+var request = http.Request("GET", "http://example.com/")
+var header = request.header
+header["content-type"] = "application/json"
+header.add("Accept", "text/plain")
+header.add("accept", "text/html")
+print(header["Content-Type"], header["ACCEPT"])
+print(header.values("Accept"))
+for name in header {
+    print(name)
+}
+try {
+    print(header["X-Missing"])
+} catch e {
+    print(e)
+}
+try {
+    header["X-Count"] = 3
+} catch e {
+    print(e)
+}

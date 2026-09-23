@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	stdhttp "net/http"
+	"sort"
 
 	"github.com/aisk/goblin/object"
 )
@@ -50,6 +51,49 @@ func (h *Header) GetAttr(name string) (object.Object, error) {
 
 func (h *Header) Attributes() []string {
 	return []string{"attributes", "get", "values", "set", "add", "del"}
+}
+
+// Index reads h[key] like get(), except that a missing header raises
+// KeyError, as a Dict lookup does.
+func (h *Header) Index(key object.Object) (object.Object, error) {
+	name, ok := key.(object.String)
+	if !ok {
+		return nil, object.NewTypeError("Header index must be str, got %s", key.TypeName())
+	}
+	values := h.Header.Values(string(name))
+	if len(values) == 0 {
+		return nil, object.NewKeyError("key not found: %s", string(name))
+	}
+	return object.String(values[0]), nil
+}
+
+// SetIndex makes h[key] = value the same as set(key, value).
+func (h *Header) SetIndex(key, value object.Object) (bool, error) {
+	name, ok := key.(object.String)
+	if !ok {
+		return true, object.NewTypeError("Header index must be str, got %s", key.TypeName())
+	}
+	text, ok := value.(object.String)
+	if !ok {
+		return true, object.NewTypeError("Header value must be str, got %s", value.TypeName())
+	}
+	h.Header.Set(string(name), string(text))
+	return true, nil
+}
+
+// Iter yields the header names in canonical form, sorted so iteration is
+// deterministic.
+func (h *Header) Iter() ([]object.Object, error) {
+	names := make([]string, 0, len(h.Header))
+	for name := range h.Header {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	items := make([]object.Object, len(names))
+	for i, name := range names {
+		items[i] = object.String(name)
+	}
+	return items, nil
 }
 
 // get returns the first value associated with the given key, or "" if none.

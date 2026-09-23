@@ -1,0 +1,6 @@
+application/json text/plain
+["text/plain", "text/html"]
+Accept
+Content-Type
+key not found: X-Missing
+Header value must be str, got Integer
