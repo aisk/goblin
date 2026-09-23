@@ -365,7 +365,7 @@ func TestCheckModule(t *testing.T) {
 		{
 			name: "method named like a trait method is unrestricted",
 			source: "type V(x) {\n" +
-				"  impl Num { func add(self, other) { return self } }\n" +
+				"  impl Add { func add(self, other) { return self } }\n" +
 				"  func add(self, a, b, c) { return self }\n" +
 				"}\n" +
 				"print(V(1))\n",
@@ -405,7 +405,7 @@ func TestCheckTraits(t *testing.T) {
 				"  impl Ord {}\n" +
 				"  impl Hashable {}\n" +
 				"  impl Show { func show(self) { return \"p\" } }\n" +
-				"  impl Num { func add(self, o) { return self } }\n" +
+				"  impl Add { func add(self, o) { return self } }\n" +
 				"}\n",
 		},
 		{
@@ -499,9 +499,9 @@ func TestCheckTraits(t *testing.T) {
 			err:    "3:8: semantic error: duplicate impl Show for P",
 		},
 		{
-			name:   "empty Num impl",
-			source: "type P() { impl Num {} }\n",
-			err:    "1:17: semantic error: impl Num for P defines no methods",
+			name:   "reflected method without the forward one",
+			source: "type P() { impl Mul { func rmul(self, o) { return self } } }\n",
+			err:    "1:17: semantic error: impl Mul for P is missing method 'mul'",
 		},
 		{
 			name:   "missing dependency",
@@ -514,8 +514,9 @@ func TestCheckTraits(t *testing.T) {
 			err:    "3:17: semantic error: impl B for P requires impl A",
 		},
 		{
-			name:   "Ord fills in Eq",
+			name:   "Ord needs an explicit Eq",
 			source: "type P(x) {\n  impl Ord {}\n  impl Hashable {}\n}\n",
+			err:    "2:8: semantic error: impl Ord for P requires impl Eq",
 		},
 		{
 			name: "structural Hashable over a custom Eq",
@@ -532,14 +533,6 @@ func TestCheckTraits(t *testing.T) {
 				"  impl Eq { func eq(self, o) { return true } }\n" +
 				"}\n",
 			err: "2:8: semantic error: structural Ord requires structural Eq on P",
-		},
-		{
-			name: "structural Hashable over an Eq from a custom Ord",
-			source: "type P(x) {\n" +
-				"  impl Ord { func compare(self, o) { return 0 } }\n" +
-				"  impl Hashable {}\n" +
-				"}\n",
-			err: "3:8: semantic error: structural Hashable requires structural Eq on P",
 		},
 		{
 			name:   "trait only at module scope",

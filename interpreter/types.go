@@ -275,43 +275,43 @@ func (in *instance) Compare(other object.Object) (int, error) {
 }
 
 func (in *instance) Add(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.NumAdd, other)
+	return object.UserArith(in, object.ArithAdd, other)
 }
 
 func (in *instance) Minus(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.NumSub, other)
+	return object.UserArith(in, object.ArithSub, other)
 }
 
 func (in *instance) Multiply(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.NumMul, other)
+	return object.UserArith(in, object.ArithMul, other)
 }
 
 func (in *instance) Divide(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.NumDiv, other)
+	return object.UserArith(in, object.ArithDiv, other)
 }
 
 func (in *instance) Modulo(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.NumMod, other)
+	return object.UserArith(in, object.ArithMod, other)
 }
 
 func (in *instance) RAdd(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.NumRAdd, left)
+	return object.UserReflected(in, object.ArithAdd, left)
 }
 
 func (in *instance) RMinus(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.NumRSub, left)
+	return object.UserReflected(in, object.ArithSub, left)
 }
 
 func (in *instance) RMultiply(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.NumRMul, left)
+	return object.UserReflected(in, object.ArithMul, left)
 }
 
 func (in *instance) RDivide(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.NumRDiv, left)
+	return object.UserReflected(in, object.ArithDiv, left)
 }
 
 func (in *instance) RModulo(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.NumRMod, left)
+	return object.UserReflected(in, object.ArithMod, left)
 }
 
 func (in *instance) Iter() ([]object.Object, error) { return object.UserIter(in) }

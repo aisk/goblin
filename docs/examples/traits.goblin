@@ -49,6 +49,11 @@ type Word(text) {
 print(Loud.shout(Word("hey")))
 
 type Money(amount) {
+    impl Eq {
+        func eq(self, other) {
+            return Ord.compare(self, other) == 0
+        }
+    }
     impl Ord {
         func compare(self, other) {
             return self.amount - other
@@ -62,12 +67,24 @@ print(10 > m)
 print(m == 5)
 
 type Vector(x, y) {
-    impl Num {
+    impl Add {
         func add(self, other) {
             return Vector(self.x + other.x, self.y + other.y)
         }
+    }
+    impl Sub {
+        func sub(self, other) {
+            return Vector(self.x - other.x, self.y - other.y)
+        }
+    }
+    impl Neg {
         func neg(self) {
             return Vector(-self.x, -self.y)
+        }
+    }
+    impl Mul {
+        func mul(self, k) {
+            return Vector(self.x * k, self.y * k)
         }
         func rmul(self, k) {
             return Vector(k * self.x, k * self.y)
@@ -80,4 +97,4 @@ var v = Vector(1, 2)
 print(v - Vector(1, 1))
 print(2 * v)
 print(-v)
-print(Eq.ne("a", "b"), Num.rsub(1, 10))
+print(Eq.ne("a", "b"), Sub.rsub(1, 10))

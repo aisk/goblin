@@ -3,7 +3,7 @@ package object
 // Add, Minus, Multiply, Divide and Modulo are the entry points both backends
 // use for the arithmetic operators. They run the left operand's own method
 // first and fall back to the right operand's reflected method (RAdd and
-// friends, the Go side of Num.radd) when the left one reports that it does not
+// friends, the Go side of Add.radd) when the left one reports that it does not
 // know the type —
 // the same rule Compare and Equals follow, so only a TypeError triggers the
 // fallback and every other failure propagates. Unlike comparison, arithmetic
@@ -110,7 +110,7 @@ func Not(v Object) (Object, error) {
 
 // Positive and Negate are the entry points both backends use for the unary
 // + and - operators. + is for numbers only and returns the operand unchanged;
-// - flips a number's sign and negates a user value through Num.neg. Anything
+// - flips a number's sign and negates a user value through Neg.neg. Anything
 // else is a TypeError.
 func Positive(v Object) (Object, error) {
 	switch v.(type) {
@@ -127,8 +127,8 @@ func Negate(v Object) (Object, error) {
 	case Float:
 		return Float(-float64(n)), nil
 	case UserValue:
-		if impl := n.UserType().num; impl != nil {
-			return impl.call(n, NumNeg, []Object{n})
+		if impl := n.UserType().neg; impl != nil {
+			return impl.call(n, NegNeg, []Object{n})
 		}
 	}
 	return nil, NewTypeError(ErrFmtCannotNegate, v.TypeName())

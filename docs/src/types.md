@@ -63,7 +63,7 @@ the fields:
 type Vector(x, y) {
     impl Eq {}
     impl Show {}
-    impl Num {
+    impl Add {
         func add(self, other) {
             return Vector(self.x + other.x, self.y + other.y)
         }

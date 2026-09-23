@@ -36,6 +36,11 @@ if 10 > 5 {
 # operand has no ordering for the right one, the right operand answers the
 # mirrored question, just like == already consults both operands.
 type Money(amount) {
+    impl Eq {
+        func eq(self, other) {
+            return Ord.compare(self, other) == 0
+        }
+    }
     impl Ord {
         func compare(self, other) {
             return self.amount - other

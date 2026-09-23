@@ -43,14 +43,15 @@ See [Built-in types](./built-in-types.md) for value-specific methods, and
 ## Built-in traits
 
 The traits behind operators and conversions are globals as well: `Eq`, `Ord`,
-`Hashable`, `Show`, `Truth`, `Num`, `Iter` and `Index`. Types implement them in
+`Hashable`, `Show`, `Truth`, `Add`, `Sub`, `Mul`, `Div`, `Mod`, `Neg`, `Iter`
+and `Index`. Types implement them in
 `impl` blocks, and their methods can be called directly with the receiver
 first, on any value:
 
 ~~~goblin
 print(Ord.max(3, 7))            # 7
 print(Eq.ne("a", "b"))          # true
-print(Num.rsub(1, 10))          # 9, that is 10 - 1
+print(Sub.rsub(1, 10))          # 9, that is 10 - 1
 ~~~
 
 See [Traits](./traits.md) for the methods of each trait.

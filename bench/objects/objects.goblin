@@ -1,7 +1,7 @@
 # User-defined types: construction, method calls, attribute reads and writes,
 # and an overloaded operator.
 type Vec(x, y) {
-    impl Num {
+    impl Add {
         func add(self, other) {
             return Vec(self.x + other.x, self.y + other.y)
         }

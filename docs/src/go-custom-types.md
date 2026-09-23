@@ -140,7 +140,7 @@ a TypeError from it means "not this type" and leaves `==` total, while any
 other error fails the comparison.
 
 Arithmetic reaches the right operand through RAdd, RMinus, RMultiply, RDivide
-and RModulo, the Go side of `Num.radd` and friends. Their argument is the LEFT
+and RModulo, the Go side of `Add.radd` and friends. Their argument is the LEFT
 operand — RMinus(left) computes `left - receiver` — and the bool they return
 reports whether the receiver handled this operand at all; returning false
 leaves the left operand's error in place. Embed object.NoReflectedOps and
@@ -165,7 +165,7 @@ func (v Vector) RMultiply(left object.Object) (object.Object, bool, error) {
 
 A Go type does not implement traits: it implements the object.Object methods,
 and the built-in trait objects route to them. `Ord.compare(a, b)` on a Go value
-calls object.Compare, `Show.show(x)` calls ToString, `Num.add(a, b)` calls
+calls object.Compare, `Show.show(x)` calls ToString, `Add.add(a, b)` calls
 object.Add, and so on, so a Go type that implements Compare works with
 `Ord.max` and `sort` without further work. Only Goblin-defined types have impls
 and `traits()`.

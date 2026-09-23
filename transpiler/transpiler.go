@@ -1975,35 +1975,38 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 	method("Equals", other("other"), jen.Parens(jen.List(jen.Bool(), jen.Error())), userCall("UserEquals", jen.Id("other")))
 	method("Compare", other("other"), jen.Parens(jen.List(jen.Int(), jen.Error())), userCall("UserCompare", jen.Id("other")))
 
-	// A binary operator whose method this type's impl of the built-in Num
-	// defines calls the method's wrapper directly, skipping the impl lookup
-	// and the argument slice the generic dispatch allocates. Everything else,
-	// derived sub and the missing-operator error included, goes through the
-	// shared helper.
+	// A binary operator whose arithmetic trait this type implements calls the
+	// forward method's wrapper directly, skipping the impl lookup and the
+	// argument slice the generic dispatch allocates. A missing operator goes
+	// through the shared helper, which raises its error.
 	implWrappers := make(map[*ast.FunctionDefine]string)
 	for _, block := range typeDef.Impls {
 		for _, m := range block.Methods {
 			implWrappers[m] = ctx.localName("impl_" + m.Name)
 		}
 	}
-	numMethods := map[string]string{}
+	// forward maps each implemented built-in trait to the wrapper of its first
+	// method; for the arithmetic traits that is the forward operator.
+	forward := map[*object.Trait]string{}
 	for _, block := range typeDef.Impls {
-		if ctx.builtinTrait(block.Trait) == object.NumTrait {
-			for _, m := range block.Methods {
-				numMethods[m.Name] = implWrappers[m]
+		trait := ctx.builtinTrait(block.Trait)
+		for _, m := range block.Methods {
+			if trait != nil && m.Name == trait.Methods[0].Name {
+				forward[trait] = implWrappers[m]
 			}
 		}
 	}
 	for _, op := range []struct {
-		goMethod, trait, index string
+		goMethod, index string
+		trait           *object.Trait
 	}{
-		{"Add", "add", "NumAdd"},
-		{"Minus", "sub", "NumSub"},
-		{"Multiply", "mul", "NumMul"},
-		{"Divide", "div", "NumDiv"},
-		{"Modulo", "mod", "NumMod"},
+		{"Add", "ArithAdd", object.AddTrait},
+		{"Minus", "ArithSub", object.SubTrait},
+		{"Multiply", "ArithMul", object.MulTrait},
+		{"Divide", "ArithDiv", object.DivTrait},
+		{"Modulo", "ArithMod", object.ModTrait},
 	} {
-		if wrapper, ok := numMethods[op.trait]; ok {
+		if wrapper, ok := forward[op.trait]; ok {
 			method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
 				jen.Return(jen.Id(receiverName).Dot(wrapper).Call(jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
 					jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(jen.Id("other")),
@@ -2014,11 +2017,11 @@ func (ctx *transpileContext) transpileTypeDefine(typeDef *ast.TypeDefine, onErro
 			userCall("UserArith", jen.Qual(pathObject, op.index), jen.Id("other")))
 	}
 	for _, op := range []struct{ goMethod, index string }{
-		{"RAdd", "NumRAdd"},
-		{"RMinus", "NumRSub"},
-		{"RMultiply", "NumRMul"},
-		{"RDivide", "NumRDiv"},
-		{"RModulo", "NumRMod"},
+		{"RAdd", "ArithAdd"},
+		{"RMinus", "ArithSub"},
+		{"RMultiply", "ArithMul"},
+		{"RDivide", "ArithDiv"},
+		{"RModulo", "ArithMod"},
 	} {
 		method(op.goMethod, other("left"), jen.Parens(jen.List(obj(), jen.Bool(), jen.Error())),
 			userCall("UserReflected", jen.Qual(pathObject, op.index), jen.Id("left")))

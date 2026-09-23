@@ -2,7 +2,7 @@
 
 A trait is a named bundle of methods that a type can implement. Goblin's
 operators and conversions are traits too: a type supports `+` by implementing
-`Num`, `==` by implementing `Eq`, printing by implementing `Show`, and so on.
+`Add`, `==` by implementing `Eq`, printing by implementing `Show`, and so on.
 
 ~~~goblin
 trait Shape {
@@ -114,7 +114,8 @@ order, so `r.traits().contains(Shape)` answers whether `r` is a Shape.
 | `Hashable` (needs `Eq`) | `hash(self)` | | dict keys | structural |
 | `Show` | `show(self)` | | `print`, `Str`, string rendering | structural |
 | `Truth` | `truth(self)` | | `if`, `while`, `&&`, `\|\|`, `!`, `Bool` | not allowed |
-| `Num` | at least one method | `add sub mul div mod neg radd rsub rmul rdiv rmod` | arithmetic operators, unary `-` | not allowed |
+| `Add` `Sub` `Mul` `Div` `Mod` | `add` `sub` `mul` `div` `mod` `(self, other)` | `radd` `rsub` `rmul` `rdiv` `rmod` | `+ - * / %` | not allowed |
+| `Neg` | `neg(self)` | | unary `-` | not allowed |
 | `Iter` | `iter(self)` | | `for x in value` | not allowed |
 | `Index` | `get(self, index)` | `set(self, index, value)` | `value[i]`, `value[i] = x` | not allowed |
 
@@ -151,10 +152,10 @@ hash cannot know which fields a custom `eq` ignores. The checker reports
 
 ### Eq and Ord
 
-`Ord` depends on `Eq`, but a type that implements `Ord` without `Eq` gets an
-`eq` for free: the structural one for a structural `Ord`, and `compare`
-answering 0 for a custom one. This is the only dependency that is filled in
-automatically.
+`Ord` depends on `Eq`, and like every dependency the type implements it
+explicitly. A structural `Ord` pairs with `impl Eq {}`; a custom `compare`
+usually pairs with an `eq` that asks it, as `Money` does below, so that `==`
+agrees with the ordering.
 
 Equality never raises over a type mismatch. `a == b` asks the left operand's
 `eq`, then the right one's, and falls back to identity; a TypeError raised
@@ -169,6 +170,11 @@ operand's `compare` answers with the result negated, which is how
 
 ~~~goblin
 type Money(amount) {
+    impl Eq {
+        func eq(self, other) {
+            return Ord.compare(self, other) == 0
+        }
+    }
     impl Ord {
         func compare(self, other) {
             return self.amount - other
@@ -179,32 +185,41 @@ type Money(amount) {
 var m = Money(5)
 print(m < 10)                           # true
 print(10 > m)                           # true, answered by Money's compare
-print(m == 5)                           # true, eq derived from compare
+print(m == 5)                           # true, answered by Money's eq
 ~~~
 
 Goblin cannot check the laws these traits rely on, so keep them yourself: a
 custom `hash` must agree with `eq` (equal values hash alike), and `compare`
 must be antisymmetric and transitive.
 
-### Num
+### Arithmetic
 
-`Num` has no required method; an impl defines the operators the type supports,
-and a missing one raises the usual `cannot add Point` TypeError. When an impl
-defines `add` and `neg` but not `sub`, `a - b` is `a + (-b)`.
+Each arithmetic operator has a trait of its own, so a type implements exactly
+the operators it supports; a missing one raises the usual `cannot add Point`
+TypeError. No operator is derived from another: `Add` and `Neg` do not give a
+type `-`.
 
-The reflected methods run when the value is on the right of an operand that
-does not know it, with that left operand as the argument. Only a left operand
-reporting a type mismatch hands over to them, and without the reflected method
-the left operand's error stands:
+A binary trait requires the method for the value on the left. Its reflected
+method (`radd`, `rsub`, ...) is optional and runs when the value is on the
+right of an operand that does not know it, with that left operand as the
+argument. Only a left operand reporting a type mismatch hands over to it, and
+without the reflected method the left operand's error stands:
 
 ~~~goblin
 type Vector(x, y) {
-    impl Num {
-        func add(self, other) {
-            return Vector(self.x + other.x, self.y + other.y)
+    impl Sub {
+        func sub(self, other) {
+            return Vector(self.x - other.x, self.y - other.y)
         }
+    }
+    impl Neg {
         func neg(self) {
             return Vector(-self.x, -self.y)
+        }
+    }
+    impl Mul {
+        func mul(self, k) {
+            return Vector(self.x * k, self.y * k)
         }
         func rmul(self, k) {
             return Vector(k * self.x, k * self.y)
@@ -232,6 +247,6 @@ negation. `Iter.iter` returns a List that `for` visits. `Index.get` backs
 
 A trait is an ordinary value: it prints as `<trait Eq>`, compares equal only to
 itself, and its methods are values too (`var f = Named.greet`). The built-in
-traits `Eq`, `Ord`, `Hashable`, `Show`, `Truth`, `Num`, `Iter` and `Index` are
+traits `Eq`, `Ord`, `Hashable`, `Show`, `Truth`, `Add`, `Sub`, `Mul`, `Div`, `Mod`, `Neg`, `Iter` and `Index` are
 predeclared globals. Declaring a trait with one of these names shadows only the
 name: `==` keeps using the built-in `Eq`.

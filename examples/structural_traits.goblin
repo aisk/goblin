@@ -61,6 +61,7 @@ try {
 
 # The built-in max() and min() order through Ord, like the operators do.
 type Temperature(degrees) {
+    impl Eq {}
     impl Ord {}
 }
 print(max(Temperature(1), Temperature(5), Temperature(3)).degrees)
@@ -76,13 +77,14 @@ type Approx(value) {
 }
 print(Approx(1.0) == Approx(1.5), Approx(1.0) != Approx(3.0))
 
-# A structural Ord implies the structural Eq, which also covers fields that
-# can be compared for equality but not ordered.
+# A structural Eq also covers fields that can be compared for equality but
+# not ordered.
 type Tag(name) {
     impl Eq {}
     impl Hashable {}
 }
 type Key(tag) {
+    impl Eq {}
     impl Ord {}
     impl Hashable {}
 }

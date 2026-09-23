@@ -1,18 +1,30 @@
 # User types opt into operators and conversions by implementing the built-in
-# traits: Num (arithmetic), Eq and Ord (comparison), Show (string conversion),
+# traits: Add, Sub, Mul, Div, Mod and Neg (arithmetic), Eq and Ord (comparison), Show (string conversion),
 # Truth (conditions), Iter (for loops) and Index (subscripts).
 
 type Vector(x, y) {
-    impl Num {
+    impl Add {
         func add(self, other) {
             return Vector(self.x + other.x, self.y + other.y)
         }
-        # sub is derived from add and neg when an impl does not define it.
+    }
+    impl Sub {
+        func sub(self, other) {
+            return Vector(self.x - other.x, self.y - other.y)
+        }
+    }
+    impl Neg {
         func neg(self) {
             return Vector(-self.x, -self.y)
         }
-        # Reflected methods run when the value is on the right of an operand
-        # that does not know it, which is how `2 * v` reaches Vector.
+    }
+    # Each binary operator's trait requires the method for the value on the
+    # left. The reflected method is optional and runs when the value is on
+    # the right of an operand that does not know it, so `2 * v` works too.
+    impl Mul {
+        func mul(self, k) {
+            return Vector(self.x * k, self.y * k)
+        }
         func rmul(self, k) {
             return Vector(k * self.x, k * self.y)
         }
@@ -22,8 +34,14 @@ type Vector(x, y) {
             return "Vector(" + Str(self.x) + ", " + Str(self.y) + ")"
         }
     }
-    # Ordering by length. compare is the one required method; the operators
-    # run lt, le, gt and ge, whose defaults derive from it.
+    # Ordering by length. compare is the one required method; lt, le, gt,
+    # ge, max and min derive from it. Ord needs Eq, here the one that agrees
+    # with compare.
+    impl Eq {
+        func eq(self, other) {
+            return Ord.compare(self, other) == 0
+        }
+    }
     impl Ord {
         func compare(self, other) {
             return self.x * self.x + self.y * self.y - (other.x * other.x + other.y * other.y)
@@ -39,12 +57,13 @@ print(-v)
 print(2 * v)
 print(v)
 print(v < w, v > w, v <= w)
-# Ord without Eq gets an eq of its own: compare answering 0.
+# eq answers through compare, so vectors of one length are equal.
 print(v == Vector(2, 1), v == w)
 print(Ord.max(v, w), Ord.min(v, w))
 
 # The operators and sorting all order through compare.
 type Version(major, minor) {
+    impl Eq {}
     impl Ord {
         func compare(self, other) {
             if self.major != other.major {
@@ -145,21 +164,28 @@ if Counter(0) {
 print(!Counter(3), Bool(Counter(0)))
 print((Counter(0) || "fallback"))
 
-# The remaining Num methods, and a missing reflected method: the left
-# operand's error stands.
+# The remaining operators, and a missing trait: the left operand's error
+# stands.
 type Modular(n) {
-    impl Num {
+    impl Div {
         func div(self, other) {
             return Modular(self.n / other)
         }
+    }
+    impl Mod {
         func mod(self, other) {
             return Modular(self.n % other)
         }
-        func rsub(self, other) {
-            return Modular(other - self.n)
-        }
         func rmod(self, other) {
             return Modular(other % self.n)
+        }
+    }
+    impl Sub {
+        func sub(self, other) {
+            return Modular(self.n - other)
+        }
+        func rsub(self, other) {
+            return Modular(other - self.n)
         }
     }
     impl Show {}

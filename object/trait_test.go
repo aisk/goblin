@@ -25,25 +25,25 @@ func (v *fakeValue) ToBool() (bool, error)             { return UserToBool(v) }
 func (v *fakeValue) Hash() (uint64, error)             { return UserHash(v) }
 func (v *fakeValue) Equals(o Object) (bool, error)     { return UserEquals(v, o) }
 func (v *fakeValue) Compare(o Object) (int, error)     { return UserCompare(v, o) }
-func (v *fakeValue) Add(o Object) (Object, error)      { return UserArith(v, NumAdd, o) }
-func (v *fakeValue) Minus(o Object) (Object, error)    { return UserArith(v, NumSub, o) }
-func (v *fakeValue) Multiply(o Object) (Object, error) { return UserArith(v, NumMul, o) }
-func (v *fakeValue) Divide(o Object) (Object, error)   { return UserArith(v, NumDiv, o) }
-func (v *fakeValue) Modulo(o Object) (Object, error)   { return UserArith(v, NumMod, o) }
+func (v *fakeValue) Add(o Object) (Object, error)      { return UserArith(v, ArithAdd, o) }
+func (v *fakeValue) Minus(o Object) (Object, error)    { return UserArith(v, ArithSub, o) }
+func (v *fakeValue) Multiply(o Object) (Object, error) { return UserArith(v, ArithMul, o) }
+func (v *fakeValue) Divide(o Object) (Object, error)   { return UserArith(v, ArithDiv, o) }
+func (v *fakeValue) Modulo(o Object) (Object, error)   { return UserArith(v, ArithMod, o) }
 func (v *fakeValue) RAdd(o Object) (Object, bool, error) {
-	return UserReflected(v, NumRAdd, o)
+	return UserReflected(v, ArithAdd, o)
 }
 func (v *fakeValue) RMinus(o Object) (Object, bool, error) {
-	return UserReflected(v, NumRSub, o)
+	return UserReflected(v, ArithSub, o)
 }
 func (v *fakeValue) RMultiply(o Object) (Object, bool, error) {
-	return UserReflected(v, NumRMul, o)
+	return UserReflected(v, ArithMul, o)
 }
 func (v *fakeValue) RDivide(o Object) (Object, bool, error) {
-	return UserReflected(v, NumRDiv, o)
+	return UserReflected(v, ArithDiv, o)
 }
 func (v *fakeValue) RModulo(o Object) (Object, bool, error) {
-	return UserReflected(v, NumRMod, o)
+	return UserReflected(v, ArithMod, o)
 }
 func (v *fakeValue) Iter() ([]Object, error)            { return UserIter(v) }
 func (v *fakeValue) Index(i Object) (Object, error)     { return UserIndex(v, i) }
@@ -102,14 +102,25 @@ func TestStructuralImpls(t *testing.T) {
 	}
 }
 
-func TestOrdImpliesEq(t *testing.T) {
+func TestOrdOverCompareEq(t *testing.T) {
 	calls := 0
-	money := sealed(t, "Money", []string{"amount"}, ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
-		method("compare", 2, func(args []Object) (Object, error) {
-			calls++
-			return Minus(args[0].(UserValue).FieldValues()[0], args[1])
-		}),
-	}})
+	money := sealed(t, "Money", []string{"amount"},
+		ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
+			method("compare", 2, func(args []Object) (Object, error) {
+				calls++
+				return Minus(args[0].(UserValue).FieldValues()[0], args[1])
+			}),
+		}},
+		ImplSpec{Trait: EqTrait, Methods: []ImplMethod{
+			method("eq", 2, func(args []Object) (Object, error) {
+				c, err := OrdTrait.call(OrdCompare, args)
+				if err != nil {
+					return nil, err
+				}
+				return Bool(c.(Integer) == 0), nil
+			}),
+		}},
+	)
 	m := &fakeValue{typ: money, fields: []Object{Integer(5)}}
 	if eq, err := Equals(m, Integer(5)); err != nil || !eq {
 		t.Fatalf("eq from compare = %v, %v", eq, err)
@@ -117,9 +128,6 @@ func TestOrdImpliesEq(t *testing.T) {
 	// compare raises TypeError for nil, which reads as unequal.
 	if eq, err := Equals(m, Nil); err != nil || eq {
 		t.Fatalf("eq against nil = %v, %v", eq, err)
-	}
-	if got := money.Traits(); len(got) != 2 || got[1] != EqTrait {
-		t.Fatalf("implied Eq must come last: %v", got)
 	}
 	// 10 > m asks m for the mirrored question.
 	if gt, err := Greater(Integer(10), m); err != nil || !gt {
@@ -148,22 +156,32 @@ func TestStrictReturnTypes(t *testing.T) {
 	}
 }
 
-func TestNumDispatch(t *testing.T) {
-	vec := sealed(t, "Vec", []string{"x"}, ImplSpec{Trait: NumTrait, Methods: []ImplMethod{
-		method("add", 2, func(args []Object) (Object, error) {
-			x, err := Add(args[0].(UserValue).FieldValues()[0], args[1].(UserValue).FieldValues()[0])
-			return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{x}}, err
-		}),
-		method("neg", 1, func(args []Object) (Object, error) {
-			return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{-args[0].(UserValue).FieldValues()[0].(Integer)}}, nil
-		}),
-		method("rmul", 2, func(args []Object) (Object, error) { return String("rmul"), nil }),
-	}})
+func TestArithDispatch(t *testing.T) {
+	vec := sealed(t, "Vec", []string{"x"},
+		ImplSpec{Trait: AddTrait, Methods: []ImplMethod{
+			method("add", 2, func(args []Object) (Object, error) {
+				x, err := Add(args[0].(UserValue).FieldValues()[0], args[1].(UserValue).FieldValues()[0])
+				return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{x}}, err
+			}),
+		}},
+		ImplSpec{Trait: NegTrait, Methods: []ImplMethod{
+			method("neg", 1, func(args []Object) (Object, error) {
+				return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{-args[0].(UserValue).FieldValues()[0].(Integer)}}, nil
+			}),
+		}},
+		ImplSpec{Trait: MulTrait, Methods: []ImplMethod{
+			method("mul", 2, func(args []Object) (Object, error) { return String("mul"), nil }),
+			method("rmul", 2, func(args []Object) (Object, error) { return String("rmul"), nil }),
+		}},
+	)
 	v := func(x int64) *fakeValue { return &fakeValue{typ: vec, fields: []Object{Integer(x)}} }
 
-	diff, err := Minus(v(5), v(3))
-	if err != nil || diff.(UserValue).FieldValues()[0] != Integer(2) {
-		t.Fatalf("sub derived from add and neg = %v, %v", diff, err)
+	if sum, err := Add(v(5), v(3)); err != nil || sum.(UserValue).FieldValues()[0] != Integer(8) {
+		t.Fatalf("add = %v, %v", sum, err)
+	}
+	// Sub is a trait of its own: add and neg do not imply it.
+	if _, err := Minus(v(5), v(3)); err == nil || err.Error() != "cannot subtract Vec" {
+		t.Fatalf("missing sub = %v", err)
 	}
 	if r, err := Multiply(Integer(2), v(1)); err != nil || r != String("rmul") {
 		t.Fatalf("reflected mul = %v, %v", r, err)
@@ -201,8 +219,8 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 		{OrdTrait, "min", []Object{Float(2), Integer(1)}, "1"},
 		{ShowTrait, "show", []Object{&List{Elements: []Object{String("x")}}}, `["x"]`},
 		{TruthTrait, "truth", []Object{String("")}, "false"},
-		{NumTrait, "rsub", []Object{Integer(1), Integer(10)}, "9"},
-		{NumTrait, "neg", []Object{Float(2)}, "-2"},
+		{SubTrait, "rsub", []Object{Integer(1), Integer(10)}, "9"},
+		{NegTrait, "neg", []Object{Float(2)}, "-2"},
 		{IterTrait, "iter", []Object{String("ab")}, `["a", "b"]`},
 		{IndexTrait, "get", []Object{&List{Elements: []Object{Integer(7)}}, Integer(0)}, "7"},
 	}
@@ -243,9 +261,10 @@ func TestCheckImpls(t *testing.T) {
 		{[]ImplSpec{spec(ShowTrait), spec(shape)}, "impl Shape for T is missing method 'area'"},
 		{[]ImplSpec{spec(ShowTrait), spec(shape, named("area", 2))}, "impl Shape for T: method 'area' must declare 1 parameters including self, got 2"},
 		{[]ImplSpec{spec(ShowTrait), spec(ShowTrait)}, "duplicate impl Show for T"},
-		{[]ImplSpec{spec(NumTrait)}, "impl Num for T defines no methods"},
+		{[]ImplSpec{spec(AddTrait)}, "impl Add for T is missing method 'add'"},
 		{[]ImplSpec{spec(OrdTrait, named("compare", 2), named("max", 2))}, "impl Ord for T: method 'max' derives from the required methods and cannot be overridden"},
-		{[]ImplSpec{spec(OrdTrait), spec(HashableTrait)}, ""},
+		{[]ImplSpec{spec(EqTrait), spec(OrdTrait), spec(HashableTrait)}, ""},
+		{[]ImplSpec{spec(OrdTrait)}, "impl Ord for T requires impl Eq"},
 		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait)}, "structural Ord requires structural Eq on T"},
 		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait, named("compare", 2)), spec(HashableTrait, named("hash", 1))}, ""},
 	}
@@ -272,7 +291,7 @@ func TestReviewRegressions(t *testing.T) {
 	}
 
 	// A failure on the right side of a reflected ordering is reported.
-	boom := sealed(t, "Boom", nil, ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
+	boom := sealed(t, "Boom", nil, ImplSpec{Trait: EqTrait}, ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
 		method("compare", 2, func([]Object) (Object, error) { return nil, NewZeroDivisionError("division by zero") }),
 	}})
 	if _, err := Less(Integer(1), &fakeValue{typ: boom}); err == nil || !errors.Is(err, ZeroDivisionError) {

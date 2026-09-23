@@ -72,8 +72,8 @@ UUID values implement these built-in traits:
 | `Show` | The canonical lowercase hex-and-dash form. |
 
 `Truth` has no UUID-specific behavior: every UUID is truthy, `NIL` included, so
-compare with `uuid.NIL` explicitly to check for it. `Num`, `Iter` and `Index`
-are not implemented, and using them raises `TypeError`.
+compare with `uuid.NIL` explicitly to check for it. The arithmetic traits,
+`Iter` and `Index` are not implemented, and using them raises `TypeError`.
 
 Go's standard library only generates versions 4 and 7, so name-based (3, 5) and
 MAC-address based (1, 6) UUIDs are not available. UUIDs of those versions can

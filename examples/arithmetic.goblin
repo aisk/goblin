@@ -36,9 +36,9 @@ var x = 17
 print(x % 5)
 print(100 % 7)
 
-# Custom and reflected modulo through Num
+# Custom and reflected modulo through Mod
 type Cycle(size) {
-    impl Num {
+    impl Mod {
         func mod(self, other) {
             return self.size % other
         }

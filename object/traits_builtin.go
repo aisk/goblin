@@ -26,19 +26,23 @@ const ShowShow = 0
 
 const TruthTruth = 0
 
+// The binary arithmetic operators, in the order of ArithTraits.
 const (
-	NumAdd = iota
-	NumSub
-	NumMul
-	NumDiv
-	NumMod
-	NumNeg
-	NumRAdd
-	NumRSub
-	NumRMul
-	NumRDiv
-	NumRMod
+	ArithAdd = iota
+	ArithSub
+	ArithMul
+	ArithDiv
+	ArithMod
 )
+
+// Method indexes of the binary arithmetic traits: the operator with the value
+// on the left, then the reflected one with the value on the right.
+const (
+	ArithForward = iota
+	ArithReflected
+)
+
+const NegNeg = 0
 
 const IterIter = 0
 
@@ -56,10 +60,19 @@ var (
 	HashableTrait = &Trait{Name: "Hashable"}
 	ShowTrait     = &Trait{Name: "Show"}
 	TruthTrait    = &Trait{Name: "Truth"}
-	NumTrait      = &Trait{Name: "Num"}
+	AddTrait      = &Trait{Name: "Add"}
+	SubTrait      = &Trait{Name: "Sub"}
+	MulTrait      = &Trait{Name: "Mul"}
+	DivTrait      = &Trait{Name: "Div"}
+	ModTrait      = &Trait{Name: "Mod"}
+	NegTrait      = &Trait{Name: "Neg"}
 	IterTrait     = &Trait{Name: "Iter"}
 	IndexTrait    = &Trait{Name: "Index"}
 )
+
+// ArithTraits are the binary arithmetic traits, indexed by ArithAdd ...
+// ArithMod.
+var ArithTraits = [...]*Trait{AddTrait, SubTrait, MulTrait, DivTrait, ModTrait}
 
 // BuiltinTraits lists the built-in traits by their global names.
 var BuiltinTraits = map[string]*Trait{
@@ -68,7 +81,12 @@ var BuiltinTraits = map[string]*Trait{
 	"Hashable": HashableTrait,
 	"Show":     ShowTrait,
 	"Truth":    TruthTrait,
-	"Num":      NumTrait,
+	"Add":      AddTrait,
+	"Sub":      SubTrait,
+	"Mul":      MulTrait,
+	"Div":      DivTrait,
+	"Mod":      ModTrait,
+	"Neg":      NegTrait,
 	"Iter":     IterTrait,
 	"Index":    IndexTrait,
 }
@@ -92,7 +110,7 @@ func init() {
 		b, err := args[0].ToBool()
 		return Bool(b), err
 	}}
-	initNum()
+	initArith()
 	IterTrait.init(nil, []TraitMethod{{Name: "iter", Arity: 1, Required: true}})
 	IterTrait.route = []func([]Object) (Object, error){func(args []Object) (Object, error) {
 		items, err := args[0].Iter()
@@ -188,49 +206,36 @@ func initShow() {
 	})}
 }
 
-func initNum() {
-	unsupported := func(name, format string) *Function {
-		return goFn(name, func(args []Object) (Object, error) {
-			return nil, NewTypeError(format, args[0].TypeName())
+func initArith() {
+	ops := [...]struct {
+		name, errFmt string
+		op           func(a, b Object) (Object, error)
+	}{
+		ArithAdd: {"add", ErrFmtCannotAdd, Add},
+		ArithSub: {"sub", ErrFmtCannotSubtract, Minus},
+		ArithMul: {"mul", ErrFmtCannotMultiply, Multiply},
+		ArithDiv: {"div", ErrFmtCannotDivide, Divide},
+		ArithMod: {"mod", ErrFmtCannotModulo, Modulo},
+	}
+	for i, o := range ops {
+		o := o
+		// The reflected method is optional; without it a value on the right
+		// leaves the left operand's error standing, and calling it directly
+		// raises the operator's TypeError.
+		reflected := "r" + o.name
+		ArithTraits[i].init(nil, []TraitMethod{
+			{Name: o.name, Arity: 2, Required: true},
+			{Name: reflected, Arity: 2, Default: goFn(reflected, func(args []Object) (Object, error) {
+				return nil, NewTypeError(o.errFmt, args[0].TypeName())
+			})},
 		})
-	}
-	binary := func(name, format string) TraitMethod {
-		return TraitMethod{Name: name, Arity: 2, Default: unsupported(name, format)}
-	}
-	// sub derives from add and neg when the impl supplies both.
-	sub := TraitMethod{Name: "sub", Arity: 2, Default: goFn("sub", func(args []Object) (Object, error) {
-		if uv, ok := args[0].(UserValue); ok {
-			if impl := uv.UserType().num; impl != nil && impl.supplies(NumAdd) && impl.supplies(NumNeg) {
-				neg, err := NumTrait.call(NumNeg, args[1:])
-				if err != nil {
-					return nil, err
-				}
-				return impl.call(uv, NumAdd, []Object{uv, neg})
-			}
+		ArithTraits[i].route = []func([]Object) (Object, error){
+			func(args []Object) (Object, error) { return o.op(args[0], args[1]) },
+			func(args []Object) (Object, error) { return o.op(args[1], args[0]) },
 		}
-		return nil, NewTypeError(ErrFmtCannotSubtract, args[0].TypeName())
-	})}
-	NumTrait.init(nil, []TraitMethod{
-		binary("add", ErrFmtCannotAdd),
-		sub,
-		binary("mul", ErrFmtCannotMultiply),
-		binary("div", ErrFmtCannotDivide),
-		binary("mod", ErrFmtCannotModulo),
-		{Name: "neg", Arity: 1, Default: unsupported("neg", ErrFmtCannotNegate)},
-		binary("radd", ErrFmtCannotAdd),
-		binary("rsub", ErrFmtCannotSubtract),
-		binary("rmul", ErrFmtCannotMultiply),
-		binary("rdiv", ErrFmtCannotDivide),
-		binary("rmod", ErrFmtCannotModulo),
-	})
-	ops := []func(a, b Object) (Object, error){Add, Minus, Multiply, Divide, Modulo}
-	NumTrait.route = make([]func([]Object) (Object, error), len(NumTrait.Methods))
-	for i, op := range ops {
-		op := op
-		NumTrait.route[NumAdd+i] = func(args []Object) (Object, error) { return op(args[0], args[1]) }
-		NumTrait.route[NumRAdd+i] = func(args []Object) (Object, error) { return op(args[1], args[0]) }
 	}
-	NumTrait.route[NumNeg] = func(args []Object) (Object, error) { return Negate(args[0]) }
+	NegTrait.init(nil, []TraitMethod{{Name: "neg", Arity: 1, Required: true}})
+	NegTrait.route = []func([]Object) (Object, error){func(args []Object) (Object, error) { return Negate(args[0]) }}
 }
 
 func initIndex() {
@@ -251,19 +256,6 @@ func initIndex() {
 		},
 	}
 }
-
-// eqFromOrd is the Eq a type implementing Ord without Eq receives: compare
-// answering 0. A compare that does not know other reads as unequal.
-var eqFromOrd = goFn("eq", func(args []Object) (Object, error) {
-	c, err := OrdTrait.call(OrdCompare, args)
-	if err != nil {
-		if notHandled(err) {
-			return False, nil
-		}
-		return nil, err
-	}
-	return Bool(c.(Integer) == 0), nil
-})
 
 // sameUserType reports whether other is a value of v's type.
 func sameUserType(v UserValue, other Object) (UserValue, bool) {

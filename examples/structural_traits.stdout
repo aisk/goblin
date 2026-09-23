@@ -13,6 +13,6 @@ unhashable dict key: [1]
 cannot compare List and Dict
 cannot compare Point and Bag
 5
-true [<trait Ord>, <trait Eq>]
+true [<trait Eq>, <trait Ord>]
 true true
 true found

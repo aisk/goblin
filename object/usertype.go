@@ -28,7 +28,8 @@ type UserType struct {
 	byTrait map[*Trait]*TraitImpl
 	// The built-in traits' impls, cached so an operator does not pay for a
 	// map lookup.
-	eq, ord, hashable, show, truth, num, iter, index *TraitImpl
+	eq, ord, hashable, show, truth, neg, iter, index *TraitImpl
+	arith                                            [len(ArithTraits)]*TraitImpl
 }
 
 // TraitImpl is one type's implementation of one trait.
@@ -67,7 +68,7 @@ func (t *UserType) Implement(trait *Trait, methods []ImplMethod) {
 }
 
 // Seal validates the recorded impls and builds the dispatch tables, filling in
-// structural implementations and the Eq that an Ord impl implies.
+// structural implementations.
 func (t *UserType) Seal() error {
 	specs := t.pending
 	t.pending = nil
@@ -90,16 +91,6 @@ func (t *UserType) Seal() error {
 		}
 		t.add(impl)
 	}
-	if t.ord != nil && t.eq == nil {
-		// A structural Ord implies the structural Eq, which also works for
-		// fields that can be compared for equality but not ordered; a custom
-		// compare implies an eq answering compare == 0.
-		eq := eqFromOrd
-		if t.ord.methods[OrdCompare] == OrdTrait.structural[OrdCompare] {
-			eq = EqTrait.structural[EqEq]
-		}
-		t.add(&TraitImpl{Trait: EqTrait, methods: []*Function{eq, nil}})
-	}
 	return nil
 }
 
@@ -117,12 +108,17 @@ func (t *UserType) add(impl *TraitImpl) {
 		t.show = impl
 	case TruthTrait:
 		t.truth = impl
-	case NumTrait:
-		t.num = impl
+	case NegTrait:
+		t.neg = impl
 	case IterTrait:
 		t.iter = impl
 	case IndexTrait:
 		t.index = impl
+	}
+	for i, tr := range ArithTraits {
+		if impl.Trait == tr {
+			t.arith[i] = impl
+		}
 	}
 }
 
@@ -131,8 +127,7 @@ func (t *UserType) Impl(trait *Trait) *TraitImpl {
 	return t.byTrait[trait]
 }
 
-// Traits lists the implemented traits in declaration order, an Eq implied by
-// Ord last.
+// Traits lists the implemented traits in declaration order.
 func (t *UserType) Traits() []*Trait {
 	traits := make([]*Trait, len(t.impls))
 	for i, impl := range t.impls {
@@ -229,9 +224,6 @@ func CheckImpls(typeName string, impls []ImplSpec) *ImplIssue {
 				return &ImplIssue{i, j, fmt.Sprintf("impl %s for %s: method '%s' must declare %d parameters including self, got %d", tr.Name, typeName, m.Name, want, m.Arity)}
 			}
 		}
-		if tr == NumTrait && len(spec.Methods) == 0 {
-			return &ImplIssue{i, -1, fmt.Sprintf("impl Num for %s defines no methods", typeName)}
-		}
 		if tr.structural != nil && !suppliesRequired(spec) {
 			structural[tr] = true
 			continue
@@ -243,22 +235,18 @@ func CheckImpls(typeName string, impls []ImplSpec) *ImplIssue {
 		}
 	}
 
-	_, hasOrd := seen[OrdTrait]
 	for i, spec := range impls {
 		for _, dep := range spec.Trait.Deps {
-			if _, ok := seen[dep]; ok || (dep == EqTrait && hasOrd) {
+			if _, ok := seen[dep]; ok {
 				continue
 			}
 			return &ImplIssue{i, -1, fmt.Sprintf("impl %s for %s requires impl %s", spec.Trait.Name, typeName, dep.Name)}
 		}
 	}
 
-	// An Eq implied by Ord is as structural as that Ord.
-	_, hasEq := seen[EqTrait]
-	eqStructural := structural[EqTrait] || (!hasEq && structural[OrdTrait])
 	for _, tr := range []*Trait{OrdTrait, HashableTrait} {
 		i, ok := seen[tr]
-		if !ok || !structural[tr] || eqStructural {
+		if !ok || !structural[tr] || structural[EqTrait] {
 			continue
 		}
 		return &ImplIssue{i, -1, fmt.Sprintf("structural %s requires structural Eq on %s", tr.Name, typeName)}
@@ -335,33 +323,33 @@ func UserCompare(v UserValue, other Object) (int, error) {
 	return int(r.(Integer)), nil
 }
 
-var numErrFmts = [...]string{
-	NumAdd: ErrFmtCannotAdd,
-	NumSub: ErrFmtCannotSubtract,
-	NumMul: ErrFmtCannotMultiply,
-	NumDiv: ErrFmtCannotDivide,
-	NumMod: ErrFmtCannotModulo,
+var arithErrFmts = [...]string{
+	ArithAdd: ErrFmtCannotAdd,
+	ArithSub: ErrFmtCannotSubtract,
+	ArithMul: ErrFmtCannotMultiply,
+	ArithDiv: ErrFmtCannotDivide,
+	ArithMod: ErrFmtCannotModulo,
 }
 
-// UserArith performs a binary operator with v on the left through Num. method
-// is NumAdd, NumSub, NumMul, NumDiv or NumMod.
-func UserArith(v UserValue, method int, other Object) (Object, error) {
-	impl := v.UserType().num
+// UserArith performs a binary operator with v on the left through its
+// arithmetic trait. op is ArithAdd, ArithSub, ArithMul, ArithDiv or ArithMod.
+func UserArith(v UserValue, op int, other Object) (Object, error) {
+	impl := v.UserType().arith[op]
 	if impl == nil {
-		return nil, NewTypeError(numErrFmts[method], v.TypeName())
+		return nil, NewTypeError(arithErrFmts[op], v.TypeName())
 	}
-	return impl.call(v, method, []Object{v, other})
+	return impl.call(v, ArithForward, []Object{v, other})
 }
 
 // UserReflected performs a binary operator with v on the right, through the
-// reflected Num method (NumRAdd ... NumRMod). handled is false when the impl
+// trait's reflected method (radd ... rmod). handled is false when the impl
 // does not define it, so the left operand's error stands.
-func UserReflected(v UserValue, method int, left Object) (result Object, handled bool, err error) {
-	impl := v.UserType().num
-	if impl == nil || !impl.supplies(method) {
+func UserReflected(v UserValue, op int, left Object) (result Object, handled bool, err error) {
+	impl := v.UserType().arith[op]
+	if impl == nil || !impl.supplies(ArithReflected) {
 		return nil, false, nil
 	}
-	result, err = impl.call(v, method, []Object{v, left})
+	result, err = impl.call(v, ArithReflected, []Object{v, left})
 	return result, true, err
 }
 
