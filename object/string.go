@@ -383,7 +383,7 @@ func (s String) Add(other Object) (Object, error) {
 }
 
 func (s String) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract from String")
+	return nil, NewUnsupportedError("String", "cannot subtract from String")
 }
 
 func (s String) Multiply(other Object) (Object, error) {
@@ -410,11 +410,11 @@ func (s String) RMultiply(left Object) (Object, bool, error) {
 }
 
 func (s String) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide String")
+	return nil, NewUnsupportedError("String", "cannot divide String")
 }
 
 func (s String) Modulo(other Object) (Object, error) {
-	return nil, NewTypeError("cannot modulo String")
+	return nil, NewUnsupportedError("String", "cannot modulo String")
 }
 
 // A named string type cannot embed NoAssignment and NoReflectedOps. Only
@@ -437,7 +437,7 @@ func (s String) Iter() ([]Object, error) {
 }
 
 func (s String) Index(index Object) (Object, error) {
-	return nil, NewTypeError("String is not indexable")
+	return nil, NewUnsupportedError("String", "String is not indexable")
 }
 
 func (s String) GetAttr(name string) (Object, error) {

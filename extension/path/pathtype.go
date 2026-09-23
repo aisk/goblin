@@ -74,13 +74,13 @@ func (p *Path) Compare(other object.Object) (int, error) {
 }
 
 func (p *Path) Add(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot add Path")
+	return nil, object.NewUnsupportedError("Path", "cannot add Path")
 }
 func (p *Path) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot subtract from Path")
+	return nil, object.NewUnsupportedError("Path", "cannot subtract from Path")
 }
 func (p *Path) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot multiply Path")
+	return nil, object.NewUnsupportedError("Path", "cannot multiply Path")
 }
 
 // Divide overloads `/` as path joining, so `Path("/tmp") / "log" / "a.txt"`
@@ -94,14 +94,14 @@ func (p *Path) Divide(other object.Object) (object.Object, error) {
 }
 
 func (p *Path) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("cannot modulo Path")
+	return nil, object.NewUnsupportedError("Path", "cannot modulo Path")
 }
 
 func (p *Path) Iter() ([]object.Object, error) {
-	return nil, object.NewTypeError("Path is not iterable; use iterdir() to list a directory")
+	return nil, object.NewUnsupportedError("Path", "Path is not iterable; use iterdir() to list a directory")
 }
 func (p *Path) Index(object.Object) (object.Object, error) {
-	return nil, object.NewTypeError("Path is not indexable")
+	return nil, object.NewUnsupportedError("Path", "Path is not indexable")
 }
 
 func (p *Path) GetAttr(name string) (object.Object, error) {

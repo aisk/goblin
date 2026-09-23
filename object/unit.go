@@ -34,31 +34,31 @@ func (n Unit) Compare(other Object) (int, error) {
 }
 
 func (n Unit) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add to Nil")
+	return nil, NewUnsupportedError("Nil", "cannot add to Nil")
 }
 
 func (n Unit) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract from Nil")
+	return nil, NewUnsupportedError("Nil", "cannot subtract from Nil")
 }
 
 func (n Unit) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Nil")
+	return nil, NewUnsupportedError("Nil", "cannot multiply Nil")
 }
 
 func (n Unit) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide Nil")
+	return nil, NewUnsupportedError("Nil", "cannot divide Nil")
 }
 
 func (n Unit) Modulo(other Object) (Object, error) {
-	return nil, NewTypeError("cannot modulo Nil")
+	return nil, NewUnsupportedError("Nil", "cannot modulo Nil")
 }
 
 func (n Unit) Iter() ([]Object, error) {
-	return nil, NewTypeError("Nil does not support iteration")
+	return nil, NewUnsupportedError("Nil", "Nil does not support iteration")
 }
 
 func (n Unit) Index(index Object) (Object, error) {
-	return nil, NewTypeError("Nil is not indexable")
+	return nil, NewUnsupportedError("Nil", "Nil is not indexable")
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {

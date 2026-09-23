@@ -105,7 +105,11 @@ func (t *Trait) call(i int, args []Object) (Object, error) {
 	}
 	if t.route != nil {
 		if r := t.route[i]; r != nil {
-			return r(args)
+			result, err := r(args)
+			if err != nil && isUnsupported(err, recv) {
+				return nil, NewTypeError(ErrFmtNotImplemented, recv.TypeName(), t.Name)
+			}
+			return result, err
 		}
 		if d := t.Methods[i].Default; d != nil {
 			return d.Call(CallArgs{Positional: args})
@@ -131,26 +135,28 @@ func (t *Trait) Equals(other Object) (bool, error) {
 func (t *Trait) Hash() (uint64, error) { return identityHash(t), nil }
 
 func (t *Trait) Compare(Object) (int, error) {
-	return 0, NewTypeError(ErrFmtCannotCompare, "Trait")
+	return 0, NewUnsupportedError("Trait", ErrFmtCannotCompare, "Trait")
 }
-func (t *Trait) Add(Object) (Object, error) { return nil, NewTypeError(ErrFmtCannotAdd, "Trait") }
+func (t *Trait) Add(Object) (Object, error) {
+	return nil, NewUnsupportedError("Trait", ErrFmtCannotAdd, "Trait")
+}
 func (t *Trait) Minus(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotSubtract, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtCannotSubtract, "Trait")
 }
 func (t *Trait) Multiply(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotMultiply, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtCannotMultiply, "Trait")
 }
 func (t *Trait) Divide(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotDivide, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtCannotDivide, "Trait")
 }
 func (t *Trait) Modulo(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotModulo, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtCannotModulo, "Trait")
 }
 func (t *Trait) Iter() ([]Object, error) {
-	return nil, NewTypeError(ErrFmtNotIterable, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtNotIterable, "Trait")
 }
 func (t *Trait) Index(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtNotIndexable, "Trait")
+	return nil, NewUnsupportedError("Trait", ErrFmtNotIndexable, "Trait")
 }
 
 func (t *Trait) GetAttr(name string) (Object, error) {

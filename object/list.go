@@ -292,7 +292,7 @@ func (l *List) Add(other Object) (Object, error) {
 }
 
 func (l *List) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract from List")
+	return nil, NewUnsupportedError("List", "cannot subtract from List")
 }
 
 func (l *List) Multiply(other Object) (Object, error) {
@@ -322,11 +322,11 @@ func (l *List) RMultiply(left Object) (Object, bool, error) {
 }
 
 func (l *List) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide List")
+	return nil, NewUnsupportedError("List", "cannot divide List")
 }
 
 func (l *List) Modulo(other Object) (Object, error) {
-	return nil, NewTypeError("cannot modulo List")
+	return nil, NewUnsupportedError("List", "cannot modulo List")
 }
 
 func (l *List) Iter() ([]Object, error) {

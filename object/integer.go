@@ -76,11 +76,11 @@ func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, ni
 func (i Integer) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (i Integer) Iter() ([]Object, error) {
-	return nil, NewTypeError("Integer does not support iteration")
+	return nil, NewUnsupportedError("Integer", "Integer does not support iteration")
 }
 
 func (i Integer) Index(index Object) (Object, error) {
-	return nil, NewTypeError("Integer is not indexable")
+	return nil, NewUnsupportedError("Integer", "Integer is not indexable")
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {

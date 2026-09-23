@@ -99,7 +99,11 @@ print(Ord.max(3, 7))                    # built-in traits work on built-in value
 The call runs the receiver's implementation, or the trait's default when the
 impl does not override it. A value without an impl raises
 `TypeError: Integer does not implement Shape`, and a wrong argument count
-raises TypeError too.
+raises TypeError too. Built-in values answer the same way for a built-in trait
+their type lacks: `Neg.neg("a")` raises `String does not implement Neg`. A type
+that implements the trait but cannot combine with this particular operand keeps
+the operator's message, so `Ord.compare([1], {})` raises
+`cannot compare List and Dict`.
 
 Default methods call their siblings the same way, as `Shape.area(self)`.
 `value.traits()` returns the traits a user type implements, in declaration

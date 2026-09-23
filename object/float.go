@@ -76,11 +76,11 @@ func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil 
 func (f Float) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (f Float) Iter() ([]Object, error) {
-	return nil, NewTypeError("Float does not support iteration")
+	return nil, NewUnsupportedError("Float", "Float does not support iteration")
 }
 
 func (f Float) Index(index Object) (Object, error) {
-	return nil, NewTypeError("Float is not indexable")
+	return nil, NewUnsupportedError("Float", "Float is not indexable")
 }
 
 func (f Float) GetAttr(name string) (Object, error) {

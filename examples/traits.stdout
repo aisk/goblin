@@ -11,6 +11,9 @@ BEEP unit 1
 -1 b false
 3 9 [1, "a"] false
 ["a", "b"] 6
+Function does not implement Ord
+String does not implement Neg
+cannot compare List and Dict
 Square(side=3) has area 9
 Circle(2) has area 12
 Integer does not implement Named

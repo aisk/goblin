@@ -80,6 +80,15 @@ print(greeters[0](Robot(1)))
 print(Ord.compare(1, 2), Ord.max("a", "b"), Eq.ne(1, 1.0))
 print(Add.add(1, 2), Sub.rsub(1, 10), Show.show([1, "a"]), Truth.truth(""))
 print(Iter.iter("ab"), Index.get([5, 6], 1))
+# A built-in type without the operation reports the missing trait, while a
+# type that has it but rejects the operand keeps the operator's message.
+for call in [func() { return Ord.compare(print, print) }, func() { return Neg.neg("a") }, func() { return Ord.compare([1], {}) }] {
+    try {
+        call()
+    } catch e {
+        print(e)
+    }
+}
 
 # A trait imported from another module.
 var sq = shapes.Square(3)

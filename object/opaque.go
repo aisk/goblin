@@ -25,33 +25,33 @@ func (b OpaqueBase) ToBool() (bool, error) { return true, nil }
 func (b OpaqueBase) Equals(Object) (bool, error) { return false, nil }
 
 func (b OpaqueBase) Compare(Object) (int, error) {
-	return 0, NewTypeError(ErrFmtCannotCompare, b.typeName)
+	return 0, NewUnsupportedError(b.typeName, ErrFmtCannotCompare, b.typeName)
 }
 
 func (b OpaqueBase) Add(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotAdd, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtCannotAdd, b.typeName)
 }
 
 func (b OpaqueBase) Minus(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotSubtract, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtCannotSubtract, b.typeName)
 }
 
 func (b OpaqueBase) Multiply(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotMultiply, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtCannotMultiply, b.typeName)
 }
 
 func (b OpaqueBase) Divide(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotDivide, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtCannotDivide, b.typeName)
 }
 
 func (b OpaqueBase) Modulo(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtCannotModulo, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtCannotModulo, b.typeName)
 }
 
 func (b OpaqueBase) Iter() ([]Object, error) {
-	return nil, NewTypeError(ErrFmtNotIterable, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtNotIterable, b.typeName)
 }
 
 func (b OpaqueBase) Index(Object) (Object, error) {
-	return nil, NewTypeError(ErrFmtNotIndexable, b.typeName)
+	return nil, NewUnsupportedError(b.typeName, ErrFmtNotIndexable, b.typeName)
 }

@@ -63,19 +63,19 @@ func (b Bool) Add(other Object) (Object, error) {
 }
 
 func (b Bool) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract from Bool")
+	return nil, NewUnsupportedError("Bool", "cannot subtract from Bool")
 }
 
 func (b Bool) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Bool")
+	return nil, NewUnsupportedError("Bool", "cannot multiply Bool")
 }
 
 func (b Bool) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide Bool")
+	return nil, NewUnsupportedError("Bool", "cannot divide Bool")
 }
 
 func (b Bool) Modulo(other Object) (Object, error) {
-	return nil, NewTypeError("cannot modulo Bool")
+	return nil, NewUnsupportedError("Bool", "cannot modulo Bool")
 }
 
 // A named bool type cannot embed NoAssignment and NoReflectedOps, so Bool
@@ -89,11 +89,11 @@ func (b Bool) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (b Bool) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (b Bool) Iter() ([]Object, error) {
-	return nil, NewTypeError("Bool does not support iteration")
+	return nil, NewUnsupportedError("Bool", "Bool does not support iteration")
 }
 
 func (b Bool) Index(index Object) (Object, error) {
-	return nil, NewTypeError("Bool is not indexable")
+	return nil, NewUnsupportedError("Bool", "Bool is not indexable")
 }
 
 func (b Bool) GetAttr(name string) (Object, error) {

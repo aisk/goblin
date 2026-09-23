@@ -91,35 +91,35 @@ func (e *Error) Equals(other Object) (bool, error) {
 func (e *Error) Hash() (uint64, error) { return identityHash(e), nil }
 
 func (e *Error) Compare(other Object) (int, error) {
-	return 0, NewTypeError("cannot compare Error and %s", other.TypeName())
+	return 0, NewUnsupportedError("Error", "cannot compare Error and %s", other.TypeName())
 }
 
 func (e *Error) Add(other Object) (Object, error) {
-	return nil, NewTypeError("cannot add Error and %s", other.TypeName())
+	return nil, NewUnsupportedError("Error", "cannot add Error and %s", other.TypeName())
 }
 
 func (e *Error) Minus(other Object) (Object, error) {
-	return nil, NewTypeError("cannot subtract Error and %s", other.TypeName())
+	return nil, NewUnsupportedError("Error", "cannot subtract Error and %s", other.TypeName())
 }
 
 func (e *Error) Multiply(other Object) (Object, error) {
-	return nil, NewTypeError("cannot multiply Error and %s", other.TypeName())
+	return nil, NewUnsupportedError("Error", "cannot multiply Error and %s", other.TypeName())
 }
 
 func (e *Error) Divide(other Object) (Object, error) {
-	return nil, NewTypeError("cannot divide Error and %s", other.TypeName())
+	return nil, NewUnsupportedError("Error", "cannot divide Error and %s", other.TypeName())
 }
 
 func (e *Error) Modulo(other Object) (Object, error) {
-	return nil, NewTypeError("cannot modulo Error and %s", other.TypeName())
+	return nil, NewUnsupportedError("Error", "cannot modulo Error and %s", other.TypeName())
 }
 
 func (e *Error) Iter() ([]Object, error) {
-	return nil, NewTypeError("Error does not support iteration")
+	return nil, NewUnsupportedError("Error", "Error does not support iteration")
 }
 
 func (e *Error) Index(index Object) (Object, error) {
-	return nil, NewTypeError("Error is not indexable")
+	return nil, NewUnsupportedError("Error", "Error is not indexable")
 }
 
 func (e *Error) Error() string {

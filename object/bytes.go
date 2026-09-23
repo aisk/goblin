@@ -45,10 +45,18 @@ func (b Bytes) Add(other Object) (Object, error) {
 	return Bytes(result), nil
 }
 
-func (b Bytes) Minus(Object) (Object, error)    { return nil, NewTypeError("cannot subtract from Bytes") }
-func (b Bytes) Multiply(Object) (Object, error) { return nil, NewTypeError("cannot multiply Bytes") }
-func (b Bytes) Divide(Object) (Object, error)   { return nil, NewTypeError("cannot divide Bytes") }
-func (b Bytes) Modulo(Object) (Object, error)   { return nil, NewTypeError("cannot modulo Bytes") }
+func (b Bytes) Minus(Object) (Object, error) {
+	return nil, NewUnsupportedError("Bytes", "cannot subtract from Bytes")
+}
+func (b Bytes) Multiply(Object) (Object, error) {
+	return nil, NewUnsupportedError("Bytes", "cannot multiply Bytes")
+}
+func (b Bytes) Divide(Object) (Object, error) {
+	return nil, NewUnsupportedError("Bytes", "cannot divide Bytes")
+}
+func (b Bytes) Modulo(Object) (Object, error) {
+	return nil, NewUnsupportedError("Bytes", "cannot modulo Bytes")
+}
 
 // A named slice type cannot embed NoAssignment and NoReflectedOps, so Bytes
 // declines assignment and the reflected operators itself.

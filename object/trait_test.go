@@ -304,3 +304,32 @@ func TestReviewRegressions(t *testing.T) {
 		t.Fatal("calling a method without a receiver must fail")
 	}
 }
+
+func TestBuiltinValueMissingTrait(t *testing.T) {
+	fn := &Function{Name: "f"}
+	call := func(tr *Trait, method string, args ...Object) error {
+		i, _ := tr.MethodIndex(method)
+		_, err := tr.Invoke(i, CallArgs{Positional: args})
+		return err
+	}
+	cases := []struct {
+		err  error
+		want string
+	}{
+		{call(OrdTrait, "compare", fn, fn), "Function does not implement Ord"},
+		{call(OrdTrait, "lt", &Dict{}, &Dict{}), "Dict does not implement Ord"},
+		{call(NegTrait, "neg", String("a")), "String does not implement Neg"},
+		// The receiver implements the trait; only the operand is wrong.
+		{call(OrdTrait, "compare", &List{}, &Dict{}), "cannot compare List and Dict"},
+		// radd on an Integer computes fn + 1: the failing type is not the receiver.
+		{call(AddTrait, "radd", Integer(1), fn), "cannot add Function"},
+	}
+	for _, tc := range cases {
+		if tc.err == nil || tc.err.Error() != tc.want {
+			t.Errorf("error = %v, want %q", tc.err, tc.want)
+		}
+		if !errors.Is(tc.err, TypeError) {
+			t.Errorf("%v should be a TypeError", tc.err)
+		}
+	}
+}
