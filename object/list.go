@@ -670,7 +670,7 @@ func (l *List) sumMethod(args CallArgs) (Object, error) {
 	var res Object = Integer(0)
 	for _, e := range l.Elements {
 		var err error
-		res, err = res.Add(e)
+		res, err = Add(res, e)
 		if err != nil {
 			return nil, err
 		}

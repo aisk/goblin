@@ -84,6 +84,20 @@ var versions = [Version(2, 0), Version(1, 3), Version(1, 2)]
 versions.sort()
 print(versions, min(*versions))
 
+# sum() starts from 0, so the first addition reaches the value through radd.
+type Cents(n) {
+    impl Add {
+        func add(self, other) {
+            return Cents(self.n + other.n)
+        }
+        func radd(self, other) {
+            return Cents(other + self.n)
+        }
+    }
+    impl Show {}
+}
+print([Cents(5), Cents(7)].sum())
+
 # Iteration and indexing. An Index impl without set is read-only.
 type Grid(cells) {
     impl Index {
