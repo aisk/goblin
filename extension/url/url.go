@@ -46,7 +46,7 @@ func joinPath(args object.CallArgs) (object.Object, error) {
 	for i, item := range list.Elements {
 		value, ok := item.(object.String)
 		if !ok {
-			return nil, object.NewTypeError("join_path() argument 'elements' must contain strings, got %s at index %d", item.TypeName(), i)
+			return nil, object.NewTypeError("join_path() argument 'elements' must be String, got %s at index %d", item.TypeName(), i)
 		}
 		elements[i] = string(value)
 	}

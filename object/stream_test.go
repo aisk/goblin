@@ -102,7 +102,7 @@ func TestDuckWriterRejectsBadReturnAndCounts(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewDuckWriter() error = %v", err)
 	}
-	if _, err := writer.Write([]byte("data")); err == nil || !strings.Contains(err.Error(), "must return int or nil") {
+	if _, err := writer.Write([]byte("data")); err == nil || !strings.Contains(err.Error(), "must return Integer or Nil") {
 		t.Fatalf("Write() error = %v, want return-type TypeError", err)
 	}
 

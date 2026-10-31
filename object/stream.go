@@ -145,7 +145,7 @@ func (r *DuckReader) Read(p []byte) (int, error) {
 		case String:
 			r.pending = append(r.pending, []byte(v)...)
 		default:
-			return 0, NewTypeError("%s() argument '%s' read(size) must return Bytes, str, or nil, got %s", r.fn, r.param, value.TypeName())
+			return 0, NewTypeError("%s() argument '%s' read(size) must return Bytes, String, or Nil, got %s", r.fn, r.param, value.TypeName())
 		}
 		if len(r.pending) == 0 {
 			r.eof = true
@@ -218,7 +218,7 @@ func (w *DuckWriter) Write(p []byte) (int, error) {
 			}
 			written += int(v)
 		default:
-			return written, NewTypeError("%s() argument '%s' write(data) must return int or nil, got %s", w.fn, w.param, value.TypeName())
+			return written, NewTypeError("%s() argument '%s' write(data) must return Integer or Nil, got %s", w.fn, w.param, value.TypeName())
 		}
 	}
 	return len(p), nil

@@ -36,7 +36,7 @@ func zipWriteAll(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	var output bytes.Buffer
-	sink, err := archive.Dest(destObj, &output)
+	sink, err := archive.Dest("write_all", destObj, &output)
 	if err != nil {
 		return nil, err
 	}

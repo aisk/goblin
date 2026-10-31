@@ -33,7 +33,7 @@ func Files(name string, value object.Object) ([]Entry, error) {
 	for _, entry := range dict.Entries() {
 		filename, ok := entry.Key.(object.String)
 		if !ok {
-			return nil, object.NewTypeError("%s() file names must be strings, got %s", name, entry.Key.TypeName())
+			return nil, object.NewTypeError("%s() file names must be String, got %s", name, entry.Key.TypeName())
 		}
 		switch content := entry.Value.(type) {
 		case object.Bytes:
@@ -41,7 +41,7 @@ func Files(name string, value object.Object) ([]Entry, error) {
 		case object.String:
 			entries = append(entries, Entry{string(filename), []byte(content)})
 		default:
-			return nil, object.NewTypeError("%s() file %q must contain Bytes or str, got %s", name, filename, entry.Value.TypeName())
+			return nil, object.NewTypeError("%s() file %q must contain Bytes or String, got %s", name, filename, entry.Value.TypeName())
 		}
 	}
 	return entries, nil
@@ -58,12 +58,12 @@ func Dict(entries []Entry) (*object.Dict, error) {
 	return result, nil
 }
 
-// Dest resolves the optional dest keyword shared by the write_all functions:
-// nil keeps buffering into output, anything else must be a duck writer that
-// receives the archive bytes instead.
-func Dest(destObj object.Object, output *bytes.Buffer) (io.Writer, error) {
+// Dest resolves the optional dest keyword of function name: nil keeps
+// buffering into output, anything else must be a duck writer that receives
+// the archive bytes instead.
+func Dest(name string, destObj object.Object, output *bytes.Buffer) (io.Writer, error) {
 	if _, ok := destObj.(object.Unit); ok {
 		return output, nil
 	}
-	return object.NewDuckWriter("write_all", "dest", destObj)
+	return object.NewDuckWriter(name, "dest", destObj)
 }
