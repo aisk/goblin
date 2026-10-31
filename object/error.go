@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"net"
 	"strings"
 )
 
@@ -345,6 +344,17 @@ func NewTimeoutError(format string, a ...any) *Error {
 	return typedError(TimeoutError, format, a...)
 }
 
+// networkError has the method set of net.Error. Matching it structurally
+// classifies exactly the errors net.Error would without linking the net
+// package into every compiled program.
+type networkError interface {
+	error
+	Timeout() bool
+	Temporary() bool
+}
+
+// ErrorKind maps a native Go error to the Goblin error kind it represents,
+// or fallback when it is none of the recognized kinds.
 func ErrorKind(err error, fallback *Error) *Error {
 	if errors.Is(err, fs.ErrNotExist) {
 		return NotExistError
@@ -355,7 +365,7 @@ func ErrorKind(err error, fallback *Error) *Error {
 	if errors.Is(err, fs.ErrPermission) {
 		return PermissionError
 	}
-	var netErr net.Error
+	var netErr networkError
 	if errors.As(err, &netErr) {
 		if netErr.Timeout() {
 			return TimeoutError
@@ -365,6 +375,7 @@ func ErrorKind(err error, fallback *Error) *Error {
 	return fallback
 }
 
+// WrapNativeError wraps a native Go error as a Goblin error of its kind.
 func WrapNativeError(fallback *Error, message string, err error) *Error {
 	return WrapError(ErrorKind(err, fallback), message, err)
 }

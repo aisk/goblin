@@ -96,45 +96,10 @@ func (c CallArgs) copy() CallArgs {
 	return out
 }
 
-// Scope is anything argument binding can write bindings into, letting callers
-// skip the intermediate slice that BindArguments returns.
-type Scope interface {
-	Define(name string, v Object)
-}
-
 // ParamDefault computes a parameter's default value. Binding calls it only
 // when the argument is absent, so defaults are evaluated per call and a failing
 // default expression fails the call itself.
 type ParamDefault func() (Object, error)
-
-// BindArgumentsInto binds call arguments straight into scope. For the common
-// call shape (fixed parameters, all positional) nothing is allocated at all;
-// other shapes fall back to BindArguments.
-func BindArgumentsInto(funcName string, params []string, defaults []ParamDefault, varArgsParam, kwArgsParam string, call CallArgs, scope Scope) error {
-	if varArgsParam == "" && kwArgsParam == "" && len(call.Keyword) == 0 && len(call.Positional) == len(params) {
-		for i, param := range params {
-			scope.Define(param, call.Positional[i])
-		}
-		return nil
-	}
-
-	bound, err := BindArguments(funcName, params, defaults, varArgsParam, kwArgsParam, call)
-	if err != nil {
-		return err
-	}
-	for i, param := range params {
-		scope.Define(param, bound[i])
-	}
-	next := len(params)
-	if varArgsParam != "" {
-		scope.Define(varArgsParam, bound[next])
-		next++
-	}
-	if kwArgsParam != "" {
-		scope.Define(kwArgsParam, bound[next])
-	}
-	return nil
-}
 
 // BindArguments binds positional and keyword arguments to parameters, returning
 // one value per parameter in declaration order, followed by the *varargs list

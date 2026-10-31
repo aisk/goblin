@@ -1,21 +1,8 @@
 package object
 
 import (
-	"sync/atomic"
 	"time"
 )
-
-// concurrentMode records whether any goroutine has ever been started by the
-// runtime (Goblin or spawn). It is set before the goroutine launches, so the
-// goroutine and everything after it observe it as true. The interpreter uses
-// this to skip environment locking entirely in single-threaded programs.
-var concurrentMode atomic.Bool
-
-// EnterConcurrentMode marks the process as running user code concurrently.
-func EnterConcurrentMode() { concurrentMode.Store(true) }
-
-// InConcurrentMode reports whether user code has ever run concurrently.
-func InConcurrentMode() bool { return concurrentMode.Load() }
 
 // Goblin is a handle to a function running in its own goroutine. Construction
 // starts the function immediately; wait() joins it and delivers its return
@@ -152,7 +139,6 @@ func GoblinConstructor(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	g := &Goblin{OpaqueBase: MakeOpaqueBase("Goblin"), done: make(chan struct{})}
-	EnterConcurrentMode()
 	go func() {
 		defer close(g.done)
 		defer func() {

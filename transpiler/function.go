@@ -200,8 +200,7 @@ func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast
 		return tracedReturn(jen.Nil(), errVar, module, name, g.framePos(pos))
 	}
 
-	// Binding errors point at the definition, like the interpreter's frame
-	// for BindArgumentsInto failures.
+	// Binding errors point at the definition, like the interpreter's.
 	savedPos := g.errorPos
 	g.errorPos = pos
 	argsDefine := g.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)

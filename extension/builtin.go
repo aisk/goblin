@@ -111,7 +111,6 @@ func Spawn(args object.CallArgs) (object.Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	object.EnterConcurrentMode()
 	go func() {
 		// A panic inside a goroutine would kill the whole process regardless
 		// of any recovery in main; contain it here. Errors are otherwise
