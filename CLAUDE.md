@@ -37,8 +37,8 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 source.goblin → Lexer (lexer/) → Tokens → Parser (parser/) → AST (ast/) → semantic.CheckModule (semantic/) → { interpreter/ | transpiler/ }
 ```
 
-After parsing, `semantic.CheckModule` runs on the `*ast.Module` before either backend. There are two backends over the same AST:
-- **Interpreter** (`interpreter/`) — a tree-walking interpreter used by `goblin run` and the REPL (`interpreter.Run` / `interpreter.Session`).
+`source.LoadFile` (`source/`) is the one entry point that reads, parses and runs `semantic.CheckModule`; both backends take an already checked `*ast.Module` and never re-check it. There are two backends over the same AST:
+- **Interpreter** (`interpreter/`) — a tree-walking interpreter used by `goblin run` and the REPL (`interpreter.Run` / `interpreter.Session`). The line editor, completion and history of `goblin repl` live in `repl/`.
 - **Transpiler** (`transpiler/`) — emits a Go module directory, used by `goblin build-exe` through `transpiler.BuildExecutable`. Each Goblin module becomes one Go file with an `Execute()` function (the entry module is package `main` with a `main()` calling it; imported `.goblin` modules become packages of their own). `program.go` handles the module graph and output, a per-module `generator` (`context.go`) holds codegen state, and the remaining files split codegen by concern (`module.go`, `stmt.go`, `expr.go`, `operators.go`, `function.go`, `types.go`, `native.go`).
 
 Runtime values use the `object.Object` interface so arithmetic and logic operations are dispatched dynamically via method calls (`.Add()`, `.Multiply()`, `.And()`, etc.). Both backends share this runtime, which is why the example tests can check them against identical expected output.
@@ -50,8 +50,8 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 - `transpiler/*.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `eprint`, `range`, `max`, `min`) are resolved in `expr.go`. Analyses in `transpiler/{directcall,signatures,typeinfer}.go` traverse through `walkNodes` (`walk.go`, built on `ast.Inspect`), which already covers impl and trait method bodies.
 - `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST. `compile.go` turns the AST into Go closures before running: locals resolve to frame slots (a block gets its own frame only when a closure inside it may capture its variables), module-level names to global cells, and positional call arguments go through per-call-site temps in the frame, so builtins must copy `CallArgs` they keep past the call.
 - `semantic/semantic.go` — Semantic checks run on the module before either backend.
-- `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration; user types dispatch through traits (see below).
-- `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.
+- `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration; user types dispatch through traits (see below). Types with no operators embed `inert[...]`; unsupported operations are reported through `object.Unsupported` / `object.NewOperandError` so the wording matches across types, and argument errors name types by their `TypeName` (`String`, `Integer`, …). For List, String, Dict and Bytes, `callmethod.go`'s switch is the only name-to-method mapping; `GetAttr` binds through it via each type's `methodTable`.
+- `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`. Modules are built with `object.NewModule(name, values, object.Funcs{...})`.
 - `main.go` — CLI entry point (cobra commands: `run`, `build-exe`, `repl`).
 
 ### Standard Library Modules
