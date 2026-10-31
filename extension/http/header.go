@@ -58,7 +58,7 @@ func (h *Header) Attributes() []string {
 func (h *Header) Index(key object.Object) (object.Object, error) {
 	name, ok := key.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("Header index must be str, got %s", key.TypeName())
+		return nil, object.NewTypeError("Header index must be String, got %s", key.TypeName())
 	}
 	values := h.Header.Values(string(name))
 	if len(values) == 0 {
@@ -71,11 +71,11 @@ func (h *Header) Index(key object.Object) (object.Object, error) {
 func (h *Header) SetIndex(key, value object.Object) (bool, error) {
 	name, ok := key.(object.String)
 	if !ok {
-		return true, object.NewTypeError("Header index must be str, got %s", key.TypeName())
+		return true, object.NewTypeError("Header index must be String, got %s", key.TypeName())
 	}
 	text, ok := value.(object.String)
 	if !ok {
-		return true, object.NewTypeError("Header value must be str, got %s", value.TypeName())
+		return true, object.NewTypeError("Header value must be String, got %s", value.TypeName())
 	}
 	h.Header.Set(string(name), string(text))
 	return true, nil

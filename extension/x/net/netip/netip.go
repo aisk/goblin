@@ -30,7 +30,7 @@ func addrConstructor(args object.CallArgs) (object.Object, error) {
 	}
 	text, ok := value.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("Addr() argument 'value' must be Addr or str, got %s", value.TypeName())
+		return nil, object.NewTypeError("Addr() argument 'value' must be Addr or String, got %s", value.TypeName())
 	}
 	addr, err := netip.ParseAddr(string(text))
 	if err != nil {
@@ -50,7 +50,7 @@ func prefixConstructor(args object.CallArgs) (object.Object, error) {
 	}
 	text, ok := value.(object.String)
 	if !ok {
-		return nil, object.NewTypeError("Prefix() argument 'value' must be Prefix or str, got %s", value.TypeName())
+		return nil, object.NewTypeError("Prefix() argument 'value' must be Prefix or String, got %s", value.TypeName())
 	}
 	prefix, err := netip.ParsePrefix(string(text))
 	if err != nil {

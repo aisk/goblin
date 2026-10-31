@@ -57,13 +57,13 @@ func command(args object.CallArgs) (object.Object, error) {
 
 	list, ok := argsObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("Command() argument 'args' must be a list, got %s", argsObj.TypeName())
+		return nil, object.NewTypeError("Command() argument 'args' must be List, got %s", argsObj.TypeName())
 	}
 	argv := make([]string, len(list.Elements))
 	for i, arg := range list.Elements {
 		s, ok := arg.(object.String)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'args' must contain only strings, got %s at index %d", arg.TypeName(), i)
+			return nil, object.NewTypeError("Command() argument 'args' elements must be String, got %s at index %d", arg.TypeName(), i)
 		}
 		argv[i] = string(s)
 	}
@@ -72,21 +72,21 @@ func command(args object.CallArgs) (object.Object, error) {
 	if _, ok := cwdObj.(object.Unit); !ok {
 		cwd, ok := pathext.PathString(cwdObj)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'cwd' must be unit, str, or Path, got %s", cwdObj.TypeName())
+			return nil, object.NewTypeError("Command() argument 'cwd' must be Nil, String, or Path, got %s", cwdObj.TypeName())
 		}
 		cmd.Dir = cwd
 	}
 	if _, ok := envObj.(object.Unit); !ok {
 		dict, ok := envObj.(*object.Dict)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'env' must be unit or dict, got %s", envObj.TypeName())
+			return nil, object.NewTypeError("Command() argument 'env' must be Nil or Dict, got %s", envObj.TypeName())
 		}
 		cmd.Env = make([]string, 0, dict.Len())
 		for _, entry := range dict.Entries() {
 			key, keyOK := entry.Key.(object.String)
 			value, valueOK := entry.Value.(object.String)
 			if !keyOK || !valueOK {
-				return nil, object.NewTypeError("Command() argument 'env' must contain only string keys and values")
+				return nil, object.NewTypeError("Command() argument 'env' keys and values must be String")
 			}
 			cmd.Env = append(cmd.Env, string(key)+"="+string(value))
 		}
@@ -121,7 +121,7 @@ func (c *Cmd) configureStdin(value object.Object) error {
 	case object.Bytes:
 		c.cmd.Stdin = bytes.NewReader([]byte(v))
 	default:
-		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, str, or Bytes, got %s", value.TypeName())
+		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, String, or Bytes, got %s", value.TypeName())
 	}
 	return nil
 }

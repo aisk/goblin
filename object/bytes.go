@@ -79,7 +79,7 @@ func (b Bytes) Iter() ([]Object, error) {
 func (b Bytes) Index(index Object) (Object, error) {
 	i, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("Bytes index must be an integer, got %s", index.TypeName())
+		return nil, NewTypeError("Bytes index must be Integer, got %s", index.TypeName())
 	}
 	pos, err := listIndex("Bytes", i, len(b))
 	if err != nil {
@@ -101,7 +101,7 @@ func bytesArg(name, param string, value Object) ([]byte, error) {
 	case String:
 		return []byte(v), nil
 	default:
-		return nil, NewTypeError("%s() argument '%s' must be Bytes or str, got %s", name, param, value.TypeName())
+		return nil, NewTypeError("%s() argument '%s' must be Bytes or String, got %s", name, param, value.TypeName())
 	}
 }
 
@@ -267,7 +267,7 @@ func (b Bytes) Join(args CallArgs) (Object, error) {
 	for i, elem := range list.Elements {
 		part, err := bytesArg("join", "iterable", elem)
 		if err != nil {
-			return nil, NewTypeError("join() element %d must be Bytes or str, got %s", i, elem.TypeName())
+			return nil, NewTypeError("join() element %d must be Bytes or String, got %s", i, elem.TypeName())
 		}
 		parts[i] = part
 	}
@@ -558,6 +558,6 @@ func BytesConstructor(args CallArgs) (Object, error) {
 		}
 		return Bytes(result), nil
 	default:
-		return nil, NewTypeError("Bytes() argument 'value' must be a string, Bytes, or List, got %s", value.TypeName())
+		return nil, NewTypeError("Bytes() argument 'value' must be String, Bytes, or List, got %s", value.TypeName())
 	}
 }

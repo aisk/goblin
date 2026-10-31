@@ -196,40 +196,40 @@ func optionalArgValue[T Object](p *ArgParser, name, want string) (T, bool) {
 }
 
 // Int returns a required Integer argument.
-func (p *ArgParser) Int(name string) Integer { return argValue[Integer](p, name, "int") }
+func (p *ArgParser) Int(name string) Integer { return argValue[Integer](p, name, "Integer") }
 
 // IntOr returns an optional Integer argument, or def when absent.
 func (p *ArgParser) IntOr(name string, def Integer) Integer {
-	return argValueOr(p, name, "int", def)
+	return argValueOr(p, name, "Integer", def)
 }
 
 // OptionalInt returns an optional Integer and whether it was supplied.
 func (p *ArgParser) OptionalInt(name string) (Integer, bool) {
-	return optionalArgValue[Integer](p, name, "int")
+	return optionalArgValue[Integer](p, name, "Integer")
 }
 
 // Float returns a required Float argument.
-func (p *ArgParser) Float(name string) Float { return argValue[Float](p, name, "float") }
+func (p *ArgParser) Float(name string) Float { return argValue[Float](p, name, "Float") }
 
 // FloatOr returns an optional Float argument, or def when absent.
 func (p *ArgParser) FloatOr(name string, def Float) Float {
-	return argValueOr(p, name, "float", def)
+	return argValueOr(p, name, "Float", def)
 }
 
 // Str returns a required String argument.
-func (p *ArgParser) Str(name string) String { return argValue[String](p, name, "str") }
+func (p *ArgParser) Str(name string) String { return argValue[String](p, name, "String") }
 
 // StrOr returns an optional String argument, or def when absent.
 func (p *ArgParser) StrOr(name string, def String) String {
-	return argValueOr(p, name, "str", def)
+	return argValueOr(p, name, "String", def)
 }
 
 // Bool returns a required Bool argument.
-func (p *ArgParser) Bool(name string) Bool { return argValue[Bool](p, name, "bool") }
+func (p *ArgParser) Bool(name string) Bool { return argValue[Bool](p, name, "Bool") }
 
 // BoolOr returns an optional Bool argument, or def when absent.
 func (p *ArgParser) BoolOr(name string, def Bool) Bool {
-	return argValueOr(p, name, "bool", def)
+	return argValueOr(p, name, "Bool", def)
 }
 
 // Bytes returns a required Bytes argument.
@@ -254,29 +254,29 @@ func (p *ArgParser) BytesLike(name string) []byte {
 	case String:
 		return []byte(b)
 	default:
-		p.typeErr(name, "Bytes or str", v)
+		p.typeErr(name, "Bytes or String", v)
 		return nil
 	}
 }
 
 // List returns a required list argument.
-func (p *ArgParser) List(name string) *List { return argValue[*List](p, name, "list") }
+func (p *ArgParser) List(name string) *List { return argValue[*List](p, name, "List") }
 
 // ListOr returns an optional list argument, or def when absent.
 func (p *ArgParser) ListOr(name string, def *List) *List {
-	return argValueOr(p, name, "list", def)
+	return argValueOr(p, name, "List", def)
 }
 
 // Dict returns a required dict argument.
-func (p *ArgParser) Dict(name string) *Dict { return argValue[*Dict](p, name, "dict") }
+func (p *ArgParser) Dict(name string) *Dict { return argValue[*Dict](p, name, "Dict") }
 
 // DictOr returns an optional dict argument, or def when absent.
 func (p *ArgParser) DictOr(name string, def *Dict) *Dict {
-	return argValueOr(p, name, "dict", def)
+	return argValueOr(p, name, "Dict", def)
 }
 
 // Func returns a required Function argument.
-func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "function") }
+func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "Function") }
 
 // Number returns a required argument that must be an Integer or Float, as the
 // original Object so callers that need to distinguish the two kinds can
@@ -292,7 +292,7 @@ func (p *ArgParser) Number(name string) Object {
 	case Integer, Float:
 		return v
 	default:
-		p.typeErr(name, "number", v)
+		p.typeErr(name, "Integer or Float", v)
 		return nil
 	}
 }
@@ -307,7 +307,7 @@ func (p *ArgParser) NumberOr(name string, def Object) Object {
 	case Integer, Float:
 		return v
 	default:
-		p.typeErr(name, "number", v)
+		p.typeErr(name, "Integer or Float", v)
 		return def
 	}
 }

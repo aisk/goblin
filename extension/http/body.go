@@ -68,7 +68,7 @@ func (b *Body) read(args object.CallArgs) (object.Object, error) {
 
 	size, ok := sizeObj.(object.Integer)
 	if !ok {
-		return nil, object.NewTypeError("read() argument 'size' must be an int or nil, got %s", sizeObj.TypeName())
+		return nil, object.NewTypeError("read() argument 'size' must be Integer or Nil, got %s", sizeObj.TypeName())
 	}
 	if size < 0 {
 		return nil, object.NewValueError("read() size must not be negative")

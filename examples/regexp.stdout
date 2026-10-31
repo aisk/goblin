@@ -23,4 +23,4 @@ true
 as
 count=12 12 count nil
 no such capture group: 9
-Match index must be int or str, got Float
+Match index must be Integer or String, got Float

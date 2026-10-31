@@ -221,7 +221,7 @@ func bodyArg(fn string, obj object.Object) (io.Reader, error) {
 		return bytes.NewReader(v), nil
 	default:
 		if _, err := obj.GetAttr("read"); err != nil {
-			return nil, object.NewTypeError("%s() argument 'body' must be str, Bytes, nil, or an object with a read(size) method, got %s", fn, obj.TypeName())
+			return nil, object.NewTypeError("%s() argument 'body' must be String, Bytes, Nil, or an object with a read(size) method, got %s", fn, obj.TypeName())
 		}
 		reader, err := object.NewDuckReader(fn, "body", obj)
 		if err != nil {
@@ -239,6 +239,6 @@ func durationFromObject(fn string, obj object.Object) (time.Duration, error) {
 	case object.Integer:
 		return time.Duration(int64(v)) * time.Second, nil
 	default:
-		return 0, object.NewTypeError("%s() argument 'timeout' must be number, got %s", fn, obj.TypeName())
+		return 0, object.NewTypeError("%s() argument 'timeout' must be Integer or Float, got %s", fn, obj.TypeName())
 	}
 }

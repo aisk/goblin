@@ -188,7 +188,7 @@ func pathSegment(fnName, argName string, arg object.Object) (string, error) {
 	case *Path:
 		return v.raw, nil
 	default:
-		return "", object.NewTypeError("%s() argument '%s' must be str or Path, got %s", fnName, argName, arg.TypeName())
+		return "", object.NewTypeError("%s() argument '%s' must be String or Path, got %s", fnName, argName, arg.TypeName())
 	}
 }
 

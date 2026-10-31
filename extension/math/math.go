@@ -63,7 +63,7 @@ func mathIntPreserving(name string, args object.CallArgs, intFn func(int64) int6
 	case object.Float:
 		return object.Float(floatFn(float64(n))), nil
 	}
-	return nil, object.NewTypeError("%s() argument 'x' must be number, got %s", name, v.TypeName())
+	return nil, object.NewTypeError("%s() argument 'x' must be Integer or Float, got %s", name, v.TypeName())
 }
 
 // mathUnary wraps a float64 -> float64 function from the math package as a
@@ -215,6 +215,6 @@ func toFloat(funcName string, v object.Object) (float64, error) {
 	case object.Float:
 		return float64(n), nil
 	default:
-		return 0, object.NewTypeError("%s() argument must be a number, got %s", funcName, v.TypeName())
+		return 0, object.NewTypeError("%s() argument must be Integer or Float, got %s", funcName, v.TypeName())
 	}
 }

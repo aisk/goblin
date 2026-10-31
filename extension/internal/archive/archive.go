@@ -27,7 +27,7 @@ func Data(name string, args object.CallArgs) ([]byte, error) {
 func Files(name string, value object.Object) ([]Entry, error) {
 	dict, ok := value.(*object.Dict)
 	if !ok {
-		return nil, object.NewTypeError("%s() argument 'files' must be a dict, got %s", name, value.TypeName())
+		return nil, object.NewTypeError("%s() argument 'files' must be Dict, got %s", name, value.TypeName())
 	}
 	entries := make([]Entry, 0, dict.Len())
 	for _, entry := range dict.Entries() {

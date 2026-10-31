@@ -40,7 +40,7 @@ func joinPath(args object.CallArgs) (object.Object, error) {
 	}
 	list, ok := elementsObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("join_path() argument 'elements' must be a list, got %s", elementsObj.TypeName())
+		return nil, object.NewTypeError("join_path() argument 'elements' must be List, got %s", elementsObj.TypeName())
 	}
 	elements := make([]string, len(list.Elements))
 	for i, item := range list.Elements {

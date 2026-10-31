@@ -58,7 +58,7 @@ func sum(args object.CallArgs) (object.Object, error) {
     for _, value := range values {
         n, ok := value.(object.Integer)
         if !ok {
-            return nil, object.NewTypeError("sum() values must be int")
+            return nil, object.NewTypeError("sum() values must be Integer")
         }
         total += int64(n)
     }

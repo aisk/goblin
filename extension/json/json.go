@@ -211,7 +211,7 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 	entries := d.Entries()
 	for _, entry := range entries {
 		if _, ok := entry.Key.(object.String); !ok {
-			return object.NewTypeError("marshal() dict keys must be str, got %s", entry.Key.TypeName())
+			return object.NewTypeError("marshal() dict keys must be String, got %s", entry.Key.TypeName())
 		}
 	}
 	slices.SortFunc(entries, func(a, b object.DictEntry) int {

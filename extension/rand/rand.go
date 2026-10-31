@@ -114,7 +114,7 @@ func (r *Rand) randomShuffle(args object.CallArgs) (object.Object, error) {
 	}
 	list, ok := listObj.(*object.List)
 	if !ok {
-		return nil, object.NewTypeError("shuffle() argument 'list' must be a list, got %s", listObj.TypeName())
+		return nil, object.NewTypeError("shuffle() argument 'list' must be List, got %s", listObj.TypeName())
 	}
 	r.mu.Lock()
 	r.rng.Shuffle(len(list.Elements), func(i, j int) {

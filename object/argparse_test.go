@@ -44,7 +44,7 @@ func TestArgParserTypeMismatch(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{String("x")}})
 	p.Int("a")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'a' must be int") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'a' must be Integer") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -113,7 +113,7 @@ func TestArgParserOptionalInt(t *testing.T) {
 
 	p = NewArgParser("f", CallArgs{Positional: Args{String("bad")}})
 	p.OptionalInt("value")
-	if err := p.Finish(); err == nil || !strings.Contains(err.Error(), "argument 'value' must be int") {
+	if err := p.Finish(); err == nil || !strings.Contains(err.Error(), "argument 'value' must be Integer") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -221,7 +221,7 @@ func TestArgParserFuncTypeMismatch(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{Integer(1)}})
 	p.Func("fn")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'fn' must be function") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'fn' must be Function") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -265,7 +265,7 @@ func TestArgParserNumberRejectsNonNumeric(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{String("x")}})
 	p.Number("n")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'n' must be number") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'n' must be Integer or Float") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

@@ -89,7 +89,7 @@ func (g *Goblin) Wait(args CallArgs) (Object, error) {
 		case Float:
 			seconds = float64(n)
 		default:
-			return nil, NewTypeError("wait() argument 'timeout' must be number or nil, got %s", tv.TypeName())
+			return nil, NewTypeError("wait() argument 'timeout' must be Integer, Float or Nil, got %s", tv.TypeName())
 		}
 		if seconds < 0 {
 			return nil, NewValueError("wait() timeout must be non-negative, got %g", seconds)

@@ -66,12 +66,12 @@ func (c *CallArgs) AddKeyword(name string, value Object) error {
 func (c *CallArgs) UnpackKeywords(v Object) error {
 	d, ok := v.(*Dict)
 	if !ok {
-		return NewTypeError("argument after ** must be a dict, got %s", v.TypeName())
+		return NewTypeError("argument after ** must be Dict, got %s", v.TypeName())
 	}
 	for _, entry := range d.Entries() {
 		key, ok := entry.Key.(String)
 		if !ok {
-			return NewTypeError("keyword argument name must be a string, got %s", entry.Key.TypeName())
+			return NewTypeError("keyword argument name must be String, got %s", entry.Key.TypeName())
 		}
 		if err := c.AddKeyword(string(key), entry.Value); err != nil {
 			return err

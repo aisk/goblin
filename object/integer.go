@@ -121,6 +121,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, NewTypeError("Int() argument 'value' must be a string or a number, got %s", value.TypeName())
+		return nil, NewTypeError("Int() argument 'value' must be String, Integer or Float, got %s", value.TypeName())
 	}
 }

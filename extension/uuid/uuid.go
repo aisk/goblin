@@ -43,7 +43,7 @@ func uuidConstructor(args object.CallArgs) (object.Object, error) {
 		}
 		return NewUUID(uuid.UUID(value)), nil
 	default:
-		return nil, object.NewTypeError("UUID() argument 'value' must be UUID, str, or Bytes, got %s", value.TypeName())
+		return nil, object.NewTypeError("UUID() argument 'value' must be UUID, String, or Bytes, got %s", value.TypeName())
 	}
 }
 

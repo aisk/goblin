@@ -80,7 +80,7 @@ func (s String) trimWith(name string, cutset Object, direction trimDirection) (O
 	}
 	chars, ok := cutset.(String)
 	if !ok {
-		return nil, NewTypeError("%s() argument 'cutset' must be str or none, got %s", name, cutset.TypeName())
+		return nil, NewTypeError("%s() argument 'cutset' must be String or Nil, got %s", name, cutset.TypeName())
 	}
 	switch direction {
 	case trimBoth:

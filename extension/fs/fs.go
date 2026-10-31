@@ -34,7 +34,7 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 	}
 	path, ok := pathext.PathString(pathArg)
 	if !ok {
-		return "", object.NewTypeError("%s() argument 'path' must be a string or Path, got %s", funcName, pathArg.TypeName())
+		return "", object.NewTypeError("%s() argument 'path' must be String or Path, got %s", funcName, pathArg.TypeName())
 	}
 	return path, nil
 }
@@ -94,11 +94,11 @@ func bindPathContentArgs(funcName string, args object.CallArgs) (string, string,
 	}
 	path, ok := pathext.PathString(pathArg)
 	if !ok {
-		return "", "", object.NewTypeError("%s() argument 'path' must be a string or Path, got %s", funcName, pathArg.TypeName())
+		return "", "", object.NewTypeError("%s() argument 'path' must be String or Path, got %s", funcName, pathArg.TypeName())
 	}
 	content, ok := contentArg.(object.String)
 	if !ok {
-		return "", "", object.NewTypeError("%s() argument 'content' must be a string, got %s", funcName, contentArg.TypeName())
+		return "", "", object.NewTypeError("%s() argument 'content' must be String, got %s", funcName, contentArg.TypeName())
 	}
 	return path, string(content), nil
 }
