@@ -181,10 +181,12 @@ func moduleExecutorPath(name string) string {
 	return pathExtension + "/" + name
 }
 
-// moduleVarName returns the generated-code variable holding a loaded module,
-// derived from the last path segment ("x/compress/gzip" -> "gzip_module").
+// moduleVarName returns the generated-code variable holding a loaded stdlib
+// module, spelled from its whole name ("x/compress/gzip" ->
+// "x_compress_gzip_module") so two modules ending in the same segment cannot
+// collide. Stdlib names never contain "_", so the mapping is one to one.
 func moduleVarName(name string) string {
-	return name[strings.LastIndex(name, "/")+1:] + "_module"
+	return strings.ReplaceAll(name, "/", "_") + "_module"
 }
 
 // mainBody emits the generated main(): run Execute, print failures, and turn a
