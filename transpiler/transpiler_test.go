@@ -359,7 +359,7 @@ func TestSignatureInference(t *testing.T) {
 }
 print(fib(10))
 `)
-		if !strings.Contains(code, "(n int64) (int64, error)") {
+		if !strings.Contains(code, " int32, n int64) (int64, error)") {
 			t.Fatalf("expected fib to take and return int64\n%s", code)
 		}
 		if strings.Contains(code, "&object.Function{Name: \"fib\"") {
@@ -372,7 +372,7 @@ print(fib(10))
 print(id(1))
 print(id("s"))
 `)
-		if !strings.Contains(code, "(v object.Object) (object.Object, error)") {
+		if !strings.Contains(code, " int32, v object.Object) (object.Object, error)") {
 			t.Fatalf("expected id to stay dynamic\n%s", code)
 		}
 	})
@@ -383,7 +383,7 @@ print(id("s"))
 }
 print(f(1))
 `)
-		if !strings.Contains(code, "(n int64) (object.Object, error)") {
+		if !strings.Contains(code, " int32, n int64) (object.Object, error)") {
 			t.Fatalf("expected a native parameter with a boxed result\n%s", code)
 		}
 	})
@@ -400,7 +400,7 @@ print(f(1))
 			if !strings.Contains(code, "&object.Function{Name: \"f\"") {
 				t.Fatalf("%s: expected f to keep its generic wrapper\n%s", name, code)
 			}
-			if strings.Contains(code, "(n int64)") {
+			if strings.Contains(code, " int32, n int64)") {
 				t.Fatalf("%s: expected f to keep boxed parameters\n%s", name, code)
 			}
 		}
@@ -413,7 +413,7 @@ type T(x) {
 }
 print(f(1))
 `)
-		if !strings.Contains(code, "(n object.Object) (object.Object, error)") {
+		if !strings.Contains(code, " int32, n object.Object) (object.Object, error)") {
 			t.Fatalf("a call passing a field must keep the parameter boxed\n%s", code)
 		}
 	})

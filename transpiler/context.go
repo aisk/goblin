@@ -77,6 +77,10 @@ type bodyState struct {
 	// method calls. It is nil outside method bodies, inside nested function
 	// bodies, and in a method that rebinds self.
 	self *selfInfo
+	// depth names the call-depth parameter of a direct function body, which
+	// its own direct calls pass on incremented (see stackCheck). It is empty
+	// in every other body, whose direct calls start counting from zero.
+	depth string
 }
 
 // selfInfo is what direct self access needs to know about the enclosing

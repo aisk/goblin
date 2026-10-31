@@ -129,7 +129,16 @@ func (g *generator) tryDirectCall(name string, args []ast.CallArgument, onError 
 	// signature inference has verified that every call site agrees, so a
 	// mismatch here is a bug in one of the two and is reported as such.
 	sig := g.sigs[name]
-	argExprs := make([]jen.Code, 0, len(args))
+	argExprs := make([]jen.Code, 0, len(args)+1)
+	if _, isFn := g.directFns[name]; isFn {
+		// A direct function takes the call depth first: one more than this
+		// body's own inside a direct function, zero anywhere else.
+		depth := jen.Lit(0)
+		if g.body.depth != "" {
+			depth = jen.Id(g.body.depth).Op("+").Lit(1)
+		}
+		argExprs = append(argExprs, depth)
+	}
 	for i, arg := range args {
 		var argPre []jen.Code
 		var argExpr *jen.Statement

@@ -264,6 +264,9 @@ func sameUserType(v UserValue, other Object) (UserValue, bool) {
 }
 
 func structuralEq(args []Object) (Object, error) {
+	if err := CheckStack(); err != nil {
+		return nil, err
+	}
 	v := args[0].(UserValue)
 	other, ok := sameUserType(v, args[1])
 	if !ok {
@@ -280,6 +283,9 @@ func structuralEq(args []Object) (Object, error) {
 }
 
 func structuralCompare(args []Object) (Object, error) {
+	if err := CheckStack(); err != nil {
+		return nil, err
+	}
 	v := args[0].(UserValue)
 	other, ok := sameUserType(v, args[1])
 	if !ok {
@@ -300,6 +306,9 @@ func structuralCompare(args []Object) (Object, error) {
 
 // structuralHash combines the type name with each field's hash, FNV style.
 func structuralHash(args []Object) (Object, error) {
+	if err := CheckStack(); err != nil {
+		return nil, err
+	}
 	v := args[0].(UserValue)
 	const prime = 1099511628211
 	h := maphash.String(hashSeed, v.TypeName())

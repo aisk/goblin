@@ -26,9 +26,18 @@ type Error struct {
 	// traverse the chain directly (see (*Error).Unwrap below); the `errors`
 	// module's helpers delegate to them rather than reimplementing traversal.
 	Wrapped error
-	// Frames are ordered from the point where the error was first observed to
-	// the outermost caller. WithFrame treats Error values as immutable.
-	Frames []Frame
+	// frames is the Goblin stack the error unwound through, outermost caller
+	// first. It is a shared linked list so that WithFrame adds a frame in
+	// constant time: an error raised a hundred thousand calls deep (a
+	// RecursionError) would otherwise copy its whole stack at every level.
+	frames *frameNode
+}
+
+// frameNode is one link of an error's stack; next is the frame one call
+// closer to where the error arose.
+type frameNode struct {
+	Frame
+	next *frameNode
 }
 
 var _ Object = (*Error)(nil)
@@ -100,44 +109,87 @@ func WithFrame(err error, frame Frame) error {
 		return nil
 	}
 	if e, ok := err.(*Error); ok {
-		frames := append([]Frame(nil), e.Frames...)
-		frames = append(frames, frame)
-		return &Error{Value: e.Value, Wrapped: e, Frames: frames}
+		return &Error{Value: e.Value, Wrapped: e, frames: &frameNode{Frame: frame, next: e.frames}}
 	}
-	return &Error{Value: err.Error(), Wrapped: err, Frames: []Frame{frame}}
+	return &Error{Value: err.Error(), Wrapped: err, frames: &frameNode{Frame: frame}}
 }
 
 // Traceback renders the language-level stack without exposing generated Go
-// functions or the interpreter's own implementation stack.
+// functions or the interpreter's own implementation stack. A frame repeated
+// back to back, as in a deep recursion, is printed a few times and then
+// summarised, and a very long stack keeps only its two ends.
 func (e *Error) Traceback() string {
-	if len(e.Frames) == 0 {
+	if e.frames == nil {
 		return e.Value
+	}
+	var lines []string
+	var last string
+	repeats := 0
+	flush := func() {
+		if repeats > tracebackRepeats {
+			lines = append(lines, fmt.Sprintf("  [previous frame repeated %d more times]", repeats-tracebackRepeats))
+		}
+		repeats = 0
+	}
+	for f := e.frames; f != nil; f = f.next {
+		line := f.render()
+		if line == last {
+			repeats++
+			if repeats <= tracebackRepeats {
+				lines = append(lines, line)
+			}
+			continue
+		}
+		flush()
+		lines = append(lines, line)
+		last = line
+	}
+	flush()
+	if len(lines) > 2*tracebackEnds {
+		omitted := len(lines) - 2*tracebackEnds
+		tail := lines[len(lines)-tracebackEnds:]
+		lines = append(lines[:tracebackEnds:tracebackEnds], fmt.Sprintf("  [%d more frames]", omitted))
+		lines = append(lines, tail...)
 	}
 	var b strings.Builder
 	b.WriteString("Traceback (most recent call last):\n")
-	for i := len(e.Frames) - 1; i >= 0; i-- {
-		f := e.Frames[i]
-		name := f.Function
-		if name == "" {
-			name = "<module>"
-		}
-		fmt.Fprintf(&b, "  at %s", name)
-		if f.Module != "" && f.Module != "main" {
-			fmt.Fprintf(&b, " [%s]", f.Module)
-		}
-		if f.File != "" {
-			fmt.Fprintf(&b, " (%s", f.File)
-			if f.Line > 0 {
-				fmt.Fprintf(&b, ":%d", f.Line)
-				if f.Column > 0 {
-					fmt.Fprintf(&b, ":%d", f.Column)
-				}
-			}
-			b.WriteByte(')')
-		}
+	for _, line := range lines {
+		b.WriteString(line)
 		b.WriteByte('\n')
 	}
 	b.WriteString(e.Value)
+	return b.String()
+}
+
+const (
+	// tracebackRepeats is how many copies of a repeated frame are printed
+	// before the rest are counted instead.
+	tracebackRepeats = 3
+	// tracebackEnds is how many lines are kept at each end of a traceback
+	// that is still long after repeats are folded.
+	tracebackEnds = 50
+)
+
+func (f *frameNode) render() string {
+	var b strings.Builder
+	name := f.Function
+	if name == "" {
+		name = "<module>"
+	}
+	fmt.Fprintf(&b, "  at %s", name)
+	if f.Module != "" && f.Module != "main" {
+		fmt.Fprintf(&b, " [%s]", f.Module)
+	}
+	if f.File != "" {
+		fmt.Fprintf(&b, " (%s", f.File)
+		if f.Line > 0 {
+			fmt.Fprintf(&b, ":%d", f.Line)
+			if f.Column > 0 {
+				fmt.Fprintf(&b, ":%d", f.Column)
+			}
+		}
+		b.WriteByte(')')
+	}
 	return b.String()
 }
 
@@ -257,6 +309,7 @@ var (
 	NetworkError    = NewSentinelError("NetworkError", IOError)
 
 	NotImplementedError = NewSentinelError("NotImplementedError", BaseError)
+	RecursionError      = NewSentinelError("RecursionError", BaseError)
 	InternalError       = NewSentinelError("InternalError", BaseError)
 )
 
@@ -295,6 +348,9 @@ func NewIndexError(format string, a ...any) *Error {
 func NewKeyError(format string, a ...any) *Error { return typedError(KeyError, format, a...) }
 func NewZeroDivisionError(format string, a ...any) *Error {
 	return typedError(ZeroDivisionError, format, a...)
+}
+func NewRecursionError(format string, a ...any) *Error {
+	return typedError(RecursionError, format, a...)
 }
 func NewOverflowError(format string, a ...any) *Error {
 	return typedError(OverflowError, format, a...)

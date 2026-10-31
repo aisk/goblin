@@ -2,6 +2,7 @@ package transpiler
 
 import (
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
 )
@@ -214,7 +215,7 @@ func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast
 		return nil, err
 	}
 
-	bodyCode = append(argsDefine, bodyCode...)
+	bodyCode = append(append([]jen.Code{g.stackCheck(fnOnError)}, argsDefine...), bodyCode...)
 
 	closure := jen.Func().Params(
 		jen.Id(callArgsName).Qual(pathObject, "CallArgs"),
@@ -266,6 +267,8 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 	}
 
 	leave := g.enterFunction(params, body, seed, retType, nil)
+	depth := g.localName("depth")
+	g.body.depth = depth
 
 	module := sourceModuleName(pos)
 	zero := zeroOf(retType)
@@ -275,6 +278,11 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 
 	bodyCode, err := g.transpileStatements(body, fnOnError)
 	leave()
+	// Checking the stack costs about as much as the call itself, so a chain
+	// of direct calls only checks every object.StackCheckInterval levels.
+	bodyCode = append([]jen.Code{
+		jen.If(jen.Id(depth).Op("&").Lit(object.StackCheckInterval - 1).Op("==").Lit(0)).Block(g.stackCheck(fnOnError)),
+	}, bodyCode...)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +293,8 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 		}
 		return jen.Qual(pathObject, "Object")
 	}
-	paramDecls := make([]jen.Code, 0, len(params))
+	paramDecls := make([]jen.Code, 0, len(params)+1)
+	paramDecls = append(paramDecls, jen.Id(depth).Int32())
 	for i, param := range params {
 		paramType := tyDynamic
 		if sig != nil {
@@ -305,8 +314,10 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 	boundName := g.localName("bound")
 	errVar := g.localName("err")
 
-	fastArgs := make([]jen.Code, 0, len(params))
-	slowArgs := make([]jen.Code, 0, len(params))
+	// Calls arriving through the wrapper start counting depth afresh; the
+	// wrapper's caller has checked the stack itself.
+	fastArgs := []jen.Code{jen.Lit(0)}
+	slowArgs := []jen.Code{jen.Lit(0)}
 	paramNames := make([]jen.Code, 0, len(params))
 	for i, param := range params {
 		fastArgs = append(fastArgs, jen.Id(callArgsName).Dot("Positional").Index(jen.Lit(i)))
@@ -392,4 +403,14 @@ func (g *generator) transpileFunctionLiteral(fn *ast.FunctionLiteral) ([]jen.Cod
 		return nil, nil, err
 	}
 	return nil, funcValue, nil
+}
+
+// stackCheck emits the guard every Goblin function starts with, turning a
+// runaway recursion into a RecursionError before Go's fatal stack overflow.
+func (g *generator) stackCheck(onError errHandler) jen.Code {
+	errVar := g.localName("err")
+	return jen.If(jen.Op("!").Qual(pathObject, "StackOK").Call()).Block(
+		jen.Id(errVar).Op(":=").Qual(pathObject, "NewRecursionDepthError").Call(),
+		onError(errVar),
+	)
 }

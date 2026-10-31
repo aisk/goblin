@@ -285,7 +285,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		savedPos := g.errorPos
 		g.errorPos = method.Position()
 
-		var bodyPrefix []jen.Code
+		bodyPrefix := []jen.Code{g.stackCheck(fnOnError)}
 		defaultsDecl, defaultsName, err := g.emitParamDefaults(method.Parameters[1:])
 		if err != nil {
 			return nil, err

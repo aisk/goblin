@@ -76,6 +76,7 @@ The runtime uses named error kinds, which can be raised directly or wrapped.
 | NotExistError / ExistError / PermissionError | A missing, existing, or inaccessible filesystem path |
 | TimeoutError / NetworkError | A timed-out or other network operation |
 | NotImplementedError | An operation the runtime does not implement |
+| RecursionError | Recursion, or comparing or printing nested values, too deep for the stack |
 
 Kinds are hierarchical. IndexError and KeyError are LookupErrors;
 ZeroDivisionError and OverflowError are ArithmeticErrors; ParseError is a ValueError. Therefore

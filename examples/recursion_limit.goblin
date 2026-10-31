@@ -1,0 +1,60 @@
+# Runaway recursion raises a catchable RecursionError in both backends
+# instead of exhausting the Go stack, whichever way the calls are made.
+func check(label, f) {
+    try {
+        f()
+        print(label, "returned")
+    } catch err {
+        print(label, err.is(RecursionError), err.message)
+    }
+}
+
+# Deep but finite recursion is fine.
+func depth(n) {
+    if n == 0 {
+        return 0
+    }
+    return 1 + depth(n - 1)
+}
+print(depth(50000))
+
+func forever(n) {
+    return forever(n + 1)
+}
+check("direct call", func() { return forever(0) })
+
+func loop_through_value(n) {
+    var again = loop_through_value
+    return again(n + 1)
+}
+check("function value", func() { return loop_through_value(0) })
+
+type Walker() {
+    func walk(self, n) {
+        return self.walk(n + 1)
+    }
+}
+check("method", func() { return Walker().walk(0) })
+
+func via_map(x) {
+    return [x].map(via_map)
+}
+check("callback", func() { return via_map(0) })
+
+# Values nested past the limit, or cyclic in a way equality cannot settle.
+var a = [1]
+a.push(a)
+var b = [1]
+b.push(b)
+print(a == a)
+check("cyclic equality", func() { return a == b })
+
+# Each goroutine has its own budget.
+func in_goblin() {
+    try {
+        forever(0)
+    } catch err {
+        return err.is(RecursionError)
+    }
+}
+print(Goblin(in_goblin).wait())

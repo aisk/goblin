@@ -30,6 +30,7 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"TimeoutError":        object.TimeoutError,
 	"NetworkError":        object.NetworkError,
 	"NotImplementedError": object.NotImplementedError,
+	"RecursionError":      object.RecursionError,
 	"Int":                 object.IntConstructorFn,
 	"Float":               object.FloatConstructorFn,
 	"Str":                 object.StrConstructorFn,

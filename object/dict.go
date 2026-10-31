@@ -298,6 +298,12 @@ func (d *Dict) Equals(other Object) (bool, error) {
 	if !ok || d.count != v.count {
 		return false, nil
 	}
+	if d == v {
+		return true, nil
+	}
+	if err := CheckStack(); err != nil {
+		return false, err
+	}
 	for _, entry := range d.Entries() {
 		theirs, exists, err := v.Get(entry.Key)
 		if err != nil {

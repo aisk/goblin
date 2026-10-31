@@ -13,26 +13,33 @@ type renderer struct {
 	// strict selects ToString semantics: run Show and report its errors.
 	// Otherwise rendering is infallible, as String must be.
 	strict bool
-	active []Object
+	// active holds the containers being rendered. Only pointer-typed values
+	// go in, so they are always valid map keys.
+	active map[Object]struct{}
 }
 
 // enter marks container as being rendered, reporting false when it already
 // is, i.e. when rendering it again would recurse.
 func (r *renderer) enter(container Object) bool {
-	for _, a := range r.active {
-		if a == container {
-			return false
-		}
+	if _, ok := r.active[container]; ok {
+		return false
 	}
-	r.active = append(r.active, container)
+	if r.active == nil {
+		r.active = make(map[Object]struct{})
+	}
+	r.active[container] = struct{}{}
 	return true
 }
 
-func (r *renderer) leave() { r.active = r.active[:len(r.active)-1] }
+func (r *renderer) leave(container Object) { delete(r.active, container) }
 
 // element renders a value nested inside another: strings are quoted, and
 // containers recurse through the same renderer.
 func (r *renderer) element(obj Object) (string, error) {
+	// Deep but acyclic nesting recurses too.
+	if err := CheckStack(); err != nil {
+		return "", err
+	}
 	switch v := obj.(type) {
 	case String:
 		return v.Literal(), nil
@@ -55,7 +62,7 @@ func (r *renderer) list(l *List) (string, error) {
 	if !r.enter(l) {
 		return "[...]", nil
 	}
-	defer r.leave()
+	defer r.leave(l)
 	var b strings.Builder
 	b.WriteByte('[')
 	for i, elem := range l.Elements {
@@ -76,7 +83,7 @@ func (r *renderer) dict(d *Dict) (string, error) {
 	if !r.enter(d) {
 		return "{...}", nil
 	}
-	defer r.leave()
+	defer r.leave(d)
 	var b strings.Builder
 	b.WriteByte('{')
 	for i, entry := range d.Entries() {
@@ -104,7 +111,7 @@ func (r *renderer) user(v UserValue) (string, error) {
 	if !r.enter(v) {
 		return v.TypeName() + "(...)", nil
 	}
-	defer r.leave()
+	defer r.leave(v)
 	var b strings.Builder
 	b.WriteString(v.TypeName())
 	b.WriteByte('(')

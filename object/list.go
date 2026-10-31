@@ -240,6 +240,15 @@ func (l *List) Equals(other Object) (bool, error) {
 	if !ok || len(l.Elements) != len(v.Elements) {
 		return false, nil
 	}
+	// A list equals itself, which also settles `a == a` for a list that
+	// contains itself. Distinct cyclic lists recurse until CheckStack stops
+	// them.
+	if l == v {
+		return true, nil
+	}
+	if err := CheckStack(); err != nil {
+		return false, err
+	}
 	for i, elem := range l.Elements {
 		eq, err := Equals(elem, v.Elements[i])
 		if err != nil || !eq {
@@ -255,6 +264,9 @@ func (l *List) Compare(other Object) (int, error) {
 	v, ok := other.(*List)
 	if !ok {
 		return 0, NewOperandError(OpCompare, "List", other)
+	}
+	if err := CheckStack(); err != nil {
+		return 0, err
 	}
 	for i := 0; i < len(l.Elements) && i < len(v.Elements); i++ {
 		c, err := Compare(l.Elements[i], v.Elements[i])

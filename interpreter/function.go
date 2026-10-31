@@ -146,6 +146,9 @@ func (cl *closure) callSelf(self object.Object, args object.CallArgs) (object.Ob
 
 // invoke runs the body in a fresh frame whose parent is the defining frame.
 func (p *funcProto) invoke(parent *frame, defaults []object.ParamDefault, self object.Object, args object.CallArgs) (object.Object, error) {
+	if !object.StackOK() {
+		return nil, object.WithFrame(object.NewRecursionDepthError(), p.frame)
+	}
 	f := newFrame(parent, p.nvars, p.ntemps)
 	slots := f.slots
 	if p.self {

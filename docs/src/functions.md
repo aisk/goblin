@@ -137,3 +137,23 @@ func map_values(values, transform) {
 print(factorial(5))
 print(map_values([1, 2, 3], func(x) { return x * x }))
 ```
+
+Recursion depth is limited by the stack a goroutine may use (256 MB), which
+allows hundreds of thousands of nested calls. A recursion that runs past it,
+usually one missing its base case, raises RecursionError instead of crashing
+the process, and can be caught like any other error. Comparing or printing
+values nested that deeply, such as two distinct lists that each contain
+themselves, raises the same error. The traceback folds the repeated frames
+into a single "previous frame repeated N more times" line.
+
+```goblin
+func forever(n) {
+    return forever(n + 1)
+}
+
+try {
+    forever(0)
+} catch err {
+    print(err.is(RecursionError)) # true
+}
+```
