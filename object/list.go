@@ -301,6 +301,9 @@ func (l *List) Multiply(other Object) (Object, error) {
 		if int64(v) < 0 {
 			return nil, NewValueError("cannot multiply List by negative number")
 		}
+		if err := checkRepeat(len(l.Elements), v); err != nil {
+			return nil, err
+		}
 		newElements := make([]Object, len(l.Elements)*int(v))
 		for i := 0; i < int(v); i++ {
 			copy(newElements[i*len(l.Elements):], l.Elements)

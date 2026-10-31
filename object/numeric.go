@@ -4,8 +4,9 @@ import "math"
 
 // The numeric helpers below hold Goblin's rules for the Integer/Float pairs in
 // one place: an all-integer expression stays integer, a mixed one widens to
-// float, and division or modulo by either kind of zero raises
-// ZeroDivisionError. Both
+// float, division or modulo by either kind of zero raises
+// ZeroDivisionError, and integer results that do not fit raise OverflowError.
+// Both
 // the operand types' own methods and the package-level operators call them —
 // the operators would otherwise reach the very same code through an interface
 // call, which is measurable in arithmetic-heavy loops.
@@ -14,64 +15,76 @@ import "math"
 // caller raises the type error itself, so each caller keeps naming the types
 // the way it sees them.
 
-func numericAdd(a, b Object) (Object, bool) {
+func numericAdd(a, b Object) (Object, bool, error) {
 	switch lhs := a.(type) {
 	case Integer:
 		switch rhs := b.(type) {
 		case Integer:
-			return lhs + rhs, true
+			c, ok := CheckedAdd(int64(lhs), int64(rhs))
+			if !ok {
+				return nil, true, NewIntegerOverflow()
+			}
+			return Integer(c), true, nil
 		case Float:
-			return Float(lhs) + rhs, true
+			return Float(lhs) + rhs, true, nil
 		}
 	case Float:
 		switch rhs := b.(type) {
 		case Float:
-			return lhs + rhs, true
+			return lhs + rhs, true, nil
 		case Integer:
-			return lhs + Float(rhs), true
+			return lhs + Float(rhs), true, nil
 		}
 	}
-	return nil, false
+	return nil, false, nil
 }
 
-func numericMinus(a, b Object) (Object, bool) {
+func numericMinus(a, b Object) (Object, bool, error) {
 	switch lhs := a.(type) {
 	case Integer:
 		switch rhs := b.(type) {
 		case Integer:
-			return lhs - rhs, true
+			c, ok := CheckedSub(int64(lhs), int64(rhs))
+			if !ok {
+				return nil, true, NewIntegerOverflow()
+			}
+			return Integer(c), true, nil
 		case Float:
-			return Float(lhs) - rhs, true
+			return Float(lhs) - rhs, true, nil
 		}
 	case Float:
 		switch rhs := b.(type) {
 		case Float:
-			return lhs - rhs, true
+			return lhs - rhs, true, nil
 		case Integer:
-			return lhs - Float(rhs), true
+			return lhs - Float(rhs), true, nil
 		}
 	}
-	return nil, false
+	return nil, false, nil
 }
 
-func numericMultiply(a, b Object) (Object, bool) {
+func numericMultiply(a, b Object) (Object, bool, error) {
 	switch lhs := a.(type) {
 	case Integer:
 		switch rhs := b.(type) {
 		case Integer:
-			return lhs * rhs, true
+			c, ok := CheckedMul(int64(lhs), int64(rhs))
+			if !ok {
+				return nil, true, NewIntegerOverflow()
+			}
+			return Integer(c), true, nil
 		case Float:
-			return Float(lhs) * rhs, true
+			return Float(lhs) * rhs, true, nil
 		}
 	case Float:
 		switch rhs := b.(type) {
 		case Float:
-			return lhs * rhs, true
+			return lhs * rhs, true, nil
 		case Integer:
-			return lhs * Float(rhs), true
+			return lhs * Float(rhs), true, nil
 		}
 	}
-	return nil, false
+	return nil, false, nil
 }
 
 func numericDivide(a, b Object) (Object, bool, error) {
@@ -82,7 +95,11 @@ func numericDivide(a, b Object) (Object, bool, error) {
 			if rhs == 0 {
 				return nil, true, NewZeroDivisionError("division by zero")
 			}
-			return lhs / rhs, true, nil
+			c, ok := CheckedDiv(int64(lhs), int64(rhs))
+			if !ok {
+				return nil, true, NewIntegerOverflow()
+			}
+			return Integer(c), true, nil
 		case Float:
 			if rhs == 0 {
 				return nil, true, NewZeroDivisionError("division by zero")

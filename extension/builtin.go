@@ -20,6 +20,7 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"IndexError":          object.IndexError,
 	"KeyError":            object.KeyError,
 	"ZeroDivisionError":   object.ZeroDivisionError,
+	"OverflowError":       object.OverflowError,
 	"AttributeError":      object.AttributeError,
 	"NameError":           object.NameError,
 	"ImportError":         object.ImportError,

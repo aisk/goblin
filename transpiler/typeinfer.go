@@ -323,11 +323,10 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType, sigs map[str
 			return tyUnknown
 		}
 		switch e.Operator {
-		// Division is included, but unlike the other operators it cannot be a
-		// bare Go `/`: Goblin raises a catchable ZeroDivisionError where Go
-		// either panics (integers) or yields ±Inf (floats). emitNative
-		// therefore guards it, which is why native expressions are allowed to
-		// carry preceding statements.
+		// None of these is a bare Go operator: integer + - * / check for
+		// overflow and / % for a zero divisor, raising the catchable error the
+		// runtime raises, so emitNative hoists the checks as preceding
+		// statements.
 		case "+", "-", "*", "/", "%":
 			// Mixed int/float arithmetic widens to float, exactly as
 			// object.Integer's methods do. Only int op int stays integral,
@@ -355,11 +354,9 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType, sigs map[str
 				return tyBool
 			}
 		case ast.And, ast.Or:
-			// A division anywhere in the right operand would have its
-			// zero-check hoisted in front of the whole expression, which breaks
-			// short-circuiting: `b != 0 && a / b > 1` would raise the very
-			// error the guard was written to avoid.
-			if lhs == tyBool && rhs == tyBool && !hoistsStatements(e.RHS) {
+			// emitShortCircuit keeps the right operand's hoisted checks
+			// behind the left operand, so `b != 0 && a / b > 1` stays safe.
+			if lhs == tyBool && rhs == tyBool {
 				return tyBool
 			}
 		}
@@ -378,22 +375,4 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType, sigs map[str
 	}
 
 	return tyDynamic
-}
-
-// hoistsStatements reports whether emitting a native-eligible expression tree
-// needs preceding statements: a zero check for division or modulo, or the
-// call-and-error-check pair of a lowered call. Both would be hoisted in front
-// of the whole expression, which is what makes them incompatible with the
-// short-circuit operators.
-func hoistsStatements(expr ast.Expression) bool {
-	switch e := expr.(type) {
-	case *ast.UnaryOperation:
-		return hoistsStatements(e.Operand)
-	case *ast.BinaryOperation:
-		return e.Operator == "/" || e.Operator == "%" ||
-			hoistsStatements(e.LHS) || hoistsStatements(e.RHS)
-	case *ast.CallExpression:
-		return true
-	}
-	return false
 }

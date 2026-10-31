@@ -3,6 +3,7 @@ package json
 import (
 	"bytes"
 	"encoding/json"
+	"math"
 	"slices"
 	"strconv"
 	"strings"
@@ -139,11 +140,13 @@ func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error
 		buf.WriteString(strconv.FormatInt(int64(v), 10))
 		return nil
 	case object.Float:
-		b, err := json.Marshal(float64(v))
-		if err != nil {
+		// Float's own text is valid JSON for every finite value and keeps
+		// the ".0" that makes 2.0 parse back as a Float rather than an Int.
+		if math.IsInf(float64(v), 0) || math.IsNaN(float64(v)) {
+			_, err := json.Marshal(float64(v))
 			return object.WrapError(object.ValueError, "marshal() unsupported float value", err)
 		}
-		buf.Write(b)
+		buf.WriteString(v.String())
 		return nil
 	case object.String:
 		b, err := json.Marshal(string(v))

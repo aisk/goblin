@@ -119,7 +119,7 @@ func TestConstructorsAcceptNamedDefaultArguments(t *testing.T) {
 		want string
 	}{
 		{IntConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: String("12")}}}, "12"},
-		{FloatConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(2)}}}, "2"},
+		{FloatConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(2)}}}, "2.0"},
 		{BoolConstructorFn, CallArgs{Keyword: Kwargs{{Name: "value", Value: String("")}}}, "false"},
 		{ListConstructorFn, CallArgs{Keyword: Kwargs{{Name: "iterable", Value: String("ab")}}}, `["a", "b"]`},
 	}

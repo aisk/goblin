@@ -220,7 +220,7 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 		{ShowTrait, "show", []Object{&List{Elements: []Object{String("x")}}}, `["x"]`},
 		{TruthTrait, "truth", []Object{String("")}, "false"},
 		{SubTrait, "rsub", []Object{Integer(1), Integer(10)}, "9"},
-		{NegTrait, "neg", []Object{Float(2)}, "-2"},
+		{NegTrait, "neg", []Object{Float(2)}, "-2.0"},
 		{IterTrait, "iter", []Object{String("ab")}, `["a", "b"]`},
 		{IndexTrait, "get", []Object{&List{Elements: []Object{Integer(7)}}, Integer(0)}, "7"},
 	}

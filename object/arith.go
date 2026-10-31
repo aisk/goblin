@@ -14,8 +14,8 @@ package object
 // straight from the shared numeric helpers: no reflected dispatch can apply to
 // them, so the general path's interface call would be pure overhead.
 func Add(a, b Object) (Object, error) {
-	if result, ok := numericAdd(a, b); ok {
-		return result, nil
+	if result, ok, err := numericAdd(a, b); ok {
+		return result, err
 	}
 	res, err := a.Add(b)
 	if err == nil {
@@ -31,8 +31,8 @@ func Add(a, b Object) (Object, error) {
 }
 
 func Minus(a, b Object) (Object, error) {
-	if result, ok := numericMinus(a, b); ok {
-		return result, nil
+	if result, ok, err := numericMinus(a, b); ok {
+		return result, err
 	}
 	res, err := a.Minus(b)
 	if err == nil {
@@ -48,8 +48,8 @@ func Minus(a, b Object) (Object, error) {
 }
 
 func Multiply(a, b Object) (Object, error) {
-	if result, ok := numericMultiply(a, b); ok {
-		return result, nil
+	if result, ok, err := numericMultiply(a, b); ok {
+		return result, err
 	}
 	res, err := a.Multiply(b)
 	if err == nil {
@@ -123,7 +123,11 @@ func Positive(v Object) (Object, error) {
 func Negate(v Object) (Object, error) {
 	switch n := v.(type) {
 	case Integer:
-		return Integer(-int64(n)), nil
+		neg, ok := CheckedNeg(int64(n))
+		if !ok {
+			return nil, NewIntegerOverflow()
+		}
+		return Integer(neg), nil
 	case Float:
 		return Float(-float64(n)), nil
 	case UserValue:

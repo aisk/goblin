@@ -282,6 +282,9 @@ func (b Bytes) Repeat(args CallArgs) (Object, error) {
 	if count < 0 {
 		return nil, NewValueError("repeat() count must not be negative")
 	}
+	if err := checkRepeat(len(b), count); err != nil {
+		return nil, err
+	}
 	return NewBytes(bytes.Repeat(b, int(count))), nil
 }
 

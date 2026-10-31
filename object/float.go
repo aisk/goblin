@@ -1,7 +1,9 @@
 package object
 
 import (
+	"math"
 	"strconv"
+	"strings"
 )
 
 type Float float64
@@ -12,8 +14,23 @@ func (f Float) ToBool() (bool, error) { return f != 0, nil }
 
 func (f Float) TypeName() string { return "Float" }
 
+// String renders the shortest text that reads back as the same float, and
+// always marks it as a float: 2.0 is "2.0", never "2", so a Float never
+// prints like an Integer. Magnitudes below 1e-4 or from 1e16 up use an
+// exponent ("1e-05", "1e+16") rather than a long run of zeros.
 func (f Float) String() string {
-	return strconv.FormatFloat(float64(f), 'f', -1, 64)
+	v := float64(f)
+	if math.IsInf(v, 0) || math.IsNaN(v) {
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	}
+	if abs := math.Abs(v); abs != 0 && (abs < 1e-4 || abs >= 1e16) {
+		return strconv.FormatFloat(v, 'e', -1, 64)
+	}
+	s := strconv.FormatFloat(v, 'f', -1, 64)
+	if !strings.Contains(s, ".") {
+		s += ".0"
+	}
+	return s
 }
 
 func (f Float) ToString() (string, error) { return f.String(), nil }
@@ -31,22 +48,22 @@ func (f Float) Compare(other Object) (int, error) {
 }
 
 func (f Float) Add(other Object) (Object, error) {
-	if result, ok := numericAdd(f, other); ok {
-		return result, nil
+	if result, ok, err := numericAdd(f, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpAdd, "Float", other)
 }
 
 func (f Float) Minus(other Object) (Object, error) {
-	if result, ok := numericMinus(f, other); ok {
-		return result, nil
+	if result, ok, err := numericMinus(f, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpSubtract, "Float", other)
 }
 
 func (f Float) Multiply(other Object) (Object, error) {
-	if result, ok := numericMultiply(f, other); ok {
-		return result, nil
+	if result, ok, err := numericMultiply(f, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpMultiply, "Float", other)
 }

@@ -5,8 +5,8 @@ operation succeeds only when its value types are compatible.
 
 | Type | Examples | Notes |
 | --- | --- | --- |
-| Integer | 0, -42 | Signed whole number |
-| Float | 3.14, -0.5 | Floating-point number |
+| Integer | 0, -42 | Signed 64-bit whole number |
+| Float | 3.14, -0.5 | 64-bit floating-point number |
 | Bool | true, false | Logical value |
 | Nil | nil | Absence of a value; it prints as nil |
 | String | "hello" | Immutable Unicode text |
@@ -34,7 +34,15 @@ print(2 + 0.5)   # 2.5
 print(-3 * 4)    # -12
 print(-7 % 3)    # -1
 print(7.5 % 2)   # 1.5
+print(4 / 2.0)   # 2.0
 ~~~
+
+A Float always prints as a float: a whole value keeps a `.0`, and very large or
+very small magnitudes use an exponent (`1e+16`, `1e-05`).
+
+Integers are 64-bit and Goblin has no big integers. Arithmetic whose result
+does not fit raises OverflowError instead of wrapping around, and so does
+converting a float or string that is out of range with Int().
 
 Numbers can be compared across integer and float values. Division or modulo by
 zero raises ZeroDivisionError. Int() and Float() convert numbers, booleans,
@@ -43,7 +51,7 @@ and numeric strings; converting a float to Int removes its fractional portion.
 ~~~goblin
 print(Int("42"))   # 42
 print(Int(3.9))     # 3
-print(Float(true))  # 1
+print(Float(true))  # 1.0
 print(max(3, 5, 4))
 ~~~
 

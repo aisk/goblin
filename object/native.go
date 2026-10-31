@@ -18,7 +18,10 @@ package object
 func AddInt(a Object, b int64) (Object, error) {
 	switch lhs := a.(type) {
 	case Integer:
-		return lhs + Integer(b), nil
+		if c, ok := CheckedAdd(int64(lhs), b); ok {
+			return Integer(c), nil
+		}
+		return nil, NewIntegerOverflow()
 	case Float:
 		return lhs + Float(b), nil
 	}
@@ -28,7 +31,10 @@ func AddInt(a Object, b int64) (Object, error) {
 func MinusInt(a Object, b int64) (Object, error) {
 	switch lhs := a.(type) {
 	case Integer:
-		return lhs - Integer(b), nil
+		if c, ok := CheckedSub(int64(lhs), b); ok {
+			return Integer(c), nil
+		}
+		return nil, NewIntegerOverflow()
 	case Float:
 		return lhs - Float(b), nil
 	}
@@ -38,7 +44,10 @@ func MinusInt(a Object, b int64) (Object, error) {
 func MultiplyInt(a Object, b int64) (Object, error) {
 	switch lhs := a.(type) {
 	case Integer:
-		return lhs * Integer(b), nil
+		if c, ok := CheckedMul(int64(lhs), b); ok {
+			return Integer(c), nil
+		}
+		return nil, NewIntegerOverflow()
 	case Float:
 		return lhs * Float(b), nil
 	}
@@ -51,7 +60,10 @@ func DivideInt(a Object, b int64) (Object, error) {
 	if b != 0 {
 		switch lhs := a.(type) {
 		case Integer:
-			return lhs / Integer(b), nil
+			if c, ok := CheckedDiv(int64(lhs), b); ok {
+				return Integer(c), nil
+			}
+			return nil, NewIntegerOverflow()
 		case Float:
 			return lhs / Float(b), nil
 		}

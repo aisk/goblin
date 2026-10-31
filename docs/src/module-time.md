@@ -71,7 +71,7 @@ that leaves the representable range raises ValueError.
 var meeting = time.Time(2026, 7, 19, hour=9, minute=30)
 var reminder = meeting - 15 * 60
 print(reminder.format("15:04"))    # 09:15
-print(meeting - reminder)          # 900
+print(meeting - reminder)          # 900.0
 ~~~
 
 sleep() blocks the current execution path. It is appropriate for a deliberate

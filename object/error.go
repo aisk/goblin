@@ -248,6 +248,7 @@ var (
 	NameError         = NewSentinelError("NameError", LookupError)
 	ImportError       = NewSentinelError("ImportError", LookupError)
 	ZeroDivisionError = NewSentinelError("ZeroDivisionError", ArithmeticError)
+	OverflowError     = NewSentinelError("OverflowError", ArithmeticError)
 
 	NotExistError   = NewSentinelError("NotExistError", IOError)
 	ExistError      = NewSentinelError("ExistError", IOError)
@@ -294,6 +295,9 @@ func NewIndexError(format string, a ...any) *Error {
 func NewKeyError(format string, a ...any) *Error { return typedError(KeyError, format, a...) }
 func NewZeroDivisionError(format string, a ...any) *Error {
 	return typedError(ZeroDivisionError, format, a...)
+}
+func NewOverflowError(format string, a ...any) *Error {
+	return typedError(OverflowError, format, a...)
 }
 func NewAttributeError(format string, a ...any) *Error {
 	return typedError(AttributeError, format, a...)

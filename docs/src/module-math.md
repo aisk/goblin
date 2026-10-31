@@ -51,7 +51,7 @@ floating-point values before they affect later calculations.
 
 ~~~goblin
 var distance = math.hypot(3, 4)
-print(distance) # 5
+print(distance) # 5.0
 print(math.sin(math.pi / 2))
 print(math.is_inf(math.inf))
 ~~~

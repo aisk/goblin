@@ -192,6 +192,9 @@ func (s String) Repeat(args CallArgs) (Object, error) {
 	if count < 0 {
 		return nil, NewValueError("repeat() count must not be negative")
 	}
+	if err := checkRepeat(len(s), count); err != nil {
+		return nil, err
+	}
 	return String(strings.Repeat(string(s), int(count))), nil
 }
 
@@ -391,6 +394,9 @@ func (s String) Multiply(other Object) (Object, error) {
 	case Integer:
 		if v < 0 {
 			return nil, NewValueError("cannot multiply String by negative number")
+		}
+		if err := checkRepeat(len(s), v); err != nil {
+			return nil, err
 		}
 		return String(strings.Repeat(string(s), int(v))), nil
 	default:

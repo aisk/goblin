@@ -1,0 +1,55 @@
+# Integers are 64-bit: results that do not fit raise OverflowError, in the
+# interpreter and in compiled code alike, whether the operands are literals,
+# locals the compiler keeps unboxed, or boxed values.
+var max = 9223372036854775807
+var min = -max - 1
+
+func attempt(label, f) {
+    try {
+        print(label, f())
+    } catch err {
+        print(label, "->", err.message, err.is(OverflowError), err.is(ArithmeticError))
+    }
+}
+
+attempt("max + 1", func() { return max + 1 })
+attempt("min - 1", func() { return min - 1 })
+attempt("max * 2", func() { return max * 2 })
+attempt("min / -1", func() { return min / -1 })
+attempt("-min", func() { return -min })
+attempt("literal", func() { return 9223372036854775807 + 1 })
+attempt("min % -1", func() { return min % -1 })
+attempt("largest square", func() { return 3037000499 * 3037000499 })
+attempt("next square", func() { return 3037000500 * 3037000500 })
+
+func power(base, exp) {
+    var result = 1
+    var i = 0
+    while i < exp {
+        result = result * base
+        i = i + 1
+    }
+    return result
+}
+attempt("3 ** 39", func() { return power(3, 39) })
+attempt("3 ** 40", func() { return power(3, 40) })
+attempt("repeat", func() { return "ab" * max })
+
+# Conversions refuse values that have no Int.
+attempt("Int(1e30)", func() { return Int(Float("1e30")) })
+attempt("Int(nan)", func() { return Int(Float("nan")) })
+attempt("Int(text)", func() { return Int("9223372036854775808") })
+attempt("Int(-2.9)", func() { return Int(-2.9) })
+
+# Floats round every operation, so compiled code agrees with the interpreter
+# even where Go would fold constants exactly.
+print(0.1 + 0.2, 0.1 + 0.2 == 0.3)
+var tenth = 0.1
+print(tenth * 3, 1.0 / 3.0)
+
+# A Float always prints as one.
+print(2.0, 4 / 2.0, -0.0, Float(7), Float("1e16"), Float("0.00001"))
+
+# The right operand of && and || only runs when needed, checks included.
+var zero = 0
+print(zero != 0 && 10 / zero > 1, zero == 0 || max + zero + 1 > 0)

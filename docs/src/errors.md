@@ -68,6 +68,7 @@ The runtime uses named error kinds, which can be raised directly or wrapped.
 | ValueError | A valid type has an invalid value |
 | IndexError / KeyError | A missing list index or dictionary key |
 | ZeroDivisionError | Division or modulo by zero |
+| OverflowError | An integer result that does not fit in 64 bits |
 | AttributeError / NameError | A missing member or identifier |
 | ImportError | An unavailable module |
 | ParseError | Invalid JSON or other parsed input |
@@ -77,7 +78,7 @@ The runtime uses named error kinds, which can be raised directly or wrapped.
 | NotImplementedError | An operation the runtime does not implement |
 
 Kinds are hierarchical. IndexError and KeyError are LookupErrors;
-ZeroDivisionError is an ArithmeticError; ParseError is a ValueError. Therefore
+ZeroDivisionError and OverflowError are ArithmeticErrors; ParseError is a ValueError. Therefore
 err.is(LookupError) can handle more than one specific lookup failure.
 
 Wrap errors where you can add useful context. Do not catch an error merely to

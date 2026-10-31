@@ -1,0 +1,20 @@
+max + 1 -> integer overflow true true
+min - 1 -> integer overflow true true
+max * 2 -> integer overflow true true
+min / -1 -> integer overflow true true
+-min -> integer overflow true true
+literal -> integer overflow true true
+min % -1 0
+largest square 9223372030926249001
+next square -> integer overflow true true
+3 ** 39 4052555153018976267
+3 ** 40 -> integer overflow true true
+repeat -> integer overflow true true
+Int(1e30) -> Int() value out of range: 1e+30 true true
+Int(nan) -> Int() cannot convert NaN false false
+Int(text) -> Int() value out of range: "9223372036854775808" true true
+Int(-2.9) -2
+0.30000000000000004 false
+0.30000000000000004 0.3333333333333333
+2.0 2.0 -0.0 7.0 1e+16 1e-05
+false true

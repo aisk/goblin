@@ -1,6 +1,8 @@
 package object
 
 import (
+	"errors"
+	"math"
 	"strconv"
 )
 
@@ -31,22 +33,22 @@ func (i Integer) Compare(other Object) (int, error) {
 }
 
 func (i Integer) Add(other Object) (Object, error) {
-	if result, ok := numericAdd(i, other); ok {
-		return result, nil
+	if result, ok, err := numericAdd(i, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpAdd, "Integer", other)
 }
 
 func (i Integer) Minus(other Object) (Object, error) {
-	if result, ok := numericMinus(i, other); ok {
-		return result, nil
+	if result, ok, err := numericMinus(i, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpSubtract, "Integer", other)
 }
 
 func (i Integer) Multiply(other Object) (Object, error) {
-	if result, ok := numericMultiply(i, other); ok {
-		return result, nil
+	if result, ok, err := numericMultiply(i, other); ok {
+		return result, err
 	}
 	return nil, NewOperandError(OpMultiply, "Integer", other)
 }
@@ -108,9 +110,21 @@ func IntConstructor(args CallArgs) (Object, error) {
 	case Integer:
 		return v, nil
 	case Float:
-		return Integer(int64(v)), nil
+		f := float64(v)
+		if math.IsNaN(f) {
+			return nil, NewValueError("Int() cannot convert NaN")
+		}
+		// -2^63 and 2^63 are exact float64 values; the truncation of anything
+		// in [-2^63, 2^63) fits in an int64.
+		if f < math.MinInt64 || f >= -math.MinInt64 {
+			return nil, NewOverflowError("Int() value out of range: %s", v.String())
+		}
+		return Integer(int64(f)), nil
 	case String:
 		n, err := strconv.ParseInt(string(v), 10, 64)
+		if errors.Is(err, strconv.ErrRange) {
+			return nil, NewOverflowError("Int() value out of range: %q", string(v))
+		}
 		if err != nil {
 			return nil, NewValueError("Int() invalid literal for Int: %q", string(v))
 		}

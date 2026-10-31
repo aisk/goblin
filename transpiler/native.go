@@ -49,7 +49,10 @@ func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.C
 		case object.Integer:
 			return nil, jen.Lit(int64(v)), nil
 		case object.Float:
-			return nil, jen.Lit(float64(v)), nil
+			// Not a bare literal: Go would fold constant float expressions
+			// exactly instead of rounding each operation the way the runtime
+			// does (see object.FloatValue).
+			return nil, jen.Qual(pathObject, "FloatValue").Call(jen.Lit(float64(v))), nil
 		case object.Bool:
 			return nil, jen.Lit(bool(v)), nil
 		}
@@ -82,9 +85,16 @@ func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.C
 		if err != nil {
 			return nil, nil, err
 		}
+		if e.Operator == "-" && g.nativeTypeOf(e.Operand) == tyInt {
+			pre, result := g.checkedInt(pre, "CheckedNeg", onError, operand)
+			return pre, result, nil
+		}
 		return pre, jen.Parens(jen.Op(e.Operator).Add(operand)), nil
 
 	case *ast.BinaryOperation:
+		if e.Operator == ast.And || e.Operator == ast.Or {
+			return g.emitShortCircuit(e, onError)
+		}
 		lhsPre, lhs, err := g.emitNative(e.LHS, onError)
 		if err != nil {
 			return nil, nil, err
@@ -122,7 +132,11 @@ func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.C
 					onError(errVar),
 				),
 			)
-			return pre, jen.Parens(lhs.Op("/").Id(divisor)), nil
+			if lhsType == tyInt && rhsType == tyInt {
+				pre, result := g.checkedInt(pre, "CheckedDiv", onError, lhs, jen.Id(divisor))
+				return pre, result, nil
+			}
+			return pre, jen.Float64().Call(lhs.Op("/").Id(divisor)), nil
 		}
 
 		if e.Operator == "%" {
@@ -145,10 +159,71 @@ func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.C
 			return pre, jen.Parens(jen.Qual("math", "Mod").Call(lhs, jen.Id(divisor))), nil
 		}
 
-		// Goblin's operator spellings for arithmetic, comparison, && and ||
-		// are the same as Go's, so the operator carries over verbatim.
+		if fn, ok := checkedIntOps[e.Operator]; ok {
+			if lhsType == tyInt && rhsType == tyInt {
+				pre, result := g.checkedInt(pre, fn, onError, lhs, rhs)
+				return pre, result, nil
+			}
+			// The explicit conversion rounds the result to float64, which
+			// stops Go from fusing it with a neighbouring operation into an
+			// FMA (as it may on arm64): the runtime rounds every operation.
+			return pre, jen.Float64().Call(lhs.Op(e.Operator).Add(rhs)), nil
+		}
+
+		// Comparisons are spelled the same in Goblin and Go, so the operator
+		// carries over verbatim.
 		return pre, jen.Parens(lhs.Op(e.Operator).Add(rhs)), nil
 	}
 
 	return nil, nil, fmt.Errorf("internal error: %T is not a native expression", expr)
+}
+
+// checkedIntOps maps integer arithmetic operators to the object helper that
+// performs them with overflow detection.
+var checkedIntOps = map[string]string{"+": "CheckedAdd", "-": "CheckedSub", "*": "CheckedMul"}
+
+// checkedInt emits a call to one of object's Checked* helpers as a hoisted
+// statement that raises OverflowError when the result does not fit, and
+// returns the variable holding the result.
+func (g *generator) checkedInt(pre []jen.Code, fn string, onError errHandler, args ...jen.Code) ([]jen.Code, *jen.Statement) {
+	result := g.localName("n")
+	ok := g.localName("ok")
+	errVar := g.localName("err")
+	pre = append(pre,
+		jen.List(jen.Id(result), jen.Id(ok)).Op(":=").Qual(pathObject, fn).Call(args...),
+		jen.If(jen.Op("!").Id(ok)).Block(
+			jen.Id(errVar).Op(":=").Qual(pathObject, "NewIntegerOverflow").Call(),
+			onError(errVar),
+		),
+	)
+	return pre, jen.Id(result)
+}
+
+// emitShortCircuit renders && and || natively. When the right operand needs
+// hoisted statements (a zero or overflow check, a lowered call), they must
+// only run when the right operand is actually evaluated, so the result lives
+// in a variable assigned inside an if instead of a single Go expression.
+func (g *generator) emitShortCircuit(e *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	pre, lhs, err := g.emitNative(e.LHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	rhsPre, rhs, err := g.emitNative(e.RHS, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	if len(rhsPre) == 0 {
+		return pre, jen.Parens(lhs.Op(e.Operator).Add(rhs)), nil
+	}
+	result := g.localName("cond")
+	evaluateRHS := jen.Id(result)
+	if e.Operator == ast.Or {
+		evaluateRHS = jen.Op("!").Id(result)
+	}
+	block := append(rhsPre, jen.Id(result).Op("=").Add(rhs))
+	pre = append(pre,
+		jen.Id(result).Op(":=").Add(lhs),
+		jen.If(evaluateRHS).Block(block...),
+	)
+	return pre, jen.Id(result), nil
 }
