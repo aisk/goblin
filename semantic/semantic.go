@@ -5,6 +5,7 @@ import (
 
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
+	"github.com/aisk/goblin/extension/stdlib"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/token"
 )
@@ -206,6 +207,9 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 	case *ast.Import:
 		if !isModuleScope {
 			return c.newError(v.Position(), "import is only allowed at module scope")
+		}
+		if !v.IsPathImport() && !stdlib.Has(v.Path) {
+			return c.newError(v.Position(), "unknown module: %s", v.Path)
 		}
 		return nil
 	case *ast.TypeDefine:

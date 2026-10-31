@@ -110,6 +110,17 @@ func TestCheckModule(t *testing.T) {
 			errContains: "import is only allowed at module scope",
 		},
 		{
+			name:        "unknown stdlib module",
+			source:      "import \"nope\"\n",
+			wantErr:     true,
+			errContains: "1:8: semantic error: unknown module: nope",
+		},
+		{
+			name:    "nested stdlib module",
+			source:  "import \"x/compress/gzip\"\nprint(gzip)\n",
+			wantErr: false,
+		},
+		{
 			name:        "type inside function",
 			source:      "func f() { type T(x) {} }\n",
 			wantErr:     true,

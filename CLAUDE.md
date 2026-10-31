@@ -56,7 +56,7 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 
 ### Standard Library Modules
 
-Importable modules are implemented in Go under `extension/` and come in two tiers: curated core modules with flat names (`os`, `json`, `http`, …) and direct Go wrappers registered under the `x/` prefix with Go's package hierarchy (`x/compress/gzip`, `x/crypto/sha256`, …). Each module is its own Go package at `extension/<module name>` exposing `Execute`, so compiled programs only link the modules they import; shared plumbing lives in `extension/internal/` (`digest`, `compress`, `archive`, plus the `modtest` test helpers). A new module must be registered in **two places**: `builtinModules` in `interpreter/imports.go` and `knownModules` in `transpiler/transpiler.go` (the registries derive the Go import path from the module name). API design and tier placement follow `STDLIB_DESIGN.md`.
+Importable modules are implemented in Go under `extension/` and come in two tiers: curated core modules with flat names (`os`, `json`, `http`, …) and direct Go wrappers registered under the `x/` prefix with Go's package hierarchy (`x/compress/gzip`, `x/crypto/sha256`, …). Each module is its own Go package at `extension/<module name>` exposing `Execute`, so compiled programs only link the modules they import; shared plumbing lives in `extension/internal/` (`digest`, `compress`, `archive`, plus the `modtest` test helpers). A new module is registered once, in `extension/stdlib/stdlib.go`: the interpreter loads executors from it, while the semantic checker and transpiler only use its names (the transpiler derives the Go import path from the name, which a stdlib test enforces). API design and tier placement follow `STDLIB_DESIGN.md`.
 
 ### Traits
 

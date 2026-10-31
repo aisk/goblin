@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"sort"
 	"strings"
 
 	"github.com/aisk/goblin/ast"
@@ -24,55 +23,6 @@ const (
 	defaultGoblinRuntimeVersion = "v0.0.0-20260731160124-eddbfc600c08"
 )
 
-// knownModules lists the stdlib modules the transpiler can import. Each
-// module lives in the Go package extension/<module name> and exposes an
-// Execute constructor, so the name alone determines the generated import:
-// see moduleExecutorPath and moduleVarName.
-var knownModules = map[string]struct{}{
-	"csv":                    {},
-	"exec":                   {},
-	"fs":                     {},
-	"http":                   {},
-	"io":                     {},
-	"json":                   {},
-	"math":                   {},
-	"os":                     {},
-	"path":                   {},
-	"rand":                   {},
-	"regexp":                 {},
-	"time":                   {},
-	"url":                    {},
-	"uuid":                   {},
-	"x/archive/tar":          {},
-	"x/archive/zip":          {},
-	"x/compress/bzip2":       {},
-	"x/compress/flate":       {},
-	"x/compress/gzip":        {},
-	"x/compress/lzw":         {},
-	"x/compress/zlib":        {},
-	"x/crypto/hmac":          {},
-	"x/crypto/md5":           {},
-	"x/crypto/sha1":          {},
-	"x/crypto/sha256":        {},
-	"x/crypto/sha512":        {},
-	"x/encoding/ascii85":     {},
-	"x/encoding/base32":      {},
-	"x/encoding/base64":      {},
-	"x/encoding/hex":         {},
-	"x/encoding/pem":         {},
-	"x/hash/adler32":         {},
-	"x/hash/crc32":           {},
-	"x/hash/crc64":           {},
-	"x/hash/fnv":             {},
-	"x/html":                 {},
-	"x/mime":                 {},
-	"x/mime/quotedprintable": {},
-	"x/net/mail":             {},
-	"x/net/netip":            {},
-	"x/unicode":              {},
-	"x/unicode/utf8":         {},
-}
-
 // moduleExecutorPath returns the Go import path of a stdlib module's package.
 func moduleExecutorPath(name string) string {
 	return pathExtension + "/" + name
@@ -85,18 +35,6 @@ func moduleVarName(name string) string {
 		name = name[i+1:]
 	}
 	return name + "_module"
-}
-
-// KnownModuleNames lists the stdlib modules the transpiler can import, sorted.
-// It is exported so tests can assert the interpreter's builtinModules table
-// stays in sync with this one.
-func KnownModuleNames() []string {
-	names := make([]string, 0, len(knownModules))
-	for name := range knownModules {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-	return names
 }
 
 // transpileContext holds state for a single Transpile call.
@@ -549,7 +487,7 @@ func keyToFuncName(key string) string {
 // named after the module itself, which also makes the variable shared when
 // several modules in one generated file import the same module. Path imports
 // are handed to recurse (when non-nil) so dependent modules are transpiled
-// first; stdlib imports are validated against knownModules. importPath is the
+// first; stdlib imports are validated against the stdlib registry. importPath is the
 // import path of the module being collected, empty for the entry module (it
 // only affects error wording).
 func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath string, recurse func(string) error) (map[string]string, error) {
@@ -571,12 +509,7 @@ func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath st
 				}
 			}
 		} else {
-			if _, exists := knownModules[imp.Path]; !exists {
-				if importPath == "" {
-					return nil, fmt.Errorf("unknown module: %s", imp.Path)
-				}
-				return nil, fmt.Errorf("unknown module in %s: %s", importPath, imp.Path)
-			}
+			// The checker has validated the name against the stdlib registry.
 			imports[imp.Name] = "_" + moduleVarName(imp.Path)
 		}
 	}

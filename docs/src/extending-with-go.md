@@ -38,7 +38,7 @@ Place related functions in an extension package and return them from an
 object.Module:
 
 ~~~go
-func ExecuteExample() (object.Object, error) {
+func Execute() (object.Object, error) {
     return &object.Module{
         Members: map[string]object.Object{
             "greet": &object.Function{Name: "greet", Fn: greet},
@@ -47,11 +47,13 @@ func ExecuteExample() (object.Object, error) {
 }
 ~~~
 
-For a new built-in module, register its executor in both
-interpreter/imports.go and transpiler/transpiler.go. The interpreter registry
-makes import "example" work with goblin run. The transpiler knownModules table
-ensures goblin build-exe imports and initializes the same module. Keeping both
-registrations in sync is essential for behavior parity.
+A new built-in module lives in its own Go package, extension/<module name>,
+and exposes that function as Execute. Register it once, in the table in
+extension/stdlib/stdlib.go. goblin run loads modules from that table, and
+goblin build-exe uses it to validate the import before emitting a direct
+import of the module's package, so a compiled program links only the modules
+it imports. A test in extension/stdlib checks that every registered executor
+really is extension/<module name>.Execute.
 
 Add a focused Go test for the extension and a Goblin example when its user
 visible behavior needs end-to-end coverage.
