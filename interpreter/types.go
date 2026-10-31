@@ -138,7 +138,7 @@ func (t *goblinType) construct(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &instance{typ: t, fields: fields}, nil
+	return object.NewUser(&instance{typ: t, fields: fields}), nil
 }
 
 // fieldIndex locates a declared field by name, returning -1 when the type has
@@ -157,6 +157,7 @@ func (t *goblinType) fieldIndex(name string) int {
 // Fields are stored in declaration order, matching what object.BindArguments
 // returns, so construction needs no per-instance map.
 type instance struct {
+	object.UserBase
 	typ    *goblinType
 	fields []object.Object
 }
@@ -232,70 +233,8 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 }
 
 // UserType and FieldValues satisfy object.UserValue, through which the
-// object package dispatches operators and conversions to the type's impls.
+// embedded object.UserBase dispatches operators and conversions to the
+// type's impls.
 func (in *instance) UserType() *object.UserType { return in.typ.info }
 
 func (in *instance) FieldValues() []object.Object { return in.fields }
-
-func (in *instance) String() string            { return object.UserString(in) }
-func (in *instance) ToString() (string, error) { return object.UserToString(in) }
-func (in *instance) ToBool() (bool, error)     { return object.UserToBool(in) }
-func (in *instance) Hash() (uint64, error)     { return object.UserHash(in) }
-
-func (in *instance) Equals(other object.Object) (bool, error) {
-	return object.UserEquals(in, other)
-}
-
-func (in *instance) Compare(other object.Object) (int, error) {
-	return object.UserCompare(in, other)
-}
-
-func (in *instance) Add(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.ArithAdd, other)
-}
-
-func (in *instance) Minus(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.ArithSub, other)
-}
-
-func (in *instance) Multiply(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.ArithMul, other)
-}
-
-func (in *instance) Divide(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.ArithDiv, other)
-}
-
-func (in *instance) Modulo(other object.Object) (object.Object, error) {
-	return object.UserArith(in, object.ArithMod, other)
-}
-
-func (in *instance) RAdd(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.ArithAdd, left)
-}
-
-func (in *instance) RMinus(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.ArithSub, left)
-}
-
-func (in *instance) RMultiply(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.ArithMul, left)
-}
-
-func (in *instance) RDivide(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.ArithDiv, left)
-}
-
-func (in *instance) RModulo(left object.Object) (object.Object, bool, error) {
-	return object.UserReflected(in, object.ArithMod, left)
-}
-
-func (in *instance) Iter() ([]object.Object, error) { return object.UserIter(in) }
-
-func (in *instance) Index(index object.Object) (object.Object, error) {
-	return object.UserIndex(in, index)
-}
-
-func (in *instance) SetIndex(index object.Object, value object.Object) (bool, error) {
-	return object.UserSetIndex(in, index, value)
-}

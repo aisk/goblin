@@ -17,39 +17,39 @@ type fakeValue struct {
 func (v *fakeValue) UserType() *UserType   { return v.typ }
 func (v *fakeValue) FieldValues() []Object { return v.fields }
 func (v *fakeValue) TypeName() string      { return v.typ.Name }
-func (v *fakeValue) String() string        { return UserString(v) }
+func (v *fakeValue) String() string        { return userString(v) }
 func (v *fakeValue) ToString() (string, error) {
-	return UserToString(v)
+	return userToString(v)
 }
-func (v *fakeValue) ToBool() (bool, error)             { return UserToBool(v) }
-func (v *fakeValue) Hash() (uint64, error)             { return UserHash(v) }
-func (v *fakeValue) Equals(o Object) (bool, error)     { return UserEquals(v, o) }
-func (v *fakeValue) Compare(o Object) (int, error)     { return UserCompare(v, o) }
-func (v *fakeValue) Add(o Object) (Object, error)      { return UserArith(v, ArithAdd, o) }
-func (v *fakeValue) Minus(o Object) (Object, error)    { return UserArith(v, ArithSub, o) }
-func (v *fakeValue) Multiply(o Object) (Object, error) { return UserArith(v, ArithMul, o) }
-func (v *fakeValue) Divide(o Object) (Object, error)   { return UserArith(v, ArithDiv, o) }
-func (v *fakeValue) Modulo(o Object) (Object, error)   { return UserArith(v, ArithMod, o) }
+func (v *fakeValue) ToBool() (bool, error)             { return userToBool(v) }
+func (v *fakeValue) Hash() (uint64, error)             { return userHash(v) }
+func (v *fakeValue) Equals(o Object) (bool, error)     { return userEquals(v, o) }
+func (v *fakeValue) Compare(o Object) (int, error)     { return userCompare(v, o) }
+func (v *fakeValue) Add(o Object) (Object, error)      { return userArith(v, ArithAdd, o) }
+func (v *fakeValue) Minus(o Object) (Object, error)    { return userArith(v, ArithSub, o) }
+func (v *fakeValue) Multiply(o Object) (Object, error) { return userArith(v, ArithMul, o) }
+func (v *fakeValue) Divide(o Object) (Object, error)   { return userArith(v, ArithDiv, o) }
+func (v *fakeValue) Modulo(o Object) (Object, error)   { return userArith(v, ArithMod, o) }
 func (v *fakeValue) RAdd(o Object) (Object, bool, error) {
-	return UserReflected(v, ArithAdd, o)
+	return userReflected(v, ArithAdd, o)
 }
 func (v *fakeValue) RMinus(o Object) (Object, bool, error) {
-	return UserReflected(v, ArithSub, o)
+	return userReflected(v, ArithSub, o)
 }
 func (v *fakeValue) RMultiply(o Object) (Object, bool, error) {
-	return UserReflected(v, ArithMul, o)
+	return userReflected(v, ArithMul, o)
 }
 func (v *fakeValue) RDivide(o Object) (Object, bool, error) {
-	return UserReflected(v, ArithDiv, o)
+	return userReflected(v, ArithDiv, o)
 }
 func (v *fakeValue) RModulo(o Object) (Object, bool, error) {
-	return UserReflected(v, ArithMod, o)
+	return userReflected(v, ArithMod, o)
 }
-func (v *fakeValue) Iter() ([]Object, error)            { return UserIter(v) }
-func (v *fakeValue) Index(i Object) (Object, error)     { return UserIndex(v, i) }
+func (v *fakeValue) Iter() ([]Object, error)            { return userIter(v) }
+func (v *fakeValue) Index(i Object) (Object, error)     { return userIndex(v, i) }
 func (v *fakeValue) GetAttr(string) (Object, error)     { return nil, NewAttributeError("none") }
 func (v *fakeValue) Attributes() []string               { return nil }
-func (v *fakeValue) SetIndex(i, x Object) (bool, error) { return UserSetIndex(v, i, x) }
+func (v *fakeValue) SetIndex(i, x Object) (bool, error) { return userSetIndex(v, i, x) }
 
 // sealed builds a type from impls, failing the test when they do not validate.
 func sealed(t *testing.T, name string, fields []string, impls ...ImplSpec) *UserType {
@@ -86,15 +86,15 @@ func TestStructuralImpls(t *testing.T) {
 	if _, err := Compare(p(&Dict{}, Integer(0)), p(&Dict{}, Integer(0))); err == nil {
 		t.Fatal("comparing Dict fields must fail")
 	}
-	h1, err1 := UserHash(p(Integer(1), String("a")))
-	h2, err2 := UserHash(p(Float(1), String("a")))
+	h1, err1 := userHash(p(Integer(1), String("a")))
+	h2, err2 := userHash(p(Float(1), String("a")))
 	if err1 != nil || err2 != nil || h1 != h2 {
 		t.Fatalf("equal values must hash alike: %d %v, %d %v", h1, err1, h2, err2)
 	}
-	if _, err := UserHash(p(&List{}, Nil)); err == nil || !errors.Is(err, TypeError) {
+	if _, err := userHash(p(&List{}, Nil)); err == nil || !errors.Is(err, TypeError) {
 		t.Fatalf("an unhashable field must raise TypeError, got %v", err)
 	}
-	if s, err := UserToString(p(String("a"), &List{Elements: []Object{Integer(1)}})); err != nil || s != `Point(x="a", y=[1])` {
+	if s, err := userToString(p(String("a"), &List{Elements: []Object{Integer(1)}})); err != nil || s != `Point(x="a", y=[1])` {
 		t.Fatalf("structural show = %q, %v", s, err)
 	}
 	if got := point.Traits(); len(got) != 4 || got[0] != EqTrait || got[3] != ShowTrait {
@@ -148,10 +148,10 @@ func TestStrictReturnTypes(t *testing.T) {
 	if err == nil || err.Error() != "Liar.eq must return Bool, got Integer" || !errors.Is(err, TypeError) {
 		t.Fatalf("a wrong eq result must not read as unequal, got %v", err)
 	}
-	if _, err := UserToString(v); err == nil || err.Error() != "Liar.show must return String, got Nil" {
+	if _, err := userToString(v); err == nil || err.Error() != "Liar.show must return String, got Nil" {
 		t.Fatalf("show result error = %v", err)
 	}
-	if s := UserString(v); !strings.HasPrefix(s, "<Liar@") {
+	if s := userString(v); !strings.HasPrefix(s, "<Liar@") {
 		t.Fatalf("infallible String must fall back to the default repr, got %q", s)
 	}
 }
@@ -286,7 +286,7 @@ func TestReviewRegressions(t *testing.T) {
 	liar := sealed(t, "Liar", nil, ImplSpec{Trait: ShowTrait, Methods: []ImplMethod{
 		method("show", 1, func([]Object) (Object, error) { return &fakeValue{typ: impostorType}, nil }),
 	}})
-	if _, err := UserToString(&fakeValue{typ: liar}); err == nil || !errors.Is(err, TypeError) {
+	if _, err := userToString(&fakeValue{typ: liar}); err == nil || !errors.Is(err, TypeError) {
 		t.Fatalf("impostor String result = %v", err)
 	}
 

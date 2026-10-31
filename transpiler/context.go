@@ -186,10 +186,11 @@ func exportedName(name string) string {
 	return strings.ToUpper(name[:1]) + name[1:]
 }
 
-// reservedGoMethodNames are the object.Object interface methods (plus the
-// optional setter interfaces) generated on every user type's struct. A
-// user-defined goblin method whose exported name collides with one of these
-// must be mangled so both can coexist on the same receiver.
+// reservedGoMethodNames are the Go method names every user type's struct has:
+// the object.Object interface methods (plus the optional setter interfaces),
+// whether generated or promoted from the embedded object.UserBase, and the
+// embedded field's own name. A user-defined goblin method whose exported name
+// collides with one of these is mangled so both can coexist on the struct.
 var reservedGoMethodNames = map[string]bool{
 	"String": true, "Bool": true, "Equals": true, "Compare": true, "Add": true,
 	"Minus": true, "Multiply": true, "Divide": true, "Modulo": true,
@@ -198,6 +199,7 @@ var reservedGoMethodNames = map[string]bool{
 	"TypeName": true, "ToString": true, "ToBool": true,
 	"RAdd": true, "RMinus": true, "RMultiply": true, "RDivide": true, "RModulo": true,
 	"Hash": true, "UserType": true, "FieldValues": true, "CallMethod": true,
+	"UserBase": true,
 }
 
 // methodWrapperName returns the Go method name for a user-defined goblin

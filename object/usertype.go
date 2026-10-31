@@ -6,9 +6,9 @@ import (
 )
 
 // UserValue is an instance of a Goblin `type`. The interpreter's instances and
-// the structs the transpiler generates both implement it, and both implement
-// their Object methods by calling the User* helpers below, so operator and
-// conversion dispatch through traits is written once.
+// the structs the transpiler generates both implement it by embedding
+// UserBase, whose Object methods call the user* helpers below, so operator
+// and conversion dispatch through traits is written once.
 type UserValue interface {
 	Object
 	UserType() *UserType
@@ -259,9 +259,9 @@ func defaultRepr(v UserValue) string {
 	return fmt.Sprintf("<%s@%p>", v.TypeName(), v)
 }
 
-// UserString is the infallible String of a user value: its Show, or the
+// userString is the infallible String of a user value: its Show, or the
 // default representation when there is none or it fails.
-func UserString(v UserValue) string {
+func userString(v UserValue) string {
 	if impl := v.UserType().show; impl != nil {
 		if r, err := impl.call(v, ShowShow, []Object{v}); err == nil {
 			return string(r.(String))
@@ -270,8 +270,8 @@ func UserString(v UserValue) string {
 	return defaultRepr(v)
 }
 
-// UserToString performs Str(v), print and interpolation through Show.
-func UserToString(v UserValue) (string, error) {
+// userToString performs Str(v), print and interpolation through Show.
+func userToString(v UserValue) (string, error) {
 	impl := v.UserType().show
 	if impl == nil {
 		return defaultRepr(v), nil
@@ -283,8 +283,8 @@ func UserToString(v UserValue) (string, error) {
 	return string(r.(String)), nil
 }
 
-// UserToBool is the truth value through Truth; without it a value is true.
-func UserToBool(v UserValue) (bool, error) {
+// userToBool is the truth value through Truth; without it a value is true.
+func userToBool(v UserValue) (bool, error) {
 	impl := v.UserType().truth
 	if impl == nil {
 		return true, nil
@@ -296,9 +296,9 @@ func UserToBool(v UserValue) (bool, error) {
 	return bool(r.(Bool)), nil
 }
 
-// UserEquals answers one side of == through Eq; without it a value is equal
+// userEquals answers one side of == through Eq; without it a value is equal
 // only to itself.
-func UserEquals(v UserValue, other Object) (bool, error) {
+func userEquals(v UserValue, other Object) (bool, error) {
 	impl := v.UserType().eq
 	if impl == nil {
 		return other == Object(v), nil
@@ -310,8 +310,8 @@ func UserEquals(v UserValue, other Object) (bool, error) {
 	return bool(r.(Bool)), nil
 }
 
-// UserCompare orders v against other through Ord.compare.
-func UserCompare(v UserValue, other Object) (int, error) {
+// userCompare orders v against other through Ord.compare.
+func userCompare(v UserValue, other Object) (int, error) {
 	impl := v.UserType().ord
 	if impl == nil {
 		return 0, NewTypeError(ErrFmtCannotCompare, v.TypeName())
@@ -331,9 +331,9 @@ var arithErrFmts = [...]string{
 	ArithMod: ErrFmtCannotModulo,
 }
 
-// UserArith performs a binary operator with v on the left through its
+// userArith performs a binary operator with v on the left through its
 // arithmetic trait. op is ArithAdd, ArithSub, ArithMul, ArithDiv or ArithMod.
-func UserArith(v UserValue, op int, other Object) (Object, error) {
+func userArith(v UserValue, op int, other Object) (Object, error) {
 	impl := v.UserType().arith[op]
 	if impl == nil {
 		return nil, NewTypeError(arithErrFmts[op], v.TypeName())
@@ -341,10 +341,10 @@ func UserArith(v UserValue, op int, other Object) (Object, error) {
 	return impl.call(v, ArithForward, []Object{v, other})
 }
 
-// UserReflected performs a binary operator with v on the right, through the
+// userReflected performs a binary operator with v on the right, through the
 // trait's reflected method (radd ... rmod). handled is false when the impl
 // does not define it, so the left operand's error stands.
-func UserReflected(v UserValue, op int, left Object) (result Object, handled bool, err error) {
+func userReflected(v UserValue, op int, left Object) (result Object, handled bool, err error) {
 	impl := v.UserType().arith[op]
 	if impl == nil || !impl.supplies(ArithReflected) {
 		return nil, false, nil
@@ -353,8 +353,8 @@ func UserReflected(v UserValue, op int, left Object) (result Object, handled boo
 	return result, true, err
 }
 
-// UserIter lists the values `for x in v` visits, through Iter.iter.
-func UserIter(v UserValue) ([]Object, error) {
+// userIter lists the values `for x in v` visits, through Iter.iter.
+func userIter(v UserValue) ([]Object, error) {
 	impl := v.UserType().iter
 	if impl == nil {
 		return nil, NewTypeError(ErrFmtNotIterable, v.TypeName())
@@ -366,8 +366,8 @@ func UserIter(v UserValue) ([]Object, error) {
 	return r.Iter()
 }
 
-// UserIndex performs v[index] through Index.get.
-func UserIndex(v UserValue, index Object) (Object, error) {
+// userIndex performs v[index] through Index.get.
+func userIndex(v UserValue, index Object) (Object, error) {
 	impl := v.UserType().index
 	if impl == nil {
 		return nil, NewTypeError(ErrFmtNotIndexable, v.TypeName())
@@ -375,9 +375,9 @@ func UserIndex(v UserValue, index Object) (Object, error) {
 	return impl.call(v, IndexGet, []Object{v, index})
 }
 
-// UserSetIndex performs v[index] = value through Index.set. handled is false
+// userSetIndex performs v[index] = value through Index.set. handled is false
 // without one, leaving SetIndex to raise the shared error.
-func UserSetIndex(v UserValue, index, value Object) (bool, error) {
+func userSetIndex(v UserValue, index, value Object) (bool, error) {
 	impl := v.UserType().index
 	if impl == nil || !impl.supplies(IndexSet) {
 		return false, nil
@@ -386,8 +386,8 @@ func UserSetIndex(v UserValue, index, value Object) (bool, error) {
 	return true, err
 }
 
-// UserHash hashes v as a dict key through Hashable.
-func UserHash(v UserValue) (uint64, error) {
+// userHash hashes v as a dict key through Hashable.
+func userHash(v UserValue) (uint64, error) {
 	impl := v.UserType().hashable
 	if impl == nil {
 		return 0, NewTypeError("unhashable dict key: %s", inspect(v))

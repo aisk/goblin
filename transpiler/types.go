@@ -13,7 +13,10 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	goTypeName := typeDef.Name
 	receiverName := receiverGoName
 
-	structFields := make([]jen.Code, 0, len(typeDef.Fields))
+	// The embedded object.UserBase supplies the Object methods that dispatch
+	// to the type's impls, as it does for the interpreter's instances.
+	structFields := make([]jen.Code, 0, len(typeDef.Fields)+1)
+	structFields = append(structFields, jen.Qual(pathObject, "UserBase"))
 	for _, field := range typeDef.Fields {
 		structFields = append(structFields, jen.Id(fieldGoName(field.Name)).Qual(pathObject, "Object"))
 	}
@@ -27,12 +30,6 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 
 	receiverParam := func() jen.Code { return jen.Id(receiverName).Op("*").Id(goTypeName) }
 	obj := func() *jen.Statement { return jen.Qual(pathObject, "Object") }
-	// userCall builds `return object.<helper>(receiver, args...)`: every
-	// operator and conversion dispatches through the type's impls in the
-	// object package, exactly as the interpreter's instances do.
-	userCall := func(helper string, args ...jen.Code) jen.Code {
-		return jen.Return(jen.Qual(pathObject, helper).Call(append([]jen.Code{jen.Id(receiverName)}, args...)...))
-	}
 	protoDecls := make([]jen.Code, 0, 24)
 	method := func(name string, params []jen.Code, results jen.Code, body ...jen.Code) {
 		protoDecls = append(protoDecls, jen.Func().Params(receiverParam()).Id(name).Params(params...).Add(results).Block(body...))
@@ -48,17 +45,11 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		fieldValues = append(fieldValues, jen.Id(receiverName).Dot(fieldGoName(field.Name)))
 	}
 	method("FieldValues", nil, jen.Index().Add(obj()), jen.Return(jen.Index().Add(obj()).Values(fieldValues...)))
-	method("String", nil, jen.String(), userCall("UserString"))
-	method("ToString", nil, jen.Parens(jen.List(jen.String(), jen.Error())), userCall("UserToString"))
-	method("ToBool", nil, jen.Parens(jen.List(jen.Bool(), jen.Error())), userCall("UserToBool"))
-	method("Hash", nil, jen.Parens(jen.List(jen.Uint64(), jen.Error())), userCall("UserHash"))
-	method("Equals", other("other"), jen.Parens(jen.List(jen.Bool(), jen.Error())), userCall("UserEquals", jen.Id("other")))
-	method("Compare", other("other"), jen.Parens(jen.List(jen.Int(), jen.Error())), userCall("UserCompare", jen.Id("other")))
 
 	// A binary operator whose arithmetic trait this type implements calls the
 	// forward method's wrapper directly, skipping the impl lookup and the
-	// argument slice the generic dispatch allocates. A missing operator goes
-	// through the shared helper, which raises its error.
+	// argument slice the generic dispatch allocates. Every other operator is
+	// the embedded UserBase's.
 	implWrappers := make(map[*ast.FunctionDefine]string)
 	for _, block := range typeDef.Impls {
 		for _, m := range block.Methods {
@@ -77,39 +68,22 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		}
 	}
 	for _, op := range []struct {
-		goMethod, index string
-		trait           *object.Trait
+		goMethod string
+		trait    *object.Trait
 	}{
-		{"Add", "ArithAdd", object.AddTrait},
-		{"Minus", "ArithSub", object.SubTrait},
-		{"Multiply", "ArithMul", object.MulTrait},
-		{"Divide", "ArithDiv", object.DivTrait},
-		{"Modulo", "ArithMod", object.ModTrait},
+		{"Add", object.AddTrait},
+		{"Minus", object.SubTrait},
+		{"Multiply", object.MulTrait},
+		{"Divide", object.DivTrait},
+		{"Modulo", object.ModTrait},
 	} {
 		if wrapper, ok := forward[op.trait]; ok {
 			method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
 				jen.Return(jen.Id(receiverName).Dot(wrapper).Call(jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
 					jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(jen.Id("other")),
 				}))))
-			continue
 		}
-		method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
-			userCall("UserArith", jen.Qual(pathObject, op.index), jen.Id("other")))
 	}
-	for _, op := range []struct{ goMethod, index string }{
-		{"RAdd", "ArithAdd"},
-		{"RMinus", "ArithSub"},
-		{"RMultiply", "ArithMul"},
-		{"RDivide", "ArithDiv"},
-		{"RModulo", "ArithMod"},
-	} {
-		method(op.goMethod, other("left"), jen.Parens(jen.List(obj(), jen.Bool(), jen.Error())),
-			userCall("UserReflected", jen.Qual(pathObject, op.index), jen.Id("left")))
-	}
-	method("Iter", nil, jen.Parens(jen.List(jen.Index().Add(obj()), jen.Error())), userCall("UserIter"))
-	method("Index", other("index"), jen.Parens(jen.List(obj(), jen.Error())), userCall("UserIndex", jen.Id("index")))
-	method("SetIndex", []jen.Code{jen.Id("index").Add(obj()), jen.Id("value").Add(obj())}, jen.Parens(jen.List(jen.Bool(), jen.Error())),
-		userCall("UserSetIndex", jen.Id("index"), jen.Id("value")))
 
 	g.topDecls = append(g.topDecls, protoDecls...)
 
@@ -442,7 +416,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 				Op("&&").
 				Len(jen.Id(callArgsName).Dot("Positional")).Op("==").Lit(len(typeDef.Fields)),
 		).Block(
-			jen.Return(jen.Op("&").Id(goTypeName).Values(fastValues...), jen.Nil()),
+			jen.Return(newUser(goTypeName, fastValues), jen.Nil()),
 		),
 		jen.List(jen.Id(boundName), jen.Id(errVar)).Op(":=").Qual(pathObject, "BindArguments").Call(
 			jen.Lit(typeDef.Name),
@@ -456,7 +430,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			jen.Return(jen.Nil(), jen.Id(errVar)),
 		),
 		jen.Id("_").Op("=").Id(boundName),
-		jen.Return(jen.Op("&").Id(goTypeName).Values(slowValues...), jen.Nil()),
+		jen.Return(newUser(goTypeName, slowValues), jen.Nil()),
 	}
 
 	constructorClosure := jen.Func().Params(
@@ -481,7 +455,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		g.topDecls = append(g.topDecls,
 			jen.Func().Id(info.goName).Params(params...).Parens(jen.List(
 				jen.Qual(pathObject, "Object"), jen.Error(),
-			)).Block(jen.Return(jen.Op("&").Id(goTypeName).Values(values...), jen.Nil())),
+			)).Block(jen.Return(newUser(goTypeName, values), jen.Nil())),
 		)
 	}
 
@@ -491,6 +465,11 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	)
 
 	return append(registration, constructor), nil
+}
+
+// newUser allocates a generated struct and wires its embedded UserBase.
+func newUser(goTypeName string, fields []jen.Code) *jen.Statement {
+	return jen.Qual(pathObject, "NewUser").Call(jen.Op("&").Id(goTypeName).Values(fields...))
 }
 
 // receiverGoName is the receiver of every generated method. It has the shape
