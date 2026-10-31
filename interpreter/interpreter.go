@@ -18,6 +18,7 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 )
 
@@ -215,7 +216,7 @@ func strayCtrl(c ctrl) error {
 	}
 }
 
-// Run interprets a parsed module. sourcePath is the path of the source file,
+// Run interprets a checked module (see source.LoadFile). sourcePath is the path of the source file,
 // used to resolve relative imports. scriptArgs are forwarded to os.argv() as
 // elements after sourcePath (index 0).
 func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
@@ -231,7 +232,7 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 	argv[0] = sourcePath
 	copy(argv[1:], scriptArgs)
 
-	_, err = runModule(mod, filepath.Dir(sourcePath), moduleName(sourcePath), object.NewRegistry(), argv)
+	_, err = runModule(mod, filepath.Dir(sourcePath), source.ModuleName(sourcePath), object.NewRegistry(), argv)
 	return err
 }
 

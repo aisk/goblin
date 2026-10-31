@@ -3,20 +3,17 @@ package interpreter
 import (
 	"testing"
 
-	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 )
 
-func runScopeProgram(t *testing.T, source string) *globals {
+func runScopeProgram(t *testing.T, src string) *globals {
 	t.Helper()
-	node, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
+	mod, err := source.ParseString(src)
 	if err != nil {
 		t.Fatal(err)
 	}
-	mod := node.(*ast.Module)
 	if err := semantic.CheckModule(mod); err != nil {
 		t.Fatal(err)
 	}

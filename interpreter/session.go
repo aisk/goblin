@@ -87,7 +87,7 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 		}
 	}()
 
-	mod, err := source.Parse(source.NewLexer([]byte(src)))
+	mod, err := source.ParseString(src)
 	if err != nil {
 		return nil, err
 	}

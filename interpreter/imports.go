@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -48,7 +49,6 @@ import (
 	unicodeExt "github.com/aisk/goblin/extension/x/unicode"
 	utf8Ext "github.com/aisk/goblin/extension/x/unicode/utf8"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 )
 
@@ -100,10 +100,6 @@ var builtinModules = map[string]object.ModuleExecutor{
 	"x/unicode/utf8":         utf8Ext.Execute,
 }
 
-func isPathImport(path string) bool {
-	return source.IsPathImport(path)
-}
-
 // loadError attaches the module frame to an error loadInto reported for a
 // statement.
 func loadError(err error, module string) error {
@@ -114,7 +110,7 @@ func loadError(err error, module string) error {
 }
 
 func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv []string) (object.Object, error) {
-	if isPathImport(imp.Path) {
+	if imp.IsPathImport() {
 		full := filepath.Join(baseDir, imp.Path) + ".goblin"
 		return reg.Load(full, func() (object.Object, error) {
 			return loadModuleFile(full, reg, argv)
@@ -135,19 +131,16 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv [
 // loadModuleFile interprets a Goblin source file as a module and returns its
 // exported members.
 func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Object, error) {
-	l, err := source.NewLexerFile(path)
+	mod, err := source.LoadFile(path)
 	if err != nil {
-		return nil, object.NewImportError("failed to read module %s: %v", path, err)
-	}
-	mod, err := source.Parse(l)
-	if err != nil {
-		return nil, err
-	}
-	if err := semantic.CheckModule(mod); err != nil {
+		var readErr *source.ReadError
+		if errors.As(err, &readErr) {
+			return nil, object.NewImportError("%v", readErr)
+		}
 		return nil, err
 	}
 
-	g, err := runModule(mod, filepath.Dir(path), moduleName(path), reg, argv)
+	g, err := runModule(mod, filepath.Dir(path), source.ModuleName(path), reg, argv)
 	if err != nil {
 		return nil, err
 	}

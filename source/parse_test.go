@@ -49,7 +49,7 @@ func TestParseLineStructure(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := Parse(NewLexer([]byte(tt.src)))
+			_, err := ParseString(tt.src)
 			if tt.want == "" {
 				if err != nil {
 					t.Fatalf("unexpected error: %v", err)
@@ -71,11 +71,7 @@ func TestParseReportsFilename(t *testing.T) {
 	if err := os.WriteFile(path, []byte("var a = 1 var b = 2\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	l, err := NewLexerFile(path)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = Parse(l)
+	_, err := ParseFile(path)
 	if err == nil || !strings.HasPrefix(err.Error(), path+":1:11: error: ") {
 		t.Fatalf("unexpected error: %v", err)
 	}

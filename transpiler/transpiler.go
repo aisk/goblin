@@ -12,7 +12,6 @@ import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
@@ -501,10 +500,6 @@ func sourceModuleName(pos token.Pos) string {
 	return ""
 }
 
-func isPathImport(path string) bool {
-	return source.IsPathImport(path)
-}
-
 // resolveImportPath resolves a relative import path against the directory of
 // the module currently being transpiled, mirroring how the interpreter
 // resolves imports against the importing file's directory.
@@ -564,7 +559,7 @@ func (ctx *transpileContext) collectModuleImports(mod *ast.Module, importPath st
 		if !ok {
 			continue
 		}
-		if isPathImport(imp.Path) {
+		if imp.IsPathImport() {
 			absPath, err := ctx.resolveImportPath(imp.Path)
 			if err != nil {
 				return nil, fmt.Errorf("failed to resolve path %s: %v", imp.Path, err)
@@ -615,16 +610,9 @@ func (ctx *transpileContext) loadPathModule(importPath string, emit func(mod *as
 	ctx.baseDir = filepath.Dir(absPath)
 	defer func() { ctx.baseDir = savedBaseDir }()
 
-	l, err := source.NewLexerFile(absPath)
+	mod, err := source.LoadFile(absPath)
 	if err != nil {
-		return fmt.Errorf("failed to read module %s: %v", importPath, err)
-	}
-	mod, err := source.Parse(l)
-	if err != nil {
-		return fmt.Errorf("parse error in module %s: %v", importPath, err)
-	}
-	if err := semantic.CheckModule(mod); err != nil {
-		return fmt.Errorf("semantic error in module %s: %v", importPath, err)
+		return err
 	}
 
 	if err := emit(mod, absPath); err != nil {
@@ -701,7 +689,7 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 	// Builtin module imports via registry
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
-		if !ok || isPathImport(imp.Path) {
+		if !ok || imp.IsPathImport() {
 			continue
 		}
 		loadModule(imports[imp.Name], jen.Lit(imp.Path), jen.Qual(moduleExecutorPath(imp.Path), "Execute"))
@@ -710,7 +698,7 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 	// Path module imports via registry
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
+		if !ok || !imp.IsPathImport() {
 			continue
 		}
 		absPath, err := ctx.resolveImportPath(imp.Path)
@@ -733,11 +721,9 @@ func (ctx *transpileContext) emitExecuteBody(mod *ast.Module, imports map[string
 	return body, nil
 }
 
+// Transpile renders a checked module (see source.LoadFile) as a single Go
+// file. Relative imports resolve against the working directory.
 func Transpile(mod *ast.Module, output io.Writer) error {
-	if err := semantic.CheckModule(mod); err != nil {
-		return err
-	}
-
 	ctx := newTranspileContext()
 	if cwd, err := os.Getwd(); err == nil {
 		ctx.baseDir = cwd
@@ -3147,13 +3133,10 @@ func generateGoModContent(moduleName, runtimeVersion, goblinRoot string) string 
 }
 
 // TranspileToDir transpiles a goblin module into a Go module directory structure.
+// mod must have been checked (see source.LoadFile).
 // The entry-point module becomes output/main.go; each imported path module becomes
 // its own package under outputDir.
 func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
-	if err := semantic.CheckModule(mod); err != nil {
-		return err
-	}
-
 	// The Go module path gets a prefix so a program named after a standard
 	// library package (io.goblin, time.goblin) does not shadow it.
 	base := filepath.Base(sourceFile)
@@ -3177,7 +3160,7 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 	// Recursively transpile each path import into its own package file.
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
+		if !ok || !imp.IsPathImport() {
 			continue
 		}
 		if err := ctx.transpilePathModuleToFile(imp.Path); err != nil {
@@ -3215,7 +3198,7 @@ func (ctx *transpileContext) transpilePathModuleToFile(importPath string) error 
 		// Register import aliases so jennifer uses _pkg_X for sub-path-imports.
 		for _, stmt := range mod.Body {
 			imp, ok := stmt.(*ast.Import)
-			if !ok || !isPathImport(imp.Path) {
+			if !ok || !imp.IsPathImport() {
 				continue
 			}
 			subAbsPath, err := ctx.resolveImportPath(imp.Path)
@@ -3272,7 +3255,7 @@ func (ctx *transpileContext) generateMainFile(mod *ast.Module) error {
 	// Register import aliases for path imports.
 	for _, stmt := range mod.Body {
 		imp, ok := stmt.(*ast.Import)
-		if !ok || !isPathImport(imp.Path) {
+		if !ok || !imp.IsPathImport() {
 			continue
 		}
 		absPath, err := ctx.resolveImportPath(imp.Path)

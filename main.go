@@ -11,7 +11,6 @@ import (
 
 	"github.com/aisk/goblin/interpreter"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/transpiler"
 	"github.com/chzyer/readline"
@@ -33,16 +32,8 @@ var buildExeCmd = &cobra.Command{
 		cmd.SilenceUsage = true
 		sourceFile := args[0]
 
-		l, err := source.NewLexerFile(sourceFile)
+		m, err := source.LoadFile(sourceFile)
 		if err != nil {
-			return fmt.Errorf("failed to read file %s: %w", sourceFile, err)
-		}
-
-		m, err := source.Parse(l)
-		if err != nil {
-			return err
-		}
-		if err := semantic.CheckModule(m); err != nil {
 			return err
 		}
 
@@ -119,16 +110,8 @@ or "goblin help run" (alone, with no source file).`,
 		sourceFile := args[0]
 		scriptArgs := args[1:]
 
-		l, err := source.NewLexerFile(sourceFile)
+		m, err := source.LoadFile(sourceFile)
 		if err != nil {
-			return fmt.Errorf("failed to read file %s: %w", sourceFile, err)
-		}
-
-		m, err := source.Parse(l)
-		if err != nil {
-			return err
-		}
-		if err := semantic.CheckModule(m); err != nil {
 			return err
 		}
 

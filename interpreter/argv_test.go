@@ -5,14 +5,12 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/aisk/goblin/ast"
-	"github.com/aisk/goblin/lexer"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/source"
 )
 
 func TestRunForwardsArgv(t *testing.T) {
-	const source = `import "os"
+	const src = `import "os"
 var a = os.argv()
 if a.size != 3 {
     raise Error("bad size")
@@ -27,13 +25,9 @@ if a[2] != "bar" {
     raise Error("bad 2")
 }
 `
-	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
+	mod, err := source.ParseString(src)
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
-	}
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		t.Fatalf("unexpected AST type %T", st)
 	}
 	if err := semantic.CheckModule(mod); err != nil {
 		t.Fatalf("semantic error: %v", err)
@@ -56,12 +50,11 @@ if a.size != 2 || a[1] != "from-entry" {
 		t.Fatal(err)
 	}
 
-	const source = `import "./dep"`
-	st, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
+	const src = `import "./dep"`
+	mod, err := source.ParseString(src)
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-	mod := st.(*ast.Module)
 	if err := semantic.CheckModule(mod); err != nil {
 		t.Fatalf("semantic error: %v", err)
 	}

@@ -11,11 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
-	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 )
@@ -65,22 +62,13 @@ func TestGoblinRuntimeVersionFromBuildInfo(t *testing.T) {
 	}
 }
 
-func transpileSource(t *testing.T, source string) string {
+func transpileSource(t *testing.T, src string) string {
 	t.Helper()
 
-	l := lexer.NewLexer([]byte(source))
-
-	p := parser.NewParser()
-	st, err := p.Parse(l)
+	mod, err := source.ParseString(src)
 	if err != nil {
 		t.Fatalf("parse error: %v", err)
 	}
-
-	mod, ok := st.(*ast.Module)
-	if !ok {
-		t.Fatalf("unexpected AST type %T", st)
-	}
-
 	if err := semantic.CheckModule(mod); err != nil {
 		t.Fatalf("semantic error: %v", err)
 	}
@@ -215,17 +203,9 @@ func TestTranspiledFramesCarryModuleName(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	l, err := source.NewLexerFile(path)
+	mod, err := source.LoadFile(path)
 	if err != nil {
 		t.Fatal(err)
-	}
-	st, err := parser.NewParser().Parse(l)
-	if err != nil {
-		t.Fatalf("parse error: %v", err)
-	}
-	mod := st.(*ast.Module)
-	if err := semantic.CheckModule(mod); err != nil {
-		t.Fatalf("semantic error: %v", err)
 	}
 	var buf bytes.Buffer
 	if err := Transpile(mod, &buf); err != nil {

@@ -23,7 +23,7 @@ type Point(x, y) {
     }
 }
 `
-	mod, err := source.Parse(source.NewLexer([]byte(src)))
+	mod, err := source.ParseString(src)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ type Point(x, y) {
 	if len(ty.AllMethods()) != 2 {
 		t.Fatalf("AllMethods = %d", len(ty.AllMethods()))
 	}
-	if _, err := source.Parse(source.NewLexer([]byte("func f(x)\n"))); err == nil {
+	if _, err := source.ParseString("func f(x)\n"); err == nil {
 		t.Fatal("body-less func outside a trait must not parse")
 	}
 }

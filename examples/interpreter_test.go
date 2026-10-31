@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/aisk/goblin/interpreter"
-	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
 )
 
@@ -38,16 +37,9 @@ func TestInterpreterExamples(t *testing.T) {
 func runInterpreter(t *testing.T, goblinFile string) (stdout, stderr string) {
 	t.Helper()
 
-	l, err := source.NewLexerFile(goblinFile)
+	module, err := source.LoadFile(goblinFile)
 	if err != nil {
-		t.Fatalf("failed to read file: %v", err)
-	}
-	module, err := source.Parse(l)
-	if err != nil {
-		t.Fatalf("parse error: %v", err)
-	}
-	if err := semantic.CheckModule(module); err != nil {
-		t.Fatalf("semantic error: %v", err)
+		t.Fatal(err)
 	}
 
 	origOut, origErr := os.Stdout, os.Stderr

@@ -3,6 +3,7 @@ package interpreter
 import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 )
 
@@ -98,7 +99,7 @@ func (c *compiler) function(name, fnName string, pos token.Pos, params []*ast.Pa
 
 	p.nvars, p.ntemps = fs.nvars, fs.maxTemp
 	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
-		p.module = moduleName(src.Source())
+		p.module = source.ModuleName(src.Source())
 	}
 	p.frame = stackFrame(p.module, name, pos)
 	return p

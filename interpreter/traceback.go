@@ -2,7 +2,6 @@ package interpreter
 
 import (
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/token"
 )
 
@@ -12,10 +11,6 @@ func stackFrame(module, function string, pos token.Pos) object.Frame {
 		frame.File = src.Source()
 	}
 	return frame
-}
-
-func moduleName(path string) string {
-	return source.ModuleName(path)
 }
 
 // positionedError tags an error with the position of the statement that
