@@ -31,8 +31,8 @@ func transpileObject(obj object.Object) (*jen.Statement, error) {
 	return nil, fmt.Errorf("cannot transpile literal of type %s", obj.TypeName())
 }
 
-func (ctx *transpileContext) transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	preStmts, elements, err := ctx.transpileExpressions(list.Elements, onError)
+func (g *generator) transpileListLiteral(list *ast.ListLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, elements, err := g.transpileExpressions(list.Elements, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -42,18 +42,18 @@ func (ctx *transpileContext) transpileListLiteral(list *ast.ListLiteral, onError
 	), nil
 }
 
-func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
+func (g *generator) transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	objPre, obj, err := g.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	idxPre, idx, native, err := ctx.transpileIndexOperand(expr.Index, onError)
+	idxPre, idx, native, err := g.transpileIndexOperand(expr.Index, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	tmpVar := ctx.localName("tmp")
-	errVar := ctx.localName("err")
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
 	preStmts := append(objPre, idxPre...)
 	var call *jen.Statement
 	if native {
@@ -73,35 +73,35 @@ func (ctx *transpileContext) transpileIndexExpression(expr *ast.IndexExpression,
 // reports true, so the caller can reach for object.IndexInt / SetIndexInt and
 // skip both the boxing (an allocation for anything above 255) and the
 // interface dispatch; anything else is boxed as usual.
-func (ctx *transpileContext) transpileIndexOperand(index ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, native bool, err error) {
-	if ctx.nativeTypeOf(index) == tyInt {
-		pre, code, err = ctx.emitNative(index, onError)
+func (g *generator) transpileIndexOperand(index ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, native bool, err error) {
+	if g.nativeTypeOf(index) == tyInt {
+		pre, code, err = g.emitNative(index, onError)
 		return pre, code, true, err
 	}
-	pre, code, err = ctx.transpileExpression(index, onError)
+	pre, code, err = g.transpileExpression(index, onError)
 	return pre, code, false, err
 }
 
-func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileDictLiteral(dict *ast.DictLiteral, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	var preStmts []jen.Code
 
-	dictVar := ctx.localName("dict")
+	dictVar := g.localName("dict")
 	preStmts = append(preStmts,
 		jen.Id(dictVar).Op(":=").Qual(pathObject, "NewDict").Call(),
 	)
 
 	for _, elem := range dict.Elements {
-		keyPre, key, err := ctx.transpileExpression(elem.Key, onError)
+		keyPre, key, err := g.transpileExpression(elem.Key, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		valuePre, value, err := ctx.transpileExpression(elem.Value, onError)
+		valuePre, value, err := g.transpileExpression(elem.Value, onError)
 		if err != nil {
 			return nil, nil, err
 		}
 		preStmts = append(preStmts, keyPre...)
 		preStmts = append(preStmts, valuePre...)
-		errVar := ctx.localName("err")
+		errVar := g.localName("err")
 		preStmts = append(preStmts,
 			jen.If(
 				jen.Id(errVar).Op(":=").Id(dictVar).Dot("Set").Call(key, value),
@@ -113,20 +113,20 @@ func (ctx *transpileContext) transpileDictLiteral(dict *ast.DictLiteral, onError
 	return preStmts, jen.Id(dictVar), nil
 }
 
-func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileMemberExpression(expr *ast.MemberExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	// `self.field` inside a method is a plain Go field read on the receiver:
 	// no GetAttr dispatch, no error path.
-	if info, ok := ctx.selfMember(expr.Object, expr.Property); ok && info.fields[expr.Property] {
+	if info, ok := g.selfMember(expr.Object, expr.Property); ok && info.fields[expr.Property] {
 		return nil, jen.Id(info.receiver).Dot(fieldGoName(expr.Property)), nil
 	}
 
-	objPre, obj, err := ctx.transpileExpression(expr.Object, onError)
+	objPre, obj, err := g.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	tmpVar := ctx.localName("attr")
-	errVar := ctx.localName("err")
+	tmpVar := g.localName("attr")
+	errVar := g.localName("err")
 	preStmts := append(objPre,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(obj)).Dot("GetAttr").Call(jen.Lit(expr.Property)),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -134,13 +134,13 @@ func (ctx *transpileContext) transpileMemberExpression(expr *ast.MemberExpressio
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileExpression(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	// If the whole subtree evaluates natively, emit it as one Go expression and
 	// box the result once, instead of one interface call and one allocation per
 	// operator. Callers that can consume the unboxed value (declarations,
 	// assignments, conditions) check for this themselves before calling here.
-	if t := ctx.nativeTypeOf(expr); t.native() {
-		pre, code, err := ctx.emitNative(expr, onError)
+	if t := g.nativeTypeOf(expr); t.native() {
+		pre, code, err := g.emitNative(expr, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -155,48 +155,48 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 		}
 		return nil, obj, nil
 	case *ast.Identifier:
-		if moduleVar, ok := ctx.moduleBinding(v.Name); ok {
+		if moduleVar, ok := g.moduleBinding(v.Name); ok {
 			return nil, jen.Id(moduleVar), nil
 		}
-		if !ctx.isUserName(v.Name) && isBuiltinFunction(v.Name) {
+		if !g.isUserName(v.Name) && isBuiltinFunction(v.Name) {
 			return nil, jen.Id("builtin").Dot("Members").Index(jen.Lit(v.Name)), nil
 		}
 		return nil, jen.Id(v.Name), nil
 	case *ast.CallExpression:
-		argPreStmts, call, err := ctx.transpileCallExpression(v, onError)
+		argPreStmts, call, err := g.transpileCallExpression(v, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		tmpVar := ctx.localName("tmp")
-		errVar := ctx.localName("err")
+		tmpVar := g.localName("tmp")
+		errVar := g.localName("err")
 		preStmts := append(argPreStmts,
 			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		)
 		return preStmts, jen.Id(tmpVar), nil
 	case *ast.BinaryOperation:
-		return ctx.transpileBinaryOperation(v, onError)
+		return g.transpileBinaryOperation(v, onError)
 	case *ast.UnaryOperation:
-		return ctx.transpileUnaryOperation(v, onError)
+		return g.transpileUnaryOperation(v, onError)
 	case *ast.ListLiteral:
-		return ctx.transpileListLiteral(v, onError)
+		return g.transpileListLiteral(v, onError)
 	case *ast.DictLiteral:
-		return ctx.transpileDictLiteral(v, onError)
+		return g.transpileDictLiteral(v, onError)
 	case *ast.IndexExpression:
-		return ctx.transpileIndexExpression(v, onError)
+		return g.transpileIndexExpression(v, onError)
 	case *ast.MemberExpression:
-		return ctx.transpileMemberExpression(v, onError)
+		return g.transpileMemberExpression(v, onError)
 	case *ast.FunctionLiteral:
-		return ctx.transpileFunctionLiteral(v)
+		return g.transpileFunctionLiteral(v)
 	}
 	return nil, nil, fmt.Errorf("%s: cannot transpile expression of type %T", expr.Position(), expr)
 }
 
-func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
+func (g *generator) transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
 	var allPreStmts []jen.Code
 	var results []jen.Code
 	for _, expr := range exprs {
-		pre, r, err := ctx.transpileExpression(expr, onError)
+		pre, r, err := g.transpileExpression(expr, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -206,7 +206,7 @@ func (ctx *transpileContext) transpileExpressions(exprs []ast.Expression, onErro
 	return allPreStmts, results, nil
 }
 
-func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	// Fast path: without * and ** the whole argument list is known here, so it
 	// can be one composite literal instead of a callArgs temporary plus an
 	// append or AddKeyword statement per argument. Beyond the statements it
@@ -238,7 +238,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		positional := make([]jen.Code, 0, len(args))
 		keyword := make([]jen.Code, 0, len(args))
 		for _, arg := range args {
-			argPreStmts, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
+			argPreStmts, argExpr, err := g.transpileExpression(arg.Expr, onError)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -262,13 +262,13 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		return preStmts, jen.Qual(pathObject, "CallArgs").Values(fields), nil
 	}
 
-	callArgsVar := ctx.localName("callArgs")
+	callArgsVar := g.localName("callArgs")
 	allPreStmts := []jen.Code{
 		jen.Id(callArgsVar).Op(":=").Qual(pathObject, "CallArgs").Values(),
 	}
 
 	for _, arg := range args {
-		argPreStmts, argExpr, err := ctx.transpileExpression(arg.Expr, onError)
+		argPreStmts, argExpr, err := g.transpileExpression(arg.Expr, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -280,8 +280,8 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 				jen.Id(callArgsVar).Dot("Positional").Op("=").Append(jen.Id(callArgsVar).Dot("Positional"), argExpr),
 			)
 		case ast.CallArgumentStarred:
-			iterVar := ctx.localName("iter")
-			errVar := ctx.localName("err")
+			iterVar := g.localName("iter")
+			errVar := g.localName("err")
 			allPreStmts = append(allPreStmts,
 				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -290,7 +290,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		case ast.CallArgumentKeyword:
 			// Duplicate detection lives in AddKeyword, shared with the
 			// interpreter.
-			errVar := ctx.localName("err")
+			errVar := g.localName("err")
 			allPreStmts = append(allPreStmts,
 				jen.If(
 					jen.Id(errVar).Op(":=").Id(callArgsVar).Dot("AddKeyword").Call(jen.Lit(arg.Name), argExpr),
@@ -300,7 +300,7 @@ func (ctx *transpileContext) transpileCallArguments(args []ast.CallArgument, onE
 		case ast.CallArgumentKeywordUnpack:
 			// Dict/key validation and duplicate detection live in
 			// UnpackKeywords, shared with the interpreter.
-			errVar := ctx.localName("err")
+			errVar := g.localName("err")
 			allPreStmts = append(allPreStmts,
 				jen.If(
 					jen.Id(errVar).Op(":=").Id(callArgsVar).Dot("UnpackKeywords").Call(argExpr),
@@ -353,23 +353,23 @@ var directBuiltins = map[string]directBuiltin{
 	"Function": {pathObject, "FunctionConstructor", object.FunctionConstructor},
 }
 
-func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
-		if pre, direct, lowered, err := ctx.tryDirectCall(ident.Name, call.Args, onError); lowered || err != nil {
+		if pre, direct, lowered, err := g.tryDirectCall(ident.Name, call.Args, onError); lowered || err != nil {
 			return pre, direct, err
 		}
 	}
 
-	argPreStmts, args, err := ctx.transpileCallArguments(call.Args, onError)
+	argPreStmts, args, err := g.transpileCallArguments(call.Args, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	if ident, ok := call.Callee.(*ast.Identifier); ok {
 		var callee *jen.Statement
-		if mapped, ok := ctx.moduleBinding(ident.Name); ok {
+		if mapped, ok := g.moduleBinding(ident.Name); ok {
 			callee = jen.Id(mapped)
-		} else if !ctx.isUserName(ident.Name) && isBuiltinFunction(ident.Name) {
+		} else if !g.isUserName(ident.Name) && isBuiltinFunction(ident.Name) {
 			if direct, ok := directBuiltins[ident.Name]; ok {
 				return argPreStmts, jen.Qual(direct.path, direct.name).Call(args), nil
 			}
@@ -384,12 +384,12 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		// `self.method(...)` inside a method calls the sibling's Go wrapper
 		// directly. A field of the same name would take precedence at
 		// runtime (GetAttr checks fields first), so it stays generic then.
-		if info, isSelf := ctx.selfMember(member.Object, member.Property); isSelf && !info.fields[member.Property] {
+		if info, isSelf := g.selfMember(member.Object, member.Property); isSelf && !info.fields[member.Property] {
 			if wrapper, isMethod := info.methods[member.Property]; isMethod {
 				return argPreStmts, jen.Id(info.receiver).Dot(wrapper).Call(args), nil
 			}
 		}
-		objPre, obj, err := ctx.transpileExpression(member.Object, onError)
+		objPre, obj, err := g.transpileExpression(member.Object, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -401,7 +401,7 @@ func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, o
 		return preStmts, jen.Qual(pathObject, "CallMethod").Call(obj, jen.Lit(member.Property), args), nil
 	}
 
-	calleePre, callee, err := ctx.transpileExpression(call.Callee, onError)
+	calleePre, callee, err := g.transpileExpression(call.Callee, onError)
 	if err != nil {
 		return nil, nil, err
 	}

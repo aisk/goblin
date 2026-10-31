@@ -1,7 +1,6 @@
 package transpiler
 
 import (
-	"bytes"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/semantic"
@@ -73,12 +73,22 @@ func transpileSource(t *testing.T, src string) string {
 		t.Fatalf("semantic error: %v", err)
 	}
 
-	var buf bytes.Buffer
-	if err := Transpile(mod, &buf); err != nil {
+	return transpileMain(t, mod, filepath.Join(t.TempDir(), "main.goblin"))
+}
+
+// transpileMain transpiles a checked module into a temporary directory and
+// returns the generated main.go.
+func transpileMain(t *testing.T, mod *ast.Module, sourceFile string) string {
+	t.Helper()
+	dir := t.TempDir()
+	if err := TranspileToDir(mod, sourceFile, dir); err != nil {
 		t.Fatalf("transpile error: %v", err)
 	}
-
-	return buf.String()
+	code, err := os.ReadFile(filepath.Join(dir, "main.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(code)
 }
 
 func TestTranspileMemberCallUsesCallMethod(t *testing.T) {
@@ -207,11 +217,7 @@ func TestTranspiledFramesCarryModuleName(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var buf bytes.Buffer
-	if err := Transpile(mod, &buf); err != nil {
-		t.Fatalf("transpile error: %v", err)
-	}
-	code := buf.String()
+	code := transpileMain(t, mod, path)
 
 	for _, want := range []*regexp.Regexp{
 		regexp.MustCompile(`Module:\s+"mymod"`),

@@ -15,12 +15,12 @@ func isComparisonOperator(op string) bool {
 	return false
 }
 
-func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	preStmts, result, err := ctx.transpileComparisonBool(operation, onError)
+func (g *generator) transpileComparisonOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, result, err := g.transpileComparisonBool(operation, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	tmpVar := ctx.localName("tmp")
+	tmpVar := g.localName("tmp")
 	preStmts = append(preStmts,
 		jen.Var().Id(tmpVar).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Bool").Call(result),
 	)
@@ -29,12 +29,12 @@ func (ctx *transpileContext) transpileComparisonOperation(operation *ast.BinaryO
 
 // transpileComparisonBool evaluates a comparison of boxed operands down to a
 // Go bool expression, which the operator boxes and a condition uses as is.
-func (ctx *transpileContext) transpileComparisonBool(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
+func (g *generator) transpileComparisonBool(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := g.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, nativeRHS, err := ctx.transpileNativeIntOperand(operation.RHS, onError)
+	rhsPre, rhs, nativeRHS, err := g.transpileNativeIntOperand(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -47,8 +47,8 @@ func (ctx *transpileContext) transpileComparisonBool(operation *ast.BinaryOperat
 		ast.LessThan: "Less", ast.LessOrEqual: "LessEqual",
 		ast.GreaterThan: "Greater", ast.GreaterOrEqual: "GreaterEqual",
 	}[operation.Operator]
-	resultVar := ctx.localName("cmp")
-	errVar := ctx.localName("err")
+	resultVar := g.localName("cmp")
+	errVar := g.localName("err")
 	preStmts = append(preStmts,
 		jen.List(jen.Id(resultVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS(entry)).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -61,31 +61,31 @@ func (ctx *transpileContext) transpileComparisonBool(operation *ast.BinaryOperat
 // native int64 and the returned function maps an operator entry point to its
 // native-right variant (Add to AddInt, and so on); otherwise the operand is
 // boxed and the mapping is the identity.
-func (ctx *transpileContext) transpileNativeIntOperand(operand ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, variant func(string) string, err error) {
-	if ctx.nativeTypeOf(operand) == tyInt {
-		pre, code, err = ctx.emitNative(operand, onError)
+func (g *generator) transpileNativeIntOperand(operand ast.Expression, onError errHandler) (pre []jen.Code, code *jen.Statement, variant func(string) string, err error) {
+	if g.nativeTypeOf(operand) == tyInt {
+		pre, code, err = g.emitNative(operand, onError)
 		return pre, code, func(op string) string { return op + "Int" }, err
 	}
-	pre, code, err = ctx.transpileExpression(operand, onError)
+	pre, code, err = g.transpileExpression(operand, onError)
 	return pre, code, func(op string) string { return op }, err
 }
 
 // transpileCondition evaluates an if or while condition to a Go bool: a
 // native bool expression as it is, a comparison of boxed operands through the
 // comparison's own bool result, anything else through ToBool.
-func (ctx *transpileContext) transpileCondition(cond ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	if ctx.nativeTypeOf(cond) == tyBool {
-		return ctx.emitNative(cond, onError)
+func (g *generator) transpileCondition(cond ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	if g.nativeTypeOf(cond) == tyBool {
+		return g.emitNative(cond, onError)
 	}
 	if op, ok := cond.(*ast.BinaryOperation); ok && isComparisonOperator(op.Operator) {
-		return ctx.transpileComparisonBool(op, onError)
+		return g.transpileComparisonBool(op, onError)
 	}
-	pre, value, err := ctx.transpileExpression(cond, onError)
+	pre, value, err := g.transpileExpression(cond, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	condVar := ctx.localName("cond")
-	errVar := ctx.localName("err")
+	condVar := g.localName("cond")
+	errVar := g.localName("err")
 	pre = append(pre,
 		jen.List(jen.Id(condVar), jen.Id(errVar)).Op(":=").Add(value).Dot("ToBool").Call(),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -93,19 +93,19 @@ func (ctx *transpileContext) transpileCondition(cond ast.Expression, onError err
 	return pre, jen.Id(condVar), nil
 }
 
-func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) transpileBinaryOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	if isComparisonOperator(operation.Operator) {
-		return ctx.transpileComparisonOperation(operation, onError)
+		return g.transpileComparisonOperation(operation, onError)
 	}
 	if operation.Operator == ast.And || operation.Operator == ast.Or {
-		return ctx.transpileLogicalOperation(operation, onError)
+		return g.transpileLogicalOperation(operation, onError)
 	}
 
-	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
+	lhsPre, lhs, err := g.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	rhsPre, rhs, nativeRHS, err := ctx.transpileNativeIntOperand(operation.RHS, onError)
+	rhsPre, rhs, nativeRHS, err := g.transpileNativeIntOperand(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -126,8 +126,8 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 		return nil, nil, fmt.Errorf("unsupported binary operator: %s", operation.Operator)
 	}
 
-	tmpVar := ctx.localName("tmp")
-	errVar := ctx.localName("err")
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
 	preStmts := append(lhsPre, rhsPre...)
 	preStmts = append(preStmts,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS(methodName)).Call(lhs, rhs),
@@ -141,22 +141,22 @@ func (ctx *transpileContext) transpileBinaryOperation(operation *ast.BinaryOpera
 // when the LHS does not already fix the result. The value of the expression is
 // the operand that decided it rather than a coerced Bool, so `x || fallback`
 // yields x when x is truthy.
-func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	lhsPre, lhs, err := ctx.transpileExpression(operation.LHS, onError)
+func (g *generator) transpileLogicalOperation(operation *ast.BinaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	lhsPre, lhs, err := g.transpileExpression(operation.LHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 	// Always transpile the RHS so diagnostics surface at compile time, but
 	// emit its statements inside a guarded block so it only runs at runtime
 	// when the LHS leaves the result open.
-	rhsPre, rhs, err := ctx.transpileExpression(operation.RHS, onError)
+	rhsPre, rhs, err := g.transpileExpression(operation.RHS, onError)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	lhsTruthyVar := ctx.localName("cond")
-	errVar := ctx.localName("err")
-	tmpVar := ctx.localName("tmp")
+	lhsTruthyVar := g.localName("cond")
+	errVar := g.localName("err")
+	tmpVar := g.localName("tmp")
 
 	rhsBlock := append([]jen.Code{}, rhsPre...)
 	rhsBlock = append(rhsBlock, jen.Id(tmpVar).Op("=").Add(rhs))
@@ -177,8 +177,8 @@ func (ctx *transpileContext) transpileLogicalOperation(operation *ast.BinaryOper
 	return preStmts, jen.Id(tmpVar), nil
 }
 
-func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	operandPre, operand, err := ctx.transpileExpression(operation.Operand, onError)
+func (g *generator) transpileUnaryOperation(operation *ast.UnaryOperation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	operandPre, operand, err := g.transpileExpression(operation.Operand, onError)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -195,8 +195,8 @@ func (ctx *transpileContext) transpileUnaryOperation(operation *ast.UnaryOperati
 		return nil, nil, fmt.Errorf("unsupported unary operator: %s", operation.Operator)
 	}
 
-	tmpVar := ctx.localName("tmp")
-	errVar := ctx.localName("err")
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
 	preStmts := append(operandPre,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),

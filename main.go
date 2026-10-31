@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -37,50 +36,18 @@ var buildExeCmd = &cobra.Command{
 			return err
 		}
 
-		tmpDir, err := os.MkdirTemp("", "goblin-*")
-		if err != nil {
-			return fmt.Errorf("failed to create temp dir: %w", err)
-		}
-		defer os.RemoveAll(tmpDir)
-
-		err = transpiler.TranspileToDir(m, sourceFile, tmpDir)
-		if err != nil {
-			return err
-		}
-
-		// Determine output path. It must be absolute: go build runs in the
-		// temporary directory, where a relative -o would land (and be
-		// removed along with it).
-		out, _ := cmd.Flags().GetString("output")
-		if out == "" {
-			base := filepath.Base(sourceFile)
-			out = strings.TrimSuffix(base, ".goblin")
-		}
-		if !filepath.IsAbs(out) {
-			cwd, err := os.Getwd()
-			if err != nil {
-				return fmt.Errorf("failed to get working directory: %w", err)
-			}
-			out = filepath.Join(cwd, out)
-		}
-
+		output, _ := cmd.Flags().GetString("output")
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		race, _ := cmd.Flags().GetBool("race")
-		buildArgs := []string{"build", "-mod=mod"}
-		if race {
-			buildArgs = append(buildArgs, "-race")
-		}
-		buildArgs = append(buildArgs, "-o", out, ".")
-		goBuild := exec.Command("go", buildArgs...)
-		goBuild.Dir = tmpDir
-		goBuild.Stdout = os.Stdout
-		goBuild.Stderr = os.Stderr
-		if verbose {
-			fmt.Fprintf(os.Stderr, "build dir: %s\n", tmpDir)
-			fmt.Fprintf(os.Stderr, "run: (cd %s && %s)\n", tmpDir, strings.Join(goBuild.Args, " "))
-		}
-		if err = goBuild.Run(); err != nil {
-			return fmt.Errorf("go build failed: %w", err)
+		out, err := transpiler.BuildExecutable(m, sourceFile, transpiler.BuildOptions{
+			Output:  output,
+			Race:    race,
+			Verbose: verbose,
+			Stdout:  os.Stdout,
+			Stderr:  os.Stderr,
+		})
+		if err != nil {
+			return err
 		}
 
 		fmt.Fprintf(os.Stderr, "built: %s\n", out)

@@ -160,9 +160,8 @@ func TestBuiltExecutableNamedAfterStdlibPackage(t *testing.T) {
 	}
 }
 
-// Local (path) imports go through the transpiler's directory mode
-// (transpilePathModuleToFile + generateMainFile), which nothing else covers:
-// the examples suite only exercises single-file Transpile.
+// Local (path) imports compile into packages of their own, imported by the
+// generated main package.
 func TestBuiltExecutableWithLocalModuleImport(t *testing.T) {
 	bin := sharedGoblinBin(t)
 	dir := t.TempDir()

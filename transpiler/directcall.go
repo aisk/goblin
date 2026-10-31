@@ -44,7 +44,7 @@ type directFn struct {
 // forces onto the heap. A type additionally has to be the only declaration of
 // its name anywhere in the module, so that no parameter or local of the same
 // name can make a call site mean something else.
-func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors map[string]directFn) {
+func (g *generator) collectDirectFns(stmts []ast.Statement) (fns, ctors map[string]directFn) {
 	rebound := map[string]struct{}{}
 	collectAssignTargets(stmts, rebound)
 	declared := declaredNames(stmts)
@@ -75,7 +75,7 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors
 				continue
 			}
 			fns[v.Name] = directFn{
-				goName: ctx.localName("direct_" + v.Name),
+				goName: g.localName("direct_" + v.Name),
 				arity:  len(v.Parameters),
 			}
 		case *ast.TypeDefine:
@@ -86,7 +86,7 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors
 				continue
 			}
 			ctors[v.Name] = directFn{
-				goName: ctx.localName("new_" + v.Name),
+				goName: g.localName("new_" + v.Name),
 				arity:  len(v.Fields),
 			}
 		}
@@ -100,20 +100,20 @@ func (ctx *transpileContext) collectDirectFns(stmts []ast.Statement) (fns, ctors
 // returned expression has the same (object.Object, error) shape object.Call
 // has, so callers consume it unchanged. ok is false when the call must go
 // through the generic path.
-func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument, onError errHandler) (pre []jen.Code, call *jen.Statement, ok bool, err error) {
-	info, isDirect := ctx.directFns[name]
+func (g *generator) tryDirectCall(name string, args []ast.CallArgument, onError errHandler) (pre []jen.Code, call *jen.Statement, ok bool, err error) {
+	info, isDirect := g.directFns[name]
 	if !isDirect {
-		// A type name is registered in moduleImports to route the bare
+		// A type name is registered in moduleVars to route the bare
 		// identifier to its constructor variable, so it is looked up before
 		// that check rejects it.
-		info, isDirect = ctx.directCtors[name]
+		info, isDirect = g.directCtors[name]
 		if !isDirect {
 			return nil, nil, false, nil
 		}
-	} else if _, imported := ctx.moduleImports[name]; imported {
+	} else if _, imported := g.moduleVars[name]; imported {
 		return nil, nil, false, nil
 	}
-	if ctx.shadowedBelowModule(name) {
+	if g.shadowedBelowModule(name) {
 		return nil, nil, false, nil
 	}
 	if len(args) != info.arity {
@@ -128,19 +128,19 @@ func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument,
 	// A closed function's native parameters take the argument unboxed. The
 	// signature inference has verified that every call site agrees, so a
 	// mismatch here is a bug in one of the two and is reported as such.
-	sig := ctx.sigs[name]
+	sig := g.sigs[name]
 	argExprs := make([]jen.Code, 0, len(args))
 	for i, arg := range args {
 		var argPre []jen.Code
 		var argExpr *jen.Statement
 		var err error
 		if sig != nil && sig.params[i].native() {
-			if got := ctx.nativeTypeOf(arg.Expr); got != sig.params[i] {
+			if got := g.nativeTypeOf(arg.Expr); got != sig.params[i] {
 				return nil, nil, false, fmt.Errorf("%s: internal error: argument %d of %s inferred as %s but the parameter is %s", arg.Expr.Position(), i, name, goTypeOf(got), goTypeOf(sig.params[i]))
 			}
-			argPre, argExpr, err = ctx.emitNative(arg.Expr, onError)
+			argPre, argExpr, err = g.emitNative(arg.Expr, onError)
 		} else {
-			argPre, argExpr, err = ctx.transpileExpression(arg.Expr, onError)
+			argPre, argExpr, err = g.transpileExpression(arg.Expr, onError)
 		}
 		if err != nil {
 			return nil, nil, false, err
@@ -154,9 +154,9 @@ func (ctx *transpileContext) tryDirectCall(name string, args []ast.CallArgument,
 // moduleBinding resolves a name to the Go variable holding an imported module
 // or a type constructor, unless a scope below the module's own has declared
 // the name, in which case the name means that local instead.
-func (ctx *transpileContext) moduleBinding(name string) (string, bool) {
-	mapped, ok := ctx.moduleImports[name]
-	if !ok || ctx.shadowedBelowModule(name) {
+func (g *generator) moduleBinding(name string) (string, bool) {
+	mapped, ok := g.moduleVars[name]
+	if !ok || g.shadowedBelowModule(name) {
 		return "", false
 	}
 	return mapped, true
@@ -165,9 +165,9 @@ func (ctx *transpileContext) moduleBinding(name string) (string, bool) {
 // shadowedBelowModule reports whether any scope opened after the module's own
 // declares name, in which case the name no longer refers to the module-level
 // binding at the current site.
-func (ctx *transpileContext) shadowedBelowModule(name string) bool {
-	for i := ctx.moduleScopeIdx + 1; i < len(ctx.userScopes); i++ {
-		if _, ok := ctx.userScopes[i][name]; ok {
+func (g *generator) shadowedBelowModule(name string) bool {
+	for i := g.moduleScopeIdx + 1; i < len(g.userScopes); i++ {
+		if _, ok := g.userScopes[i][name]; ok {
 			return true
 		}
 	}

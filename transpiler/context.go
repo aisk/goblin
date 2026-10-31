@@ -9,71 +9,74 @@ import (
 	"github.com/dave/jennifer/jen"
 )
 
-// transpileContext holds state for a single Transpile call.
-type transpileContext struct {
-	localNameCounter int
-	moduleImports    map[string]string   // module name -> Go variable name
-	importing        map[string]struct{} // paths currently being transpiled (cycle detection)
-	imported         map[string]struct{} // paths already transpiled (dedup)
-	moduleFuncs      []jen.Code          // top-level module executor functions (single-file mode)
-	topDecls         []jen.Code          // package-level declarations: types, methods, module variables, direct functions
-	// loadedModuleVars tracks the package-level variables holding imported
-	// module values, keyed by variable name, so a module imported from several
-	// places in one generated file is declared exactly once. Reset alongside
-	// topDecls in directory mode, where every file is its own package.
-	loadedModuleVars map[string]struct{}
-	// localTypes holds the specialised native types for the function body
-	// currently being transpiled (see typeinfer.go). It is swapped on entry to
-	// every function body and restored on exit, so it always describes exactly
-	// one scope. Names absent from it are ordinary object.Object values.
-	localTypes map[string]staticType
-	// For directory mode:
-	goModuleName string
-	outputDir    string
-	// Import resolution: relative import paths are resolved against the
-	// directory of the module currently being transpiled (baseDir), and
-	// module identifiers are derived relative to the entry point's
-	// directory (rootDir).
+// generator transpiles one Goblin module into one Go file. Module-level
+// state lives directly on it; the state of the function body being generated
+// is swapped as a unit by enterFunction.
+type generator struct {
+	prog *program
+	mod  *ast.Module
+	// key is the module's key within the program, empty for the entry module.
+	key string
+	// label names the module in transpile errors: its import path, empty for
+	// the entry module.
+	label string
+	// baseDir is the module's directory, which its relative imports resolve
+	// against.
 	baseDir string
-	rootDir string
-	// userScopes tracks user-declared names per lexical scope so they shadow
-	// built-in functions the same way the interpreter's environment chain does.
-	userScopes []map[string]struct{}
+
+	// topDecls collects the file's package-level declarations: types and
+	// their methods, module variables, direct functions.
+	topDecls []jen.Code
+
+	// moduleVars maps the module-level names whose Go variable is not the
+	// name itself: an imported module (the package-level variable holding it)
+	// and a type (its constructor variable, the bare name being its struct).
+	moduleVars map[string]string
+	// exportsVar is the Execute local collecting the module's exports.
+	exportsVar string
 
 	// rangeNative reports whether `range` resolves to the builtin throughout
-	// the function body currently being transpiled, making `for x in
-	// range(a, b)` eligible for lowering to a native counting loop. Swapped
-	// alongside localTypes by enterScope; the inference pass and transpileFor
-	// must agree on it, so it is a whole-body property.
+	// the module, making `for x in range(a, b)` eligible for lowering to a
+	// native counting loop. The inference pass and transpileFor must agree on
+	// it, so it is a whole-module property.
 	rangeNative bool
-
-	// directFns holds the module-level functions of the module currently
-	// being transpiled that are eligible for direct-call lowering (see
-	// directcall.go), and moduleScopeIdx is the index of that module's user
-	// scope: a call site may only be lowered while no deeper scope shadows
-	// the function's name.
+	// directFns and directCtors hold the module-level functions and types
+	// eligible for direct-call lowering (see directcall.go), and
+	// moduleScopeIdx is the index of the module's user scope: a call site may
+	// only be lowered while no deeper scope shadows the name.
 	directFns      map[string]directFn
 	directCtors    map[string]directFn
 	moduleScopeIdx int
+	// sigs holds the inferred native signatures of the module's closed direct
+	// functions (see signatures.go).
+	sigs map[string]*fnSig
 
-	// selfType describes the receiver while a type method body is being
-	// transpiled, so `self.field` and `self.method(...)` can be generated as
-	// direct Go field access and method calls. It is nil outside method
-	// bodies, inside nested function bodies, and in a method that rebinds
-	// self.
-	selfType *selfInfo
+	body bodyState
 
-	// sigs holds the inferred native signatures of the current module's
-	// closed direct functions (see signatures.go); retType is the native
-	// return type of the function body being transpiled, tyDynamic for an
-	// ordinary object.Object result. Both are swapped like localTypes.
-	sigs    map[string]*fnSig
-	retType staticType
+	// userScopes tracks user-declared names per lexical scope so they shadow
+	// built-in functions the same way the interpreter's scope chain does.
+	userScopes []map[string]struct{}
 
 	// errorPos is the position of the statement currently being transpiled.
 	// Frame-producing error handlers read it so tracebacks point at the
 	// failing statement, mirroring the interpreter's positionError tagging.
 	errorPos token.Pos
+}
+
+// bodyState describes the function body being generated.
+type bodyState struct {
+	// types holds the specialised native types inferred for the body's
+	// locals (see typeinfer.go). Names absent from it are ordinary
+	// object.Object values.
+	types map[string]staticType
+	// ret is the native return type of a closed direct function, tyDynamic
+	// for an ordinary object.Object result.
+	ret staticType
+	// self describes the receiver while a type method body is generated, so
+	// `self.field` and `self.method(...)` become direct Go field access and
+	// method calls. It is nil outside method bodies, inside nested function
+	// bodies, and in a method that rebinds self.
+	self *selfInfo
 }
 
 // selfInfo is what direct self access needs to know about the enclosing
@@ -87,55 +90,43 @@ type selfInfo struct {
 
 // selfMember reports whether expr is `self.name` for a field or method of the
 // enclosing type, in a position where self is still the receiver.
-func (ctx *transpileContext) selfMember(expr ast.Expression, name string) (info *selfInfo, ok bool) {
-	if ctx.selfType == nil {
+func (g *generator) selfMember(expr ast.Expression, name string) (info *selfInfo, ok bool) {
+	if g.body.self == nil {
 		return nil, false
 	}
 	ident, isIdent := expr.(*ast.Identifier)
 	if !isIdent || ident.Name != "self" {
 		return nil, false
 	}
-	return ctx.selfType, true
+	return g.body.self, true
 }
 
 // framePos returns the position traceback frames should carry: the current
 // statement when one is being transpiled, fallback (typically the enclosing
 // definition) otherwise.
-func (ctx *transpileContext) framePos(fallback token.Pos) token.Pos {
-	if ctx.errorPos.Line != 0 {
-		return ctx.errorPos
+func (g *generator) framePos(fallback token.Pos) token.Pos {
+	if g.errorPos.Line != 0 {
+		return g.errorPos
 	}
 	return fallback
-}
-
-func newTranspileContext() *transpileContext {
-	return &transpileContext{
-		localNameCounter: 0,
-		moduleImports:    make(map[string]string),
-		importing:        make(map[string]struct{}),
-		imported:         make(map[string]struct{}),
-		moduleFuncs:      nil,
-		topDecls:         nil,
-		loadedModuleVars: make(map[string]struct{}),
-	}
 }
 
 // pushUserScope opens a lexical scope for user-declared names and returns a
 // function closing it. User names shadow built-in functions, mirroring the
 // interpreter's scope-chain-first name resolution.
-func (ctx *transpileContext) pushUserScope() func() {
-	ctx.userScopes = append(ctx.userScopes, map[string]struct{}{})
-	return func() { ctx.userScopes = ctx.userScopes[:len(ctx.userScopes)-1] }
+func (g *generator) pushUserScope() func() {
+	g.userScopes = append(g.userScopes, map[string]struct{}{})
+	return func() { g.userScopes = g.userScopes[:len(g.userScopes)-1] }
 }
 
-func (ctx *transpileContext) declareUserName(name string) {
-	if len(ctx.userScopes) > 0 {
-		ctx.userScopes[len(ctx.userScopes)-1][name] = struct{}{}
+func (g *generator) declareUserName(name string) {
+	if len(g.userScopes) > 0 {
+		g.userScopes[len(g.userScopes)-1][name] = struct{}{}
 	}
 }
 
-func (ctx *transpileContext) isUserName(name string) bool {
-	for _, scope := range ctx.userScopes {
+func (g *generator) isUserName(name string) bool {
+	for _, scope := range g.userScopes {
 		if _, ok := scope[name]; ok {
 			return true
 		}
@@ -143,27 +134,34 @@ func (ctx *transpileContext) isUserName(name string) bool {
 	return false
 }
 
-// enterScope installs the type environment inferred for a function body and
-// returns a function restoring the previous one. seed and ret are the body's
-// parameter types and native return type when it belongs to a closed direct
-// function, nil and tyDynamic otherwise.
+// enterFunction opens the scope of a function body: a user scope declaring
+// the parameters, the body's inferred type environment, and its receiver
+// description (nil outside methods). seed and ret are the parameter types and
+// native return type of a closed direct function, nil and tyDynamic
+// otherwise. The returned function restores the enclosing body.
 //
-// The environment must come out identical to the one the signature inference
-// computed for this body, which is why it is built by the same function from
-// the same inputs: the module-wide rangeNative, the seed and the signatures.
-func (ctx *transpileContext) enterScope(body []ast.Statement, seed map[string]staticType, ret staticType) func() {
-	savedTypes, savedRet := ctx.localTypes, ctx.retType
-	ctx.localTypes = inferLocals(body, ctx.rangeNative, seed, ctx.sigs)
-	ctx.retType = ret
+// The type environment must come out identical to the one the signature
+// inference computed for this body, which is why it is built by the same
+// function from the same inputs: the module-wide rangeNative, the seed and
+// the signatures. Parameters are declared first so the inference sees them
+// as potential shadows.
+func (g *generator) enterFunction(params []*ast.Parameter, body []ast.Statement, seed map[string]staticType, ret staticType, self *selfInfo) func() {
+	popScope := g.pushUserScope()
+	for _, param := range params {
+		g.declareUserName(param.Name)
+	}
+	saved := g.body
+	g.body = bodyState{types: inferLocals(body, g.rangeNative, seed, g.sigs), ret: ret, self: self}
 	return func() {
-		ctx.localTypes, ctx.retType = savedTypes, savedRet
+		g.body = saved
+		popScope()
 	}
 }
 
 // typeOf reports the specialised native type of a name, or tyDynamic when the
 // name is an ordinary boxed value.
-func (ctx *transpileContext) typeOf(name string) staticType {
-	if t, ok := ctx.localTypes[name]; ok {
+func (g *generator) typeOf(name string) staticType {
+	if t, ok := g.body.types[name]; ok {
 		return t
 	}
 	return tyDynamic
@@ -171,25 +169,13 @@ func (ctx *transpileContext) typeOf(name string) staticType {
 
 // nativeTypeOf reports whether an expression can be evaluated as a native Go
 // expression in the current scope, and with what type.
-func (ctx *transpileContext) nativeTypeOf(expr ast.Expression) staticType {
-	return staticTypeOf(expr, ctx.localTypes, ctx.sigs)
+func (g *generator) nativeTypeOf(expr ast.Expression) staticType {
+	return staticTypeOf(expr, g.body.types, g.sigs)
 }
 
-// withSelfType installs the receiver description for a method body (or nil to
-// leave one) and returns a function restoring the previous value.
-func (ctx *transpileContext) withSelfType(info *selfInfo) func() {
-	saved := ctx.selfType
-	ctx.selfType = info
-	return func() { ctx.selfType = saved }
-}
-
-func (ctx *transpileContext) localName(prefix string) string {
-	name := fmt.Sprintf("_%s_%d", prefix, ctx.localNameCounter)
-	ctx.localNameCounter++
-	return name
-}
-
-func (ctx *transpileContext) goTypeName(name string) string {
+func (g *generator) localName(prefix string) string {
+	name := fmt.Sprintf("_%s_%d", prefix, g.prog.names)
+	g.prog.names++
 	return name
 }
 

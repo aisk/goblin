@@ -42,7 +42,7 @@ func box(code *jen.Statement, t staticType) *jen.Statement {
 // and modulo, cannot fail — so they collapse into a single Go expression with
 // no error plumbing. Division and modulo need a zero check, and that is a
 // statement, hence the leading []jen.Code most callers will find empty.
-func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
 	switch e := expr.(type) {
 	case *ast.Literal:
 		switch v := e.Value.(type) {
@@ -62,15 +62,15 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 		// call and its error check are hoisted as preceding statements and
 		// the expression is the result variable.
 		name, args, _ := plainCall(expr)
-		pre, call, ok, err := ctx.tryDirectCall(name, args, onError)
+		pre, call, ok, err := g.tryDirectCall(name, args, onError)
 		if err != nil {
 			return nil, nil, err
 		}
 		if !ok {
 			return nil, nil, fmt.Errorf("%s: internal error: call to %s typed native but not lowered", expr.Position(), name)
 		}
-		tmpVar := ctx.localName("tmp")
-		errVar := ctx.localName("err")
+		tmpVar := g.localName("tmp")
+		errVar := g.localName("err")
 		pre = append(pre,
 			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
 			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -78,18 +78,18 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 		return pre, jen.Id(tmpVar), nil
 
 	case *ast.UnaryOperation:
-		pre, operand, err := ctx.emitNative(e.Operand, onError)
+		pre, operand, err := g.emitNative(e.Operand, onError)
 		if err != nil {
 			return nil, nil, err
 		}
 		return pre, jen.Parens(jen.Op(e.Operator).Add(operand)), nil
 
 	case *ast.BinaryOperation:
-		lhsPre, lhs, err := ctx.emitNative(e.LHS, onError)
+		lhsPre, lhs, err := g.emitNative(e.LHS, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		rhsPre, rhs, err := ctx.emitNative(e.RHS, onError)
+		rhsPre, rhs, err := g.emitNative(e.RHS, onError)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -99,8 +99,8 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 		// pair — which Goblin widens to float — needs the int side converted
 		// explicitly. This covers comparisons too: Integer.Equals(Float) and
 		// Integer.Compare(Float) both compare as float64.
-		lhsType := ctx.nativeTypeOf(e.LHS)
-		rhsType := ctx.nativeTypeOf(e.RHS)
+		lhsType := g.nativeTypeOf(e.LHS)
+		rhsType := g.nativeTypeOf(e.RHS)
 		if numeric(lhsType) && numeric(rhsType) && lhsType != rhsType {
 			if lhsType == tyInt {
 				lhs = jen.Float64().Call(lhs)
@@ -113,8 +113,8 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 			// Bind the divisor so it is evaluated once, then reproduce
 			// Goblin's ZeroDivisionError instead of Go's panic (integers) or
 			// ±Inf (floats).
-			divisor := ctx.localName("div")
-			errVar := ctx.localName("err")
+			divisor := g.localName("div")
+			errVar := g.localName("err")
 			pre = append(pre,
 				jen.Id(divisor).Op(":=").Add(rhs),
 				jen.If(jen.Id(divisor).Op("==").Lit(0)).Block(
@@ -128,8 +128,8 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 		if e.Operator == "%" {
 			// Modulo needs a zero check like division, and for floats it must
 			// go through math.Mod since Go's % only works on integers.
-			divisor := ctx.localName("mod")
-			errVar := ctx.localName("err")
+			divisor := g.localName("mod")
+			errVar := g.localName("err")
 			pre = append(pre,
 				jen.Id(divisor).Op(":=").Add(rhs),
 				jen.If(jen.Id(divisor).Op("==").Lit(0)).Block(

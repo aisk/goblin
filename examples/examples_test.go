@@ -13,30 +13,15 @@ import (
 	"github.com/aisk/goblin/transpiler"
 )
 
+// TestExamples compiles each example the way `goblin build-exe` does, runs the
+// executable, and compares its output against the golden files.
 func TestExamples(t *testing.T) {
-	examplesDir := filepath.Join("..", "examples")
-
-	files, err := filepath.Glob(filepath.Join(examplesDir, "*.goblin"))
-	if err != nil {
-		t.Fatalf("failed to find .goblin files: %v", err)
-	}
-	if len(files) == 0 {
-		t.Fatalf("no .goblin files found in %s", examplesDir)
-	}
-
-	tempDir, err := os.MkdirTemp("", "goblin-test-")
-	if err != nil {
-		t.Fatalf("failed to create temp directory: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	for _, file := range files {
-		baseName := strings.TrimSuffix(filepath.Base(file), ".goblin")
-		t.Run(baseName, func(t *testing.T) {
-			goCode := parseAndTranspile(t, file)
-			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode)
-			checkOutput(t, examplesDir, baseName, ".stdout", stdout, true)
-			checkOutput(t, examplesDir, baseName, ".stderr", stderr, false)
+	for _, name := range exampleNames(t) {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			stdout, stderr := buildAndRun(t, name, false)
+			checkOutput(t, ".", name, ".stdout", stdout, true)
+			checkOutput(t, ".", name, ".stderr", stderr, false)
 		})
 	}
 }
@@ -47,83 +32,67 @@ func TestExamples(t *testing.T) {
 // the race run.
 var concurrencyMarkers = regexp.MustCompile(`\bspawn\b|\bChan\(|\bGoblin\(`)
 
-// raceExamples lists the examples whose transpiled form is also run under the
-// race detector, guarding the coordination patterns the book recommends.
-func raceExamples(t *testing.T, examplesDir string) []string {
-	t.Helper()
-	files, err := filepath.Glob(filepath.Join(examplesDir, "*.goblin"))
-	if err != nil || len(files) == 0 {
-		t.Fatalf("failed to find .goblin files: %v", err)
-	}
-	var names []string
-	for _, file := range files {
-		src, err := os.ReadFile(file)
-		if err != nil {
-			t.Fatalf("failed to read %s: %v", file, err)
-		}
-		if concurrencyMarkers.Match(src) {
-			names = append(names, strings.TrimSuffix(filepath.Base(file), ".goblin"))
-		}
-	}
-	return names
-}
-
+// TestExamplesRace runs the concurrency examples under the race detector,
+// guarding the coordination patterns the book recommends.
 func TestExamplesRace(t *testing.T) {
-	examplesDir := filepath.Join("..", "examples")
-
-	tempDir, err := os.MkdirTemp("", "goblin-race-test-")
-	if err != nil {
-		t.Fatalf("failed to create temp directory: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
-	for _, baseName := range raceExamples(t, examplesDir) {
-		t.Run(baseName, func(t *testing.T) {
-			goCode := parseAndTranspile(t, filepath.Join(examplesDir, baseName+".goblin"))
-			stdout, stderr := writeAndRun(t, tempDir, baseName, goCode, "-race")
-			checkOutput(t, examplesDir, baseName, ".stdout", stdout, true)
-			checkOutput(t, examplesDir, baseName, ".stderr", stderr, false)
+	for _, name := range exampleNames(t) {
+		src, err := os.ReadFile(name + ".goblin")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !concurrencyMarkers.Match(src) {
+			continue
+		}
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			stdout, stderr := buildAndRun(t, name, true)
+			checkOutput(t, ".", name, ".stdout", stdout, true)
+			checkOutput(t, ".", name, ".stderr", stderr, false)
 		})
 	}
 }
 
-// parseAndTranspile reads a .goblin file, parses and transpiles it to Go code.
-func parseAndTranspile(t *testing.T, goblinFile string) string {
+// exampleNames lists the examples in this directory, without extension.
+func exampleNames(t *testing.T) []string {
 	t.Helper()
+	files, err := filepath.Glob("*.goblin")
+	if err != nil || len(files) == 0 {
+		t.Fatalf("no .goblin files found: %v", err)
+	}
+	names := make([]string, len(files))
+	for i, file := range files {
+		names[i] = strings.TrimSuffix(file, ".goblin")
+	}
+	return names
+}
 
-	module, err := source.LoadFile(goblinFile)
+// buildAndRun compiles an example to an executable and runs it in this
+// directory, returning its stdout and stderr.
+func buildAndRun(t *testing.T, name string, race bool) (string, string) {
+	t.Helper()
+	file := name + ".goblin"
+	mod, err := source.LoadFile(file)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	var buf bytes.Buffer
-	if err := transpiler.Transpile(module, &buf); err != nil {
-		t.Fatalf("transpile error: %v", err)
-	}
-	return buf.String()
-}
-
-// writeAndRun writes Go code to a temp file and executes it, returning stdout
-// and stderr. Extra buildFlags (such as -race) are passed to go run.
-func writeAndRun(t *testing.T, tempDir, baseName, goCode string, buildFlags ...string) (string, string) {
-	t.Helper()
-
-	goFile := filepath.Join(tempDir, baseName+".go")
-	if err := os.WriteFile(goFile, []byte(goCode), 0644); err != nil {
-		t.Fatalf("failed to write Go file: %v", err)
+	var buildLog bytes.Buffer
+	exe, err := transpiler.BuildExecutable(mod, file, transpiler.BuildOptions{
+		Output: filepath.Join(t.TempDir(), name),
+		Race:   race,
+		Stdout: &buildLog,
+		Stderr: &buildLog,
+	})
+	if err != nil {
+		t.Fatalf("%v\n%s", err, buildLog.String())
 	}
 
-	args := append([]string{"run"}, buildFlags...)
-	args = append(args, goFile)
-	cmd := exec.Command("go", args...)
 	var stdout, stderr bytes.Buffer
+	cmd := exec.Command(exe)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("go run failed: %v\nstderr: %s", err, stderr.String())
+		t.Fatalf("executable failed: %v\nstderr: %s", err, stderr.String())
 	}
-
 	return stdout.String(), stderr.String()
 }
 

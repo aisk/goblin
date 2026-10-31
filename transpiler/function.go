@@ -12,7 +12,7 @@ import (
 // Callers must place the declaration before the parameter variable
 // declarations: the closures must capture the enclosing scope, not the
 // parameters a default expression may share a name with.
-func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Code, string, error) {
+func (g *generator) emitParamDefaults(params []*ast.Parameter) (jen.Code, string, error) {
 	hasDefault := false
 	for _, param := range params {
 		if param.HasDefault() {
@@ -37,7 +37,7 @@ func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Cod
 			entries = append(entries, jen.Nil())
 			continue
 		}
-		pre, value, err := ctx.transpileExpression(param.Default, onError)
+		pre, value, err := g.transpileExpression(param.Default, onError)
 		if err != nil {
 			return nil, "", err
 		}
@@ -47,7 +47,7 @@ func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Cod
 		).Block(body...))
 	}
 
-	name := ctx.localName("defaults")
+	name := g.localName("defaults")
 	decl := jen.Id(name).Op(":=").Index().Qual(pathObject, "ParamDefault").Values(entries...)
 	return decl, name, nil
 }
@@ -60,7 +60,7 @@ func (ctx *transpileContext) emitParamDefaults(params []*ast.Parameter) (jen.Cod
 // when no parameter has a default), and fnOnError builds the error-return
 // emitted when binding fails. It is shared by named functions, anonymous
 // literals, and type methods.
-func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Parameter, defaultsName string, callArgsName string, fnOnError errHandler) []jen.Code {
+func (g *generator) emitParameterBinding(name string, params []*ast.Parameter, defaultsName string, callArgsName string, fnOnError errHandler) []jen.Code {
 	var varArgsParam *ast.Parameter
 	var kwArgsParam *ast.Parameter
 	fixedParams := make([]*ast.Parameter, 0, len(params))
@@ -80,8 +80,8 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 		fixedParamNames = append(fixedParamNames, jen.Lit(param.Name))
 	}
 
-	boundName := ctx.localName("bound")
-	errVar := ctx.localName("err")
+	boundName := g.localName("bound")
+	errVar := g.localName("err")
 	varArgsName := ""
 	if varArgsParam != nil {
 		varArgsName = varArgsParam.Name
@@ -181,42 +181,36 @@ func (ctx *transpileContext) emitParameterBinding(name string, params []*ast.Par
 // closure binding the given parameters and running the given body. It is shared
 // by named function definitions and anonymous function literals. name is used
 // only for the runtime function's repr and for BindArguments diagnostics.
-func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
+func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast.Parameter, body []ast.Statement) (*jen.Statement, error) {
 	// Default expressions belong to the enclosing scope, so they are transpiled
 	// before entering the body's inference scope.
-	defaultsDecl, defaultsName, err := ctx.emitParamDefaults(params)
+	defaultsDecl, defaultsName, err := g.emitParamDefaults(params)
 	if err != nil {
 		return nil, err
 	}
 
 	// Each function body gets its own inferred types; parameters stay boxed,
-	// since a caller can pass anything. Parameters are declared before
-	// enterScope so the inference pass sees them as potential shadows.
-	defer ctx.pushUserScope()()
-	for _, param := range params {
-		ctx.declareUserName(param.Name)
-	}
-	defer ctx.enterScope(body, nil, tyDynamic)()
-	defer ctx.withSelfType(nil)()
+	// since a caller can pass anything.
+	defer g.enterFunction(params, body, nil, tyDynamic, nil)()
 
-	callArgsName := ctx.localName("callArgs")
+	callArgsName := g.localName("callArgs")
 
 	module := sourceModuleName(pos)
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(jen.Nil(), errVar, module, name, ctx.framePos(pos))
+		return tracedReturn(jen.Nil(), errVar, module, name, g.framePos(pos))
 	}
 
 	// Binding errors point at the definition, like the interpreter's frame
 	// for BindArgumentsInto failures.
-	savedPos := ctx.errorPos
-	ctx.errorPos = pos
-	argsDefine := ctx.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)
-	ctx.errorPos = savedPos
+	savedPos := g.errorPos
+	g.errorPos = pos
+	argsDefine := g.emitParameterBinding(name, params, defaultsName, callArgsName, fnOnError)
+	g.errorPos = savedPos
 	if defaultsDecl != nil {
 		argsDefine = append([]jen.Code{defaultsDecl}, argsDefine...)
 	}
 
-	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
+	bodyCode, err := g.transpileStatements(body, fnOnError)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +237,7 @@ func (ctx *transpileContext) buildFunctionValue(name string, pos token.Pos, para
 // generates, so every call shape that is not lowered — keyword arguments,
 // wrong arity, the function used as a value — behaves exactly as before,
 // diagnostics included.
-func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.FunctionDefine) ([]jen.Code, error) {
+func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) ([]jen.Code, error) {
 	name, pos, params, body := fn.Name, fn.Position(), fn.Parameters, fn.Body
 
 	// A closed function (see signatures.go) carries an inferred signature:
@@ -251,7 +245,7 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	// says, and it needs no generic wrapper since nothing can reach it
 	// other than the lowered call sites. Closedness excludes parameter
 	// defaults, so there are none to evaluate for it.
-	sig := ctx.sigs[name]
+	sig := g.sigs[name]
 	var seed map[string]staticType
 	retType := tyDynamic
 	var defaultsDecl jen.Code
@@ -266,28 +260,22 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		// Default expressions belong to the enclosing scope, so they are
 		// transpiled before the parameters are declared.
 		var err error
-		defaultsDecl, defaultsName, err = ctx.emitParamDefaults(params)
+		defaultsDecl, defaultsName, err = g.emitParamDefaults(params)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	popScope := ctx.pushUserScope()
-	for _, param := range params {
-		ctx.declareUserName(param.Name)
-	}
-	restoreTypes := ctx.enterScope(body, seed, retType)
-	defer ctx.withSelfType(nil)()
+	leave := g.enterFunction(params, body, seed, retType, nil)
 
 	module := sourceModuleName(pos)
 	zero := zeroOf(retType)
 	fnOnError := func(errVar string) jen.Code {
-		return tracedReturn(zero, errVar, module, name, ctx.framePos(pos))
+		return tracedReturn(zero, errVar, module, name, g.framePos(pos))
 	}
 
-	bodyCode, err := ctx.transpileStatements(body, fnOnError, "")
-	restoreTypes()
-	popScope()
+	bodyCode, err := g.transpileStatements(body, fnOnError)
+	leave()
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +294,7 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		}
 		paramDecls = append(paramDecls, jen.Id(param.Name).Add(goType(paramType)))
 	}
-	ctx.topDecls = append(ctx.topDecls,
+	g.topDecls = append(g.topDecls,
 		jen.Func().Id(info.goName).Params(paramDecls...).Parens(jen.List(
 			goType(retType), jen.Id("error"),
 		)).Block(bodyCode...))
@@ -314,9 +302,9 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 		return nil, nil
 	}
 
-	callArgsName := ctx.localName("callArgs")
-	boundName := ctx.localName("bound")
-	errVar := ctx.localName("err")
+	callArgsName := g.localName("callArgs")
+	boundName := g.localName("bound")
+	errVar := g.localName("err")
 
 	fastArgs := make([]jen.Code, 0, len(params))
 	slowArgs := make([]jen.Code, 0, len(params))
@@ -328,10 +316,10 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	}
 
 	// Binding errors point at the definition, like buildFunctionValue's.
-	savedPos := ctx.errorPos
-	ctx.errorPos = pos
+	savedPos := g.errorPos
+	g.errorPos = pos
 	bindErrReturn := fnOnError(errVar)
-	ctx.errorPos = savedPos
+	g.errorPos = savedPos
 
 	defaultsArg := jen.Nil()
 	if defaultsName != "" {
@@ -380,11 +368,11 @@ func (ctx *transpileContext) buildDirectFunction(info directFn, fn *ast.Function
 	}, nil
 }
 
-func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
+func (g *generator) transpileFunctionDefine(fn *ast.FunctionDefine, onError errHandler) ([]jen.Code, error) {
 	// Declared before the body transpiles so the function can shadow a
 	// built-in even in recursive references to itself.
-	ctx.declareUserName(fn.Name)
-	funcValue, err := ctx.buildFunctionValue(fn.Name, fn.Position(), fn.Parameters, fn.Body)
+	g.declareUserName(fn.Name)
+	funcValue, err := g.buildFunctionValue(fn.Name, fn.Position(), fn.Parameters, fn.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -399,8 +387,8 @@ func (ctx *transpileContext) transpileFunctionDefine(fn *ast.FunctionDefine, onE
 	return []jen.Code{result}, nil
 }
 
-func (ctx *transpileContext) transpileFunctionLiteral(fn *ast.FunctionLiteral) ([]jen.Code, *jen.Statement, error) {
-	funcValue, err := ctx.buildFunctionValue("<lambda>", fn.Position(), fn.Parameters, fn.Body)
+func (g *generator) transpileFunctionLiteral(fn *ast.FunctionLiteral) ([]jen.Code, *jen.Statement, error) {
+	funcValue, err := g.buildFunctionValue("<lambda>", fn.Position(), fn.Parameters, fn.Body)
 	if err != nil {
 		return nil, nil, err
 	}

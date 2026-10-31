@@ -8,20 +8,30 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/aisk/goblin/source"
+	"github.com/aisk/goblin/transpiler"
 )
 
 // TestLineDirective_GeneratedSource confirms that transpilation emits Go
 // `//line` directives that map back to the .goblin source file with an
 // absolute path.
 func TestLineDirective_GeneratedSource(t *testing.T) {
-	goblinFile, err := filepath.Abs(filepath.Join("..", "examples", "arithmetic.goblin"))
+	mod, err := source.LoadFile("arithmetic.goblin")
 	if err != nil {
-		t.Fatalf("abs path: %v", err)
+		t.Fatal(err)
 	}
-	goCode := parseAndTranspile(t, goblinFile)
+	dir := t.TempDir()
+	if err := transpiler.TranspileToDir(mod, "arithmetic.goblin", dir); err != nil {
+		t.Fatal(err)
+	}
+	goCode, err := os.ReadFile(filepath.Join(dir, "main.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	re := regexp.MustCompile(`//line\s+(\S+\.goblin):(\d+):(\d+)`)
-	matches := re.FindAllStringSubmatch(goCode, -1)
+	matches := re.FindAllStringSubmatch(string(goCode), -1)
 	if len(matches) == 0 {
 		t.Fatalf("no //line directive found in generated source:\n%s", goCode)
 	}
@@ -37,33 +47,34 @@ func TestLineDirective_GeneratedSource(t *testing.T) {
 }
 
 // TestLineDirective_PanicTraceback confirms that a runtime error in the
-// transpiled program produces a stack trace that references the original
-// .goblin source file (not the temp .go file).
+// compiled program produces a traceback that references the original .goblin
+// source file (not the generated .go file).
 func TestLineDirective_PanicTraceback(t *testing.T) {
-	tempDir, err := os.MkdirTemp("", "goblin-line-")
-	if err != nil {
-		t.Fatalf("mkdtemp: %v", err)
-	}
-	defer os.RemoveAll(tempDir)
-
+	dir := t.TempDir()
 	goblinSrc := "func inner() {\n  print(1 / 0)\n}\nfunc outer() {\n  inner()\n}\nouter()\n"
-	goblinPath := filepath.Join(tempDir, "divzero.goblin")
+	goblinPath := filepath.Join(dir, "divzero.goblin")
 	if err := os.WriteFile(goblinPath, []byte(goblinSrc), 0644); err != nil {
 		t.Fatalf("write goblin: %v", err)
 	}
-
-	goCode := parseAndTranspile(t, goblinPath)
-	goPath := filepath.Join(tempDir, "divzero.go")
-	if err := os.WriteFile(goPath, []byte(goCode), 0644); err != nil {
-		t.Fatalf("write go: %v", err)
+	mod, err := source.LoadFile(goblinPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buildLog bytes.Buffer
+	exe, err := transpiler.BuildExecutable(mod, goblinPath, transpiler.BuildOptions{
+		Output: filepath.Join(dir, "divzero"),
+		Stdout: &buildLog,
+		Stderr: &buildLog,
+	})
+	if err != nil {
+		t.Fatalf("%v\n%s", err, buildLog.String())
 	}
 
-	cmd := exec.Command("go", "run", goPath)
 	var stdout, stderr bytes.Buffer
+	cmd := exec.Command(exe)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	runErr := cmd.Run()
-	if runErr == nil {
+	if err := cmd.Run(); err == nil {
 		t.Fatalf("expected non-zero exit, got success.\nstdout: %s\nstderr: %s", stdout.String(), stderr.String())
 	}
 	combined := stderr.String() + stdout.String()
