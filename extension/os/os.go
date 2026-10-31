@@ -194,9 +194,9 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, ok := pathext.PathString(dirObj)
-		if !ok {
-			return nil, object.NewTypeError("tempdir() first argument (dir) must be String or Path")
+		d, err := pathext.PathArg("tempdir", "dir", dirObj)
+		if err != nil {
+			return nil, err
 		}
 		dir = d
 	}
@@ -219,9 +219,9 @@ func tempFile(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, ok := pathext.PathString(dirObj)
-		if !ok {
-			return nil, object.NewTypeError("tempfile() first argument (dir) must be String or Path")
+		d, err := pathext.PathArg("tempfile", "dir", dirObj)
+		if err != nil {
+			return nil, err
 		}
 		dir = d
 	}

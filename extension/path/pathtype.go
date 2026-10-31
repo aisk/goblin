@@ -86,7 +86,7 @@ func (p *Path) Multiply(object.Object) (object.Object, error) {
 // Divide overloads `/` as path joining, so `Path("/tmp") / "log" / "a.txt"`
 // reads like a filesystem path.
 func (p *Path) Divide(other object.Object) (object.Object, error) {
-	seg, err := pathSegment("/", "other", other)
+	seg, err := PathArg("/", "other", other)
 	if err != nil {
 		return nil, object.NewTypeError("cannot join Path with %s using /", other.TypeName())
 	}
@@ -180,16 +180,13 @@ func (p *Path) Attributes() []string {
 	}
 }
 
-// pathSegment coerces a String or Path argument into a plain path string.
-func pathSegment(fnName, argName string, arg object.Object) (string, error) {
-	switch v := arg.(type) {
-	case object.String:
-		return string(v), nil
-	case *Path:
-		return v.raw, nil
-	default:
-		return "", object.NewTypeError("%s() argument '%s' must be String or Path, got %s", fnName, argName, arg.TypeName())
+// PathArg is PathString for a function argument: anything other than a
+// String or Path raises the standard TypeError for argument argName of fnName.
+func PathArg(fnName, argName string, arg object.Object) (string, error) {
+	if path, ok := PathString(arg); ok {
+		return path, nil
 	}
+	return "", object.NewTypeError("%s() argument '%s' must be String or Path, got %s", fnName, argName, arg.TypeName())
 }
 
 // pathParts splits raw into its components, keeping the leading anchor (a
@@ -252,7 +249,7 @@ func (p *Path) Join(args object.CallArgs) (object.Object, error) {
 	elems := make([]string, 0, len(segments)+1)
 	elems = append(elems, p.raw)
 	for _, arg := range segments {
-		seg, err := pathSegment("join", "segments", arg)
+		seg, err := PathArg("join", "segments", arg)
 		if err != nil {
 			return nil, err
 		}
@@ -267,7 +264,7 @@ func (p *Path) RelativeTo(args object.CallArgs) (object.Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	base, err := pathSegment("relative_to", "other", other)
+	base, err := PathArg("relative_to", "other", other)
 	if err != nil {
 		return nil, err
 	}
@@ -482,7 +479,7 @@ func (p *Path) Rename(args object.CallArgs) (object.Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	targetPath, err := pathSegment("rename", "target", target)
+	targetPath, err := PathArg("rename", "target", target)
 	if err != nil {
 		return nil, err
 	}
@@ -507,7 +504,7 @@ func PathConstructor(args object.CallArgs) (object.Object, error) {
 	}
 	segs := make([]string, len(segments))
 	for i, arg := range segments {
-		seg, err := pathSegment("Path", "segments", arg)
+		seg, err := PathArg("Path", "segments", arg)
 		if err != nil {
 			return nil, err
 		}

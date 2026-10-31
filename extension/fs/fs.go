@@ -29,9 +29,9 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 	if err := ap.Finish(); err != nil {
 		return "", err
 	}
-	path, ok := pathext.PathString(pathArg)
-	if !ok {
-		return "", object.NewTypeError("%s() argument 'path' must be String or Path, got %s", funcName, pathArg.TypeName())
+	path, err := pathext.PathArg(funcName, "path", pathArg)
+	if err != nil {
+		return "", err
 	}
 	return path, nil
 }
@@ -89,9 +89,9 @@ func bindPathContentArgs(funcName string, args object.CallArgs) (string, string,
 	if err := ap.Finish(); err != nil {
 		return "", "", err
 	}
-	path, ok := pathext.PathString(pathArg)
-	if !ok {
-		return "", "", object.NewTypeError("%s() argument 'path' must be String or Path, got %s", funcName, pathArg.TypeName())
+	path, err := pathext.PathArg(funcName, "path", pathArg)
+	if err != nil {
+		return "", "", err
 	}
 	content, ok := contentArg.(object.String)
 	if !ok {
