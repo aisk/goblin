@@ -145,7 +145,9 @@ var GoblinConstructorFn = &Function{Name: "Goblin", Fn: GoblinConstructor}
 func GoblinConstructor(args CallArgs) (Object, error) {
 	p := NewArgParser("Goblin", args)
 	fn := p.Func("fn")
-	rest := p.Rest()
+	// The arguments only live for this call (see CallArgs); the goroutine
+	// runs after it returns, so it gets its own copy.
+	rest := append(Args(nil), p.Rest()...)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
