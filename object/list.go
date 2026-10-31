@@ -364,55 +364,17 @@ func (l *List) GetAttr(name string) (Object, error) {
 		return AttributesFunction(l), nil
 	case "size":
 		return l.Size(), nil
-	case "push":
-		return &Function{Name: "push", Fn: l.Push}, nil
-	case "pop":
-		return &Function{Name: "pop", Fn: l.Pop}, nil
 	case "first":
 		return l.First()
 	case "last":
 		return l.Last()
-	case "join":
-		return &Function{Name: "join", Fn: l.Join}, nil
-	case "insert":
-		return &Function{Name: "insert", Fn: l.Insert}, nil
-	case "contains":
-		return &Function{Name: "contains", Fn: l.Contains}, nil
-	case "count":
-		return &Function{Name: "count", Fn: l.Count}, nil
-	case "index":
-		return &Function{Name: "index", Fn: l.IndexOf}, nil
-	case "remove":
-		return &Function{Name: "remove", Fn: l.Remove}, nil
-	case "reverse":
-		return &Function{Name: "reverse", Fn: l.Reverse}, nil
-	case "clear":
-		return &Function{Name: "clear", Fn: l.Clear}, nil
-	case "copy":
-		return &Function{Name: "copy", Fn: l.Copy}, nil
-	case "sort":
-		return &Function{Name: "sort", Fn: l.sortMethod}, nil
-	case "map":
-		return &Function{Name: "map", Fn: l.mapMethod}, nil
-	case "filter":
-		return &Function{Name: "filter", Fn: l.filterMethod}, nil
-	case "reduce":
-		return &Function{Name: "reduce", Fn: l.reduceMethod}, nil
-	case "each":
-		return &Function{Name: "each", Fn: l.eachMethod}, nil
-	case "find":
-		return &Function{Name: "find", Fn: l.findMethod}, nil
-	case "any":
-		return &Function{Name: "any", Fn: l.anyMethod}, nil
-	case "all":
-		return &Function{Name: "all", Fn: l.allMethod}, nil
-	case "sum":
-		return &Function{Name: "sum", Fn: l.sumMethod}, nil
 	case "constructor":
 		return ListConstructorFn, nil
-	default:
-		return nil, NewAttributeError("List has no attribute '%s'", name)
 	}
+	if fn, ok := listMethods.bind(l, name); ok {
+		return fn, nil
+	}
+	return nil, NewAttributeError("List has no attribute '%s'", name)
 }
 
 func (l *List) sortMethod(args CallArgs) (Object, error) {
@@ -691,9 +653,13 @@ func (l *List) sumMethod(args CallArgs) (Object, error) {
 	return res, nil
 }
 
-func (l *List) Attributes() []string {
-	return []string{"attributes", "size", "push", "pop", "first", "last", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find", "any", "all", "sum", "constructor"}
-}
+func (l *List) Attributes() []string { return listMethods.attributes("size", "first", "last") }
+
+var listMethods = newMethodTable(
+	"push", "pop", "join", "insert", "contains", "count", "index", "remove",
+	"reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find",
+	"any", "all", "sum",
+)
 
 var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}
 

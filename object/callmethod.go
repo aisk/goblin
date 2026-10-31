@@ -10,7 +10,7 @@ package object
 // for "constructor", for "attributes", and for anything unknown, so the caller
 // falls back to GetAttr and the resulting value or error is unchanged.
 //
-// These switches list the same methods as each type's GetAttr, and
+// Each switch names the same methods as the type's methodTable, and
 // TestCallMethodMatchesGetAttr holds them to that.
 
 func (l *List) CallMethod(name string, args CallArgs) (Object, bool, error) {

@@ -386,36 +386,21 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 		return AttributesFunction(d), nil
 	case "size":
 		return d.Size(), nil
-	case "keys":
-		return &Function{Name: "keys", Fn: d.Keys}, nil
-	case "values":
-		return &Function{Name: "values", Fn: d.Values}, nil
-	case "items":
-		return &Function{Name: "items", Fn: d.Items}, nil
-	case "contains":
-		return &Function{Name: "contains", Fn: d.Contains}, nil
-	case "get":
-		return &Function{Name: "get", Fn: d.GetValue}, nil
-	case "set_default":
-		return &Function{Name: "set_default", Fn: d.SetDefault}, nil
-	case "pop":
-		return &Function{Name: "pop", Fn: d.Pop}, nil
-	case "update":
-		return &Function{Name: "update", Fn: d.Update}, nil
-	case "clear":
-		return &Function{Name: "clear", Fn: d.Clear}, nil
-	case "copy":
-		return &Function{Name: "copy", Fn: d.Copy}, nil
 	case "constructor":
 		return DictConstructorFn, nil
-	default:
-		return nil, NewAttributeError("Dict has no attribute '%s'", name)
 	}
+	if fn, ok := dictMethods.bind(d, name); ok {
+		return fn, nil
+	}
+	return nil, NewAttributeError("Dict has no attribute '%s'", name)
 }
 
-func (d *Dict) Attributes() []string {
-	return []string{"attributes", "size", "keys", "values", "items", "contains", "get", "set_default", "pop", "update", "clear", "copy", "constructor"}
-}
+func (d *Dict) Attributes() []string { return dictMethods.attributes("size") }
+
+var dictMethods = newMethodTable(
+	"keys", "values", "items", "contains", "get", "set_default", "pop", "update",
+	"clear", "copy",
+)
 
 var DictConstructorFn = &Function{Name: "Dict", Fn: DictConstructor}
 

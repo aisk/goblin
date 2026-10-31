@@ -2,8 +2,8 @@ package object
 
 import "testing"
 
-// TestCallMethodMatchesGetAttr pins CallMethod's switch to the method list each
-// type publishes through Attributes/GetAttr. The two are separate switches on
+// TestCallMethodMatchesGetAttr pins CallMethod's switch to the methodTable each
+// type publishes through Attributes/GetAttr. The switch stays hand-written on
 // purpose (CallMethod calls the Go method directly so escape analysis can see
 // the argument list), so nothing but this test stops them from drifting apart.
 func TestCallMethodMatchesGetAttr(t *testing.T) {

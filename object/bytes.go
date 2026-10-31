@@ -454,93 +454,25 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 		return AttributesFunction(b), nil
 	case "size":
 		return b.Size(), nil
-	case "decode":
-		return &Function{Name: name, Fn: b.Decode}, nil
-	case "contains":
-		return &Function{Name: name, Fn: b.Contains}, nil
-	case "contains_any":
-		return &Function{Name: name, Fn: b.ContainsAny}, nil
-	case "contains_rune":
-		return &Function{Name: name, Fn: b.ContainsRune}, nil
-	case "count":
-		return &Function{Name: name, Fn: b.Count}, nil
-	case "equal_fold":
-		return &Function{Name: name, Fn: b.EqualFold}, nil
-	case "compare":
-		return &Function{Name: name, Fn: b.CompareBytes}, nil
-	case "has_prefix":
-		return &Function{Name: name, Fn: b.HasPrefix}, nil
-	case "has_suffix":
-		return &Function{Name: name, Fn: b.HasSuffix}, nil
-	case "index":
-		return &Function{Name: name, Fn: b.IndexOf}, nil
-	case "last_index":
-		return &Function{Name: name, Fn: b.LastIndex}, nil
-	case "index_any":
-		return &Function{Name: name, Fn: b.IndexAny}, nil
-	case "last_index_any":
-		return &Function{Name: name, Fn: b.LastIndexAny}, nil
-	case "index_byte":
-		return &Function{Name: name, Fn: b.IndexByte}, nil
-	case "last_index_byte":
-		return &Function{Name: name, Fn: b.LastIndexByte}, nil
-	case "index_rune":
-		return &Function{Name: name, Fn: b.IndexRune}, nil
-	case "join":
-		return &Function{Name: name, Fn: b.Join}, nil
-	case "repeat":
-		return &Function{Name: name, Fn: b.Repeat}, nil
-	case "replace":
-		return &Function{Name: name, Fn: b.Replace}, nil
-	case "split":
-		return &Function{Name: name, Fn: b.Split}, nil
-	case "split_after":
-		return &Function{Name: name, Fn: b.SplitAfter}, nil
-	case "fields":
-		return &Function{Name: name, Fn: b.Fields}, nil
-	case "cut":
-		return &Function{Name: name, Fn: b.Cut}, nil
-	case "cut_prefix":
-		return &Function{Name: name, Fn: b.CutPrefix}, nil
-	case "cut_suffix":
-		return &Function{Name: name, Fn: b.CutSuffix}, nil
-	case "trim":
-		return &Function{Name: name, Fn: b.Trim}, nil
-	case "trim_left":
-		return &Function{Name: name, Fn: b.TrimLeft}, nil
-	case "trim_right":
-		return &Function{Name: name, Fn: b.TrimRight}, nil
-	case "trim_prefix":
-		return &Function{Name: name, Fn: b.TrimPrefix}, nil
-	case "trim_suffix":
-		return &Function{Name: name, Fn: b.TrimSuffix}, nil
-	case "upper":
-		return &Function{Name: name, Fn: b.Upper}, nil
-	case "lower":
-		return &Function{Name: name, Fn: b.Lower}, nil
-	case "title":
-		return &Function{Name: name, Fn: b.Title}, nil
-	case "to_title":
-		return &Function{Name: name, Fn: b.ToTitle}, nil
-	case "to_valid_utf8":
-		return &Function{Name: name, Fn: b.ToValidUTF8}, nil
 	case "constructor":
 		return BytesConstructorFn, nil
-	default:
-		return nil, NewAttributeError("Bytes has no attribute '%s'", name)
 	}
+	if fn, ok := bytesMethods.bind(b, name); ok {
+		return fn, nil
+	}
+	return nil, NewAttributeError("Bytes has no attribute '%s'", name)
 }
 
-func (b Bytes) Attributes() []string {
-	return []string{
-		"attributes", "size", "decode", "contains", "contains_any", "contains_rune", "count",
-		"equal_fold", "compare", "has_prefix", "has_suffix", "index", "last_index",
-		"index_any", "last_index_any", "index_byte", "last_index_byte", "index_rune",
-		"join", "repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
-		"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",
-		"upper", "lower", "title", "to_title", "to_valid_utf8", "constructor",
-	}
-}
+func (b Bytes) Attributes() []string { return bytesMethods.attributes("size") }
+
+var bytesMethods = newMethodTable(
+	"decode", "contains", "contains_any", "contains_rune", "count", "equal_fold",
+	"compare", "has_prefix", "has_suffix", "index", "last_index", "index_any",
+	"last_index_any", "index_byte", "last_index_byte", "index_rune", "join",
+	"repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
+	"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",
+	"upper", "lower", "title", "to_title", "to_valid_utf8",
+)
 
 var BytesConstructorFn = &Function{Name: "Bytes", Fn: BytesConstructor}
 

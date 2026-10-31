@@ -445,87 +445,24 @@ func (s String) GetAttr(name string) (Object, error) {
 		return AttributesFunction(s), nil
 	case "size":
 		return s.Size(), nil
-	case "upper":
-		return &Function{Name: name, Fn: s.Upper}, nil
-	case "lower":
-		return &Function{Name: name, Fn: s.Lower}, nil
-	case "has_prefix":
-		return &Function{Name: name, Fn: s.HasPrefix}, nil
-	case "has_suffix":
-		return &Function{Name: name, Fn: s.HasSuffix}, nil
-	case "trim":
-		return &Function{Name: name, Fn: s.Trim}, nil
-	case "contains":
-		return &Function{Name: name, Fn: s.Contains}, nil
-	case "contains_any":
-		return &Function{Name: name, Fn: s.ContainsAny}, nil
-	case "count":
-		return &Function{Name: name, Fn: s.Count}, nil
-	case "equal_fold":
-		return &Function{Name: name, Fn: s.EqualFold}, nil
-	case "compare":
-		return &Function{Name: name, Fn: s.CompareText}, nil
-	case "index":
-		return &Function{Name: name, Fn: s.IndexOf}, nil
-	case "last_index":
-		return &Function{Name: name, Fn: s.LastIndex}, nil
-	case "index_any":
-		return &Function{Name: name, Fn: s.IndexAny}, nil
-	case "last_index_any":
-		return &Function{Name: name, Fn: s.LastIndexAny}, nil
-	case "repeat":
-		return &Function{Name: name, Fn: s.Repeat}, nil
-	case "replace":
-		return &Function{Name: name, Fn: s.Replace}, nil
-	case "split":
-		return &Function{Name: name, Fn: s.Split}, nil
-	case "split_after":
-		return &Function{Name: name, Fn: s.SplitAfter}, nil
-	case "fields":
-		return &Function{Name: name, Fn: s.Fields}, nil
-	case "title":
-		return &Function{Name: name, Fn: s.Title}, nil
-	case "to_title":
-		return &Function{Name: name, Fn: s.ToTitle}, nil
-	case "to_valid_utf8":
-		return &Function{Name: name, Fn: s.ToValidUTF8}, nil
-	case "trim_left":
-		return &Function{Name: name, Fn: s.TrimLeft}, nil
-	case "trim_right":
-		return &Function{Name: name, Fn: s.TrimRight}, nil
-	case "trim_prefix":
-		return &Function{Name: name, Fn: s.TrimPrefix}, nil
-	case "trim_suffix":
-		return &Function{Name: name, Fn: s.TrimSuffix}, nil
-	case "cut":
-		return &Function{Name: name, Fn: s.Cut}, nil
-	case "cut_prefix":
-		return &Function{Name: name, Fn: s.CutPrefix}, nil
-	case "cut_suffix":
-		return &Function{Name: name, Fn: s.CutSuffix}, nil
-	case "encode":
-		return &Function{Name: name, Fn: func(args CallArgs) (Object, error) {
-			if err := RequireNoArgs("encode", args); err != nil {
-				return nil, err
-			}
-			return NewBytes([]byte(s)), nil
-		}}, nil
 	case "constructor":
 		return StrConstructorFn, nil
-	default:
-		return nil, NewAttributeError("String has no attribute '%s'", name)
 	}
+	if fn, ok := stringMethods.bind(s, name); ok {
+		return fn, nil
+	}
+	return nil, NewAttributeError("String has no attribute '%s'", name)
 }
 
-func (s String) Attributes() []string {
-	return []string{
-		"attributes", "size", "upper", "lower", "has_prefix", "has_suffix", "trim",
-		"contains", "contains_any", "count", "equal_fold", "compare", "index", "last_index",
-		"index_any", "last_index_any", "repeat", "replace", "split", "split_after", "fields",
-		"title", "to_title", "to_valid_utf8", "trim_left", "trim_right", "trim_prefix",
-		"trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode", "constructor",
-	}
-}
+func (s String) Attributes() []string { return stringMethods.attributes("size") }
+
+var stringMethods = newMethodTable(
+	"upper", "lower", "has_prefix", "has_suffix", "trim", "contains",
+	"contains_any", "count", "equal_fold", "compare", "index", "last_index",
+	"index_any", "last_index_any", "repeat", "replace", "split", "split_after",
+	"fields", "title", "to_title", "to_valid_utf8", "trim_left", "trim_right",
+	"trim_prefix", "trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode",
+)
 
 var StrConstructorFn = &Function{Name: "Str", Fn: StrConstructor}
 
