@@ -334,27 +334,27 @@ func (d *Dict) Equals(other Object) (bool, error) {
 }
 
 func (d *Dict) Compare(other Object) (int, error) {
-	return 0, NewUnsupportedError("Dict", "cannot compare Dict and %s", other.TypeName())
+	return 0, Unsupported("Dict", ErrFmtCannotCompare)
 }
 
 func (d *Dict) Add(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Dict", "cannot add Dict and %s", other.TypeName())
+	return nil, Unsupported("Dict", ErrFmtCannotAdd)
 }
 
 func (d *Dict) Minus(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Dict", "cannot subtract from Dict")
+	return nil, Unsupported("Dict", ErrFmtCannotSubtract)
 }
 
 func (d *Dict) Multiply(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Dict", "cannot multiply Dict and %s", other.TypeName())
+	return nil, Unsupported("Dict", ErrFmtCannotMultiply)
 }
 
 func (d *Dict) Divide(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Dict", "cannot divide Dict")
+	return nil, Unsupported("Dict", ErrFmtCannotDivide)
 }
 
 func (d *Dict) Modulo(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Dict", "cannot modulo Dict")
+	return nil, Unsupported("Dict", ErrFmtCannotModulo)
 }
 
 func (d *Dict) Iter() ([]Object, error) {

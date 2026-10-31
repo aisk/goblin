@@ -131,5 +131,5 @@ func Negate(v Object) (Object, error) {
 			return impl.call(n, NegNeg, []Object{n})
 		}
 	}
-	return nil, NewUnsupportedError(v.TypeName(), ErrFmtCannotNegate, v.TypeName())
+	return nil, Unsupported(v.TypeName(), ErrFmtCannotNegate)
 }

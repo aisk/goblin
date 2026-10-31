@@ -19,8 +19,7 @@ type Frame struct {
 }
 
 type Error struct {
-	NoReflectedOps
-	NoAssignment
+	inert[errorName]
 	Value string
 	// Wrapped is the underlying error this one wraps, or nil. Typed as the Go
 	// `error` interface so the standard library's errors.Is / errors.Unwrap can
@@ -88,38 +87,6 @@ func (e *Error) Equals(other Object) (bool, error) {
 
 // Hash follows identity, so errors and error kinds can be dict keys.
 func (e *Error) Hash() (uint64, error) { return identityHash(e), nil }
-
-func (e *Error) Compare(other Object) (int, error) {
-	return 0, NewUnsupportedError("Error", "cannot compare Error and %s", other.TypeName())
-}
-
-func (e *Error) Add(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "cannot add Error and %s", other.TypeName())
-}
-
-func (e *Error) Minus(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "cannot subtract Error and %s", other.TypeName())
-}
-
-func (e *Error) Multiply(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "cannot multiply Error and %s", other.TypeName())
-}
-
-func (e *Error) Divide(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "cannot divide Error and %s", other.TypeName())
-}
-
-func (e *Error) Modulo(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "cannot modulo Error and %s", other.TypeName())
-}
-
-func (e *Error) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Error", "Error does not support iteration")
-}
-
-func (e *Error) Index(index Object) (Object, error) {
-	return nil, NewUnsupportedError("Error", "Error is not indexable")
-}
 
 func (e *Error) Error() string {
 	return e.Value
@@ -414,3 +381,7 @@ func ErrorValue(err error) Object {
 	}
 	return NewError(err.Error())
 }
+
+type errorName struct{}
+
+func (errorName) typeName() string { return "Error" }

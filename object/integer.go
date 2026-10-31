@@ -27,42 +27,42 @@ func (i Integer) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(i, other); ok {
 		return c, nil
 	}
-	return 0, NewTypeError("cannot compare Integer and %s", other.TypeName())
+	return 0, NewOperandError(OpCompare, "Integer", other)
 }
 
 func (i Integer) Add(other Object) (Object, error) {
 	if result, ok := numericAdd(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot add Integer and %s", other.TypeName())
+	return nil, NewOperandError(OpAdd, "Integer", other)
 }
 
 func (i Integer) Minus(other Object) (Object, error) {
 	if result, ok := numericMinus(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot subtract Integer and %s", other.TypeName())
+	return nil, NewOperandError(OpSubtract, "Integer", other)
 }
 
 func (i Integer) Multiply(other Object) (Object, error) {
 	if result, ok := numericMultiply(i, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot multiply Integer and %s", other.TypeName())
+	return nil, NewOperandError(OpMultiply, "Integer", other)
 }
 
 func (i Integer) Divide(other Object) (Object, error) {
 	if result, ok, err := numericDivide(i, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot divide Integer and %s", other.TypeName())
+	return nil, NewOperandError(OpDivide, "Integer", other)
 }
 
 func (i Integer) Modulo(other Object) (Object, error) {
 	if result, ok, err := numericModulo(i, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot modulo Integer and %s", other.TypeName())
+	return nil, NewOperandError(OpModulo, "Integer", other)
 }
 
 // A named int64 type cannot embed NoAssignment and NoReflectedOps, so Integer
@@ -76,11 +76,11 @@ func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, ni
 func (i Integer) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (i Integer) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Integer", "Integer does not support iteration")
+	return nil, Unsupported("Integer", ErrFmtNotIterable)
 }
 
 func (i Integer) Index(index Object) (Object, error) {
-	return nil, NewUnsupportedError("Integer", "Integer is not indexable")
+	return nil, Unsupported("Integer", ErrFmtNotIndexable)
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {

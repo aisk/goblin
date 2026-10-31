@@ -29,7 +29,7 @@ func (b Bytes) Equals(other Object) (bool, error) {
 func (b Bytes) Compare(other Object) (int, error) {
 	v, ok := other.(Bytes)
 	if !ok {
-		return 0, NewTypeError("cannot compare Bytes and %s", other.TypeName())
+		return 0, NewOperandError(OpCompare, "Bytes", other)
 	}
 	return bytes.Compare(b, v), nil
 }
@@ -37,7 +37,7 @@ func (b Bytes) Compare(other Object) (int, error) {
 func (b Bytes) Add(other Object) (Object, error) {
 	v, ok := other.(Bytes)
 	if !ok {
-		return nil, NewTypeError("cannot add Bytes and %s", other.TypeName())
+		return nil, NewOperandError(OpAdd, "Bytes", other)
 	}
 	result := make([]byte, 0, len(b)+len(v))
 	result = append(result, b...)
@@ -46,16 +46,16 @@ func (b Bytes) Add(other Object) (Object, error) {
 }
 
 func (b Bytes) Minus(Object) (Object, error) {
-	return nil, NewUnsupportedError("Bytes", "cannot subtract from Bytes")
+	return nil, Unsupported("Bytes", ErrFmtCannotSubtract)
 }
 func (b Bytes) Multiply(Object) (Object, error) {
-	return nil, NewUnsupportedError("Bytes", "cannot multiply Bytes")
+	return nil, Unsupported("Bytes", ErrFmtCannotMultiply)
 }
 func (b Bytes) Divide(Object) (Object, error) {
-	return nil, NewUnsupportedError("Bytes", "cannot divide Bytes")
+	return nil, Unsupported("Bytes", ErrFmtCannotDivide)
 }
 func (b Bytes) Modulo(Object) (Object, error) {
-	return nil, NewUnsupportedError("Bytes", "cannot modulo Bytes")
+	return nil, Unsupported("Bytes", ErrFmtCannotModulo)
 }
 
 // A named slice type cannot embed NoAssignment and NoReflectedOps, so Bytes

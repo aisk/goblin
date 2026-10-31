@@ -61,7 +61,7 @@ func (p *Path) Hash() (uint64, error) { return object.String(p.raw).Hash() }
 func (p *Path) Compare(other object.Object) (int, error) {
 	v, ok := other.(*Path)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Path and %s", other.TypeName())
+		return 0, object.NewOperandError(object.OpCompare, "Path", other)
 	}
 	switch {
 	case p.raw < v.raw:
@@ -74,13 +74,13 @@ func (p *Path) Compare(other object.Object) (int, error) {
 }
 
 func (p *Path) Add(object.Object) (object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "cannot add Path")
+	return nil, object.Unsupported("Path", object.ErrFmtCannotAdd)
 }
 func (p *Path) Minus(object.Object) (object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "cannot subtract from Path")
+	return nil, object.Unsupported("Path", object.ErrFmtCannotSubtract)
 }
 func (p *Path) Multiply(object.Object) (object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "cannot multiply Path")
+	return nil, object.Unsupported("Path", object.ErrFmtCannotMultiply)
 }
 
 // Divide overloads `/` as path joining, so `Path("/tmp") / "log" / "a.txt"`
@@ -94,14 +94,14 @@ func (p *Path) Divide(other object.Object) (object.Object, error) {
 }
 
 func (p *Path) Modulo(object.Object) (object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "cannot modulo Path")
+	return nil, object.Unsupported("Path", object.ErrFmtCannotModulo)
 }
 
 func (p *Path) Iter() ([]object.Object, error) {
 	return nil, object.NewUnsupportedError("Path", "Path is not iterable; use iterdir() to list a directory")
 }
 func (p *Path) Index(object.Object) (object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "Path is not indexable")
+	return nil, object.Unsupported("Path", object.ErrFmtNotIndexable)
 }
 
 func (p *Path) GetAttr(name string) (object.Object, error) {

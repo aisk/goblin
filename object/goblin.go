@@ -38,16 +38,6 @@ func (g *Goblin) Equals(other Object) (bool, error) {
 // Hash follows identity, so goblins can be dict keys.
 func (g *Goblin) Hash() (uint64, error) { return identityHash(g), nil }
 
-func (g *Goblin) Compare(other Object) (int, error) {
-	if o, ok := other.(*Goblin); ok {
-		if g == o {
-			return 0, nil
-		}
-		return 1, nil
-	}
-	return 0, NewTypeError("cannot compare Goblin and %s", other.TypeName())
-}
-
 func (g *Goblin) GetAttr(name string) (Object, error) {
 	switch name {
 	case "attributes":

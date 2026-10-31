@@ -27,42 +27,42 @@ func (f Float) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(f, other); ok {
 		return c, nil
 	}
-	return 0, NewTypeError("cannot compare Float and %s", other.TypeName())
+	return 0, NewOperandError(OpCompare, "Float", other)
 }
 
 func (f Float) Add(other Object) (Object, error) {
 	if result, ok := numericAdd(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot add Float and %s", other.TypeName())
+	return nil, NewOperandError(OpAdd, "Float", other)
 }
 
 func (f Float) Minus(other Object) (Object, error) {
 	if result, ok := numericMinus(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot subtract Float and %s", other.TypeName())
+	return nil, NewOperandError(OpSubtract, "Float", other)
 }
 
 func (f Float) Multiply(other Object) (Object, error) {
 	if result, ok := numericMultiply(f, other); ok {
 		return result, nil
 	}
-	return nil, NewTypeError("cannot multiply Float and %s", other.TypeName())
+	return nil, NewOperandError(OpMultiply, "Float", other)
 }
 
 func (f Float) Divide(other Object) (Object, error) {
 	if result, ok, err := numericDivide(f, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot divide Float and %s", other.TypeName())
+	return nil, NewOperandError(OpDivide, "Float", other)
 }
 
 func (f Float) Modulo(other Object) (Object, error) {
 	if result, ok, err := numericModulo(f, other); ok {
 		return result, err
 	}
-	return nil, NewTypeError("cannot modulo Float and %s", other.TypeName())
+	return nil, NewOperandError(OpModulo, "Float", other)
 }
 
 // A named float64 type cannot embed NoAssignment and NoReflectedOps, so Float
@@ -76,11 +76,11 @@ func (f Float) RDivide(Object) (Object, bool, error)   { return nil, false, nil 
 func (f Float) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (f Float) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Float", "Float does not support iteration")
+	return nil, Unsupported("Float", ErrFmtNotIterable)
 }
 
 func (f Float) Index(index Object) (Object, error) {
-	return nil, NewUnsupportedError("Float", "Float is not indexable")
+	return nil, Unsupported("Float", ErrFmtNotIndexable)
 }
 
 func (f Float) GetAttr(name string) (Object, error) {

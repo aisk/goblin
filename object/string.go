@@ -365,7 +365,7 @@ func (s String) Compare(other Object) (int, error) {
 		}
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare String and %s", other.TypeName())
+		return 0, NewOperandError(OpCompare, "String", other)
 	}
 }
 
@@ -378,12 +378,12 @@ func (s String) Add(other Object) (Object, error) {
 	case Bool:
 		return String(string(s) + v.String()), nil
 	default:
-		return nil, NewTypeError("cannot add String and %s", other.TypeName())
+		return nil, NewOperandError(OpAdd, "String", other)
 	}
 }
 
 func (s String) Minus(other Object) (Object, error) {
-	return nil, NewUnsupportedError("String", "cannot subtract from String")
+	return nil, Unsupported("String", ErrFmtCannotSubtract)
 }
 
 func (s String) Multiply(other Object) (Object, error) {
@@ -395,7 +395,7 @@ func (s String) Multiply(other Object) (Object, error) {
 		}
 		return String(result), nil
 	default:
-		return nil, NewTypeError("cannot multiply String and %s", other.TypeName())
+		return nil, NewOperandError(OpMultiply, "String", other)
 	}
 }
 
@@ -410,11 +410,11 @@ func (s String) RMultiply(left Object) (Object, bool, error) {
 }
 
 func (s String) Divide(other Object) (Object, error) {
-	return nil, NewUnsupportedError("String", "cannot divide String")
+	return nil, Unsupported("String", ErrFmtCannotDivide)
 }
 
 func (s String) Modulo(other Object) (Object, error) {
-	return nil, NewUnsupportedError("String", "cannot modulo String")
+	return nil, Unsupported("String", ErrFmtCannotModulo)
 }
 
 // A named string type cannot embed NoAssignment and NoReflectedOps. Only
@@ -437,7 +437,7 @@ func (s String) Iter() ([]Object, error) {
 }
 
 func (s String) Index(index Object) (Object, error) {
-	return nil, NewUnsupportedError("String", "String is not indexable")
+	return nil, Unsupported("String", ErrFmtNotIndexable)
 }
 
 func (s String) GetAttr(name string) (Object, error) {

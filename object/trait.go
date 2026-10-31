@@ -15,8 +15,7 @@ import (
 // Identity is the trait: impls are recorded by *Trait, never by name, so two
 // modules declaring a trait of the same name never collide.
 type Trait struct {
-	NoReflectedOps
-	NoAssignment
+	inert[traitName]
 	Name    string
 	Deps    []*Trait
 	Methods []TraitMethod
@@ -138,31 +137,6 @@ func (t *Trait) Equals(other Object) (bool, error) {
 // Hash follows identity, so trait objects can be dict keys.
 func (t *Trait) Hash() (uint64, error) { return identityHash(t), nil }
 
-func (t *Trait) Compare(Object) (int, error) {
-	return 0, NewUnsupportedError("Trait", ErrFmtCannotCompare, "Trait")
-}
-func (t *Trait) Add(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtCannotAdd, "Trait")
-}
-func (t *Trait) Minus(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtCannotSubtract, "Trait")
-}
-func (t *Trait) Multiply(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtCannotMultiply, "Trait")
-}
-func (t *Trait) Divide(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtCannotDivide, "Trait")
-}
-func (t *Trait) Modulo(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtCannotModulo, "Trait")
-}
-func (t *Trait) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtNotIterable, "Trait")
-}
-func (t *Trait) Index(Object) (Object, error) {
-	return nil, NewUnsupportedError("Trait", ErrFmtNotIndexable, "Trait")
-}
-
 func (t *Trait) GetAttr(name string) (Object, error) {
 	if i, ok := t.index[name]; ok {
 		return t.bound[i], nil
@@ -231,3 +205,7 @@ func newReturnTypeError(recv Object, method, want string, got Object) error {
 func notHandled(err error) bool {
 	return errors.Is(err, TypeError) && !errors.Is(err, errBadReturn)
 }
+
+type traitName struct{}
+
+func (traitName) typeName() string { return "Trait" }

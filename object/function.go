@@ -3,8 +3,7 @@ package object
 import "fmt"
 
 type Function struct {
-	NoReflectedOps
-	NoAssignment
+	inert[functionName]
 	Name string
 	Fn   func(CallArgs) (Object, error)
 }
@@ -30,32 +29,6 @@ func (f *Function) Equals(other Object) (bool, error) {
 // Hash follows identity, so functions can be dict keys.
 func (f *Function) Hash() (uint64, error) { return identityHash(f), nil }
 
-// Compare always fails: functions support equality (identity, handled by
-// Equals) but have no ordering.
-func (f *Function) Compare(other Object) (int, error) {
-	return 0, NewUnsupportedError("Function", "cannot compare Function and %s", other.TypeName())
-}
-func (f *Function) Add(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "cannot add Function")
-}
-func (f *Function) Minus(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "cannot subtract Function")
-}
-func (f *Function) Multiply(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "cannot multiply Function")
-}
-func (f *Function) Divide(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "cannot divide Function")
-}
-func (f *Function) Modulo(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "cannot modulo Function")
-}
-func (f *Function) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Function", "Function does not support iteration")
-}
-func (f *Function) Index(Object) (Object, error) {
-	return nil, NewUnsupportedError("Function", "Function is not indexable")
-}
 func (f *Function) GetAttr(name string) (Object, error) {
 	switch name {
 	case "attributes":
@@ -85,3 +58,7 @@ func FunctionConstructor(args CallArgs) (Object, error) {
 	}
 	return f, nil
 }
+
+type functionName struct{}
+
+func (functionName) typeName() string { return "Function" }

@@ -6,8 +6,7 @@ import (
 )
 
 type Module struct {
-	NoReflectedOps
-	NoAssignment
+	inert[moduleName]
 	Name    string
 	Members map[string]Object
 }
@@ -33,30 +32,6 @@ func (m *Module) Equals(other Object) (bool, error) {
 // Hash follows identity, so modules can be dict keys.
 func (m *Module) Hash() (uint64, error) { return identityHash(m), nil }
 
-func (m *Module) Compare(Object) (int, error) {
-	return 0, NewUnsupportedError("Module", "cannot compare Module")
-}
-func (m *Module) Add(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "cannot add Module")
-}
-func (m *Module) Minus(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "cannot subtract Module")
-}
-func (m *Module) Multiply(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "cannot multiply Module")
-}
-func (m *Module) Divide(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "cannot divide Module")
-}
-func (m *Module) Modulo(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "cannot modulo Module")
-}
-func (m *Module) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Module", "Module does not support iteration")
-}
-func (m *Module) Index(Object) (Object, error) {
-	return nil, NewUnsupportedError("Module", "Module is not indexable")
-}
 func (m *Module) GetAttr(name string) (Object, error) {
 	if val, ok := m.Members[name]; ok {
 		return val, nil
@@ -78,3 +53,7 @@ func (m *Module) Attributes() []string {
 	sort.Strings(names)
 	return names
 }
+
+type moduleName struct{}
+
+func (moduleName) typeName() string { return "Module" }

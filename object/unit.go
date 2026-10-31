@@ -3,8 +3,7 @@ package object
 var Nil Object = Unit{}
 
 type Unit struct {
-	NoReflectedOps
-	NoAssignment
+	inert[nilName]
 }
 
 var _ Object = Unit{}
@@ -29,36 +28,8 @@ func (n Unit) Compare(other Object) (int, error) {
 	case Unit:
 		return 0, nil
 	default:
-		return 0, NewTypeError("cannot compare Nil and %s", other.TypeName())
+		return 0, NewOperandError(OpCompare, "Nil", other)
 	}
-}
-
-func (n Unit) Add(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "cannot add to Nil")
-}
-
-func (n Unit) Minus(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "cannot subtract from Nil")
-}
-
-func (n Unit) Multiply(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "cannot multiply Nil")
-}
-
-func (n Unit) Divide(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "cannot divide Nil")
-}
-
-func (n Unit) Modulo(other Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "cannot modulo Nil")
-}
-
-func (n Unit) Iter() ([]Object, error) {
-	return nil, NewUnsupportedError("Nil", "Nil does not support iteration")
-}
-
-func (n Unit) Index(index Object) (Object, error) {
-	return nil, NewUnsupportedError("Nil", "Nil is not indexable")
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {
@@ -69,3 +40,7 @@ func (n Unit) GetAttr(name string) (Object, error) {
 }
 
 func (n Unit) Attributes() []string { return []string{"attributes"} }
+
+type nilName struct{}
+
+func (nilName) typeName() string { return "Nil" }

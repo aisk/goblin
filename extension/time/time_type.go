@@ -43,7 +43,7 @@ func (t *Time) Hash() (uint64, error) {
 func (t *Time) Compare(other object.Object) (int, error) {
 	ot, ok := other.(*Time)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Time with %s", other.TypeName())
+		return 0, object.NewOperandError(object.OpCompare, "Time", other)
 	}
 	if t.Value.Before(ot.Value) {
 		return -1, nil
@@ -61,7 +61,7 @@ func (t *Time) Add(other object.Object) (object.Object, error) {
 	if result, ok, err := t.shift(other, 1); ok {
 		return result, err
 	}
-	return nil, object.NewTypeError("cannot add Time and %s", other.TypeName())
+	return nil, object.NewOperandError(object.OpAdd, "Time", other)
 }
 
 func (t *Time) RAdd(left object.Object) (object.Object, bool, error) {
@@ -77,7 +77,7 @@ func (t *Time) Minus(other object.Object) (object.Object, error) {
 	if result, ok, err := t.shift(other, -1); ok {
 		return result, err
 	}
-	return nil, object.NewTypeError("cannot subtract Time and %s", other.TypeName())
+	return nil, object.NewOperandError(object.OpSubtract, "Time", other)
 }
 
 // maxShiftUnix bounds the Unix seconds a shifted time may reach. Go's time

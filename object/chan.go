@@ -26,16 +26,6 @@ func (c *Chan) Equals(other Object) (bool, error) {
 // Hash follows identity, so channels can be dict keys.
 func (c *Chan) Hash() (uint64, error) { return identityHash(c), nil }
 
-func (c *Chan) Compare(other Object) (int, error) {
-	if o, ok := other.(*Chan); ok {
-		if c == o {
-			return 0, nil
-		}
-		return 1, nil
-	}
-	return 0, NewTypeError("cannot compare Chan and %s", other.TypeName())
-}
-
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
 	case "attributes":

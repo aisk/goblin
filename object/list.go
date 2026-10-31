@@ -268,7 +268,7 @@ func (l *List) Equals(other Object) (bool, error) {
 func (l *List) Compare(other Object) (int, error) {
 	v, ok := other.(*List)
 	if !ok {
-		return 0, NewTypeError("cannot compare List and %s", other.TypeName())
+		return 0, NewOperandError(OpCompare, "List", other)
 	}
 	for i := 0; i < len(l.Elements) && i < len(v.Elements); i++ {
 		c, err := Compare(l.Elements[i], v.Elements[i])
@@ -287,12 +287,12 @@ func (l *List) Add(other Object) (Object, error) {
 		copy(newElements[len(l.Elements):], v.Elements)
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot add List and %s", other.TypeName())
+		return nil, NewOperandError(OpAdd, "List", other)
 	}
 }
 
 func (l *List) Minus(other Object) (Object, error) {
-	return nil, NewUnsupportedError("List", "cannot subtract from List")
+	return nil, Unsupported("List", ErrFmtCannotSubtract)
 }
 
 func (l *List) Multiply(other Object) (Object, error) {
@@ -307,7 +307,7 @@ func (l *List) Multiply(other Object) (Object, error) {
 		}
 		return &List{Elements: newElements}, nil
 	default:
-		return nil, NewTypeError("cannot multiply List and %s", other.TypeName())
+		return nil, NewOperandError(OpMultiply, "List", other)
 	}
 }
 
@@ -322,11 +322,11 @@ func (l *List) RMultiply(left Object) (Object, bool, error) {
 }
 
 func (l *List) Divide(other Object) (Object, error) {
-	return nil, NewUnsupportedError("List", "cannot divide List")
+	return nil, Unsupported("List", ErrFmtCannotDivide)
 }
 
 func (l *List) Modulo(other Object) (Object, error) {
-	return nil, NewUnsupportedError("List", "cannot modulo List")
+	return nil, Unsupported("List", ErrFmtCannotModulo)
 }
 
 func (l *List) Iter() ([]Object, error) {

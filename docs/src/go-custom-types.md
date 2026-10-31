@@ -78,13 +78,15 @@ The receiver-bound object.Function is the key pattern: Goblin evaluates
 counter.increment() by looking up increment and then calling the returned
 function. It can safely mutate the Go receiver.
 
-For example, a Counter that does not support addition should implement Add by
-returning object.NewTypeError. Apply the same principle to the other
-unsupported protocol methods.
+For example, a Counter that has no addition at all should implement Add by
+returning object.Unsupported with the matching object.ErrFmt format, which
+reads "cannot add Counter". Apply the same principle to the other unsupported
+protocol methods. A handle type with no operators at all can embed
+object.OpaqueBase instead of writing them out.
 
 ~~~go
 func (c *Counter) Add(other object.Object) (object.Object, error) {
-    return nil, object.NewTypeError("cannot add Counter and %s", other.TypeName())
+    return nil, object.Unsupported("Counter", object.ErrFmtCannotAdd)
 }
 ~~~
 
@@ -92,13 +94,15 @@ func (c *Counter) Add(other object.Object) (object.Object, error) {
 
 Return a useful result for supported operations and a TypeError for unsupported
 ones. For example, a Vector can implement Add and Compare while a Counter may
-only need display, truthiness, and members.
+only need display, truthiness, and members. When the operation exists but the
+right operand does not fit, object.NewOperandError words the error the way the
+built-in types do: "cannot add Vector and String".
 
 ~~~go
 func (v Vector) Add(other object.Object) (object.Object, error) {
     right, ok := other.(Vector)
     if !ok {
-        return nil, object.NewTypeError("cannot add Vector and %s", other.TypeName())
+        return nil, object.NewOperandError(object.OpAdd, "Vector", other)
     }
     return Vector{X: v.X + right.X, Y: v.Y + right.Y}, nil
 }

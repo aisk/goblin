@@ -38,7 +38,7 @@ func (u *UUID) Equals(other object.Object) (bool, error) {
 func (u *UUID) Compare(other object.Object) (int, error) {
 	v, ok := other.(*UUID)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare UUID with %s", other.TypeName())
+		return 0, object.NewOperandError(object.OpCompare, "UUID", other)
 	}
 	return u.Value.Compare(v.Value), nil
 }

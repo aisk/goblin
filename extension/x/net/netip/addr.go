@@ -25,7 +25,7 @@ func (a *Addr) Equals(other object.Object) (bool, error) {
 func (a *Addr) Compare(other object.Object) (int, error) {
 	value, ok := other.(*Addr)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Addr with %s", other.TypeName())
+		return 0, object.NewOperandError(object.OpCompare, "Addr", other)
 	}
 	return a.value.Compare(value.value), nil
 }

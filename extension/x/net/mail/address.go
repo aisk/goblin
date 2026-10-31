@@ -26,7 +26,7 @@ func (a *Address) Equals(other object.Object) (bool, error) {
 func (a *Address) Compare(other object.Object) (int, error) {
 	value, ok := other.(*Address)
 	if !ok {
-		return 0, object.NewTypeError("cannot compare Address with %s", other.TypeName())
+		return 0, object.NewOperandError(object.OpCompare, "Address", other)
 	}
 	return strings.Compare(a.String(), value.String()), nil
 }
