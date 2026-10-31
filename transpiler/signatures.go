@@ -351,11 +351,13 @@ func declaredNames(stmts []ast.Statement) map[string]int {
 	return declared
 }
 
-// bodyRebinds reports whether a body declares or assigns name anywhere in its
-// own scope, nested bodies excluded.
+// bodyRebinds reports whether a body declares or assigns name anywhere,
+// nested function bodies included: a closure assigning a captured name
+// rebinds it for the enclosing body too. A nested body that shadows name
+// also counts, which only makes the answer conservative.
 func bodyRebinds(stmts []ast.Statement, name string) bool {
 	found := false
-	walkNodes(stmts, false, func(node ast.Statement) {
+	walkNodes(stmts, true, func(node ast.Statement) {
 		switch n := node.(type) {
 		case *ast.Declare:
 			found = found || n.Name == name
