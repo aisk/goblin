@@ -78,3 +78,36 @@ Without any impl, an instance is equal only to itself, prints as
 `<Vector@0x...>`, is always truthy, and raises TypeError for arithmetic,
 ordering, iteration and indexing. [Traits](./traits.md) covers the built-in
 traits and how to declare traits of your own.
+
+## Checking a value's type
+
+A type name such as `Point` is the constructor function for that type; it is
+not a separate type object, and there is no `isinstance` built-in. Every value
+except nil has a `constructor` attribute holding the function that builds
+values of its type, so comparing it answers "is this a Point":
+
+```goblin
+type Point(x, y) {}
+
+func describe(value) {
+    if value == nil {
+        return "nothing"
+    }
+    if value.constructor == Point {
+        return "a point"
+    }
+    if value.constructor == Int || value.constructor == Float {
+        return "a number"
+    }
+    return "something else"
+}
+
+print(describe(Point(1, 2)))  # a point
+print(describe(2.5))          # a number
+print(describe(nil))          # nothing
+```
+
+Built-in values answer with the conversion functions: `Int`, `Float`, `Str`,
+`Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error`, `Chan` and `Goblin`.
+For behaviour rather than identity, check traits instead:
+`value.traits().contains(Show)` on an instance of a user type.
