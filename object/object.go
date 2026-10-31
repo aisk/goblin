@@ -68,26 +68,6 @@ func inspect(obj Object) string {
 	return obj.TypeName()
 }
 
-// literal returns an object's representation inside a collection literal.
-// Strings need quoting; other objects already provide an appropriate String
-// representation, including nested collections.
-func literal(obj Object) string {
-	if s, ok := obj.(String); ok {
-		return s.Literal()
-	}
-	return inspect(obj)
-}
-
-// literalString is literal's failing twin, used by the collections' ToString.
-// Rendering a collection runs the Show of every value inside it, and those
-// may fail; a collection must not swallow what its elements report.
-func literalString(obj Object) (string, error) {
-	if s, ok := obj.(String); ok {
-		return s.Literal(), nil
-	}
-	return obj.ToString()
-}
-
 // AttributesFunction exposes an object's attribute names as the bound
 // attributes() method. A fresh List is returned on every call so callers
 // cannot mutate shared runtime metadata.

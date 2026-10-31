@@ -1,0 +1,39 @@
+# A collection that contains itself prints the inner occurrence as [...] or
+# {...} instead of recursing forever, and so does a structural Show.
+var items = [1, 2]
+items.push(items)
+print(items)
+
+var registry = {}
+registry["self"] = registry
+print(registry)
+
+# Sharing is not a cycle: the same list twice prints in full both times.
+var shared = [0]
+print([shared, shared])
+
+type Node(name, parent=nil, children=[]) {
+    impl Show {}
+
+    func add(self, name) {
+        var child = Node(name, parent=self)
+        self.children.push(child)
+        return child
+    }
+}
+
+var root = Node("root")
+var leaf = root.add("leaf")
+print(root)
+print(leaf)
+
+# A closure inside a method may rebind self; the method then reads the new
+# value, not the receiver it was called on.
+type Counter(value) {
+    func replaced(self) {
+        var swap = func() { self = Counter(self.value + 100) }
+        swap()
+        return self.value
+    }
+}
+print(Counter(1).replaced())

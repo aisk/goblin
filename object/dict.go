@@ -1,9 +1,7 @@
 package object
 
 import (
-	"fmt"
 	"math"
-	"strings"
 )
 
 type DictEntry struct {
@@ -287,28 +285,11 @@ func (d *Dict) remove(key Object) (Object, bool, error) {
 func (d *Dict) TypeName() string { return "Dict" }
 
 func (d *Dict) String() string {
-	elements := make([]string, 0, d.count)
-	for _, entry := range d.Entries() {
-		elements = append(elements, fmt.Sprintf("%s: %s", literal(entry.Key), literal(entry.Value)))
-	}
-	return fmt.Sprintf("{%s}", strings.Join(elements, ", "))
+	s, _ := (&renderer{}).dict(d)
+	return s
 }
 
-func (d *Dict) ToString() (string, error) {
-	elements := make([]string, 0, d.count)
-	for _, entry := range d.Entries() {
-		key, err := literalString(entry.Key)
-		if err != nil {
-			return "", err
-		}
-		value, err := literalString(entry.Value)
-		if err != nil {
-			return "", err
-		}
-		elements = append(elements, fmt.Sprintf("%s: %s", key, value))
-	}
-	return fmt.Sprintf("{%s}", strings.Join(elements, ", ")), nil
-}
+func (d *Dict) ToString() (string, error) { return (&renderer{strict: true}).dict(d) }
 
 func (d *Dict) ToBool() (bool, error) { return d.count > 0, nil }
 

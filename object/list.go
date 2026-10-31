@@ -2,7 +2,6 @@ package object
 
 import (
 	"cmp"
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -228,24 +227,11 @@ func (l *List) Copy(args CallArgs) (Object, error) {
 func (l *List) TypeName() string { return "List" }
 
 func (l *List) String() string {
-	elements := make([]string, len(l.Elements))
-	for i, elem := range l.Elements {
-		elements[i] = literal(elem)
-	}
-	return fmt.Sprintf("[%s]", strings.Join(elements, ", "))
+	s, _ := (&renderer{}).list(l)
+	return s
 }
 
-func (l *List) ToString() (string, error) {
-	elements := make([]string, len(l.Elements))
-	for i, elem := range l.Elements {
-		s, err := literalString(elem)
-		if err != nil {
-			return "", err
-		}
-		elements[i] = s
-	}
-	return fmt.Sprintf("[%s]", strings.Join(elements, ", ")), nil
-}
+func (l *List) ToString() (string, error) { return (&renderer{strict: true}).list(l) }
 
 func (l *List) ToBool() (bool, error) { return len(l.Elements) > 0, nil }
 

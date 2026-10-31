@@ -2,7 +2,6 @@ package object
 
 import (
 	"fmt"
-	"strings"
 )
 
 // UserValue is an instance of a Goblin `type`. The interpreter's instances and
@@ -419,22 +418,6 @@ func TraitsFunction(v UserValue) *Function {
 // collection renders its elements: strings quoted, everything else through
 // Show.
 func structuralShow(v UserValue) (Object, error) {
-	var b strings.Builder
-	b.WriteString(v.TypeName())
-	b.WriteByte('(')
-	names := v.UserType().Fields
-	for i, value := range v.FieldValues() {
-		if i > 0 {
-			b.WriteString(", ")
-		}
-		s, err := literalString(value)
-		if err != nil {
-			return nil, err
-		}
-		b.WriteString(names[i])
-		b.WriteByte('=')
-		b.WriteString(s)
-	}
-	b.WriteByte(')')
-	return String(b.String()), nil
+	s, err := (&renderer{strict: true}).user(v)
+	return String(s), err
 }

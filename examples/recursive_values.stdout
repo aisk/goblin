@@ -1,0 +1,6 @@
+[1, 2, [...]]
+{"self": {...}}
+[[0], [0]]
+Node(name="root", parent=nil, children=[Node(name="leaf", parent=Node(...), children=[])])
+Node(name="leaf", parent=Node(name="root", parent=nil, children=[Node(...)]), children=[])
+101
