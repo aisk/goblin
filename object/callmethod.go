@@ -314,6 +314,9 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "title":
 		v, err := b.Title(args)
 		return v, true, err
+	case "to_title":
+		v, err := b.ToTitle(args)
+		return v, true, err
 	case "to_valid_utf8":
 		v, err := b.ToValidUTF8(args)
 		return v, true, err

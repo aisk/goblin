@@ -24,7 +24,7 @@ func TestBytesConstructIndexIterateAndDecode(t *testing.T) {
 	if len(b) != 3 {
 		t.Fatalf("byte length = %d, want 3", len(b))
 	}
-	last, err := b.Index(Integer(-1))
+	last, err := b.Index(Integer(2))
 	if err != nil || last != Integer(0xa9) {
 		t.Fatalf("last byte = %v, %v; want 169", last, err)
 	}

@@ -24,7 +24,8 @@ for character in language {
 ## Combining and converting text
 
 Use + to concatenate strings. A string can also concatenate an integer or
-boolean, and * repeats it by an integer count, in either operand order.
+boolean, and * repeats it by an integer count, in either operand order. A
+negative count raises ValueError.
 
 ~~~goblin
 print("go" + "blin") # goblin

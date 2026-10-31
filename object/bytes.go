@@ -81,11 +81,10 @@ func (b Bytes) Index(index Object) (Object, error) {
 	if !ok {
 		return nil, NewTypeError("Bytes index must be Integer, got %s", index.TypeName())
 	}
-	pos, err := listIndex("Bytes", i, len(b))
-	if err != nil {
-		return nil, err
+	if i < 0 || int(i) >= len(b) {
+		return nil, NewIndexError("Bytes index out of range: %d", int64(i))
 	}
-	return Integer(b[pos]), nil
+	return Integer(b[i]), nil
 }
 
 // Size returns the length in bytes, exposed to Goblin as the read-only
@@ -419,6 +418,13 @@ func (b Bytes) Title(args CallArgs) (Object, error) {
 	return NewBytes(bytes.Title(b)), nil
 }
 
+func (b Bytes) ToTitle(args CallArgs) (Object, error) {
+	if err := RequireNoArgs("to_title", args); err != nil {
+		return nil, err
+	}
+	return NewBytes(bytes.ToTitle(b)), nil
+}
+
 func (b Bytes) ToValidUTF8(args CallArgs) (Object, error) {
 	ap := NewArgParser("to_valid_utf8", args)
 	replacementObj := ap.AnyOr("replacement", Bytes{})
@@ -514,6 +520,8 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 		return &Function{Name: name, Fn: b.Lower}, nil
 	case "title":
 		return &Function{Name: name, Fn: b.Title}, nil
+	case "to_title":
+		return &Function{Name: name, Fn: b.ToTitle}, nil
 	case "to_valid_utf8":
 		return &Function{Name: name, Fn: b.ToValidUTF8}, nil
 	case "constructor":
@@ -530,7 +538,7 @@ func (b Bytes) Attributes() []string {
 		"index_any", "last_index_any", "index_byte", "last_index_byte", "index_rune",
 		"join", "repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
 		"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",
-		"upper", "lower", "title", "to_valid_utf8", "constructor",
+		"upper", "lower", "title", "to_title", "to_valid_utf8", "constructor",
 	}
 }
 

@@ -118,5 +118,5 @@ inspect(1, b=2, x=10, **{"y": 30})
 
 # Keyword arguments to builtins and methods
 print(range(start=0, end=3))
-print("hello".contains(substr="ell"))
+print("hello".contains(sub="ell"))
 print(["a", "b"].join(sep="-"))

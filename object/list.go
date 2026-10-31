@@ -340,7 +340,7 @@ func (l *List) Index(index Object) (Object, error) {
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
-		return nil, NewIndexError("list index out of range: %d", i)
+		return nil, NewIndexError("List index out of range: %d", i)
 	}
 	return l.Elements[i], nil
 }
@@ -352,7 +352,7 @@ func (l *List) SetIndex(index Object, value Object) (bool, error) {
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
-		return true, NewIndexError("list index out of range: %d", i)
+		return true, NewIndexError("List index out of range: %d", i)
 	}
 	l.Elements[i] = value
 	return true, nil

@@ -95,7 +95,7 @@ func (s String) trimWith(name string, cutset Object, direction trimDirection) (O
 
 func (s String) Contains(args CallArgs) (Object, error) {
 	ap := NewArgParser("contains", args)
-	substr := ap.Str("substr")
+	substr := ap.Str("sub")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (s String) ContainsAny(args CallArgs) (Object, error) {
 
 func (s String) Count(args CallArgs) (Object, error) {
 	ap := NewArgParser("count", args)
-	substr := ap.Str("substr")
+	substr := ap.Str("sub")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (s String) CompareText(args CallArgs) (Object, error) {
 
 func (s String) IndexOf(args CallArgs) (Object, error) {
 	ap := NewArgParser("index", args)
-	substr := ap.Str("substr")
+	substr := ap.Str("sub")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (s String) IndexOf(args CallArgs) (Object, error) {
 
 func (s String) LastIndex(args CallArgs) (Object, error) {
 	ap := NewArgParser("last_index", args)
-	substr := ap.Str("substr")
+	substr := ap.Str("sub")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -389,11 +389,10 @@ func (s String) Minus(other Object) (Object, error) {
 func (s String) Multiply(other Object) (Object, error) {
 	switch v := other.(type) {
 	case Integer:
-		result := ""
-		for i := int64(0); i < int64(v); i++ {
-			result += string(s)
+		if v < 0 {
+			return nil, NewValueError("cannot multiply String by negative number")
 		}
-		return String(result), nil
+		return String(strings.Repeat(string(s), int(v))), nil
 	default:
 		return nil, NewOperandError(OpMultiply, "String", other)
 	}
