@@ -323,11 +323,11 @@ func (ctx *transpileContext) emitNative(expr ast.Expression, onError errHandler)
 	case *ast.Identifier:
 		return nil, jen.Id(e.Name), nil
 
-	case *ast.FunctionCall, *ast.CallExpression:
+	case *ast.CallExpression:
 		// A call to a closed direct function with a native return type. The
 		// call and its error check are hoisted as preceding statements and
 		// the expression is the result variable.
-		name, args, _ := bareCall(expr)
+		name, args, _ := plainCall(expr)
 		pre, call, ok, err := ctx.tryDirectCall(name, args, onError)
 		if err != nil {
 			return nil, nil, err
@@ -987,18 +987,6 @@ func (ctx *transpileContext) transpileExpression(expr ast.Expression, onError er
 			return nil, jen.Id("builtin").Dot("Members").Index(jen.Lit(v.Name)), nil
 		}
 		return nil, jen.Id(v.Name), nil
-	case *ast.FunctionCall:
-		argPreStmts, call, err := ctx.transpileFunctionCall(v, onError)
-		if err != nil {
-			return nil, nil, err
-		}
-		tmpVar := ctx.localName("tmp")
-		errVar := ctx.localName("err")
-		preStmts := append(argPreStmts,
-			jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Add(call),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		)
-		return preStmts, jen.Id(tmpVar), nil
 	case *ast.CallExpression:
 		argPreStmts, call, err := ctx.transpileCallExpression(v, onError)
 		if err != nil {
@@ -1447,28 +1435,6 @@ func (ctx *transpileContext) transpileRangeFor(for_ *ast.For, startExpr, endExpr
 	).Block(loopBody...))
 
 	return []jen.Code{jen.Block(result...)}, nil
-}
-
-func (ctx *transpileContext) transpileFunctionCall(call *ast.FunctionCall, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	if pre, direct, ok, err := ctx.tryDirectCall(call.Name, call.Args, onError); ok || err != nil {
-		return pre, direct, err
-	}
-
-	argPreStmts, args, err := ctx.transpileCallArguments(call.Args, onError)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var callee *jen.Statement
-	if mapped, ok := ctx.moduleBinding(call.Name); ok {
-		callee = jen.Id(mapped)
-	} else if !ctx.isUserName(call.Name) && isBuiltinFunction(call.Name) {
-		callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(call.Name))
-	} else {
-		callee = jen.Id(call.Name)
-	}
-
-	return argPreStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
 }
 
 func (ctx *transpileContext) transpileCallExpression(call *ast.CallExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -2868,17 +2834,6 @@ func (ctx *transpileContext) transpileStatement(stmt ast.Statement, onError errH
 		codes, err = ctx.transpileSetIndex(v, onError)
 	case *ast.SetAttr:
 		codes, err = ctx.transpileSetAttr(v, onError)
-	case *ast.FunctionCall:
-		var argPreStmts []jen.Code
-		var call *jen.Statement
-		argPreStmts, call, err = ctx.transpileFunctionCall(v, onError)
-		if err == nil {
-			errVar := ctx.localName("err")
-			codes = append(argPreStmts,
-				jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Add(call),
-				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-			)
-		}
 	case *ast.CallExpression:
 		var argPreStmts []jen.Code
 		var call *jen.Statement

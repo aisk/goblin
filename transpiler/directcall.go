@@ -195,107 +195,11 @@ func directCallEligible(fn *ast.FunctionDefine) bool {
 // be rebound at runtime, so its call sites cannot be lowered; a plain
 // reference (recursion, passing the function as a value) does not count.
 func collectAssignTargets(stmts []ast.Statement, out map[string]struct{}) {
-	var visitExpr func(ast.Expression)
-	visitExpr = func(expr ast.Expression) {
-		switch e := expr.(type) {
-		case nil:
-			return
-		case *ast.FunctionLiteral:
-			collectAssignTargets(e.Body, out)
-		case *ast.BinaryOperation:
-			visitExpr(e.LHS)
-			visitExpr(e.RHS)
-		case *ast.UnaryOperation:
-			visitExpr(e.Operand)
-		case *ast.IndexExpression:
-			visitExpr(e.Object)
-			visitExpr(e.Index)
-		case *ast.MemberExpression:
-			visitExpr(e.Object)
-		case *ast.ListLiteral:
-			for _, item := range e.Elements {
-				visitExpr(item)
-			}
-		case *ast.DictLiteral:
-			for _, pair := range e.Elements {
-				visitExpr(pair.Key)
-				visitExpr(pair.Value)
-			}
-		case *ast.FunctionCall:
-			for _, arg := range e.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.CallExpression:
-			visitExpr(e.Callee)
-			for _, arg := range e.Args {
-				visitExpr(arg.Expr)
-			}
+	walkNodes(stmts, true, func(node ast.Statement) {
+		if assign, ok := node.(*ast.Assign); ok {
+			out[assign.Target] = struct{}{}
 		}
-	}
-
-	for _, stmt := range stmts {
-		switch s := stmt.(type) {
-		case nil:
-			continue
-		case *ast.Declare:
-			visitExpr(s.Value)
-		case *ast.Assign:
-			out[s.Target] = struct{}{}
-			visitExpr(s.Value)
-		case *ast.SetIndex:
-			visitExpr(s.Object)
-			visitExpr(s.Index)
-			visitExpr(s.Value)
-		case *ast.SetAttr:
-			visitExpr(s.Object)
-			visitExpr(s.Value)
-		case *ast.IfElse:
-			visitExpr(s.Condition)
-			collectAssignTargets(s.IfBody, out)
-			collectAssignTargets(s.ElseBody, out)
-		case *ast.While:
-			visitExpr(s.Condition)
-			collectAssignTargets(s.Body, out)
-		case *ast.For:
-			visitExpr(s.Iterator)
-			collectAssignTargets(s.Body, out)
-		case *ast.TryCatch:
-			collectAssignTargets(s.TryBody, out)
-			collectAssignTargets(s.CatchBody, out)
-		case *ast.FunctionDefine:
-			collectAssignTargets(s.Body, out)
-		case *ast.TypeDefine:
-			for _, m := range s.AllMethods() {
-				collectAssignTargets(m.Body, out)
-			}
-		case *ast.TraitDefine:
-			for _, m := range s.Methods {
-				collectAssignTargets(m.Body, out)
-			}
-		case *ast.Return:
-			visitExpr(s.Value)
-		case *ast.Raise:
-			visitExpr(s.Value)
-		case *ast.FunctionCall:
-			for _, arg := range s.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.CallExpression:
-			visitExpr(s.Callee)
-			for _, arg := range s.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.BinaryOperation:
-			visitExpr(s.LHS)
-			visitExpr(s.RHS)
-		case *ast.UnaryOperation:
-			visitExpr(s.Operand)
-		case *ast.IndexExpression:
-			visitExpr(s)
-		case *ast.MemberExpression:
-			visitExpr(s)
-		}
-	}
+	})
 }
 
 // statementName is the name a type or trait declaration binds.

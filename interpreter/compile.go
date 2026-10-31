@@ -645,21 +645,6 @@ func (c *compiler) expr(expr ast.Expression) exprFn {
 		proto := c.function("<lambda>", "<lambda>", e.Position(), e.Parameters, e.Body, false)
 		return func(f *frame) (object.Object, error) { return proto.function(f), nil }
 
-	case *ast.FunctionCall:
-		callee := c.lookup(e.Name).load(e.Name)
-		args := c.args(e.Args)
-		return func(f *frame) (object.Object, error) {
-			fn, err := callee(f)
-			if err != nil {
-				return nil, err
-			}
-			a, err := args(f)
-			if err != nil {
-				return nil, err
-			}
-			return object.Call(fn, a)
-		}
-
 	case *ast.CallExpression:
 		// A method call resolves the receiver and dispatches in one step,
 		// skipping the bound function that reading the attribute would
@@ -929,87 +914,9 @@ func (c *compiler) unary(e *ast.UnaryOperation) exprFn {
 
 // --- capture analysis
 
-// stmtsHaveFunction reports whether a function literal or definition appears
-// anywhere in stmts, the only way a block's variables can outlive one entry
-// of the block.
+// stmtsHaveFunction reports whether a function literal or definition (types
+// and traits included, for their methods) appears anywhere in stmts, the only
+// way a block's variables can outlive one entry of the block.
 func stmtsHaveFunction(stmts []ast.Statement) bool {
-	for _, s := range stmts {
-		if stmtHasFunction(s) {
-			return true
-		}
-	}
-	return false
-}
-
-func stmtHasFunction(stmt ast.Statement) bool {
-	switch s := stmt.(type) {
-	case *ast.FunctionDefine, *ast.TypeDefine, *ast.TraitDefine:
-		return true
-	case *ast.Declare:
-		return exprHasFunction(s.Value)
-	case *ast.Assign:
-		return exprHasFunction(s.Value)
-	case *ast.SetIndex:
-		return exprHasFunction(s.Object) || exprHasFunction(s.Index) || exprHasFunction(s.Value)
-	case *ast.SetAttr:
-		return exprHasFunction(s.Object) || exprHasFunction(s.Value)
-	case *ast.IfElse:
-		return exprHasFunction(s.Condition) || stmtsHaveFunction(s.IfBody) || stmtsHaveFunction(s.ElseBody)
-	case *ast.While:
-		return exprHasFunction(s.Condition) || stmtsHaveFunction(s.Body)
-	case *ast.For:
-		return exprHasFunction(s.Iterator) || stmtsHaveFunction(s.Body)
-	case *ast.Return:
-		return s.Value != nil && exprHasFunction(s.Value)
-	case *ast.Raise:
-		return exprHasFunction(s.Value)
-	case *ast.TryCatch:
-		return stmtsHaveFunction(s.TryBody) || stmtsHaveFunction(s.CatchBody)
-	case ast.Expression:
-		return exprHasFunction(s)
-	}
-	return false
-}
-
-func exprHasFunction(expr ast.Expression) bool {
-	switch e := expr.(type) {
-	case nil:
-		return false
-	case *ast.FunctionLiteral:
-		return true
-	case *ast.ListLiteral:
-		for _, el := range e.Elements {
-			if exprHasFunction(el) {
-				return true
-			}
-		}
-	case *ast.DictLiteral:
-		for _, el := range e.Elements {
-			if exprHasFunction(el.Key) || exprHasFunction(el.Value) {
-				return true
-			}
-		}
-	case *ast.BinaryOperation:
-		return exprHasFunction(e.LHS) || exprHasFunction(e.RHS)
-	case *ast.UnaryOperation:
-		return exprHasFunction(e.Operand)
-	case *ast.IndexExpression:
-		return exprHasFunction(e.Object) || exprHasFunction(e.Index)
-	case *ast.MemberExpression:
-		return exprHasFunction(e.Object)
-	case *ast.FunctionCall:
-		return argsHaveFunction(e.Args)
-	case *ast.CallExpression:
-		return exprHasFunction(e.Callee) || argsHaveFunction(e.Args)
-	}
-	return false
-}
-
-func argsHaveFunction(args []ast.CallArgument) bool {
-	for _, a := range args {
-		if exprHasFunction(a.Expr) {
-			return true
-		}
-	}
-	return false
+	return ast.Any(stmts, false, ast.OpensScope)
 }

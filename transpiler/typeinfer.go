@@ -165,7 +165,7 @@ func inferTypes(body []ast.Statement, rangeNative bool, seed map[string]staticTy
 // predicate here must match transpileFor's lowering condition exactly, or a
 // natively declared loop variable would receive a boxed value.
 func collectDeclarations(stmts []ast.Statement, types map[string]staticType, rangeNative bool) {
-	forEachStatement(stmts, func(stmt ast.Statement) {
+	ast.WalkStatements(stmts, func(stmt ast.Statement) {
 		switch s := stmt.(type) {
 		case *ast.Declare:
 			if _, seen := types[s.Name]; !seen {
@@ -188,7 +188,7 @@ func collectDeclarations(stmts []ast.Statement, types map[string]staticType, ran
 // rangeCallParts reports whether expr is a call of the form range(a, b) —
 // exactly two plain positional arguments — and returns the bound expressions.
 func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
-	name, args, isCall := bareCall(expr)
+	name, args, isCall := plainCall(expr)
 	if !isCall || name != "range" || len(args) != 2 {
 		return nil, nil, false
 	}
@@ -213,14 +213,39 @@ func declaresNameAnywhere(stmts []ast.Statement, name string) bool {
 // poisonCaptured pins every name that appears anywhere inside a nested scope to
 // dynamic. A nested function is transpiled with its own type environment, so it
 // would emit `n.Add(...)` for a name this body had turned into an int64, and
-// that does not compile. Type definitions count too — their method bodies are
-// nested scopes as well.
-//
-// This has to see through arbitrary nesting depth, which is why it uses its own
-// traversal rather than the scope-local helpers below.
+// that does not compile. Type definitions count too: their method bodies are
+// nested scopes as well. An exported name is stored into the module's member
+// map as an object.Object, so it must stay boxed as well.
 func poisonCaptured(stmts []ast.Statement, types map[string]staticType) {
 	names := map[string]struct{}{}
-	collectNestedNames(stmts, names, false)
+	inner := func(node ast.Statement) {
+		switch n := node.(type) {
+		case *ast.Identifier:
+			names[n.Name] = struct{}{}
+		case *ast.CallExpression:
+			if name, ok := n.CalleeName(); ok {
+				names[name] = struct{}{}
+			}
+		case *ast.Declare:
+			names[n.Name] = struct{}{}
+		case *ast.Assign:
+			names[n.Target] = struct{}{}
+		case *ast.Export:
+			names[n.Name] = struct{}{}
+		}
+	}
+	walkNodes(stmts, false, func(node ast.Statement) {
+		switch n := node.(type) {
+		case *ast.Export:
+			names[n.Name] = struct{}{}
+		case *ast.FunctionDefine, *ast.FunctionLiteral, *ast.TypeDefine, *ast.TraitDefine:
+			walkNodes([]ast.Statement{n}, true, func(m ast.Statement) {
+				if m != n {
+					inner(m)
+				}
+			})
+		}
+	})
 	for name := range names {
 		if _, tracked := types[name]; tracked {
 			types[name] = tyDynamic
@@ -228,136 +253,10 @@ func poisonCaptured(stmts []ast.Statement, types map[string]staticType) {
 	}
 }
 
-// collectNestedNames walks statements recursively. Once inside a nested scope
-// (inner == true) every identifier, assignment target and declaration name it
-// meets is recorded.
-func collectNestedNames(stmts []ast.Statement, names map[string]struct{}, inner bool) {
-	var visitExpr func(ast.Expression)
-	visitExpr = func(expr ast.Expression) {
-		switch e := expr.(type) {
-		case nil:
-			return
-		case *ast.Identifier:
-			if inner {
-				names[e.Name] = struct{}{}
-			}
-		case *ast.FunctionLiteral:
-			collectNestedNames(e.Body, names, true)
-		case *ast.BinaryOperation:
-			visitExpr(e.LHS)
-			visitExpr(e.RHS)
-		case *ast.UnaryOperation:
-			visitExpr(e.Operand)
-		case *ast.IndexExpression:
-			visitExpr(e.Object)
-			visitExpr(e.Index)
-		case *ast.MemberExpression:
-			visitExpr(e.Object)
-		case *ast.ListLiteral:
-			for _, item := range e.Elements {
-				visitExpr(item)
-			}
-		case *ast.DictLiteral:
-			for _, pair := range e.Elements {
-				visitExpr(pair.Key)
-				visitExpr(pair.Value)
-			}
-		case *ast.FunctionCall:
-			if inner {
-				names[e.Name] = struct{}{}
-			}
-			for _, arg := range e.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.CallExpression:
-			visitExpr(e.Callee)
-			for _, arg := range e.Args {
-				visitExpr(arg.Expr)
-			}
-		}
-	}
-
-	for _, stmt := range stmts {
-		switch s := stmt.(type) {
-		case nil:
-			continue
-		case *ast.Declare:
-			if inner {
-				names[s.Name] = struct{}{}
-			}
-			visitExpr(s.Value)
-		case *ast.Assign:
-			if inner {
-				names[s.Target] = struct{}{}
-			}
-			visitExpr(s.Value)
-		case *ast.SetIndex:
-			visitExpr(s.Object)
-			visitExpr(s.Index)
-			visitExpr(s.Value)
-		case *ast.SetAttr:
-			visitExpr(s.Object)
-			visitExpr(s.Value)
-		case *ast.IfElse:
-			visitExpr(s.Condition)
-			collectNestedNames(s.IfBody, names, inner)
-			collectNestedNames(s.ElseBody, names, inner)
-		case *ast.While:
-			visitExpr(s.Condition)
-			collectNestedNames(s.Body, names, inner)
-		case *ast.For:
-			visitExpr(s.Iterator)
-			collectNestedNames(s.Body, names, inner)
-		case *ast.TryCatch:
-			collectNestedNames(s.TryBody, names, inner)
-			collectNestedNames(s.CatchBody, names, inner)
-		case *ast.FunctionDefine:
-			collectNestedNames(s.Body, names, true)
-		case *ast.TypeDefine:
-			for _, m := range s.AllMethods() {
-				collectNestedNames(m.Body, names, true)
-			}
-		case *ast.TraitDefine:
-			for _, m := range s.Methods {
-				collectNestedNames(m.Body, names, true)
-			}
-		case *ast.Return:
-			visitExpr(s.Value)
-		case *ast.Raise:
-			visitExpr(s.Value)
-		case *ast.Export:
-			// An exported name is stored into the module's member map as an
-			// object.Object, so it must stay boxed.
-			names[s.Name] = struct{}{}
-		case *ast.FunctionCall:
-			if inner {
-				names[s.Name] = struct{}{}
-			}
-			for _, arg := range s.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.CallExpression:
-			visitExpr(s.Callee)
-			for _, arg := range s.Args {
-				visitExpr(arg.Expr)
-			}
-		case *ast.BinaryOperation:
-			visitExpr(s.LHS)
-			visitExpr(s.RHS)
-		case *ast.UnaryOperation:
-			visitExpr(s.Operand)
-		case *ast.IndexExpression:
-			visitExpr(s)
-		case *ast.MemberExpression:
-			visitExpr(s)
-		}
-	}
-}
-
 // walkAssignments visits every value bound to a name in this body, both `var`
 // declarations and plain assignments.
 func walkAssignments(stmts []ast.Statement, fn func(name string, value ast.Expression)) {
-	forEachStatement(stmts, func(stmt ast.Statement) {
+	ast.WalkStatements(stmts, func(stmt ast.Statement) {
 		switch s := stmt.(type) {
 		case *ast.Declare:
 			fn(s.Name, s.Value)
@@ -466,11 +365,11 @@ func staticTypeOf(expr ast.Expression, types map[string]staticType, sigs map[str
 		}
 		return tyDynamic
 
-	case *ast.FunctionCall, *ast.CallExpression:
+	case *ast.CallExpression:
 		// A call to a closed direct function has the return type of its
 		// signature. Closedness guarantees the name is bound nowhere else in
 		// the module, so no scope lookup is needed to know what it refers to.
-		if name, _, ok := bareCall(expr); ok {
+		if name, _, ok := plainCall(expr); ok {
 			if sig, ok := sigs[name]; ok {
 				return sig.ret
 			}
@@ -493,48 +392,8 @@ func hoistsStatements(expr ast.Expression) bool {
 	case *ast.BinaryOperation:
 		return e.Operator == "/" || e.Operator == "%" ||
 			hoistsStatements(e.LHS) || hoistsStatements(e.RHS)
-	case *ast.FunctionCall, *ast.CallExpression:
+	case *ast.CallExpression:
 		return true
 	}
 	return false
-}
-
-// bareCall matches a call through a plain name, in either of the two node
-// shapes the grammar produces for it, and returns the name and arguments.
-func bareCall(expr ast.Expression) (name string, args []ast.CallArgument, ok bool) {
-	switch e := expr.(type) {
-	case *ast.FunctionCall:
-		return e.Name, e.Args, true
-	case *ast.CallExpression:
-		if ident, isIdent := e.Callee.(*ast.Identifier); isIdent {
-			return ident.Name, e.Args, true
-		}
-	}
-	return "", nil, false
-}
-
-// forEachStatement visits every statement in the current function body,
-// descending into blocks but never into a nested function literal or
-// definition — those are separate scopes with their own analysis.
-// poisonCaptured reaches into them explicitly instead.
-
-func forEachStatement(stmts []ast.Statement, fn func(ast.Statement)) {
-	for _, stmt := range stmts {
-		if stmt == nil {
-			continue
-		}
-		fn(stmt)
-		switch s := stmt.(type) {
-		case *ast.IfElse:
-			forEachStatement(s.IfBody, fn)
-			forEachStatement(s.ElseBody, fn)
-		case *ast.While:
-			forEachStatement(s.Body, fn)
-		case *ast.For:
-			forEachStatement(s.Body, fn)
-		case *ast.TryCatch:
-			forEachStatement(s.TryBody, fn)
-			forEachStatement(s.CatchBody, fn)
-		}
-	}
 }

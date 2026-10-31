@@ -577,7 +577,7 @@ func (c *checker) checkImpls(def *ast.TypeDefine) error {
 // `- 2` line is exactly this shape.
 func hasEffect(expr ast.Expression) bool {
 	switch expr.(type) {
-	case *ast.CallExpression, *ast.FunctionCall, *ast.IndexExpression, *ast.MemberExpression:
+	case *ast.CallExpression, *ast.IndexExpression, *ast.MemberExpression:
 		return true
 	}
 	return false
@@ -669,11 +669,6 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		return nil
 	case *ast.Literal:
 		return nil
-	case *ast.FunctionCall:
-		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
-			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
-		}
-		return c.checkCallArguments(v.Args)
 	case *ast.CallExpression:
 		if id, ok := v.Callee.(*ast.Identifier); ok && isBuiltin(id.Name) {
 			return c.checkCallArguments(v.Args)

@@ -196,7 +196,7 @@ func returnTypeOf(stmts []ast.Statement, env map[string]staticType, sigs map[str
 		}
 	}
 	t := tyUnknown
-	forEachStatement(explicit, func(stmt ast.Statement) {
+	ast.WalkStatements(explicit, func(stmt ast.Statement) {
 		if ret, ok := stmt.(*ast.Return); ok {
 			t = join(t, staticTypeOf(ret.Value, env, sigs))
 		}
@@ -256,8 +256,8 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 					switch n := node.(type) {
 					case *ast.Identifier:
 						excluded[n.Name] = struct{}{}
-					case *ast.FunctionCall, *ast.CallExpression:
-						if name, _, ok := bareCall(n.(ast.Expression)); ok {
+					case *ast.CallExpression:
+						if name, ok := n.CalleeName(); ok {
 							excluded[name] = struct{}{}
 						}
 					}
@@ -280,8 +280,8 @@ func closedDirectFns(stmts []ast.Statement, direct map[string]directFn) map[stri
 			excluded[n.Name] = struct{}{}
 		case *ast.Identifier:
 			excluded[n.Name] = struct{}{}
-		case *ast.FunctionCall, *ast.CallExpression:
-			if name, args, ok := bareCall(n.(ast.Expression)); ok && !fastShape(name, args) {
+		case *ast.CallExpression:
+			if name, ok := n.CalleeName(); ok && !fastShape(name, n.Args) {
 				excluded[name] = struct{}{}
 			}
 		}
@@ -404,128 +404,10 @@ func collectBodies(stmts []ast.Statement, closed map[string]*ast.FunctionDefine)
 // environments.
 func forEachCallSite(stmts []ast.Statement, sigs map[string]*fnSig, fn func(name string, args []ast.CallArgument)) {
 	walkNodes(stmts, false, func(node ast.Statement) {
-		switch node.(type) {
-		case *ast.FunctionCall, *ast.CallExpression:
-			if name, args, ok := bareCall(node.(ast.Expression)); ok {
-				if _, closed := sigs[name]; closed {
-					fn(name, args)
-				}
+		if name, args, ok := plainCall(node); ok {
+			if _, closed := sigs[name]; closed {
+				fn(name, args)
 			}
 		}
 	})
-}
-
-// walkNodes visits every statement and expression node under stmts in
-// pre-order. With nested set it descends into function definitions,
-// function literals and type methods; otherwise it visits those nodes but
-// stays out of their bodies. Parameter defaults are never entered — they
-// belong to the enclosing scope and callers handle them explicitly. A call's
-// callee identifier is not visited on its own: the call node stands for it,
-// which is how a visitor tells a call from a use of the name as a value.
-func walkNodes(stmts []ast.Statement, nested bool, visit func(node ast.Statement)) {
-	for _, stmt := range stmts {
-		if stmt == nil {
-			continue
-		}
-		if expr, ok := stmt.(ast.Expression); ok {
-			walkExprWith(expr, nested, visit)
-			continue
-		}
-		visit(stmt)
-		switch s := stmt.(type) {
-		case *ast.Declare:
-			walkExprWith(s.Value, nested, visit)
-		case *ast.Assign:
-			walkExprWith(s.Value, nested, visit)
-		case *ast.SetIndex:
-			walkExprWith(s.Object, nested, visit)
-			walkExprWith(s.Index, nested, visit)
-			walkExprWith(s.Value, nested, visit)
-		case *ast.SetAttr:
-			walkExprWith(s.Object, nested, visit)
-			walkExprWith(s.Value, nested, visit)
-		case *ast.IfElse:
-			walkExprWith(s.Condition, nested, visit)
-			walkNodes(s.IfBody, nested, visit)
-			walkNodes(s.ElseBody, nested, visit)
-		case *ast.While:
-			walkExprWith(s.Condition, nested, visit)
-			walkNodes(s.Body, nested, visit)
-		case *ast.For:
-			walkExprWith(s.Iterator, nested, visit)
-			walkNodes(s.Body, nested, visit)
-		case *ast.TryCatch:
-			walkNodes(s.TryBody, nested, visit)
-			walkNodes(s.CatchBody, nested, visit)
-		case *ast.FunctionDefine:
-			if nested {
-				walkNodes(s.Body, nested, visit)
-			}
-		case *ast.TypeDefine:
-			if nested {
-				for _, method := range s.AllMethods() {
-					walkNodes(method.Body, nested, visit)
-				}
-			}
-		case *ast.TraitDefine:
-			if nested {
-				for _, method := range s.Methods {
-					walkNodes(method.Body, nested, visit)
-				}
-			}
-		case *ast.Return:
-			walkExprWith(s.Value, nested, visit)
-		case *ast.Raise:
-			walkExprWith(s.Value, nested, visit)
-		}
-	}
-}
-
-// walkExpr visits every node of an expression tree, function literal bodies
-// included.
-func walkExpr(expr ast.Expression, visit func(node ast.Statement)) {
-	walkExprWith(expr, true, visit)
-}
-
-func walkExprWith(expr ast.Expression, nested bool, visit func(node ast.Statement)) {
-	if expr == nil {
-		return
-	}
-	visit(expr)
-	switch e := expr.(type) {
-	case *ast.FunctionLiteral:
-		if nested {
-			walkNodes(e.Body, nested, visit)
-		}
-	case *ast.BinaryOperation:
-		walkExprWith(e.LHS, nested, visit)
-		walkExprWith(e.RHS, nested, visit)
-	case *ast.UnaryOperation:
-		walkExprWith(e.Operand, nested, visit)
-	case *ast.IndexExpression:
-		walkExprWith(e.Object, nested, visit)
-		walkExprWith(e.Index, nested, visit)
-	case *ast.MemberExpression:
-		walkExprWith(e.Object, nested, visit)
-	case *ast.ListLiteral:
-		for _, item := range e.Elements {
-			walkExprWith(item, nested, visit)
-		}
-	case *ast.DictLiteral:
-		for _, pair := range e.Elements {
-			walkExprWith(pair.Key, nested, visit)
-			walkExprWith(pair.Value, nested, visit)
-		}
-	case *ast.FunctionCall:
-		for _, arg := range e.Args {
-			walkExprWith(arg.Expr, nested, visit)
-		}
-	case *ast.CallExpression:
-		if _, isIdent := e.Callee.(*ast.Identifier); !isIdent {
-			walkExprWith(e.Callee, nested, visit)
-		}
-		for _, arg := range e.Args {
-			walkExprWith(arg.Expr, nested, visit)
-		}
-	}
 }
