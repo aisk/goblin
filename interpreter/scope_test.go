@@ -10,7 +10,7 @@ import (
 	"github.com/aisk/goblin/semantic"
 )
 
-func runScopeProgram(t *testing.T, source string) *Environment {
+func runScopeProgram(t *testing.T, source string) *globals {
 	t.Helper()
 	node, err := parser.NewParser().Parse(lexer.NewLexer([]byte(source)))
 	if err != nil {
@@ -20,11 +20,11 @@ func runScopeProgram(t *testing.T, source string) *Environment {
 	if err := semantic.CheckModule(mod); err != nil {
 		t.Fatal(err)
 	}
-	env := NewEnvironment(nil)
-	if err := evalStatements(mod.Body, env); err != nil {
+	g, err := runModule(mod, ".", "<test>", object.NewRegistry(), []string{""})
+	if err != nil {
 		t.Fatal(err)
 	}
-	return env
+	return g
 }
 
 func TestBlockDeclarationsDoNotEscape(t *testing.T) {

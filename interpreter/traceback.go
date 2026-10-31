@@ -30,11 +30,10 @@ type positionedError struct {
 func (p *positionedError) Error() string { return p.err.Error() }
 func (p *positionedError) Unwrap() error { return p.err }
 
-// positionError tags err with pos. Control-flow signals pass through
-// untouched, and an existing tag is kept: the innermost statement wins.
+// positionError tags err with pos. An existing tag is kept: the innermost
+// statement wins.
 func positionError(err error, pos token.Pos) error {
-	switch err.(type) {
-	case breakSignal, continueSignal, returnSignal, *positionedError:
+	if _, ok := err.(*positionedError); ok {
 		return err
 	}
 	return &positionedError{err: err, pos: pos}

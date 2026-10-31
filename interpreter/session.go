@@ -19,11 +19,7 @@ func (s *Session) CompletionCandidates(path []string) []string {
 		for name := range extension.BuiltinsModule.Members {
 			names[name] = struct{}{}
 		}
-		if locked := object.InConcurrentMode(); locked {
-			envMu.RLock()
-			defer envMu.RUnlock()
-		}
-		for name := range s.global.vars {
+		for _, name := range s.global.names() {
 			names[name] = struct{}{}
 		}
 		return sortedNames(names)
@@ -59,7 +55,7 @@ func sortedNames(names map[string]struct{}) []string {
 // scope and module registry across calls, so successive Eval invocations share
 // state — the basis for a REPL.
 type Session struct {
-	global  *Environment
+	global  *globals
 	reg     *object.Registry
 	baseDir string
 	argv    []string
@@ -73,7 +69,7 @@ const replArgv0 = ""
 // NewSession creates a session. baseDir is used to resolve relative imports.
 func NewSession(baseDir string) *Session {
 	return &Session{
-		global:  NewEnvironment(nil),
+		global:  newGlobals(),
 		reg:     object.NewRegistry(),
 		baseDir: baseDir,
 		argv:    []string{replArgv0},
@@ -99,24 +95,46 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 	// would reject references to names declared on earlier REPL lines. The
 	// interpreter reports undefined names at runtime against the live scope.
 
+	// Compile against the persistent globals. A name an earlier line
+	// declared resolves to the cell that line bound; a name nobody has
+	// declared yet gets an unbound cell and is reported at run time.
+	c := newCompiler(s.global)
+	exprs := make([]exprFn, len(mod.Body))
+	stmts := make([]stmtFn, len(mod.Body))
+	for i, stmt := range mod.Body {
+		if expr, ok := stmt.(ast.Expression); ok {
+			exprs[i] = c.expr(expr)
+		} else {
+			stmts[i] = c.statement(stmt)
+		}
+	}
+	f := c.moduleFrame()
+
 	// Resolve imports and hoist definitions into the persistent scope.
-	if err := loadInto(mod, s.global, s.baseDir, s.reg, s.argv); err != nil {
+	if err := c.load(mod, f, s.baseDir, s.reg, s.argv); err != nil {
 		return nil, loadError(err, "repl")
 	}
 
-	for _, stmt := range mod.Body {
-		if expr, ok := stmt.(ast.Expression); ok {
-			v, err := evalExpr(expr, s.global)
+	for i, stmt := range mod.Body {
+		if exprs[i] != nil {
+			v, err := exprs[i](f)
 			if err != nil {
-				return nil, object.WithFrame(err, stackFrame("repl", "<module>", expr.Position()))
+				return nil, object.WithFrame(err, stackFrame("repl", "<module>", stmt.Position()))
 			}
 			result = v
-		} else {
-			if err := evalStatement(stmt, s.global); err != nil {
-				inner, pos := takePosition(err, stmt.Position())
-				return nil, object.WithFrame(inner, stackFrame("repl", "<module>", pos))
-			}
-			result = nil
+			continue
+		}
+		result = nil
+		if stmts[i] == nil {
+			continue
+		}
+		ct, _, err := stmts[i](f)
+		if err == nil && ct != ctrlNone {
+			err = strayCtrl(ct)
+		}
+		if err != nil {
+			inner, pos := takePosition(err, stmt.Position())
+			return nil, object.WithFrame(inner, stackFrame("repl", "<module>", pos))
 		}
 	}
 	return result, nil

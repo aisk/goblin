@@ -14,81 +14,67 @@ type goblinType struct {
 	fields   []*ast.TypeField
 	params   []string
 	defaults []object.ParamDefault
-	methods  map[string]*ast.FunctionDefine
-	// methodSpecs holds the same methods pre-analysed, so calling one costs
-	// a scope and nothing else. See closureSpec.
-	methodSpecs map[string]*closureSpec
+	// methods are bound to the module frame, so calling one costs a frame
+	// and nothing else.
+	methods     map[string]*closure
 	attributes  []string
 	constructor *object.Function
-	env         *Environment
 	// info carries the impls trait dispatch consults.
 	info *object.UserType
 }
 
-// defineType registers a user type's constructor in the current scope. Each
+// defineType binds a user type's constructor in the module's globals. Each
 // impl block resolves its trait now, so the trait must already be defined.
-func defineType(def *ast.TypeDefine, env *Environment) error {
-	methods := make(map[string]*ast.FunctionDefine, len(def.Methods))
-	methodSpecs := make(map[string]*closureSpec, len(def.Methods))
+func defineType(tp *typeProto, g *globals, f *frame) error {
+	def := tp.def
+	methods := make(map[string]*closure, len(def.Methods))
 	attributes := make([]string, 0, len(def.Methods)+len(def.Fields)+2)
 	seen := make(map[string]bool, cap(attributes))
-	for _, f := range def.Fields {
-		if !seen[f.Name] {
-			attributes = append(attributes, f.Name)
-			seen[f.Name] = true
+	for _, field := range def.Fields {
+		if !seen[field.Name] {
+			attributes = append(attributes, field.Name)
+			seen[field.Name] = true
 		}
 	}
 	for _, m := range def.Methods {
-		methods[m.Name] = m
-		methodSpecs[m.Name] = newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters[1:], m.Body)
+		methods[m.Name] = tp.methods[m.Name].bind(f)
 		if !seen[m.Name] {
 			attributes = append(attributes, m.Name)
 			seen[m.Name] = true
 		}
 	}
-	if !seen["constructor"] {
-		attributes = append(attributes, "constructor")
-		seen["constructor"] = true
-	}
-	if !seen["attributes"] {
-		attributes = append(attributes, "attributes")
-		seen["attributes"] = true
-	}
-	if !seen["traits"] {
-		attributes = append(attributes, "traits")
+	for _, name := range []string{"constructor", "attributes", "traits"} {
+		if !seen[name] {
+			attributes = append(attributes, name)
+			seen[name] = true
+		}
 	}
 	t := &goblinType{
-		name:        def.Name,
-		fields:      def.Fields,
-		params:      make([]string, len(def.Fields)),
-		defaults:    make([]object.ParamDefault, len(def.Fields)),
-		methods:     methods,
-		methodSpecs: methodSpecs,
-		attributes:  attributes,
-		env:         env,
+		name:       def.Name,
+		fields:     def.Fields,
+		params:     make([]string, len(def.Fields)),
+		defaults:   make([]object.ParamDefault, len(def.Fields)),
+		methods:    methods,
+		attributes: attributes,
 	}
-	for i, f := range def.Fields {
-		t.params[i] = f.Name
-		if f.HasDefault() {
-			expr := f.DefaultValue
-			t.defaults[i] = func() (object.Object, error) { return evalExpr(expr, t.env) }
+	for i, field := range def.Fields {
+		t.params[i] = field.Name
+		if d := tp.fieldDefaults[i]; d != nil {
+			t.defaults[i] = func() (object.Object, error) { return d(f) }
 		}
 	}
 	t.info = object.NewUserType(def.Name, t.params)
-	for _, block := range def.Impls {
-		trait, err := resolveTrait(block.Trait, "impl "+block.Trait.String(), env)
+	for i, block := range def.Impls {
+		trait, err := resolveTrait(block.Trait, "impl "+block.Trait.String(), g)
 		if err != nil {
 			return err
 		}
 		methods := make([]object.ImplMethod, len(block.Methods))
-		for i, m := range block.Methods {
-			spec := newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters, m.Body)
-			methods[i] = object.ImplMethod{
+		for j, m := range block.Methods {
+			methods[j] = object.ImplMethod{
 				Name:  m.Name,
 				Arity: len(m.Parameters),
-				Fn: &object.Function{Name: m.Name, Fn: func(args object.CallArgs) (object.Object, error) {
-					return spec.call(env, args)
-				}},
+				Fn:    tp.impls[i][j].function(f),
 			}
 		}
 		t.info.Implement(trait, methods)
@@ -100,16 +86,17 @@ func defineType(def *ast.TypeDefine, env *Environment) error {
 		Name: def.Name,
 		Fn:   t.construct,
 	}
-	env.Define(def.Name, t.constructor)
+	g.Define(def.Name, t.constructor)
 	return nil
 }
 
 // defineTrait binds a trait declaration's trait object. Default methods are
-// closures over the declaring scope taking self as their first argument.
-func defineTrait(def *ast.TraitDefine, env *Environment) error {
+// closures over the module frame taking self as their first argument.
+func defineTrait(tp *traitProto, g *globals, f *frame) error {
+	def := tp.def
 	deps := make([]*object.Trait, len(def.Deps))
 	for i, ref := range def.Deps {
-		dep, err := resolveTrait(ref, "trait "+def.Name, env)
+		dep, err := resolveTrait(ref, "trait "+def.Name, g)
 		if err != nil {
 			return err
 		}
@@ -118,29 +105,26 @@ func defineTrait(def *ast.TraitDefine, env *Environment) error {
 	methods := make([]object.TraitMethod, len(def.Methods))
 	for i, m := range def.Methods {
 		methods[i] = object.TraitMethod{Name: m.Name, Arity: len(m.Parameters), Required: m.Body == nil}
-		if m.Body != nil {
-			spec := newClosureSpec(def.Name+"."+m.Name, m.Position(), m.Parameters, m.Body)
-			methods[i].Default = &object.Function{Name: m.Name, Fn: func(args object.CallArgs) (object.Object, error) {
-				return spec.call(env, args)
-			}}
+		if p := tp.defaults[i]; p != nil {
+			methods[i].Default = p.function(f)
 		}
 	}
-	env.Define(def.Name, object.NewTrait(def.Name, deps, methods))
+	g.Define(def.Name, object.NewTrait(def.Name, deps, methods))
 	return nil
 }
 
 // resolveTrait looks up the trait an impl block or dependency list names.
 // site says where the reference appears, for the messages.
-func resolveTrait(ref *ast.TraitRef, site string, env *Environment) (*object.Trait, error) {
+func resolveTrait(ref *ast.TraitRef, site string, g *globals) (*object.Trait, error) {
 	notDefined := object.NewNameError(object.ErrFmtTraitNotDefined, site, ref)
 	if ref.Module != "" {
-		module, err := resolveName(ref.Module, env)
+		module, err := g.resolve(ref.Module)
 		if err != nil {
 			return nil, notDefined
 		}
 		return object.ModuleTrait(module, ref.Name, site, ref.String())
 	}
-	value, err := resolveName(ref.Name, env)
+	value, err := g.resolve(ref.Name)
 	if err != nil {
 		return nil, notDefined
 	}
@@ -180,24 +164,16 @@ type instance struct {
 var _ object.Object = (*instance)(nil)
 
 // bindMethod returns the method as a callable with the receiver bound as
-// `self`. The closure carries the Type.method qualified name and binds the
+// `self`. Its prototype carries the Type.method qualified name and binds the
 // parameters after self, so traceback frames and binding diagnostics (names
 // and argument counts alike) match the transpiled backend.
-func (in *instance) bindMethod(def *ast.FunctionDefine) *object.Function {
-	spec := in.typ.methodSpecs[def.Name]
+func (in *instance) bindMethod(m *closure) *object.Function {
 	return &object.Function{
-		Name: def.Name,
+		Name: m.proto.fnName,
 		Fn: func(args object.CallArgs) (object.Object, error) {
-			return in.invoke(spec, args)
+			return m.callSelf(in, args)
 		},
 	}
-}
-
-// invoke runs a method body with the receiver bound as `self`.
-func (in *instance) invoke(spec *closureSpec, args object.CallArgs) (object.Object, error) {
-	selfEnv := NewEnvironment(in.typ.env)
-	selfEnv.Define("self", in)
-	return spec.call(selfEnv, args)
 }
 
 // CallMethod satisfies object.MethodCaller: `p.step()` runs the method body
@@ -205,11 +181,11 @@ func (in *instance) invoke(spec *closureSpec, args object.CallArgs) (object.Obje
 // method (a field, "constructor", "attributes") is declined, so the caller
 // falls back to GetAttr and behavior is unchanged.
 func (in *instance) CallMethod(name string, args object.CallArgs) (object.Object, bool, error) {
-	spec, ok := in.typ.methodSpecs[name]
+	m, ok := in.typ.methods[name]
 	if !ok {
 		return nil, false, nil
 	}
-	v, err := in.invoke(spec, args)
+	v, err := m.callSelf(in, args)
 	return v, true, err
 }
 

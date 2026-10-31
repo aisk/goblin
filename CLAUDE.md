@@ -48,7 +48,7 @@ Runtime values use the `object.Object` interface so arithmetic and logic operati
 - `goblin.bnf` — Master grammar. All changes to syntax start here.
 - `ast/ast.go` — AST node types and `New*`/`Append*` constructors required by gocc reduce actions.
 - `transpiler/transpiler.go` — Walks the AST and emits Go code via jennifer. Built-in functions (`print`, `eprint`, `range`, `max`, `min`) are resolved here. AST walkers in `transpiler/{directcall,signatures,typeinfer}.go` must visit impl and trait method bodies too (`TypeDefine.AllMethods()`, `TraitDefine.Methods`).
-- `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST.
+- `interpreter/*.go` — Tree-walking interpreter, REPL session, imports, and unified tracebacks. Must be kept behavior-compatible with the transpiler for the same AST. `compile.go` turns the AST into Go closures before running: locals resolve to frame slots (a block gets its own frame only when a closure inside it may capture its variables), module-level names to global cells, and positional call arguments go through per-call-site temps in the frame, so builtins must copy `CallArgs` they keep past the call.
 - `semantic/semantic.go` — Semantic checks run on the module before either backend.
 - `object/*.go` — Runtime type system (Integer is int64, Float is float64, Unit is nil). Each type implements the `Object` interface for arithmetic, logic, and iteration; user types dispatch through traits (see below).
 - `extension/builtin.go` — Built-in function implementations. Signature: `func(object.CallArgs) (object.Object, error)`.

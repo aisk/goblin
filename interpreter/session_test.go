@@ -108,7 +108,7 @@ func TestSessionBareExpressionLeavesNoTrace(t *testing.T) {
 	if _, err := s.Eval("1 + 2"); err != nil {
 		t.Fatalf("Eval error: %v", err)
 	}
-	for name := range s.global.vars {
+	for _, name := range s.global.names() {
 		t.Errorf("bare expression leaked binding %q into scope", name)
 	}
 }

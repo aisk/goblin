@@ -50,7 +50,6 @@ import (
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/semantic"
 	"github.com/aisk/goblin/source"
-	"github.com/aisk/goblin/token"
 )
 
 // builtinModules maps a built-in module name to its executor, mirroring the
@@ -105,38 +104,6 @@ func isPathImport(path string) bool {
 	return source.IsPathImport(path)
 }
 
-// loadInto resolves imports and hoists function, type and trait definitions
-// for a module body into env, so references resolve regardless of source
-// order. Types and traits are bound here once, in source order, so a type's
-// impls resolve the traits declared above it. argv is the
-// script command line closed over by import "os".
-func loadInto(mod *ast.Module, env *Environment, baseDir string, reg *object.Registry, argv []string) error {
-	for _, stmt := range mod.Body {
-		if imp, ok := stmt.(*ast.Import); ok {
-			m, err := resolveImport(imp, baseDir, reg, argv)
-			if err != nil {
-				return err
-			}
-			env.Define(imp.Name, m)
-		}
-	}
-	for _, stmt := range mod.Body {
-		switch s := stmt.(type) {
-		case *ast.FunctionDefine:
-			env.Define(s.Name, makeFunction(s, env))
-		case *ast.TypeDefine:
-			if err := defineType(s, env); err != nil {
-				return positionError(err, s.Position())
-			}
-		case *ast.TraitDefine:
-			if err := defineTrait(s, env); err != nil {
-				return positionError(err, s.Position())
-			}
-		}
-	}
-	return nil
-}
-
 // loadError attaches the module frame to an error loadInto reported for a
 // statement.
 func loadError(err error, module string) error {
@@ -180,23 +147,15 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 		return nil, err
 	}
 
-	env := NewEnvironment(nil)
-	if err := loadInto(mod, env, filepath.Dir(path), reg, argv); err != nil {
-		return nil, loadError(err, moduleName(path))
-	}
-	if err := evalStatements(mod.Body, env); err != nil {
-		var pos token.Pos
-		if len(mod.Body) > 0 {
-			pos = mod.Body[0].Position()
-		}
-		err, pos = takePosition(err, pos)
-		return nil, object.WithFrame(err, stackFrame(moduleName(path), "<module>", pos))
+	g, err := runModule(mod, filepath.Dir(path), moduleName(path), reg, argv)
+	if err != nil {
+		return nil, err
 	}
 
 	members := make(map[string]object.Object)
 	for _, stmt := range mod.Body {
 		if exp, ok := stmt.(*ast.Export); ok {
-			v, ok := env.Get(exp.Name)
+			v, ok := g.Get(exp.Name)
 			if !ok {
 				return nil, fmt.Errorf("module %s exports undefined name '%s'", path, exp.Name)
 			}
