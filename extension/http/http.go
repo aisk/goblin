@@ -29,19 +29,17 @@ var (
 // while put/patch/delete are convenience helpers modeled on Post. Request and
 // Client are constructors for the corresponding types.
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "http",
-		Members: map[string]object.Object{
-			"get":     &object.Function{Name: "get", Fn: get},
-			"head":    &object.Function{Name: "head", Fn: head},
-			"delete":  &object.Function{Name: "delete", Fn: deleteFn},
-			"post":    &object.Function{Name: "post", Fn: post},
-			"put":     &object.Function{Name: "put", Fn: put},
-			"patch":   &object.Function{Name: "patch", Fn: patch},
-			"Request": requestType.Function,
-			"Client":  clientType.Function,
-		},
-	}, nil
+	return object.NewModule("http", map[string]object.Object{
+		"Request": requestType.Function,
+		"Client":  clientType.Function,
+	}, object.Funcs{
+		"get":    get,
+		"head":   head,
+		"delete": deleteFn,
+		"post":   post,
+		"put":    put,
+		"patch":  patch,
+	}), nil
 }
 
 // ---------------------------------------------------------------------------

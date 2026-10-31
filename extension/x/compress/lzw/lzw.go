@@ -9,12 +9,13 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "lzw", Members: map[string]object.Object{
-		"compress":   &object.Function{Name: "compress", Fn: lzwCompress},
-		"decompress": &object.Function{Name: "decompress", Fn: lzwDecompress},
-		"LSB":        object.String("lsb"),
-		"MSB":        object.String("msb"),
-	}}, nil
+	return object.NewModule("lzw", map[string]object.Object{
+		"LSB": object.String("lsb"),
+		"MSB": object.String("msb"),
+	}, object.Funcs{
+		"compress":   lzwCompress,
+		"decompress": lzwDecompress,
+	}), nil
 }
 
 func lzwOptions(fnName string, args object.CallArgs, compressing bool) ([]byte, lzw.Order, int, *object.DuckWriter, error) {

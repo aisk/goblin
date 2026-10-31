@@ -11,14 +11,12 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "json",
-		Members: map[string]object.Object{
-			"marshal":   &object.Function{Name: "marshal", Fn: jsonMarshal},
-			"unmarshal": &object.Function{Name: "unmarshal", Fn: jsonUnmarshal},
-			"ToJSON":    ToJSONTrait,
-		},
-	}, nil
+	return object.NewModule("json", map[string]object.Object{
+		"ToJSON": ToJSONTrait,
+	}, object.Funcs{
+		"marshal":   jsonMarshal,
+		"unmarshal": jsonUnmarshal,
+	}), nil
 }
 
 // ToJSONTrait lets a user type take part in marshal: to_json(self) returns

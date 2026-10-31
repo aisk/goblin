@@ -9,10 +9,10 @@ import (
 
 // Execute builds the regexp standard-library module.
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "regexp", Members: map[string]object.Object{
-		"compile": &object.Function{Name: "compile", Fn: compile},
-		"escape":  &object.Function{Name: "escape", Fn: escape},
-	}}, nil
+	return object.NewModule("regexp", nil, object.Funcs{
+		"compile": compile,
+		"escape":  escape,
+	}), nil
 }
 
 func compile(args object.CallArgs) (object.Object, error) {

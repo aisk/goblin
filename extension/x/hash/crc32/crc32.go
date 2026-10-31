@@ -7,12 +7,13 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "crc32", Members: map[string]object.Object{
+	return object.NewModule("crc32", map[string]object.Object{
 		"IEEE":       object.Integer(crc32.IEEE),
 		"CASTAGNOLI": object.Integer(crc32.Castagnoli),
 		"KOOPMAN":    object.Integer(crc32.Koopman),
-		"checksum":   &object.Function{Name: "checksum", Fn: crc32Checksum},
-	}}, nil
+	}, object.Funcs{
+		"checksum": crc32Checksum,
+	}), nil
 }
 
 func crc32Checksum(args object.CallArgs) (object.Object, error) {

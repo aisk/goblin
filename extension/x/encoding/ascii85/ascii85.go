@@ -7,10 +7,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "ascii85", Members: map[string]object.Object{
-		"encode": &object.Function{Name: "encode", Fn: ascii85Encode},
-		"decode": &object.Function{Name: "decode", Fn: ascii85Decode},
-	}}, nil
+	return object.NewModule("ascii85", nil, object.Funcs{
+		"encode": ascii85Encode,
+		"decode": ascii85Decode,
+	}), nil
 }
 
 func ascii85Encode(args object.CallArgs) (object.Object, error) {

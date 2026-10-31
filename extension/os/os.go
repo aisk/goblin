@@ -25,29 +25,27 @@ func ExecuteWithFrozenArgs(args []string) (object.Object, error) {
 }
 
 func newOsModule(argsFn func() []string) object.Object {
-	return &object.Module{
-		Name: "os",
-		Members: map[string]object.Object{
-			"argv":        &object.Function{Name: "argv", Fn: makeArgv(argsFn)},
-			"environ":     &object.Function{Name: "environ", Fn: environ},
-			"exit":        &object.Function{Name: "exit", Fn: exit},
-			"getegid":     intGetter("getegid", os.Getegid),
-			"getenv":      &object.Function{Name: "getenv", Fn: getenv},
-			"geteuid":     intGetter("geteuid", os.Geteuid),
-			"getgid":      intGetter("getgid", os.Getgid),
-			"getgroups":   &object.Function{Name: "getgroups", Fn: getgroups},
-			"getpagesize": &object.Function{Name: "getpagesize", Fn: getpagesize},
-			"getpid":      intGetter("getpid", os.Getpid),
-			"getppid":     intGetter("getppid", os.Getppid),
-			"getuid":      intGetter("getuid", os.Getuid),
-			"getwd":       &object.Function{Name: "getwd", Fn: getwd},
-			"hostname":    &object.Function{Name: "hostname", Fn: hostname},
-			"setenv":      &object.Function{Name: "setenv", Fn: setenv},
-			"unsetenv":    &object.Function{Name: "unsetenv", Fn: unsetenv},
-			"tempdir":     &object.Function{Name: "tempdir", Fn: tempDir},
-			"tempfile":    &object.Function{Name: "tempfile", Fn: tempFile},
-		},
-	}
+	return object.NewModule("os", map[string]object.Object{
+		"getegid": intGetter("getegid", os.Getegid),
+		"geteuid": intGetter("geteuid", os.Geteuid),
+		"getgid":  intGetter("getgid", os.Getgid),
+		"getpid":  intGetter("getpid", os.Getpid),
+		"getppid": intGetter("getppid", os.Getppid),
+		"getuid":  intGetter("getuid", os.Getuid),
+	}, object.Funcs{
+		"argv":        makeArgv(argsFn),
+		"environ":     environ,
+		"exit":        exit,
+		"getenv":      getenv,
+		"getgroups":   getgroups,
+		"getpagesize": getpagesize,
+		"getwd":       getwd,
+		"hostname":    hostname,
+		"setenv":      setenv,
+		"unsetenv":    unsetenv,
+		"tempdir":     tempDir,
+		"tempfile":    tempFile,
+	})
 }
 
 // makeArgv returns argv(), which yields a fresh Goblin list from argsFn each call.

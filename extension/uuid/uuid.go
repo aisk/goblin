@@ -10,15 +10,13 @@ var uuidType = object.NewNativeConstructor("UUID", uuidConstructor)
 
 // Execute builds the uuid module.
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "uuid",
-		Members: map[string]object.Object{
-			"UUID": uuidType.Function,
-			"new":  &object.Function{Name: "new", Fn: uuidNew},
-			"NIL":  NewUUID(uuid.Nil()),
-			"MAX":  NewUUID(uuid.Max()),
-		},
-	}, nil
+	return object.NewModule("uuid", map[string]object.Object{
+		"UUID": uuidType.Function,
+		"NIL":  NewUUID(uuid.Nil()),
+		"MAX":  NewUUID(uuid.Max()),
+	}, object.Funcs{
+		"new": uuidNew,
+	}), nil
 }
 
 func uuidConstructor(args object.CallArgs) (object.Object, error) {

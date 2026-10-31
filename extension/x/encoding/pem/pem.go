@@ -11,10 +11,11 @@ import (
 var pemBlockType = object.NewNativeConstructor("Block", pemBlockConstructor)
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "pem", Members: map[string]object.Object{
-		"Block":  pemBlockType.Function,
-		"decode": &object.Function{Name: "decode", Fn: pemDecode},
-	}}, nil
+	return object.NewModule("pem", map[string]object.Object{
+		"Block": pemBlockType.Function,
+	}, object.Funcs{
+		"decode": pemDecode,
+	}), nil
 }
 
 type PEMBlock struct {

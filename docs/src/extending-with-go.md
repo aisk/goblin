@@ -35,15 +35,17 @@ func(args object.CallArgs) (object.Object, error)
 ~~~
 
 Place related functions in an extension package and return them from an
-object.Module:
+object.Module. object.NewModule takes the module name, a map of plain values
+such as constants, and an object.Funcs map whose entries become functions
+named after their keys:
 
 ~~~go
 func Execute() (object.Object, error) {
-    return &object.Module{
-        Members: map[string]object.Object{
-            "greet": &object.Function{Name: "greet", Fn: greet},
-        },
-    }, nil
+    return object.NewModule("greeting", map[string]object.Object{
+        "default_name": object.String("world"),
+    }, object.Funcs{
+        "greet": greet,
+    }), nil
 }
 ~~~
 

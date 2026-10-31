@@ -13,11 +13,11 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "hmac", Members: map[string]object.Object{
-		"sum":    &object.Function{Name: "sum", Fn: hmacSum},
-		"hex":    &object.Function{Name: "hex", Fn: hmacHex},
-		"verify": &object.Function{Name: "verify", Fn: hmacVerify},
-	}}, nil
+	return object.NewModule("hmac", nil, object.Funcs{
+		"sum":    hmacSum,
+		"hex":    hmacHex,
+		"verify": hmacVerify,
+	}), nil
 }
 
 func hmacHash(name string) (func() hash.Hash, bool) {

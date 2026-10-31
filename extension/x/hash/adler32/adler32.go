@@ -7,9 +7,9 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "adler32", Members: map[string]object.Object{
-		"checksum": &object.Function{Name: "checksum", Fn: adler32Checksum},
-	}}, nil
+	return object.NewModule("adler32", nil, object.Funcs{
+		"checksum": adler32Checksum,
+	}), nil
 }
 
 func adler32Checksum(args object.CallArgs) (object.Object, error) {

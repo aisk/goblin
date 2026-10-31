@@ -7,12 +7,12 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "utf8", Members: map[string]object.Object{
-		"valid":      &object.Function{Name: "valid", Fn: utf8Valid},
-		"rune_count": &object.Function{Name: "rune_count", Fn: utf8RuneCount},
-		"encode":     &object.Function{Name: "encode", Fn: utf8Encode},
-		"decode":     &object.Function{Name: "decode", Fn: utf8Decode},
-	}}, nil
+	return object.NewModule("utf8", nil, object.Funcs{
+		"valid":      utf8Valid,
+		"rune_count": utf8RuneCount,
+		"encode":     utf8Encode,
+		"decode":     utf8Decode,
+	}), nil
 }
 
 func utf8Data(fnName string, args object.CallArgs) ([]byte, error) {

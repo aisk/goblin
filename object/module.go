@@ -57,3 +57,19 @@ func (m *Module) Attributes() []string {
 type moduleName struct{}
 
 func (moduleName) typeName() string { return "Module" }
+
+// Funcs maps module member names to their Go implementations.
+type Funcs map[string]func(CallArgs) (Object, error)
+
+// NewModule builds a module from plain values and from functions, each of
+// which becomes a *Function named after its key. Either map may be nil.
+func NewModule(name string, values map[string]Object, funcs Funcs) *Module {
+	members := make(map[string]Object, len(values)+len(funcs))
+	for key, value := range values {
+		members[key] = value
+	}
+	for key, fn := range funcs {
+		members[key] = &Function{Name: key, Fn: fn}
+	}
+	return &Module{Name: name, Members: members}
+}

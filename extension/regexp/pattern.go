@@ -187,11 +187,20 @@ func (p *Pattern) GetAttr(name string) (object.Object, error) {
 	case "group_names":
 		return p.groupNames(), nil
 	}
-	methods := map[string]func(object.CallArgs) (object.Object, error){
-		"match": p.match, "find": p.find, "find_all": p.findAll,
-		"replace": p.replace, "split": p.split,
+	var fn func(object.CallArgs) (object.Object, error)
+	switch name {
+	case "match":
+		fn = p.match
+	case "find":
+		fn = p.find
+	case "find_all":
+		fn = p.findAll
+	case "replace":
+		fn = p.replace
+	case "split":
+		fn = p.split
 	}
-	if fn, ok := methods[name]; ok {
+	if fn != nil {
 		return &object.Function{Name: name, Fn: fn}, nil
 	}
 	return nil, object.NewAttributeError("Pattern has no attribute '%s'", name)

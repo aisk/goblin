@@ -8,14 +8,14 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "url", Members: map[string]object.Object{
-		"parse":          &object.Function{Name: "parse", Fn: parse},
-		"join_path":      &object.Function{Name: "join_path", Fn: joinPath},
-		"query_escape":   &object.Function{Name: "query_escape", Fn: queryEscape},
-		"query_unescape": &object.Function{Name: "query_unescape", Fn: queryUnescape},
-		"path_escape":    &object.Function{Name: "path_escape", Fn: pathEscape},
-		"path_unescape":  &object.Function{Name: "path_unescape", Fn: pathUnescape},
-	}}, nil
+	return object.NewModule("url", nil, object.Funcs{
+		"parse":          parse,
+		"join_path":      joinPath,
+		"query_escape":   queryEscape,
+		"query_unescape": queryUnescape,
+		"path_escape":    pathEscape,
+		"path_unescape":  pathUnescape,
+	}), nil
 }
 
 func parse(args object.CallArgs) (object.Object, error) {

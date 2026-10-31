@@ -9,21 +9,18 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "fs",
-		Members: map[string]object.Object{
-			"open":     &object.Function{Name: "open", Fn: openFile},
-			"create":   &object.Function{Name: "create", Fn: createFile},
-			"read":     &object.Function{Name: "read", Fn: readFile},
-			"write":    &object.Function{Name: "write", Fn: writeFile},
-			"append":   &object.Function{Name: "append", Fn: appendFile},
-			"exists":   &object.Function{Name: "exists", Fn: exists},
-			"stat":     &object.Function{Name: "stat", Fn: stat},
-			"read_dir": &object.Function{Name: "read_dir", Fn: readDir},
-			"mkdir":    &object.Function{Name: "mkdir", Fn: mkdir},
-			"remove":   &object.Function{Name: "remove", Fn: remove},
-		},
-	}, nil
+	return object.NewModule("fs", nil, object.Funcs{
+		"open":     openFile,
+		"create":   createFile,
+		"read":     readFile,
+		"write":    writeFile,
+		"append":   appendFile,
+		"exists":   exists,
+		"stat":     stat,
+		"read_dir": readDir,
+		"mkdir":    mkdir,
+		"remove":   remove,
+	}), nil
 }
 
 func bindPathArg(funcName string, args object.CallArgs) (string, error) {

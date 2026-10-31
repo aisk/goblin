@@ -11,10 +11,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "tar", Members: map[string]object.Object{
-		"read_all":  &object.Function{Name: "read_all", Fn: tarReadAll},
-		"write_all": &object.Function{Name: "write_all", Fn: tarWriteAll},
-	}}, nil
+	return object.NewModule("tar", nil, object.Funcs{
+		"read_all":  tarReadAll,
+		"write_all": tarWriteAll,
+	}), nil
 }
 
 func tarWriteAll(args object.CallArgs) (object.Object, error) {

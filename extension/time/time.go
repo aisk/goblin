@@ -9,16 +9,14 @@ import (
 var timeType = object.NewNativeConstructor("Time", timeConstructor)
 
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "time",
-		Members: map[string]object.Object{
-			"Time":  timeType.Function,
-			"now":   &object.Function{Name: "now", Fn: now},
-			"sleep": &object.Function{Name: "sleep", Fn: sleep},
-			"parse": &object.Function{Name: "parse", Fn: parse},
-			"unix":  &object.Function{Name: "unix", Fn: unix},
-		},
-	}, nil
+	return object.NewModule("time", map[string]object.Object{
+		"Time": timeType.Function,
+	}, object.Funcs{
+		"now":   now,
+		"sleep": sleep,
+		"parse": parse,
+		"unix":  unix,
+	}), nil
 }
 
 // timeConstructor builds a Time from calendar components in local time.

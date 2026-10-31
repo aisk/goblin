@@ -7,10 +7,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "html", Members: map[string]object.Object{
-		"escape":   &object.Function{Name: "escape", Fn: htmlEscape},
-		"unescape": &object.Function{Name: "unescape", Fn: htmlUnescape},
-	}}, nil
+	return object.NewModule("html", nil, object.Funcs{
+		"escape":   htmlEscape,
+		"unescape": htmlUnescape,
+	}), nil
 }
 
 func htmlEscape(args object.CallArgs) (object.Object, error) {

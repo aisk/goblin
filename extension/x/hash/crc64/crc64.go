@@ -9,12 +9,13 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "crc64", Members: map[string]object.Object{
-		"sum":  &object.Function{Name: "sum", Fn: crc64Sum},
-		"hex":  &object.Function{Name: "hex", Fn: crc64Hex},
+	return object.NewModule("crc64", map[string]object.Object{
 		"ECMA": object.String("ecma"),
 		"ISO":  object.String("iso"),
-	}}, nil
+	}, object.Funcs{
+		"sum": crc64Sum,
+		"hex": crc64Hex,
+	}), nil
 }
 
 func crc64Digest(fnName string, args object.CallArgs) ([]byte, error) {

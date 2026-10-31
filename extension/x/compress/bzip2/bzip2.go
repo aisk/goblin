@@ -10,9 +10,9 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "bzip2", Members: map[string]object.Object{
-		"decompress": &object.Function{Name: "decompress", Fn: bzip2Decompress},
-	}}, nil
+	return object.NewModule("bzip2", nil, object.Funcs{
+		"decompress": bzip2Decompress,
+	}), nil
 }
 
 func bzip2Decompress(args object.CallArgs) (object.Object, error) {

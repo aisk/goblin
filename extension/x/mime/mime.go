@@ -7,13 +7,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "mime",
-		Members: map[string]object.Object{
-			"type_by_extension":  &object.Function{Name: "type_by_extension", Fn: mimeTypeByExtension},
-			"extensions_by_type": &object.Function{Name: "extensions_by_type", Fn: mimeExtensionsByType},
-		},
-	}, nil
+	return object.NewModule("mime", nil, object.Funcs{
+		"type_by_extension":  mimeTypeByExtension,
+		"extensions_by_type": mimeExtensionsByType,
+	}), nil
 }
 
 func mimeTypeByExtension(args object.CallArgs) (object.Object, error) {

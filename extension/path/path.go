@@ -11,14 +11,12 @@ import (
 // module-level members are only the factories that have no receiving Path to
 // call an instance method on.
 func Execute() (object.Object, error) {
-	return &object.Module{
-		Name: "path",
-		Members: map[string]object.Object{
-			"Path": PathConstructorFn,
-			"cwd":  &object.Function{Name: "cwd", Fn: cwd},
-			"home": &object.Function{Name: "home", Fn: home},
-		},
-	}, nil
+	return object.NewModule("path", map[string]object.Object{
+		"Path": PathConstructorFn,
+	}, object.Funcs{
+		"cwd":  cwd,
+		"home": home,
+	}), nil
 }
 
 func cwd(args object.CallArgs) (object.Object, error) {

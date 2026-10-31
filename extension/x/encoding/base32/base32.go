@@ -7,10 +7,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "base32", Members: map[string]object.Object{
-		"encode": &object.Function{Name: "encode", Fn: base32Encode},
-		"decode": &object.Function{Name: "decode", Fn: base32Decode},
-	}}, nil
+	return object.NewModule("base32", nil, object.Funcs{
+		"encode": base32Encode,
+		"decode": base32Decode,
+	}), nil
 }
 
 // base32Encoding selects the alphabet (standard or extended hex) and padding

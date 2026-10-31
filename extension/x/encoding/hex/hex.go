@@ -7,11 +7,11 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "hex", Members: map[string]object.Object{
-		"encode": &object.Function{Name: "encode", Fn: hexEncode},
-		"decode": &object.Function{Name: "decode", Fn: hexDecode},
-		"dump":   &object.Function{Name: "dump", Fn: hexDump},
-	}}, nil
+	return object.NewModule("hex", nil, object.Funcs{
+		"encode": hexEncode,
+		"decode": hexDecode,
+		"dump":   hexDump,
+	}), nil
 }
 
 func hexBytes(name string, args object.CallArgs) ([]byte, error) {

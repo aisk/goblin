@@ -7,10 +7,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "base64", Members: map[string]object.Object{
-		"encode": &object.Function{Name: "encode", Fn: base64Encode},
-		"decode": &object.Function{Name: "decode", Fn: base64Decode},
-	}}, nil
+	return object.NewModule("base64", nil, object.Funcs{
+		"encode": base64Encode,
+		"decode": base64Decode,
+	}), nil
 }
 
 // base64Encoding selects among Go's encodings from the two independent

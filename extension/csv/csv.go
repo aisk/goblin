@@ -10,10 +10,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "csv", Members: map[string]object.Object{
-		"read_all":  &object.Function{Name: "read_all", Fn: csvReadAll},
-		"write_all": &object.Function{Name: "write_all", Fn: csvWriteAll},
-	}}, nil
+	return object.NewModule("csv", nil, object.Funcs{
+		"read_all":  csvReadAll,
+		"write_all": csvWriteAll,
+	}), nil
 }
 
 func csvRune(name, parameter string, value object.String) (rune, error) {

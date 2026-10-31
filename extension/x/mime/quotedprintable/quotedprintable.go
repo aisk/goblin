@@ -9,10 +9,10 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "quotedprintable", Members: map[string]object.Object{
-		"encode": &object.Function{Name: "encode", Fn: quotedPrintableEncode},
-		"decode": &object.Function{Name: "decode", Fn: quotedPrintableDecode},
-	}}, nil
+	return object.NewModule("quotedprintable", nil, object.Funcs{
+		"encode": quotedPrintableEncode,
+		"decode": quotedPrintableDecode,
+	}), nil
 }
 
 func quotedPrintableEncode(args object.CallArgs) (object.Object, error) {

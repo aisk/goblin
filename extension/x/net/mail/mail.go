@@ -9,11 +9,12 @@ import (
 var addressType = object.NewNativeConstructor("Address", addressConstructor)
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "mail", Members: map[string]object.Object{
-		"Address":            addressType.Function,
-		"parse_address":      &object.Function{Name: "parse_address", Fn: parseAddress},
-		"parse_address_list": &object.Function{Name: "parse_address_list", Fn: parseAddressList},
-	}}, nil
+	return object.NewModule("mail", map[string]object.Object{
+		"Address": addressType.Function,
+	}, object.Funcs{
+		"parse_address":      parseAddress,
+		"parse_address_list": parseAddressList,
+	}), nil
 }
 
 func addressConstructor(args object.CallArgs) (object.Object, error) {

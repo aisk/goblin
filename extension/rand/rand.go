@@ -22,15 +22,16 @@ func autoRandSeed() int64 {
 
 // Execute builds the rand module, modelled on Go's math/rand package.
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "rand", Members: map[string]object.Object{
-		"Rand":       randType.Function,
-		"int":        &object.Function{Name: "int", Fn: defaultRand.randomInt},
-		"float":      &object.Function{Name: "float", Fn: defaultRand.randomFloat},
-		"perm":       &object.Function{Name: "perm", Fn: defaultRand.randomPerm},
-		"shuffle":    &object.Function{Name: "shuffle", Fn: defaultRand.randomShuffle},
-		"norm_float": &object.Function{Name: "norm_float", Fn: defaultRand.randomNormFloat},
-		"exp_float":  &object.Function{Name: "exp_float", Fn: defaultRand.randomExpFloat},
-	}}, nil
+	return object.NewModule("rand", map[string]object.Object{
+		"Rand": randType.Function,
+	}, object.Funcs{
+		"int":        defaultRand.randomInt,
+		"float":      defaultRand.randomFloat,
+		"perm":       defaultRand.randomPerm,
+		"shuffle":    defaultRand.randomShuffle,
+		"norm_float": defaultRand.randomNormFloat,
+		"exp_float":  defaultRand.randomExpFloat,
+	}), nil
 }
 
 // Rand owns an isolated pseudo-random sequence. The lock makes its methods
@@ -158,12 +159,22 @@ func (r *Rand) GetAttr(name string) (object.Object, error) {
 	if name == "attributes" {
 		return object.AttributesFunction(r), nil
 	}
-	methods := map[string]func(object.CallArgs) (object.Object, error){
-		"int": r.randomInt, "float": r.randomFloat, "perm": r.randomPerm,
-		"shuffle": r.randomShuffle, "norm_float": r.randomNormFloat,
-		"exp_float": r.randomExpFloat,
+	var fn func(object.CallArgs) (object.Object, error)
+	switch name {
+	case "int":
+		fn = r.randomInt
+	case "float":
+		fn = r.randomFloat
+	case "perm":
+		fn = r.randomPerm
+	case "shuffle":
+		fn = r.randomShuffle
+	case "norm_float":
+		fn = r.randomNormFloat
+	case "exp_float":
+		fn = r.randomExpFloat
 	}
-	if fn, ok := methods[name]; ok {
+	if fn != nil {
 		return &object.Function{Name: name, Fn: fn}, nil
 	}
 	return nil, object.NewAttributeError("Rand has no attribute '%s'", name)

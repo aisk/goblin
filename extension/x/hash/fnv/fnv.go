@@ -9,16 +9,17 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "fnv", Members: map[string]object.Object{
-		"sum":      &object.Function{Name: "sum", Fn: fnvSum},
-		"hex":      &object.Function{Name: "hex", Fn: fnvHex},
+	return object.NewModule("fnv", map[string]object.Object{
 		"FNV_32":   object.String("32"),
 		"FNV_32A":  object.String("32a"),
 		"FNV_64":   object.String("64"),
 		"FNV_64A":  object.String("64a"),
 		"FNV_128":  object.String("128"),
 		"FNV_128A": object.String("128a"),
-	}}, nil
+	}, object.Funcs{
+		"sum": fnvSum,
+		"hex": fnvHex,
+	}), nil
 }
 
 func fnvDigest(fnName string, args object.CallArgs) ([]byte, error) {

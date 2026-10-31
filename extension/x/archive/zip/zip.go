@@ -11,12 +11,13 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return &object.Module{Name: "zip", Members: map[string]object.Object{
-		"read_all":  &object.Function{Name: "read_all", Fn: zipReadAll},
-		"write_all": &object.Function{Name: "write_all", Fn: zipWriteAll},
-		"STORE":     object.Integer(zip.Store),
-		"DEFLATE":   object.Integer(zip.Deflate),
-	}}, nil
+	return object.NewModule("zip", map[string]object.Object{
+		"STORE":   object.Integer(zip.Store),
+		"DEFLATE": object.Integer(zip.Deflate),
+	}, object.Funcs{
+		"read_all":  zipReadAll,
+		"write_all": zipWriteAll,
+	}), nil
 }
 
 func zipWriteAll(args object.CallArgs) (object.Object, error) {
