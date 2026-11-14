@@ -21,6 +21,23 @@ for character in language {
 }
 ~~~
 
+## Slicing
+
+`text[low:high]` returns the characters from position `low` up to, but
+excluding, `high`. Positions count characters, as size does, and either bound
+may be omitted.
+
+~~~goblin
+var text = "héllo, wörld"
+print(text[:5])  # héllo
+print(text[7:])  # wörld
+print(text[1:2]) # é
+~~~
+
+A one-character slice such as `text[i:i + 1]` takes the place of an index.
+Bounds must be integers with `0 <= low <= high <= size`; anything else raises
+IndexError, exactly as for a [list slice](./collections.md#slicing).
+
 ## Combining and converting text
 
 Use + to concatenate strings. A string can also concatenate an integer or

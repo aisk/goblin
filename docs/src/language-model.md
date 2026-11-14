@@ -12,8 +12,9 @@ before designing a larger program:
 | --- | --- |
 | Types | Dynamic; functions and fields have no annotations |
 | Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
-| Strings | Unicode-aware iteration and size; no `string[index]` syntax |
-| Lists | Direct indexes are non-negative; some methods such as pop() accept negative indexes |
+| Strings | Unicode-aware iteration, size, and `string[low:high]` slices; no `string[index]` syntax |
+| Lists | Direct indexes and slice bounds are non-negative; some methods such as pop() accept negative indexes |
+| Destructuring | `var a, b = value`, `a, b = value`, and `for a, b in values` split an iterable of exactly that many elements; there are no tuples or nested patterns |
 | Imports | Module scope only; local paths are relative to the importing file |
 | Concurrency | Goroutines, channels, and joinable Goblin handles; no select or cancellation |
 | Errors | Explicit raise and try/catch; spawned-function errors are not propagated |

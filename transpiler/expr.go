@@ -68,6 +68,36 @@ func (g *generator) transpileIndexExpression(expr *ast.IndexExpression, onError 
 	return preStmts, jen.Id(tmpVar), nil
 }
 
+// transpileSliceExpression renders `obj[low:high]` as a call to object.Slice,
+// which takes a nil bound for one the source omitted.
+func (g *generator) transpileSliceExpression(expr *ast.SliceExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	preStmts, obj, err := g.transpileExpression(expr.Object, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	bounds := make([]jen.Code, 0, 2)
+	for _, bound := range []ast.Expression{expr.Low, expr.High} {
+		if bound == nil {
+			bounds = append(bounds, jen.Nil())
+			continue
+		}
+		pre, code, err := g.transpileExpression(bound, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		preStmts = append(preStmts, pre...)
+		bounds = append(bounds, code)
+	}
+
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
+	preStmts = append(preStmts,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Slice").Call(obj, bounds[0], bounds[1]),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return preStmts, jen.Id(tmpVar), nil
+}
+
 // transpileIndexOperand renders the index of `obj[index]` or `obj[index] = v`.
 // An index that is statically an integer stays a native int64 and native
 // reports true, so the caller can reach for object.IndexInt / SetIndexInt and
@@ -184,6 +214,10 @@ func (g *generator) transpileExpression(expr ast.Expression, onError errHandler)
 		return g.transpileDictLiteral(v, onError)
 	case *ast.IndexExpression:
 		return g.transpileIndexExpression(v, onError)
+	case *ast.SliceExpression:
+		return g.transpileSliceExpression(v, onError)
+	case *ast.Unpacked:
+		return nil, jen.Id(g.unpacked).Index(jen.Lit(v.Index)), nil
 	case *ast.MemberExpression:
 		return g.transpileMemberExpression(v, onError)
 	case *ast.FunctionLiteral:

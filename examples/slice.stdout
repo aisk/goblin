@@ -1,0 +1,28 @@
+[20, 30]
+[10, 20]
+[40, 50]
+[10, 20, 30, 40, 50]
+[]
+[10, 20, 30, 40, 50]
+[99, 20, 100] [10, 20, 30, 40, 50]
+[20, 30]
+[30, 40]
+20
+[20, 30]
+héllo
+wörld
+é
+true
+BLIN
+b"go"
+b"blin"
+[2, 3]
+bc
+true false List slice bounds out of range: [2:9] with size 5
+true false List slice bounds out of range: [3:1] with size 5
+true false List slice bounds out of range: [-1:5] with size 5
+true false String slice bounds out of range: [0:99] with size 12
+false true List slice bound must be Integer, got String
+false true List slice bound must be Integer, got Float
+false true Dict cannot be sliced
+false true Integer cannot be sliced

@@ -78,6 +78,16 @@ type SetAttr struct {
 	Value    Expression
 }
 
+// Destructure is `var a, b = Value` or `a, b = Value`. Value is iterated once
+// and must yield exactly len(Stores) elements. Stores holds one statement per
+// target, in source order: a Declare, Assign, SetIndex or SetAttr whose Value
+// is the *Unpacked naming the element it receives.
+type Destructure struct {
+	statementMixin
+	Value  Expression
+	Stores []Statement
+}
+
 // IfElse is an if statement. An `else if` chain nests: ElseBody then holds
 // a single *IfElse.
 type IfElse struct {
@@ -92,6 +102,12 @@ type While struct {
 	Condition Expression
 	Body      []Statement
 }
+
+// DestructuredItem is the loop variable of `for a, b in items`: the parser
+// binds each element to this name and starts the body with the Destructure
+// that splits it. The name has the shape reserved for generated identifiers,
+// so no user variable can collide with it.
+const DestructuredItem = "_unpack_0"
 
 // For is `for Variable in Iterator { Body }`.
 type For struct {
@@ -347,6 +363,21 @@ type IndexExpression struct {
 	expressionMixin
 	Object Expression
 	Index  Expression
+}
+
+// SliceExpression is `Object[Low:High]`. An omitted bound is nil.
+type SliceExpression struct {
+	expressionMixin
+	Object Expression
+	Low    Expression
+	High   Expression
+}
+
+// Unpacked is the Index-th element of the value the enclosing Destructure
+// unpacked. It appears only as the Value of that statement's Stores.
+type Unpacked struct {
+	expressionMixin
+	Index int
 }
 
 type MemberExpression struct {

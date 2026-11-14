@@ -28,6 +28,9 @@ rejected with `expression value is not used`, since a value that is computed
 and dropped is almost always a mistake. The REPL is the exception: there a bare
 expression such as `1 + 2` is evaluated and displayed.
 
+A slice is not among them: like `a + b`, `values[1:3]` on its own only
+computes a value.
+
 Because a newline ends a statement, a line can only continue the previous one
 in places where the expression is visibly unfinished: after a binary operator,
 a comma, a dictionary colon, or inside an open `(`, `[`, or `{` of a literal.
@@ -49,6 +52,9 @@ var files = {
 print(files["a.txt"],
       files["b.txt"])
 ~~~
+
+Inside the brackets of a slice, a newline may follow `[` or precede `]`, but
+not follow the colon.
 
 The same rule means `else` must follow the closing brace of its `if` on the
 same line, and two statements cannot share a line.

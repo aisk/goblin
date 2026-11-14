@@ -26,6 +26,27 @@ var combined = first + [3, 4]
 print(combined) # [1, 2, 3, 4]
 ~~~
 
+### Slicing
+
+`list[low:high]` makes a new list of the elements from index `low` up to, but
+excluding, `high`. Either bound may be left out: `low` defaults to the start
+and `high` to the end.
+
+~~~goblin
+var numbers = [10, 20, 30, 40, 50]
+print(numbers[1:3]) # [20, 30]
+print(numbers[:2])  # [10, 20]
+print(numbers[3:])  # [40, 50]
+print(numbers[:])   # a copy of the whole list
+~~~
+
+A slice is a copy, so changing it never changes the list it came from. Bounds
+follow the rules of a direct index: they must be integers with
+`0 <= low <= high <= size`. A bound outside that range raises IndexError; it is
+neither clamped nor counted from the end, so write `numbers[:numbers.size - 1]`
+to drop the last element. Strings and Bytes are sliced the same way. A slice
+cannot be assigned to.
+
 ### List method guide
 
 | Method | Purpose |
@@ -127,13 +148,14 @@ TypeError.
 
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
 missing value is expected. Dictionary iteration yields keys; items() yields
-two-element [key, value] lists. Dictionary iteration order is unspecified.
+two-element [key, value] lists, which a loop can destructure. Dictionary
+iteration order is unspecified.
 
 ~~~goblin
 var settings = {}
 settings.set_default("theme", "dark")
-for pair in settings.items() {
-    print(pair[0], pair[1])
+for key, value in settings.items() {
+    print(key, value)
 }
 ~~~
 

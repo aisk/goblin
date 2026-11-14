@@ -128,6 +128,27 @@ func TestSessionStatementsPersistAndReturnNil(t *testing.T) {
 	}
 }
 
+// Destructuring at the prompt binds session variables like `var` does, and a
+// slice of one is a bare expression.
+func TestSessionDestructureAndSlice(t *testing.T) {
+	s := NewSession(".")
+	if v, err := s.Eval("var a, b = [1, 2]"); err != nil || v != nil {
+		t.Fatalf("declare: got (%v, %v), want (<nil>, nil)", v, err)
+	}
+	if _, err := s.Eval("a, b = [b, a]"); err != nil {
+		t.Fatalf("swap: %v", err)
+	}
+	if got := evalString(t, s, "[a, b, 3][1:]"); got != "[1, 3]" {
+		t.Errorf("[a, b, 3][1:] = %q, want [1, 3]", got)
+	}
+	if _, err := s.Eval("for k, v in [[a, b]] { a = k + v }"); err != nil {
+		t.Fatalf("loop: %v", err)
+	}
+	if got := evalString(t, s, "a"); got != "3" {
+		t.Errorf("a = %q, want 3", got)
+	}
+}
+
 // A call that parses as a statement (identifier-led) goes through the normal
 // path and still yields its return value. print()/eprint() return the nil
 // object, which the REPL suppresses from display.

@@ -199,6 +199,32 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 		g.topDecls = append(g.topDecls,
 			jen.Var().Id(name).Qual(pathObject, "Object").Op("=").Qual(pathObject, "Nil"))
 	}
+	// moduleDeclare splits `var x = expr` into a package-level declaration
+	// and an in-place assignment so functions may reference the variable
+	// regardless of where their definition appears in the source. A
+	// specialised variable is declared with its native type; it can never be
+	// captured by a closure, since being named inside a nested scope is
+	// exactly what disqualifies it from specialisation.
+	moduleDeclare := func(v *ast.Declare) ([]jen.Code, error) {
+		if t := g.typeOf(v.Name); t.native() {
+			g.topDecls = append(g.topDecls, jen.Var().Id(v.Name).Id(goTypeOf(t)))
+
+			pre, value, err := g.emitNative(v.Value, onError)
+			if err != nil {
+				return nil, err
+			}
+			g.declareUserName(v.Name)
+			return append(pre, jen.Id(v.Name).Op("=").Add(value)), nil
+		}
+
+		declare(v.Name)
+		preStmts, value, err := g.transpileExpression(v.Value, onError)
+		if err != nil {
+			return nil, err
+		}
+		g.declareUserName(v.Name)
+		return append(preStmts, jen.Id(v.Name).Op("=").Add(value)), nil
+	}
 	savedPos := g.errorPos
 	defer func() { g.errorPos = savedPos }()
 	for _, stmt := range stmts {
@@ -236,33 +262,24 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 			}
 			funcAssigns = append(funcAssigns, codes...)
 		case *ast.Declare:
-			// Split `var x = expr` into a package-level declaration and an
-			// in-place assignment so functions may reference the variable
-			// regardless of where their definition appears in the source.
-			// A specialised variable is declared with its native type; it can
-			// never be captured by a closure, since being named inside a nested
-			// scope is exactly what disqualifies it from specialisation.
-			if t := g.typeOf(v.Name); t.native() {
-				g.topDecls = append(g.topDecls, jen.Var().Id(v.Name).Id(goTypeOf(t)))
-
-				pre, value, err := g.emitNative(v.Value, onError)
-				if err != nil {
-					return nil, err
-				}
-				g.declareUserName(v.Name)
-				body = append(body, pre...)
-				body = append(body, jen.Id(v.Name).Op("=").Add(value))
-				continue
-			}
-
-			declare(v.Name)
-			preStmts, value, err := g.transpileExpression(v.Value, onError)
+			codes, err := moduleDeclare(v)
 			if err != nil {
 				return nil, err
 			}
-			g.declareUserName(v.Name)
-			body = append(body, preStmts...)
-			body = append(body, jen.Id(v.Name).Op("=").Add(value))
+			body = append(body, codes...)
+		case *ast.Destructure:
+			// The names `var a, b = value` declares are module variables
+			// like any other.
+			codes, err := g.transpileDestructure(v, onError, func(store ast.Statement) ([]jen.Code, error) {
+				if decl, ok := store.(*ast.Declare); ok {
+					return moduleDeclare(decl)
+				}
+				return g.transpileStatement(store, onError)
+			})
+			if err != nil {
+				return nil, err
+			}
+			body = append(body, codes...)
 		default:
 			codes, err := g.transpileStatement(stmt, onError)
 			if err != nil {

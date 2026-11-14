@@ -16,6 +16,42 @@ score = score + 5
 print(score) # 15
 ```
 
+## Destructuring
+
+A `var` or an assignment can take several targets at once. The value on the
+right is iterated, and each element goes to the target in the same position:
+
+```goblin
+var width, height = [640, 480]
+print(width, height) # 640 480
+
+width, height = [height, width]
+print(width, height) # 480 640
+```
+
+The right side is evaluated in full before anything is stored, which is why
+the swap above needs no temporary. An assignment target may be anything a
+plain assignment accepts, so `point.x, items[0] = pair` works too. Any
+iterable can be destructured, though a list is the usual choice. The number
+of elements must equal the number of targets; otherwise the statement raises
+ValueError and stores nothing.
+
+A function returns several results the same way, as one list the caller takes
+apart:
+
+```goblin
+func divmod(a, b) {
+    return [a / b, a % b]
+}
+
+var quotient, remainder = divmod(17, 5)
+```
+
+A `for` loop destructures each element with the same syntax; see
+[Control flow](./control-flow.md).
+
+## Printing and comments
+
 `print` separates multiple arguments with spaces and ends the line; it writes
 to stdout. Use `eprint` for the same formatting on stderr. A comment starts
 with `#` and runs to the end of its line.

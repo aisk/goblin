@@ -278,6 +278,13 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
 		}
 		return nil
+	case *ast.Destructure:
+		if err := c.checkExpression(v.Value); err != nil {
+			return err
+		}
+		// Each store is an ordinary declaration or assignment of one
+		// unpacked element.
+		return c.checkStatements(v.Stores, isModuleScope)
 	case *ast.Assign:
 		sym, ok := c.currentScope.resolve(v.Target)
 		if !ok {
@@ -341,8 +348,11 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			c.loopDepth++
 			defer func() { c.loopDepth-- }()
 
-			if err := c.checkReservedName(v.Position(), v.Variable); err != nil {
-				return err
+			// A destructuring loop binds the parser's own hidden variable.
+			if v.Variable != ast.DestructuredItem {
+				if err := c.checkReservedName(v.Position(), v.Variable); err != nil {
+					return err
+				}
 			}
 			if !c.currentScope.declare(v.Variable) {
 				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Variable)
@@ -710,6 +720,19 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 			return err
 		}
 		return c.checkExpression(v.Index)
+	case *ast.SliceExpression:
+		if err := c.checkExpression(v.Object); err != nil {
+			return err
+		}
+		for _, bound := range []ast.Expression{v.Low, v.High} {
+			if bound == nil {
+				continue
+			}
+			if err := c.checkExpression(bound); err != nil {
+				return err
+			}
+		}
+		return nil
 	case *ast.MemberExpression:
 		return c.checkExpression(v.Object)
 	default:

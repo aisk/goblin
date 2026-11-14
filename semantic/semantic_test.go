@@ -23,6 +23,57 @@ func TestCheckModule(t *testing.T) {
 			errContains: "undefined identifier: x",
 		},
 		{
+			name:    "destructuring declares every name",
+			source:  "var a, b = [1, 2]\nprint(a, b)\n",
+			wantErr: false,
+		},
+		{
+			name:        "destructuring declares a name once",
+			source:      "var a, a = [1, 2]\n",
+			wantErr:     true,
+			errContains: "duplicate declaration in same scope: a",
+		},
+		{
+			name:        "destructuring assignment needs declared targets",
+			source:      "var a = 1\na, b = [1, 2]\n",
+			wantErr:     true,
+			errContains: "assignment to undefined identifier: b",
+		},
+		{
+			name:    "destructuring assignment to index and member targets",
+			source:  "var l = [0]\nvar d = {}\nl[0], d.x = [1, 2]\n",
+			wantErr: false,
+		},
+		{
+			name:    "destructuring loop variables are visible in the body",
+			source:  "for k, v in [[1, 2]] {\n\tprint(k, v)\n}\n",
+			wantErr: false,
+		},
+		{
+			name:        "destructuring loop variables do not escape the loop",
+			source:      "for k, v in [[1, 2]] {\n\tprint(k)\n}\nprint(v)\n",
+			wantErr:     true,
+			errContains: "undefined identifier: v",
+		},
+		{
+			name:        "destructured value is checked",
+			source:      "var a, b = missing\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
+			name:        "slice bounds are checked",
+			source:      "var l = [1]\nprint(l[missing:])\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
+			name:        "a slice alone computes an unused value",
+			source:      "var l = [1]\nl[0:1]\n",
+			wantErr:     true,
+			errContains: "expression value is not used",
+		},
+		{
 			name:        "unused expression value",
 			source:      "var a = 10\n- 2\nprint(a)\n",
 			wantErr:     true,

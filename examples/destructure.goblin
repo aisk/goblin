@@ -1,0 +1,101 @@
+# Declaring several names from one value.
+var first, second = [1, 2]
+print(first, second)
+
+func divmod(a, b) {
+    return [a / b, a % b]
+}
+var quotient, remainder = divmod(17, 5)
+print(quotient, remainder)
+
+# Any iterable works.
+var a, b, c = "xyz"
+print(a, b, c)
+
+# Assigning to existing targets; the right side is evaluated first, so a
+# swap needs no temporary.
+first, second = [second, first]
+print(first, second)
+
+type Point(x, y) {}
+var point = Point(0, 0)
+var items = [0, 0]
+var settings = {}
+point.x, items[1], settings["mode"] = [3, 4, "fast"]
+print(point.x, items, settings["mode"])
+
+# Loops destructure each element.
+var scores = {"ada": 10}
+for name, score in scores.items() {
+    print(name, score)
+}
+
+var total = 0
+for x, y, z in [[1, 2, 3], [4, 5, 6]] {
+    total = total + x * y * z
+}
+print(total)
+
+# Each iteration binds fresh names, so closures keep their own.
+var getters = []
+for key, value in [["a", 1], ["b", 2]] {
+    getters.push(func() { return key + Str(value) })
+}
+print(getters[0](), getters[1]())
+
+# Inside functions, with nested loops and numeric locals.
+func sum_pairs(pairs) {
+    var sum = 0
+    for left, right in pairs {
+        var lo, hi = [left, right]
+        if lo > hi {
+            lo, hi = [hi, lo]
+        }
+        for i in range(lo, hi) {
+            sum = sum + i
+        }
+    }
+    return sum
+}
+print(sum_pairs([[0, 3], [5, 2]]))
+
+func counter() {
+    var count, step = [0, 2]
+    return func() {
+        count = count + step
+        return count
+    }
+}
+var next = counter()
+next()
+print(next())
+
+# The number of elements must match the number of targets.
+func attempt(action) {
+    try {
+        action()
+    } catch err {
+        print(err.is(ValueError), err.is(TypeError), err.message)
+    }
+}
+attempt(func() { var p, q = [1, 2, 3] })
+attempt(func() { var p, q = [1] })
+attempt(func() { var p, q = 5 })
+attempt(func() {
+    for p, q in [[1, 2], [3]] {
+        print(p, q)
+    }
+})
+attempt(func() {
+    for p, q in range(0, 2) {
+        print(p, q)
+    }
+})
+
+# A failed unpack assigns nothing.
+var kept, also_kept = [1, 2]
+try {
+    kept, also_kept = [7, 8, 9]
+} catch err {
+    print(kept, also_kept)
+}

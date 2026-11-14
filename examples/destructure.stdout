@@ -1,0 +1,17 @@
+1 2
+3 2
+x y z
+2 1
+3 [0, 4] fast
+ada 10
+126
+a1 b2
+12
+4
+true false cannot unpack 3 values into 2 targets
+true false cannot unpack 1 values into 2 targets
+false true Integer is not iterable
+1 2
+true false cannot unpack 1 values into 2 targets
+false true Integer is not iterable
+1 2

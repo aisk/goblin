@@ -53,6 +53,9 @@ type compiler struct {
 	// parameter or field default), so its call sites must not use that
 	// frame's argument scratch space.
 	noTemps bool
+	// unpacked is the slot holding the elements of the destructuring
+	// statement whose stores are being compiled.
+	unpacked int
 
 	funcs  map[*ast.FunctionDefine]*funcProto
 	types  map[*ast.TypeDefine]*typeProto
@@ -276,7 +279,7 @@ func needsFrame(stmts []ast.Statement, declares bool) bool {
 	if !declares {
 		for _, s := range stmts {
 			switch s.(type) {
-			case *ast.Declare, *ast.FunctionDefine:
+			case *ast.Declare, *ast.FunctionDefine, *ast.Destructure:
 				declares = true
 			}
 		}
@@ -302,6 +305,9 @@ func (c *compiler) statement(stmt ast.Statement) stmtFn {
 	case *ast.Assign:
 		value := c.expr(s.Value)
 		return c.lookup(s.Target).store(value)
+
+	case *ast.Destructure:
+		return c.destructure(s)
 
 	case *ast.SetIndex:
 		objFn, idxFn, valFn := c.expr(s.Object), c.expr(s.Index), c.expr(s.Value)
@@ -532,6 +538,40 @@ func (c *compiler) forLoop(s *ast.For) stmtFn {
 	}
 }
 
+// destructure compiles `var a, b = value` and `a, b = value`. The unpacked
+// elements are parked in an unnamed slot of the current frame, where the
+// stores, compiled as the ordinary statements they are, read them through
+// their *ast.Unpacked values.
+func (c *compiler) destructure(s *ast.Destructure) stmtFn {
+	value := c.expr(s.Value)
+	idx := c.scope.fs.slot()
+	prev := c.unpacked
+	c.unpacked = idx
+	stores := make([]stmtFn, len(s.Stores))
+	for i, store := range s.Stores {
+		stores[i] = c.statement(store)
+	}
+	c.unpacked = prev
+	return func(f *frame) (ctrl, object.Object, error) {
+		v, err := value(f)
+		if err != nil {
+			return ctrlNone, nil, err
+		}
+		items, err := object.Unpack(v, len(stores))
+		if err != nil {
+			return ctrlNone, nil, err
+		}
+		f.slots[idx] = &object.List{Elements: items}
+		for _, store := range stores {
+			if _, _, err := store(f); err != nil {
+				return ctrlNone, nil, err
+			}
+		}
+		f.slots[idx] = nil
+		return ctrlNone, nil, nil
+	}
+}
+
 func (c *compiler) tryCatch(s *ast.TryCatch) stmtFn {
 	tryBody := c.block(s.TryBody)
 	// The catch variable and the catch body share one scope.
@@ -629,6 +669,39 @@ func (c *compiler) expr(expr ast.Expression) exprFn {
 				return nil, err
 			}
 			return obj.Index(idx)
+		}
+
+	case *ast.SliceExpression:
+		objFn := c.expr(e.Object)
+		// An omitted bound stays nil, which object.Slice takes as "from the
+		// start" or "to the end".
+		bound := func(e ast.Expression) exprFn {
+			if e == nil {
+				return func(*frame) (object.Object, error) { return nil, nil }
+			}
+			return c.expr(e)
+		}
+		lowFn, highFn := bound(e.Low), bound(e.High)
+		return func(f *frame) (object.Object, error) {
+			obj, err := objFn(f)
+			if err != nil {
+				return nil, err
+			}
+			low, err := lowFn(f)
+			if err != nil {
+				return nil, err
+			}
+			high, err := highFn(f)
+			if err != nil {
+				return nil, err
+			}
+			return object.Slice(obj, low, high)
+		}
+
+	case *ast.Unpacked:
+		idx, i := c.unpacked, e.Index
+		return func(f *frame) (object.Object, error) {
+			return f.slots[idx].(*object.List).Elements[i], nil
 		}
 
 	case *ast.MemberExpression:

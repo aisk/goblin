@@ -56,6 +56,12 @@ func (g *generator) collectDirectFns(stmts []ast.Statement) (fns, ctors map[stri
 			bindings[v.Name]++
 		case *ast.Declare:
 			bindings[v.Name] += 2
+		case *ast.Destructure:
+			for _, store := range v.Stores {
+				if decl, ok := store.(*ast.Declare); ok {
+					bindings[decl.Name] += 2
+				}
+			}
 		case *ast.TypeDefine, *ast.TraitDefine:
 			bindings[statementName(v)] += 2
 		case *ast.Import:

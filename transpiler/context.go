@@ -53,6 +53,10 @@ type generator struct {
 
 	body bodyState
 
+	// unpacked is the Go variable holding the elements of the destructuring
+	// statement whose stores are being transpiled.
+	unpacked string
+
 	// userScopes tracks user-declared names per lexical scope so they shadow
 	// built-in functions the same way the interpreter's scope chain does.
 	userScopes []map[string]struct{}

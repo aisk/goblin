@@ -49,6 +49,34 @@ func (g *generator) transpileAssign(decl *ast.Assign, onError errHandler) ([]jen
 	return append(preStmts, assignStmt), nil
 }
 
+// transpileDestructure lowers `var a, b = value` and `a, b = value`: the
+// value is unpacked into a Go slice once, and each store then transpiles as
+// the ordinary statement it is, reading its element through *ast.Unpacked.
+// store transpiles one of them.
+func (g *generator) transpileDestructure(d *ast.Destructure, onError errHandler, store func(ast.Statement) ([]jen.Code, error)) ([]jen.Code, error) {
+	pre, value, err := g.transpileExpression(d.Value, onError)
+	if err != nil {
+		return nil, err
+	}
+	itemsVar := g.localName("items")
+	errVar := g.localName("err")
+	codes := append(pre,
+		jen.List(jen.Id(itemsVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Unpack").Call(value, jen.Lit(len(d.Stores))),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	saved := g.unpacked
+	g.unpacked = itemsVar
+	defer func() { g.unpacked = saved }()
+	for _, s := range d.Stores {
+		stored, err := store(s)
+		if err != nil {
+			return nil, err
+		}
+		codes = append(codes, stored...)
+	}
+	return codes, nil
+}
+
 func (g *generator) transpileSetIndex(s *ast.SetIndex, onError errHandler) ([]jen.Code, error) {
 	objPre, obj, err := g.transpileExpression(s.Object, onError)
 	if err != nil {
@@ -379,6 +407,10 @@ func (g *generator) transpileStatement(stmt ast.Statement, onError errHandler) (
 		codes, err = g.transpileDeclare(v, onError)
 	case *ast.Assign:
 		codes, err = g.transpileAssign(v, onError)
+	case *ast.Destructure:
+		codes, err = g.transpileDestructure(v, onError, func(store ast.Statement) ([]jen.Code, error) {
+			return g.transpileStatement(store, onError)
+		})
 	case *ast.SetIndex:
 		codes, err = g.transpileSetIndex(v, onError)
 	case *ast.SetAttr:

@@ -31,6 +31,9 @@ func Inspect(node Statement, f func(Statement) bool) {
 	case *SetAttr:
 		Inspect(n.Object, f)
 		Inspect(n.Value, f)
+	case *Destructure:
+		Inspect(n.Value, f)
+		InspectList(n.Stores, f)
 	case *IfElse:
 		Inspect(n.Condition, f)
 		InspectList(n.IfBody, f)
@@ -73,6 +76,10 @@ func Inspect(node Statement, f func(Statement) bool) {
 	case *IndexExpression:
 		Inspect(n.Object, f)
 		Inspect(n.Index, f)
+	case *SliceExpression:
+		Inspect(n.Object, f)
+		Inspect(n.Low, f)
+		Inspect(n.High, f)
 	case *MemberExpression:
 		Inspect(n.Object, f)
 	case *ListLiteral:
@@ -142,7 +149,7 @@ func OpensScope(n Statement) bool {
 
 // WalkStatements calls f for every statement of one function body: the
 // statements of stmts and, recursively, of the blocks of if, while, for and
-// try statements. It does not look inside expressions and never enters the
+// try statements and the stores of a destructuring statement. It does not look inside expressions and never enters the
 // body of a nested function, type or trait, which are scopes of their own.
 func WalkStatements(stmts []Statement, f func(Statement)) {
 	for _, stmt := range stmts {
@@ -151,6 +158,8 @@ func WalkStatements(stmts []Statement, f func(Statement)) {
 		}
 		f(stmt)
 		switch s := stmt.(type) {
+		case *Destructure:
+			WalkStatements(s.Stores, f)
 		case *IfElse:
 			WalkStatements(s.IfBody, f)
 			WalkStatements(s.ElseBody, f)

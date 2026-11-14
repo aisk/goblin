@@ -88,3 +88,17 @@ for character in "go" {
 
 Dictionary order is unspecified. If output order matters, do not build it by
 iterating a dictionary directly.
+
+When every element is itself a small sequence, name its parts in the loop
+header. Each element is destructured as `var a, b = element` would be, so an
+element with a different number of parts raises ValueError:
+
+```goblin
+for name, score in scores.items() {
+    print(name, score)
+}
+
+for x, y in [[0, 1], [2, 3]] {
+    print(x + y)
+}
+```

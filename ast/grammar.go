@@ -127,6 +127,40 @@ func NewSetAssign(target, value any) (any, error) {
 	return nil, fmt.Errorf("cannot assign to this expression")
 }
 
+// NewDestructureDeclare builds `var first, rest... = value`.
+func NewDestructureDeclare(first, rest, value any) (any, error) {
+	names := append([]*token.Token{tokenOf(first)}, listOf[*token.Token](rest)...)
+	d := &Destructure{statementMixin: stmtAt(names[0].Pos), Value: value.(Expression)}
+	for i, name := range names {
+		d.Stores = append(d.Stores, &Declare{
+			statementMixin: stmtAt(name.Pos),
+			Name:           string(name.Lit),
+			Value:          &Unpacked{expressionMixin: exprAt(name.Pos), Index: i},
+		})
+	}
+	return d, nil
+}
+
+// NewDestructureAssign builds `first, rest... = value`. Each target may be
+// anything a plain assignment accepts.
+func NewDestructureAssign(first, rest, value any) (any, error) {
+	targets := append([]Expression{first.(Expression)}, listOf[Expression](rest)...)
+	d := &Destructure{statementMixin: stmtAt(targets[0].Position()), Value: value.(Expression)}
+	for i, target := range targets {
+		store, err := NewSetAssign(target, &Unpacked{expressionMixin: exprAt(target.Position()), Index: i})
+		if err != nil {
+			return nil, err
+		}
+		d.Stores = append(d.Stores, store.(Statement))
+	}
+	return d, nil
+}
+
+func NewNameList(x any) (any, error) { return []*token.Token{tokenOf(x)}, nil }
+func AppendNameList(l, x any) (any, error) {
+	return append(l.([]*token.Token), tokenOf(x)), nil
+}
+
 // NewIf builds an if statement. elseBody is a statement list, a nested
 // *IfElse for `else if`, or nil.
 func NewIf(cond, body, elseBody any) (any, error) {
@@ -153,6 +187,24 @@ func NewFor(variable, iterator, body any) (any, error) {
 		Variable:       lit(variable),
 		Iterator:       iterator.(Expression),
 		Body:           statements(body),
+	}, nil
+}
+
+// NewDestructureFor builds `for first, rest... in iterator { body }`. The
+// loop binds each element to the hidden DestructuredItem variable, and the
+// body starts with the statement that destructures it into the names, so
+// the backends see an ordinary loop.
+func NewDestructureFor(first, rest, iterator, body any) (any, error) {
+	pos := tokenOf(first).Pos
+	unpack, err := NewDestructureDeclare(first, rest, &Identifier{expressionMixin: exprAt(pos), Name: DestructuredItem})
+	if err != nil {
+		return nil, err
+	}
+	return &For{
+		statementMixin: stmtAt(pos),
+		Variable:       DestructuredItem,
+		Iterator:       iterator.(Expression),
+		Body:           append([]Statement{unpack.(Statement)}, statements(body)...),
 	}, nil
 }
 
@@ -415,6 +467,26 @@ func NewUnaryOperation(operator, operand any) (any, error) {
 func NewIndexExpression(obj, idx any) (any, error) {
 	o := obj.(Expression)
 	return &IndexExpression{expressionMixin: exprAt(o.Position()), Object: o, Index: idx.(Expression)}, nil
+}
+
+// sliceBounds carries the two optional bounds of a slice from its own
+// production to NewSliceExpression.
+type sliceBounds struct{ low, high Expression }
+
+func NewSliceBounds(low, high any) (any, error) {
+	b := &sliceBounds{}
+	if low != nil {
+		b.low = low.(Expression)
+	}
+	if high != nil {
+		b.high = high.(Expression)
+	}
+	return b, nil
+}
+
+func NewSliceExpression(obj, bounds any) (any, error) {
+	o, b := obj.(Expression), bounds.(*sliceBounds)
+	return &SliceExpression{expressionMixin: exprAt(o.Position()), Object: o, Low: b.low, High: b.high}, nil
 }
 
 func NewMemberExpression(obj, prop any) (any, error) {
