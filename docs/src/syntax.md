@@ -15,8 +15,10 @@ var names = ["Ada", "Linus"]
 var user = {"name": "Ada", "active": true}
 ~~~
 
-List, dictionary, call, parameter, and field lists do not accept a trailing
-comma. Dictionary keys and values are expressions, but keys should be stable
+List, dictionary, call, parameter, and field lists accept a trailing comma
+after the last item, so every line of a multi-line list can end the same way.
+A comma with no item before it, as in `[,]` or `f(,)`, is a syntax error.
+Dictionary keys and values are expressions, but keys should be stable
 values such as strings, integers, or booleans.
 
 ## Statements and line breaks
@@ -47,7 +49,7 @@ var discounted = (
 )
 var files = {
     "a.txt": "first",
-    "b.txt": "second"
+    "b.txt": "second",
 }
 print(files["a.txt"],
       files["b.txt"])

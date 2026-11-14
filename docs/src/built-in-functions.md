@@ -6,7 +6,7 @@ These names are available without an import.
 | --- | --- |
 | `print(values...)` | Write values to stdout, separated by spaces, ending with a newline |
 | `eprint(values...)` | Same as `print`, but write to stderr |
-| `range(start, end)` | Create integer values from start through end-exclusive |
+| `range(end)` / `range(start, end)` | Create integer values from start (zero when omitted) through end-exclusive |
 | `min(values...)` / `max(values...)` | Choose the smallest or largest value |
 | `Int(value)` / `Float(value)` / `Str(value)` / `Bool(value)` | Convert a value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
@@ -16,8 +16,8 @@ These names are available without an import.
 | `Goblin(function, args...)` | Run a function concurrently, returning a joinable handle |
 | `Error(message)` | Create an error value |
 
-`print` and `eprint` return `nil`. `range` needs both `start` and `end`; it
-has no one-argument form. `min` and `max` require at least one
+`print` and `eprint` return `nil`. `range(n)` is short for `range(0, n)`;
+with keywords, `start` is optional and `end` is required. `min` and `max` require at least one
 argument and order their arguments the way `<` does, so they work on strings
 and on user types that implement `Ord`. Constructors that use an
 argument parser, including `range`, numeric conversions, and `Dict`, accept

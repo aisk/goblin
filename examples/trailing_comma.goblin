@@ -1,0 +1,56 @@
+# A comma may follow the last item of a list, dict, argument list,
+# parameter list or type field list.
+
+var numbers = [
+    1,
+    2,
+    3,
+]
+print(numbers)
+print([1, 2,])
+
+var ages = {
+    "amy": 30,
+    "bob": 25,
+}
+print(ages["amy"], ages["bob"])
+print({"k": 1,})
+
+func add(
+    a,
+    b = 10,
+) {
+    return a + b
+}
+
+print(add(
+    1,
+    2,
+))
+print(add(1,))
+print(add(1, b=5,))
+
+func total(*items,) {
+    var sum = 0
+    for item in items {
+        sum = sum + item
+    }
+    return sum
+}
+print(total(*numbers,))
+
+type Point(
+    x,
+    y = 0,
+) {
+    func sum(self,) {
+        return self.x + self.y
+    }
+}
+print(Point(3, 4,).sum())
+print(Point(x=3,).sum())
+
+var double = func(n,) {
+    return n * 2
+}
+print(double(21,))

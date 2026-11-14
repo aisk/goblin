@@ -65,13 +65,18 @@ for name in ["Ada", "Linus"] {
     print(name)
 }
 
-for i in range(0, 3) {
+for i in range(3) {
     print(i) # 0, 1, 2
+}
+
+for i in range(1, 4) {
+    print(i) # 1, 2, 3
 }
 ```
 
-`range(start, end)` creates integers from `start` up to, but excluding, `end`.
-It also accepts named arguments, such as `range(start=0, end=3)`.
+`range(end)` creates the integers from zero up to, but excluding, `end`, and
+`range(start, end)` those from `start`. It also accepts named arguments, such
+as `range(start=0, end=3)`.
 
 Strings iterate by character, lists by element, and dictionaries by key:
 

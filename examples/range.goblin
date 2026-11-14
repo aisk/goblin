@@ -1,0 +1,55 @@
+# range(end) counts from zero; range(start, end) from start.
+print(range(3))
+print(range(0))
+print(range(-2))
+print(range(2, 5))
+print(range(end=3))
+print(range(start=1, end=3))
+
+for i in range(3) {
+    print(i)
+}
+
+# The bound is evaluated once and need not be a literal.
+func squares(n) {
+    var out = []
+    for i in range(n) {
+        out.push(i * i)
+    }
+    return out
+}
+print(squares(4))
+
+var items = ["a", "b", "c"]
+for i in range(items.size) {
+    print(i, items[i])
+}
+
+# Assigning the loop variable does not disturb the iteration.
+for i in range(2) {
+    i = i + 10
+    print(i)
+}
+
+func show(thunk) {
+    try {
+        print(thunk())
+    } catch err {
+        print(err)
+    }
+}
+show(func() { return range("3") })
+show(func() { return range() })
+show(func() { return range(start=1) })
+show(func() { return range(1, 2, 3) })
+show(func() {
+    for i in range("3") {
+        print(i)
+    }
+})
+var dyn = [2.5]
+show(func() {
+    for i in range(dyn[0]) {
+        print(i)
+    }
+})

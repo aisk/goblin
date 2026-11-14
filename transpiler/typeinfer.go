@@ -185,17 +185,21 @@ func collectDeclarations(stmts []ast.Statement, types map[string]staticType, ran
 	})
 }
 
-// rangeCallParts reports whether expr is a call of the form range(a, b) —
-// exactly two plain positional arguments — and returns the bound expressions.
+// rangeCallParts reports whether expr is a call of the form range(a, b) or
+// range(b) — one or two plain positional arguments — and returns the bound
+// expressions. start is nil for the one-argument form, which starts at zero.
 func rangeCallParts(expr ast.Expression) (start, end ast.Expression, ok bool) {
 	name, args, isCall := plainCall(expr)
-	if !isCall || name != "range" || len(args) != 2 {
+	if !isCall || name != "range" || len(args) < 1 || len(args) > 2 {
 		return nil, nil, false
 	}
 	for _, arg := range args {
 		if arg.Kind != ast.CallArgumentPositional {
 			return nil, nil, false
 		}
+	}
+	if len(args) == 1 {
+		return nil, args[0].Expr, true
 	}
 	return args[0].Expr, args[1].Expr, true
 }

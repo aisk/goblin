@@ -543,6 +543,29 @@ func TestRangeForLowering(t *testing.T) {
 		}
 	})
 
+	t.Run("one-argument range loop lowers to a native counter", func(t *testing.T) {
+		code := transpileSource(t, `for i in range(10) {
+    print(i)
+}
+`)
+		if strings.Contains(code, "extension.Range") {
+			t.Fatalf("expected no call into the range builtin\n%s", code)
+		}
+		if !strings.Contains(code, ":= int64(0)") {
+			t.Fatalf("expected a native counting loop from zero\n%s", code)
+		}
+	})
+
+	t.Run("one-argument dynamic bound validates through RangeBounds", func(t *testing.T) {
+		code := transpileSource(t, `func f(n) {
+    for i in range(n) { print(i) }
+}
+`)
+		if !strings.Contains(code, "extension.RangeBounds(object.Integer(0),") {
+			t.Fatalf("expected the boxed bound to go through RangeBounds\n%s", code)
+		}
+	})
+
 	t.Run("dynamic bounds validate through RangeBounds", func(t *testing.T) {
 		code := transpileSource(t, `func f(n) {
     for i in range(0, n) { print(i) }

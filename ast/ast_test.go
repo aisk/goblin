@@ -42,3 +42,41 @@ func TestEmptyBlocks(t *testing.T) {
 		})
 	}
 }
+
+// TestTrailingComma checks that one comma may follow the last item of every
+// comma-separated list, and that a comma with no item before it stays an
+// error.
+func TestTrailingComma(t *testing.T) {
+	tests := []struct {
+		source string
+		ok     bool
+	}{
+		{"var a = [1, 2,]\n", true},
+		{"var a = [\n    1,\n    2,\n]\n", true},
+		{"var a = {\"k\": 1,}\n", true},
+		{"var a = {\n    \"k\": 1,\n}\n", true},
+		{"f(1, 2,)\n", true},
+		{"f(\n    1,\n    key=2,\n)\n", true},
+		{"f(*rest,)\n", true},
+		{"func f(a, b = 1,) { }\n", true},
+		{"func f(\n    a,\n    *rest,\n) { }\n", true},
+		{"var f = func(a,) { }\n", true},
+		{"type P(x, y = 0,) { }\n", true},
+		{"type P(\n    x,\n    y,\n) { }\n", true},
+		{"var a = [,]\n", false},
+		{"var a = [1,,]\n", false},
+		{"var a = {,}\n", false},
+		{"f(,)\n", false},
+		{"func f(,) { }\n", false},
+		{"type P(,) { }\n", false},
+		{"var a, b, = [1, 2]\n", false},
+		{"for a, b, in [[1, 2]] { }\n", false},
+	}
+
+	for _, test := range tests {
+		_, err := parser.NewParser().Parse(lexer.NewLexer([]byte(test.source)))
+		if (err == nil) != test.ok {
+			t.Errorf("%q: parsed = %v, want %v (err: %v)", test.source, err == nil, test.ok, err)
+		}
+	}
+}

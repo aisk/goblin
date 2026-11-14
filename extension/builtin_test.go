@@ -124,3 +124,43 @@ func captureStdio(t *testing.T, fn func()) (stdout, stderr string) {
 	_ = errW.Close()
 	return <-outCh, <-errCh
 }
+
+func TestRangeForms(t *testing.T) {
+	kw := func(pairs ...any) object.Kwargs {
+		var out object.Kwargs
+		for i := 0; i < len(pairs); i += 2 {
+			out = append(out, object.KwArg{Name: pairs[i].(string), Value: pairs[i+1].(object.Object)})
+		}
+		return out
+	}
+	tests := []struct {
+		name string
+		args object.CallArgs
+		want string
+	}{
+		{"end only", object.CallArgs{Positional: object.Args{object.Integer(3)}}, "[0, 1, 2]"},
+		{"start and end", object.CallArgs{Positional: object.Args{object.Integer(2), object.Integer(4)}}, "[2, 3]"},
+		{"negative end", object.CallArgs{Positional: object.Args{object.Integer(-1)}}, "[]"},
+		{"end keyword", object.CallArgs{Keyword: kw("end", object.Integer(2))}, "[0, 1]"},
+		{"positional start, end keyword", object.CallArgs{Positional: object.Args{object.Integer(1)}, Keyword: kw("end", object.Integer(3))}, "[1, 2]"},
+	}
+	for _, test := range tests {
+		got, err := Range(test.args)
+		if err != nil {
+			t.Fatalf("%s: %v", test.name, err)
+		}
+		if text, _ := got.ToString(); text != test.want {
+			t.Errorf("%s: got %s, want %s", test.name, text, test.want)
+		}
+	}
+
+	for _, args := range []object.CallArgs{
+		{},
+		{Keyword: kw("start", object.Integer(1))},
+		{Positional: object.Args{object.String("3")}},
+	} {
+		if _, err := Range(args); err == nil {
+			t.Errorf("range(%v) should fail", args)
+		}
+	}
+}

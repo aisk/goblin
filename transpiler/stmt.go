@@ -236,10 +236,15 @@ func (g *generator) transpileRangeFor(for_ *ast.For, startExpr, endExpr ast.Expr
 
 	var pre []jen.Code
 	var startCode *jen.Statement
-	if g.nativeTypeOf(startExpr) == tyInt && g.nativeTypeOf(endExpr) == tyInt {
-		startPre, start, err := g.emitNative(startExpr, onError)
-		if err != nil {
-			return nil, err
+	// A nil startExpr is the one-argument form, which starts at zero.
+	if (startExpr == nil || g.nativeTypeOf(startExpr) == tyInt) && g.nativeTypeOf(endExpr) == tyInt {
+		var startPre []jen.Code
+		start := jen.Int64().Call(jen.Lit(0))
+		if startExpr != nil {
+			var err error
+			if startPre, start, err = g.emitNative(startExpr, onError); err != nil {
+				return nil, err
+			}
 		}
 		endPre, end, err := g.emitNative(endExpr, onError)
 		if err != nil {
@@ -249,9 +254,13 @@ func (g *generator) transpileRangeFor(for_ *ast.For, startExpr, endExpr ast.Expr
 		pre = append(pre, jen.Id(endVar).Op(":=").Add(end))
 		startCode = start
 	} else {
-		startPre, start, err := g.transpileExpression(startExpr, onError)
-		if err != nil {
-			return nil, err
+		var startPre []jen.Code
+		start := jen.Qual(pathObject, "Integer").Call(jen.Lit(0))
+		if startExpr != nil {
+			var err error
+			if startPre, start, err = g.transpileExpression(startExpr, onError); err != nil {
+				return nil, err
+			}
 		}
 		endPre, end, err := g.transpileExpression(endExpr, onError)
 		if err != nil {

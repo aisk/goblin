@@ -101,6 +101,9 @@ Import
 // A line may continue onto the next one only after a binary operator, a
 // comma, a colon, or an opening bracket. This keeps a newline after a
 // complete expression unambiguous as a statement end.
+//
+// A comma may follow the last item of a list, dict, argument list, parameter
+// list or type field list, so a multi-line one can end every line alike.
 Expression
     : OrExpression
 ;
@@ -153,6 +156,7 @@ PostfixExpression
     | PostfixExpression "[" OptNewlines SliceBounds OptNewlines "]"  << ast.NewSliceExpression($0, $3) >>
     | PostfixExpression "(" OptNewlines ")"                          << ast.NewCallExpression($0, nil) >>
     | PostfixExpression "(" OptNewlines ArgumentList OptNewlines ")" << ast.NewCallExpression($0, $3) >>
+    | PostfixExpression "(" OptNewlines ArgumentList "," OptNewlines ")" << ast.NewCallExpression($0, $3) >>
     | PostfixExpression "." id                                       << ast.NewMemberExpression($0, $2) >>
 ;
 
@@ -210,6 +214,7 @@ NilLiteral
 ListLiteral
     : "[" OptNewlines "]"                                << ast.NewListLiteral(nil) >>
     | "[" OptNewlines ListElementList OptNewlines "]"    << ast.NewListLiteral($2) >>
+    | "[" OptNewlines ListElementList "," OptNewlines "]" << ast.NewListLiteral($2) >>
 ;
 
 ListElementList
@@ -220,6 +225,7 @@ ListElementList
 DictLiteral
     : "{" OptNewlines "}"                                << ast.NewDictLiteral(nil) >>
     | "{" OptNewlines DictElementList OptNewlines "}"    << ast.NewDictLiteral($2) >>
+    | "{" OptNewlines DictElementList "," OptNewlines "}" << ast.NewDictLiteral($2) >>
 ;
 
 DictElementList
@@ -298,6 +304,7 @@ Continue
 Parameters
     : "(" OptNewlines ")"                                << nil, nil >>
     | "(" OptNewlines ParameterList OptNewlines ")"      << $2, nil >>
+    | "(" OptNewlines ParameterList "," OptNewlines ")"  << $2, nil >>
 ;
 
 ParameterList
@@ -315,6 +322,7 @@ Parameter
 TypeFields
     : "(" OptNewlines ")"                                << nil, nil >>
     | "(" OptNewlines TypeFieldList OptNewlines ")"      << $2, nil >>
+    | "(" OptNewlines TypeFieldList "," OptNewlines ")"  << $2, nil >>
 ;
 
 TypeFieldList

@@ -128,9 +128,15 @@ func Spawn(args object.CallArgs) (object.Object, error) {
 	return object.Nil, nil
 }
 
+// Range builds the list of integers from start up to, but excluding, end. A
+// single positional argument is the end and the range starts at zero, as
+// does one given only `end=`.
 func Range(args object.CallArgs) (object.Object, error) {
+	if len(args.Positional) == 1 && len(args.Keyword) == 0 {
+		args.Positional = object.Args{object.Integer(0), args.Positional[0]}
+	}
 	p := object.NewArgParser("range", args)
-	start, end := p.Int("start"), p.Int("end")
+	start, end := p.IntOr("start", 0), p.Int("end")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -148,7 +154,8 @@ func Range(args object.CallArgs) (object.Object, error) {
 }
 
 // RangeBounds validates two range arguments through the same parser as the
-// range builtin and returns them as native bounds. The transpiler's
+// range builtin and returns them as native bounds; for the one-argument
+// form the caller passes Integer(0) as start. The transpiler's
 // specialised for-range loops call this instead of materialising the list, so
 // a bad argument reports exactly the error range() itself would.
 func RangeBounds(start, end object.Object) (int64, int64, error) {

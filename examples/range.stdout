@@ -1,0 +1,21 @@
+[0, 1, 2]
+[]
+[]
+[2, 3, 4]
+[0, 1, 2]
+[1, 2]
+0
+1
+2
+[0, 1, 4, 9]
+0 a
+1 b
+2 c
+10
+11
+range() argument 'end' must be Integer, got String
+range() missing required argument: 'end'
+range() missing required argument: 'end'
+range() takes 2 positional arguments, got 3
+range() argument 'end' must be Integer, got String
+range() argument 'end' must be Integer, got Float
