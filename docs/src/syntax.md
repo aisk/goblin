@@ -62,7 +62,7 @@ same line, and two statements cannot share a line.
 ## Names
 
 Identifiers may not be Go keywords: names such as `map`, `range`, `select`,
-`struct`, `go`, or `defer` are reserved and rejected at check time, because
+`struct`, `go`, or `switch` are reserved and rejected at check time, because
 compiled programs emit them as Go identifiers. A handful of names the
 generated code itself relies on — `object`, `extension`, `builtin`, `fmt`,
 `_registry`, `Execute`, and `main` — are reserved for the same reason, as is

@@ -137,6 +137,18 @@ type Raise struct {
 	Value Expression
 }
 
+// Defer is `defer Call`. The callee and the arguments are evaluated when the
+// statement runs; the call itself is made when the enclosing function body
+// (or module body) ends, after the calls deferred later.
+//
+// Inspect visits the callee and the arguments but not Call itself: the
+// callee is read as a value here, not called, which is what the analyses
+// keyed on call nodes need to see.
+type Defer struct {
+	statementMixin
+	Call *CallExpression
+}
+
 type TryCatch struct {
 	statementMixin
 	TryBody   []Statement

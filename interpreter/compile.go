@@ -53,6 +53,9 @@ type compiler struct {
 	// parameter or field default), so its call sites must not use that
 	// frame's argument scratch space.
 	noTemps bool
+	// body is the frame scope of the function body (or module body) being
+	// compiled, whose frame holds the calls it defers.
+	body *frameScope
 	// unpacked is the slot holding the elements of the destructuring
 	// statement whose stores are being compiled.
 	unpacked int
@@ -67,6 +70,7 @@ func newCompiler(g *globals) *compiler {
 	return &compiler{
 		g:      g,
 		module: fs,
+		body:   fs,
 		scope:  &scope{fs: fs, global: true},
 		funcs:  make(map[*ast.FunctionDefine]*funcProto),
 		types:  make(map[*ast.TypeDefine]*typeProto),
@@ -427,6 +431,9 @@ func (c *compiler) statement(stmt ast.Statement) stmtFn {
 			return ctrlNone, nil, object.Raise(v)
 		}
 
+	case *ast.Defer:
+		return c.deferCall(s)
+
 	case *ast.TryCatch:
 		return c.tryCatch(s)
 
@@ -535,6 +542,48 @@ func (c *compiler) forLoop(s *ast.For) stmtFn {
 			return ctrlNone, nil, err
 		}
 		return loop(f, items, bind)
+	}
+}
+
+// deferCall compiles `defer f(args)`. The callee and the arguments are
+// evaluated when the statement runs and pushed, as a call to make later, on
+// the frame of the enclosing function body, which runs its deferred calls
+// when it ends (see frame.runDefers). An error the call raises then is
+// reported at the defer statement.
+func (c *compiler) deferCall(s *ast.Defer) stmtFn {
+	callee := c.expr(s.Call.Callee)
+	// The arguments outlive the statement, so they cannot sit in the frame's
+	// argument scratch space.
+	prev := c.noTemps
+	c.noTemps = true
+	args := c.args(s.Call.Args)
+	c.noTemps = prev
+
+	hops := 0
+	for fs := c.scope.fs; fs != c.body; fs = fs.parent {
+		hops++
+	}
+	pos := s.Position()
+	return func(f *frame) (ctrl, object.Object, error) {
+		fn, err := callee(f)
+		if err != nil {
+			return ctrlNone, nil, err
+		}
+		a, err := args(f)
+		if err != nil {
+			return ctrlNone, nil, err
+		}
+		body := up(f, hops)
+		if body.defers == nil {
+			body.defers = &object.Defers{}
+		}
+		body.defers.Push(func() error {
+			if _, err := object.Call(fn, a); err != nil {
+				return positionError(err, pos)
+			}
+			return nil
+		})
+		return ctrlNone, nil, nil
 	}
 }
 

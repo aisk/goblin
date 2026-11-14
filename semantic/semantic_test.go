@@ -74,6 +74,23 @@ func TestCheckModule(t *testing.T) {
 			errContains: "expression value is not used",
 		},
 		{
+			name:    "defer at module scope and in a function",
+			source:  "defer print(1)\nfunc f(l) {\n\tdefer l.clear()\n}\n",
+			wantErr: false,
+		},
+		{
+			name:        "deferred callee is checked",
+			source:      "defer missing(1)\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
+			name:        "deferred arguments are checked",
+			source:      "defer print(missing)\n",
+			wantErr:     true,
+			errContains: "undefined identifier: missing",
+		},
+		{
 			name:        "unused expression value",
 			source:      "var a = 10\n- 2\nprint(a)\n",
 			wantErr:     true,

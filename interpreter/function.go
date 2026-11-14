@@ -73,10 +73,11 @@ func (c *compiler) function(name, fnName string, pos token.Pos, params []*ast.Pa
 	}
 	p.plain = p.varArgs == "" && p.kwArgs == ""
 
-	saved, savedNoTemps := c.scope, c.noTemps
+	saved, savedNoTemps, savedBody := c.scope, c.noTemps, c.body
 	fs := &frameScope{parent: saved.fs}
 	c.scope = &scope{parent: saved, fs: fs, names: make(map[string]int)}
 	c.noTemps = false
+	c.body = fs
 	// Slots follow object.BindArguments' result order: fixed parameters,
 	// then *args, then **kwargs, after the receiver.
 	bindParam := func(name string) {
@@ -95,7 +96,7 @@ func (c *compiler) function(name, fnName string, pos token.Pos, params []*ast.Pa
 		bindParam(p.kwArgs)
 	}
 	p.body = c.statements(body)
-	c.scope, c.noTemps = saved, savedNoTemps
+	c.scope, c.noTemps, c.body = saved, savedNoTemps, savedBody
 
 	p.nvars, p.ntemps = fs.nvars, fs.maxTemp
 	if src, ok := pos.Context.(token.Sourcer); ok && src != nil {
@@ -169,6 +170,7 @@ func (p *funcProto) invoke(parent *frame, defaults []object.ParamDefault, self o
 	if err == nil && ct != ctrlNone && ct != ctrlReturn {
 		err = strayCtrl(ct)
 	}
+	err = f.runDefers(err)
 	if err != nil {
 		// The frame points at the failing statement inside the function;
 		// the definition position is only a fallback.

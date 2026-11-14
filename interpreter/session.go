@@ -7,6 +7,7 @@ import (
 	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/source"
+	"github.com/aisk/goblin/token"
 )
 
 // CompletionCandidates returns names available at the end of a simple member
@@ -115,27 +116,36 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 		return nil, loadError(err, "repl")
 	}
 
-	for i, stmt := range mod.Body {
-		if exprs[i] != nil {
-			v, err := exprs[i](f)
-			if err != nil {
-				return nil, object.WithFrame(err, stackFrame("repl", "<module>", stmt.Position()))
+	run := func() (object.Object, error) {
+		var result object.Object
+		for i, stmt := range mod.Body {
+			if exprs[i] != nil {
+				v, err := exprs[i](f)
+				if err != nil {
+					return nil, positionError(err, stmt.Position())
+				}
+				result = v
+				continue
 			}
-			result = v
-			continue
+			result = nil
+			if stmts[i] == nil {
+				continue
+			}
+			ct, _, err := stmts[i](f)
+			if err == nil && ct != ctrlNone {
+				err = strayCtrl(ct)
+			}
+			if err != nil {
+				return nil, positionError(err, stmt.Position())
+			}
 		}
-		result = nil
-		if stmts[i] == nil {
-			continue
-		}
-		ct, _, err := stmts[i](f)
-		if err == nil && ct != ctrlNone {
-			err = strayCtrl(ct)
-		}
-		if err != nil {
-			inner, pos := takePosition(err, stmt.Position())
-			return nil, object.WithFrame(inner, stackFrame("repl", "<module>", pos))
-		}
+		return result, nil
+	}
+	result, err = run()
+	// Each fragment is a body of its own: what it deferred runs when it ends.
+	if err = f.runDefers(err); err != nil {
+		inner, pos := takePosition(err, token.Pos{})
+		return nil, object.WithFrame(inner, stackFrame("repl", "<module>", pos))
 	}
 	return result, nil
 }

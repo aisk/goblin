@@ -85,6 +85,12 @@ type bodyState struct {
 	// its own direct calls pass on incremented (see stackCheck). It is empty
 	// in every other body, whose direct calls start counting from zero.
 	depth string
+	// module and function name the body in traceback frames.
+	module, function string
+	// defers names the Go variable holding the body's object.Defers stack.
+	// It is empty until the body's first `defer` is transpiled, which is
+	// what tells wrapDeferred whether the body needs one.
+	defers string
 }
 
 // selfInfo is what direct self access needs to know about the enclosing
@@ -163,6 +169,35 @@ func (g *generator) enterFunction(params []*ast.Parameter, body []ast.Statement,
 	return func() {
 		g.body = saved
 		popScope()
+	}
+}
+
+// nameBody records how traceback frames name the body being generated.
+func (g *generator) nameBody(module, function string) {
+	g.body.module, g.body.function = module, function
+}
+
+// wrapDeferred makes a transpiled function body run its deferred calls. A
+// body without a `defer` is returned as it is. Otherwise the body moves into
+// a closure with the same results, so every way it leaves, each `return` and
+// each error handler alike, comes back here, where the deferred calls run
+// before the function itself returns; an error they raise replaces the
+// body's result. body must end in a return, goType is the Go type of the
+// function's first result and zero its zero value.
+func (g *generator) wrapDeferred(body []jen.Code, goType, zero *jen.Statement) []jen.Code {
+	if g.body.defers == "" {
+		return body
+	}
+	retVar := g.localName("ret")
+	errVar := g.localName("err")
+	return []jen.Code{
+		jen.Var().Id(g.body.defers).Qual(pathObject, "Defers"),
+		jen.List(jen.Id(retVar), jen.Id(errVar)).Op(":=").Func().Params().Parens(jen.List(goType, jen.Error())).Block(body...).Call(),
+		jen.If(
+			jen.Id(errVar).Op("=").Id(g.body.defers).Dot("Run").Call(jen.Id(errVar)),
+			jen.Id(errVar).Op("!=").Nil(),
+		).Block(jen.Return(zero, jen.Id(errVar))),
+		jen.Return(jen.Id(retVar), jen.Nil()),
 	}
 }
 

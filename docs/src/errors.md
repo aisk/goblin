@@ -82,6 +82,22 @@ Kinds are hierarchical. IndexError and KeyError are LookupErrors;
 ZeroDivisionError and OverflowError are ArithmeticErrors; ParseError is a ValueError. Therefore
 err.is(LookupError) can handle more than one specific lookup failure.
 
+## Cleaning up
+
+There is no `finally`. To release something whether or not an error occurs,
+`defer` the release right after acquiring it: a deferred call runs when the
+function ends, including when an error is on its way out of it.
+
+~~~goblin
+func load(path) {
+    var file = fs.open(path)
+    defer file.close()
+    return parse(file.read())   # file.close() runs even if parse raises
+}
+~~~
+
+See [Deferred calls](./functions.md#deferred-calls) for the details.
+
 Wrap errors where you can add useful context. Do not catch an error merely to
 discard it: either recover with a meaningful alternative, or use raise err to
 let an outer layer handle it.

@@ -224,6 +224,14 @@ func NewRaise(x any) (any, error) {
 	return &Raise{statementMixin: stmtAt(positionOf(x)), Value: x.(Expression)}, nil
 }
 
+func NewDefer(deferTok, call any) (any, error) {
+	c, ok := call.(*CallExpression)
+	if !ok {
+		return nil, fmt.Errorf("defer needs a function call")
+	}
+	return &Defer{statementMixin: stmtAt(tokenOf(deferTok).Pos), Call: c}, nil
+}
+
 func NewTryCatch(tryTok, tryBody, catchVar, catchBody any) (any, error) {
 	return &TryCatch{
 		statementMixin: stmtAt(tokenOf(tryTok).Pos),

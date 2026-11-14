@@ -380,6 +380,8 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		return c.checkExpression(v.Value)
 	case *ast.Raise:
 		return c.checkExpression(v.Value)
+	case *ast.Defer:
+		return c.checkExpression(v.Call)
 	case *ast.TryCatch:
 		if err := c.withScope(func() error {
 			return c.checkStatements(v.TryBody, false)

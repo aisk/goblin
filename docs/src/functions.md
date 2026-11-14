@@ -113,6 +113,54 @@ name may only be supplied once per call: naming an argument twice — whether by
 two explicit keywords, two `**` dictionaries that share a key, or one of each —
 raises a TypeError.
 
+## Deferred calls
+
+`defer` schedules a call for the moment the enclosing function ends, however
+it ends: a `return`, running off the end of the body, or an error. Put it
+right after acquiring something that has to be released.
+
+```goblin
+import "fs"
+
+func first_line(path) {
+    var file = fs.open(path)
+    defer file.close()
+    return file.read().decode().split("\n")[0]
+}
+```
+
+`defer` must be followed by a call. The function being called and its
+arguments are evaluated when the `defer` statement runs; only the call itself
+waits. Defer a function literal when the work should see the variables as
+they are at the end instead:
+
+```goblin
+func demo() {
+    var label = "before"
+    defer print("argument:", label)                 # argument: before
+    defer func() { print("closure:", label) }()     # closure: after
+    label = "after"
+}
+```
+
+Deferred calls run in reverse order, the last one deferred first, so things
+are released in the opposite order to how they were acquired. In the example
+above the closure line prints first.
+
+A few rules follow from "when the function ends":
+
+- A `defer` inside an `if`, a loop, or a `try` block still belongs to the
+  function, not the block. One in a loop adds a call on every iteration, and
+  all of them wait until the function returns.
+- The result of a deferred call is discarded, and it cannot change the value
+  the function has already decided to return.
+- If a deferred call raises, that error replaces whatever the function was
+  returning or raising. The remaining deferred calls still run.
+- At the top level of a file, deferred calls run when the file's own
+  statements finish, also when they stop with an unhandled error. In the REPL
+  that is the end of each input. `os.exit()` ends the process without running
+  them.
+
 ## Recursion and callbacks
 
 A named function can call itself. Functions also work naturally as callbacks

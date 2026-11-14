@@ -279,6 +279,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		callArgsName := g.localName("callArgs")
 		methodModule := sourceModuleName(method.Position())
 		qualifiedName := typeDef.Name + "." + method.Name
+		g.nameBody(methodModule, qualifiedName)
 		fnOnError := func(errVar string) jen.Code {
 			return tracedReturn(jen.Nil(), errVar, methodModule, qualifiedName, g.framePos(method.Position()))
 		}
@@ -302,6 +303,9 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		)
 
 		methodBody, err := g.transpileStatements(method.Body, fnOnError)
+		if err == nil {
+			methodBody = g.wrapDeferred(methodBody, jen.Qual(pathObject, "Object"), jen.Nil())
+		}
 		g.errorPos = savedPos
 		leave()
 		if err != nil {

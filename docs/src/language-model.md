@@ -18,6 +18,7 @@ before designing a larger program:
 | Imports | Module scope only; local paths are relative to the importing file |
 | Concurrency | Goroutines, channels, and joinable Goblin handles; no select or cancellation |
 | Errors | Explicit raise and try/catch; spawned-function errors are not propagated |
+| Cleanup | `defer call()` runs the call when the enclosing function ends; there is no `finally` and no block-scoped cleanup |
 
 Goblin favors direct, explicit code over a large amount of syntax. When a
 feature is absent, compose the available pieces: use a channel instead of a

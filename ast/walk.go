@@ -51,6 +51,9 @@ func Inspect(node Statement, f func(Statement) bool) {
 		Inspect(n.Value, f)
 	case *Raise:
 		Inspect(n.Value, f)
+	case *Defer:
+		Inspect(n.Call.Callee, f)
+		InspectArgs(n.Call.Args, f)
 	case *FunctionDefine:
 		inspectParams(n.Parameters, f)
 		InspectList(n.Body, f)

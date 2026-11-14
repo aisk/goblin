@@ -197,6 +197,7 @@ func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast
 	callArgsName := g.localName("callArgs")
 
 	module := sourceModuleName(pos)
+	g.nameBody(module, name)
 	fnOnError := func(errVar string) jen.Code {
 		return tracedReturn(jen.Nil(), errVar, module, name, g.framePos(pos))
 	}
@@ -214,6 +215,7 @@ func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast
 	if err != nil {
 		return nil, err
 	}
+	bodyCode = g.wrapDeferred(bodyCode, jen.Qual(pathObject, "Object"), jen.Nil())
 
 	bodyCode = append(append([]jen.Code{g.stackCheck(fnOnError)}, argsDefine...), bodyCode...)
 
@@ -271,12 +273,22 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 	g.body.depth = depth
 
 	module := sourceModuleName(pos)
+	g.nameBody(module, name)
 	zero := zeroOf(retType)
 	fnOnError := func(errVar string) jen.Code {
 		return tracedReturn(zero, errVar, module, name, g.framePos(pos))
 	}
+	goType := func(t staticType) *jen.Statement {
+		if t.native() {
+			return jen.Id(goTypeOf(t))
+		}
+		return jen.Qual(pathObject, "Object")
+	}
 
 	bodyCode, err := g.transpileStatements(body, fnOnError)
+	if err == nil {
+		bodyCode = g.wrapDeferred(bodyCode, goType(retType), zeroOf(retType))
+	}
 	leave()
 	// Checking the stack costs about as much as the call itself, so a chain
 	// of direct calls only checks every object.StackCheckInterval levels.
@@ -287,12 +299,6 @@ func (g *generator) buildDirectFunction(info directFn, fn *ast.FunctionDefine) (
 		return nil, err
 	}
 
-	goType := func(t staticType) *jen.Statement {
-		if t.native() {
-			return jen.Id(goTypeOf(t))
-		}
-		return jen.Qual(pathObject, "Object")
-	}
 	paramDecls := make([]jen.Code, 0, len(params)+1)
 	paramDecls = append(paramDecls, jen.Id(depth).Int32())
 	for i, param := range params {

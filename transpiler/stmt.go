@@ -337,6 +337,42 @@ func (g *generator) transpileRaise(raise *ast.Raise, onError errHandler) ([]jen.
 	return code, nil
 }
 
+// transpileDefer lowers `defer f(args)`. The callee and the arguments are
+// evaluated here into Go locals, and the call is pushed, as a closure over
+// them, on the body's object.Defers stack; wrapDeferred makes the body run
+// that stack when it ends. The callee is evaluated as a value, never lowered
+// to a direct call: the call happens later, through object.Call. An error it
+// raises is reported at the defer statement, in the enclosing function's
+// frame, whatever `try` block the statement sat in.
+func (g *generator) transpileDefer(d *ast.Defer, onError errHandler) ([]jen.Code, error) {
+	calleePre, callee, err := g.transpileExpression(d.Call.Callee, onError)
+	if err != nil {
+		return nil, err
+	}
+	argsPre, args, err := g.transpileCallArguments(d.Call.Args, onError)
+	if err != nil {
+		return nil, err
+	}
+	if g.body.defers == "" {
+		g.body.defers = g.localName("defers")
+	}
+	fnVar := g.localName("deferred")
+	argsVar := g.localName("args")
+	errVar := g.localName("err")
+	frame := frameCode(g.body.module, g.body.function, d.Position())
+	codes := append(calleePre, argsPre...)
+	return append(codes,
+		jen.List(jen.Id(fnVar), jen.Id(argsVar)).Op(":=").List(callee, args),
+		jen.Id(g.body.defers).Dot("Push").Call(jen.Func().Params().Error().Block(
+			jen.If(
+				jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Qual(pathObject, "Call").Call(jen.Id(fnVar), jen.Id(argsVar)),
+				jen.Id(errVar).Op("!=").Nil(),
+			).Block(jen.Return(jen.Qual(pathObject, "WithFrame").Call(jen.Id(errVar), frame))),
+			jen.Return(jen.Nil()),
+		)),
+	), nil
+}
+
 // transpileTryCatch lowers `try { ... } catch e { ... }` using goto/labels so
 // that `return`/`break`/`continue` inside the try body still target the real
 // enclosing function/loop (a closure or defer/recover boundary would capture
@@ -444,6 +480,8 @@ func (g *generator) transpileStatement(stmt ast.Statement, onError errHandler) (
 		codes, err = g.transpileReturn(v, onError)
 	case *ast.Raise:
 		codes, err = g.transpileRaise(v, onError)
+	case *ast.Defer:
+		codes, err = g.transpileDefer(v, onError)
 	case *ast.TryCatch:
 		codes, err = g.transpileTryCatch(v, onError)
 	case *ast.Export:

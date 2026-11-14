@@ -32,10 +32,24 @@ import (
 // owns a fixed window of it, so a positional call allocates no argument
 // slice. Only the activation that owns the frame ever touches its temps:
 // recursion and goroutines always run in a frame of their own.
+//
+// defers is the stack of calls the activation deferred, nil until its first
+// `defer` runs. Only the frame of a function call or module run has one;
+// block frames push onto the frame of the body they belong to.
 type frame struct {
 	parent *frame
 	slots  []object.Object
 	temps  []object.Object
+	defers *object.Defers
+}
+
+// runDefers runs the calls the activation of f deferred, for a body that
+// ended with err, and returns the error the activation ends with.
+func (f *frame) runDefers(err error) error {
+	if f.defers == nil {
+		return err
+	}
+	return f.defers.Run(err)
 }
 
 // Frames up to a few dozen slots are allocated together with their storage,
@@ -255,6 +269,7 @@ func runModule(mod *ast.Module, baseDir, module string, reg *object.Registry, ar
 	if err == nil && ct != ctrlNone {
 		err = strayCtrl(ct)
 	}
+	err = f.runDefers(err)
 	if err != nil {
 		var pos token.Pos
 		if len(mod.Body) > 0 {

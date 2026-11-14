@@ -193,6 +193,7 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 	g.directFns, g.directCtors = g.collectDirectFns(stmts)
 	g.sigs = inferSignatures(stmts, g.directFns, g.rangeNative)
 	defer g.enterFunction(nil, stmts, nil, tyDynamic, nil)()
+	g.nameBody(sourceModuleName(modulePosition(g.mod)), "<module>")
 
 	var funcAssigns, body []jen.Code
 	declare := func(name string) {
@@ -286,6 +287,22 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 				return nil, err
 			}
 			body = append(body, codes...)
+		}
+	}
+	if g.body.defers != "" {
+		// What the module body defers runs when the body ends, before
+		// Execute goes on to return the module value. The definitions
+		// hoisted above only bind names, so they stay outside.
+		errVar := g.localName("err")
+		body = []jen.Code{
+			jen.Var().Id(g.body.defers).Qual(pathObject, "Defers"),
+			jen.List(jen.Id("_"), jen.Id(errVar)).Op(":=").Func().Params().Parens(jen.List(
+				jen.Qual(pathObject, "Object"), jen.Error(),
+			)).Block(append(body, jen.Return(jen.Nil(), jen.Nil()))...).Call(),
+			jen.If(
+				jen.Id(errVar).Op("=").Id(g.body.defers).Dot("Run").Call(jen.Id(errVar)),
+				jen.Id(errVar).Op("!=").Nil(),
+			).Block(jen.Return(jen.Nil(), jen.Id(errVar))),
 		}
 	}
 	return append(funcAssigns, body...), nil

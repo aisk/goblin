@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/aisk/goblin/object"
@@ -146,6 +147,28 @@ func TestSessionDestructureAndSlice(t *testing.T) {
 	}
 	if got := evalString(t, s, "a"); got != "3" {
 		t.Errorf("a = %q, want 3", got)
+	}
+}
+
+// Each fragment is a body of its own, so what it defers runs when it ends,
+// after its other statements and also when one of them fails.
+func TestSessionDefer(t *testing.T) {
+	s := NewSession(".")
+	if _, err := s.Eval("var log = []"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Eval("defer log.push(\"deferred\")\nlog.push(\"body\")"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Eval("defer log.push(\"after error\")\nraise Error(\"boom\")"); err == nil {
+		t.Fatal("raise: got no error")
+	}
+	if got := evalString(t, s, "log"); got != `["body", "deferred", "after error"]` {
+		t.Errorf("log = %s", got)
+	}
+	_, err := s.Eval("defer Int(\"x\")")
+	if err == nil || !strings.Contains(err.Error(), "x") {
+		t.Errorf("failing deferred call: got %v", err)
 	}
 }
 

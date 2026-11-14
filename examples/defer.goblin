@@ -1,0 +1,166 @@
+# A deferred call runs when the enclosing function returns.
+func greet() {
+    defer print("deferred")
+    print("body")
+    return "returned"
+}
+print(greet())
+
+# Deferred calls run last in, first out.
+func order() {
+    for i in range(0, 3) {
+        defer print("defer", i)
+    }
+    print("loop done")
+}
+order()
+
+# The callee and its arguments are evaluated at the defer statement.
+func snapshot() {
+    var label = "before"
+    var show = print
+    defer show("label was", label)
+    label = "after"
+    show = eprint
+    print("label is", label)
+}
+snapshot()
+
+# A closure sees the variables as they are when it finally runs.
+func late() {
+    var label = "before"
+    defer func() { print("closure sees", label) }()
+    label = "after"
+}
+late()
+
+# Methods are bound to their receiver at the defer statement.
+type Resource(name, log) {
+    func close(self) {
+        self.log.push("close " + self.name)
+    }
+
+    func use(self) {
+        defer self.close()
+        self.log.push("use " + self.name)
+    }
+}
+
+func work(log) {
+    var first = Resource("first", log)
+    defer first.close()
+    var second = Resource("second", log)
+    defer second.close()
+    log.push("working")
+}
+var log = []
+work(log)
+Resource("third", log).use()
+print(log)
+
+# Deferred calls run when the function fails, before the error reaches the
+# caller.
+func fail(log) {
+    defer log.push("cleanup")
+    raise ValueError.wrap("boom")
+}
+var failures = []
+try {
+    fail(failures)
+} catch err {
+    failures.push(err.message)
+}
+print(failures)
+
+# A defer inside try, a loop or an if still belongs to the function.
+func nested(log) {
+    try {
+        defer log.push("from try")
+        raise Error("caught inside")
+    } catch err {
+        log.push(err.message)
+    }
+    if true {
+        defer log.push("from if")
+    }
+    log.push("end of body")
+}
+var trail = []
+nested(trail)
+print(trail)
+
+# An error a deferred call raises replaces the function's result, and the
+# calls deferred before it still run.
+func cleanup_fails(log) {
+    defer log.push("still runs")
+    defer func() { raise Error("cleanup failed") }()
+    return "result"
+}
+var outcome = []
+try {
+    print(cleanup_fails(outcome))
+} catch err {
+    outcome.push(err.message)
+}
+print(outcome)
+
+func both_fail() {
+    defer func() { raise Error("from defer") }()
+    raise Error("from body")
+}
+try {
+    both_fail()
+} catch err {
+    print(err.message)
+}
+
+# The value being returned is already decided when deferred calls run.
+func counted() {
+    var count = [0]
+    defer func() { count[0] = count[0] + 1 }()
+    return count[0]
+}
+print(counted())
+
+# Keyword and unpacked arguments, numeric locals and recursion.
+func report(name, *values, **options) {
+    print(name, values, options)
+}
+func total(n) {
+    var sum = 0
+    var extra = [n, n * 2]
+    var options = {"unit": "items"}
+    defer report("total", sum, *extra)
+    defer report("options", sum, unit="items")
+    defer report("unpacked", **options)
+    var i = 0
+    while i < n {
+        sum = sum + i
+        i = i + 1
+    }
+    return sum
+}
+print(total(4))
+
+func countdown(n) {
+    if n == 0 {
+        return 0
+    }
+    defer print("leaving", n)
+    return 1 + countdown(n - 1)
+}
+print(countdown(2))
+
+# What is deferred has to be callable once it runs.
+func not_callable() {
+    defer "text"()
+}
+try {
+    not_callable()
+} catch err {
+    print(err.is(TypeError))
+}
+
+# At module level, deferred calls run when the module body ends.
+defer print("module done")
+print("last statement")

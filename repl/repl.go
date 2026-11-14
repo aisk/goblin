@@ -92,9 +92,9 @@ func Run(historyFile string) error {
 // keywords are offered as completions at the start of a path. A test keeps the
 // list in sync with the grammar.
 var keywords = []string{
-	"break", "catch", "continue", "else", "export", "false", "for", "func",
-	"if", "impl", "import", "in", "nil", "raise", "return", "trait", "true",
-	"try", "type", "var", "while",
+	"break", "catch", "continue", "defer", "else", "export", "false", "for",
+	"func", "if", "impl", "import", "in", "nil", "raise", "return", "trait",
+	"true", "try", "type", "var", "while",
 }
 
 type completer struct {

@@ -88,6 +88,7 @@ Statement
     | TraitDefine
     | Return
     | Raise
+    | Defer
     | Try
     | Export
     | Import
@@ -400,6 +401,12 @@ Return
 
 Raise
     : "raise" Expression                     << ast.NewRaise($1) >>
+;
+
+// `defer f(args)` evaluates f and the arguments now and makes the call when
+// the enclosing function returns.
+Defer
+    : "defer" PostfixExpression              << ast.NewDefer($0, $1) >>
 ;
 
 Try

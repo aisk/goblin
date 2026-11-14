@@ -1,0 +1,26 @@
+body
+deferred
+returned
+loop done
+defer 2
+defer 1
+defer 0
+label is after
+label was before
+closure sees after
+["working", "close second", "close first", "use third", "close third"]
+["cleanup", "boom: ValueError"]
+["caught inside", "end of body", "from if", "from try"]
+["still runs", "cleanup failed"]
+from defer
+0
+unpacked [] {"unit": "items"}
+options [0] {"unit": "items"}
+total [0, 4, 8] {}
+6
+leaving 1
+leaving 2
+2
+true
+last statement
+module done
