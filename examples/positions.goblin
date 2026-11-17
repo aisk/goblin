@@ -56,10 +56,10 @@ print(ws.index("a", start=1), ws.index("b", start=-1), ws.index("a", start=4))
 attempt(func() { return ws.index("a", start=5) })
 attempt(func() { return ws.index("a", start=-5) })
 
-# Slice ends are bounds.
+# Slice ends are bounds too, but a slice takes what exists between them: an
+# end outside the value stops at its edge instead of raising.
 print(xs[-2:], word[1:-1], raw[-2:], xs[:-3])
-attempt(func() { return xs[-4:] })
-attempt(func() { return xs[2:-2] })
+print(xs[-4:], xs[2:-2], word[:80])
 
 # Bytes repeat like Strings and Lists.
 print(raw * 2, 2 * raw, raw * 0)

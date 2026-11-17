@@ -2,6 +2,7 @@ package object
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"unicode"
@@ -117,8 +118,19 @@ var IntConstructorFn = &Function{Name: "Int", Fn: IntConstructor}
 func IntConstructor(args CallArgs) (Object, error) {
 	ap := NewArgParser("Int", args)
 	value := ap.AnyOr("value", Integer(0))
+	base, hasBase := ap.OptionalInt("base")
 	if err := ap.Finish(); err != nil {
 		return nil, err
+	}
+	if hasBase {
+		if base < 2 || base > 36 {
+			return nil, NewValueError("Int() argument 'base' must be from 2 to 36, got %d", int64(base))
+		}
+		text, ok := value.(String)
+		if !ok {
+			return nil, NewTypeError("Int() argument 'base' needs a String value, got %s", value.TypeName())
+		}
+		return parseInt(text, int(base), fmt.Sprintf(" with base %d", int64(base)))
 	}
 	switch v := value.(type) {
 	case Integer:
@@ -135,14 +147,7 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(int64(f)), nil
 	case String:
-		n, err := strconv.ParseInt(string(v), 10, 64)
-		if errors.Is(err, strconv.ErrRange) {
-			return nil, NewOverflowError("Int() value out of range: %q", string(v))
-		}
-		if err != nil {
-			return nil, NewValueError("Int() invalid literal for Int: %q", string(v))
-		}
-		return Integer(n), nil
+		return parseInt(v, 10, "")
 	case Bool:
 		if bool(v) {
 			return Integer(1), nil
@@ -151,4 +156,18 @@ func IntConstructor(args CallArgs) (Object, error) {
 	default:
 		return nil, NewTypeError("Int() argument 'value' must be String, Int, Float or Bool, got %s", value.TypeName())
 	}
+}
+
+// parseInt reads text as the digits of an Int in base, letters in either
+// case, with an optional leading sign and nothing else: no prefix such as
+// "0x", no underscores, no spaces. what is added to the error after "Int".
+func parseInt(text String, base int, what string) (Object, error) {
+	n, err := strconv.ParseInt(string(text), base, 64)
+	if errors.Is(err, strconv.ErrRange) {
+		return nil, NewOverflowError("Int() value out of range: %q", string(text))
+	}
+	if err != nil {
+		return nil, NewValueError("Int() invalid literal for Int%s: %q", what, string(text))
+	}
+	return Integer(n), nil
 }

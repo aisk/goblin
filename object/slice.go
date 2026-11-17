@@ -6,10 +6,11 @@ import "unicode/utf8"
 // then defaults to zero and high to the size. Lists, strings and Bytes can be
 // sliced; the result is always a new value that shares nothing with obj.
 //
-// Both ends are bounds (see ResolveBound): Ints within -size <= i <= size,
-// a negative one counting from the end. A bound outside that range, or a low
-// end past the high one once both are resolved, raises IndexError rather
-// than being clamped.
+// Both ends are Ints; a negative one counts from the end. A slice takes the
+// elements that exist between its ends: an end beyond either end of the
+// sequence is moved to that end (see ClampBound), and a low end past the
+// high one gives an empty result. `xs[:3]` on a two-element list is the two
+// elements, not an error.
 func Slice(obj, low, high Object) (Object, error) {
 	switch v := obj.(type) {
 	case *List:
@@ -37,24 +38,26 @@ func Slice(obj, low, high Object) (Object, error) {
 	return nil, NewTypeError("%s cannot be sliced", obj.TypeName())
 }
 
-// sliceBounds resolves the bounds of a slice of obj, whose size is given. The
-// error shows the bounds as written, an omitted one as its default.
+// sliceBounds resolves the bounds of a slice of obj, whose size is given, to
+// offsets with 0 <= lo <= hi <= size.
 func sliceBounds(obj Object, low, high Object, size int) (lo, hi int, err error) {
-	rawLo, rawHi := Integer(0), Integer(size)
+	lo, hi = 0, size
 	if low != nil {
-		if rawLo, err = sliceBound(obj, low); err != nil {
+		i, err := sliceBound(obj, low)
+		if err != nil {
 			return 0, 0, err
 		}
+		lo = ClampBound(i, size)
 	}
 	if high != nil {
-		if rawHi, err = sliceBound(obj, high); err != nil {
+		i, err := sliceBound(obj, high)
+		if err != nil {
 			return 0, 0, err
 		}
+		hi = ClampBound(i, size)
 	}
-	lo, okLo := resolvePosition(rawLo, size, size)
-	hi, okHi := resolvePosition(rawHi, size, size)
-	if !okLo || !okHi || lo > hi {
-		return 0, 0, NewIndexError("%s slice bounds out of range: [%d:%d] with size %d", obj.TypeName(), int64(rawLo), int64(rawHi), size)
+	if lo > hi {
+		lo = hi
 	}
 	return lo, hi, nil
 }

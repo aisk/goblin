@@ -1,16 +1,21 @@
 package object
 
-// Every position a built-in sequence takes is one of two kinds, and these are
-// the only two functions that resolve them, so List, String and Bytes count
-// from the end and report a bad position the same way.
+// Every position a built-in sequence takes names either an element or a
+// boundary between elements, and the functions here are the only ones that
+// resolve them, so List, String and Bytes count from the end and report a
+// bad position the same way.
 //
-//   - An element index names an element: -size <= i < size.
+//   - An element index names an element: -size <= i < size. Indexing
+//     (`x[i]`, `x[i] = v`) and pop(index) take one.
 //   - A bound names a gap between elements, the ends included:
-//     -size <= i <= size. Slice ends, insert positions and the start of an
-//     index() search are bounds.
+//     -size <= i <= size. Insert positions and the start of an index()
+//     search are bounds.
 //
-// A negative position counts from the end. Anything outside the range raises
-// IndexError rather than being clamped.
+// A negative position counts from the end. An element index or a bound
+// outside its range raises IndexError: it names something that is not
+// there. The ends of a slice are the exception: a slice takes the elements
+// that exist between its ends, so ClampBound moves an end beyond the
+// sequence to the nearest end instead of raising.
 
 // ResolveIndex resolves the element index i of a sequence of size elements to
 // an offset in [0, size). typeName names the sequence in the error, which
@@ -29,6 +34,23 @@ func ResolveBound(typeName string, i Integer, size int) (int, error) {
 		return n, nil
 	}
 	return 0, NewIndexError("%s index out of range: %d", typeName, int64(i))
+}
+
+// ClampBound resolves the slice end i of a sequence of size elements to an
+// offset in [0, size]: a negative i counts from the end, and the result is
+// moved to 0 or size when it falls outside.
+func ClampBound(i Integer, size int) int {
+	n := int64(i)
+	if n < 0 {
+		n += int64(size)
+	}
+	if n < 0 {
+		return 0
+	}
+	if n > int64(size) {
+		return size
+	}
+	return int(n)
 }
 
 // resolvePosition counts a negative i from the end and reports whether the

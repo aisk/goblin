@@ -221,10 +221,6 @@ func (s String) Add(other Object) (Object, error) {
 	switch v := other.(type) {
 	case String:
 		return String(string(s) + string(v)), nil
-	case Integer:
-		return String(string(s) + v.String()), nil
-	case Bool:
-		return String(string(s) + v.String()), nil
 	default:
 		return nil, NewOperandError(OpAdd, "String", other)
 	}

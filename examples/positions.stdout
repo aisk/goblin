@@ -26,8 +26,7 @@ true false List index out of range: -6
 true false List index out of range: 5
 true false List index out of range: -5
 [77, 99] éll b"bc" []
-true false List slice bounds out of range: [-4:3] with size 3
-true false List slice bounds out of range: [2:-2] with size 3
+[10, 77, 99] [] héllo
 b"abcabc" b"abcabc" b""
 false false cannot multiply Bytes by negative number
 false true cannot multiply Bytes and String

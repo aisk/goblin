@@ -120,3 +120,14 @@ for name in ["repeat", "fields", "trim_left", "last_index", "encode"] {
     print(attributes("").contains(name))
 }
 print(attributes(Bytes("")))
+
+# + joins two Strings only; anything else is converted first.
+var port = "8080"
+for other in [1, true, 1.5, nil] {
+    try {
+        print(port + other)
+    } catch e: TypeError {
+        print(e.message)
+    }
+}
+print(port + String(1), "{port}{true}")

@@ -319,3 +319,49 @@ func TestMatrixCalls(t *testing.T) {
 		}
 	}
 }
+
+// TestMatrixPositions pins what an out-of-range position does on each
+// sequence type: an element index or a method's position names something
+// that is not there and raises IndexError, while a slice takes the elements
+// that exist between its ends.
+func TestMatrixPositions(t *testing.T) {
+	sequences := []struct {
+		value func() Object
+		size  int
+	}{
+		{func() Object { return list(Integer(1), Integer(2)) }, 2},
+		{func() Object { return String("ab") }, 2},
+		{func() Object { return Bytes("ab") }, 2},
+	}
+	for _, seq := range sequences {
+		v := seq.value()
+		name := v.TypeName()
+		for _, i := range []Integer{2, -3} {
+			if _, err := v.Index(i); !errors.Is(err, IndexError) {
+				t.Errorf("%s[%d]: %v, want IndexError", name, i, err)
+			}
+		}
+		slices := []struct {
+			low, high Object
+			want      int
+		}{
+			{nil, Integer(3), 2},
+			{Integer(-10), nil, 2},
+			{Integer(5), nil, 0},
+			{nil, Integer(-10), 0},
+			{Integer(1), Integer(0), 0},
+			{Integer(-1), Integer(80), 1},
+		}
+		for _, sl := range slices {
+			got, err := Slice(v, sl.low, sl.high)
+			if err != nil {
+				t.Errorf("%s[%v:%v]: %v", name, sl.low, sl.high, err)
+				continue
+			}
+			size, _ := got.GetAttr("size")
+			if size != Integer(sl.want) {
+				t.Errorf("%s[%v:%v] has size %v, want %d", name, sl.low, sl.high, size, sl.want)
+			}
+		}
+	}
+}

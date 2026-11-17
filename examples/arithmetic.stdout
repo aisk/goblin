@@ -43,6 +43,11 @@ true
 1
 0
 0
+255 16746496 493 -5 35
+[255, 136, 0]
+true false Int() invalid literal for Int with base 16: "0xff"
+true false Int() argument 'base' must be from 2 to 36, got 1
+false true Int() argument 'base' needs a String value, got Int
 3.0
 3.14
 2.5

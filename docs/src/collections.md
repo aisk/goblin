@@ -43,10 +43,21 @@ print(numbers[:])   # a copy of the whole list
 A slice is a copy, so changing it never changes the list it came from. A bound
 names a position between elements, so it may also equal the size; like an
 index, a negative bound counts from the end, so `numbers[:-1]` drops the last
-element and `numbers[-2:]` keeps the last two. A bound outside
-`-size <= bound <= size`, or a `low` that ends up past `high`, raises
-IndexError; bounds are never clamped. Strings and Bytes are sliced the same
-way. A slice cannot be assigned to.
+element and `numbers[-2:]` keeps the last two. A slice takes the elements that
+exist between its bounds: a bound past either end of the list stops at that
+end, and a `low` that ends up past `high` gives an empty list. That makes "the
+first three" and "the last ten" one slice whatever the size:
+
+~~~goblin
+var scores = [95, 70]
+print(scores[:3])   # [95, 70]
+print(scores[-10:]) # [95, 70]
+print(scores[5:])   # []
+~~~
+
+Indexing is stricter: `scores[2]` names an element that is not there and
+raises IndexError. Strings and Bytes are sliced the same way. A slice cannot be
+assigned to.
 
 The same two kinds of position appear in methods: pop() takes an element
 index, while insert() and the `start` of index() take a bound, so

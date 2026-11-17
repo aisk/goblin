@@ -11,7 +11,7 @@ These names are available without an import.
 | `sum(values)` | Add up an iterable's elements with `+`, starting from `0` |
 | `compare(a, b)` | Order two values as `<` does: `-1`, `0` or `1` |
 | `hash(value)` | The hash a dictionary files a key under |
-| `Int(value)` / `Float(value)` / `String(value)` / `Bool(value)` | Convert a value |
+| `Int(value, base=10)` / `Float(value)` / `String(value)` / `Bool(value)` | Convert a value; `base` reads text in another base |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
 | `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
 | `Function(value)` | Validate and return a callable value unchanged |

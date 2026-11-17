@@ -22,6 +22,16 @@ func TestSlice(t *testing.T) {
 		{"string to the end", String("日本語"), Integer(2), nil, "語"},
 		{"string empty", String(""), nil, nil, ""},
 		{"bytes", Bytes("goblin"), Integer(2), Integer(4), `b"bl"`},
+		// Ends beyond the sequence take what exists.
+		{"high past the end", list, nil, Integer(4), "[1, 2, 3]"},
+		{"low past the end", list, Integer(5), nil, "[]"},
+		{"low before the start", list, Integer(-10), nil, "[1, 2, 3]"},
+		{"high before the start", list, nil, Integer(-10), "[]"},
+		{"low above high", list, Integer(2), Integer(1), "[]"},
+		{"negative low above high", list, Integer(-1), Integer(-2), "[]"},
+		{"string past the end", String("日本"), nil, Integer(3), "日本"},
+		{"string last characters", String("日本語"), Integer(-10), Integer(-1), "日本"},
+		{"bytes past the end", Bytes("ab"), Integer(1), Integer(80), `b"b"`},
 	}
 	for _, tt := range tests {
 		got, err := Slice(tt.obj, tt.low, tt.high)
@@ -65,10 +75,6 @@ func TestSliceErrors(t *testing.T) {
 		low, high Object
 		kind      *Error
 	}{
-		{"high past the end", list, nil, Integer(4), IndexError},
-		{"low before the start", list, Integer(-4), nil, IndexError},
-		{"low above high", list, Integer(2), Integer(1), IndexError},
-		{"string past the end", String("日本"), nil, Integer(3), IndexError},
 		{"non-integer bound", list, String("a"), nil, TypeError},
 		{"float bound", list, nil, Float(1), TypeError},
 		{"not sliceable", Integer(1), nil, nil, TypeError},
@@ -104,9 +110,5 @@ func TestSliceNegativeBounds(t *testing.T) {
 	got, err = Slice(String("héllo"), Integer(1), Integer(-1))
 	if err != nil || got != String("éll") {
 		t.Errorf(`"héllo"[1:-1] = %v, %v`, got, err)
-	}
-	_, err = Slice(list, Integer(-1), Integer(-2))
-	if err == nil || err.Error() != "List slice bounds out of range: [-1:-2] with size 3" {
-		t.Errorf("list[-1:-2] error = %v", err)
 	}
 }

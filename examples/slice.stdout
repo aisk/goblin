@@ -19,10 +19,8 @@ b"go"
 b"blin"
 [2, 3]
 bc
-true false List slice bounds out of range: [2:9] with size 5
-true false List slice bounds out of range: [3:1] with size 5
-true false List slice bounds out of range: [-6:5] with size 5
-true false String slice bounds out of range: [0:99] with size 12
+[95, 70] [95, 70] [30, 40, 50] [] [10, 20, 30, 40, 50]
+héllo, wörld short line b"in" b""
 false true List slice bound must be Int, got String
 false true List slice bound must be Int, got Float
 false true Dict cannot be sliced

@@ -42,7 +42,13 @@ func middle(values) {
 print(middle([1, 2, 3, 4]))
 print(middle("abcd"))
 
-# Bounds follow direct indexing: out of range is an IndexError.
+# A slice takes what exists between its ends: an end past either end of the
+# value stops there, and a low end past the high one gives an empty value.
+var scores = [95, 70]
+print(scores[:3], scores[-10:], numbers[2:9], numbers[3:1], numbers[-6:])
+print(text[:99], "short line"[:80], raw[4:100], raw[10:])
+
+# A bound must still be an Int, and only sequences can be sliced.
 func attempt(action) {
     try {
         action()
@@ -50,10 +56,6 @@ func attempt(action) {
         print(err.is(IndexError), err.is(TypeError), err.message)
     }
 }
-attempt(func() { print(numbers[2:9]) })
-attempt(func() { print(numbers[3:1]) })
-attempt(func() { print(numbers[-6:]) })
-attempt(func() { print(text[:99]) })
 attempt(func() { print(numbers["a":]) })
 attempt(func() { print(numbers[:1.5]) })
 attempt(func() { print({"a": 1}[0:1]) })

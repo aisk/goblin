@@ -81,6 +81,18 @@ print(Int(true))
 print(Int(false))
 print(Int())
 
+# Text in another base: digits only, letters in either case, an optional sign.
+print(Int("ff", base=16), Int("FF8800", base=16), Int("755", base=8), Int("-101", base=2), Int("z", base=36))
+var color = "#ff8800"
+print(range(3).map(func(i) { return Int(color[1 + i * 2:3 + i * 2], base=16) }))
+for bad in [func() { return Int("0xff", base=16) }, func() { return Int("12", base=1) }, func() { return Int(255, base=16) }] {
+    try {
+        bad()
+    } catch e {
+        print(e.is(ValueError), e.is(TypeError), e.message)
+    }
+}
+
 # Float constructor
 print(Float(3))
 print(Float(3.14))

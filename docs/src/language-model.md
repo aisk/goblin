@@ -14,7 +14,7 @@ before designing a larger program:
 | Static checks | Names and scopes, plus argument counts of calls to known functions and attribute names on values of a known user type; anything dynamic is checked at runtime |
 | Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
 | Strings | Unicode-aware iteration, size, `string[index]` and `string[low:high]`, all counting characters |
-| Positions | Indexes, slice bounds and method positions count from the end when negative; out of range is an IndexError, never clamped |
+| Positions | Indexes, slice bounds and method positions count from the end when negative; an out-of-range index or method position is an IndexError, while a slice takes the elements that exist between its bounds |
 | Reflection | The global functions `type_of` and `attributes`; a value's members are only its fields, properties and methods |
 | Protocols | A closed set of thirteen, implemented in `impl` blocks for operators and conversions; no user-declared protocols or interfaces |
 | Destructuring | `var a, b = value`, `a, b = value`, and `for a, b in values` split an iterable of exactly that many elements; there are no tuples or nested patterns |

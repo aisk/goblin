@@ -57,3 +57,8 @@ false
 false
 false
 ["size", "decode", "to_hex", "contains", "count", "index", "has_prefix", "has_suffix", "trim_prefix", "trim_suffix", "replace", "split", "cut"]
+cannot add String and Int
+cannot add String and Bool
+cannot add String and Float
+cannot add String and Nil
+80801 8080true

@@ -78,6 +78,22 @@ print(workers) # 8
 Int() rejects non-numeric text with ValueError. This makes it suitable for
 validating numeric input inside a try/catch block.
 
+`Int(text, base=16)` reads text written in another base, from 2 to 36. The
+text is the digits of that base, letters in either case, with an optional
+leading `+` or `-` and nothing else: a prefix such as `0x`, an underscore or a
+space raises ValueError, so strip a prefix first. `base` needs a String value;
+`Int(255, base=16)` raises TypeError.
+
+~~~goblin
+print(Int("ff", base=16))   # 255
+print(Int("755", base=8))   # 493, a permission mode for fs.chmod
+var color = "#ff8800"
+print(Int(color[1:3], base=16), Int(color[3:5], base=16)) # 255 136
+~~~
+
+Hex text becomes Bytes by reading it two digits at a time:
+`Bytes(range(hex.size / 2).map(func(i) { return Int(hex[i * 2:i * 2 + 2], base=16) }))`.
+
 ## Booleans and nil
 
 Use Bool(value) to convert any value by truthiness. False, nil, numeric zero,

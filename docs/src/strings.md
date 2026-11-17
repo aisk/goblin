@@ -165,9 +165,10 @@ print(text[7:])  # wörld
 print(text[1:2]) # é
 ~~~
 
-Bounds are positions between characters, from `-size` to `size`, a negative
-one counting from the end (`text[:-1]` drops the last character); anything
-else raises IndexError, exactly as for a [list slice](./collections.md#slicing).
+Bounds are positions between characters, a negative one counting from the end
+(`text[:-1]` drops the last character). As for a
+[list slice](./collections.md#slicing), a bound outside the text stops at its
+edge, so `line[:80]` is at most 80 characters and never raises.
 
 ## Characters and code points
 
@@ -200,15 +201,19 @@ hexadecimal literal needs none.
 
 ## Combining and converting text
 
-Use + to concatenate strings. A string can also concatenate an integer or
-boolean, and * repeats it by an integer count, in either operand order. A
-negative count raises ValueError.
+Use + to concatenate two strings. Both operands must be strings: `"item-" + 3`
+raises TypeError, because text that only looks like a number, such as a port
+read from the environment, would otherwise turn `port + 1` into `"80801"`
+without an error. Put the value in an interpolation or convert it with
+`String(x)` first. `*` repeats a string by an integer count, in either operand
+order; a negative count raises ValueError.
 
 ~~~goblin
-print("go" + "blin") # goblin
-print("item-" + 3)   # item-3
-print("ha" * 3)      # hahaha
-print(3 * "ha")      # hahaha
+print("go" + "blin")      # goblin
+print("item-{3}")         # item-3
+print("item-" + String(3)) # item-3
+print("ha" * 3)           # hahaha
+print(3 * "ha")           # hahaha
 ~~~
 
 String(value) converts any value to its display text, the same text `print`
