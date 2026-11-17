@@ -19,8 +19,15 @@ import (
 // position of its first occurrence. A document that is not valid JSON, empty
 // input and anything after the document other than whitespace are a
 // ParseError naming the place as "line L, column C", which it also carries as
-// the data `line` and `column`. funcname is the function to blame.
+// the data `line` and `column`; so is input that is not valid UTF-8, at its
+// first invalid byte. funcname is the function to blame.
 func Decode(funcname string, data []byte) (object.Object, error) {
+	// The scanner below would pass invalid bytes through to Strings, or
+	// replace them inside string literals, and either way the result would
+	// silently differ from the input.
+	if offset := invalidUTF8(data); offset >= 0 {
+		return nil, parseError(funcname, data, offset, "invalid UTF-8")
+	}
 	// Validate the whole input first: the scanner behind Unmarshal reports
 	// the offset of every syntax error, trailing data included, while the
 	// token reader below only has to build values from a valid document.
@@ -45,6 +52,22 @@ func Decode(funcname string, data []byte) (object.Object, error) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.UseNumber()
 	return (&reader{funcname: funcname, data: data, dec: dec}).value()
+}
+
+// invalidUTF8 is the offset of the first byte of data that is not part of a
+// valid UTF-8 sequence, or -1.
+func invalidUTF8(data []byte) int {
+	if utf8.Valid(data) {
+		return -1
+	}
+	for offset := 0; offset < len(data); {
+		r, size := utf8.DecodeRune(data[offset:])
+		if r == utf8.RuneError && size == 1 {
+			return offset
+		}
+		offset += size
+	}
+	return -1
 }
 
 func parseError(funcname string, data []byte, offset int, what string) error {
@@ -212,11 +235,45 @@ func (e *encoder) value(obj object.Object, level int) error {
 	return e.value(encoded, level)
 }
 
+// str writes s as a JSON string. Only what JSON requires is escaped: the
+// quote, the backslash and the control characters below U+0020. Everything
+// else, `<`, `>`, `&` and U+2028 included, is written as it is, so URLs and
+// text stay readable. Invalid UTF-8 is written as U+FFFD.
 func (e *encoder) str(s string) {
-	// Marshal of a Go string cannot fail; it escapes what JSON requires and
-	// replaces invalid UTF-8.
-	b, _ := json.Marshal(s)
-	e.buf.Write(b)
+	const hex = "0123456789abcdef"
+	e.buf.WriteByte('"')
+	for i := 0; i < len(s); {
+		c := s[i]
+		if c < utf8.RuneSelf {
+			switch {
+			case c == '"' || c == '\\':
+				e.buf.WriteByte('\\')
+				e.buf.WriteByte(c)
+			case c == '\n':
+				e.buf.WriteString(`\n`)
+			case c == '\r':
+				e.buf.WriteString(`\r`)
+			case c == '\t':
+				e.buf.WriteString(`\t`)
+			case c < 0x20:
+				e.buf.WriteString(`\u00`)
+				e.buf.WriteByte(hex[c>>4])
+				e.buf.WriteByte(hex[c&0xf])
+			default:
+				e.buf.WriteByte(c)
+			}
+			i++
+			continue
+		}
+		r, size := utf8.DecodeRuneInString(s[i:])
+		if r == utf8.RuneError && size == 1 {
+			e.buf.WriteString("\ufffd")
+		} else {
+			e.buf.WriteString(s[i : i+size])
+		}
+		i += size
+	}
+	e.buf.WriteByte('"')
 }
 
 func (e *encoder) newline(level int) {

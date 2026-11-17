@@ -79,6 +79,9 @@ type Reading(at, value) {
 }
 print(json.encode({"temp": Reading(1, Celsius(21))}))
 
+# Strings are escaped only where JSON requires it, so URLs stay readable
+print(json.encode({"u": "https://a/?x=1&y=<2>", "tab": "a\tb", "nul": (0).to_char()}))
+
 # Decoding: numbers without a fraction or exponent are Ints, Objects keep
 # document order, and a repeated key keeps its last value at its first place
 var decoded = json.decode(Bytes(`{"b": 1, "a": 2.5, "n": 1e2, "big": 9223372036854775808, "b": [null, false]}`))
@@ -98,7 +101,7 @@ type Chunks(parts) {
 print(json.decode(Chunks(["[1, ", "2, ", "3]"])))
 
 # Errors
-for text in ["", "[1, 2", `{"a": tru}`, "1 2", "[1e999]", `{"é": 1,}`] {
+for text in ["", "[1, 2", `{"a": tru}`, "1 2", "[1e999]", `{"é": 1,}`, Bytes("[\"é\",\n \"") + Bytes([255]) + Bytes("\"]")] {
     try {
         json.decode(text)
     } catch e: ParseError {

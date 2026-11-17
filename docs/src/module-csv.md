@@ -2,8 +2,8 @@
 
 The csv module turns CSV text into rows and back: reading a spreadsheet export,
 writing a report a spreadsheet can open. A row is a List of Strings, or a Dict
-from column name to field; a table is a List of rows. It works on whole
-documents.
+from column name to field; a table is a List of rows. `decode` and `encode`
+work on whole documents; `read_rows` reads a stream one row at a time.
 
 ## Common tasks
 
@@ -44,6 +44,22 @@ try {
 } catch e: ParseError {
     eprint("upload.csv, line {e.line}: {e.message}")
 }
+
+# A file of any size, one row at a time; pair the header with the rows yourself
+var big = fs.open("big.csv")
+defer big.close()
+var columns = nil
+for row in csv.read_rows(big) {
+    if columns == nil {
+        columns = row
+        continue
+    }
+    var record = {}
+    for i in range(columns.size) {
+        record[columns[i]] = row[i]
+    }
+    print(record)
+}
 ~~~
 
 `examples/csv.goblin` runs each of these tasks.
@@ -59,6 +75,7 @@ with `fs.write(path, csv.encode([row]), append=true)`.
 | --- | --- | --- |
 | `decode(data, sep=",")` | List of List of String | Every record as a row, as long as the record is. `data` is a String, Bytes, or a readable read to its end. Quoted fields, line breaks inside them and `""` escapes follow RFC 4180. A leading byte-order mark is dropped and blank lines are skipped. Empty input is `[]` |
 | `decode_dicts(data, sep=",")` | List of Dict | The first record is the header; every later record becomes a Dict from column name to field, in header order. Every record must have exactly as many fields as the header. Empty input, or a header alone, is `[]` |
+| `read_rows(readable, sep=",")` | `csv.Rows` | A lazy iterable over the rows `decode` would return for what `readable` (anything with a `read(size)` method, such as a File from `fs.open` or `gzip.open`) holds. Each step reads only as far as the next row, so the data never has to fit in memory. A pass starts where the readable is, dropping a byte-order mark there; it reads ahead in chunks, so after a loop that stops early the readable's position is past the last row given. `read_rows` never closes the readable: whoever opened it does, with `defer`. It takes no path and no String or Bytes; for those use `decode` |
 | `encode(rows, sep=",", columns=nil)` | String | CSV text, one `\n`-terminated line per row, quoting only where needed. `rows` is any iterable of Lists or of Dicts. For Dicts a header line comes first: `columns` (a List of Strings) when given, otherwise the keys of the first Dict; a Dict without one of the columns writes an empty field there. With List rows, `columns` is written as the header line. No rows and no `columns` is `""` |
 
 `sep` is one character, other than a quote or a line break.
@@ -79,22 +96,24 @@ columns without a word.
 | --- | --- | --- |
 | A quote where none may be | ParseError `decode() invalid CSV at line 3, column 9: stray quote` | `line`, `column`: Ints counted from 1, where the reader stopped; `column` counts characters |
 | A quoted field that never ends | ParseError `decode() invalid CSV at line 2, column 3: quoted field never ends` | `line`, `column` |
+| Bytes that are not valid UTF-8, such as a Windows-1252 export | ParseError `decode() invalid CSV at line 2, column 4: invalid UTF-8` | `line`, `column` of the first invalid byte. `decode` and `decode_dicts` check the whole input before reading it; `read_rows` checks each row as it reads it, so the rows before the bad one have been yielded |
 | `decode_dicts`: a record with a different number of fields than the header | ParseError `decode_dicts() invalid CSV at line 3, column 1: expected 4 fields, got 3` | `line`: the line the record starts on; `column`: 1 |
 | `decode_dicts`: the header names a column twice | ParseError `decode_dicts() invalid CSV at line 1, column 8: duplicate column "id"` | `line`, `column` of the second occurrence |
 | `sep` is not one usable character | ValueError `decode() argument 'sep' must be one character other than a quote or a line break, got ";;"` | — |
-| Reading a readable `data` fails | the error the readable raised, such as IOError | — |
+| Reading a readable `data` (or the `readable` of `read_rows`) fails | the error the readable raised, such as IOError | — |
+| `read_rows`: `readable` has no `read(size)` method | TypeError `read_rows() argument 'readable' must have a read(size) method, got String` | — |
 | `encode`: a row that is not a List or Dict | TypeError `encode() row 2 must be List or Dict, got Int` | — |
 | `encode`: a List or Dict as a field, or an instance without `impl Show` | TypeError `encode() row 1 cannot hold a List as a field` | — |
 | `encode`: a Dict key that is not a column | ValueError `encode() row 2 has unknown column "x"` | — |
 | `encode`: a Dict row after List rows, with no `columns` | ValueError `encode() row 2 is a Dict but the rows before it are Lists; give the columns with columns=` | — |
 
-Rows in `encode` messages are counted from 1. `line` counts lines in the text,
+The errors of `read_rows` name `read_rows()` and are otherwise those of
+`decode`. Rows in `encode` messages are counted from 1. `line` counts lines in the text,
 so a quoted field with line breaks in it moves it on; the names mean what they
 mean for [json](./module-json.md).
 
 ## Left out
 
-Reading a file too large for memory row by row (until it comes, a file with no
-line breaks inside quoted fields can be read with `fs.read_lines(path)` and
-`csv.decode(line)[0]`), comments, lenient quoting and trimming of spaces (clean
+Reading rows by column name lazily (pair the header row with the rows of
+`read_rows`, as above), comments, lenient quoting and trimming of spaces (clean
 the text first), and encodings other than UTF-8.

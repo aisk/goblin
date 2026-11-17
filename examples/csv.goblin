@@ -28,6 +28,24 @@ for row in csv.decode(fs.read(scratch.join("legacy.csv")))[1:] {
     print(row[0], note)
 }
 
+# Read a file of any size one row at a time; the file stays open until the
+# defer, and a header row is paired with the rows after it by hand
+var big = fs.open(scratch.join("people.csv"))
+defer big.close()
+var columns = nil
+for row in csv.read_rows(big) {
+    if columns == nil {
+        columns = row
+        continue
+    }
+    var record = {}
+    for i in range(columns.size) {
+        record[columns[i]] = row[i]
+    }
+    print(record)
+}
+print(big.closed, type_of(csv.read_rows(big)) == csv.Rows)
+
 # Write rows; numbers are written as print shows them, so format the ones that need it
 var table = [["name", "score"], ["Ada", 97], ["Linus", format(88.5, ".2f")]]
 fs.write(scratch.join("scores.csv"), csv.encode(table))
@@ -87,6 +105,22 @@ for text in ["a,b\n\"x\"y,z\n", "a,\"b\nc\n"] {
     } catch e: ParseError {
         print(e.line, e.column, e.message)
     }
+}
+var latin1 = Bytes("name\nJos") + Bytes([233]) + Bytes("\n")
+try {
+    csv.decode(latin1)
+} catch e: ParseError {
+    print(e.line, e.column, e.message)
+}
+fs.write(scratch.join("latin1.csv"), latin1)
+var exported = fs.open(scratch.join("latin1.csv"))
+defer exported.close()
+try {
+    for row in csv.read_rows(exported) {
+        print(row)
+    }
+} catch e: ParseError {
+    print(e.line, e.column, e.message)
 }
 for text in ["id,name\n1\n", "id,näme,id\n"] {
     try {

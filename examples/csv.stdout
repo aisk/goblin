@@ -3,6 +3,9 @@ Linus 29
 ["city", "population"] [["Oslo", "709000"], ["Bergen", "291000"]]
 1 late
 2 
+{"name": "Ada", "age": "36"}
+{"name": "Linus", "age": "28"}
+false true
 name,score
 Ada,97
 Linus,88.50
@@ -33,6 +36,9 @@ true a,b
 
 2 3 decode() invalid CSV at line 2, column 3: stray quote
 2 3 decode() invalid CSV at line 2, column 3: quoted field never ends
+2 4 decode() invalid CSV at line 2, column 4: invalid UTF-8
+["name"]
+2 4 read_rows() invalid CSV at line 2, column 4: invalid UTF-8
 2 1 decode_dicts() invalid CSV at line 2, column 1: expected 2 fields, got 1
 1 9 decode_dicts() invalid CSV at line 1, column 9: duplicate column "id"
 TypeError encode() row 2 must be List or Dict, got Int

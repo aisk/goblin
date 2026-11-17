@@ -69,7 +69,7 @@ or escaped braces (`"\{\"a\": 1}"`), because `{` starts an interpolation.
 
 | Member | Returns | Behaviour |
 | --- | --- | --- |
-| `encode(value, indent=nil)` | String | The JSON text of `value`. `indent=nil` is compact (`{"a":1,"b":[1,2]}`); an Int is the number of spaces per level, with `": "` after keys. Dict entries are written in the Dict's order |
+| `encode(value, indent=nil)` | String | The JSON text of `value`. `indent=nil` is compact (`{"a":1,"b":[1,2]}`); an Int is the number of spaces per level, with `": "` after keys. Dict entries are written in the Dict's order. In strings only `"`, `\` and the control characters below U+0020 are escaped, so `<`, `>`, `&` and every other character are written as they are |
 | `decode(data)` | value | The value of one JSON document. `data` is a String, Bytes, or a readable read to its end. Objects become Dicts in document order |
 
 ## Values
@@ -101,6 +101,7 @@ of its first occurrence.
 | Failure | Raises | Data on the error |
 | --- | --- | --- |
 | `decode`: text that is not one JSON document, including empty text and anything but whitespace after the document | ParseError `decode() invalid JSON at line 2, column 9: unexpected "}"` | `line`, `column`: Ints counted from 1, where the text stops being JSON. `column` counts characters, not bytes. Empty input is line 1, column 1 |
+| `decode`: bytes that are not valid UTF-8 | ParseError `decode() invalid JSON at line 1, column 2: invalid UTF-8` | `line`, `column` of the first invalid byte |
 | `decode`: a number too large for a Float | ParseError `decode() invalid JSON at line 1, column 2: number 1e999 is out of range` | `line`, `column` |
 | `decode`: `data` has the wrong type | TypeError `decode() argument 'data' must be String, Bytes or have a read(size) method, got Int` | — |
 | `decode`: reading a readable `data` fails | the error the readable raised, such as IOError | — |

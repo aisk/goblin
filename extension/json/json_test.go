@@ -112,6 +112,8 @@ func TestDecodeErrorsCarryPosition(t *testing.T) {
 		{"\"a\nb\"", "decode() invalid JSON at line 1, column 3: unexpected \"\\n\"", 1, 3},
 		{"\xef\xbb\xbf1", "decode() invalid JSON at line 1, column 1: unexpected \"\\ufeff\"", 1, 1},
 		{"[1e999]", "decode() invalid JSON at line 1, column 2: number 1e999 is out of range", 1, 2},
+		{"\"\xff\"", "decode() invalid JSON at line 1, column 2: invalid UTF-8", 1, 2},
+		{"{\"é\":\n  \"a\xe9b\"}", "decode() invalid JSON at line 2, column 5: invalid UTF-8", 2, 5},
 	}
 	for _, c := range cases {
 		_, err := call("decode", object.Args{object.String(c.in)})
@@ -157,6 +159,10 @@ func TestEncodeScalars(t *testing.T) {
 	cases := map[string]object.Object{
 		"null": object.Nil, "true": object.True, "2.0": object.Float(2), "0.1": object.Float(0.1),
 		`"a\"\n"`: object.String("a\"\n"), "-3": object.Integer(-3),
+		// Only what JSON requires is escaped.
+		`"https://a/?x=1&y=<2>"`:    object.String("https://a/?x=1&y=<2>"),
+		"\"\u2028é\\\\\\t\\u0001\"": object.String("\u2028é\\\t\x01"),
+		"\"a\ufffdb\"":              object.String("a\xffb"),
 	}
 	for want, v := range cases {
 		if got := encodeText(t, v); got != want {

@@ -1,6 +1,7 @@
 // Package csv converts between CSV text and rows: a row is a List of Strings
-// (or, by column name, a Dict) and a table is a List of rows. Whole documents
-// only.
+// (or, by column name, a Dict) and a table is a List of rows. decode and
+// encode work on whole documents; read_rows reads a stream one row at a
+// time.
 package csv
 
 import (
@@ -16,10 +17,13 @@ import (
 )
 
 func Execute() (object.Object, error) {
-	return object.NewModule("csv", nil, object.Funcs{
+	return object.NewModule("csv", map[string]object.Object{
+		"Rows": rowsType.Function,
+	}, object.Funcs{
 		"decode":       decode,
 		"decode_dicts": decodeDicts,
 		"encode":       encode,
+		"read_rows":    readRows,
 	}), nil
 }
 
@@ -60,10 +64,12 @@ func read(fn string, args object.CallArgs) (*table, error) {
 		return nil, err
 	}
 	data = bytes.TrimPrefix(data, byteOrderMark)
-	reader := csv.NewReader(bytes.NewReader(data))
-	reader.Comma = sep
-	reader.FieldsPerRecord = -1
 	t := &table{fn: fn, data: data}
+	if offset := invalidUTF8(data); offset >= 0 {
+		line := 1 + bytes.Count(data[:offset], []byte{'\n'})
+		return nil, t.errorAt(line, offset-t.lineStart(line)+1, "invalid UTF-8")
+	}
+	reader := newReader(bytes.NewReader(data), sep)
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -82,6 +88,31 @@ func read(fn string, args object.CallArgs) (*table, error) {
 	}
 }
 
+// newReader is the encoding/csv reader every function reads with: fields
+// separated by sep, records of any length.
+func newReader(r io.Reader, sep rune) *csv.Reader {
+	reader := csv.NewReader(r)
+	reader.Comma = sep
+	reader.FieldsPerRecord = -1
+	return reader
+}
+
+// invalidUTF8 is the offset of the first byte of data that is not part of a
+// valid UTF-8 sequence, or -1.
+func invalidUTF8(data []byte) int {
+	if utf8.Valid(data) {
+		return -1
+	}
+	for offset := 0; offset < len(data); {
+		r, size := utf8.DecodeRune(data[offset:])
+		if r == utf8.RuneError && size == 1 {
+			return offset
+		}
+		offset += size
+	}
+	return -1
+}
+
 // parseError turns an encoding/csv error into a ParseError at the place it
 // names, worded without Go's own message, which repeats the position.
 func (t *table) parseError(err error) error {
@@ -89,20 +120,30 @@ func (t *table) parseError(err error) error {
 	if !errors.As(err, &pe) {
 		return object.WrapError(object.ParseError, t.fn+"() invalid CSV", err)
 	}
-	what := "stray quote"
-	if errors.Is(pe.Err, csv.ErrQuote) && t.offset(pe.Line, pe.Column) >= len(bytes.TrimRight(t.data, "\r\n")) {
-		what = "quoted field never ends"
-	} else if !errors.Is(pe.Err, csv.ErrQuote) && !errors.Is(pe.Err, csv.ErrBareQuote) {
-		what = pe.Err.Error()
+	return t.errorAt(pe.Line, pe.Column, problem(pe, t.offset(pe.Line, pe.Column) >= len(bytes.TrimRight(t.data, "\r\n"))))
+}
+
+// problem words what pe found; atEnd says whether its position is at the end
+// of the input, where an open quote means a quoted field never ends.
+func problem(pe *csv.ParseError, atEnd bool) string {
+	switch {
+	case errors.Is(pe.Err, csv.ErrQuote) && atEnd:
+		return "quoted field never ends"
+	case errors.Is(pe.Err, csv.ErrQuote) || errors.Is(pe.Err, csv.ErrBareQuote):
+		return "stray quote"
 	}
-	return t.errorAt(pe.Line, pe.Column, what)
+	return pe.Err.Error()
 }
 
 // errorAt is the ParseError for a place given as encoding/csv gives it: a
 // line and a 1-based byte column in that line.
 func (t *table) errorAt(line, byteColumn int, what string) error {
-	column := t.column(line, byteColumn)
-	return object.NewParseError("%s() invalid CSV at line %d, column %d: %s", t.fn, line, column, what).
+	return errorAt(t.fn, line, t.column(line, byteColumn), what)
+}
+
+// errorAt is the ParseError of fn at a line and a character column.
+func errorAt(fn string, line, column int, what string) error {
+	return object.NewParseError("%s() invalid CSV at line %d, column %d: %s", fn, line, column, what).
 		With("line", object.Integer(line)).
 		With("column", object.Integer(column))
 }
