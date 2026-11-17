@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"encoding/hex"
 	"strconv"
 	"unicode/utf8"
 )
@@ -228,6 +229,14 @@ func (b Bytes) Decode(args CallArgs) (Object, error) {
 	return String(b), nil
 }
 
+// ToHex returns the bytes as two lower-case hexadecimal digits each.
+func (b Bytes) ToHex(args CallArgs) (Object, error) {
+	if err := RequireNoArgs("to_hex", args); err != nil {
+		return nil, err
+	}
+	return String(hex.EncodeToString(b)), nil
+}
+
 func (b Bytes) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
@@ -242,7 +251,7 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 func (b Bytes) Attributes() []string { return bytesMethods.attributes("size") }
 
 var bytesMethods = newMethodTable(
-	"decode", "contains", "count", "index", "has_prefix", "has_suffix",
+	"decode", "to_hex", "contains", "count", "index", "has_prefix", "has_suffix",
 	"trim_prefix", "trim_suffix", "replace", "split", "cut",
 )
 

@@ -25,7 +25,7 @@ var members = []struct {
 		"replace", "split", "cut",
 	}},
 	{Bytes("x"), []string{
-		"size", "decode", "contains", "count", "index", "has_prefix", "has_suffix",
+		"size", "decode", "to_hex", "contains", "count", "index", "has_prefix", "has_suffix",
 		"trim_prefix", "trim_suffix", "replace", "split", "cut",
 	}},
 	{&List{}, []string{
@@ -75,6 +75,7 @@ var sharedOperations = map[string][4]bool{
 	"join":     {true, false, false, false},
 	"copy":     {true, false, false, true},
 	"clear":    {true, false, false, true},
+	"to_hex":   {false, false, true, false},
 }
 
 func TestMatrixSharedOperations(t *testing.T) {
@@ -97,8 +98,8 @@ type outcome struct {
 	message  string
 }
 
-func val(s string) outcome                 { return outcome{value: s} }
-func receiver() outcome                    { return outcome{receiver: true} }
+func val(s string) outcome             { return outcome{value: s} }
+func receiver() outcome                { return outcome{receiver: true} }
 func fails(k *Error, m string) outcome { return outcome{kind: k, message: m} }
 
 // repr renders a value the way a collection shows its elements, so strings
@@ -174,6 +175,9 @@ var calls = []struct {
 	// Bytes
 	{func() Object { return Bytes("hé") }, "decode", CallArgs{}, val(`"hé"`)},
 	{func() Object { return Bytes{0xff} }, "decode", CallArgs{}, fails(ValueError, "decode() invalid UTF-8")},
+	{func() Object { return Bytes{0x00, 0xff, 0x10, 0xa4} }, "to_hex", CallArgs{}, val(`"00ff10a4"`)},
+	{func() Object { return Bytes("") }, "to_hex", CallArgs{}, val(`""`)},
+	{func() Object { return Bytes("a") }, "to_hex", pos(Integer(1)), fails(TypeError, "to_hex() takes 0 positional arguments, got 1")},
 	{func() Object { return Bytes("ab") }, "contains", kw("value", String("b")), val("true")},
 	{func() Object { return Bytes("aaa") }, "count", kw("value", Bytes("a")), val("3")},
 	{func() Object { return Bytes("éa") }, "index", kw("value", String("a"), "start", Integer(1)), val("2")},

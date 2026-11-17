@@ -121,9 +121,11 @@ the subsequence methods of strings, with positions counted in bytes:
 contains(), count(), index(), has_prefix(), has_suffix(), trim_prefix(),
 trim_suffix(), replace(), split() and cut(), each taking a String or Bytes
 argument. Text operations (upper(), trim(), splitting at whitespace) belong to
-strings: decode() first, which raises ValueError for invalid UTF-8. Bytes are
-hashable, so they can be dictionary keys. Use Bytes for raw data and strings
-for text.
+strings: decode() first, which raises ValueError for invalid UTF-8. to_hex()
+shows Bytes as text of two lower-case hexadecimal digits per byte (empty Bytes
+give ""), the usual way to print a digest or a random token. There is no
+reverse conversion from hexadecimal text to Bytes. Bytes are hashable, so they
+can be dictionary keys. Use Bytes for raw data and strings for text.
 
 ### Working with bytes
 
@@ -135,6 +137,7 @@ var header = Bytes("GET")
 print(header[0])          # 71
 print(header.contains("E"))
 print(header.decode())    # GET
+print(header.to_hex())    # 474554
 ~~~
 
 ## Lists and dictionaries
@@ -214,7 +217,7 @@ together.
 | Int / Float | Int(value), Float(value), max(...), min(...) |
 | Bool / Nil | Bool(value), !value, value && other, value \|\| other |
 | String | String(value), size, contains(), split(), replace() |
-| Bytes | Bytes(value), size, decode(), contains(), split() |
+| Bytes | Bytes(value), size, decode(), to_hex(), contains(), split() |
 | List | List(value), size, first, last, push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), get_or_set(), remove(), keys(), items(), update() |
 | Chan | Chan(capacity), send(value), receive(), close(), for value in channel |

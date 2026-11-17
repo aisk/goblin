@@ -45,9 +45,11 @@ b"héLLo, world" [b"héllo", b"world"] [b"hé", b"lo, world"] [b"héllo", b"worl
 split() missing required argument: 'sep'
 1 false hi
 true decode() invalid UTF-8
+00ff10a4 476f true
+476F
 false
 false
 false
 false
 false
-["size", "decode", "contains", "count", "index", "has_prefix", "has_suffix", "trim_prefix", "trim_suffix", "replace", "split", "cut"]
+["size", "decode", "to_hex", "contains", "count", "index", "has_prefix", "has_suffix", "trim_prefix", "trim_suffix", "replace", "split", "cut"]

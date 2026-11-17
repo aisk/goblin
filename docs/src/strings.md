@@ -128,6 +128,15 @@ print("port=" + String(port)) # port=8080
 print("port={port}")       # port=8080
 ~~~
 
+Bytes become text in two ways: `data.decode()` reads them as UTF-8 text, and
+`data.to_hex()` spells each byte as two lower-case hexadecimal digits, which is
+how a digest or a random token is usually printed.
+
+~~~goblin
+print(Bytes([104, 105]).decode()) # hi
+print(Bytes([0, 255]).to_hex())   # 00ff
+~~~
+
 ## Common string methods
 
 | Method | Purpose |

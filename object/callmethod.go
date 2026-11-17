@@ -168,6 +168,9 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "decode":
 		v, err := b.Decode(args)
 		return v, true, err
+	case "to_hex":
+		v, err := b.ToHex(args)
+		return v, true, err
 	case "contains":
 		v, err := b.Contains(args)
 		return v, true, err
