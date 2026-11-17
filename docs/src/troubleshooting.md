@@ -6,7 +6,7 @@ message and traceback include the source location.
 | Symptom | Likely cause | What to check |
 | --- | --- | --- |
 | Parse error | Syntax the grammar does not accept | Braces, commas, string escapes, and function parameter syntax |
-| Semantic error | A name, declaration, or statement is invalid in its scope | Declare names before use; keep import/type/export at module scope |
+| Semantic error | A name, declaration, or statement is invalid in its scope, or a call or attribute can never succeed | Declare names before use; keep import/type/export at module scope; compare the call with the function's parameters and the attribute with the type's fields |
 | NameError / AttributeError | A runtime name or member is unavailable | Spelling, module import, and `value.attributes()` in the REPL |
 | TypeError | An operation received an unsupported value type | Constructor inputs, callback return values, and operator operands |
 | IndexError / KeyError | A list index or dictionary key is absent | Bounds checks, dict.get(), and list.index() returning -1 |

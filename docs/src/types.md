@@ -52,6 +52,28 @@ print(counter.increment()) # 1
 print(counter.increment()) # 2
 ```
 
+An instance has exactly the fields and methods its type declares; it cannot
+grow new ones. Where the type of a value is certain, a misspelled name is
+reported before the program runs instead of raising AttributeError when the
+line is reached:
+
+```goblin
+type Counter(value=0) {
+    func reset(self) {
+        self.valeu = 0      # error: Counter has no attribute 'valeu'
+    }
+}
+
+var counter = Counter()
+print(counter.total)        # error: Counter has no attribute 'total'
+counter.reset(1)            # error: Counter.reset() takes 0 positional arguments, got 1
+```
+
+The type is certain for `self` inside the type's own methods and impl blocks,
+for a construction such as `Counter().value`, and for a variable declared
+with a construction and never assigned again. A value that arrives any other
+way, such as a parameter or a list element, is checked when the access runs.
+
 ## Operators and conversions
 
 A type takes part in operators, comparison, printing, conditions, loops and

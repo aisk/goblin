@@ -113,6 +113,31 @@ name may only be supplied once per call: naming an argument twice — whether by
 two explicit keywords, two `**` dictionaries that share a key, or one of each —
 raises a TypeError.
 
+### Calls checked before the program runs
+
+When a call names a function directly, its arguments are matched against the
+parameter list before the program starts, by `goblin run` and `goblin
+build-exe` alike:
+
+```goblin
+func area(width, height = 1) {
+    return width * height
+}
+
+area()             # error: area() missing required positional argument: 'width'
+area(1, 2, 3)      # error: area() takes 2 positional arguments, got 3
+area(1, depth=2)   # error: area() got an unexpected keyword argument 'depth'
+area(1, width=2)   # error: area() got multiple values for argument 'width'
+```
+
+This covers names bound by `func`, by `type` (the constructor), and by a
+`var` initialized with a function literal, as long as the name is never
+assigned anywhere in the module. A `*` or `**` argument supplies an unknown
+number of values, so only mistakes that no expansion could repair are
+reported. Every other call — through a parameter, a reassigned name, a list
+element, a function from another module — is matched when it runs and raises
+the same message as a TypeError. The REPL does no checking ahead of time.
+
 ## Deferred calls
 
 `defer` schedules a call for the moment the enclosing function ends, however

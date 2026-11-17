@@ -30,17 +30,28 @@ type symbol struct {
 	// kind is "type" or "trait" for a declaration whose binding the
 	// program may not reassign, and empty otherwise.
 	kind string
+
+	// The rest feeds the static call and attribute checks (static.go).
+	// reassigned is set by any assignment to the name, which voids the
+	// facts below.
+	reassigned bool
+	// callable is the parameter list when the name is bound to a function.
+	callable *signature
+	// typeDef is the declaration when the name is a module type.
+	typeDef *ast.TypeDefine
+	// instance is the type the name's value is known to be an instance of.
+	instance *ast.TypeDefine
 }
 
 type scope struct {
 	parent  *scope
-	symbols map[string]symbol
+	symbols map[string]*symbol
 }
 
 func newScope(parent *scope) *scope {
 	return &scope{
 		parent:  parent,
-		symbols: make(map[string]symbol),
+		symbols: make(map[string]*symbol),
 	}
 }
 
@@ -48,18 +59,18 @@ func (s *scope) declare(name string) bool {
 	if _, exists := s.symbols[name]; exists {
 		return false
 	}
-	s.symbols[name] = symbol{name: name}
+	s.symbols[name] = &symbol{name: name}
 	return true
 }
 
 // resolve finds the symbol a name refers to from this scope.
-func (s *scope) resolve(name string) (symbol, bool) {
+func (s *scope) resolve(name string) (*symbol, bool) {
 	for cur := s; cur != nil; cur = cur.parent {
 		if sym, exists := cur.symbols[name]; exists {
 			return sym, true
 		}
 	}
-	return symbol{}, false
+	return nil, false
 }
 
 func (s *scope) lookup(name string) bool {
@@ -89,6 +100,10 @@ type checker struct {
 	// are validated at runtime instead.
 	opaque  map[*object.Trait]bool
 	imports map[string]bool
+
+	// pending holds the static call and attribute checks, run once the
+	// whole module has been walked (static.go).
+	pending []func() error
 }
 
 // goReservedNames lists names the transpiler cannot emit as user identifiers.
@@ -173,15 +188,21 @@ func CheckModule(mod *ast.Module) error {
 		}
 		// Types and traits are bound when the module loads, so reassigning
 		// one could not change what the impls and constructions see.
-		switch stmt.(type) {
+		sym := c.currentScope.symbols[name]
+		switch v := stmt.(type) {
 		case *ast.TypeDefine:
-			c.currentScope.symbols[name] = symbol{name: name, kind: "type"}
+			sym.kind, sym.typeDef = "type", v
 		case *ast.TraitDefine:
-			c.currentScope.symbols[name] = symbol{name: name, kind: "trait"}
+			sym.kind = "trait"
+		case *ast.FunctionDefine:
+			sym.callable = functionSignature(v.Name, v.Parameters, 0)
 		}
 	}
 
-	return c.checkStatements(mod.Body, true)
+	if err := c.checkStatements(mod.Body, true); err != nil {
+		return err
+	}
+	return c.runPending()
 }
 
 func (c *checker) checkStatements(stmts []ast.Statement, isModuleScope bool) error {
@@ -257,7 +278,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			if !declaresSelf(method) {
 				return c.newError(method.Position(), "type method must declare 'self' as the first parameter")
 			}
-			if err := c.checkMethod(method); err != nil {
+			if err := c.checkMethod(method, v); err != nil {
 				return err
 			}
 		}
@@ -274,9 +295,12 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		if err := c.checkReservedName(v.Position(), v.Name); err != nil {
 			return err
 		}
+		callable, instance := c.valueFacts(v.Name, v.Value)
 		if !c.currentScope.declare(v.Name) {
 			return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
 		}
+		sym := c.currentScope.symbols[v.Name]
+		sym.callable, sym.instance = callable, instance
 		return nil
 	case *ast.Destructure:
 		if err := c.checkExpression(v.Value); err != nil {
@@ -293,6 +317,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		if sym.kind != "" {
 			return c.newError(v.Position(), "cannot assign to %s %s", sym.kind, v.Target)
 		}
+		sym.reassigned = true
 		return c.checkExpression(v.Value)
 	case *ast.SetIndex:
 		if err := c.checkExpression(v.Object); err != nil {
@@ -306,6 +331,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		if err := c.checkExpression(v.Object); err != nil {
 			return err
 		}
+		c.noteAttr(v.Object, v.Property, v, true)
 		return c.checkExpression(v.Value)
 	case *ast.FunctionDefine:
 		// Module-level function names were already hoisted by CheckModule;
@@ -317,6 +343,7 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			if !c.currentScope.declare(v.Name) {
 				return c.newError(v.Position(), "duplicate declaration in same scope: %s", v.Name)
 			}
+			c.currentScope.symbols[v.Name].callable = functionSignature(v.Name, v.Parameters, 0)
 		}
 		return c.checkFunction(v.Parameters, v.Body)
 	case *ast.IfElse:
@@ -425,8 +452,9 @@ func declaresSelf(method *ast.FunctionDefine) bool {
 // checkMethod checks a method body, of a type or of a trait. Default
 // expressions are evaluated in the defining scope, where fields and self are
 // not visible; inside the body only the parameters are in scope, fields are
-// reached through self.
-func (c *checker) checkMethod(method *ast.FunctionDefine) error {
+// reached through self. self is the type whose instances the method runs on,
+// or nil for a trait's default method, which runs on any implementing type.
+func (c *checker) checkMethod(method *ast.FunctionDefine, self *ast.TypeDefine) error {
 	if err := c.checkParameterDefaults(method.Parameters); err != nil {
 		return err
 	}
@@ -445,6 +473,8 @@ func (c *checker) checkMethod(method *ast.FunctionDefine) error {
 				return c.newError(param.Pos, "duplicate parameter name: %s", param.Name)
 			}
 		}
+		// Methods are only reachable through an instance, so self is one.
+		c.currentScope.symbols["self"].instance = self
 		return c.checkStatements(method.Body, false)
 	})
 }
@@ -497,7 +527,7 @@ func (c *checker) checkTrait(def *ast.TraitDefine) error {
 		}
 		seen[method.Name] = true
 		if method.Body != nil {
-			if err := c.checkMethod(method); err != nil {
+			if err := c.checkMethod(method, nil); err != nil {
 				return err
 			}
 		}
@@ -559,7 +589,7 @@ func (c *checker) checkImpls(def *ast.TypeDefine) error {
 			if err := c.checkTraitMethod(method); err != nil {
 				return err
 			}
-			if err := c.checkMethod(method); err != nil {
+			if err := c.checkMethod(method, def); err != nil {
 				return err
 			}
 			methods[i] = object.ImplMethod{Name: method.Name, Arity: len(method.Parameters)}
@@ -692,6 +722,7 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		if err := c.checkExpression(v.Callee); err != nil {
 			return err
 		}
+		c.noteCall(v)
 		return c.checkCallArguments(v.Args)
 	case *ast.BinaryOperation:
 		if err := c.checkExpression(v.LHS); err != nil {
@@ -736,6 +767,7 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		}
 		return nil
 	case *ast.MemberExpression:
+		c.noteAttr(v.Object, v.Property, v, false)
 		return c.checkExpression(v.Object)
 	default:
 		return nil

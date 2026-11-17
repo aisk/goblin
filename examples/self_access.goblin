@@ -21,7 +21,10 @@ type Counter(count, step) {
     }
 
     func missing(self) {
-        return self.nothing
+        # A missing attribute of self itself is a compile-time error; one
+        # reached through a value of unknown type is found when it runs.
+        var other = [self][0]
+        return other.nothing
     }
 }
 
@@ -54,8 +57,9 @@ type Point(x, y = 10) {
 print(Point(1, 2).sum())
 print(Point(1).sum())
 print(Point(y = 3, x = 4).sum())
+var too_many = [1, 2, 3]
 try {
-    Point(1, 2, 3)
+    Point(*too_many)
 } catch e {
     print("caught:", e)
 }

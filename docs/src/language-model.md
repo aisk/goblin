@@ -11,6 +11,7 @@ before designing a larger program:
 | Area | Current behavior |
 | --- | --- |
 | Types | Dynamic; functions and fields have no annotations |
+| Static checks | Names and scopes, plus argument counts of calls to known functions and attribute names on values of a known user type; anything dynamic is checked at runtime |
 | Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
 | Strings | Unicode-aware iteration, size, and `string[low:high]` slices; no `string[index]` syntax |
 | Lists | Direct indexes and slice bounds are non-negative; some methods such as pop() accept negative indexes |

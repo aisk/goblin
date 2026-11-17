@@ -429,17 +429,16 @@ print(Vec(1, 2))
 		}
 	})
 
-	t.Run("keyword, wrong arity and shadowed constructions stay generic", func(t *testing.T) {
+	t.Run("keyword and shadowed constructions stay generic", func(t *testing.T) {
 		code := transpileSource(t, `type Vec(x, y) {}
 print(Vec(x = 1, y = 2))
-print(Vec(1))
 func f() {
     var Vec = 1
     return Vec(1, 2)
 }
 `)
-		if n := strings.Count(code, "object.Call(VecConstructor"); n != 2 {
-			t.Fatalf("expected two generic constructions, got %d\n%s", n, code)
+		if n := strings.Count(code, "object.Call(VecConstructor"); n != 1 {
+			t.Fatalf("expected one generic construction, got %d\n%s", n, code)
 		}
 		if strings.Contains(code, "_new_Vec_1(") {
 			t.Fatalf("a shadowed or non-positional construction must not lower\n%s", code)
@@ -478,7 +477,7 @@ func TestDirectSelfAccess(t *testing.T) {
 		}
 	})
 
-	t.Run("rebound self, unknown members and function fields stay generic", func(t *testing.T) {
+	t.Run("rebound self and function fields stay generic", func(t *testing.T) {
 		code := transpileSource(t, `type C(f) {
     func rebind(self) {
         self = C(1)
@@ -487,12 +486,9 @@ func TestDirectSelfAccess(t *testing.T) {
     func call(self) {
         return self.f(1)
     }
-    func missing(self) {
-        return self.nope
-    }
 }
 `)
-		if !strings.Contains(code, `(self).GetAttr("f")`) || !strings.Contains(code, `(self).GetAttr("nope")`) {
+		if !strings.Contains(code, `(self).GetAttr("f")`) {
 			t.Fatalf("expected generic attribute access\n%s", code)
 		}
 		if !strings.Contains(code, `object.CallMethod(self, "f"`) {
