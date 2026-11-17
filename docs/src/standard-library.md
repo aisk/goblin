@@ -1,16 +1,16 @@
 # Standard library
 
 Goblin's standard library provides modules for common program boundaries:
-files, environment variables, external commands, paths, time, data formats, networking, random
+files and paths, environment variables, external commands, time, data formats, networking, random
 values, mathematics, and MIME metadata. Import a module at module scope, then
 access its members with dot notation.
 
 ~~~goblin
 import "json"
-import "path"
+import "fs"
 
-var cwd = path.cwd()
-var text = json.marshal({"cwd": cwd})
+var cwd = fs.cwd()
+var text = json.marshal({"cwd": String(cwd)})
 print(text)
 ~~~
 
@@ -38,10 +38,9 @@ var packed = gzip.compress("hello")
 | Module | Main purpose | Start with |
 | --- | --- | --- |
 | [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
-| [fs](./module-fs.md) | Read, write, inspect, and remove files | read(), write(), exists() |
-| [os](./module-os.md) | Read environment and process information | argv(), getenv(), getwd(), hostname() |
+| [fs](./module-fs.md) | Files, directories and path names | read(), write(), Path() |
+| [os](./module-os.md) | Read environment and process information | argv(), getenv(), hostname() |
 | [exec](./module-exec.md) | Configure and execute external commands | Command() |
-| [path](./module-path.md) | Find the current or home directory | cwd(), home() |
 | [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
 | [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
@@ -88,7 +87,7 @@ from; see [Errors](./errors.md).
 
 Use json whenever a program boundary expects JSON rather than trying to build
 JSON text manually. Prefer fs for simple whole-file reads and writes, and use
-its open() function when a file object is needed. Use path.cwd() or path.home()
+its open() function when a file object is needed. Use fs.cwd() or fs.home()
 instead of assuming a current directory. Use time.sleep() only for intentional
 delays, and use Chan plus spawn() for communication between concurrent Goblin
 functions.

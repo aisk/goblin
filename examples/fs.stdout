@@ -1,26 +1,36 @@
-fs open works
-fs_fixture.txt
+true true
+hello from fs fixture
+["hello from fs fixture", "started", ""]
 22
-hello from fs fixture
-
+started lines: 1
+first line: hello from fs fixture
+guide.md guide .md
+build/guide.html build false
+a/c.txt report.tar
+www/index.html
+true false true
 true
-true
-false
-hello from fs fixture
-
-fs_dir_fixture
-true
-2
-alpha.txt
-beta.txt
-fs_created.txt
-hello
-reset-tail
-true
-false
-false
-hello
- from
-12
-0
-line: hello from fs fixture
+<h1>hello from fs fixture</h1>
+fs_dir_fixture/alpha.txt alpha.txt 6
+fs_dir_fixture/beta.txt beta.txt 5
+glob: docs/guide/setup.md
+glob: docs/intro.md
+walk: build/guide.html
+walk: copy.txt
+walk: docs/guide/notes.txt
+walk: docs/guide/setup.md
+walk: docs/intro.md
+true true
+name,size b"alph"
+rest: a,6
+rest: beta,5
+nil
+true false true
+["copy.txt", "guide", "intro.md"]
+13 true false false true true
+read() cannot open "missing.txt": no such file or directory
+remove() directory "<scratch>/docs" is not empty (pass recursive=true)
+copy() "<scratch>/docs-backup" already exists
+with_suffix() invalid suffix "txt"
+File cannot be constructed; use fs.open(path)
+true true

@@ -17,7 +17,6 @@ import (
 	jsonExt "github.com/aisk/goblin/extension/json"
 	mathExt "github.com/aisk/goblin/extension/math"
 	osExt "github.com/aisk/goblin/extension/os"
-	pathExt "github.com/aisk/goblin/extension/path"
 	randExt "github.com/aisk/goblin/extension/rand"
 	regexpExt "github.com/aisk/goblin/extension/regexp"
 	timeExt "github.com/aisk/goblin/extension/time"
@@ -63,7 +62,6 @@ var modules = map[string]object.ModuleExecutor{
 	"json":                   jsonExt.Execute,
 	"math":                   mathExt.Execute,
 	"os":                     osExt.Execute,
-	"path":                   pathExt.Execute,
 	"rand":                   randExt.Execute,
 	"regexp":                 regexpExt.Execute,
 	"time":                   timeExt.Execute,

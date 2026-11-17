@@ -3,8 +3,6 @@
 package pathvalue
 
 import (
-	"errors"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,232 +10,131 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-// Path is an object-oriented, OS-specific filesystem path, modelled after
-// Python's pathlib.Path. It wraps a cleaned path string; pure operations
-// (name, parent, joining via `/`, ...) never touch disk, while IO methods
-// (exists, read_text, iterdir, ...) do.
+// Path is the name of a file: an immutable, cleaned path text. It performs
+// no I/O; the fs module's functions act on what it names.
 type Path struct {
-	object.NoReflectedOps
-	object.NoAssignment
+	object.OpaqueBase
 	raw string
 }
 
 var _ object.Object = (*Path)(nil)
+var _ object.PathValue = (*Path)(nil)
+
+// Type is the one constructor identity of Path, exported as fs.Path.
+var Type = object.NewNativeConstructor("Path", construct)
 
 // NewPath returns a Path holding the cleaned form of s. An empty string
 // becomes ".", matching filepath.Clean.
 func NewPath(s string) *Path {
-	return &Path{raw: filepath.Clean(s)}
+	return &Path{OpaqueBase: object.MakeOpaqueBase("Path"), raw: filepath.Clean(s)}
 }
 
-// PathString extracts a filesystem path string from a String or Path.
-func PathString(obj object.Object) (string, bool) { return object.PathString(obj) }
-
-// FilePath satisfies object.PathValue, so ArgParser.Path accepts a Path.
-func (p *Path) FilePath() string { return p.raw }
-
-func (p *Path) TypeName() string { return "Path" }
-
-func (p *Path) String() string { return p.raw }
-
-func (p *Path) ToString() (string, error) { return p.String(), nil }
-func (p *Path) ToBool() (bool, error)     { return p.raw != "" && p.raw != ".", nil }
-
-func (p *Path) Equals(other object.Object) (bool, error) {
-	v, ok := other.(*Path)
-	return ok && p.raw == v.raw, nil
-}
-
-// Hash agrees with Equals, which compares the cleaned path text.
-func (p *Path) Hash() (uint64, error) { return object.String(p.raw).Hash() }
-
-func (p *Path) Compare(other object.Object) (int, error) {
-	v, ok := other.(*Path)
-	if !ok {
-		return 0, object.NewOperandError(object.OpCompare, "Path", other)
+func construct(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("Path", args)
+	text := p.Path("text")
+	if err := p.Finish(); err != nil {
+		return nil, err
 	}
-	switch {
-	case p.raw < v.raw:
-		return -1, nil
-	case p.raw > v.raw:
-		return 1, nil
-	default:
-		return 0, nil
-	}
+	return NewPath(text), nil
 }
 
-func (p *Path) Add(object.Object) (object.Object, error) {
-	return nil, object.Unsupported("Path", object.ErrFmtCannotAdd)
-}
-func (p *Path) Minus(object.Object) (object.Object, error) {
-	return nil, object.Unsupported("Path", object.ErrFmtCannotSubtract)
-}
-func (p *Path) Multiply(object.Object) (object.Object, error) {
-	return nil, object.Unsupported("Path", object.ErrFmtCannotMultiply)
-}
-
-// Divide overloads `/` as path joining, so `Path("/tmp") / "log" / "a.txt"`
-// reads like a filesystem path.
-func (p *Path) Divide(other object.Object) (object.Object, error) {
-	seg, err := PathArg("/", "other", other)
-	if err != nil {
-		return nil, object.NewTypeError("cannot join Path with %s using /", other.TypeName())
-	}
-	return NewPath(filepath.Join(p.raw, seg)), nil
-}
-
-func (p *Path) Modulo(object.Object) (object.Object, error) {
-	return nil, object.Unsupported("Path", object.ErrFmtCannotModulo)
-}
-
-func (p *Path) Iter() ([]object.Object, error) {
-	return nil, object.NewUnsupportedError("Path", "Path is not iterable; use iterdir() to list a directory")
-}
-func (p *Path) Index(object.Object) (object.Object, error) {
-	return nil, object.Unsupported("Path", object.ErrFmtNotIndexable)
-}
-
-// Constructor satisfies object.Constructed, so type_of answers the
-// constructor the module exports.
-func (p *Path) Constructor() *object.Function { return PathConstructorFn }
-
-func (p *Path) GetAttr(name string) (object.Object, error) {
-	switch name {
-	// Pure properties — return values directly.
-	case "name":
-		return object.String(filepath.Base(p.raw)), nil
-	case "stem":
-		base := filepath.Base(p.raw)
-		return object.String(strings.TrimSuffix(base, filepath.Ext(base))), nil
-	case "suffix":
-		return object.String(filepath.Ext(p.raw)), nil
-	case "parent":
-		return NewPath(filepath.Dir(p.raw)), nil
-	case "parts":
-		return &object.List{Elements: pathParts(p.raw)}, nil
-	case "is_absolute":
-		return object.Bool(filepath.IsAbs(p.raw)), nil
-	case "as_posix":
-		return object.String(filepath.ToSlash(p.raw)), nil
-	// Pure methods.
-	case "with_name":
-		return &object.Function{Name: "with_name", Fn: p.WithName}, nil
-	case "with_suffix":
-		return &object.Function{Name: "with_suffix", Fn: p.WithSuffix}, nil
-	case "join":
-		return &object.Function{Name: "join", Fn: p.Join}, nil
-	case "relative_to":
-		return &object.Function{Name: "relative_to", Fn: p.RelativeTo}, nil
-	case "match":
-		return &object.Function{Name: "match", Fn: p.Match}, nil
-	// IO methods.
-	case "exists":
-		return &object.Function{Name: "exists", Fn: p.Exists}, nil
-	case "is_dir":
-		return &object.Function{Name: "is_dir", Fn: p.IsDir}, nil
-	case "is_file":
-		return &object.Function{Name: "is_file", Fn: p.IsFile}, nil
-	case "is_symlink":
-		return &object.Function{Name: "is_symlink", Fn: p.IsSymlink}, nil
-	case "resolve":
-		return &object.Function{Name: "resolve", Fn: p.Resolve}, nil
-	case "read_text":
-		return &object.Function{Name: "read_text", Fn: p.ReadText}, nil
-	case "read_bytes":
-		return &object.Function{Name: "read_bytes", Fn: p.ReadBytes}, nil
-	case "write_text":
-		return &object.Function{Name: "write_text", Fn: p.WriteText}, nil
-	case "write_bytes":
-		return &object.Function{Name: "write_bytes", Fn: p.WriteBytes}, nil
-	case "iterdir":
-		return &object.Function{Name: "iterdir", Fn: p.IterDir}, nil
-	case "glob":
-		return &object.Function{Name: "glob", Fn: p.Glob}, nil
-	case "mkdir":
-		return &object.Function{Name: "mkdir", Fn: p.Mkdir}, nil
-	case "unlink":
-		return &object.Function{Name: "unlink", Fn: p.Unlink}, nil
-	case "rename":
-		return &object.Function{Name: "rename", Fn: p.Rename}, nil
-	}
-	return nil, object.NewAttributeError("Path has no attribute '%s'", name)
-}
-
-func (p *Path) Attributes() []string {
-	return []string{
-		"name", "stem", "suffix", "parent", "parts", "is_absolute", "as_posix",
-		"with_name", "with_suffix", "join", "relative_to", "match",
-		"exists", "is_dir", "is_file", "is_symlink", "resolve",
-		"read_text", "read_bytes", "write_text", "write_bytes",
-		"iterdir", "glob", "mkdir", "unlink", "rename",
-	}
-}
-
-// PathArg is PathString for a function argument: anything other than a
+// PathArg is object.PathString for a value that is not bound through an
+// ArgParser (a list element, a variadic segment): anything other than a
 // String or Path raises the standard TypeError for argument argName of fnName.
 func PathArg(fnName, argName string, arg object.Object) (string, error) {
-	if path, ok := PathString(arg); ok {
+	if path, ok := object.PathString(arg); ok {
 		return path, nil
 	}
 	return "", object.NewTypeError("%s() argument '%s' must be String or Path, got %s", fnName, argName, arg.TypeName())
 }
 
-// pathParts splits raw into its components, keeping the leading anchor (a
-// volume and/or root separator) as a single first element, like pathlib.
-func pathParts(raw string) []object.Object {
-	clean := filepath.Clean(raw)
-	sep := string(filepath.Separator)
-	vol := filepath.VolumeName(clean)
-	rest := clean[len(vol):]
+// FilePath satisfies object.PathValue, so ArgParser.Path accepts a Path.
+func (p *Path) FilePath() string { return p.raw }
 
-	var parts []object.Object
-	switch {
-	case strings.HasPrefix(rest, sep):
-		parts = append(parts, object.String(vol+sep))
-		rest = strings.TrimPrefix(rest, sep)
-	case vol != "":
-		parts = append(parts, object.String(vol))
-	}
-	if rest != "" && rest != "." {
-		for _, seg := range strings.Split(rest, sep) {
-			if seg != "" {
-				parts = append(parts, object.String(seg))
-			}
-		}
-	}
-	return parts
+func (p *Path) String() string            { return p.raw }
+func (p *Path) ToString() (string, error) { return p.raw, nil }
+
+// Equals compares the cleaned text; a Path never equals a String.
+func (p *Path) Equals(other object.Object) (bool, error) {
+	v, ok := other.(*Path)
+	return ok && p.raw == v.raw, nil
 }
 
-func (p *Path) WithName(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("with_name", args)
-	name := ap.Str("name")
-	if err := ap.Finish(); err != nil {
-		return nil, err
+// Hash agrees with Equals.
+func (p *Path) Hash() (uint64, error) { return object.String(p.raw).Hash() }
+
+// Compare orders paths by their text.
+func (p *Path) Compare(other object.Object) (int, error) {
+	v, ok := other.(*Path)
+	if !ok {
+		return 0, object.NewOperandError(object.OpCompare, "Path", other)
 	}
-	if name == "" || strings.ContainsRune(string(name), filepath.Separator) {
-		return nil, object.NewValueError("with_name() invalid name: %q", string(name))
-	}
-	return NewPath(filepath.Join(filepath.Dir(p.raw), string(name))), nil
+	return strings.Compare(p.raw, v.raw), nil
 }
 
-func (p *Path) WithSuffix(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("with_suffix", args)
-	suffix := ap.Str("suffix")
-	if err := ap.Finish(); err != nil {
-		return nil, err
+// Constructor satisfies object.Constructed, so type_of(p) is fs.Path.
+func (p *Path) Constructor() *object.Function { return Type.Function }
+
+// name is the last component, "" for a root and for ".".
+func (p *Path) name() string {
+	vol := filepath.VolumeName(p.raw)
+	rest := p.raw[len(vol):]
+	if rest == "" || rest == "." || (len(rest) == 1 && os.IsPathSeparator(rest[0])) {
+		return ""
 	}
-	if suffix != "" && !strings.HasPrefix(string(suffix), ".") {
-		return nil, object.NewValueError("with_suffix() invalid suffix: %q", string(suffix))
-	}
-	stem := strings.TrimSuffix(p.raw, filepath.Ext(p.raw))
-	return NewPath(stem + string(suffix)), nil
+	return filepath.Base(p.raw)
 }
 
-func (p *Path) Join(args object.CallArgs) (object.Object, error) {
+// suffix is the name from its last dot, unless that dot starts the name or
+// the name is "..".
+func suffixOf(name string) string {
+	if name == ".." {
+		return ""
+	}
+	i := strings.LastIndexByte(name, '.')
+	if i <= 0 {
+		return ""
+	}
+	return name[i:]
+}
+
+func (p *Path) GetAttr(name string) (object.Object, error) {
+	switch name {
+	case "name":
+		return object.String(p.name()), nil
+	case "stem":
+		n := p.name()
+		return object.String(n[:len(n)-len(suffixOf(n))]), nil
+	case "suffix":
+		return object.String(suffixOf(p.name())), nil
+	case "parent":
+		return NewPath(filepath.Dir(p.raw)), nil
+	case "is_absolute":
+		return object.Bool(filepath.IsAbs(p.raw)), nil
+	case "join":
+		return &object.Function{Name: "join", Fn: p.join}, nil
+	case "with_name":
+		return &object.Function{Name: "with_name", Fn: p.withName}, nil
+	case "with_suffix":
+		return &object.Function{Name: "with_suffix", Fn: p.withSuffix}, nil
+	case "relative_to":
+		return &object.Function{Name: "relative_to", Fn: p.relativeTo}, nil
+	}
+	return nil, object.NewAttributeError("Path has no attribute '%s'", name)
+}
+
+func (p *Path) Attributes() []string {
+	return []string{"name", "stem", "suffix", "parent", "is_absolute", "join", "with_name", "with_suffix", "relative_to"}
+}
+
+func (p *Path) join(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("join", args)
 	segments := ap.Rest()
 	if err := ap.Finish(); err != nil {
 		return nil, err
+	}
+	if len(segments) == 0 {
+		return p, nil
 	}
 	elems := make([]string, 0, len(segments)+1)
 	elems = append(elems, p.raw)
@@ -251,257 +148,51 @@ func (p *Path) Join(args object.CallArgs) (object.Object, error) {
 	return NewPath(filepath.Join(elems...)), nil
 }
 
-func (p *Path) RelativeTo(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("relative_to", args)
-	other := ap.Any("other")
+func hasSeparator(s string) bool {
+	return strings.ContainsFunc(s, func(r rune) bool { return r < 128 && os.IsPathSeparator(byte(r)) })
+}
+
+func (p *Path) withName(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("with_name", args)
+	name := string(ap.Str("name"))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	base, err := PathArg("relative_to", "other", other)
-	if err != nil {
+	if name == "" || hasSeparator(name) {
+		return nil, object.NewValueError("with_name() invalid name %q", name)
+	}
+	if p.name() == "" {
+		return nil, object.NewValueError("with_name() path %q has no name", p.raw)
+	}
+	return NewPath(filepath.Join(filepath.Dir(p.raw), name)), nil
+}
+
+func (p *Path) withSuffix(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("with_suffix", args)
+	suffix := string(ap.Str("suffix"))
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	if (suffix != "" && !strings.HasPrefix(suffix, ".")) || hasSeparator(suffix) {
+		return nil, object.NewValueError("with_suffix() invalid suffix %q", suffix)
+	}
+	name := p.name()
+	if name == "" {
+		return nil, object.NewValueError("with_suffix() path %q has no name", p.raw)
+	}
+	stem := name[:len(name)-len(suffixOf(name))]
+	return NewPath(filepath.Join(filepath.Dir(p.raw), stem+suffix)), nil
+}
+
+func (p *Path) relativeTo(args object.CallArgs) (object.Object, error) {
+	ap := object.NewArgParser("relative_to", args)
+	base := ap.Path("base")
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 	rel, err := filepath.Rel(base, p.raw)
 	if err != nil {
-		return nil, object.WrapError(object.ValueError, "relative_to() cannot make path relative to the base", err)
+		return nil, object.NewValueError("relative_to() cannot make %q relative to %q", p.raw, filepath.Clean(base))
 	}
 	return NewPath(rel), nil
-}
-
-func (p *Path) Match(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("match", args)
-	pattern := ap.Str("pattern")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	matched, err := filepath.Match(string(pattern), filepath.Base(p.raw))
-	if err != nil {
-		return nil, object.WrapError(object.ParseError, "match() invalid pattern", err)
-	}
-	return object.Bool(matched), nil
-}
-
-func (p *Path) Exists(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("exists", args); err != nil {
-		return nil, err
-	}
-	_, err := os.Stat(p.raw)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return object.False, nil
-		}
-		return nil, object.WrapNativeError(object.IOError, "exists() failed to stat path", err)
-	}
-	return object.True, nil
-}
-
-func (p *Path) IsDir(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("is_dir", args); err != nil {
-		return nil, err
-	}
-	return p.statMode("is_dir", func(m fs.FileMode) bool { return m.IsDir() })
-}
-
-func (p *Path) IsFile(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("is_file", args); err != nil {
-		return nil, err
-	}
-	return p.statMode("is_file", func(m fs.FileMode) bool { return m.IsRegular() })
-}
-
-func (p *Path) IsSymlink(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("is_symlink", args); err != nil {
-		return nil, err
-	}
-	info, err := os.Lstat(p.raw)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return object.False, nil
-		}
-		return nil, object.WrapNativeError(object.IOError, "is_symlink() failed to stat path", err)
-	}
-	return object.Bool(info.Mode()&fs.ModeSymlink != 0), nil
-}
-
-// statMode stats the path and reports pred(mode), treating a missing path as
-// false to match pathlib's is_dir()/is_file() semantics.
-func (p *Path) statMode(fnName string, pred func(fs.FileMode) bool) (object.Object, error) {
-	info, err := os.Stat(p.raw)
-	if err != nil {
-		if errors.Is(err, fs.ErrNotExist) {
-			return object.False, nil
-		}
-		return nil, object.WrapNativeError(object.IOError, fnName+"() failed to stat path", err)
-	}
-	return object.Bool(pred(info.Mode())), nil
-}
-
-func (p *Path) Resolve(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("resolve", args); err != nil {
-		return nil, err
-	}
-	abs, err := filepath.Abs(p.raw)
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "resolve() failed to resolve path", err)
-	}
-	// Follow symlinks when the target exists; otherwise fall back to the
-	// absolute path, like pathlib.resolve(strict=False).
-	if resolved, err := filepath.EvalSymlinks(abs); err == nil {
-		return NewPath(resolved), nil
-	}
-	return NewPath(abs), nil
-}
-
-func (p *Path) ReadText(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("read_text", args); err != nil {
-		return nil, err
-	}
-	data, err := os.ReadFile(p.raw)
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "read_text() failed to read file", err)
-	}
-	return object.String(data), nil
-}
-
-func (p *Path) ReadBytes(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("read_bytes", args); err != nil {
-		return nil, err
-	}
-	data, err := os.ReadFile(p.raw)
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "read_bytes() failed to read file", err)
-	}
-	return object.NewBytes(data), nil
-}
-
-func (p *Path) WriteText(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("write_text", args)
-	data := ap.Str("data")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if err := os.WriteFile(p.raw, []byte(data), 0644); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "write_text() failed to write file", err)
-	}
-	return object.Nil, nil
-}
-
-func (p *Path) WriteBytes(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("write_bytes", args)
-	data := ap.Any("data")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	b, ok := data.(object.Bytes)
-	if !ok {
-		return nil, object.NewTypeError("write_bytes() argument 'data' must be Bytes, got %s", data.TypeName())
-	}
-	if err := os.WriteFile(p.raw, []byte(b), 0644); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "write_bytes() failed to write file", err)
-	}
-	return object.Nil, nil
-}
-
-func (p *Path) IterDir(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("iterdir", args); err != nil {
-		return nil, err
-	}
-	entries, err := os.ReadDir(p.raw)
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "iterdir() failed to read directory", err)
-	}
-	elements := make([]object.Object, len(entries))
-	for i, entry := range entries {
-		elements[i] = NewPath(filepath.Join(p.raw, entry.Name()))
-	}
-	return &object.List{Elements: elements}, nil
-}
-
-func (p *Path) Glob(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("glob", args)
-	pattern := ap.Str("pattern")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	matches, err := filepath.Glob(filepath.Join(p.raw, string(pattern)))
-	if err != nil {
-		return nil, object.WrapError(object.ParseError, "glob() invalid pattern", err)
-	}
-	elements := make([]object.Object, len(matches))
-	for i, m := range matches {
-		elements[i] = NewPath(m)
-	}
-	return &object.List{Elements: elements}, nil
-}
-
-func (p *Path) Mkdir(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("mkdir", args)
-	parents := bool(ap.BoolOr("parents", false))
-	existOk := bool(ap.BoolOr("exist_ok", false))
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	var err error
-	if parents {
-		err = os.MkdirAll(p.raw, 0755)
-	} else {
-		err = os.Mkdir(p.raw, 0755)
-	}
-	if err != nil {
-		if existOk && errors.Is(err, fs.ErrExist) {
-			return object.Nil, nil
-		}
-		return nil, object.WrapNativeError(object.IOError, "mkdir() failed to create directory", err)
-	}
-	return object.Nil, nil
-}
-
-func (p *Path) Unlink(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("unlink", args); err != nil {
-		return nil, err
-	}
-	if err := os.Remove(p.raw); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "unlink() failed to remove path", err)
-	}
-	return object.Nil, nil
-}
-
-func (p *Path) Rename(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("rename", args)
-	target := ap.Any("target")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	targetPath, err := PathArg("rename", "target", target)
-	if err != nil {
-		return nil, err
-	}
-	if err := os.Rename(p.raw, targetPath); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "rename() failed to rename path", err)
-	}
-	return NewPath(targetPath), nil
-}
-
-// PathConstructorFn builds a Path from zero or more string/Path segments,
-// joining them; with no arguments it yields Path("."). Exposed as `path.Path`.
-var PathConstructorFn = &object.Function{Name: "Path", Fn: PathConstructor}
-
-func PathConstructor(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("Path", args)
-	segments := ap.Rest()
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if len(segments) == 0 {
-		return NewPath("."), nil
-	}
-	segs := make([]string, len(segments))
-	for i, arg := range segments {
-		seg, err := PathArg("Path", "segments", arg)
-		if err != nil {
-			return nil, err
-		}
-		segs[i] = seg
-	}
-	return NewPath(filepath.Join(segs...)), nil
 }

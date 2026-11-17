@@ -4,7 +4,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -39,12 +38,9 @@ func newOsModule(argsFn func() []string) object.Object {
 		"getenv":      getenv,
 		"getgroups":   getgroups,
 		"getpagesize": getpagesize,
-		"getwd":       getwd,
 		"hostname":    hostname,
 		"setenv":      setenv,
 		"unsetenv":    unsetenv,
-		"tempdir":     tempDir,
-		"tempfile":    tempFile,
 	})
 }
 
@@ -169,66 +165,4 @@ func getpagesize(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	return object.Integer(os.Getpagesize()), nil
-}
-
-func getwd(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getwd", args); err != nil {
-		return nil, err
-	}
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "getwd() failed to get working directory", err)
-	}
-	return object.String(wd), nil
-}
-
-// tempDir creates a new temporary directory, mirroring Go's os.MkdirTemp.
-// Both dir and pattern are optional; when dir is empty Go uses the OS default
-// temp directory.
-func tempDir(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("tempdir", args)
-	dirObj, hasDir := p.OptionalAny("dir")
-	pattern := p.StrOr("pattern", "")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	dir := ""
-	if hasDir {
-		d, err := pathvalue.PathArg("tempdir", "dir", dirObj)
-		if err != nil {
-			return nil, err
-		}
-		dir = d
-	}
-	path, err := os.MkdirTemp(dir, string(pattern))
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempdir() failed to create temporary directory", err)
-	}
-	return object.String(path), nil
-}
-
-// tempFile creates a new temporary file, mirroring Go's os.CreateTemp.
-// Both dir and pattern are optional; when dir is empty Go uses the OS default
-// temp directory.
-func tempFile(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("tempfile", args)
-	dirObj, hasDir := p.OptionalAny("dir")
-	pattern := p.StrOr("pattern", "")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	dir := ""
-	if hasDir {
-		d, err := pathvalue.PathArg("tempfile", "dir", dirObj)
-		if err != nil {
-			return nil, err
-		}
-		dir = d
-	}
-	f, err := os.CreateTemp(dir, string(pattern))
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "tempfile() failed to create temporary file", err)
-	}
-	f.Close()
-	return object.String(f.Name()), nil
 }

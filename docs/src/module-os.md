@@ -12,7 +12,6 @@ if port == "" {
     port = "8080"
 }
 print(port)
-print(os.getwd())
 print(os.hostname())
 
 # argv() is the program command line (index 0 is the invocation name)
@@ -26,13 +25,13 @@ for arg in os.argv() {
 | argv() | Return the program command-line arguments as a list of strings |
 | getenv(key, default=nil) / setenv(key, value) / unsetenv(key) | Read or change environment values |
 | environ() | Return all environment values as a dictionary |
-| getwd() / hostname() | Current directory and machine name |
+| hostname() | Machine name |
 | getpid() / getppid() | Process identifiers |
-| tempdir([dir, pattern]) / tempfile([dir, pattern]) | Create temporary paths |
 | exit(code=0) | End the process |
 
-Avoid using exit() inside reusable library code. Environment and temporary-file
-operations can raise IOError. argv() does not accept arguments and returns a
+Avoid using exit() inside reusable library code. Environment operations can raise
+IOError. The working directory and temporary directories are in
+[fs](./module-fs.md): `fs.cwd()`, `fs.mkdir_temp()`. argv() does not accept arguments and returns a
 fresh list each call; mutating that list does not change the program arguments.
 
 ## Command-line arguments
@@ -76,18 +75,7 @@ print(debug)
 setenv() changes only the environment of the current Goblin process and
 processes it starts. It does not persist after the program exits.
 
-## Temporary paths and process identity
-
-tempdir() and tempfile() accept optional directory and pattern arguments in
-that positional order, and return created paths. They are helpful for generated
-output and tests. These functions do not accept named arguments.
-
-~~~goblin
-var directory = os.tempdir("", "goblin-")
-var filename = os.tempfile(directory, "data-")
-print(directory)
-print(filename)
-~~~
+## Process identity
 
 getpid(), getppid(), getuid(), geteuid(), getgid(), getegid(), and
 getgroups() expose identity information supplied by the host operating

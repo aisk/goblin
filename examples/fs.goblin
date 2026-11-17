@@ -1,50 +1,119 @@
 import "fs"
+import "time"
 
-var file = fs.open("fs_fixture.txt")
-print("fs open works")
-print(file.name)
-print(file.stat().size)
-print(file.read().decode())
-file.close()
-print(file.closed)
-print(fs.exists("fs_fixture.txt"))
-print(fs.exists("missing.txt"))
-print(fs.read("fs_fixture.txt"))
-var info = fs.stat("fs_dir_fixture")
-print(info.name)
-print(info.is_dir)
-var entries = fs.read_dir("fs_dir_fixture")
-print(entries.size)
-print(entries[0].name)
-print(entries[1].name)
+# A scratch directory for this run, removed however the program ends.
+var scratch = fs.mkdir_temp(prefix="goblin-fs-")
+defer fs.remove(scratch, recursive=true)
+print(scratch.name.has_prefix("goblin-fs-"), fs.is_dir(scratch))
 
-var created = fs.create("fs_created.txt")
-print(created.name)
-created.write("hello")
-created.close()
-print(fs.read("fs_created.txt"))
-fs.write("fs_created.txt", "reset")
-fs.append("fs_created.txt", "-tail")
-print(fs.read("fs_created.txt"))
-fs.mkdir("fs_created_dir")
-print(fs.stat("fs_created_dir").is_dir)
-fs.remove("fs_created.txt")
-fs.remove("fs_created_dir")
-print(fs.exists("fs_created.txt"))
-print(fs.exists("fs_created_dir"))
+# Read and write whole files.
+var text = fs.read("fs_fixture.txt")
+print(text.trim())
+var copy = scratch.join("copy.txt")
+fs.write(copy, text)
+fs.write(copy, "started\n", append=true)
+print(fs.read(copy).split("\n"))
+print(fs.read_bytes("fs_fixture.txt").size)
 
-# read(size) follows the same Reader protocol as an HTTP body: chunks come
-# back as Bytes and end of file is an empty Bytes.
-var chunked = fs.open("fs_fixture.txt")
-print(chunked.read(5).decode())
-print(chunked.read(5).decode())
-print(chunked.read(100).size)
-print(chunked.read(5).size)
-chunked.close()
-
-# Iterating a file reads the rest of it as text lines, without terminators.
-var lined = fs.open("fs_fixture.txt")
-for line in lined {
-    print("line: " + line)
+# A big file, one line at a time; the file is closed when the loop ends.
+var started = 0
+for line in fs.read_lines(copy) {
+    if line.contains("started") {
+        started = started + 1
+    }
 }
-lined.close()
+print("started lines:", started)
+for line in fs.read_lines(copy) {
+    print("first line:", line)
+    break
+}
+
+# Build and take apart names (no disk access).
+var source = fs.Path("docs/guide.md")
+print(source.name, source.stem, source.suffix)
+var target = fs.Path("build").join(source.with_suffix(".html").name)
+print(target, target.parent, target.is_absolute)
+print(fs.Path("a//b/../c.txt"), fs.Path("x/report.tar.gz").stem)
+print(fs.Path("/srv/www/index.html").relative_to("/srv"))
+print(fs.Path("a") == fs.Path("a/"), fs.Path("a") == "a", String(fs.Path("a")) == "a")
+print(type_of(source) == fs.Path)
+
+# Make sure the output directory is there, then write into it.
+var page = scratch.join(target)
+fs.mkdir(page.parent)
+fs.write(page, "<h1>{text.trim()}</h1>")
+print(fs.read(page))
+
+# List, match, walk.
+for entry in fs.read_dir("fs_dir_fixture") {
+    print(entry, entry.name, fs.stat(entry).size)
+}
+fs.mkdir(scratch.join("docs", "guide"))
+fs.write(scratch.join("docs", "intro.md"), "intro")
+fs.write(scratch.join("docs", "guide", "setup.md"), "setup")
+fs.write(scratch.join("docs", "guide", "notes.txt"), "notes")
+fs.mkdir(scratch.join(".cache"))
+fs.write(scratch.join(".cache", "hidden.md"), "hidden")
+for found in fs.glob(String(scratch.join("docs", "**", "*.md"))) {
+    print("glob:", found.relative_to(scratch))
+}
+func hidden(entry) {
+    return entry.name.has_prefix(".")
+}
+for file in fs.walk(scratch, skip=hidden) {
+    print("walk:", file.relative_to(scratch))
+}
+
+# Write a file piece by piece.
+var rows = [["name", "size"], ["alpha", 6], ["beta", 5]]
+var out = fs.open(scratch.join("big.csv"), write=true)
+for row in rows {
+    out.write("{row[0]},{row[1]}\n")
+}
+out.close()
+print(out.closed, type_of(out) == fs.File)
+var csv = fs.open(scratch.join("big.csv"))
+print(csv.read_line(), csv.read(4))
+for line in csv {
+    print("rest:", line)
+}
+print(csv.read_line())
+csv.close()
+
+# Copy, move, delete, permissions.
+var config = scratch.join("config.toml")
+fs.write(config, "debug = true\n")
+fs.copy(config, scratch.join("config.toml.bak"))
+fs.move(copy, scratch.join("docs", "copy.txt"))
+fs.remove(scratch.join("config.toml.bak"))
+fs.remove(scratch.join("never-existed.log"))
+fs.chmod(config, 0o600)
+print(fs.stat(config).mode == 0o600, fs.exists(copy), fs.is_file(scratch.join("docs", "copy.txt")))
+fs.copy(scratch.join("docs"), scratch.join("docs-backup"))
+print(fs.read_dir(scratch.join("docs-backup")).map(func(p) { return p.name }))
+
+# Is it there, how old is it.
+if fs.exists(config) {
+    var info = fs.stat(config)
+    var age = time.now() - info.modified_at
+    print(info.size, info.is_file, info.is_dir, info.is_symlink, age >= 0, age < 3600)
+}
+
+# Failures keep their kind and name the path.
+func failure(f) {
+    try {
+        f()
+    } catch e {
+        print(e.message.replace(String(scratch), "<scratch>"))
+    }
+}
+failure(func() { fs.read("missing.txt") })
+failure(func() { fs.remove(scratch.join("docs")) })
+failure(func() { fs.copy(scratch.join("docs"), scratch.join("docs-backup")) })
+failure(func() { fs.Path("a").with_suffix("txt") })
+failure(func() { fs.File() })
+try {
+    fs.stat("missing.txt")
+} catch e {
+    print(e.is(NotExistError), e.is(IOError))
+}

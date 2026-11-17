@@ -17,7 +17,7 @@ the function returns `unit` instead of `Bytes`:
 import "x/archive/tar"
 import "fs"
 
-var file = fs.create("backup.tar")
+var file = fs.open("backup.tar", write=true)
 tar.write_all({"notes.txt": "remember"}, dest=file)
 file.close()
 ~~~

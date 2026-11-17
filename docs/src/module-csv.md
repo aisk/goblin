@@ -27,7 +27,7 @@ into any writer object — an object with a `write(data)` method, such as an ope
 import "csv"
 import "fs"
 
-var file = fs.create("scores.csv")
+var file = fs.open("scores.csv", write=true)
 csv.write_all([["name", "score"], ["Ada", "10"]], dest=file)
 file.close()
 ~~~

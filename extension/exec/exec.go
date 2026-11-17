@@ -7,7 +7,6 @@ import (
 	"os"
 	stdexec "os/exec"
 
-	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -67,7 +66,7 @@ func command(args object.CallArgs) (object.Object, error) {
 
 	cmd := stdexec.Command(string(name), argv...)
 	if _, ok := cwdObj.(object.Unit); !ok {
-		cwd, ok := pathvalue.PathString(cwdObj)
+		cwd, ok := object.PathString(cwdObj)
 		if !ok {
 			return nil, object.NewTypeError("Command() argument 'cwd' must be Nil, String, or Path, got %s", cwdObj.TypeName())
 		}

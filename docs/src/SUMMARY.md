@@ -34,7 +34,6 @@
 - [fs](./module-fs.md)
 - [os](./module-os.md)
 - [exec](./module-exec.md)
-- [path](./module-path.md)
 - [time](./module-time.md)
 - [rand](./module-rand.md)
 - [math](./module-math.md)

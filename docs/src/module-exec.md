@@ -52,7 +52,7 @@ captured in memory:
 import "exec"
 import "fs"
 
-var log = fs.create("build.log")
+var log = fs.open("build.log", write=true)
 exec.Command("make", stdout=log, stderr=log).run()
 log.close()
 ~~~

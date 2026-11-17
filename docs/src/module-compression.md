@@ -20,7 +20,7 @@ import "x/compress/gzip"
 import "fs"
 
 var report = "line 1\nline 2\n"
-var file = fs.create("report.txt.gz")
+var file = fs.open("report.txt.gz", write=true)
 gzip.compress(report, dest=file)
 file.close()
 ~~~
