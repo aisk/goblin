@@ -1,7 +1,8 @@
 # fs
 
-The fs module works with files, directories and path names. One line to
-remember: **`fs.` touches the disk, `Path` only looks at the name.**
+The fs module works with files, directories and path names. Its functions
+read and change the disk; the members of a `Path` work on the name alone and
+never touch the disk.
 
 Every parameter called `path`, `src` or `dst` accepts a String or a `Path`, and
 every function that produces a file name returns a `Path`. Text is UTF-8.

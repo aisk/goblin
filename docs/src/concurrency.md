@@ -3,8 +3,10 @@
 `spawn(function, args...)` starts a function in a new goroutine and returns a
 Goblin handle; `wait()` on the handle joins the function and delivers its
 result. Channels (`Chan`) carry streams of values between goroutines, and every
-blocking operation takes the same `timeout=` keyword. That is the whole model:
-a Goblin is a task, a Chan is a stream, and `timeout=` is a time limit.
+blocking operation takes the same `timeout=` keyword. Those three are all
+there is: a Goblin handle stands for one running function, a Chan carries
+values from one goblin to another, and `timeout=` limits how long any blocking
+call waits.
 
 ~~~goblin
 func square(value) {
