@@ -33,7 +33,7 @@ func TestParseImpls(t *testing.T) {
 	}
 }
 
-func TestParseRejectsTraitSyntax(t *testing.T) {
+func TestParseRejectsRemovedSyntax(t *testing.T) {
 	for _, src := range []string{
 		"type T() {\n    impl a.B {}\n}\n",
 		"trait T {}\n",
@@ -43,7 +43,7 @@ func TestParseRejectsTraitSyntax(t *testing.T) {
 			t.Errorf("%q parsed, want a syntax error", strings.TrimSpace(src))
 		}
 	}
-	// trait is an ordinary identifier now.
+	// The removed keyword is an ordinary identifier.
 	if _, err := source.ParseString("var trait = 1\nprint(trait)\n"); err != nil {
 		t.Fatalf("trait as an identifier: %v", err)
 	}

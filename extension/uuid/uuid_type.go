@@ -15,7 +15,7 @@ import (
 var hashSeed = maphash.MakeSeed()
 
 // UUID is Goblin's UUID value, a thin wrapper around Go's uuid.UUID. It takes
-// part in the built-in traits Eq, Ord, Hashable and Show through its Object
+// part in the protocols Eq, Ord, Hashable and Show through its Object
 // methods. Truth keeps OpaqueBase's always-true answer, as Go has no notion of
 // a zero UUID beyond Nil() being an ordinary value.
 type UUID struct {

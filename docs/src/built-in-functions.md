@@ -22,7 +22,6 @@ These names are available without an import.
 | `format(value, spec)` | Format a value under a format specifier, as `"{value:spec}"` does |
 | `type_of(value)` | The constructor of a value's type |
 | `attributes(value)` | List the names of a value's properties and methods |
-| `traits(value)` | List the traits a user type's instance implements |
 
 `print` and `eprint` return `nil`. `range(n)` is short for `range(0, n)`;
 with keywords, `start` is optional and `end` is required.
@@ -89,17 +88,6 @@ eprint("ready on port", 8080)
 See [Built-in types](./built-in-types.md) for value-specific methods, and
 [Concurrency](./concurrency.md) for channels and spawn.
 
-## Built-in traits
-
-The traits behind operators and conversions are globals as well: `Eq`, `Ord`,
-`Hashable`, `Show`, `Truth`, `Add`, `Sub`, `Mul`, `Div`, `Mod`, `Neg`, `Iter`
-and `Index`. Types implement them in
-`impl` blocks; on any value they are reached through their operators and
-conversions (`a < b`, `a != b`, `String(x)`), and `compare(a, b)` and
-`hash(x)` for the two that have no operator.
-
-See [Traits](./traits.md) for the methods of each trait.
-
 ## Constructors and type identity
 
 `type_of(value)` returns the constructor of the value's type: the same
@@ -123,13 +111,12 @@ print(identity.name)                    # identity
 Goblin-defined instances and native standard-library values follow the same
 rule: `type_of(instance)` is identical to the type callable that created them.
 Every value has a type, including those that cannot be constructed: for
-`nil`, a module, a trait or a Goblin handle, `type_of` returns a stand-in
+`nil`, a module or a Goblin handle, `type_of` returns a stand-in
 function named after the type (`type_of(nil).name` is `"Nil"`) that compares
 equal for values of the same type and raises TypeError when called.
 
 `attributes(value)` returns a new list of the names a value answers to: its
 properties or fields first, then its methods, in declaration order (a
-module's members are sorted by name). `traits(value)` lists the traits an
-instance of a user type implements, in declaration order; any other value is
-a TypeError. These are functions rather than members, so a type is free to
-have a field or method called `constructor`, `attributes` or `traits`.
+module's members are sorted by name). These are functions rather than
+members, so a type is free to have a field or method called `constructor` or
+`attributes`.

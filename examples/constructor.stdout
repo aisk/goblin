@@ -33,7 +33,7 @@ true Nil cannot be constructed
 ["to_char"] []
 ["message", "traceback", "cause", "wrap", "is"]
 ["name"]
-1 2 3
-["constructor", "attributes", "traits"] true
+1 2
+["constructor", "attributes"] true
 shadowed
 true

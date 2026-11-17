@@ -4,10 +4,7 @@ This document defines how the built-in types and the standard library modules un
 
 It describes the target, not the present. The existing code predates it, so names and shapes cited here may not exist yet, and existing modules are never precedent: where code and this document disagree, the code has a bug to fix (raise it for review when the fix is breaking).
 
-Two migrations are decided and in progress; write new code as if they were complete:
-
-- **User-declared traits are being removed** from the language, together with trait dependencies, traits as values, `Trait.method(x)` calls and `value.traits()`. `impl` blocks remain, for the closed set of language protocols in §2.
-- **The library defines no traits.** `io.Reader`, `io.Writer` and `json.ToJSON` give way to the method-name protocols in §2.
+Neither the language nor the library has a way to declare an interface. `impl` names one of the closed set of language protocols in §2, and the library asks for ordinary methods by name.
 
 ## 1. What the library is for
 
@@ -47,7 +44,7 @@ A closed, built-in set. Each one connects a value to a piece of syntax or a buil
 
 ### Library protocols: a method with an agreed name
 
-When a library function needs something from the object it is given, it asks for an ordinary method. There is one path, no trait alternative and nothing to import.
+When a library function needs something from the object it is given, it asks for an ordinary method. There is one path and nothing to import.
 
 | Capability | The object has |
 |---|---|
@@ -86,7 +83,7 @@ Everything a user calls is an ordinary method on a concrete type or a function i
 - **Raise by default where the alternative is a silently wrong result.** When an operation completes but its outcome says the task failed (a command exits non-zero, a server answers 404), the default is to raise an error carrying the facts (§7), and the same keyword everywhere, `check=false`, hands the outcome back for the caller to inspect. Without it `http.get(url).json()` parses an error page and `fs.write(path, http.get(url))` saves one as the download.
 - **Names that may repeat: a plain lookup for the common case, a method for all of them.** Where a name usually has one value but may have several (HTTP headers), the collection is an ordinary Dict with one value per name, and a method returns every value as a List (`response.header_values("set-cookie")`). On the sending side a List value sends the name once per element.
 - **The return type never depends on a boolean keyword.** Text and bytes are separate functions (`fs.read` returns a String, `fs.read_bytes` Bytes); where the input already carries the distinction, one function is enough (`fs.write` takes either, or a readable stream, which is what makes "download to a file" one call).
-- **Build with the language's own features.** These, not traits, are what make a Goblin API feel native:
+- **Build with the language's own features.** These, not declared interfaces, are what make a Goblin API feel native:
   - *Keyword arguments with defaults* replace function families (below).
   - *`defer`* is the cleanup mechanism. Anything holding a resource has `close()`; the library adds no callback-scoped or `with`-style helpers.
   - *Iteration owns what it acquired.* One pass of iteration owns what it acquired when it started; what the iterable itself owns is not the iteration's to release. `for line in file` leaves the file open when the loop ends, while a value returned by something like `fs.read_lines(path)` opens the file when a pass starts (in its Go `Iterator`) and closes it in the pass's `Close`, which every consumer calls once however the pass ends (`break`, `return`, an error); iterating it again opens the file again.

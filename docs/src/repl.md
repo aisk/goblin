@@ -47,10 +47,9 @@ types, loops, and try/catch blocks.
 Enter a blank line to force evaluation of a malformed fragment, or press
 Ctrl-C to discard the input currently being collected.
 
-Entering a `type` or `trait` declaration again rebinds its name. A trait is
-identified by the value, not the name, so types defined against the old trait
-keep implementing the old one: define those types again after redefining a
-trait.
+Entering a `type` declaration again rebinds its name. Values made before keep
+the old type. The REPL checks each type's impls when the type is defined, so
+`impl Shape {}` reports that `Shape` is not a protocol right away.
 
 ## Completion and history
 

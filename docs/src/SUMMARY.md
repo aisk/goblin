@@ -21,7 +21,7 @@
 - [Strings](./strings.md)
 - [Collections](./collections.md)
 - [Types and methods](./types.md)
-- [Traits](./traits.md)
+- [Protocols](./protocols.md)
 - [Errors](./errors.md)
 - [Concurrency](./concurrency.md)
 - [Troubleshooting](./troubleshooting.md)

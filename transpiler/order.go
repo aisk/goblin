@@ -72,7 +72,7 @@ func codesOf(codes []*jen.Statement) []jen.Code {
 // mayHaveEffects reports whether evaluating expr could change a variable or
 // run user code. Reading names and literals cannot, nor can native arithmetic
 // and comparisons, which never dispatch; a call can, and so can any boxed
-// operation, which may reach a user type's trait methods.
+// operation, which may reach a user type's protocol methods.
 func (g *generator) mayHaveEffects(expr ast.Expression) bool {
 	switch e := expr.(type) {
 	case nil:

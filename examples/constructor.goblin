@@ -75,11 +75,11 @@ print(attributes(1), attributes(nil))
 print(attributes(Error("e")))
 print(attributes(Int))
 
-# Reflection is global, so a member named constructor, attributes or traits
-# is an ordinary member and reads the same in both backends.
-type Members(constructor, attributes, traits) {}
-var m = Members(1, 2, 3)
-print(m.constructor, m.attributes, m.traits)
+# Reflection is global, so a member named constructor or attributes is an
+# ordinary member and reads the same in both backends.
+type Members(constructor, attributes) {}
+var m = Members(1, 2)
+print(m.constructor, m.attributes)
 print(attributes(m), type_of(m) == Members)
 
 type Shadow() {

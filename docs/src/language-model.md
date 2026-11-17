@@ -15,7 +15,8 @@ before designing a larger program:
 | Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
 | Strings | Unicode-aware iteration, size, `string[index]` and `string[low:high]`, all counting characters |
 | Positions | Indexes, slice bounds and method positions count from the end when negative; out of range is an IndexError, never clamped |
-| Reflection | The global functions `type_of`, `attributes` and `traits`; a value's members are only its fields, properties and methods |
+| Reflection | The global functions `type_of` and `attributes`; a value's members are only its fields, properties and methods |
+| Protocols | A closed set of thirteen, implemented in `impl` blocks for operators and conversions; no user-declared protocols or interfaces |
 | Destructuring | `var a, b = value`, `a, b = value`, and `for a, b in values` split an iterable of exactly that many elements; there are no tuples or nested patterns |
 | Imports | Module scope only; local paths are relative to the importing file |
 | Concurrency | `spawn` returns a joinable Goblin handle; iterable channels; `timeout=` on every blocking operation; no select or cancellation |

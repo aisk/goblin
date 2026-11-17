@@ -1,5 +1,5 @@
-# User types opt into operators and conversions by implementing the built-in
-# traits: Add, Sub, Mul, Div, Mod and Neg (arithmetic), Eq and Ord (comparison), Show (string conversion),
+# User types opt into operators and conversions by implementing the
+# protocols: Add, Sub, Mul, Div, Mod and Neg (arithmetic), Eq and Ord (comparison), Show (string conversion),
 # Truth (conditions), Iter (for loops) and Index (subscripts).
 
 type Vector(x, y) {
@@ -18,7 +18,7 @@ type Vector(x, y) {
             return Vector(-self.x, -self.y)
         }
     }
-    # Each binary operator's trait requires the method for the value on the
+    # Each binary operator's protocol requires the method for the value on the
     # left. The reflected method is optional and runs when the value is on
     # the right of an operand that does not know it, so `2 * v` works too.
     impl Mul {
@@ -138,7 +138,7 @@ try {
     print(e)
 }
 
-# A type without any of these traits keeps the defaults: it is always truthy,
+# A type without any of these protocols keeps the defaults: it is always truthy,
 # and ! negates that.
 type Opaque() {}
 var o = Opaque()
@@ -178,7 +178,7 @@ if Counter(0) {
 print(!Counter(3), Bool(Counter(0)))
 print((Counter(0) || "fallback"))
 
-# The remaining operators, and a missing trait: the left operand's error
+# The remaining operators, and a missing protocol: the left operand's error
 # stands.
 type Modular(n) {
     impl Div {

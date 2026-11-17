@@ -477,7 +477,7 @@ func TestCheckModule(t *testing.T) {
 			errContains: "4:7: semantic error: undefined identifier: a",
 		},
 		{
-			name: "method named like a trait method is unrestricted",
+			name: "method named like a protocol method is unrestricted",
 			source: "type V(x) {\n" +
 				"  impl Add { func add(self, other) { return self } }\n" +
 				"  func add(self, a, b, c) { return self }\n" +
@@ -524,7 +524,7 @@ func TestCheckImpls(t *testing.T) {
 		},
 
 		{
-			name:   "custom trait has no structural default",
+			name:   "a protocol without a structural impl",
 			source: "type P() { impl Truth {} }\n",
 			err:    "1:17: semantic error: impl Truth for P is missing method 'truth'",
 		},
@@ -549,12 +549,12 @@ func TestCheckImpls(t *testing.T) {
 			err:    "1:7: semantic error: undefined identifier: Eq",
 		},
 		{
-			name:   "trait is an ordinary identifier",
+			name:   "the removed keyword is an ordinary identifier",
 			source: "var trait = 1\nprint(trait)\n",
 		},
 
 		{
-			name:   "method outside the trait",
+			name:   "method outside the protocol",
 			source: "type P() { impl Eq { func equal(self, o) { return true } } }\n",
 			err:    "1:27: semantic error: impl Eq for P: Eq has no method 'equal'",
 		},

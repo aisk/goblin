@@ -2,7 +2,7 @@ package object
 
 // UserBase implements the Object methods every user value shares: printing,
 // truth, hashing, comparison, operators, iteration and indexing, all
-// dispatched to the value's trait impls. The interpreter's instances and the
+// dispatched to the value's protocol impls. The interpreter's instances and the
 // structs the transpiler generates embed it and add only what differs
 // between them: field storage, attribute access and method calls. A
 // generated struct may still override an operator to call its impl

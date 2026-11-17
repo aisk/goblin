@@ -77,7 +77,7 @@ way, such as a parameter or a list element, is checked when the access runs.
 ## Operators and conversions
 
 A type takes part in operators, comparison, printing, conditions, loops and
-indexing by implementing the built-in traits in `impl` blocks inside its body.
+indexing by implementing protocols in `impl` blocks inside its body.
 An empty impl of `Eq`, `Ord`, `Hashable` or `Show` derives the behavior from
 the fields:
 
@@ -98,8 +98,8 @@ print(Vector(1, 2) == Vector(1, 2))     # true
 
 Without any impl, an instance is equal only to itself, prints as
 `<Vector@0x...>`, is always truthy, and raises TypeError for arithmetic,
-ordering, iteration and indexing. [Traits](./traits.md) covers the built-in
-traits and how to declare traits of your own.
+ordering, iteration and indexing. [Protocols](./protocols.md) lists the
+protocols and what each one enables.
 
 ## Checking a value's type
 
@@ -131,8 +131,8 @@ print(describe(nil))          # nothing
 
 Built-in values answer with the conversion functions: `Int`, `Float`, `String`,
 `Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error` and `Chan`. A value whose
-type has no constructor (`nil`, a module, a trait, a Goblin handle) answers a
+type has no constructor (`nil`, a module, a Goblin handle) answers a
 stand-in that still compares equal across values of that type and has its
-`name`, such as `type_of(nil).name == "Nil"`. For behaviour rather than
-identity, check traits instead: `traits(value).contains(Show)` on an instance
-of a user type.
+`name`, such as `type_of(nil).name == "Nil"`. There is no question for
+behaviour, such as whether a value implements a protocol: use the operation
+itself, or compare `type_of(value)` with the type you expect.

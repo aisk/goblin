@@ -60,11 +60,11 @@ try {
 | `version` | The version number stored in the UUID. |
 | `time` | Creation time as a `Time`, for version 7 only. Raises `ValueError` otherwise. |
 
-## Traits
+## Protocols
 
-UUID values implement these built-in traits:
+UUID values implement these protocols:
 
-| Trait | Behavior |
+| Protocol | Behavior |
 | --- | --- |
 | `Eq` | Two UUIDs are equal when their 16 bytes are equal. A UUID never equals a string, even its own text form. |
 | `Ord` | Ordered by big-endian byte value. Version 7 UUIDs therefore sort by creation time. Comparing with a non-UUID raises `TypeError`. |
@@ -72,7 +72,7 @@ UUID values implement these built-in traits:
 | `Show` | The canonical lowercase hex-and-dash form. |
 
 `Truth` has no UUID-specific behavior: every UUID is truthy, `NIL` included, so
-compare with `uuid.NIL` explicitly to check for it. The arithmetic traits,
+compare with `uuid.NIL` explicitly to check for it. The arithmetic protocols,
 `Iter` and `Index` are not implemented, and using them raises `TypeError`.
 
 Go's standard library only generates versions 4 and 7, so name-based (3, 5) and
