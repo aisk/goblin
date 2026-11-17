@@ -10,6 +10,8 @@ message and traceback include the source location.
 | NameError / AttributeError | A runtime name or member is unavailable | Spelling, module import, and `attributes(value)` in the REPL |
 | TypeError | An operation received an unsupported value type | Constructor inputs, callback return values, and operator operands |
 | IndexError / KeyError | A list index or dictionary key is absent | Bounds checks, dict.get(), and list.index() returning nil |
+| A found value is treated as missing | `index()` returned position `0`, which is false in a condition | Compare the result with `!= nil`, or use contains() |
+| ValueError from split() or replace() | An empty separator or a negative `count` | Leave `count` out for no limit; use `List(text)` for characters |
 | IOError / NetworkError | A filesystem or HTTP operation failed | Paths, permissions, connectivity, and a try/catch recovery boundary |
 
 ## A reliable debugging loop
