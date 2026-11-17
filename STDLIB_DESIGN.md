@@ -92,7 +92,8 @@ Everything a user calls is an ordinary method on a concrete type or a function i
 ### One function, not a family
 
 - The common case works with required positional arguments alone: `s.split(sep)`.
-- Variations are optional keyword arguments whose defaults give the plain behaviour: `s.split(sep, count=-1)`, `gzip.compress(data, level=gzip.DEFAULT_COMPRESSION)`.
+- Variations are optional keyword arguments whose defaults give the plain behaviour: `s.split(sep, count=nil)`, `gzip.compress(data, level=gzip.DEFAULT_COMPRESSION)`.
+- An absent limit is `nil`, never a sentinel such as `-1`: `count=nil` means "no limit", and a negative `count` raises ValueError.
 - Never expose `foo` and `foo_with_bar` side by side when a keyword argument can express the difference.
 - Collapse configuration, not concepts. When two functions differ in *what* they do rather than in a knob, they stay separate: `url.query_escape` and `url.path_escape` apply different rules to different parts of a URL, and `escape(s, mode=...)` would trade two self-describing names for a stringly-typed enum.
 - Keyword names are API. The same concept has the same name everywhere (`sep`, `count`, `chars`, `key`, `default`, `timeout`, `level`), and one name never means two things (`size` is a number of elements, so a channel's buffer is `capacity`). A boolean keyword names a state, not an action (`descending=true`, not `reverse=true`).
@@ -144,7 +145,7 @@ A member that takes no arguments is either a property (`p.name`) or a nullary me
 The built-in types are the part of the library every program uses, so consistency between them matters most and is enforced mechanically.
 
 - **A specification matrix, not per-type design.** Operations shared by List, String, Bytes and Dict (`contains`, `index`, `find`, `count`, `remove`, `join`, `split`, `replace`, `trim`, …) are specified once: same name, same argument order, same keyword names, same behaviour on a miss. A type lacks an operation only when it is meaningless there, not because nobody wrote it (`sum` without `max`/`min`, `start` on one type's `index` only, and `join` running in opposite directions on two types are the failures this prevents).
-- **Shared in Go.** The matrix is implemented by common Go helpers that the types call into, and a conformance test walks operation × type and asserts signatures and miss behaviour agree. `object/callmethod.go` remains the single name-to-method mapping.
+- **Shared in Go.** The matrix is implemented by common Go helpers that the types call into, and a conformance test (`object/matrix_test.go`) walks operation × type and asserts members, keyword names, miss behaviour and receiver returns agree; a new member of a built-in type goes into its tables first. `object/callmethod.go` remains the single name-to-method mapping.
 - **Frequent operations only.** `String` and `Bytes` are not a transliteration of Go's `strings`/`bytes`. Each keeps the operations that realistic programs use; variants are keyword arguments (splitting on whitespace is `split()` with no separator); the long tail (`index_any`, `contains_rune`, `equal_fold`, `split_after`, `to_valid_utf8`, …) is deleted rather than relocated. `Bytes` keeps what binary data needs; text work goes through `decode()`.
 - **Aggregates have one home.** The global `max` and `min` are the only ones: several arguments or one iterable, an optional `key=`, a documented tie rule.
 

@@ -73,7 +73,7 @@ func (c *Chan) Send(args CallArgs) (_ Object, err error) {
 	}
 	defer func() {
 		if recover() != nil {
-			err = NewValueError("send on closed channel")
+			err = NewValueError("send() on closed channel")
 		}
 	}()
 	if !hasTimeout {
@@ -126,7 +126,7 @@ func (c *Chan) Receive(args CallArgs) (Object, error) {
 		}
 	}
 	if !ok {
-		return nil, NewValueError("receive on closed channel")
+		return nil, NewValueError("receive() on closed channel")
 	}
 	return value, nil
 }
@@ -139,7 +139,7 @@ func (c *Chan) Close(args CallArgs) (_ Object, err error) {
 	}
 	defer func() {
 		if recover() != nil {
-			err = NewValueError("close of closed channel")
+			err = NewValueError("close() of closed channel")
 		}
 	}()
 	close(c.ch)

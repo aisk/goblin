@@ -8,4 +8,4 @@ send() timed out after 0.01 seconds
 alpha
 beta
 gamma
-receive on closed channel
+receive() on closed channel
