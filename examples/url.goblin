@@ -48,8 +48,27 @@ func clean(link) {
 }
 print(clean(url.parse("https://example.com/post?id=7&utm_source=mail&utm_medium=x")))
 
-# Reading a query: in order, a repeated name keeps its last value
+# Reading a query: in order, a repeated name keeps its last value;
+# query_values gives every value of one name
 print(url.decode_query("?b=1&a=2&b=3&flag&empty=&sp=a+b%21"), url.decode_query(""))
+print(url.query_values("?b=1&a=2&b=3+4&b=%21", "b"), url.query_values("a=1", "b"), url.query_values("", "b"))
+var tagged = url.parse("https://example.com/list?tag=a&tag=b")
+print(url.query_values(tagged.query, "tag"))
+
+# User name and password, decoded; "" when absent
+var db = url.parse("postgres://ada:p%40ss+w@db.example.com:5432/shop")
+print(db.user, db.password, db.host, db.port, db.path)
+print(url.parse("ftp://anon@files.example.com/").user, url.parse("ftp://anon@files.example.com/").password == "", link.user == "", link.password == "")
+
+# Moving a URL to another host: re-escape the decoded path segment by segment
+var u = url.parse("https://example.com/a%20b/c%3Fd?x=1")
+var mirror = "mirror.org"
+var p = u.path.split("/").map(url.path_escape).join("/")
+var moved = "{u.scheme}://{mirror}{p}"
+if u.query != "" {
+    moved = "{moved}?{u.query}"
+}
+print(moved, url.parse(moved).path, url.parse(moved).query)
 
 # The file name a URL ends in
 var download = url.parse("https://example.com/files/report%202026.pdf?dl=1")
@@ -85,6 +104,11 @@ try {
 }
 try {
     url.decode_query("a=%zz&b=1")
+} catch e: ParseError {
+    print(e.message, e.text)
+}
+try {
+    url.query_values("a=%zz&b=1", "b")
 } catch e: ParseError {
     print(e.message, e.text)
 }

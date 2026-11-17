@@ -136,6 +136,11 @@ func (u *URL) GetAttr(name string) (object.Object, error) {
 		return object.String(u.u.Hostname()), nil
 	case "port":
 		return u.port(), nil
+	case "user":
+		return object.String(u.u.User.Username()), nil
+	case "password":
+		password, _ := u.u.User.Password()
+		return object.String(password), nil
 	case "path":
 		return object.String(u.u.Path), nil
 	case "query":
@@ -151,7 +156,7 @@ func (u *URL) GetAttr(name string) (object.Object, error) {
 }
 
 func (u *URL) Attributes() []string {
-	return []string{"scheme", "host", "port", "path", "query", "fragment", "join", "with_query"}
+	return []string{"scheme", "user", "password", "host", "port", "path", "query", "fragment", "join", "with_query"}
 }
 
 // Fields walks a Dict of named fields the way every Dict-to-fields writer
@@ -211,6 +216,35 @@ func EncodeQuery(fn, param string, d *object.Dict) (string, error) {
 // in the order of first appearance, a repeated name keeping its last value.
 func DecodeQuery(fn, text string) (*object.Dict, error) {
 	d := object.NewDict()
+	err := queryFields(fn, text, func(name, value string) error {
+		return d.Set(object.String(name), object.String(value))
+	})
+	if err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
+// QueryValues is url.query_values: every value of name in a query string,
+// in order; an empty List when name is not there.
+func QueryValues(fn, text, name string) (*object.List, error) {
+	values := []object.Object{}
+	err := queryFields(fn, text, func(n, value string) error {
+		if n == name {
+			values = append(values, object.String(value))
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &object.List{Elements: values}, nil
+}
+
+// queryFields calls emit with each unescaped name and value of a query
+// string, in order, ignoring a leading "?". A bad escape anywhere is a
+// ParseError carrying text.
+func queryFields(fn, text string, emit func(name, value string) error) error {
 	for _, part := range strings.Split(strings.TrimPrefix(text, "?"), "&") {
 		if part == "" {
 			continue
@@ -218,17 +252,17 @@ func DecodeQuery(fn, text string) (*object.Dict, error) {
 		rawName, rawValue, _ := strings.Cut(part, "=")
 		name, err := url.QueryUnescape(rawName)
 		if err != nil {
-			return nil, badEscape(fn, text, err)
+			return badEscape(fn, text, err)
 		}
 		value, err := url.QueryUnescape(rawValue)
 		if err != nil {
-			return nil, badEscape(fn, text, err)
+			return badEscape(fn, text, err)
 		}
-		if err := d.Set(object.String(name), object.String(value)); err != nil {
-			return nil, err
+		if err := emit(name, value); err != nil {
+			return err
 		}
 	}
-	return d, nil
+	return nil
 }
 
 func badEscape(fn, text string, err error) error {

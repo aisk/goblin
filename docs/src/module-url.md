@@ -17,6 +17,13 @@ print(link.host, link.port, link.path)        # example.com 8443 /docs/intro
 var params = url.decode_query(link.query)
 print(params.get("page", default="1"))        # 2
 
+# Every value of a name that repeats
+print(url.query_values("tag=a&tag=b&x=1", "tag")) # ["a", "b"]
+
+# The credentials in a connection URL, decoded
+var db = url.parse("postgres://ada:p%40ss@db.example.com:5432/shop")
+print(db.user, db.password, db.host)          # ada p@ss db.example.com
+
 # Resolve the links found on a page
 var page = url.parse("https://example.com/docs/intro")
 print(page.join("../img/logo.png"))           # https://example.com/img/logo.png
@@ -76,6 +83,7 @@ the rest of the module.
 | `parse(text)` | URL | The URL `text` spells. Relative references (`"../a?x=1"`, `"/path"`) are valid and have an empty `scheme` and `host` |
 | `encode_query(params)` | String | A query string without the leading `?`, from a Dict in its order: `{"q": "a b", "page": 2}` gives `q=a+b&page=2`. Values are String, Int, Float or Bool; a List value repeats the name once per element; a `nil` value leaves the name out. `{}` gives `""` |
 | `decode_query(text)` | Dict of String to String | The names and values of a query string, in order; a leading `?` is ignored. A name that repeats keeps its last value. `""` gives `{}` |
+| `query_values(text, name)` | List of String | Every value `name` has in the query string `text`, in order; `[]` when it has none. A leading `?` is ignored. It is a module function, not a URL method, because a query string also arrives on its own, as a form body |
 | `query_escape(text)` | String | `text` made safe as one query name or value (a space becomes `+`) |
 | `path_escape(text)` | String | `text` made safe as one path segment (a space becomes `%20`, `/` becomes `%2F`) |
 
@@ -91,6 +99,8 @@ order.
 | Member | Kind | Value | When absent |
 | --- | --- | --- | --- |
 | `scheme` | property | String, lower case (`"https"`) | `""` |
+| `user` | property | String, the user name, decoded (`"ada"` in `postgres://ada:p%40ss@db/shop`) | `""` |
+| `password` | property | String, the password, decoded (`"p@ss"`) | `""` |
 | `host` | property | String, the host name or address without the port and without IPv6 brackets | `""` |
 | `port` | property | Int | `nil`; it is not filled in from the scheme |
 | `path` | property | String, decoded (`"/a b/c"`) | `""` |
@@ -106,7 +116,7 @@ headers:
 
 | | Writing | Reading |
 | --- | --- | --- |
-| Query (`url`) | `encode_query`, `with_query`: a List value repeats the name | `decode_query`: one String per name; a repeated name keeps its **last** value |
+| Query (`url`) | `encode_query`, `with_query`: a List value repeats the name | `decode_query`: one String per name; a repeated name keeps its **last** value. `query_values(text, name)` for each |
 | Headers ([http](./module-http.md)) | `headers=`: a List value repeats the header | `Response.headers`: one String per name, repeats **joined** with `", "`; `header_values(name)` for each |
 
 Reading returns one shape whatever the data: a value is never "a String, or a
@@ -120,7 +130,7 @@ a query string defines nothing.
 | --- | --- | --- |
 | `parse(text)` of text that is not a URL | ParseError `parse() invalid URL "ht!tp://x": first path segment in URL cannot contain colon` | `text` |
 | `join(reference)` with a String that is not a URL | ParseError `join() invalid URL "…": …` | `text`, the reference |
-| `decode_query` with a bad `%` escape | ParseError `decode_query() invalid escape "%zz"` | `text`, the whole query |
+| `decode_query` or `query_values` with a bad `%` escape anywhere in the query | ParseError `decode_query() invalid escape "%zz"` | `text`, the whole query |
 | A Dict key that is not a String, a value that is not String, Int, Float, Bool, List or `nil` | TypeError | — |
 
 `e.text` is the String that could not be parsed, whole, so a handler can
@@ -128,8 +138,18 @@ report it without keeping the input around.
 
 ## Left out
 
-User names and passwords in URLs; changing parts of a URL other than the query
-(build the text with interpolation: `"https://{mirror}{u.path}"`); unescaping
-functions (`URL.path`, `URL.fragment` and `decode_query` already return
-decoded text); every value of a repeated query name. A URL has one text form,
-`String(u)`, so there is no `format`.
+Changing parts of a URL other than the query: build the text with
+interpolation, escaping the decoded path again segment by segment, since
+`u.path` is decoded text:
+
+~~~goblin
+var p = u.path.split("/").map(url.path_escape).join("/")
+var moved = "{u.scheme}://{mirror}{p}"
+if u.query != "" {
+    moved = "{moved}?{u.query}"
+}
+~~~
+
+Also left out: unescaping functions (`URL.path`, `URL.fragment`, `user`,
+`password` and `decode_query` already return decoded text). A URL has one text
+form, `String(u)`, so there is no `format`.

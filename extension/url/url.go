@@ -16,6 +16,7 @@ func Execute() (object.Object, error) {
 		"parse":        parse,
 		"encode_query": encodeQuery,
 		"decode_query": decodeQuery,
+		"query_values": queryValues,
 		"query_escape": queryEscape,
 		"path_escape":  pathEscape,
 	}), nil
@@ -73,4 +74,15 @@ func pathEscape(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	return object.String(url.PathEscape(text)), nil
+}
+
+// query_values(text, name) is every value name has in the query string text.
+func queryValues(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("query_values", args)
+	text := p.Str("text")
+	name := p.Str("name")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return urlvalue.QueryValues("query_values", string(text), string(name))
 }

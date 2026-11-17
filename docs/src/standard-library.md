@@ -33,7 +33,7 @@ needed.
 | [math](./module-math.md) | Float functions, constants and basic statistics | PI, sqrt(), round(), mean() |
 | [http](./module-http.md) | HTTP client: requests, sessions, uploads, streamed bodies | get(), post(), Client(), multipart() |
 | [regex](./module-regex.md) | Search and rewrite text by pattern | find(), find_all(), replace(), split() |
-| [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query() |
+| [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query(), query_values() |
 | [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode(), read_rows() |
 | [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
 | [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |

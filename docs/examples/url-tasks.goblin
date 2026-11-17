@@ -14,6 +14,13 @@ expect([link.host, link.port, link.path], ["example.com", 8443, "/docs/intro"])
 var params = url.decode_query(link.query)
 expect(params.get("page", default="1"), "2")
 
+# Every value of a name that repeats
+expect(url.query_values("tag=a&tag=b&x=1", "tag"), ["a", "b"])
+
+# The credentials in a connection URL, decoded
+var db = url.parse("postgres://ada:p%40ss@db.example.com:5432/shop")
+expect([db.user, db.password, db.host], ["ada", "p@ss", "db.example.com"])
+
 # Resolve the links found on a page
 var page = url.parse("https://example.com/docs/intro")
 expect(String(page.join("../img/logo.png")), "https://example.com/img/logo.png")

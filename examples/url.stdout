@@ -15,6 +15,11 @@ https://example.com/items?sort=price&page=3#top
 https://example.com/items#top https://example.com/items?tag=x&tag=y#top
 https://example.com/post?id=7
 {"b": "3", "a": "2", "flag": "", "empty": "", "sp": "a b!"} {}
+["1", "3 4", "!"] [] []
+["a", "b"]
+ada p@ss+w db.example.com 5432 /shop
+anon true true true
+https://mirror.org/a%20b/c%3Fd?x=1 /a b/c?d x=1
 report 2026.pdf
 2 true false
 true false false
@@ -23,6 +28,7 @@ parse() invalid URL "http://x:port/": invalid port ":port" after host true
 parse() invalid URL "%zz": invalid URL escape "%zz" true
 join() invalid URL "http://bad host/": invalid character " " in host name http://bad host/
 decode_query() invalid escape "%zz" a=%zz&b=1
+query_values() invalid escape "%zz" a=%zz&b=1
 encode_query() argument 'params' keys must be String, got Int
 encode_query() argument 'params' values must be String, Int, Float, Bool, List or Nil, got Dict
 encode_query() argument 'params' values must be String, Int, Float, Bool, List or Nil, got List
