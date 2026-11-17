@@ -319,6 +319,18 @@ type Interpolation struct {
 type InterpolationSource struct {
 	expressionMixin
 	Source string
+	// Spec is the part's format specifier (`{x:>8.2f}`), already validated,
+	// or nil when it has none.
+	Spec *object.FormatSpec
+}
+
+// Format is an interpolated expression with a format specifier: the part
+// `{Value:Spec}` of an Interpolation, which it only ever is. Its value is the
+// String format(Value, Spec) gives.
+type Format struct {
+	expressionMixin
+	Value Expression
+	Spec  object.FormatSpec
 }
 
 type ListLiteral struct {

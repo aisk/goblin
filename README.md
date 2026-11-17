@@ -175,8 +175,10 @@ try {
 }
 
 # Built-ins include print, eprint, range, max, min, sum, compare, hash,
-# type_of, attributes, spawn, wait_any, Error and typed constructors
+# format, type_of, attributes, spawn, wait_any, Error and typed constructors
 print(max(1, 2, 3))      # 3
+print("{2 / 3.0:.2f}")   # 0.67, formatted in place
+print(format(7, "03"))   # 007, the same with a spec chosen at run time
 print(min([1, 2.5]))     # 1
 print(sum([1, 2, 3]))    # 6
 print(Int("42"))         # 42

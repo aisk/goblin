@@ -66,7 +66,19 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"type_of":    TypeOf,
 	"attributes": Attributes,
 	"traits":     Traits,
+	"format":     Format,
 })
+
+// Format renders a value under a format specifier given at run time; see
+// object.Format. `"{x:spec}"` runs the same code.
+func Format(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("format", args)
+	value, spec := p.Any("value"), p.Str("spec")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return object.Format(value, string(spec))
+}
 
 // TypeOf returns the constructor of its argument's type; see object.TypeOf.
 func TypeOf(args object.CallArgs) (object.Object, error) {

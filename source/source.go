@@ -129,9 +129,16 @@ func resolveInterpolations(mod *ast.Module) error {
 			if !ok {
 				continue
 			}
-			if interp.Parts[i], err = parseInterpolated(src); err != nil {
+			var expr ast.Expression
+			if expr, err = parseInterpolated(src); err != nil {
 				return false
 			}
+			if src.Spec != nil {
+				// `{x:spec}` is format(x, "spec"), with the spec checked
+				// already; the node sits where the expression does.
+				expr = ast.NewFormat(expr, *src.Spec)
+			}
+			interp.Parts[i] = expr
 		}
 		return true
 	})

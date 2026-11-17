@@ -1,0 +1,89 @@
+# A format specifier after `:` in an interpolation pads text and formats
+# numbers; format(value, spec) does the same with a spec built at run time.
+
+var price = 3.1
+var name = "tea"
+print("{name:<8}|{price:>8.2f}|")
+print("{255:x} {255:08b} {7:03}")
+print("{1234567:,} {0.5:+.1f}")
+print("{name:*^9}")
+
+# A table whose first column is as wide as its longest entry
+var rows = [["tea", 3.1, 120], ["coffee", 2.75, 1480], ["hot chocolate", 4.0, 37]]
+var width = max(rows.map(func(row) { return row[0].size }))
+for item, cost, sold in rows {
+    print(format(item, "<{width}") + " | {cost:>6.2f} | {sold:>6,}")
+}
+
+# Alignment, fill and width apply to any value, by the text print shows;
+# numbers align right by default, everything else left
+print("[{42:5}] [{`ab`:5}] [{`ab`:>5}] [{`ab`:^5}] [{`abc`:^6}] [{`abc`: >6}]")
+print("[{true:>6}] [{nil:^7}] [{[1, 2]:>8}] [{`longer than width`:3}]")
+print("[{`héllo`:.<7}] [{`→`:→>3}]")
+
+# Each type letter
+print("{255:d} {255:x} {255:X} {255:b} {255:o} {255:f} {255:e}")
+print("{3.14159:f} {3.14159:.2f} {3.14159:.0f} {1500.0:e} {0.00012:.3e}")
+print("{2.0} {2.0:8} {1e16:>8} {2.675:.2f} {-0.001:.2f}")
+
+# Signs, zeros and grouping on negative numbers
+print("{-255:x} {-42:08} {42:+08} {-42:+} {0:+}")
+print("{-1234567:,} {1234567.891:,.2f} {-1234.5:+,.1f} {-7.5:07.2f}")
+print("{9223372036854775807:,} {-9223372036854775807 - 1:x}")
+
+# NaN and infinities show as print shows them, padded with spaces
+print("[{Float(`inf`):08.2f}] [{Float(`-inf`):+e}] [{Float(`nan`):>5}]")
+
+# A user type takes part through Show, and only for padding
+type Money(cents) {
+    impl Show {
+        func show(self) {
+            return "${self.cents / 100}.{self.cents % 100:02}"
+        }
+    }
+}
+print("[{Money(1234):>10}] [{Money(5):<8}]")
+
+# format() with an empty spec is the text print shows
+print(format(3.14159, ".2f"), format(42, ""), format(Money(250), ""))
+
+# What a value's type does not accept is a TypeError when the literal runs
+var mismatches = [
+    func(v) { return "{v:.2f}" },
+    func(v) { return "{v:x}" },
+    func(v) { return "{v:,}" },
+    func(v) { return "{v:d}" },
+]
+var values = ["tea", 2.5, 2.5, true]
+for i in range(mismatches.size) {
+    try {
+        print(mismatches[i](values[i]))
+    } catch e: TypeError {
+        print(e.message)
+    }
+}
+
+# A spec given to format() is checked when it runs
+for args in [[1, ".2"], [1, "5q"], [1, "\{w\}"], [1, 5]] {
+    try {
+        print(format(*args))
+    } catch e: ValueError {
+        print("ValueError:", e.message)
+    } catch e: TypeError {
+        print("TypeError:", e.message)
+    }
+}
+
+# An error from a value's Show is raised unchanged
+type Broken() {
+    impl Show {
+        func show(self) {
+            raise ValueError("cannot show Broken")
+        }
+    }
+}
+try {
+    print("{Broken():>5}")
+} catch e: ValueError {
+    print(e.message)
+}

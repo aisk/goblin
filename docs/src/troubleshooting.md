@@ -13,6 +13,7 @@ message and traceback include the source location.
 | A found value is treated as missing | `index()` returned position `0`, which is false in a condition | Compare the result with `!= nil`, or use contains() |
 | ValueError from split() or replace() | An empty separator or a negative `count` | Leave `count` out for no limit; use `List(text)` for characters |
 | IOError / NetworkError | A filesystem or HTTP operation failed | Paths, permissions, connectivity, and a try/catch recovery boundary |
+| `invalid format specifier ".2": precision needs 'f' or 'e'` | A precision without a type letter in `"{x:.2}"` | Write `{x:.2f}` for decimals or `{x:.2e}` for scientific notation |
 
 ## A reliable debugging loop
 

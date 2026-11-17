@@ -219,6 +219,8 @@ func (g *generator) transpileExpression(expr ast.Expression, onError errHandler)
 		return g.transpileUnaryOperation(v, onError)
 	case *ast.Interpolation:
 		return g.transpileInterpolation(v, onError)
+	case *ast.Format:
+		return g.transpileFormat(v, onError)
 	case *ast.ListLiteral:
 		return g.transpileListLiteral(v, onError)
 	case *ast.DictLiteral:
@@ -395,6 +397,7 @@ var directBuiltins = map[string]directBuiltin{
 	"type_of":    {pathExtension, "TypeOf", extension.TypeOf},
 	"attributes": {pathExtension, "Attributes", extension.Attributes},
 	"traits":     {pathExtension, "Traits", extension.Traits},
+	"format":     {pathExtension, "Format", extension.Format},
 	"Error":      {pathObject, "ErrorConstructor", object.ErrorConstructor},
 	"Int":        {pathObject, "IntConstructor", object.IntConstructor},
 	"Float":      {pathObject, "FloatConstructor", object.FloatConstructor},
@@ -473,6 +476,48 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 	}
 	preStmts := append(calleePre, argPreStmts...)
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
+}
+
+// transpileFormat applies a part's format specifier, rebuilt as a Go
+// composite literal of the fields that differ from the zero value.
+func (g *generator) transpileFormat(f *ast.Format, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	pre, value, err := g.transpileExpression(f.Value, onError)
+	if err != nil {
+		return nil, nil, err
+	}
+	s := f.Spec
+	fields := jen.Dict{}
+	if s.Fill != 0 {
+		fields[jen.Id("Fill")] = jen.LitRune(s.Fill)
+	}
+	if s.Align != 0 {
+		fields[jen.Id("Align")] = jen.LitByte(s.Align)
+	}
+	if s.Plus {
+		fields[jen.Id("Plus")] = jen.True()
+	}
+	if s.Zero {
+		fields[jen.Id("Zero")] = jen.True()
+	}
+	if s.Width != 0 {
+		fields[jen.Id("Width")] = jen.Lit(s.Width)
+	}
+	if s.Comma {
+		fields[jen.Id("Comma")] = jen.True()
+	}
+	if s.Precision != 0 {
+		fields[jen.Id("Precision")] = jen.Lit(s.Precision)
+	}
+	if s.Type != 0 {
+		fields[jen.Id("Type")] = jen.LitByte(s.Type)
+	}
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
+	pre = append(pre,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "FormatSpec").Values(fields).Dot("Apply").Call(value),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return pre, jen.Id(tmpVar), nil
 }
 
 // transpileInterpolation evaluates the parts of a string literal with

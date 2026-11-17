@@ -734,6 +734,8 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 			}
 		}
 		return nil
+	case *ast.Format:
+		return c.checkExpression(v.Value)
 	case *ast.InterpolationSource:
 		return c.newError(v.Position(), "internal error: interpolated expression was not parsed")
 	case *ast.CallExpression:

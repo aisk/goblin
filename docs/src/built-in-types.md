@@ -41,7 +41,9 @@ print(4 / 2.0)   # 2.0
 ~~~
 
 A Float always prints as a float: a whole value keeps a `.0`, and very large or
-very small magnitudes use an exponent (`1e+16`, `1e-05`).
+very small magnitudes use an exponent (`1e+16`, `1e-05`). To choose the
+number of decimals, format it: `"{2 / 3.0:.2f}"` is `0.67` (see
+[Formatting](./strings.md#formatting)).
 
 Integers are 64-bit and Goblin has no big integers. Arithmetic whose result
 does not fit raises OverflowError instead of wrapping around, and so does

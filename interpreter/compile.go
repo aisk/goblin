@@ -812,6 +812,18 @@ func (c *compiler) expr(expr ast.Expression) exprFn {
 			return v, nil
 		}
 
+	case *ast.Format:
+		// A part with a format specifier; the enclosing Interpolation
+		// positions its errors at the literal.
+		value, spec := c.expr(e.Value), e.Spec
+		return func(f *frame) (object.Object, error) {
+			v, err := value(f)
+			if err != nil {
+				return nil, err
+			}
+			return spec.Apply(v)
+		}
+
 	case *ast.ListLiteral:
 		elems := c.exprs(e.Elements)
 		return func(f *frame) (object.Object, error) {

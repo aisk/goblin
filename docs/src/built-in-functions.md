@@ -18,6 +18,7 @@ These names are available without an import.
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
 | `Error(message="", **data)` | Create an error value, optionally carrying named data |
+| `format(value, spec)` | Format a value under a format specifier, as `"{value:spec}"` does |
 | `type_of(value)` | The constructor of a value's type |
 | `attributes(value)` | List the names of a value's properties and methods |
 | `traits(value)` | List the traits a user type's instance implements |
@@ -43,6 +44,14 @@ argument parser, including `range`, numeric conversions, and `Dict`, accept
 their documented keyword names; `print` and `eprint` are positional-only, and
 `spawn` takes its function positionally and forwards every other argument,
 keyword arguments included, to it.
+
+`format(value, spec)` returns the String `"{value:spec}"` would give, for a
+specifier built at run time (`format(name, "<{width}")`) or formatting outside
+a literal (`prices.map(func(p) { return format(p, ".2f") })`). The specifier
+language is described under [Formatting](./strings.md#formatting); `spec`
+must be a String, an empty one gives the text `print` shows, and a malformed
+one raises ValueError (`format() invalid format specifier ".2": precision
+needs 'f' or 'e'`).
 
 Use `eprint` for diagnostics and warnings so they stay off the program's
 normal stdout stream (the same role as Python's

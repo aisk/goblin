@@ -95,6 +95,8 @@ func Inspect(node Statement, f func(Statement) bool) {
 		for _, part := range n.Parts {
 			Inspect(part, f)
 		}
+	case *Format:
+		Inspect(n.Value, f)
 	case *ListLiteral:
 		for _, item := range n.Elements {
 			Inspect(item, f)

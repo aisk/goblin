@@ -190,8 +190,18 @@ func TestParseStringLiterals(t *testing.T) {
 	errs := []struct{ src, want string }{
 		{`var s = "ab{}"`, "1:12: error: empty interpolation; write \\{ for a literal brace"},
 		{`var s = "{  }"`, "1:10: error: empty interpolation"},
-		{`var s = "{x:5}"`, "1:10: error: format specifiers are not supported"},
+		{`var s = "{x:5}"`, ""},
 		{`var s = "{x[1:2]}"`, ""},
+		{"var s = \"{f({`a`: 1})}\"", ""},
+		{"var s = \"{s.split(`:`)}\"", ""},
+		{`var s = "{x:}"`, "1:13: error: empty format specifier"},
+		{`var s = "ab{x:.2}"`, "1:15: error: invalid format specifier \".2\": precision needs 'f' or 'e'"},
+		{`var s = "{price:>8.2x}"`, "1:19: error: invalid format specifier \">8.2x\": precision cannot be used with 'x'"},
+		{`var s = "{x:*5}"`, "1:13: error: invalid format specifier \"*5\": a fill character needs"},
+		{`var s = "{x:{w}}"`, "1:13: error: invalid format specifier: a specifier cannot contain '{'; use format(value, spec)"},
+		{`var s = "{x:5\n}"`, "1:10: error: a format specifier cannot contain a backslash"},
+		{`var s = "{:5}"`, "1:10: error: empty interpolation"},
+		{`var s = "{x:5"`, "1:10: error: unterminated interpolation"},
 		{`var s = "{x"`, "1:10: error: unterminated interpolation"},
 		{"var s = \"{x\n}\"", "1:10: error: an interpolation cannot span lines"},
 		{`var s = "{x\"}"`, "1:10: error: an interpolation cannot contain a backslash"},
@@ -214,6 +224,38 @@ func TestParseStringLiterals(t *testing.T) {
 		}
 		if err == nil || !strings.Contains(err.Error(), tt.want) {
 			t.Errorf("%s: error %v, want one containing %q", tt.src, err, tt.want)
+		}
+	}
+}
+
+// A part with a format specifier becomes a Format node around the
+// expression, carrying the spec format() would parse from the same text.
+// Whitespace before the ':' belongs to the expression; after it, to the spec.
+func TestParseFormatSpecifiers(t *testing.T) {
+	for _, tt := range []struct{ src, spec string }{
+		{`"{x:>8.2f}"`, ">8.2f"},
+		{`"{x :08b}"`, "08b"},
+		{`"{xs[1:2]: >5}"`, " >5"},
+		{"\"{f({`a`: 1}):,}\"", ","},
+	} {
+		mod, err := ParseString("print(" + tt.src + ")\n")
+		if err != nil {
+			t.Fatalf("%s: %v", tt.src, err)
+		}
+		interp := mod.Body[0].(*ast.CallExpression).Args[0].Expr.(*ast.Interpolation)
+		f, ok := interp.Parts[0].(*ast.Format)
+		if !ok {
+			t.Fatalf("%s: part = %#v, want a Format", tt.src, interp.Parts[0])
+		}
+		want, perr := object.ParseFormatSpec(tt.spec)
+		if perr != nil {
+			t.Fatal(perr)
+		}
+		if f.Spec != want {
+			t.Errorf("%s: spec = %+v, want %+v", tt.src, f.Spec, want)
+		}
+		if f.Position() != f.Value.Position() {
+			t.Errorf("%s: Format at %v, value at %v", tt.src, f.Position(), f.Value.Position())
 		}
 	}
 }

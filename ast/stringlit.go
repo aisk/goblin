@@ -51,13 +51,25 @@ func NewStringLiteral(x any) (any, error) {
 			cur.advance(body[i : i+n])
 			i += n
 		case '{':
-			end, err := interpolationEnd(body, i)
+			exprEnd, end, err := interpolationEnd(body, i)
 			if err != nil {
 				return nil, &SyntaxError{Pos: cur.pos, Message: err.Error()}
 			}
 			flush()
 			cur.advance(body[i : i+1])
-			parts = append(parts, &InterpolationSource{expressionMixin: exprAt(cur.pos), Source: body[i+1 : end]})
+			part := &InterpolationSource{expressionMixin: exprAt(cur.pos), Source: body[i+1 : exprEnd]}
+			if exprEnd < end {
+				// The specifier runs from after the ':' to the closing brace.
+				specPos := cur
+				specPos.advance(body[i+1 : exprEnd+1])
+				spec, err := parseSpec(body[exprEnd+1 : end])
+				if err != nil {
+					specPos.advance(body[exprEnd+1 : exprEnd+1+err.Offset])
+					return nil, &SyntaxError{Pos: specPos.pos, Message: err.Message}
+				}
+				part.Spec = &spec
+			}
+			parts = append(parts, part)
 			cur.advance(body[i+1 : end+1])
 			i = end + 1
 			textPos = cur.pos
@@ -84,24 +96,26 @@ func NewRawStringLiteral(x any) (any, error) {
 	return &Literal{expressionMixin: exprAt(tokenOf(x).Pos), Value: object.String(s)}, nil
 }
 
-// interpolationEnd returns the index of the `}` closing the interpolation
-// that opens at body[open], counting (), [] and {} pairs. The expression
-// cannot contain a backslash or a newline (the lexer already ends the
-// literal at a `"`), must not be empty, and has no format specifier: a `:`
-// outside any bracket is an error, kept free for one. A backtick string
-// inside it is skipped whole.
-func interpolationEnd(body string, open int) (int, error) {
+// interpolationEnd scans the interpolation that opens at body[open]. It
+// returns the index where the expression ends, which is the `:` starting a
+// format specifier or else the closing `}`, and the index of the closing
+// `}`. The expression counts (), [] and {} pairs, and the first `:` outside
+// them starts the specifier, which runs to the next `}`. Neither can contain
+// a backslash or a newline (the lexer already ends the literal at a `"`),
+// and the expression must not be empty. A backtick string inside the
+// expression is skipped whole.
+func interpolationEnd(body string, open int) (exprEnd, end int, err error) {
 	depth := 0
 	for i := open + 1; i < len(body); i++ {
 		switch body[i] {
 		case '\\':
-			return 0, fmt.Errorf("an interpolation cannot contain a backslash; assign the value to a variable first")
+			return 0, 0, fmt.Errorf("an interpolation cannot contain a backslash; assign the value to a variable first")
 		case '\n':
-			return 0, fmt.Errorf("an interpolation cannot span lines; write \\{ for a literal brace")
+			return 0, 0, fmt.Errorf("an interpolation cannot span lines; write \\{ for a literal brace")
 		case '`':
 			closing := strings.IndexByte(body[i+1:], '`')
 			if closing < 0 {
-				return 0, fmt.Errorf("unterminated interpolation; write \\{ for a literal brace")
+				return 0, 0, fmt.Errorf("unterminated interpolation; write \\{ for a literal brace")
 			}
 			i += closing + 1
 		case '(', '[', '{':
@@ -111,18 +125,46 @@ func interpolationEnd(body string, open int) (int, error) {
 		case '}':
 			if depth == 0 {
 				if strings.TrimSpace(body[open+1:i]) == "" {
-					return 0, fmt.Errorf("empty interpolation; write \\{ for a literal brace")
+					return 0, 0, fmt.Errorf("empty interpolation; write \\{ for a literal brace")
 				}
-				return i, nil
+				return i, i, nil
 			}
 			depth--
 		case ':':
 			if depth == 0 {
-				return 0, fmt.Errorf("format specifiers are not supported")
+				if strings.TrimSpace(body[open+1:i]) == "" {
+					return 0, 0, fmt.Errorf("empty interpolation; write \\{ for a literal brace")
+				}
+				for j := i + 1; j < len(body); j++ {
+					switch body[j] {
+					case '\\':
+						return 0, 0, fmt.Errorf("a format specifier cannot contain a backslash")
+					case '\n':
+						return 0, 0, fmt.Errorf("an interpolation cannot span lines; write \\{ for a literal brace")
+					case '}':
+						return i, j, nil
+					}
+				}
+				return 0, 0, fmt.Errorf("unterminated interpolation; write \\{ for a literal brace")
 			}
 		}
 	}
-	return 0, fmt.Errorf("unterminated interpolation; write \\{ for a literal brace")
+	return 0, 0, fmt.Errorf("unterminated interpolation; write \\{ for a literal brace")
+}
+
+// NewFormat wraps an interpolated expression that has a format specifier.
+// It is positioned where the expression is.
+func NewFormat(value Expression, spec object.FormatSpec) *Format {
+	return &Format{expressionMixin: exprAt(value.Position()), Value: value, Spec: spec}
+}
+
+// parseSpec validates the format specifier of an interpolation. Unlike
+// format(), which takes the empty spec, `{x:}` is a mistake.
+func parseSpec(text string) (object.FormatSpec, *object.FormatSpecError) {
+	if text == "" {
+		return object.FormatSpec{}, &object.FormatSpecError{Message: "empty format specifier"}
+	}
+	return object.ParseFormatSpec(text)
 }
 
 // unescape decodes the escape sequence at the start of s into b and returns

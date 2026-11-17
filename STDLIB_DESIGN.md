@@ -178,6 +178,11 @@ The closed protocol set means these can only be fixed in the language. Until the
 - **No protocol for `size`**, so a user type cannot offer the property every built-in collection has.
 - **No membership syntax**: `contains` is a method everywhere; if an `in` operator is added it needs a protocol.
 
+Closed by the language, so no module should offer its own version:
+
+- **Formatting numbers and padding text**: a format specifier in an interpolation (`"{x:>8.2f}"`) and the global `format(value, spec)` for a spec built at run time. A module formats only its own values' text forms (`time` layouts); there is no number formatting in `math` or elsewhere.
+- **Errors that carry data and are caught by kind**: `catch e: Kind`, `Kind("message", **data)`, and `object.NewErrorKind` / `With` in Go (§7).
+
 ## 11. Checklist for a new module
 
 1. Write the programs it is for, then the Goblin Book chapter, before any Go (§1).

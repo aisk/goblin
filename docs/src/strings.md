@@ -33,12 +33,76 @@ while evaluating or showing one is reported at the string literal.
 - It cannot contain a `"`, a backslash or a line break: the string would end,
   or the escape would belong to the string. Assign such a value to a variable
   first, or use a raw string inside: `` "{names.join(`, `)}" ``.
-- `{}` with nothing inside is an error (write `\{}` for the text `{}`), and
-  so is a `:` outside any bracket, as in `"{x:5}"`: format specifiers are not
-  supported. Format numbers with their methods or a module before
-  interpolating them.
+- `{}` with nothing inside is an error (write `\{}` for the text `{}`).
+- A `:` outside any bracket ends the expression and starts a format
+  specifier: see [Formatting](#formatting).
 
 A string without any `{expression}` is a plain constant.
+
+## Formatting
+
+`{expression:spec}` formats the value under a specifier: it pads text to a
+width and controls how numbers are written.
+
+~~~goblin
+var price = 3.1
+var name = "tea"
+print("{name:<8}|{price:>8.2f}|")      # tea     |    3.10|
+print("{255:x} {255:08b} {7:03}")      # ff 11111111 007
+print("{1234567:,} {0.5:+.1f}")        # 1,234,567 +0.5
+print("{name:*^9}")                    # ***tea***
+~~~
+
+A specifier is, in this order and each part optional:
+
+~~~
+[[fill] align] [+] [0] [width] [,] [.precision] [type]
+~~~
+
+| Part | Meaning |
+| --- | --- |
+| width | Minimum number of characters; longer text is never cut |
+| align | `<` left, `>` right, `^` centre (an odd space goes right). Numbers align right by default, everything else left |
+| fill | The padding character, default a space. Only before an explicit align: `*^9`, ` >5` |
+| `+` | Show `+` on numbers that are not negative |
+| `0` | Pad a number with zeros between its sign and its digits (`{-42:08}` is `-0000042`); not together with an align |
+| `,` | Group the integer digits in threes: an Int with no type or `d`, or a number with `f` |
+| `.precision` | Digits after the decimal point; needs `f` or `e` (`{x:.2}` is an error, write `{x:.2f}`) |
+| `d` | Decimal Int, the default |
+| `x` `X` `b` `o` | Int in hexadecimal (lower or upper case), binary or octal, with no prefix: write `"0x{n:04x}"` |
+| `f` | Fixed point, 6 decimals unless a precision is given; an Int is converted |
+| `e` | Scientific (`1.50e+03`), 6 decimals unless a precision is given; an Int is converted |
+
+An Int takes every part. A Float takes all but the Int types; with no type it
+shows the text `print` shows (`2.0`, `1e+16`), and `,` on it needs `f`
+(`{x:,.2f}`). NaN and the infinities show as `print` shows them, padded with
+spaces. Any other value (a String, Bool, nil, a list, a custom type through
+its `Show` impl) takes only fill, align and width, applied to its `print`
+text.
+
+- The specifier is literal text: it is not interpolated and takes no escapes,
+  so it cannot contain `{`, `}`, `"`, a backslash or a line break. Spaces in it
+  count (`{x: >5}` pads with spaces); spaces before the `:` belong to the
+  expression.
+- A malformed specifier (`{x:}`, `{x:5q}`, `{x:<05}`) is a syntax error,
+  reported where it stands when the program is parsed.
+- A value whose type does not take the specifier is a TypeError when the
+  string is evaluated: `format specifier ".2f" needs an Int or Float, got
+  String`.
+- Rounding is to the nearest value of the exact binary number, so
+  `{2.675:.2f}` is `2.67`, as it is in Go and Python.
+
+When the specifier is only known at run time, such as a column width
+computed from the data, use the built-in `format(value, spec)`, which is
+exactly what `"{value:spec}"` runs:
+
+~~~goblin
+var names = ["tea", "coffee", "hot chocolate"]
+var width = max(names.map(func(n) { return n.size }))
+for name in names {
+    print(format(name, "<{width}") + "|")
+}
+~~~
 
 ## Escapes
 
