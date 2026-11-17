@@ -62,8 +62,10 @@ A fact fixed for the life of the process is a value (`os.args`, `os.pid`),
 the environment is an object, and ending the process is a function.
 
 `os.exit()` ends the process at once: deferred calls, including those of the
-calling function, do not run. Avoid it in library code; raise an error
-instead and let the program decide.
+calling function, do not run, so a temporary directory removed by a `defer`
+stays on disk. Clean up before calling it. An interrupt (Ctrl-C) also ends the
+process without running deferred calls. Avoid `os.exit()` in library code;
+raise an error instead and let the program decide.
 
 The standard streams are ordinary [File](./module-fs.md#file) values whose
 `path` is `nil`; their methods raise IOError when the stream fails. `print`
