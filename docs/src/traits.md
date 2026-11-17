@@ -93,7 +93,7 @@ method is called through the trait, with the receiver as the first argument:
 
 ~~~goblin
 print(Shape.area(r))
-print(Ord.max(3, 7))                    # built-in traits work on built-in values
+print(Ord.lt(3, 7))                     # built-in traits work on built-in values
 ~~~
 
 The call runs the receiver's implementation, or the trait's default when the
@@ -114,7 +114,7 @@ order, so `traits(r).contains(Shape)` answers whether `r` is a Shape.
 | Trait | Required | Defaults | Enables | Empty impl |
 | --- | --- | --- | --- | --- |
 | `Eq` | `eq(self, other)` | `ne` (derived) | `==`, `!=` | structural |
-| `Ord` (needs `Eq`) | `compare(self, other)` | `lt le gt ge max min` (derived) | `<`, `<=`, `>`, `>=`, `sort`, `max`, `min` | structural |
+| `Ord` (needs `Eq`) | `compare(self, other)` | `lt le gt ge` (derived) | `<`, `<=`, `>`, `>=`, `sort`, `max`, `min` | structural |
 | `Hashable` (needs `Eq`) | `hash(self)` | | dict keys | structural |
 | `Show` | `show(self)` | | `print`, `String`, string rendering | structural |
 | `Truth` | `truth(self)` | | `if`, `while`, `&&`, `\|\|`, `!`, `Bool` | not allowed |
@@ -167,8 +167,8 @@ inside an `eq` means "unequal", so `money == nil` stays false for an `eq`
 written only for numbers. Any other error propagates. `!=` is always the
 negation of `==`.
 
-The ordering operators, `sort`, and the built-in `max` and `min` all order
-through `compare`. When the left operand cannot order the pair, the right
+The ordering operators, `sort`, and the built-in `compare`, `max` and `min`
+all order through `compare`. When the left operand cannot order the pair, the right
 operand's `compare` answers with the result negated, which is how
 `10 > money` reaches Money's impl:
 
@@ -176,7 +176,7 @@ operand's `compare` answers with the result negated, which is how
 type Money(amount) {
     impl Eq {
         func eq(self, other) {
-            return Ord.compare(self, other) == 0
+            return compare(self, other) == 0
         }
     }
     impl Ord {

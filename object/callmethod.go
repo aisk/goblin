@@ -72,9 +72,6 @@ func (l *List) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "all":
 		v, err := l.allMethod(args)
 		return v, true, err
-	case "sum":
-		v, err := l.sumMethod(args)
-		return v, true, err
 	}
 	return nil, false, nil
 }
@@ -107,9 +104,6 @@ func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 		return v, true, err
 	case "equal_fold":
 		v, err := s.EqualFold(args)
-		return v, true, err
-	case "compare":
-		v, err := s.CompareText(args)
 		return v, true, err
 	case "index":
 		v, err := s.IndexOf(args)
@@ -232,9 +226,6 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 		return v, true, err
 	case "equal_fold":
 		v, err := b.EqualFold(args)
-		return v, true, err
-	case "compare":
-		v, err := b.CompareBytes(args)
 		return v, true, err
 	case "has_prefix":
 		v, err := b.HasPrefix(args)

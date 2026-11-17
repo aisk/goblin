@@ -1,5 +1,10 @@
 package object
 
+import (
+	"errors"
+	"fmt"
+)
+
 // Iteration has two Go-level shapes. Object.Iter is the eager one: it returns
 // every element at once, and a type can keep implementing only that. A type
 // that can hand out its elements one at a time implements Iterable as well,
@@ -174,3 +179,19 @@ type closingIterator struct {
 
 func (it *closingIterator) Next() (Object, bool, error) { return it.next() }
 func (it *closingIterator) Close()                      { it.close() }
+
+// CollectArg is Collect for the argument param of the builtin fn: a value
+// that is not iterable at all is reported as "fn() argument 'param' must be
+// iterable, got Int", while an error raised by the iteration itself passes
+// through unchanged.
+func CollectArg(fn, param string, v Object) ([]Object, error) {
+	items, err := Collect(v)
+	if err != nil {
+		var e *Error
+		if errors.As(err, &e) && errors.Is(err, TypeError) && e.Value == fmt.Sprintf(ErrFmtNotIterable, v.TypeName()) {
+			return nil, NewTypeError("%s() argument '%s' must be iterable, got %s", fn, param, v.TypeName())
+		}
+		return nil, err
+	}
+	return items, nil
+}

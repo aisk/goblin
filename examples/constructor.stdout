@@ -29,7 +29,7 @@ Nil true false
 Trait Goblin
 true Nil cannot be constructed
 ["x", "y", "sum"]
-["size", "first", "last", "push", "pop", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find", "any", "all", "sum"]
+["size", "first", "last", "push", "pop", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find", "any", "all"]
 [] []
 ["message", "traceback", "wrap", "unwrap", "is"]
 ["name"]

@@ -165,8 +165,8 @@ func TestUUIDTraits(t *testing.T) {
 	if got := call(object.OrdTrait, "compare", a, b); got != object.Integer(-1) {
 		t.Fatalf("Ord.compare(a, b) = %v, want -1", got)
 	}
-	if got := call(object.OrdTrait, "max", a, b); got != b {
-		t.Fatalf("Ord.max(a, b) = %v, want b", got)
+	if got := call(object.OrdTrait, "lt", a, b); got != object.True {
+		t.Fatalf("Ord.lt(a, b) = %v, want true", got)
 	}
 	if call(object.HashableTrait, "hash", a) != call(object.HashableTrait, "hash", NewUUID(a.Value)) {
 		t.Fatal("equal UUIDs must hash equal")

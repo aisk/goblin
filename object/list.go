@@ -615,27 +615,12 @@ func (l *List) allMethod(args CallArgs) (Object, error) {
 	return True, nil
 }
 
-func (l *List) sumMethod(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("sum", args); err != nil {
-		return nil, err
-	}
-	var res Object = Integer(0)
-	for _, e := range l.Elements {
-		var err error
-		res, err = Add(res, e)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
 func (l *List) Attributes() []string { return listMethods.attributes("size", "first", "last") }
 
 var listMethods = newMethodTable(
 	"push", "pop", "join", "insert", "contains", "count", "index", "remove",
 	"reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find",
-	"any", "all", "sum",
+	"any", "all",
 )
 
 var ListConstructorFn = &Function{Name: "List", Fn: ListConstructor}

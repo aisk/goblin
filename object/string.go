@@ -129,15 +129,6 @@ func (s String) EqualFold(args CallArgs) (Object, error) {
 	return Bool(strings.EqualFold(string(s), string(other))), nil
 }
 
-func (s String) CompareText(args CallArgs) (Object, error) {
-	ap := NewArgParser("compare", args)
-	other := ap.Str("other")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return Integer(strings.Compare(string(s), string(other))), nil
-}
-
 func (s String) IndexOf(args CallArgs) (Object, error) {
 	ap := NewArgParser("index", args)
 	substr := ap.Str("sub")
@@ -482,7 +473,7 @@ func (s String) Attributes() []string { return stringMethods.attributes("size") 
 
 var stringMethods = newMethodTable(
 	"upper", "lower", "has_prefix", "has_suffix", "trim", "contains",
-	"contains_any", "count", "equal_fold", "compare", "index", "last_index",
+	"contains_any", "count", "equal_fold", "index", "last_index",
 	"index_any", "last_index_any", "repeat", "replace", "split", "split_after",
 	"fields", "title", "to_title", "to_valid_utf8", "trim_left", "trim_right",
 	"trim_prefix", "trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode",

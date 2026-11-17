@@ -7,7 +7,10 @@ These names are available without an import.
 | `print(values...)` | Write values to stdout, separated by spaces, ending with a newline |
 | `eprint(values...)` | Same as `print`, but write to stderr |
 | `range(end)` / `range(start, end)` | Create integer values from start (zero when omitted) through end-exclusive |
-| `min(values...)` / `max(values...)` | Choose the smallest or largest value |
+| `min(values..., key=nil)` / `max(values..., key=nil)` | Choose the smallest or largest of several values, or of one iterable's elements |
+| `sum(values)` | Add up an iterable's elements with `+`, starting from `0` |
+| `compare(a, b)` | Order two values as `<` does: `-1`, `0` or `1` |
+| `hash(value)` | The hash a dictionary files a key under |
 | `Int(value)` / `Float(value)` / `String(value)` / `Bool(value)` | Convert a value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
 | `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
@@ -20,9 +23,22 @@ These names are available without an import.
 | `traits(value)` | List the traits a user type's instance implements |
 
 `print` and `eprint` return `nil`. `range(n)` is short for `range(0, n)`;
-with keywords, `start` is optional and `end` is required. `min` and `max` require at least one
-argument and order their arguments the way `<` does, so they work on strings
-and on user types that implement `Ord`. Constructors that use an
+with keywords, `start` is optional and `end` is required.
+
+`min` and `max` order their candidates the way `<` does, so they work on
+strings and on user types that implement `Ord`. Several positional arguments
+are the candidates; a single one must be iterable, and its elements are
+(`max([3, 8, 5])` is `8`). With no argument they raise TypeError, and with an
+empty iterable ValueError. `key=` takes a function and orders the candidates
+by what it returns for each, as `sort(key=)` does. On a tie `max` answers the
+later candidate and `min` the earlier one, the last and first elements a
+stable sort would give. `sum(values)` adds an iterable's elements with `+`
+starting from `0`, so an empty one sums to `0`. `compare(a, b)` is `-1`, `0`
+or `1` as `a` sorts before, with or after `b`, and raises the TypeError `<`
+raises for values without an order. `hash(value)` is the hash a dictionary
+files the value under, so equal values hash equal; it is stable within one
+run of a program but not between runs, and a value that cannot be a key
+raises TypeError (`cannot hash List`). Constructors that use an
 argument parser, including `range`, numeric conversions, and `Dict`, accept
 their documented keyword names; `print` and `eprint` are positional-only, and
 `spawn` takes its function positionally and forwards every other argument,
@@ -35,7 +51,8 @@ normal stdout stream (the same role as Python's
 
 ~~~goblin
 var limits = [3, 8, 5]
-print(min(*limits), max(*limits))
+print(min(limits), max(*limits), sum(limits))
+print(max(["kiwi", "fig", "banana"], key=func(s) { return s.size }))
 print(range(start=2, end=5))
 print(Dict(host="127.0.0.1", port=8080))
 eprint("ready on port", 8080)
@@ -53,7 +70,7 @@ and `Index`. Types implement them in
 first, on any value:
 
 ~~~goblin
-print(Ord.max(3, 7))            # 7
+print(Ord.lt(3, 7))             # true
 print(Eq.ne("a", "b"))          # true
 print(Sub.rsub(1, 10))          # 9, that is 10 - 1
 ~~~

@@ -128,7 +128,8 @@ Callbacks receive one list element, except reduce(), whose callback receives
 the accumulator followed by the element. Without an initial value, reduce()
 uses the first list element and raises TypeError for an empty list. any() and
 all() accept an optional callback; with none, they test each element's
-truthiness. sum() adds all elements.
+truthiness. To add up the elements, use the global `sum(values)`; `max` and
+`min` likewise take a list (see [Built-in functions](./built-in-functions.md)).
 
 ## Dictionaries
 

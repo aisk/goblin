@@ -25,5 +25,5 @@ string key
 2
 second
 1
-unhashable dict key: [1, 2]
+cannot hash List
 greet show type

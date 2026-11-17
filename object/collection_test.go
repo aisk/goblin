@@ -232,11 +232,6 @@ func TestListFunctionalMethods(t *testing.T) {
 		t.Fatalf("all result = %v, want true", got)
 	}
 
-	// sum
-	if got := callMethod(t, list, "sum", CallArgs{}); got != Integer(10) {
-		t.Fatalf("sum result = %v, want 10", got)
-	}
-
 	// reduce empty list without initial
 	emptyList := &List{Elements: []Object{}}
 	method, _ := emptyList.GetAttr("reduce")

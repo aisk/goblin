@@ -412,7 +412,7 @@ func userSetIndex(v UserValue, index, value Object) (bool, error) {
 func userHash(v UserValue) (uint64, error) {
 	impl := v.UserType().hashable
 	if impl == nil {
-		return 0, NewTypeError("unhashable dict key: %s", inspect(v))
+		return 0, NewTypeError("cannot hash %s (add 'impl Hashable' to type %s)", v.TypeName(), v.TypeName())
 	}
 	r, err := impl.call(v, HashableHash, []Object{v})
 	if err != nil {

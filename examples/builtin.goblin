@@ -18,9 +18,9 @@ print(max(1, 2.5))
 print(max(2.5, 1))
 print(max(1, 2, 3.5))
 
-# Test max - single argument
-print(max(42))
-print(max(3.14))
+# Test max - a single argument is an iterable of candidates
+print(max([42]))
+print(max([3, 9, 4]), max("goblin"), max(range(5)))
 
 # Test min - basic integers
 print(min(1, 2, 3))
@@ -33,9 +33,9 @@ print(min(1, 2.5))
 print(min(2.5, 1))
 print(min(1, 2, 3.5))
 
-# Test min - single argument
-print(min(42))
-print(min(3.14))
+# Test min - a single argument is an iterable of candidates
+print(min([3.14]))
+print(min([3, 9, 4]), min("goblin"), min({"b": 1, "a": 2}))
 
 # Test max and min - any values that < orders
 print(max("pear", "apple", "plum"))
@@ -45,3 +45,56 @@ try {
 } catch e {
     print(e)
 }
+
+func attempt(action) {
+    try {
+        print(action())
+    } catch e {
+        print(e.is(TypeError), e.is(ValueError), e.message)
+    }
+}
+attempt(func() { return max() })
+attempt(func() { return min(42) })
+attempt(func() { return max([]) })
+attempt(func() { return min("") })
+
+# key= orders by what the function returns; ties keep the later candidate
+# for max and the earlier one for min, like the ends of a stable sort.
+var words = ["kiwi", "fig", "plum", "pear", "date"]
+var size = func(w) { return w.size }
+print(max(words, key=size), min(words, key=size))
+print(max("fig", "kiwi", "pear", key=size), min("bb", "a", "cc", key=size))
+print(max(1, 1.0), min(1, 1.0), max(1.0, 1), min(1.0, 1))
+print(max(words, key=nil))
+attempt(func() { return max(words, key=1) })
+attempt(func() {
+    return max(words, key=func(w) {
+        if w == "fig" {
+            return 1
+        }
+        return w
+    })
+})
+
+# sum adds with +, starting from 0.
+print(sum([1, 2, 3]), sum([]), sum([0.5, 1]), sum(range(101)))
+attempt(func() { return sum(["a"]) })
+attempt(func() { return sum(5) })
+
+# compare orders like <, normalised to -1, 0 or 1.
+print(compare(1, 2), compare("b", "a"), compare(2, 2.0), compare([1, 2], [1, 10]))
+attempt(func() { return compare(1, "a") })
+
+# hash is the hash a dict files a key under: equal keys hash equal.
+print(hash(1) == hash(1.0), hash("a") == hash("a"), hash(nil) == hash(nil))
+print(type_of(hash("goblin")) == Int)
+attempt(func() { return hash([1]) })
+attempt(func() { return hash({}) })
+type Deck(cards) {}
+attempt(func() { return hash(Deck([])) })
+attempt(func() { return {Deck([]): 1} })
+type Card(rank) {
+    impl Eq {}
+    impl Hashable {}
+}
+print(hash(Card(1)) == hash(Card(1)), {Card(1): "one"}[Card(1)])

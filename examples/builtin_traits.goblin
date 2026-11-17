@@ -39,7 +39,7 @@ type Vector(x, y) {
     # with compare.
     impl Eq {
         func eq(self, other) {
-            return Ord.compare(self, other) == 0
+            return compare(self, other) == 0
         }
     }
     impl Ord {
@@ -59,7 +59,7 @@ print(v)
 print(v < w, v > w, v <= w)
 # eq answers through compare, so vectors of one length are equal.
 print(v == Vector(2, 1), v == w)
-print(Ord.max(v, w), Ord.min(v, w))
+print(max(v, w), min(v, w))
 
 # The operators and sorting all order through compare.
 type Version(major, minor) {
@@ -96,7 +96,7 @@ type Cents(n) {
     }
     impl Show {}
 }
-print([Cents(5), Cents(7)].sum())
+print(sum([Cents(5), Cents(7)]))
 
 # Iteration and indexing. An Index impl without set is read-only.
 type Grid(cells) {

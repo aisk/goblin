@@ -215,8 +215,6 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 		{EqTrait, "ne", []Object{String("a"), String("b")}, "true"},
 		{OrdTrait, "compare", []Object{Integer(3), Integer(2)}, "1"},
 		{OrdTrait, "le", []Object{String("a"), String("a")}, "true"},
-		{OrdTrait, "max", []Object{Integer(1), Integer(1)}, "1"},
-		{OrdTrait, "min", []Object{Float(2), Integer(1)}, "1"},
 		{ShowTrait, "show", []Object{&List{Elements: []Object{String("x")}}}, `["x"]`},
 		{TruthTrait, "truth", []Object{String("")}, "false"},
 		{SubTrait, "rsub", []Object{Integer(1), Integer(10)}, "9"},
@@ -236,7 +234,7 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 	if _, err := call(HashableTrait, "hash", &List{}); err == nil || err.Error() != "List does not implement Hashable" {
 		t.Errorf("Hashable.hash([]) error = %v", err)
 	}
-	if _, err := call(OrdTrait, "max", Integer(1)); err == nil || err.Error() != "Ord.max() takes 2 positional arguments, got 1" {
+	if _, err := call(OrdTrait, "lt", Integer(1)); err == nil || err.Error() != "Ord.lt() takes 2 positional arguments, got 1" {
 		t.Errorf("arity error = %v", err)
 	}
 	user := NewTrait("Shape", nil, []TraitMethod{{Name: "area", Arity: 1, Required: true}})
@@ -262,7 +260,7 @@ func TestCheckImpls(t *testing.T) {
 		{[]ImplSpec{spec(ShowTrait), spec(shape, named("area", 2))}, "impl Shape for T: method 'area' must declare 1 parameters including self, got 2"},
 		{[]ImplSpec{spec(ShowTrait), spec(ShowTrait)}, "duplicate impl Show for T"},
 		{[]ImplSpec{spec(AddTrait)}, "impl Add for T is missing method 'add'"},
-		{[]ImplSpec{spec(OrdTrait, named("compare", 2), named("max", 2))}, "impl Ord for T: method 'max' derives from the required methods and cannot be overridden"},
+		{[]ImplSpec{spec(OrdTrait, named("compare", 2), named("lt", 2))}, "impl Ord for T: method 'lt' derives from the required methods and cannot be overridden"},
 		{[]ImplSpec{spec(EqTrait), spec(OrdTrait), spec(HashableTrait)}, ""},
 		{[]ImplSpec{spec(OrdTrait)}, "impl Ord for T requires impl Eq"},
 		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait)}, "structural Ord requires structural Eq on T"},

@@ -285,6 +285,39 @@ func (p *ArgParser) DictOr(name string, def *Dict) *Dict {
 // Func returns a required Function argument.
 func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "Function") }
 
+// nullableArgValue extracts an optional argument of concrete type T where nil
+// means the same as leaving it out. ok is false then; any other type is
+// reported as a TypeError naming T or Nil.
+func nullableArgValue[T Object](p *ArgParser, name, want string) (T, bool) {
+	var zero T
+	v, ok := p.next(name)
+	if !ok || v == Nil {
+		return zero, false
+	}
+	t, ok := v.(T)
+	if !ok {
+		p.typeErr(name, want+" or Nil", v)
+		return zero, false
+	}
+	return t, true
+}
+
+// NullableInt returns an optional Int argument and whether there is one:
+// leaving it out and passing nil both report false.
+func (p *ArgParser) NullableInt(name string) (Integer, bool) {
+	return nullableArgValue[Integer](p, name, "Int")
+}
+
+// NullableStr returns an optional String argument; see NullableInt.
+func (p *ArgParser) NullableStr(name string) (String, bool) {
+	return nullableArgValue[String](p, name, "String")
+}
+
+// NullableFunc returns an optional Function argument; see NullableInt.
+func (p *ArgParser) NullableFunc(name string) (*Function, bool) {
+	return nullableArgValue[*Function](p, name, "Function")
+}
+
 // Number returns a required argument that must be an Integer or Float, as the
 // original Object so callers that need to distinguish the two kinds can
 // type-switch on it. It backs the typical "numeric" parameter of mathematical

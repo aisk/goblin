@@ -13,7 +13,7 @@ print(uuid.UUID("\{550e8400-e29b-41d4-a716-446655440000}") == parsed)
 
 print(uuid.NIL)
 print(uuid.NIL < parsed && parsed < uuid.MAX)
-print(Ord.max(uuid.NIL, parsed) == parsed)
+print(max(uuid.NIL, parsed) == parsed)
 print(Hashable.hash(parsed) == Hashable.hash(uuid.UUID(parsed.bytes)))
 print(Show.show(parsed) == String(parsed))
 print(parsed == String(parsed))

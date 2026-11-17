@@ -9,10 +9,19 @@ import (
 // with Equals: values that compare equal under == must return the same hash.
 // The reverse never has to hold — the dict resolves equal hashes with Equals
 // (see keysMatch) — so a hash needs to be stable, not unique. Mutable
-// built-ins (List, Dict, Bytes) stay non-Hashable on purpose: mutating a
-// stored key would strand its entry under a stale hash.
+// built-ins (List, Dict) stay non-Hashable on purpose: mutating a stored key
+// would strand its entry under a stale hash.
 type Hashable interface {
 	Hash() (uint64, error)
+}
+
+// Hash performs `hash(obj)`, the hash a dict files obj under. It is stable
+// within one process only: string hashes are seeded per process.
+func Hash(obj Object) (uint64, error) {
+	if h, ok := obj.(Hashable); ok {
+		return h.Hash()
+	}
+	return 0, NewTypeError("cannot hash %s", obj.TypeName())
 }
 
 // hashSeed keys the string hash. Hashes never leave the process, so a

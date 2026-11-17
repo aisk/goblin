@@ -16,8 +16,6 @@ const (
 	OrdLe
 	OrdGt
 	OrdGe
-	OrdMax
-	OrdMin
 )
 
 const HashableHash = 0
@@ -153,23 +151,9 @@ func initOrd() {
 			return Bool(op.test(int(c.(Integer)))), nil
 		})}
 	}
-	// max and min follow Haskell: on a tie max answers other and min self.
-	pick := func(name string, max bool) TraitMethod {
-		return TraitMethod{Name: name, Arity: 2, Derived: true, Default: goFn(name, func(args []Object) (Object, error) {
-			le, err := OrdTrait.call(OrdLe, args)
-			if err != nil {
-				return nil, err
-			}
-			if bool(le.(Bool)) == max {
-				return args[1], nil
-			}
-			return args[0], nil
-		})}
-	}
 	OrdTrait.init([]*Trait{EqTrait}, []TraitMethod{
 		{Name: "compare", Arity: 2, Required: true, Returns: "Int"},
 		test("lt", opLt), test("le", opLe), test("gt", opGt), test("ge", opGe),
-		pick("max", true), pick("min", false),
 	})
 	OrdTrait.route = make([]func([]Object) (Object, error), len(OrdTrait.Methods))
 	OrdTrait.route[OrdCompare] = func(args []Object) (Object, error) {
@@ -185,11 +169,10 @@ func initHashable() {
 		{Name: "hash", Arity: 1, Required: true, Returns: "Int"},
 	})
 	HashableTrait.route = []func([]Object) (Object, error){func(args []Object) (Object, error) {
-		h, ok := args[0].(Hashable)
-		if !ok {
+		if _, ok := args[0].(Hashable); !ok {
 			return nil, NewTypeError(ErrFmtNotImplemented, args[0].TypeName(), "Hashable")
 		}
-		sum, err := h.Hash()
+		sum, err := Hash(args[0])
 		return Integer(int64(sum)), err
 	}}
 	HashableTrait.structural = []*Function{goFn("hash", structuralHash)}
@@ -313,7 +296,7 @@ func structuralHash(args []Object) (Object, error) {
 	const prime = 1099511628211
 	h := maphash.String(hashSeed, v.TypeName())
 	for _, field := range v.FieldValues() {
-		fh, err := hashKey(field)
+		fh, err := Hash(field)
 		if err != nil {
 			return nil, err
 		}

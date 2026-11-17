@@ -20,13 +20,8 @@ type Dict struct {
 }
 
 // hashKey hashes a key for bucket placement. Only Hashable types can be dict
-// keys; anything else raises TypeError.
-func hashKey(key Object) (uint64, error) {
-	if h, ok := key.(Hashable); ok {
-		return h.Hash()
-	}
-	return 0, NewTypeError("unhashable dict key: %s", inspect(key))
-}
+// keys; anything else raises the TypeError hash() raises.
+func hashKey(key Object) (uint64, error) { return Hash(key) }
 
 // keysMatch decides, within a bucket, whether a stored key and a lookup key
 // are the same dict key. That is Goblin's == with one exception: a NaN key

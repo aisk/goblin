@@ -9,7 +9,7 @@ true
 Line(start=Point(x=1, y=2), end=Point(x=3, y=4), label="line")
 Empty() Empty()
 true
-unhashable dict key: [1]
+cannot hash List
 cannot compare List and Dict
 cannot compare Point and Bag
 5

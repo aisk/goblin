@@ -22,7 +22,7 @@ print(r == Rect(2, 3))
 print(Shape.describe(r))
 print(traits(r))
 print(Shape.area(r))
-print(Ord.max(3, 7))
+print(Ord.lt(3, 7))
 
 trait Named {
     func name(self)
@@ -51,7 +51,7 @@ print(Loud.shout(Word("hey")))
 type Money(amount) {
     impl Eq {
         func eq(self, other) {
-            return Ord.compare(self, other) == 0
+            return compare(self, other) == 0
         }
     }
     impl Ord {

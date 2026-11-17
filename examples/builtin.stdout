@@ -8,14 +8,36 @@ hello, world!
 2.5
 3.5
 42
-3.14
+9 o 4
 1
 1.5
 1
 1
 1
-42
 3.14
+3 b a
 plum
 apple
 cannot compare String and Int
+true false max() requires at least 1 argument
+true false min() argument 'values' must be iterable, got Int
+false true max() of empty sequence
+false true min() of empty sequence
+date fig
+pear a
+1.0 1 1 1.0
+plum
+true false max() argument 'key' must be Function or Nil, got Int
+true false cannot compare Int and String
+6 0 1.5 5050
+true false cannot add Int and String
+true false sum() argument 'values' must be iterable, got Int
+-1 1 0 -1
+true false cannot compare Int and String
+true true true
+true
+true false cannot hash List
+true false cannot hash Dict
+true false cannot hash Deck (add 'impl Hashable' to type Deck)
+true false cannot hash Deck (add 'impl Hashable' to type Deck)
+true one

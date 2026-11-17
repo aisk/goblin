@@ -8,7 +8,7 @@ import (
 // Trait is the runtime value of a trait: a named bundle of methods a user type
 // implements in an impl block. Built-in traits (Eq, Ord, ...) back operators
 // and conversions; user traits come from `trait` declarations. Trait objects
-// are ordinary values: `Ord.max(a, b)` reads the method off the trait and
+// are ordinary values: `Ord.compare(a, b)` reads the method off the trait and
 // calls it with the receiver as the first argument, so the call works on
 // user values and built-in values alike.
 //
@@ -144,7 +144,7 @@ func (t *Trait) GetAttr(name string) (Object, error) {
 	return nil, NewAttributeError("trait %s has no method '%s'", t.Name, name)
 }
 
-// CallMethod satisfies MethodCaller, so `Ord.max(a, b)` skips the bound
+// CallMethod satisfies MethodCaller, so `Ord.compare(a, b)` skips the bound
 // function GetAttr hands out.
 func (t *Trait) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	i, ok := t.index[name]

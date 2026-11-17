@@ -192,14 +192,6 @@ func (b Bytes) EqualFold(args CallArgs) (Object, error) {
 	return Bool(bytes.EqualFold(b, other)), nil
 }
 
-func (b Bytes) CompareBytes(args CallArgs) (Object, error) {
-	other, err := parseBytesArg("compare", "other", args)
-	if err != nil {
-		return nil, err
-	}
-	return Integer(bytes.Compare(b, other)), nil
-}
-
 func (b Bytes) HasPrefix(args CallArgs) (Object, error) {
 	prefix, err := parseBytesArg("has_prefix", "prefix", args)
 	if err != nil {
@@ -496,7 +488,7 @@ func (b Bytes) Attributes() []string { return bytesMethods.attributes("size") }
 
 var bytesMethods = newMethodTable(
 	"decode", "contains", "contains_any", "contains_rune", "count", "equal_fold",
-	"compare", "has_prefix", "has_suffix", "index", "last_index", "index_any",
+	"has_prefix", "has_suffix", "index", "last_index", "index_any",
 	"last_index_any", "index_byte", "last_index_byte", "index_rune", "join",
 	"repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
 	"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",

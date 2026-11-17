@@ -203,7 +203,7 @@ func (v Vector) RMultiply(left object.Object) (object.Object, bool, error) {
 ~~~
 
 A Go type does not implement traits: it implements the object.Object methods,
-and the built-in trait objects route to them. `Ord.compare(a, b)` on a Go value
+and the built-in trait objects route to them. `compare(a, b)` or `Ord.compare(a, b)` on a Go value
 calls object.Compare, `Show.show(x)` calls ToString, `Add.add(a, b)` calls
 object.Add, and so on, so a Go type that implements Compare works with
 `max` and `sort` without further work. Only Goblin-defined types have impls,

@@ -166,11 +166,14 @@ try {
     print(e.is(LookupError)) # true
 }
 
-# Built-ins include print, eprint, range, max, min, spawn, wait_any, Error and typed constructors
-print(max(1, 2, 3))  # 3
-print(min(1, 2.5))   # 1
-print(Int("42"))     # 42
-print(String(nil))      # nil
+# Built-ins include print, eprint, range, max, min, sum, compare, hash,
+# type_of, attributes, spawn, wait_any, Error and typed constructors
+print(max(1, 2, 3))      # 3
+print(min([1, 2.5]))     # 1
+print(sum([1, 2, 3]))    # 6
+print(Int("42"))         # 42
+print(String(nil))       # nil
+print(type_of(1) == Int) # true
 
 # Concurrency uses Chan plus spawn()
 var ch = Chan()

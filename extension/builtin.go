@@ -60,6 +60,9 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"range":      Range,
 	"max":        Max,
 	"min":        Min,
+	"sum":        Sum,
+	"compare":    Compare,
+	"hash":       Hash,
 	"type_of":    TypeOf,
 	"attributes": Attributes,
 	"traits":     Traits,
@@ -175,9 +178,12 @@ func RangeBounds(start, end object.Object) (int64, int64, error) {
 	return int64(s), int64(e), nil
 }
 
-// Max and Min pick among their arguments by Compare, so they order anything
-// `<` orders, including a user type's Ord impl. Like Ord.max and Ord.min, on
-// a tie max answers the later argument and min the earlier one.
+// Max and Min pick the largest or smallest value by Compare, so they order
+// anything `<` orders, including a user type's Ord impl. Several positional
+// arguments are the candidates; a single one must be iterable and its
+// elements are. key=, a function, orders the candidates by what it returns
+// for each, calling it once per candidate. On a tie max answers the later
+// candidate and min the earlier one, the last and first of a stable sort.
 func Max(args object.CallArgs) (object.Object, error) {
 	return extreme("max", args, func(c int) bool { return c >= 0 })
 }
@@ -186,26 +192,102 @@ func Min(args object.CallArgs) (object.Object, error) {
 	return extreme("min", args, func(c int) bool { return c < 0 })
 }
 
-// extreme returns the argument that replaces every earlier one; replaces
+// extreme returns the candidate that replaces every earlier one; replaces
 // reports whether a candidate does, given Compare(candidate, best).
 func extreme(name string, args object.CallArgs, replaces func(c int) bool) (object.Object, error) {
 	p := object.NewArgParser(name, args)
 	values := p.Rest()
+	key, hasKey := p.NullableFunc("key")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if len(values) == 0 {
+	switch len(values) {
+	case 0:
 		return nil, object.NewTypeError("%s() requires at least 1 argument", name)
+	case 1:
+		items, err := object.CollectArg(name, "values", values[0])
+		if err != nil {
+			return nil, err
+		}
+		if len(items) == 0 {
+			return nil, object.NewValueError("%s() of empty sequence", name)
+		}
+		values = items
 	}
-	best := values[0]
-	for _, v := range values[1:] {
-		c, err := object.Compare(v, best)
+	keys := values
+	if hasKey {
+		keys = make([]object.Object, len(values))
+		for i, v := range values {
+			k, err := key.Call(object.CallArgs{Positional: object.Args{v}})
+			if err != nil {
+				return nil, err
+			}
+			keys[i] = k
+		}
+	}
+	best := 0
+	for i := 1; i < len(values); i++ {
+		c, err := object.Compare(keys[i], keys[best])
 		if err != nil {
 			return nil, err
 		}
 		if replaces(c) {
-			best = v
+			best = i
 		}
 	}
-	return best, nil
+	return values[best], nil
+}
+
+// Sum adds up the elements of an iterable with +, starting from the Int 0.
+func Sum(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("sum", args)
+	iterable := p.Any("values")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	items, err := object.CollectArg("sum", "values", iterable)
+	if err != nil {
+		return nil, err
+	}
+	var total object.Object = object.Integer(0)
+	for _, item := range items {
+		if total, err = object.Add(total, item); err != nil {
+			return nil, err
+		}
+	}
+	return total, nil
+}
+
+// Compare orders two values the way <, <=, > and >= do, as -1, 0 or 1.
+func Compare(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("compare", args)
+	a, b := p.Any("a"), p.Any("b")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	c, err := object.Compare(a, b)
+	if err != nil {
+		return nil, err
+	}
+	switch {
+	case c < 0:
+		return object.Integer(-1), nil
+	case c > 0:
+		return object.Integer(1), nil
+	}
+	return object.Integer(0), nil
+}
+
+// Hash returns the hash a dict files its argument under; see object.Hash.
+func Hash(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("hash", args)
+	value := p.Any("value")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	h, err := object.Hash(value)
+	if err != nil {
+		return nil, err
+	}
+	return object.Integer(int64(h)), nil
 }

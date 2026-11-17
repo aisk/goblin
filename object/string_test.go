@@ -23,7 +23,6 @@ func TestStringSearchMethodsUseRuneIndexes(t *testing.T) {
 		{"contains_any", "goblin", "xyzl", True},
 		{"count", "banana", "an", Integer(2)},
 		{"equal_fold", "Goblin", "gObLiN", True},
-		{"compare", "a", "b", Integer(-1)},
 		{"index", "日本語-日本", "語", Integer(2)},
 		{"last_index", "日本語-日本", "日", Integer(4)},
 		{"index_any", "日本語", "語本", Integer(1)},

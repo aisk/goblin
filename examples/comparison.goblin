@@ -45,7 +45,7 @@ if 10 > 5 {
 type Money(amount) {
     impl Eq {
         func eq(self, other) {
-            return Ord.compare(self, other) == 0
+            return compare(self, other) == 0
         }
     }
     impl Ord {
