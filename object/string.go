@@ -152,6 +152,26 @@ func (s String) Split(args CallArgs) (Object, error) {
 	return stringSeq(s).split(string(sep), hasSep, count, limited)
 }
 
+// Lines returns the lines of the text without their line endings. A line
+// ends at "\n" or "\r\n" (a lone "\r" does not end one); text that ends with
+// a line ending has no empty last line, and "" has no lines.
+func (s String) Lines(args CallArgs) (Object, error) {
+	if err := RequireNoArgs("lines", args); err != nil {
+		return nil, err
+	}
+	text := string(s)
+	var lines []Object
+	for text != "" {
+		line, rest, found := strings.Cut(text, "\n")
+		if found {
+			line = strings.TrimSuffix(line, "\r")
+		}
+		lines = append(lines, String(line))
+		text = rest
+	}
+	return &List{Elements: lines}, nil
+}
+
 func (s String) Cut(args CallArgs) (Object, error) {
 	ap := NewArgParser("cut", args)
 	sep := ap.Str("sep")
@@ -320,7 +340,7 @@ func (s String) CodePoint() Object {
 var stringMethods = newMethodTable(
 	"upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",
 	"trim_suffix", "has_prefix", "has_suffix", "contains", "count", "index",
-	"replace", "split", "cut",
+	"replace", "split", "lines", "cut",
 )
 
 var StringConstructorFn = &Function{Name: "String", Fn: StringConstructor}

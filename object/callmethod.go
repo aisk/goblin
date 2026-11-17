@@ -117,6 +117,9 @@ func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "split":
 		v, err := s.Split(args)
 		return v, true, err
+	case "lines":
+		v, err := s.Lines(args)
+		return v, true, err
 	case "cut":
 		v, err := s.Cut(args)
 		return v, true, err

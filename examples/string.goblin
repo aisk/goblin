@@ -77,6 +77,10 @@ try {
     print(e.is(ValueError), e)
 }
 
+# lines splits text into its lines, without endings or an empty last line
+print("a\nb\n".lines(), "a\r\n\nb".lines(), "a\rb".lines(), "".lines(), "\n".lines())
+print("x\ny".lines().size, type_of("".lines()))
+
 # cut splits around the first separator; the second part is nil on a miss
 print("key=value=x".cut("="), "key".cut(sep="="))
 var key, value = "port=80".cut("=")

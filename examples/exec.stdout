@@ -13,7 +13,7 @@ made by hand 9 false
 true nil
 not installed: run() program "goblin-no-such-tool" not found
 no-such-dir true
-["compiling", "warning", ""]
+["compiling", "warning"]
 ["collected\n"]
 run() "sleep" timed out after 0.1 seconds nil nil
 partial true

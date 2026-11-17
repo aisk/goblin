@@ -10,11 +10,11 @@ exec.run(["sh", "-c", "echo CI=$CI in $(basename $(pwd))"], cwd="fs_dir_fixture"
 # Get a command's output as text.
 var greeting = exec.capture(["sh", "-c", "echo hello from exec"]).stdout.trim()
 print(greeting)
-var words = exec.capture(["printf", "b\\na\\nb\\n"]).stdout.trim().split("\n")
+var words = exec.capture(["printf", "b\\na\\nb\\n"]).stdout.lines()
 print(words)
 
 # Feed it input.
-print(exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout.trim().split("\n"))
+print(exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout.lines())
 var fixture = fs.open("fs_fixture.txt")
 defer fixture.close()
 print(exec.capture(["cat"], stdin=fixture).stdout.trim())
@@ -68,7 +68,7 @@ defer fs.remove(scratch, recursive=true)
 var log = fs.open(scratch.join("build.log"), write=true)
 exec.run(["sh", "-c", "echo compiling; echo warning >&2"], stdout=log, stderr=log)
 log.close()
-print(fs.read(scratch.join("build.log")).split("\n"))
+print(fs.read(scratch.join("build.log")).lines())
 
 # Or to any value with a write(data) method.
 type Collector(chunks) {

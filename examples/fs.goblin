@@ -12,7 +12,7 @@ print(text.trim())
 var copy = scratch.join("copy.txt")
 fs.write(copy, text)
 fs.write(copy, "started\n", append=true)
-print(fs.read(copy).split("\n"))
+print(fs.read(copy).lines())
 print(fs.read_bytes("fs_fixture.txt").size)
 
 # A big file, one line at a time; the file is closed when the loop ends.

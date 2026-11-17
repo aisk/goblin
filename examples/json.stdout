@@ -15,7 +15,7 @@
 }
 start
 stop
-5
+4
 {"file":"config.json","at":"1971-02-05","size":3}
 ["a", "b"]
 [{"x":1,"y":2}]

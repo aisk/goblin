@@ -33,7 +33,7 @@ for event in events {
     log.write(json.encode(event) + "\n")
 }
 log.close()
-print(fs.read(events_path).split("\n").size)
+print(fs.read(events_path).lines().size)
 
 # Values JSON has no form for: choose the form where you encode
 var started = time.unix(400 * 86400)

@@ -22,7 +22,7 @@ var members = []struct {
 	{String("x"), []string{
 		"size", "code_point", "upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",
 		"trim_suffix", "has_prefix", "has_suffix", "contains", "count", "index",
-		"replace", "split", "cut",
+		"replace", "split", "lines", "cut",
 	}},
 	{Bytes("x"), []string{
 		"size", "decode", "to_hex", "contains", "count", "index", "has_prefix", "has_suffix",
@@ -71,6 +71,7 @@ var sharedOperations = map[string][4]bool{
 	"get":      {false, false, false, true},
 	"replace":  {false, true, true, false},
 	"split":    {false, true, true, false},
+	"lines":    {false, true, false, false},
 	"cut":      {false, true, true, false},
 	"join":     {true, false, false, false},
 	"copy":     {true, false, false, true},
@@ -183,6 +184,12 @@ var calls = []struct {
 	{func() Object { return String("") }, "split", CallArgs{}, val(`[]`)},
 	{func() Object { return String("ab") }, "split", kw("sep", String("")), fails(ValueError, "split() separator must not be empty")},
 	{func() Object { return String("ab") }, "split", kw("count", Integer(-1)), fails(ValueError, "split() count must not be negative")},
+	{func() Object { return String("a\nb\n") }, "lines", CallArgs{}, val(`["a", "b"]`)},
+	{func() Object { return String("a\r\nb") }, "lines", CallArgs{}, val(`["a", "b"]`)},
+	{func() Object { return String("a\rb\n\nc\r\n") }, "lines", CallArgs{}, val(`["a\rb", "", "c"]`)},
+	{func() Object { return String("\n") }, "lines", CallArgs{}, val(`[""]`)},
+	{func() Object { return String("") }, "lines", CallArgs{}, val(`[]`)},
+	{func() Object { return String("a") }, "lines", pos(String("\n")), fails(TypeError, "lines() takes 0 positional arguments, got 1")},
 	{func() Object { return String("a=b") }, "cut", kw("sep", String("=")), val(`["a", "b"]`)},
 	{func() Object { return String("ab") }, "cut", kw("sep", String("=")), val(`["ab", nil]`)},
 

@@ -242,6 +242,7 @@ print(Bytes([0, 255]).to_hex())   # 00ff
 | count(value) | Count non-overlapping occurrences |
 | replace(old, new, count=nil) | Replace occurrences, at most `count` of them |
 | split(sep=nil, count=nil) | Split into a list, at most `count` times |
+| lines() | The lines of the text, without their line endings |
 | cut(sep) | Split once: `[before, after]`, or `[text, nil]` |
 | trim(chars=nil) / trim_start(chars=nil) / trim_end(chars=nil) | Trim both ends, the start, or the end |
 | trim_prefix(prefix) / trim_suffix(suffix) | Remove one matching edge |
@@ -267,6 +268,19 @@ a separator splits at runs of Unicode whitespace and drops empty pieces:
 `" a  b ".split()` is `["a", "b"]`; with a count, the rest of the text after
 the last split, leading whitespace removed, is the final piece. An empty
 separator raises ValueError.
+
+lines() is how text becomes its lines: a line ends at `\n` or `\r\n` (a lone
+`\r` does not end one), the endings are removed, text that ends with a line
+ending has no empty last line, and `""` has no lines at all. That makes it the
+right call for the output of a command or the body of a file read whole,
+where `split("\n")` would leave a last `""`:
+
+~~~goblin
+print("a\nb\n".lines())        # ["a", "b"]
+print("a\r\n\nb".lines())      # ["a", "", "b"]
+print("".lines())               # []
+print("a\nb\n".split("\n"))    # ["a", "b", ""]
+~~~
 
 cut() returns two values, so it destructures:
 

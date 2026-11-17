@@ -1,6 +1,6 @@
 true true
 hello from fs fixture
-["hello from fs fixture", "started", ""]
+["hello from fs fixture", "started"]
 22
 started lines: 1
 first line: hello from fs fixture

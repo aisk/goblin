@@ -126,8 +126,8 @@ from the end, `bytes[low:high]` slices them, and `*` repeats them. Bytes share
 the subsequence methods of strings, with positions counted in bytes:
 contains(), count(), index(), has_prefix(), has_suffix(), trim_prefix(),
 trim_suffix(), replace(), split() and cut(), each taking a String or Bytes
-argument. Text operations (upper(), trim(), splitting at whitespace) belong to
-strings: decode() first, which raises ValueError for invalid UTF-8. to_hex()
+argument. Text operations (upper(), trim(), splitting at whitespace, lines())
+belong to strings: decode() first, which raises ValueError for invalid UTF-8. to_hex()
 shows Bytes as text of two lower-case hexadecimal digits per byte (empty Bytes
 give ""), the usual way to print a digest or a random token. There is no
 reverse conversion from hexadecimal text to Bytes. Bytes are hashable, so they

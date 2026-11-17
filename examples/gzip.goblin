@@ -10,10 +10,8 @@ defer fs.remove(scratch, recursive=true)
 var events_file = scratch.join("events.json.gz")
 fs.write(events_file, gzip.compress(`{"event": "start"}` + "\n" + `{"event": "stop"}` + "\n"))
 var text = gzip.decompress(fs.read_bytes(events_file)).decode()
-for line in text.split("\n") {
-    if line != "" {
-        print(json.decode(line)["event"])
-    }
+for line in text.lines() {
+    print(json.decode(line)["event"])
 }
 
 # A compressed file can also be read straight from the open file
@@ -71,7 +69,7 @@ for row in ["id,name", "1,ada", "2,grace"] {
     print(out.write("{row}\n"))
 }
 out.close()
-print(gzip.decompress(fs.read_bytes(report)).decode().trim().split("\n"))
+print(gzip.decompress(fs.read_bytes(report)).decode().lines())
 
 # Compress a big log without holding it
 var big_log = scratch.join("big.log")

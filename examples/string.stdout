@@ -37,6 +37,8 @@ true replace() count must not be negative
 ["one", "two\nthree  "] []
 true split() separator must not be empty
 true split() count must not be negative
+["a", "b"] ["a", "", "b"] ["a\rb"] [] [""]
+2 <function List>
 ["key", "value=x"] ["key", nil]
 port 80
 true 3 3 nil

@@ -23,7 +23,7 @@ exec.run(["npm", "install"], cwd="web", env={"CI": "1"})
 
 # Get a command's output
 var head = exec.capture(["git", "rev-parse", "HEAD"]).stdout.trim()
-var tags = exec.capture(["git", "tag"]).stdout.trim().split("\n")
+var tags = exec.capture(["git", "tag"]).stdout.lines()
 
 # Feed it input
 var sorted_text = exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout
