@@ -1,5 +1,6 @@
 // Package filestream holds the File stream type shared by the modules that
-// hand out open files and pipes (fs, os, exec).
+// hand out open files and pipes (fs, os, exec, gzip), the lazy Lines of
+// read_lines, and the errors they raise about a path.
 package filestream
 
 import (
@@ -50,6 +51,18 @@ func Open(path string, file *os.File, writable bool) *File {
 		f.r = file
 	}
 	return f
+}
+
+// OpenReader wraps a readable stream over the file at path (a decompressing
+// reader over it, for gzip): it shows, fails and reports errors like a File
+// from fs.open. c releases what was opened.
+func OpenReader(path string, r io.Reader, c io.Closer) *File {
+	return &File{OpaqueBase: object.MakeOpaqueBase("File"), path: pathvalue.NewPath(path), r: r, c: c}
+}
+
+// OpenWriter is OpenReader for a writable stream over the file at path.
+func OpenWriter(path string, w io.Writer, c io.Closer) *File {
+	return &File{OpaqueBase: object.MakeOpaqueBase("File"), path: pathvalue.NewPath(path), w: w, c: c}
 }
 
 // NewReader wraps a readable stream without a path (stdin, a pipe from a
@@ -114,12 +127,28 @@ func (f *File) source() io.Reader {
 	return f.r
 }
 
-func ioError(method, verb string, err error) error {
+// ioError reports a failed read, write or close as raised by method. An
+// error that is already a Goblin error (raised by a duck-typed stream)
+// passes through; a native one becomes IOError carrying the File's path when
+// it has one.
+func (f *File) ioError(method, verb string, err error) error {
+	if goblinErr, ok := methodError(method, err); ok {
+		return goblinErr
+	}
 	var e *object.Error
 	if errors.As(err, &e) {
 		return err
 	}
-	return object.WrapNativeError(object.IOError, method+"() failed to "+verb, err)
+	var wrapped *object.Error
+	if method == "" {
+		wrapped = object.WrapNativeError(object.IOError, "failed to "+verb, err)
+	} else {
+		wrapped = object.WrapNativeError(object.IOError, method+"() failed to "+verb, err)
+	}
+	if f.path != nil {
+		wrapped.With("path", f.path)
+	}
+	return wrapped
 }
 
 // Read implements the reader shape: read() returns the rest of the stream,
@@ -141,7 +170,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 	if !hasSize {
 		data, err := io.ReadAll(f.source())
 		if err != nil {
-			return nil, ioError("read", "read "+f.where(), err)
+			return nil, f.ioError("read", "read "+f.where(), err)
 		}
 		return object.NewBytes(data), nil
 	}
@@ -155,7 +184,7 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 			return object.NewBytes(buf[:n]), nil
 		}
 		if err != nil {
-			return nil, ioError("read", "read "+f.where(), err)
+			return nil, f.ioError("read", "read "+f.where(), err)
 		}
 	}
 }
@@ -174,16 +203,20 @@ func (f *File) nextLine(method string) (string, bool, error) {
 	text, ok, err := object.ReadLine(f.lines)
 	if err != nil {
 		if method == "" {
-			return "", false, object.WrapNativeError(object.IOError, "failed to read lines of "+f.where(), err)
+			return "", false, f.ioError("", "read lines of "+f.where(), err)
 		}
-		return "", false, ioError(method, "read "+f.where(), err)
+		return "", false, f.ioError(method, "read "+f.where(), err)
 	}
 	if !ok {
 		return "", false, nil
 	}
 	f.lineNo++
-	if !utf8.ValidString(text) {
-		return "", false, object.NewValueError("line %d of %s is not valid UTF-8", f.lineNo, f.where())
+	if !validUTF8(text) {
+		path := ""
+		if f.path != nil {
+			path = f.path.FilePath()
+		}
+		return "", false, InvalidLine(f.lineNo, f.where(), path)
 	}
 	return text, true, nil
 }
@@ -242,7 +275,7 @@ func (f *File) Write(args object.CallArgs) (object.Object, error) {
 	}
 	n, err := f.w.Write(data)
 	if err != nil {
-		return nil, ioError("write", "write "+f.where(), err)
+		return nil, f.ioError("write", "write "+f.where(), err)
 	}
 	return object.Integer(n), nil
 }
@@ -261,11 +294,13 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 	f.lines = nil
 	if f.c != nil {
 		if err := f.c.Close(); err != nil && !errors.Is(err, os.ErrClosed) {
-			return nil, ioError("close", "close "+f.where(), err)
+			return nil, f.ioError("close", "close "+f.where(), err)
 		}
 	}
 	return object.Nil, nil
 }
+
+func validUTF8(s string) bool { return utf8.ValidString(s) }
 
 // Closed reports whether close() has been called.
 func (f *File) Closed() bool {

@@ -45,12 +45,12 @@ file.close()
 for text in ["aGVs!G8=", "QQ=", "-_8", "héllo"] {
     try {
         base64.decode(text)
-    } catch e {
-        print(e.is(ParseError), e)
+    } catch e: ParseError {
+        print(e)
     }
 }
 try {
     base64.decode(Bytes("QQ=="))
-} catch e {
-    print(e.is(TypeError), e)
+} catch e: TypeError {
+    print(e)
 }

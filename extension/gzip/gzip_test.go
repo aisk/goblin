@@ -5,9 +5,15 @@ import (
 	gogzip "compress/gzip"
 	"errors"
 	"io"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
 
+	"github.com/aisk/goblin/extension/internal/filestream"
 	"github.com/aisk/goblin/extension/internal/modtest"
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -84,4 +90,222 @@ func TestErrors(t *testing.T) {
 			t.Errorf("%s(%v): err = %v, want %q", c.fn, c.args.Positional, err, c.msg)
 		}
 	}
+}
+
+func call(t *testing.T, name string, positional []object.Object, kws ...object.KwArg) (object.Object, error) {
+	t.Helper()
+	return fn(t, name).Call(object.CallArgs{Positional: positional, Keyword: kws})
+}
+
+func mustCall(t *testing.T, name string, positional []object.Object, kws ...object.KwArg) object.Object {
+	t.Helper()
+	v, err := call(t, name, positional, kws...)
+	if err != nil {
+		t.Fatalf("%s() error = %v", name, err)
+	}
+	return v
+}
+
+func callMethod(t *testing.T, v object.Object, name string, positional ...object.Object) (object.Object, error) {
+	t.Helper()
+	m, err := v.GetAttr(name)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return m.(*object.Function).Call(object.CallArgs{Positional: positional})
+}
+
+func mustMethod(t *testing.T, v object.Object, name string, positional ...object.Object) object.Object {
+	t.Helper()
+	got, err := callMethod(t, v, name, positional...)
+	if err != nil {
+		t.Fatalf("%s() error = %v", name, err)
+	}
+	return got
+}
+
+func strs(t *testing.T, items []object.Object) []string {
+	out := make([]string, len(items))
+	for i, item := range items {
+		out[i] = string(item.(object.String))
+	}
+	return out
+}
+
+func pathOf(t *testing.T, err error) string {
+	t.Helper()
+	var e *object.Error
+	if !errors.As(err, &e) {
+		t.Fatalf("%v is not a Goblin error", err)
+	}
+	p, ok := e.Field("path")
+	if !ok {
+		t.Fatalf("error %q carries no path", err)
+	}
+	return p.(*pathvalue.Path).FilePath()
+}
+
+func TestOpenRoundTrip(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "report.csv.gz")
+	w := mustCall(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "write", Value: object.True}, object.KwArg{Name: "level", Value: object.Integer(9)})
+	if w.(*filestream.File).String() != "<File "+path+">" {
+		t.Fatalf("shows as %v", w)
+	}
+	if n := mustMethod(t, w, "write", object.String("a,b\n")); n != object.Integer(4) {
+		t.Fatalf("write returned %v, want the bytes given", n)
+	}
+	mustMethod(t, w, "write", object.NewBytes([]byte("1,2\nlast")))
+	if _, err := callMethod(t, w, "read"); !errors.Is(err, object.ValueError) {
+		t.Fatalf("read on a writer = %v", err)
+	}
+	mustMethod(t, w, "close")
+	mustMethod(t, w, "close")
+
+	// Go's reader (the format gzip(1) writes) reads it back.
+	raw, _ := os.ReadFile(path)
+	zr, err := gogzip.NewReader(bytes.NewReader(raw))
+	if err != nil {
+		t.Fatal(err)
+	}
+	plain, _ := io.ReadAll(zr)
+	if string(plain) != "a,b\n1,2\nlast" {
+		t.Fatalf("written %q", plain)
+	}
+
+	r := mustCall(t, "open", []object.Object{pathvalue.NewPath(path)})
+	if line := mustMethod(t, r, "read_line"); line != object.String("a,b") {
+		t.Fatalf("read_line = %v", line)
+	}
+	lines, err := object.Collect(r)
+	if err != nil || !reflect.DeepEqual(strs(t, lines), []string{"1,2", "last"}) {
+		t.Fatalf("lines = %v, %v", lines, err)
+	}
+	if _, err := callMethod(t, r, "write", object.String("x")); !errors.Is(err, object.ValueError) {
+		t.Fatalf("write on a reader = %v", err)
+	}
+	mustMethod(t, r, "close")
+
+	r = mustCall(t, "open", []object.Object{object.String(path)})
+	if all := mustMethod(t, r, "read"); string(all.(object.Bytes)) != "a,b\n1,2\nlast" {
+		t.Fatalf("read() = %v", all)
+	}
+	mustMethod(t, r, "close")
+}
+
+type trackedFile struct {
+	io.ReadCloser
+	closed *int
+}
+
+func (f trackedFile) Close() error {
+	*f.closed++
+	return f.ReadCloser.Close()
+}
+
+func TestReadLines(t *testing.T) {
+	closed := 0
+	saved := openFile
+	openFile = func(path string) (io.ReadCloser, error) {
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		return trackedFile{f, &closed}, nil
+	}
+	defer func() { openFile = saved }()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "events.jsonl.gz")
+	os.WriteFile(path, goGzip(t, "one\r\ntwo\n\nthree"), 0o644)
+	lines := mustCall(t, "read_lines", []object.Object{object.String(path)})
+	if lines.(*filestream.Lines).Constructor() != filestream.LinesType.Function {
+		t.Fatal("read_lines does not return an fs.Lines")
+	}
+	items, err := object.Collect(lines)
+	if err != nil || !reflect.DeepEqual(strs(t, items), []string{"one", "two", "", "three"}) {
+		t.Fatalf("lines = %v, %v", items, err)
+	}
+	if closed != 1 {
+		t.Fatalf("closed %d times after a full pass", closed)
+	}
+	it, err := object.Iterate(lines)
+	if err != nil {
+		t.Fatal(err)
+	}
+	it.Next()
+	it.Close()
+	if closed != 2 {
+		t.Fatalf("closed %d times after break", closed)
+	}
+	if err := os.Remove(path); err != nil {
+		t.Fatalf("remove after break: %v", err)
+	}
+
+	// Not gzip: raised when the loop starts, carrying the path.
+	plain := filepath.Join(dir, "plain.gz")
+	os.WriteFile(plain, []byte("plain text\n"), 0o644)
+	_, err = object.Iterate(mustCall(t, "read_lines", []object.Object{object.String(plain)}))
+	if !errors.Is(err, object.ParseError) || err.Error() != `read_lines() "`+plain+`" is not gzip data` || pathOf(t, err) != plain {
+		t.Fatalf("not gzip = %v", err)
+	}
+	if closed != 3 {
+		t.Fatalf("closed %d times after a header error", closed)
+	}
+	_, err = object.Iterate(mustCall(t, "read_lines", []object.Object{object.String(filepath.Join(dir, "missing.gz"))}))
+	if !errors.Is(err, object.NotExistError) || pathOf(t, err) != filepath.Join(dir, "missing.gz") {
+		t.Fatalf("missing = %v", err)
+	}
+
+	// Truncated: the lines before the damage arrive, then the read that
+	// reaches it raises.
+	truncated := filepath.Join(dir, "truncated.gz")
+	whole := goGzip(t, strings.Repeat("line\n", 1000))
+	os.WriteFile(truncated, whole[:len(whole)-6], 0o644)
+	_, err = object.Collect(mustCall(t, "read_lines", []object.Object{object.String(truncated)}))
+	if !errors.Is(err, object.ParseError) || err.Error() != `read_lines() corrupt gzip data in "`+truncated+`"` || pathOf(t, err) != truncated {
+		t.Fatalf("truncated = %v", err)
+	}
+	f := mustCall(t, "open", []object.Object{object.String(truncated)})
+	_, err = callMethod(t, f, "read")
+	if !errors.Is(err, object.ParseError) || err.Error() != `read() corrupt gzip data in "`+truncated+`"` {
+		t.Fatalf("truncated read() = %v", err)
+	}
+	mustMethod(t, f, "close")
+
+	bad := filepath.Join(dir, "bad.gz")
+	os.WriteFile(bad, goGzip(t, "ok\nok\nbad\xff\n"), 0o644)
+	_, err = object.Collect(mustCall(t, "read_lines", []object.Object{object.String(bad)}))
+	var e *object.Error
+	errors.As(err, &e)
+	if line, _ := e.Field("line"); !errors.Is(err, object.ValueError) || line != object.Integer(3) || pathOf(t, err) != bad {
+		t.Fatalf("invalid UTF-8 = %v", err)
+	}
+}
+
+func TestOpenErrors(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "x.gz")
+	if _, err := call(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "level", Value: object.Integer(5)}); !errors.Is(err, object.ValueError) {
+		t.Fatalf("level without write = %v", err)
+	}
+	if _, err := call(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "write", Value: object.True}, object.KwArg{Name: "level", Value: object.Integer(0)}); err == nil || err.Error() != "open() argument 'level' must be from 1 to 9, got 0" {
+		t.Fatalf("level 0 = %v", err)
+	}
+	if _, err := call(t, "open", []object.Object{object.String(path)}); !errors.Is(err, object.NotExistError) || pathOf(t, err) != path {
+		t.Fatalf("missing = %v", err)
+	}
+	os.WriteFile(path, []byte("text"), 0o644)
+	if _, err := call(t, "open", []object.Object{object.String(path)}); !errors.Is(err, object.ParseError) || err.Error() != `open() "`+path+`" is not gzip data` {
+		t.Fatalf("not gzip = %v", err)
+	}
+
+	// A writer that is never closed leaves an incomplete file.
+	unfinished := filepath.Join(dir, "unfinished.gz")
+	w := mustCall(t, "open", []object.Object{object.String(unfinished)}, object.KwArg{Name: "write", Value: object.True})
+	mustMethod(t, w, "write", object.String(strings.Repeat("data ", 10000)))
+	raw, _ := os.ReadFile(unfinished)
+	if _, err := call(t, "decompress", []object.Object{object.NewBytes(raw)}); !errors.Is(err, object.ParseError) {
+		t.Fatalf("decompress of an unfinished file = %v", err)
+	}
+	mustMethod(t, w, "close")
 }

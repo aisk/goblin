@@ -22,7 +22,7 @@ func Execute() (object.Object, error) {
 		"Path":     pathvalue.Type.Function,
 		"File":     filestream.Type.Function,
 		"FileInfo": fileInfoType.Function,
-		"Lines":    linesType.Function,
+		"Lines":    filestream.LinesType.Function,
 		"Walk":     walkType.Function,
 	}, object.Funcs{
 		"read":       read,
@@ -82,7 +82,7 @@ func read(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if !utf8.Valid(data) {
-		return nil, object.NewValueError("read() %s is not valid UTF-8", quote(path))
+		return nil, pathError(object.ValueError, path, "read() %s is not valid UTF-8", quote(path))
 	}
 	return object.String(data), nil
 }
@@ -263,7 +263,7 @@ func mkdir(args object.CallArgs) (object.Object, error) {
 	}
 	if err := os.MkdirAll(path, 0o755); err != nil {
 		if errors.Is(err, syscall.ENOTDIR) || errors.Is(err, stdfs.ErrExist) {
-			return nil, &object.Error{Value: "mkdir() cannot create " + quote(path) + ": a file that is not a directory is in the way", Wrapped: object.ExistError}
+			return nil, pathError(object.ExistError, path, "mkdir() cannot create %s: a file that is not a directory is in the way", quote(path))
 		}
 		return nil, fail("mkdir", "cannot create", path, err)
 	}
@@ -305,7 +305,7 @@ func remove(args object.CallArgs) (object.Object, error) {
 	}
 	if info, statErr := os.Lstat(path); statErr == nil && info.IsDir() {
 		if entries, readErr := os.ReadDir(path); readErr == nil && len(entries) > 0 {
-			return nil, &object.Error{Value: "remove() directory " + quote(path) + " is not empty (pass recursive=true)", Wrapped: object.IOError}
+			return nil, pathError(object.IOError, path, "remove() directory %s is not empty (pass recursive=true)", quote(path))
 		}
 	}
 	return nil, fail("remove", "cannot remove", path, err)
@@ -393,5 +393,3 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	return pathvalue.NewPath(os.TempDir()), nil
 }
 
-// quote is how messages name a path.
-func quote(path string) string { return `"` + path + `"` }

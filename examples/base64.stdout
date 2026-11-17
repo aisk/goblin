@@ -9,8 +9,8 @@ b"\xfb\xff" b"\xfb\xff" b"\xfb\xff"
 hello, Goblin
  b"" true
 iVBORw0KGgoA/w==
-true decode() invalid Base64 at position 4
-true decode() invalid Base64 at position 3
-true decode() invalid Base64 at position 0
-true decode() invalid Base64 at position 1
-true decode() argument 'text' must be String, got Bytes
+decode() invalid Base64 at position 4
+decode() invalid Base64 at position 3
+decode() invalid Base64 at position 0
+decode() invalid Base64 at position 1
+decode() argument 'text' must be String, got Bytes

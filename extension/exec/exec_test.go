@@ -303,3 +303,58 @@ func TestFindAndTypes(t *testing.T) {
 		t.Fatal("type_of(PIPE) is not exec.Pipe")
 	}
 }
+
+func field(t *testing.T, err error, name string) object.Object {
+	t.Helper()
+	var e *object.Error
+	if !errors.As(err, &e) {
+		t.Fatalf("error %v is not a Goblin error", err)
+	}
+	v, ok := e.Field(name)
+	if !ok {
+		t.Fatalf("error %q has no data %q", err, name)
+	}
+	return v
+}
+
+func TestExitErrorData(t *testing.T) {
+	err := callErr("run", helper("exit=3"))
+	if !errors.Is(err, ExitError) || errors.Is(err, object.IOError) {
+		t.Fatalf("run() exit error = %v", err)
+	}
+	if field(t, err, "code") != object.Integer(3) || field(t, err, "stdout") != object.Nil || field(t, err, "stderr") != object.Nil {
+		t.Fatal("run() ExitError data")
+	}
+
+	err = callErr("capture", helper("out=out\n", "err=err\n", "exit=2"))
+	if !errors.Is(err, ExitError) || field(t, err, "code") != object.Integer(2) ||
+		field(t, err, "stdout") != object.String("out\n") || field(t, err, "stderr") != object.String("err\n") {
+		t.Fatalf("capture() ExitError = %v", err)
+	}
+	if !strings.HasSuffix(err.Error(), "exited with status 2: err") {
+		t.Fatalf("capture() message = %q", err)
+	}
+
+	killed := &object.List{Elements: []object.Object{object.String("sh"), object.String("-c"), object.String("kill -9 $$")}}
+	err = callErr("run", killed)
+	if !errors.Is(err, ExitError) || field(t, err, "code") != object.Integer(-1) {
+		t.Fatalf("killed error = %v", err)
+	}
+
+	err = callErr("capture", helper("out=partial\n", "sleep=10s"), kw("timeout", object.Float(0.3)))
+	if !errors.Is(err, object.TimeoutError) || field(t, err, "stdout") != object.String("partial\n") || field(t, err, "stderr") != object.String("") {
+		t.Fatalf("capture() timeout = %v", err)
+	}
+	err = callErr("run", helper("sleep=10s"), kw("timeout", object.Float(0.1)))
+	if field(t, err, "stdout") != object.Nil || field(t, err, "stderr") != object.Nil {
+		t.Fatal("run() timeout data")
+	}
+
+	dir := t.TempDir()
+	for _, cwd := range []string{filepath.Join(dir, "missing"), os.Args[0]} {
+		err = callErr("run", helper(), kw("cwd", object.String(cwd)))
+		if p := field(t, err, "path"); p.(*pathvalue.Path).FilePath() != cwd {
+			t.Fatalf("cwd error path = %v", p)
+		}
+	}
+}

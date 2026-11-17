@@ -33,4 +33,7 @@ remove() directory "<scratch>/docs" is not empty (pass recursive=true)
 copy() "<scratch>/docs-backup" already exists
 with_suffix() invalid suffix "txt"
 File cannot be constructed; use fs.open(path)
-true true
+missing.txt missing.txt true true
+loading settings: read() cannot open "<scratch>/settings.toml": no such file or directory settings.toml
+ok
+bad.txt 2

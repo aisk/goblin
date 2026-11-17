@@ -37,7 +37,7 @@ needed.
 | [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode() |
 | [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
 | [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |
-| [gzip](./module-gzip.md) | Compress and decompress gzip data | compress(), decompress() |
+| [gzip](./module-gzip.md) | Gzip data, in memory and as files of any size | compress(), decompress(), open(), read_lines() |
 
 ## Imports and errors
 

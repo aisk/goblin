@@ -10,11 +10,11 @@ exec.run(["sh", "-c", "echo CI=$CI in $(basename $(pwd))"], cwd="fs_dir_fixture"
 # Get a command's output as text.
 var greeting = exec.capture(["sh", "-c", "echo hello from exec"]).stdout.trim()
 print(greeting)
-var words = exec.capture(["printf", "b\\na\\nb\\n"]).stdout.split("\n")
+var words = exec.capture(["printf", "b\\na\\nb\\n"]).stdout.trim().split("\n")
 print(words)
 
 # Feed it input.
-print(exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout.split("\n"))
+print(exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout.trim().split("\n"))
 var fixture = fs.open("fs_fixture.txt")
 defer fixture.close()
 print(exec.capture(["cat"], stdin=fixture).stdout.trim())
@@ -26,16 +26,40 @@ if !diff.success {
 }
 try {
     exec.capture(["sh", "-c", "echo 'fatal: not a git repository' >&2; exit 128"])
-} catch e {
+} catch e: exec.ExitError {
     print(e.message)
+}
+
+# A failure you want to report your own way: the error carries the facts.
+try {
+    exec.capture(["sh", "-c", "echo broken >&2; exit 3"])
+} catch e: exec.ExitError {
+    print(e.code, e.stderr.trim(), e.stdout == "")
+}
+try {
+    exec.run(["sh", "-c", "exit 4"])
+} catch e: exec.ExitError {
+    print(e.code, e.stdout, e.stderr)
+}
+try {
+    raise exec.ExitError("made by hand", code=9)
+} catch e: exec.ExitError {
+    print(e.message, e.code, e.is(IOError))
 }
 
 # Is the tool there at all.
 print(exec.find("sh") != nil, exec.find("goblin-no-such-tool"))
 try {
     exec.run(["goblin-no-such-tool"])
-} catch e {
-    print(e.is(NotExistError), e.message.split(":")[0])
+} catch e: exec.ExitError {
+    print("not reached")
+} catch e: NotExistError {
+    print("not installed:", e.message.split(":")[0])
+}
+try {
+    exec.run(["sh", "-c", "true"], cwd="no-such-dir")
+} catch e: NotExistError {
+    print(e.path, type_of(e.path) == fs.Path)
 }
 
 # Send output to a file.
@@ -60,8 +84,13 @@ print(collected.chunks)
 # Give up after a while.
 try {
     exec.run(["sleep", "10"], timeout=0.1)
-} catch e {
-    print(e.is(TimeoutError), e.message)
+} catch e: TimeoutError {
+    print(e.message, e.stdout, e.stderr)
+}
+try {
+    exec.capture(["sh", "-c", "echo partial; exec sleep 10"], timeout=0.5)
+} catch e: TimeoutError {
+    print(e.stdout.trim(), e.stderr == "")
 }
 
 # Start a process, use it, stop it.

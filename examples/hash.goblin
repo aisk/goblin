@@ -50,17 +50,17 @@ print(hash.sha256(Chunks(["lo", "hel"])).to_hex() == hash.sha256("hello").to_hex
 # Errors
 try {
     hash.hmac(secret, body, algorithm="sha256")
-} catch e {
-    print(e.is(ValueError), e)
+} catch e: ValueError {
+    print(e)
 }
 try {
     hash.hmac(42, body)
-} catch e {
-    print(e.is(TypeError), e)
+} catch e: TypeError {
+    print(e)
 }
 try {
     hash.sha256(42)
-} catch e {
-    print(e.is(TypeError), e)
+} catch e: TypeError {
+    print(e)
 }
 print(type_of(hash.sha256), hash.sha256)

@@ -55,7 +55,7 @@ func copyAny(fn, src, dst string) error {
 			return kindError(object.ExistError, fn, "is a directory", dst)
 		}
 		if target, err := os.Stat(dst); err == nil && os.SameFile(info, target) {
-			return &object.Error{Value: fn + "() " + quote(src) + " and " + quote(dst) + " are the same file", Wrapped: object.IOError}
+			return pathError(object.IOError, dst, "%s() %s and %s are the same file", fn, quote(src), quote(dst))
 		}
 	}
 	return copyFile(fn, src, dst, info.Mode().Perm())

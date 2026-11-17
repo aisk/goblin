@@ -114,6 +114,28 @@ failure(func() { fs.Path("a").with_suffix("txt") })
 failure(func() { fs.File() })
 try {
     fs.stat("missing.txt")
-} catch e {
-    print(e.is(NotExistError), e.is(IOError))
+} catch e: NotExistError {
+    print(e.path, e.path.name, type_of(e.path) == fs.Path, e.is(IOError))
+}
+
+# The path is still there after the error is wrapped on its way up.
+func load(path) {
+    try {
+        return fs.read(path)
+    } catch e {
+        raise e.wrap("loading settings")
+    }
+}
+try {
+    load(scratch.join("settings.toml"))
+} catch e: NotExistError {
+    print(e.message.replace(String(scratch), "<scratch>"), e.path.name)
+}
+fs.write(scratch.join("bad.txt"), Bytes("ok\n") + Bytes([255]) + Bytes("\n"))
+try {
+    for line in fs.read_lines(scratch.join("bad.txt")) {
+        print(line)
+    }
+} catch e: ValueError {
+    print(e.path.name, e.line)
 }

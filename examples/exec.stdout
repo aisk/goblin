@@ -2,16 +2,21 @@ building
 <Result code=0> 0 true nil
 CI=1 in fs_dir_fixture
 hello from exec
-["b", "a", "b", ""]
-["a", "b", ""]
+["b", "a", "b"]
+["a", "b"]
 hello from fs fixture
 working tree is dirty (status 1)
 capture() "sh" exited with status 128: fatal: not a git repository
+3 broken true
+4 nil nil
+made by hand 9 false
 true nil
-true run() program "goblin-no-such-tool" not found
+not installed: run() program "goblin-no-such-tool" not found
+no-such-dir true
 ["compiling", "warning", ""]
 ["collected\n"]
-true run() "sleep" timed out after 0.1 seconds
+run() "sleep" timed out after 0.1 seconds nil nil
+partial true
 true true nil
 -1 false false
 tail: starting

@@ -622,3 +622,87 @@ func TestPath(t *testing.T) {
 	}
 	callErr(t, object.TypeError, "Path() takes 1 positional arguments, got 2", "Path", []object.Object{str("a"), str("b")})
 }
+
+// errorPath calls a member expecting an error and returns the text of its
+// path data.
+func errorPath(t *testing.T, name string, positional ...object.Object) string {
+	t.Helper()
+	_, err := member(t, name).(*object.Function).Call(args(positional))
+	if err == nil {
+		t.Fatalf("%s() succeeded", name)
+	}
+	var goblinErr *object.Error
+	if !errors.As(err, &goblinErr) {
+		t.Fatalf("%s() error %v is not a Goblin error", name, err)
+	}
+	p, ok := goblinErr.Field("path")
+	if !ok {
+		t.Fatalf("%s() error %q carries no path", name, err)
+	}
+	if _, isPath := p.(*pathvalue.Path); !isPath {
+		t.Fatalf("%s() error path = %#v, want a Path", name, p)
+	}
+	if !strings.Contains(err.Error(), `"`+p.(*pathvalue.Path).FilePath()+`"`) {
+		t.Fatalf("%s() error %q does not name its path %v", name, err, p)
+	}
+	return p.(*pathvalue.Path).FilePath()
+}
+
+func TestErrorsCarryPath(t *testing.T) {
+	dir := t.TempDir()
+	missing := filepath.Join(dir, "missing.txt")
+	file := filepath.Join(dir, "file.txt")
+	writeFile(t, file, "x")
+	full := filepath.Join(dir, "full")
+	writeFile(t, filepath.Join(full, "a"), "a")
+	bad := filepath.Join(dir, "bad.txt")
+	writeFile(t, bad, "\xff")
+
+	cases := []struct {
+		name string
+		args []object.Object
+		want string
+	}{
+		{"read", []object.Object{str(missing)}, missing},
+		{"read", []object.Object{str(bad)}, bad},
+		{"write", []object.Object{str(filepath.Join(missing, "x")), str("data")}, filepath.Join(missing, "x")},
+		{"stat", []object.Object{str(missing)}, missing},
+		{"read_dir", []object.Object{str(file)}, file},
+		{"copy", []object.Object{str(missing), str(file)}, missing},
+		{"copy", []object.Object{str(file), str(filepath.Join(missing, "dst"))}, filepath.Join(missing, "dst")},
+		{"copy", []object.Object{str(file), str(file)}, file},
+		{"move", []object.Object{str(missing), str(file)}, missing},
+		{"remove", []object.Object{str(full)}, full},
+		{"mkdir", []object.Object{str(filepath.Join(file, "sub"))}, filepath.Join(file, "sub")},
+	}
+	for _, c := range cases {
+		if got := errorPath(t, c.name, c.args...); got != c.want {
+			t.Errorf("%s(%v) path = %q, want %q", c.name, c.args, got, c.want)
+		}
+	}
+
+	// A line that is not valid UTF-8 carries the line number too, from
+	// read_lines and from a File opened from a path.
+	lines := filepath.Join(dir, "lines.txt")
+	writeFile(t, lines, "one\ntwo\nbad\xff\n")
+	_, err := object.Collect(call(t, "read_lines", str(lines)))
+	checkLineError(t, err, lines, 3)
+	f := call(t, "open", str(lines))
+	defer method(t, f, "close")
+	_, err = object.Collect(f)
+	checkLineError(t, err, lines, 3)
+}
+
+func checkLineError(t *testing.T, err error, path string, line int) {
+	t.Helper()
+	var goblinErr *object.Error
+	if !errors.As(err, &goblinErr) || !errors.Is(err, object.ValueError) {
+		t.Fatalf("line error = %v, want a ValueError", err)
+	}
+	if got, _ := goblinErr.Field("line"); got != object.Integer(line) {
+		t.Fatalf("line = %v, want %d", got, line)
+	}
+	if got, _ := goblinErr.Field("path"); got == nil || got.(*pathvalue.Path).FilePath() != path {
+		t.Fatalf("path = %v, want %q", got, path)
+	}
+}

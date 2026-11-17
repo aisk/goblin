@@ -128,9 +128,36 @@ operating system's error is the `cause`:
 ~~~goblin
 try {
     fs.read("nope.txt")
-} catch e {
-    print(e.is(NotExistError))   # true
+} catch e: NotExistError {
+    print(e.path)                # nope.txt
     print(e.message)             # read() cannot open "nope.txt": no such file or directory
+}
+~~~
+
+An error about a path carries it as `e.path`, a Path; a line that is not valid
+UTF-8 also carries `e.line`.
+
+| Error | Data |
+| --- | --- |
+| NotExistError, ExistError, PermissionError, IOError from any `fs` function | `path`: the Path the message quotes, as given. For `copy` and `move` it is whichever of `src` and `dst` the failure is about |
+| ValueError `read() "x" is not valid UTF-8` | `path` |
+| ValueError `line 3 of "x" is not valid UTF-8` (`read_lines`, a File opened from a path) | `path`, and `line`, an Int counted from 1 |
+| IOError from a File's `read`, `write` or `close` | `path` when the File has one; none for standard streams and pipes |
+| TypeError, and ValueError about an argument (`mode`, `prefix`, a malformed `glob` pattern, a closed File) | none: they are mistakes in the call, not facts about the disk |
+
+A handler further up can use the data without parsing the message:
+
+~~~goblin
+func load_all(paths) {
+    return paths.map(func(p) { return fs.read(p) })
+}
+
+try {
+    var texts = load_all(os.args)
+} catch e: NotExistError {
+    eprint("missing: {e.path}")
+} catch e: PermissionError {
+    eprint("cannot read {e.path.name}; check its permissions")
 }
 ~~~
 
@@ -167,8 +194,9 @@ An immutable name. It performs no I/O.
 ## File
 
 A stream over an open file, from `fs.open`. It is also the type of
-`os.stdin`, `os.stdout` and `os.stderr` and of the pipes of a command started
-with `exec.start`. It shows as `<File notes.txt>`.
+`os.stdin`, `os.stdout` and `os.stderr`, of the pipes of a command started
+with `exec.start`, and of a `.gz` file opened with
+[`gzip.open`](./module-gzip.md#streams). It shows as `<File notes.txt>`.
 
 | Member | Kind | Value |
 | --- | --- | --- |

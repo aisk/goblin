@@ -14,6 +14,7 @@ run `["sh", "-c", "a | b"]` on purpose.
 import "exec"
 import "fs"
 import "http"
+import "os"
 import "time"
 
 # Run a step; the program stops with an error if it fails
@@ -22,7 +23,7 @@ exec.run(["npm", "install"], cwd="web", env={"CI": "1"})
 
 # Get a command's output
 var head = exec.capture(["git", "rev-parse", "HEAD"]).stdout.trim()
-var tags = exec.capture(["git", "tag"]).stdout.split("\n")
+var tags = exec.capture(["git", "tag"]).stdout.trim().split("\n")
 
 # Feed it input
 var sorted_text = exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout
@@ -31,6 +32,15 @@ var sorted_text = exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout
 var diff = exec.run(["git", "diff", "--quiet"], check=false)
 if !diff.success {
     print("working tree is dirty (status {diff.code})")
+}
+
+# A failure you want to report your own way
+try {
+    exec.capture(["git", "push"])
+} catch e: exec.ExitError {
+    eprint("push failed with status {e.code}")
+    eprint(e.stderr)
+    os.exit(1)
 }
 
 # Is the tool there at all
@@ -72,6 +82,7 @@ tail.kill()
 | `capture(args, cwd=nil, env=nil, stdin=nil, check=true, timeout=nil)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal |
 | `start(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil)` | Command | Starts the command and returns at once. `stdin`, `stdout` and `stderr` also accept `exec.PIPE` |
 | `find(name)` | Path or `nil` | Where `name` would be found on `PATH`; `nil` when it is not installed |
+| `ExitError` | error kind | Raised by `run` and `capture` for a non-zero exit under `check=true` |
 | `PIPE` | constant | For `start` only: connect that stream to this program (`command.stdin`, `command.stdout`, `command.stderr`). Passing it to `run` is a TypeError |
 
 The parameters they share:
@@ -92,16 +103,22 @@ for `type_of`; calling them raises TypeError pointing at `exec.start` /
 
 ### Errors
 
-| Failure | Raises |
-| --- | --- |
-| The program is not found | NotExistError `run() program "gti" not found` |
-| It cannot be run | PermissionError, IOError |
-| `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` |
-| Non-zero exit with `check=true` | Error `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository` |
+| Failure | Raises | Data |
+| --- | --- | --- |
+| The program is not found | NotExistError `run() program "gti" not found` | — |
+| `cwd` is missing or not a directory | NotExistError, IOError | `path`: the `cwd` given, a Path |
+| It cannot be run | PermissionError, IOError | — |
+| `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` | `stdout`, `stderr`: what `capture` had collected when the process was killed; `nil` from `run` |
+| Non-zero exit with `check=true` | `exec.ExitError` `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository` | `code`, `stdout`, `stderr` |
 
-Errors carry no data in Goblin, so the exit status and stderr of a failed
-`check=true` command are only in the message. To handle a failure, pass
-`check=false` and look at the Result.
+The data of an `exec.ExitError` is what the Result would have shown under
+`check=false`: `code` is the exit status (`-1` when the process was killed by
+a signal, never `0`), `stdout` and `stderr` are the captured text from
+`capture` and `nil` from `run`. It is not an IOError: the command ran, and its
+answer was "failed".
+
+Pass `check=false` when a non-zero status is an answer rather than a failure;
+catch `exec.ExitError` when it is a failure you want to handle.
 
 ## Result
 

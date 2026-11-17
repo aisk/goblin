@@ -38,12 +38,17 @@ func (p *Pipe) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Pipe has no attribute '%s'", name)
 }
 
+// ExitError is raised by run and capture when a command exits with a
+// non-zero status under check=true. Data: code, stdout, stderr.
+var ExitError = object.NewErrorKind("ExitError", object.BaseError)
+
 func Execute() (object.Object, error) {
 	return object.NewModule("exec", map[string]object.Object{
-		"PIPE":    pipe,
-		"Command": commandType.Function,
-		"Result":  resultType.Function,
-		"Pipe":    pipeType.Function,
+		"ExitError": ExitError,
+		"PIPE":      pipe,
+		"Command":   commandType.Function,
+		"Result":    resultType.Function,
+		"Pipe":      pipeType.Function,
 	}, object.Funcs{
 		"run":     run,
 		"capture": capture,
@@ -155,10 +160,12 @@ func (s *spec) command(ctx context.Context) (*stdexec.Cmd, error) {
 	if s.hasCwd {
 		info, err := os.Stat(s.cwd)
 		if err != nil {
-			return nil, object.WrapNativeError(object.IOError, s.fn+`() working directory "`+s.cwd+`"`, unwrapPath(err))
+			return nil, object.WrapNativeError(object.IOError, s.fn+`() working directory "`+s.cwd+`"`, unwrapPath(err)).
+				With("path", pathvalue.NewPath(s.cwd))
 		}
 		if !info.IsDir() {
-			return nil, &object.Error{Value: s.fn + `() working directory "` + s.cwd + `" is not a directory`, Wrapped: object.NotExistError}
+			return nil, object.NewKindError(object.NotExistError, `%s() working directory "%s" is not a directory`, s.fn, s.cwd).
+				With("path", pathvalue.NewPath(s.cwd))
 		}
 		cmd.Dir = s.cwd
 	}
@@ -293,7 +300,9 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 	}
 	err = cmd.Wait()
 	if ctx != nil && ctx.Err() != nil {
-		return nil, object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds())
+		return nil, object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds()).
+			With("stdout", text(outBuf)).
+			With("stderr", text(errBuf))
 	}
 	if err != nil {
 		var exitErr *stdexec.ExitError
@@ -309,7 +318,10 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 				message += ": " + line
 			}
 		}
-		return nil, &object.Error{Value: message, Wrapped: object.BaseError}
+		return nil, object.NewKindError(ExitError, "%s", message).
+			With("code", object.Integer(result.code)).
+			With("stdout", result.stdout).
+			With("stderr", result.stderr)
 	}
 	return result, nil
 }

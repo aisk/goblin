@@ -18,16 +18,12 @@ var port = Int(os.env.get("GOBLIN_DOCS_PORT", default="8080"))
 try {
     var token = os.env["GOBLIN_DOCS_API_TOKEN"]
     raise Error("the token should not be set")
-} catch e {
-    if !e.is(KeyError) {
-        raise e
-    }
+} catch e: KeyError {
 }
 os.env["NO_COLOR"] = "1"
 
-# Ask a question (write() adds no newline)
-os.stdout.write("Delete everything? [y/N] ")
-var answer = os.stdin.read_line()
+# Ask a question: the built-in input() writes the prompt and reads a line
+var answer = input("Delete everything? [y/N] ")
 if answer == nil || answer.trim().lower() != "y" {
     os.exit(1)
 }

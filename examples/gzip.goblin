@@ -1,3 +1,4 @@
+import "exec"
 import "gzip"
 import "fs"
 import "json"
@@ -42,24 +43,101 @@ print(gzip.decompress(gzip.compress(data, level=nil)).decode() == data)
 print(gzip.decompress(gzip.compress("one ") + gzip.compress("two")).decode())
 print(gzip.decompress(gzip.compress("")))
 
+# A compressed export of any size, one line at a time
+var errors = 0
+var jsonl = scratch.join("events.jsonl.gz")
+var events = gzip.open(jsonl, write=true)
+for level in ["info", "error", "info", "error", "error"] {
+    events.write(json.encode({"level": level}) + "\n")
+}
+events.close()
+for line in gzip.read_lines(jsonl) {
+    if json.decode(line)["level"] == "error" {
+        errors = errors + 1
+    }
+}
+print("errors:", errors, type_of(gzip.read_lines(jsonl)) == fs.Lines)
+
+# A small one, whole
+fs.write(scratch.join("config.json.gz"), gzip.compress(`{"debug": true}`))
+var config = json.decode(gzip.decompress(fs.read_bytes(scratch.join("config.json.gz"))))
+print(config)
+
+# Write a compressed file piece by piece
+var report = scratch.join("report.csv.gz")
+var out = gzip.open(report, write=true)
+print(String(out).replace(String(scratch), "<scratch>"), type_of(out) == fs.File, out.path == report)
+for row in ["id,name", "1,ada", "2,grace"] {
+    print(out.write("{row}\n"))
+}
+out.close()
+print(gzip.decompress(fs.read_bytes(report)).decode().trim().split("\n"))
+
+# Compress a big log without holding it
+var big_log = scratch.join("big.log")
+fs.write(big_log, "GET /index.html 200\n" * 2000)
+var packed_log = gzip.open(scratch.join("big.log.gz"), write=true, level=9)
+for line in fs.read_lines(big_log) {
+    packed_log.write("{line}\n")
+}
+packed_log.close()
+print(fs.stat(scratch.join("big.log.gz")).size < 500)
+
+# Unpack to disk without holding it
+var source = gzip.open(scratch.join("big.log.gz"))
+fs.write(scratch.join("unpacked.log"), source)
+source.close()
+print(fs.read(scratch.join("unpacked.log")) == fs.read(big_log), source.closed)
+
+# Read a .gz File like any File
+var reading = gzip.open(report)
+print(reading.read_line(), reading.read(6))
+for line in reading {
+    print("rest:", line)
+}
+reading.close()
+
+# Compress a command's output as it is produced
+var dump = gzip.open(scratch.join("listing.txt.gz"), write=true)
+exec.run(["printf", "a\\nb\\n"], stdout=dump)
+dump.close()
+print(List(gzip.read_lines(scratch.join("listing.txt.gz"))))
+
 # Errors
 for level in [0, 10] {
     try {
         gzip.compress("x", level=level)
-    } catch e {
-        print(e.is(ValueError), e)
+    } catch e: ValueError {
+        print(e)
     }
 }
 var packed = gzip.compress("hello, Goblin")
 for bad in [Bytes(""), Bytes("plain text"), packed[:packed.size - 4]] {
     try {
         gzip.decompress(bad)
-    } catch e {
-        print(e.is(ParseError), e)
+    } catch e: ParseError {
+        print(e)
     }
 }
 try {
     gzip.decompress("text is not gzip data")
-} catch e {
-    print(e.is(TypeError), e)
+} catch e: TypeError {
+    print(e)
+}
+try {
+    gzip.open(scratch.join("x.gz"), level=5)
+} catch e: ValueError {
+    print(e)
+}
+try {
+    gzip.open(report.with_suffix(".missing"))
+} catch e: NotExistError {
+    print(e.path.name)
+}
+try {
+    for line in gzip.read_lines(big_log) {
+        print("not reached")
+    }
+} catch e: ParseError {
+    print(e.message.replace(String(scratch), "<scratch>"), e.path.name)
 }

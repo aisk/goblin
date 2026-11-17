@@ -11,7 +11,7 @@ de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9
 80070713463e7749b90c2dc24911e275
 64
 true
-true hmac() argument 'algorithm' must be hash.md5, hash.sha1, hash.sha256 or hash.sha512
-true hmac() argument 'key' must be String or Bytes, got Int
-true sha256() argument 'data' must be String, Bytes or have a read(size) method, got Int
+hmac() argument 'algorithm' must be hash.md5, hash.sha1, hash.sha256 or hash.sha512
+hmac() argument 'key' must be String or Bytes, got Int
+sha256() argument 'data' must be String, Bytes or have a read(size) method, got Int
 <function Function> <function sha256>
