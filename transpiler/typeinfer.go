@@ -244,7 +244,7 @@ func poisonCaptured(stmts []ast.Statement, types map[string]staticType) {
 		switch n := node.(type) {
 		case *ast.Export:
 			names[n.Name] = struct{}{}
-		case *ast.FunctionDefine, *ast.FunctionLiteral, *ast.TypeDefine, *ast.TraitDefine:
+		case *ast.FunctionDefine, *ast.FunctionLiteral, *ast.TypeDefine:
 			walkNodes([]ast.Statement{n}, true, func(m ast.Statement) {
 				if m != n {
 					inner(m)

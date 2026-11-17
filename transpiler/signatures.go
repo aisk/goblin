@@ -338,11 +338,6 @@ func declaredNames(stmts []ast.Statement) map[string]int {
 			for _, method := range n.AllMethods() {
 				params(method.Parameters)
 			}
-		case *ast.TraitDefine:
-			declared[n.Name]++
-			for _, method := range n.Methods {
-				params(method.Parameters)
-			}
 		case *ast.FunctionDefine:
 			declared[n.Name]++
 			params(n.Parameters)
@@ -393,12 +388,6 @@ func collectBodies(stmts []ast.Statement, closed map[string]*ast.FunctionDefine)
 		case *ast.TypeDefine:
 			for _, method := range n.AllMethods() {
 				bodies = append(bodies, bodyRef{stmts: method.Body, params: method.Parameters})
-			}
-		case *ast.TraitDefine:
-			for _, method := range n.Methods {
-				if method.Body != nil {
-					bodies = append(bodies, bodyRef{stmts: method.Body, params: method.Parameters})
-				}
 			}
 		}
 	})

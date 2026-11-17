@@ -504,7 +504,7 @@ func TestCheckModule(t *testing.T) {
 	}
 }
 
-func TestCheckTraits(t *testing.T) {
+func TestCheckImpls(t *testing.T) {
 	tests := []struct {
 		name   string
 		source string
@@ -522,56 +522,32 @@ func TestCheckTraits(t *testing.T) {
 				"  impl Add { func add(self, o) { return self } }\n" +
 				"}\n",
 		},
-		{
-			name: "user trait with defaults and dependencies",
-			source: "trait Named: Show {\n" +
-				"  func name(self)\n" +
-				"  func greet(self) { return \"hi \" + Named.name(self) }\n" +
-				"}\n" +
-				"type P(x) {\n" +
-				"  impl Named { func name(self) { return \"p\" } }\n" +
-				"  impl Show {}\n" +
-				"}\n",
-		},
-		{
-			name: "mixin trait accepts an empty impl",
-			source: "trait Loud { func shout(self) { return \"!\" } }\n" +
-				"type P() { impl Loud {} }\n",
-		},
-		{
-			name:   "missing required method",
-			source: "trait Shape { func area(self) }\ntype P() { impl Shape {} }\n",
-			err:    "2:17: semantic error: impl Shape for P is missing method 'area'",
-		},
+
 		{
 			name:   "custom trait has no structural default",
 			source: "type P() { impl Truth {} }\n",
 			err:    "1:17: semantic error: impl Truth for P is missing method 'truth'",
 		},
 		{
-			name:   "trait not defined",
+			name:   "unknown protocol",
 			source: "type P() { impl Shape {} }\n",
-			err:    "1:17: semantic error: impl Shape: Shape is not defined",
+			err:    "1:17: semantic error: impl Shape for P: Shape is not a protocol (protocols: Eq, Ord, Hashable, Show, Truth, Add, Sub, Mul, Div, Mod, Neg, Iter, Index); other methods go directly in the type body",
 		},
+
 		{
-			name:   "trait used before its declaration",
-			source: "type P() { impl Shape {} }\ntrait Shape {}\n",
-			err:    "1:17: semantic error: impl Shape: Shape is not defined",
-		},
-		{
-			name:   "impl of something that is not a trait",
+			name:   "a declared name is not a protocol",
 			source: "func Shape() {}\ntype P() { impl Shape {} }\n",
-			err:    "2:17: semantic error: impl Shape: Shape is not a trait",
+			err:    "2:17: semantic error: impl Shape for P: Shape is not a protocol (protocols: Eq, Ord, Hashable, Show, Truth, Add, Sub, Mul, Div, Mod, Neg, Iter, Index); other methods go directly in the type body",
 		},
 		{
-			name:   "qualified trait needs an import",
-			source: "type P() { impl shapes.Shape {} }\n",
-			err:    "1:17: semantic error: impl shapes.Shape: shapes.Shape is not defined",
+			name:   "a protocol name is not looked up in a scope",
+			source: "type Show() {\n  impl Show {}\n}\nvar Eq = 1\nfunc Add() {}\ntype P(x) {\n  impl Eq {}\n  impl Add { func add(self, o) { return self } }\n}\n",
 		},
 		{
-			name:   "qualified trait through an import is checked at runtime",
-			source: "import \"./shapes\"\ntype P() { impl shapes.Shape {} }\n",
+			name:   "trait is an ordinary identifier",
+			source: "var trait = 1\nprint(trait)\n",
 		},
+
 		{
 			name:   "method outside the trait",
 			source: "type P() { impl Eq { func equal(self, o) { return true } } }\n",
@@ -585,17 +561,17 @@ func TestCheckTraits(t *testing.T) {
 		{
 			name:   "impl method without self",
 			source: "type P() { impl Eq { func eq(a, b) { return true } } }\n",
-			err:    "1:27: semantic error: trait method must declare 'self' as the first parameter",
+			err:    "1:27: semantic error: impl method must declare 'self' as the first parameter",
 		},
 		{
 			name:   "impl method with a default parameter",
 			source: "type P() { impl Eq { func eq(self, o=1) { return true } } }\n",
-			err:    "1:36: semantic error: trait method 'eq' cannot declare default parameter values",
+			err:    "1:36: semantic error: impl method 'eq' cannot declare default parameter values",
 		},
 		{
 			name:   "impl method with varargs",
 			source: "type P() { impl Index { func get(self, *i) { return 1 } } }\n",
-			err:    "1:41: semantic error: trait method 'get' cannot use variadic or keyword parameters",
+			err:    "1:41: semantic error: impl method 'get' cannot use variadic or keyword parameters",
 		},
 		{
 			name:   "override of a derived method",
@@ -622,11 +598,7 @@ func TestCheckTraits(t *testing.T) {
 			source: "type P() { impl Hashable { func hash(self) { return 1 } } }\n",
 			err:    "1:17: semantic error: impl Hashable for P requires impl Eq",
 		},
-		{
-			name:   "user dependency is not auto-filled",
-			source: "trait A {}\ntrait B: A {}\ntype P() { impl B {} }\n",
-			err:    "3:17: semantic error: impl B for P requires impl A",
-		},
+
 		{
 			name:   "Ord needs an explicit Eq",
 			source: "type P(x) {\n  impl Ord {}\n  impl Hashable {}\n}\n",
@@ -648,36 +620,7 @@ func TestCheckTraits(t *testing.T) {
 				"}\n",
 			err: "2:8: semantic error: structural Ord requires structural Eq on P",
 		},
-		{
-			name:   "trait only at module scope",
-			source: "func f() {\n  trait T {}\n}\n",
-			err:    "2:9: semantic error: trait is only allowed at module scope",
-		},
-		{
-			name:   "duplicate trait method",
-			source: "trait T {\n  func a(self)\n  func a(self)\n}\n",
-			err:    "3:8: semantic error: duplicate trait method name: a",
-		},
-		{
-			name:   "trait method without self",
-			source: "trait T { func a(x) }\n",
-			err:    "1:16: semantic error: trait method must declare 'self' as the first parameter",
-		},
-		{
-			name:   "unknown dependency",
-			source: "trait T: Missing {}\n",
-			err:    "1:10: semantic error: trait T: Missing is not defined",
-		},
-		{
-			name:   "default body is checked",
-			source: "trait T { func a(self) { return missing } }\n",
-			err:    "1:33: semantic error: undefined identifier: missing",
-		},
-		{
-			name:   "trait name cannot be reassigned",
-			source: "trait T {}\nT = 5\n",
-			err:    "2:1: semantic error: cannot assign to trait T",
-		},
+
 		{
 			name:   "type name cannot be reassigned",
 			source: "type P() {}\nfunc f() {\n  P = 1\n}\n",
@@ -686,11 +629,6 @@ func TestCheckTraits(t *testing.T) {
 		{
 			name:   "a local may shadow a type name",
 			source: "type P() {}\nfunc f() {\n  var P = 1\n  P = 2\n}\n",
-		},
-		{
-			name:   "duplicate trait name",
-			source: "trait T {}\ntype T() {}\n",
-			err:    "2:6: semantic error: duplicate declaration in same scope: T",
 		},
 	}
 	for _, tt := range tests {

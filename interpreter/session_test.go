@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -257,5 +258,23 @@ func TestSessionInterpolation(t *testing.T) {
 	}
 	if v != object.String("n=2, twice=4") {
 		t.Fatalf("value = %v", v)
+	}
+}
+
+// The REPL does not run the semantic checker, so defining a type reports an
+// unknown protocol itself, with the checker's message, as a TypeError.
+func TestSessionUnknownProtocol(t *testing.T) {
+	s := NewSession(".")
+	_, err := s.Eval("type Rect(w) {\n  impl Shape {}\n}")
+	want := "impl Shape for Rect: Shape is not a protocol (protocols: Eq, Ord, Hashable, Show, Truth, Add, Sub, Mul, Div, Mod, Neg, Iter, Index); other methods go directly in the type body"
+	if err == nil || !errors.Is(err, object.TypeError) || !strings.Contains(err.Error(), want) {
+		t.Fatalf("Eval error = %v, want TypeError %q", err, want)
+	}
+	// A user type named like a protocol does not change what impl means.
+	if _, err := s.Eval("type Show(x) {\n  impl Show {}\n}"); err != nil {
+		t.Fatal(err)
+	}
+	if v, err := s.Eval("String(Show(1))"); err != nil || v.(object.String) != "Show(x=1)" {
+		t.Fatalf("String(Show(1)) = %v, %v", v, err)
 	}
 }

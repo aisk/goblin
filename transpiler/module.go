@@ -171,10 +171,10 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 		switch v := stmt.(type) {
 		case *ast.TypeDefine:
 			g.moduleVars[v.Name] = v.Name + "Constructor"
-		case *ast.FunctionDefine, *ast.TraitDefine:
-			// Function and trait names are hoisted (mirroring the
-			// interpreter), so they shadow built-ins for the whole module body.
-			g.declareUserName(statementName(v))
+		case *ast.FunctionDefine:
+			// Function names are hoisted (mirroring the interpreter), so
+			// they shadow built-ins for the whole module body.
+			g.declareUserName(v.Name)
 		}
 	}
 
@@ -246,16 +246,6 @@ func (g *generator) transpileModuleStatements(stmts []ast.Statement, onError err
 				return nil, err
 			}
 			funcAssigns = append(funcAssigns, jen.Id(v.Name).Op("=").Add(funcValue))
-		case *ast.TraitDefine:
-			// Traits and types are bound with the functions, in source order,
-			// as the interpreter binds them when it loads a module: a type's
-			// impls resolve the traits declared above it.
-			declare(v.Name)
-			codes, err := g.transpileTraitDefine(v, onError)
-			if err != nil {
-				return nil, err
-			}
-			funcAssigns = append(funcAssigns, codes...)
 		case *ast.TypeDefine:
 			codes, err := g.transpileTypeDefine(v, onError)
 			if err != nil {

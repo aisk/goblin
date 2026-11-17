@@ -1,17 +1,10 @@
-hello, Ada
-Dr. Lovelace
-Ada Lovelace
-BEEP unit 7
-HEY!
-["first", "last", "name"]
-<trait Named> true false
-BEEP unit 1
-Square(side=3) has area 9
-Circle(2) has area 12
-Int does not implement Named
-Word does not implement Named
-Named.greet() takes 1 positional arguments, got 2
-trait Ord has no method 'eq'
+2 1 2
+[1, 2, 3] [1, 2, 3, 9]
+["items", "get", "add"]
+<shown> <x>
+Square(side=2) has area 4 9
+true Square(side=3) true
+1
 Liar.show must return String, got Int true
 Liar.eq must return Bool, got String
 Pair(Hash=1, v=2) true

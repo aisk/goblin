@@ -93,7 +93,7 @@ func Run(historyFile string) error {
 // list in sync with the grammar.
 var keywords = []string{
 	"break", "catch", "continue", "defer", "else", "export", "false", "for",
-	"func", "if", "impl", "import", "in", "nil", "raise", "return", "trait",
+	"func", "if", "impl", "import", "in", "nil", "raise", "return",
 	"true", "try", "type", "var", "while",
 }
 

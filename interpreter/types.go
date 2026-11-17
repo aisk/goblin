@@ -19,12 +19,14 @@ type goblinType struct {
 	methods     map[string]*closure
 	attributes  []string
 	constructor *object.Function
-	// info carries the impls trait dispatch consults.
+	// info carries the impls protocol dispatch consults.
 	info *object.UserType
 }
 
-// defineType binds a user type's constructor in the module's globals. Each
-// impl block resolves its trait now, so the trait must already be defined.
+// defineType binds a user type's constructor in the module's globals. The
+// name after each impl is resolved by object.LookupProtocol, never in a
+// scope; the REPL does not run the semantic checker, so this is where it
+// reports an unknown protocol.
 func defineType(tp *typeProto, g *globals, f *frame) error {
 	def := tp.def
 	methods := make(map[string]*closure, len(def.Methods))
@@ -59,7 +61,7 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 	}
 	t.info = object.NewUserType(def.Name, t.params)
 	for i, block := range def.Impls {
-		trait, err := resolveTrait(block.Trait, "impl "+block.Trait.String(), g)
+		protocol, err := object.LookupProtocol(def.Name, block.Protocol)
 		if err != nil {
 			return err
 		}
@@ -71,7 +73,7 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 				Fn:    tp.impls[i][j].function(f),
 			}
 		}
-		t.info.Implement(trait, methods)
+		t.info.Implement(protocol, methods)
 	}
 	if err := t.info.Seal(); err != nil {
 		return err
@@ -83,47 +85,6 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 	t.info.Constructor = t.constructor
 	g.Define(def.Name, t.constructor)
 	return nil
-}
-
-// defineTrait binds a trait declaration's trait object. Default methods are
-// closures over the module frame taking self as their first argument.
-func defineTrait(tp *traitProto, g *globals, f *frame) error {
-	def := tp.def
-	deps := make([]*object.Trait, len(def.Deps))
-	for i, ref := range def.Deps {
-		dep, err := resolveTrait(ref, "trait "+def.Name, g)
-		if err != nil {
-			return err
-		}
-		deps[i] = dep
-	}
-	methods := make([]object.TraitMethod, len(def.Methods))
-	for i, m := range def.Methods {
-		methods[i] = object.TraitMethod{Name: m.Name, Arity: len(m.Parameters), Required: m.Body == nil}
-		if p := tp.defaults[i]; p != nil {
-			methods[i].Default = p.function(f)
-		}
-	}
-	g.Define(def.Name, object.NewTrait(def.Name, deps, methods))
-	return nil
-}
-
-// resolveTrait looks up the trait an impl block or dependency list names.
-// site says where the reference appears, for the messages.
-func resolveTrait(ref *ast.TraitRef, site string, g *globals) (*object.Trait, error) {
-	notDefined := object.NewNameError(object.ErrFmtTraitNotDefined, site, ref)
-	if ref.Module != "" {
-		module, err := g.resolve(ref.Module)
-		if err != nil {
-			return nil, notDefined
-		}
-		return object.ModuleTrait(module, ref.Name, site, ref.String())
-	}
-	value, err := g.resolve(ref.Name)
-	if err != nil {
-		return nil, notDefined
-	}
-	return object.AsTrait(value, site, ref.String())
 }
 
 // construct binds call arguments to fields through the shared

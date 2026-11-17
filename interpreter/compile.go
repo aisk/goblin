@@ -61,9 +61,8 @@ type compiler struct {
 	// statement whose stores are being compiled.
 	unpacked int
 
-	funcs  map[*ast.FunctionDefine]*funcProto
-	types  map[*ast.TypeDefine]*typeProto
-	traits map[*ast.TraitDefine]*traitProto
+	funcs map[*ast.FunctionDefine]*funcProto
+	types map[*ast.TypeDefine]*typeProto
 }
 
 func newCompiler(g *globals) *compiler {
@@ -75,7 +74,6 @@ func newCompiler(g *globals) *compiler {
 		scope:  &scope{fs: fs, global: true},
 		funcs:  make(map[*ast.FunctionDefine]*funcProto),
 		types:  make(map[*ast.TypeDefine]*typeProto),
-		traits: make(map[*ast.TraitDefine]*traitProto),
 	}
 }
 
@@ -463,12 +461,6 @@ func (c *compiler) statement(stmt ast.Statement) stmtFn {
 		// between belong to a different type.
 		if c.scope.global {
 			c.types[s] = c.typeDef(s)
-		}
-		return nil
-
-	case *ast.TraitDefine:
-		if c.scope.global {
-			c.traits[s] = c.traitDef(s)
 		}
 		return nil
 
@@ -1200,7 +1192,7 @@ func (c *compiler) unary(e *ast.UnaryOperation) exprFn {
 // --- capture analysis
 
 // stmtsHaveFunction reports whether a function literal or definition (types
-// and traits included, for their methods) appears anywhere in stmts, the only
+// included, for their methods) appears anywhere in stmts, the only
 // way a block's variables can outlive one entry of the block.
 func stmtsHaveFunction(stmts []ast.Statement) bool {
 	return ast.Any(stmts, false, ast.OpensScope)

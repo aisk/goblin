@@ -27,7 +27,7 @@ func (e *Error) Error() string {
 
 type symbol struct {
 	name string
-	// kind is "type" or "trait" for a declaration whose binding the
+	// kind is "type" for a declaration whose binding the
 	// program may not reassign, and empty otherwise.
 	kind string
 
@@ -87,18 +87,6 @@ type checker struct {
 	loopDepth    int
 	funcDepth    int
 
-	// traits holds the module's trait declarations checked so far, as trait
-	// values carrying only the method shapes, so impl blocks can be validated
-	// by the same object.CheckImpls the runtime uses. A trait is only visible
-	// to the declarations after it.
-	traits map[string]*object.Trait
-	// traitNames lists every trait the module declares, to tell a trait used
-	// before its declaration from a name that is no trait at all.
-	traitNames map[string]bool
-	// opaque marks traits whose shape is not fully known statically, because
-	// they depend on a trait from an imported module. Types implementing one
-	// are validated at runtime instead.
-	opaque  map[*object.Trait]bool
 	imports map[string]bool
 
 	// pending holds the static call and attribute checks, run once the
@@ -153,13 +141,10 @@ func isTranspilerScratchName(name string) bool {
 func CheckModule(mod *ast.Module) error {
 	c := &checker{
 		currentScope: newScope(nil),
-		traits:       make(map[string]*object.Trait),
-		traitNames:   make(map[string]bool),
-		opaque:       make(map[*object.Trait]bool),
 		imports:      make(map[string]bool),
 	}
 
-	// Module-level import, function, type, and trait names are hoisted: they are
+	// Module-level import, function and type names are hoisted: they are
 	// visible across the whole module regardless of definition order, so
 	// mutually recursive functions work. Calling a function before the
 	// statement defining it has executed is still a runtime error.
@@ -170,9 +155,6 @@ func CheckModule(mod *ast.Module) error {
 		case *ast.Import:
 			name, pos = v.Name, v.Position()
 			c.imports[v.Name] = true
-		case *ast.TraitDefine:
-			name, pos = v.Name, v.Position()
-			c.traitNames[v.Name] = true
 		case *ast.FunctionDefine:
 			name, pos = v.Name, v.Position()
 		case *ast.TypeDefine:
@@ -186,14 +168,12 @@ func CheckModule(mod *ast.Module) error {
 		if !c.currentScope.declare(name) {
 			return c.newError(pos, "duplicate declaration in same scope: %s", name)
 		}
-		// Types and traits are bound when the module loads, so reassigning
-		// one could not change what the impls and constructions see.
+		// Types are bound when the module loads, so reassigning one could
+		// not change what the constructions see.
 		sym := c.currentScope.symbols[name]
 		switch v := stmt.(type) {
 		case *ast.TypeDefine:
 			sym.kind, sym.typeDef = "type", v
-		case *ast.TraitDefine:
-			sym.kind = "trait"
 		case *ast.FunctionDefine:
 			sym.callable = functionSignature(v.Name, v.Parameters, 0)
 		}
@@ -283,11 +263,6 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 			}
 		}
 		return c.checkImpls(v)
-	case *ast.TraitDefine:
-		if !isModuleScope {
-			return c.newError(v.Position(), "trait is only allowed at module scope")
-		}
-		return c.checkTrait(v)
 	case *ast.Declare:
 		if err := c.checkExpression(v.Value); err != nil {
 			return err
@@ -461,11 +436,10 @@ func declaresSelf(method *ast.FunctionDefine) bool {
 	return self.Name == "self" && !self.VarArgs && !self.KwArgs && !self.HasDefault()
 }
 
-// checkMethod checks a method body, of a type or of a trait. Default
-// expressions are evaluated in the defining scope, where fields and self are
-// not visible; inside the body only the parameters are in scope, fields are
-// reached through self. self is the type whose instances the method runs on,
-// or nil for a trait's default method, which runs on any implementing type.
+// checkMethod checks a method body of type self, an ordinary method or one in
+// an impl block. Default expressions are evaluated in the defining scope,
+// where fields and self are not visible; inside the body only the parameters
+// are in scope, fields are reached through self.
 func (c *checker) checkMethod(method *ast.FunctionDefine, self *ast.TypeDefine) error {
 	if err := c.checkParameterDefaults(method.Parameters); err != nil {
 		return err
@@ -491,114 +465,40 @@ func (c *checker) checkMethod(method *ast.FunctionDefine, self *ast.TypeDefine) 
 	})
 }
 
-// checkTraitMethod checks what every trait method shares, in a trait
-// declaration or an impl block: self first, and a fixed parameter list.
-func (c *checker) checkTraitMethod(method *ast.FunctionDefine) error {
+// checkImplMethod checks what every method of an impl block shares: self
+// first, and a fixed parameter list.
+func (c *checker) checkImplMethod(method *ast.FunctionDefine) error {
 	if err := c.checkReservedName(method.Position(), method.Name); err != nil {
 		return err
 	}
 	if !declaresSelf(method) {
-		return c.newError(method.Position(), "trait method must declare 'self' as the first parameter")
+		return c.newError(method.Position(), "impl method must declare 'self' as the first parameter")
 	}
 	for _, param := range method.Parameters {
 		if param.VarArgs || param.KwArgs {
-			return c.newError(param.Pos, "trait method '%s' cannot use variadic or keyword parameters", method.Name)
+			return c.newError(param.Pos, "impl method '%s' cannot use variadic or keyword parameters", method.Name)
 		}
 		if param.HasDefault() {
-			return c.newError(param.Pos, "trait method '%s' cannot declare default parameter values", method.Name)
+			return c.newError(param.Pos, "impl method '%s' cannot declare default parameter values", method.Name)
 		}
 	}
 	return nil
 }
 
-// checkTrait validates a trait declaration and makes it visible to the
-// declarations that follow.
-func (c *checker) checkTrait(def *ast.TraitDefine) error {
-	opaque := false
-	deps := make([]*object.Trait, 0, len(def.Deps))
-	for _, ref := range def.Deps {
-		dep, known, err := c.resolveTrait(ref, "trait "+def.Name)
-		if err != nil {
-			return err
-		}
-		if !known || c.opaque[dep] {
-			opaque = true
-			continue
-		}
-		deps = append(deps, dep)
-	}
-
-	methods := make([]object.TraitMethod, 0, len(def.Methods))
-	seen := make(map[string]bool, len(def.Methods))
-	for _, method := range def.Methods {
-		if err := c.checkTraitMethod(method); err != nil {
-			return err
-		}
-		if seen[method.Name] {
-			return c.newError(method.Position(), "duplicate trait method name: %s", method.Name)
-		}
-		seen[method.Name] = true
-		if method.Body != nil {
-			if err := c.checkMethod(method, nil); err != nil {
-				return err
-			}
-		}
-		methods = append(methods, object.TraitMethod{
-			Name:     method.Name,
-			Arity:    len(method.Parameters),
-			Required: method.Body == nil,
-		})
-	}
-
-	trait := object.NewTrait(def.Name, deps, methods)
-	if opaque {
-		c.opaque[trait] = true
-	}
-	c.traits[def.Name] = trait
-	return nil
-}
-
-// resolveTrait finds the trait an impl block or a dependency list names. A
-// bare name is a trait declared earlier in the module or a built-in trait. A
-// module-qualified name must go through an import, but what it refers to is
-// only known at runtime: known is false then.
-// site says where the reference appears ("impl Shape", "trait Titled").
-func (c *checker) resolveTrait(ref *ast.TraitRef, site string) (trait *object.Trait, known bool, err error) {
-	if ref.Module != "" {
-		if !c.imports[ref.Module] || !c.currentScope.lookup(ref.Module) {
-			return nil, false, c.newError(ref.Pos, object.ErrFmtTraitNotDefined, site, ref)
-		}
-		return nil, false, nil
-	}
-	if trait, ok := c.traits[ref.Name]; ok && c.currentScope.lookup(ref.Name) {
-		return trait, true, nil
-	}
-	if c.traitNames[ref.Name] {
-		return nil, false, c.newError(ref.Pos, object.ErrFmtTraitNotDefined, site, ref)
-	}
-	if c.currentScope.lookup(ref.Name) {
-		return nil, false, c.newError(ref.Pos, object.ErrFmtNotATrait, site, ref)
-	}
-	if trait, ok := object.BuiltinTraits[ref.Name]; ok {
-		return trait, true, nil
-	}
-	return nil, false, c.newError(ref.Pos, object.ErrFmtTraitNotDefined, site, ref)
-}
-
-// checkImpls validates a type's impl blocks: their methods like any trait
-// method, and the impls as a whole with object.CheckImpls when every trait
-// involved is known statically.
+// checkImpls validates a type's impl blocks: each names a protocol, each
+// method is checked like any impl method, and the impls as a whole go
+// through the object.CheckImpls the runtime uses, so every impl is fully
+// checked before the program runs.
 func (c *checker) checkImpls(def *ast.TypeDefine) error {
 	specs := make([]object.ImplSpec, 0, len(def.Impls))
-	static := true
 	for _, block := range def.Impls {
-		trait, known, err := c.resolveTrait(block.Trait, "impl "+block.Trait.String())
+		protocol, err := object.LookupProtocol(def.Name, block.Protocol)
 		if err != nil {
-			return err
+			return c.newError(block.Pos, "%s", err.Error())
 		}
 		methods := make([]object.ImplMethod, len(block.Methods))
 		for i, method := range block.Methods {
-			if err := c.checkTraitMethod(method); err != nil {
+			if err := c.checkImplMethod(method); err != nil {
 				return err
 			}
 			if err := c.checkMethod(method, def); err != nil {
@@ -606,21 +506,14 @@ func (c *checker) checkImpls(def *ast.TypeDefine) error {
 			}
 			methods[i] = object.ImplMethod{Name: method.Name, Arity: len(method.Parameters)}
 		}
-		if !known || c.opaque[trait] {
-			static = false
-			continue
-		}
-		specs = append(specs, object.ImplSpec{Trait: trait, Methods: methods})
-	}
-	if !static {
-		return nil
+		specs = append(specs, object.ImplSpec{Trait: protocol, Methods: methods})
 	}
 	issue := object.CheckImpls(def.Name, specs)
 	if issue == nil {
 		return nil
 	}
 	block := def.Impls[issue.Impl]
-	pos := block.Trait.Pos
+	pos := block.Pos
 	if issue.Method >= 0 {
 		pos = block.Methods[issue.Method].Position()
 	}
@@ -629,7 +522,7 @@ func (c *checker) checkImpls(def *ast.TypeDefine) error {
 
 // hasEffect reports whether an expression may do something when evaluated on
 // its own, and so is allowed to stand as a statement. Calls run code, and
-// index and member access can run trait methods. Anything else, such
+// index and member access can run protocol methods. Anything else, such
 // as `a + b` or a lone literal, only computes a value, so as a statement it
 // is almost certainly a mistake: with newlines ending statements, a stray
 // `- 2` line is exactly this shape.

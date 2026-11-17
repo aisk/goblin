@@ -62,8 +62,8 @@ func (g *generator) collectDirectFns(stmts []ast.Statement) (fns, ctors map[stri
 					bindings[decl.Name] += 2
 				}
 			}
-		case *ast.TypeDefine, *ast.TraitDefine:
-			bindings[statementName(v)] += 2
+		case *ast.TypeDefine:
+			bindings[v.Name] += 2
 		case *ast.Import:
 			bindings[v.Name] += 2
 		}
@@ -223,13 +223,3 @@ func collectAssignTargets(stmts []ast.Statement, out map[string]struct{}) {
 	})
 }
 
-// statementName is the name a type or trait declaration binds.
-func statementName(stmt ast.Statement) string {
-	switch v := stmt.(type) {
-	case *ast.TypeDefine:
-		return v.Name
-	case *ast.TraitDefine:
-		return v.Name
-	}
-	return ""
-}

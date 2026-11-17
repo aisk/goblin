@@ -8,8 +8,6 @@ package ast
 //   - FunctionDefine and FunctionLiteral: parameter defaults, then the body
 //   - TypeDefine: field defaults, then every method (AllMethods) as a
 //     FunctionDefine node
-//   - TraitDefine: every method as a FunctionDefine node (a required method
-//     has no body)
 //   - CallExpression: the callee, then the argument expressions
 //   - TryCatch: the try body, then each clause's Kind and Body
 //
@@ -73,10 +71,6 @@ func Inspect(node Statement, f func(Statement) bool) {
 		for _, method := range n.AllMethods() {
 			Inspect(method, f)
 		}
-	case *TraitDefine:
-		for _, method := range n.Methods {
-			Inspect(method, f)
-		}
 	case *BinaryOperation:
 		Inspect(n.LHS, f)
 		Inspect(n.RHS, f)
@@ -134,7 +128,7 @@ func inspectParams(params []*Parameter, f func(Statement) bool) {
 
 // Any reports whether pred holds for some node under stmts, stopping at the
 // first match. With descend false, the bodies of nested functions, function
-// literals, types and traits are not entered (the nodes themselves are still
+// literals and types are not entered (the nodes themselves are still
 // tested).
 func Any(stmts []Statement, descend bool, pred func(Statement) bool) bool {
 	found := false
@@ -152,11 +146,10 @@ func Any(stmts []Statement, descend bool, pred func(Statement) bool) bool {
 }
 
 // OpensScope reports whether n introduces function bodies of its own: a
-// function definition, a function literal, a type (its methods) or a trait
-// (its default methods).
+// function definition, a function literal or a type (its methods).
 func OpensScope(n Statement) bool {
 	switch n.(type) {
-	case *FunctionDefine, *FunctionLiteral, *TypeDefine, *TraitDefine:
+	case *FunctionDefine, *FunctionLiteral, *TypeDefine:
 		return true
 	}
 	return false
@@ -165,7 +158,7 @@ func OpensScope(n Statement) bool {
 // WalkStatements calls f for every statement of one function body: the
 // statements of stmts and, recursively, of the blocks of if, while, for and
 // try statements and the stores of a destructuring statement. It does not look inside expressions and never enters the
-// body of a nested function, type or trait, which are scopes of their own.
+// body of a nested function or type, which are scopes of their own.
 func WalkStatements(stmts []Statement, f func(Statement)) {
 	for _, stmt := range stmts {
 		if stmt == nil {

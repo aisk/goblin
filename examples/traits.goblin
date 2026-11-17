@@ -1,118 +1,53 @@
 import "./modules/shapes"
 
-# A trait bundles methods. One without a body is required, one with a body is
-# a default. A dependency list names traits an implementing type must also
-# implement.
-trait Named {
-    func name(self)
-    func greet(self) {
-        return "hello, " + Named.name(self)
-    }
-}
-
-trait Titled: Named {
-    func title(self)
-}
-
-type Person(first, last) {
-    impl Named {
-        func name(self) {
-            return self.first
+# impl connects a type to the language's syntax; everything else is an
+# ordinary method.
+type Stack(items) {
+    impl Index {
+        func get(self, i) {
+            return self.items[self.items.size - 1 - i]
         }
     }
-    impl Titled {
-        func title(self) {
-            return "Dr. " + self.last
+    impl Add {
+        func add(self, other) {
+            return Stack(self.items + other.items)
         }
     }
-    # An ordinary method may share a trait method's name: trait methods are
-    # never attributes of the instance.
-    func name(self) {
-        return self.first + " " + self.last
+    # An ordinary method may share a protocol method's name: protocol
+    # methods are never attributes of the instance.
+    func get(self) {
+        return self.items[-1]
+    }
+    func add(self, item) {
+        self.items.push(item)
+        return self
     }
 }
 
-var ada = Person("Ada", "Lovelace")
-print(Named.greet(ada))
-print(Titled.title(ada))
-print(ada.name())
+var s = Stack([1, 2])
+print(s[0], s[1], s.get())
+print(s.add(3).items, (s + Stack([9])).items)
+print(attributes(s))
 
-# Implementations override defaults.
-type Robot(id) {
-    impl Named {
-        func name(self) {
-            return "unit {self.id}"
-        }
-        func greet(self) {
-            return "BEEP " + Named.name(self)
-        }
-    }
-}
-print(Named.greet(Robot(7)))
-
-# A trait with only defaults is a mixin: an empty impl is enough.
-trait Loud {
-    func shout(self) {
-        return "{self}".upper() + "!"
-    }
-}
-type Word(text) {
+# A user type may be called like a protocol; impl Show still means the
+# protocol, because the name after impl is never looked up.
+type Show(text) {
     impl Show {
         func show(self) {
-            return self.text
-        }
-    }
-    impl Loud {}
-}
-print(Loud.shout(Word("hey")))
-
-print(attributes(ada))
-print(Named, Named == Named, Named == Titled)
-
-# Trait objects are values, and so are their methods.
-var greeters = [Named.greet, Named.name]
-print(greeters[0](Robot(1)))
-
-# A trait imported from another module.
-var sq = shapes.Square(3)
-print(shapes.Shape.describe(sq))
-
-type Circle(r) {
-    impl Show {
-        func show(self) {
-            return "Circle({self.r})"
-        }
-    }
-    impl shapes.Shape {
-        func area(self) {
-            return 3 * self.r * self.r
+            return "<{self.text}>"
         }
     }
 }
-print(shapes.Shape.describe(Circle(2)))
+var shown = Show("x")
+print(Show("shown"), "{shown}")
 
-# Calling a trait method on a value without an impl, or with the wrong number
-# of arguments, is a TypeError.
-try {
-    print(Named.name(5))
-} catch e {
-    print(e)
-}
-try {
-    print(Named.name(Word("w")))
-} catch e {
-    print(e)
-}
-try {
-    print(Named.greet(ada, 1))
-} catch e {
-    print(e)
-}
-try {
-    print(Ord.eq)
-} catch e {
-    print(e)
-}
+# Types from another module keep their impls.
+var small = shapes.Square(2)
+var big = shapes.Square(3)
+print(small.describe(), big.area())
+print(small < big, max(big, small), small == shapes.Square(2))
+var counts = {small: 1}
+print(counts[shapes.Square(2)])
 
 # Methods backing operators must return the right type.
 type Liar() {
@@ -138,8 +73,8 @@ try {
     print(e)
 }
 
-# Types and traits are bound when the module loads, so a function can build a
-# value before the type statement is reached.
+# Types are bound when the module loads, so a function can build a value
+# before the type statement is reached.
 func early() {
     return Pair(1, 2)
 }

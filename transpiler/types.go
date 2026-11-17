@@ -3,7 +3,6 @@ package transpiler
 import (
 	"github.com/aisk/goblin/ast"
 	"github.com/aisk/goblin/object"
-	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
 )
 
@@ -23,8 +22,8 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 
 	g.topDecls = append(g.topDecls, jen.Type().Id(goTypeName).Struct(structFields...))
 
-	// typeVar holds the type's object.UserType: its impls, built when the type
-	// statement runs, since the traits they name are runtime values.
+	// typeVar holds the type's object.UserType: its impls, registered when
+	// the type statement runs.
 	typeVar := g.localName("type_" + typeDef.Name)
 	g.topDecls = append(g.topDecls, jen.Var().Id(typeVar).Op("*").Qual(pathObject, "UserType"))
 
@@ -46,7 +45,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	}
 	method("FieldValues", nil, jen.Index().Add(obj()), jen.Return(jen.Index().Add(obj()).Values(fieldValues...)))
 
-	// A binary operator whose arithmetic trait this type implements calls the
+	// A binary operator whose arithmetic protocol this type implements calls the
 	// forward method's wrapper directly, skipping the impl lookup and the
 	// argument slice the generic dispatch allocates. Every other operator is
 	// the embedded UserBase's.
@@ -56,14 +55,20 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			implWrappers[m] = g.localName("impl_" + m.Name)
 		}
 	}
-	// forward maps each implemented built-in trait to the wrapper of its first
-	// method; for the arithmetic traits that is the forward operator.
+	// forward maps each implemented protocol to the wrapper of its first
+	// method; for the arithmetic protocols that is the forward operator.
 	forward := map[*object.Trait]string{}
-	for _, block := range typeDef.Impls {
-		trait := g.builtinTrait(block.Trait)
+	protocols := make([]*object.Trait, len(typeDef.Impls))
+	for i, block := range typeDef.Impls {
+		protocol, err := object.LookupProtocol(typeDef.Name, block.Protocol)
+		if err != nil {
+			// The semantic checker reports this before the transpiler runs.
+			return nil, err
+		}
+		protocols[i] = protocol
 		for _, m := range block.Methods {
-			if trait != nil && m.Name == trait.Methods[0].Name {
-				forward[trait] = implWrappers[m]
+			if m.Name == protocol.Methods[0].Name {
+				forward[protocol] = implWrappers[m]
 			}
 		}
 	}
@@ -280,8 +285,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		)
 	}
 
-	// The impls are registered when the type statement runs: a trait is a
-	// runtime value, and an impl may name one from an imported module.
+	// The impls are registered when the type statement runs.
 	fieldNameLits := make([]jen.Code, 0, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
 		fieldNameLits = append(fieldNameLits, jen.Lit(field.Name))
@@ -289,12 +293,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	registration := []jen.Code{
 		jen.Id(typeVar).Op("=").Qual(pathObject, "NewUserType").Call(jen.Lit(typeDef.Name), jen.Index().String().Values(fieldNameLits...)),
 	}
-	for _, block := range typeDef.Impls {
-		pre, trait, err := g.transpileTraitRef(block.Trait, "impl "+block.Trait.String(), onError)
-		if err != nil {
-			return nil, err
-		}
-		registration = append(registration, pre...)
+	for i, block := range typeDef.Impls {
 		methods := make([]jen.Code, 0, len(block.Methods))
 		for _, method := range block.Methods {
 			argsName := g.localName("implArgs")
@@ -313,7 +312,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			}))
 		}
 		registration = append(registration,
-			jen.Id(typeVar).Dot("Implement").Call(trait, jen.Index().Qual(pathObject, "ImplMethod").Values(methods...)),
+			jen.Id(typeVar).Dot("Implement").Call(jen.Qual(pathObject, protocols[i].Name+"Trait"), jen.Index().Qual(pathObject, "ImplMethod").Values(methods...)),
 		)
 	}
 	sealErr := g.localName("err")
@@ -454,87 +453,3 @@ func fieldGoName(name string) string {
 	return "f_" + name
 }
 
-// builtinTrait reports the built-in trait a reference statically names: a bare
-// built-in trait name that no module-level declaration or import shadows at
-// this point. It returns nil for anything else.
-func (g *generator) builtinTrait(ref *ast.TraitRef) *object.Trait {
-	if ref.Module != "" || g.isUserName(ref.Name) {
-		return nil
-	}
-	if _, bound := g.moduleBinding(ref.Name); bound {
-		return nil
-	}
-	return object.BuiltinTraits[ref.Name]
-}
-
-// transpileTraitRef evaluates the trait an impl block or a dependency list
-// names to a *object.Trait expression.
-// site says where the reference appears, for the runtime messages.
-func (g *generator) transpileTraitRef(ref *ast.TraitRef, site string, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	if trait := g.builtinTrait(ref); trait != nil {
-		return nil, jen.Qual(pathObject, trait.Name+"Trait"), nil
-	}
-	name := ref.Name
-	if ref.Module != "" {
-		name = ref.Module
-	}
-	ident, err := ast.NewIdentifier(&token.Token{Lit: []byte(name), Pos: ref.Pos})
-	if err != nil {
-		return nil, nil, err
-	}
-	pre, value, err := g.transpileExpression(ident.(*ast.Identifier), onError)
-	if err != nil {
-		return nil, nil, err
-	}
-	traitVar := g.localName("trait")
-	errVar := g.localName("err")
-	var call *jen.Statement
-	if ref.Module != "" {
-		call = jen.Qual(pathObject, "ModuleTrait").Call(value, jen.Lit(ref.Name), jen.Lit(site), jen.Lit(ref.String()))
-	} else {
-		call = jen.Qual(pathObject, "AsTrait").Call(value, jen.Lit(site), jen.Lit(ref.String()))
-	}
-	pre = append(pre,
-		jen.List(jen.Id(traitVar), jen.Id(errVar)).Op(":=").Add(call),
-		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-	)
-	return pre, jen.Id(traitVar), nil
-}
-
-// transpileTraitDefine emits the assignment of a trait declaration's trait
-// object. Default methods compile to function values taking self first, like
-// the interpreter's closures.
-func (g *generator) transpileTraitDefine(def *ast.TraitDefine, onError errHandler) ([]jen.Code, error) {
-	var pre []jen.Code
-	deps := make([]jen.Code, 0, len(def.Deps))
-	for _, ref := range def.Deps {
-		depPre, dep, err := g.transpileTraitRef(ref, "trait "+def.Name, onError)
-		if err != nil {
-			return nil, err
-		}
-		pre = append(pre, depPre...)
-		deps = append(deps, dep)
-	}
-	methods := make([]jen.Code, 0, len(def.Methods))
-	for _, method := range def.Methods {
-		fields := jen.Dict{
-			jen.Id("Name"):  jen.Lit(method.Name),
-			jen.Id("Arity"): jen.Lit(len(method.Parameters)),
-		}
-		if method.Body == nil {
-			fields[jen.Id("Required")] = jen.True()
-		} else {
-			fn, err := g.buildFunctionValue(def.Name+"."+method.Name, method.Position(), method.Parameters, method.Body)
-			if err != nil {
-				return nil, err
-			}
-			fields[jen.Id("Default")] = fn
-		}
-		methods = append(methods, jen.Values(fields))
-	}
-	return append(pre, jen.Id(def.Name).Op("=").Qual(pathObject, "NewTrait").Call(
-		jen.Lit(def.Name),
-		jen.Index().Op("*").Qual(pathObject, "Trait").Values(deps...),
-		jen.Index().Qual(pathObject, "TraitMethod").Values(methods...),
-	)), nil
-}

@@ -1,69 +1,40 @@
-# Runnable version of the examples in the Traits chapter.
-trait Shape {
-    func area(self)
-    func describe(self) {
-        return "area " + String(Shape.area(self))
+# Runnable version of the examples in the Protocols chapter.
+type Money(amount) {
+    impl Eq {}
+    impl Ord {
+        func compare(self, other) {
+            return self.amount - other.amount
+        }
+    }
+    impl Show {
+        func show(self) {
+            return "${self.amount}"
+        }
+    }
+    func to_json(self) {
+        return self.amount
     }
 }
 
+var prices = [Money(5), Money(2), Money(9)]
+print(prices.sort())
+print(Money(2) < Money(5), max(prices), compare(Money(1), Money(3)))
+print(Money(5) == Money(5), Money(5) != Money(6))
+
 type Rect(w, h) {
     impl Eq {}
+    impl Hashable {}
     impl Show {}
-    impl Shape {
-        func area(self) {
-            return self.w * self.h
-        }
+
+    func area(self) {
+        return self.w * self.h
     }
 }
 
 var r = Rect(2, 3)
-print(r)
-print(r == Rect(2, 3))
-print(Shape.describe(r))
-print(Shape.area(r))
-print(3 < 7)
-
-trait Named {
-    func name(self)
-}
-
-trait Titled: Named, Show {
-    func title(self)
-}
-
-trait Loud {
-    func shout(self) {
-        return String(self).upper() + "!"
-    }
-}
-
-type Word(text) {
-    impl Show {
-        func show(self) {
-            return self.text
-        }
-    }
-    impl Loud {}
-}
-print(Loud.shout(Word("hey")))
-
-type Money(amount) {
-    impl Eq {
-        func eq(self, other) {
-            return compare(self, other) == 0
-        }
-    }
-    impl Ord {
-        func compare(self, other) {
-            return self.amount - other
-        }
-    }
-}
-
-var m = Money(5)
-print(m < 10)
-print(10 > m)
-print(m == 5)
+print(r, r == Rect(2, 3), r.area())
+var seen = {r: "first"}
+print(seen[Rect(2, 3)], hash(r) == hash(Rect(2, 3)))
 
 type Vector(x, y) {
     impl Add {
@@ -93,7 +64,34 @@ type Vector(x, y) {
 }
 
 var v = Vector(1, 2)
-print(v - Vector(1, 1))
-print(2 * v)
-print(-v)
-print("a" != "b", 10 - 1)
+print(v - Vector(1, 1), 2 * v, v * 3, -v)
+
+type Playlist(songs) {
+    impl Truth {
+        func truth(self) {
+            return self.songs.size > 0
+        }
+    }
+    impl Iter {
+        func iter(self) {
+            return self.songs
+        }
+    }
+    impl Index {
+        func get(self, i) {
+            return self.songs[i]
+        }
+        func set(self, i, song) {
+            self.songs[i] = song
+        }
+    }
+}
+
+var list = Playlist(["intro", "theme"])
+if list {
+    for song in list {
+        print(song)
+    }
+}
+list[0] = "overture"
+print(list[0], List(list), Bool(Playlist([])))

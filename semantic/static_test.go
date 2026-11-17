@@ -54,7 +54,6 @@ func TestStaticCallAndAttributeChecks(t *testing.T) {
 		{"self captured by a closure", "type P(x) {\n  func f(self) {\n    return func() { return self.z }\n  }\n}\n", "3:33: semantic error: P has no attribute 'z'"},
 		{"no built-in attributes", "type P(x) {\n  func f(self) {\n    return self.constructor\n  }\n}\n", "3:17: semantic error: P has no attribute 'constructor'"},
 		{"reassigned self", "type P(x) {\n  func f(self) {\n    self = 1\n    return self.z\n  }\n}\n", ""},
-		{"self of a trait default method", "trait T {\n  func f(self) {\n    return self.z\n  }\n}\n", ""},
 		{"another parameter named like a field holder", "type P(x) {\n  func f(self, other) {\n    return other.z\n  }\n}\n", ""},
 		{"attribute of a construction", point + "print(P(1).z)\n", "6:12: semantic error: P has no attribute 'z'"},
 		{"attribute of a variable holding a construction", point + "var p = P(1)\nprint(p.x, p.y)\nprint(p.z)\n", "8:9: semantic error: P has no attribute 'z'"},

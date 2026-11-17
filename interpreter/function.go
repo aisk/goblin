@@ -13,7 +13,7 @@ import (
 type funcProto struct {
 	// name is used for repr-free diagnostics: binding errors and traceback
 	// frames. fnName is the name of the object.Function handed out: a bound
-	// method is "Type.method", an impl or trait method the bare name.
+	// method is "Type.method", an impl method the bare name.
 	name   string
 	fnName string
 	pos    token.Pos
@@ -216,28 +216,10 @@ func (c *compiler) typeDef(def *ast.TypeDefine) *typeProto {
 	return tp
 }
 
-// traitProto is a compiled trait declaration; defaults holds a prototype for
-// each method with a body and nil for a required one.
-type traitProto struct {
-	def      *ast.TraitDefine
-	defaults []*funcProto
-}
-
-func (c *compiler) traitDef(def *ast.TraitDefine) *traitProto {
-	tp := &traitProto{def: def, defaults: make([]*funcProto, len(def.Methods))}
-	for i, m := range def.Methods {
-		if m.Body != nil {
-			tp.defaults[i] = c.function(def.Name+"."+m.Name, m.Name, m.Position(), m.Parameters, m.Body, false)
-		}
-	}
-	return tp
-}
-
-// load resolves imports and hoists function, type and trait definitions of a
+// load resolves imports and hoists function and type definitions of a
 // compiled module body into its globals, so references resolve regardless of
-// source order. Types and traits are bound here once, in source order, so a
-// type's impls resolve the traits declared above it. argv is the script
-// command line closed over by import "os".
+// source order. Types are bound here once, in source order. argv is the
+// script command line closed over by import "os".
 func (c *compiler) load(mod *ast.Module, f *frame, baseDir string, reg *object.Registry, argv []string) error {
 	for _, stmt := range mod.Body {
 		if imp, ok := stmt.(*ast.Import); ok {
@@ -254,10 +236,6 @@ func (c *compiler) load(mod *ast.Module, f *frame, baseDir string, reg *object.R
 			c.g.Define(s.Name, c.funcs[s].function(f))
 		case *ast.TypeDefine:
 			if err := defineType(c.types[s], c.g, f); err != nil {
-				return positionError(err, s.Position())
-			}
-		case *ast.TraitDefine:
-			if err := defineTrait(c.traits[s], c.g, f); err != nil {
 				return positionError(err, s.Position())
 			}
 		}

@@ -196,7 +196,7 @@ func IsPathImport(path string) bool {
 	return strings.HasPrefix(path, "./") || strings.HasPrefix(path, "../")
 }
 
-// --- functions, types and traits
+// --- functions and types
 
 // Parameter is one function parameter. At most one of VarArgs (`*name`) and
 // KwArgs (`**name`) is set.
@@ -210,9 +210,8 @@ type Parameter struct {
 
 func (p *Parameter) HasDefault() bool { return p.Default != nil }
 
-// FunctionDefine is a named function, a type method, or a trait method. A
-// trait's required method has a nil Body; every other body ends with an
-// implicit `return nil`.
+// FunctionDefine is a named function, a type method, or a protocol method in
+// an impl block. Every body ends with an implicit `return nil`.
 type FunctionDefine struct {
 	statementMixin
 	Name       string
@@ -258,35 +257,12 @@ func (t *TypeDefine) AllMethods() []*FunctionDefine {
 	return all
 }
 
-// TraitRef names a trait in an impl block or a dependency list, either bare
-// (`Eq`) or qualified by an imported module (`shapes.Shape`).
-type TraitRef struct {
-	Module string
-	Name   string
-	Pos    token.Pos
-}
-
-// String spells the reference the way the source did.
-func (r *TraitRef) String() string {
-	if r.Module == "" {
-		return r.Name
-	}
-	return r.Module + "." + r.Name
-}
-
-// ImplBlock is one type's implementation of one trait.
+// ImplBlock is one type's implementation of one language protocol. Protocol
+// is the name written after impl, which is never looked up in a scope.
 type ImplBlock struct {
-	Trait   *TraitRef
-	Methods []*FunctionDefine
-}
-
-// TraitDefine declares a trait. A method with a nil Body is required; one
-// with a body is a default.
-type TraitDefine struct {
-	statementMixin
-	Name    string
-	Deps    []*TraitRef
-	Methods []*FunctionDefine
+	Protocol string
+	Pos      token.Pos
+	Methods  []*FunctionDefine
 }
 
 // --- expressions

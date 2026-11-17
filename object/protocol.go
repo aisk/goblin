@@ -3,6 +3,7 @@ package object
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Diagnostics raised by operator and trait dispatch. Both backends format them
@@ -106,4 +107,20 @@ func (inert[N]) Index(Object) (Object, error)    { return nil, inertError[N](Err
 func isUnsupported(err error, recv Object) bool {
 	var u unsupported
 	return errors.As(err, &u) && u.typeName == recv.TypeName()
+}
+
+// protocolNames lists the language protocols in the order messages give them.
+var protocolNames = []string{"Eq", "Ord", "Hashable", "Show", "Truth", "Add", "Sub", "Mul", "Div", "Mod", "Neg", "Iter", "Index"}
+
+// LookupProtocol resolves the name written after `impl` in the definition of
+// typeName. The name is never looked up in a scope: a program may declare its
+// own Show, and `impl Show` still means the protocol. The semantic checker and
+// both backends call it, so the REPL, which skips the checker, reports the
+// same message.
+func LookupProtocol(typeName, name string) (*Trait, error) {
+	if p, ok := BuiltinTraits[name]; ok {
+		return p, nil
+	}
+	return nil, NewTypeError("impl %s for %s: %s is not a protocol (protocols: %s); other methods go directly in the type body",
+		name, typeName, name, strings.Join(protocolNames, ", "))
 }

@@ -98,11 +98,6 @@ func AppendTypeMethodList(l, x any) (any, error) {
 func NewTypeMemberList(x any) (any, error)       { return []any{x}, nil }
 func AppendTypeMemberList(l, x any) (any, error) { return append(l.([]any), x), nil }
 
-func NewTraitRefList(x any) (any, error) { return []*TraitRef{x.(*TraitRef)}, nil }
-func AppendTraitRefList(l, x any) (any, error) {
-	return append(l.([]*TraitRef), x.(*TraitRef)), nil
-}
-
 // --- module and statements
 
 func NewModule(x any) (any, error) {
@@ -281,7 +276,7 @@ func NewImport(x any) (any, error) {
 	return &Import{statementMixin: stmtAt(tokenOf(x).Pos), Name: name, Path: path}, nil
 }
 
-// --- functions, types and traits
+// --- functions and types
 
 func NewRequiredParameter(x any) (any, error) {
 	return &Parameter{Name: lit(x), Pos: tokenOf(x).Pos}, nil
@@ -341,36 +336,8 @@ func NewTypeDefine(name, fields, members any) (any, error) {
 	return def, nil
 }
 
-// NewTraitRef builds a trait reference; module is nil for a bare name.
-func NewTraitRef(module, name any) (any, error) {
-	ref := &TraitRef{Name: lit(name), Pos: tokenOf(name).Pos}
-	if module != nil {
-		ref.Module = lit(module)
-		ref.Pos = tokenOf(module).Pos
-	}
-	return ref, nil
-}
-
-func NewImplBlock(trait, methods any) (any, error) {
-	return &ImplBlock{Trait: trait.(*TraitRef), Methods: listOf[*FunctionDefine](methods)}, nil
-}
-
-func NewTraitDefine(name, deps, methods any) (any, error) {
-	return &TraitDefine{
-		statementMixin: stmtAt(tokenOf(name).Pos),
-		Name:           lit(name),
-		Deps:           listOf[*TraitRef](deps),
-		Methods:        listOf[*FunctionDefine](methods),
-	}, nil
-}
-
-// NewRequiredMethod builds a body-less trait method declaration.
-func NewRequiredMethod(name, params any) (any, error) {
-	return &FunctionDefine{
-		statementMixin: stmtAt(tokenOf(name).Pos),
-		Name:           lit(name),
-		Parameters:     listOf[*Parameter](params),
-	}, nil
+func NewImplBlock(name, methods any) (any, error) {
+	return &ImplBlock{Protocol: lit(name), Pos: tokenOf(name).Pos, Methods: listOf[*FunctionDefine](methods)}, nil
 }
 
 // --- expressions

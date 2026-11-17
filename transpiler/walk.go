@@ -4,9 +4,9 @@ import "github.com/aisk/goblin/ast"
 
 // walkNodes visits every statement and expression node under stmts in
 // pre-order. With nested set it descends into the bodies of function
-// definitions, function literals, type methods and trait default methods;
-// otherwise it visits those nodes but stays out of their bodies. The method
-// nodes of a type or trait are not visited themselves, only their bodies.
+// definitions, function literals and type methods; otherwise it visits those
+// nodes but stays out of their bodies. The method nodes of a type are not
+// visited themselves, only their bodies.
 // Parameter and field defaults are never entered: they belong to the
 // enclosing scope and callers handle them explicitly. The callee identifier
 // of a call through a plain name is not visited on its own, since the call
@@ -34,9 +34,6 @@ func walkNodes(stmts []ast.Statement, nested bool, visit func(node ast.Statement
 			return false
 		case *ast.TypeDefine:
 			bodies(n.AllMethods())
-			return false
-		case *ast.TraitDefine:
-			bodies(n.Methods)
 			return false
 		case *ast.CallExpression:
 			if _, plain := n.CalleeName(); plain {
