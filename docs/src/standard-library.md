@@ -26,6 +26,7 @@ needed.
 | [json](./module-json.md) | JSON text to values and back | encode(), decode() |
 | [fs](./module-fs.md) | Files, directories and path names | read(), write(), Path() |
 | [os](./module-os.md) | Arguments, environment, standard streams, exit | args, env, stdin, exit() |
+| [cli](./module-cli.md) | Command-line arguments, options, help and usage errors | parse(), Option(), Flag(), Command() |
 | [exec](./module-exec.md) | Run other programs | run(), capture(), start() |
 | [time](./module-time.md) | Instants, the clock, time zones, sleeping | now(), parse(), Time(), sleep() |
 | [rand](./module-rand.md) | Random choices, secure bytes and ids, reproducible on request | choice(), int(), bytes(), uuid(), Rand() |

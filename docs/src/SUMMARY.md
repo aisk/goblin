@@ -33,6 +33,7 @@
 - [json](./module-json.md)
 - [fs](./module-fs.md)
 - [os](./module-os.md)
+- [cli](./module-cli.md)
 - [exec](./module-exec.md)
 - [time](./module-time.md)
 - [rand](./module-rand.md)

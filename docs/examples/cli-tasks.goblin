@@ -1,0 +1,99 @@
+# The common tasks of the cli chapter, checking their own results. Run with
+# the arguments: in.txt out.txt --verbose
+import "cli"
+import "os"
+import "time"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+# Two arguments and a flag
+var args = cli.parse("source", "target", verbose=false)
+if args.verbose {
+    print("copying {args.source} to {args.target}")
+}
+expect([args.source, args.target, args.verbose], ["in.txt", "out.txt", true])
+
+# Options with values: the default says what the option holds
+var fetch = cli.parse(
+    "url",
+    count   = 3,
+    timeout = 2.5,
+    output  = "out.txt",
+    token   = nil,
+    include = [],
+    dry_run = false,
+    argv    = ["https://example.com", "--count=5", "--timeout", "10", "--include", "a", "--include", "b", "--dry-run"],
+)
+expect([fetch.url, fetch.count, fetch.timeout, fetch.output, fetch.token, fetch.include, fetch.dry_run],
+    ["https://example.com", 5, 10.0, "out.txt", nil, ["a", "b"], true])
+
+# Saying more: help text, a short letter, required, choices, a converter
+var resize = cli.parse(
+    cli.Arg("files", "images to resize", many=true),
+    width   = cli.Option("target width in pixels", short="w", default=800),
+    format  = cli.Option(choices=["png", "jpg"], default="png"),
+    output  = cli.Option("directory to write to", short="o", required=true),
+    since   = cli.Option("only files newer than this date", convert=time.parse),
+    verbose = cli.Flag("say what is being done", short="v", many=true),
+    help    = "Resize images into a directory.",
+    argv    = ["a.png", "b.png", "-o", "small", "-w", "640", "--since", "2026-01-01", "-vv"],
+)
+for file in resize.files {
+    expect(file.has_suffix(".png"), true)
+}
+expect([resize.width, resize.format, resize.output, resize.since.year, resize.verbose], [640, "png", "small", 2026, 2])
+
+# An optional argument, and any number of them
+var grep = cli.parse("pattern", cli.Arg("paths", default=["."], many=true), argv=["TODO"])
+expect(grep.paths, ["."])
+
+# A default from the environment: ordinary code, the default is just a value
+var server = cli.parse(port = Int(os.env.get("PORT", default="8080")), argv=["--port", "9000"])
+expect(server.port, 9000)
+
+# Subcommands: tool build --release, tool test parser -v
+func build(release) {
+    return "build release={release}"
+}
+func test(name) {
+    return "test {name}"
+}
+func tool(argv) {
+    var args = cli.parse(
+        build   = cli.Command(release=false, help="Compile the project"),
+        test    = cli.Command(cli.Arg("name", default=nil), help="Run the tests"),
+        verbose = cli.Flag(short="v"),
+        help    = "Project tool.",
+        argv    = argv,
+    )
+    if args.command == "build" {
+        return build(release=args.release)
+    } else {
+        return test(args.name)
+    }
+}
+expect(tool(["build", "--release"]), "build release=true")
+expect(tool(["test", "parser", "-v"]), "test parser")
+
+# Your own check after parsing: same look, same status
+if resize.width <= 0 {
+    eprint("error: --width must be positive")
+    os.exit(2)
+}
+
+# Testing: give a List and nothing is printed and nothing exits
+func parse(argv=nil) {
+    return cli.parse("source", "target", verbose=false, argv=argv)
+}
+expect(parse().source, "in.txt")
+expect(parse(["a", "b", "--verbose"]).verbose, true)
+try {
+    parse(["a"])
+    raise Error("no UsageError")
+} catch e: cli.UsageError {
+    expect(e.message, "missing argument <target>")
+}

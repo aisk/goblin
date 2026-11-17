@@ -10,6 +10,7 @@ import (
 	"sort"
 
 	base64Ext "github.com/aisk/goblin/extension/base64"
+	cliExt "github.com/aisk/goblin/extension/cli"
 	csvExt "github.com/aisk/goblin/extension/csv"
 	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
@@ -28,6 +29,7 @@ import (
 
 var modules = map[string]object.ModuleExecutor{
 	"base64": base64Ext.Execute,
+	"cli":    cliExt.Execute,
 	"csv":    csvExt.Execute,
 	"exec":   execExt.Execute,
 	"fs":     fs.Execute,
@@ -41,6 +43,23 @@ var modules = map[string]object.ModuleExecutor{
 	"regex":  regexExt.Execute,
 	"time":   timeExt.Execute,
 	"url":    urlExt.Execute,
+}
+
+// withArgs lists the modules that read the program's command line (the
+// program name and its arguments). Their Execute reads the process's own,
+// which is right for a compiled program; the interpreter builds them with
+// the script's command line instead, through LookupWithArgs.
+var withArgs = map[string]func(argv []string) (object.Object, error){
+	"cli": cliExt.ExecuteWithFrozenArgs,
+	"os":  osExt.ExecuteWithFrozenArgs,
+}
+
+// LookupWithArgs returns the constructor of a stdlib module that reads the
+// command line, building it from a given argv (the script path followed by
+// its arguments).
+func LookupWithArgs(name string) (func(argv []string) (object.Object, error), bool) {
+	fn, ok := withArgs[name]
+	return fn, ok
 }
 
 // Lookup returns the executor of a stdlib module.

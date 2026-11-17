@@ -1,0 +1,7 @@
+# Run with real arguments by cli_process_test.go: parse reads the command
+# line, prints help and exits 0, or reports a usage error and exits 2.
+import "cli"
+
+defer print("deferred")
+var args = cli.parse("source", "target", verbose=cli.Flag("say more", short="v"), help="Copy a file.")
+print(args)

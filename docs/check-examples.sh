@@ -17,6 +17,7 @@ run_with_input() {
     printf '%b' "$input" | go run "$repo_dir" run "$file" "$@" >/dev/null
 }
 
+run_with_input '' "$repo_dir/docs/examples/cli-tasks.goblin" in.txt out.txt --verbose
 run_example "$repo_dir/docs/examples/collections-callbacks.goblin"
 run_example "$repo_dir/docs/examples/concurrency.goblin"
 run_example "$repo_dir/docs/examples/concurrency-results.goblin"

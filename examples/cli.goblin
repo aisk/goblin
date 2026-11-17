@@ -1,0 +1,235 @@
+import "cli"
+import "os"
+
+# Every parse here is given argv=, so nothing exits: a bad command line
+# raises cli.UsageError and --help raises cli.HelpRequested.
+
+# The program name is the script's under goblin run and the executable's
+# when compiled; show it as "tool" so both print the same.
+var program = os.program.split("/")[-1]
+func named(text) {
+    return text.replace("usage: {program} ", "usage: tool ")
+}
+
+# A call cannot expand both a List and a Dict, so the positionals are
+# passed one by one.
+func parse_with(params, options) {
+    if params.size == 0 {
+        return cli.parse(**options)
+    } else if params.size == 1 {
+        return cli.parse(params[0], **options)
+    } else if params.size == 2 {
+        return cli.parse(params[0], params[1], **options)
+    }
+    return cli.parse(params[0], params[1], params[2], **options)
+}
+
+func attempt(argv, *params, **options) {
+    options["argv"] = argv
+    try {
+        print(parse_with(params, options))
+    } catch e: cli.UsageError {
+        print("UsageError: {e.message} | {named(e.usage)}")
+    } catch e: cli.HelpRequested {
+        print(named(e.message))
+        print("--")
+    }
+}
+
+func declaration(make) {
+    try {
+        make()
+    } catch e: TypeError {
+        print("TypeError: {e.message}")
+    } catch e: ValueError {
+        print("ValueError: {e.message}")
+    }
+}
+
+# The shorthands: the default says what an option holds
+var args = cli.parse(
+    "url",
+    count   = 3,
+    timeout = 2.5,
+    output  = "out.txt",
+    token   = nil,
+    include = [],
+    dry_run = false,
+    argv    = ["http://x"],
+)
+print(args)
+print(args.url, args.count, args.timeout, args.output, args.token, args.include, args.dry_run)
+print(attributes(args), type_of(args) == cli.Args)
+var given = cli.parse("url", count=3, timeout=2.5, output="out.txt", token=nil, include=[], dry_run=false,
+    argv=["--count", "5", "--timeout=10", "--output", "a.txt", "--token", "abc", "--include", "a", "--include=b", "--dry-run", "http://y"])
+print(given)
+print(type_of(given.count) == Int, type_of(given.timeout) == Float)
+
+# Spellings of a value, clusters, counting
+func spell(argv) {
+    return cli.parse(output=cli.Option(short="o"), verbose=cli.Flag(short="v", many=true), n=cli.Option(short="n", convert=Int), argv=argv)
+}
+for argv in [["--output", "a"], ["--output=a"], ["-o", "a"], ["-oa"], ["-o=a"], ["--output="], ["-vv"], ["-vn", "5"], ["-vn5"], ["-vvo", "out.txt"], ["-v", "-v", "-v"]] {
+    print(argv, spell(argv))
+}
+
+# Last one wins; many collects and replaces its default; -- and -
+attempt(["--output", "a", "--output", "b"], output="x")
+attempt(["-I", "a", "-I", "b"], include=cli.Option(short="I", many=true, default=["std"]))
+attempt([], include=cli.Option(short="I", many=true, default=["std"]))
+attempt(["--", "--output", "-"], cli.Arg("rest", many=true), output=nil)
+attempt(["-", "x"], "source", "target")
+
+# Numbers that start with a dash are values, not options
+attempt(["-5", "--delta", "-1.5", "--scale=-.5"], cli.Arg("n", convert=Int), delta=0.0, scale=1.0)
+attempt(["--delta", "-x"], delta=0.0)
+
+# Optional and many arguments, flags given twice
+attempt(["p"], "pattern", cli.Arg("paths", default=["."], many=true))
+attempt(["p", "a", "b"], "pattern", cli.Arg("paths", default=["."], many=true))
+attempt(["a"], "source", cli.Arg("target", default=nil))
+attempt(["a", "b", "c"], cli.Arg("files", many=true))
+attempt(["-v", "--verbose"], verbose=cli.Flag(short="v"))
+
+# convert and choices
+func positive(text) {
+    var n = Int(text)
+    if n <= 0 {
+        raise ValueError("must be positive")
+    }
+    return n
+}
+func broken(text) {
+    raise KeyError("a bug in the converter")
+}
+attempt(["--width", "640"], width=cli.Option(convert=positive))
+attempt(["--width", "-3"], width=cli.Option(convert=positive))
+attempt(["--width", "abc"], width=cli.Option(convert=positive))
+try {
+    cli.parse(width=cli.Option(convert=broken), argv=["--width", "1"])
+} catch e: KeyError {
+    print("passes through: {e.message}")
+}
+attempt(["--format", "jpg"], format=cli.Option(choices=["png", "jpg"], default="png"))
+attempt(["--level", "2"], level=cli.Option(choices=[1, 2, 3], convert=Int))
+attempt(["7"], cli.Arg("level", choices=[1, 2, 3], convert=Int))
+
+# Args is read-only and has exactly the declared names
+var copy = cli.parse("source", "target", verbose=false, argv=["a", "b", "--verbose"])
+print(copy.verbose, attributes(copy))
+try {
+    print(copy.verbsoe)
+} catch e: AttributeError {
+    print(e.message)
+}
+try {
+    copy.verbose = false
+} catch e: AttributeError {
+    print(e.message)
+}
+var opt = cli.Option("where to write")
+print(opt, cli.Flag(), cli.Arg("x"), cli.Command(), opt == opt, cli.Option() == cli.Option())
+var reused = cli.parse(a=opt, b=opt, argv=["--a", "1", "--b", "2"])
+print(reused.a, reused.b)
+try {
+    cli.Args()
+} catch e: TypeError {
+    print(e.message)
+}
+
+# Every usage error, with the usage line it carries
+attempt(["--widht", "3"], width=0, height=0)
+attempt(["--colour"], width=0)
+attempt(["-x"], verbose=cli.Flag(short="v"))
+attempt(["--output"], output=nil)
+attempt(["--output", "--verbose"], output=nil, verbose=false)
+attempt(["--verbose=yes"], verbose=false)
+attempt(["--count", "abc"], count=1)
+attempt(["--timeout", "abc"], timeout=1.0)
+attempt(["--format", "gif"], format=cli.Option(choices=["png", "jpg"]))
+attempt(["abc"], cli.Arg("count", convert=Int))
+attempt(["a", "b", "extra"], "source", "target")
+attempt(["a"], "source", "target")
+attempt([], "source", "target")
+attempt([], cli.Arg("files", many=true))
+attempt(["a"], "source", output=cli.Option(required=true), other=cli.Option(required=true))
+attempt([], build=cli.Command(), test=cli.Command())
+attempt(["biuld"], build=cli.Command(), test=cli.Command())
+attempt(["deploy"], build=cli.Command(), test=cli.Command())
+attempt(["--help=x"])
+attempt(["-x", "--help"], verbose=false)
+
+# Help: the page is generated from the declaration
+attempt(["--help"],
+    cli.Arg("files", "images to resize", many=true),
+    width   = cli.Option("target width in pixels", short="w", default=800),
+    format  = cli.Option(choices=["png", "jpg"], default="png"),
+    output  = cli.Option("directory to write to", short="o", required=true),
+    dry_run = false,
+    verbose = cli.Flag("say what is being done", short="v", many=true),
+    help    = "Resize images into a directory.",
+)
+attempt(["-h"], "source", cli.Arg("target", default=nil), cli.Arg("rest", default=[], many=true))
+attempt(["--help"],
+    cli.Arg("mode", "how to run", choices=["fast", "safe"]),
+    host = cli.Option("server to use", short="h", default="localhost"),
+    tags = cli.Option("labels", many=true, default=["a", "b"]),
+    ratio = 0.5,
+)
+attempt(["-h"], mode=cli.Option(short="h"))
+
+# Subcommands: a flat result with args.command
+func tool(argv) {
+    attempt(argv,
+        build   = cli.Command(release=false, help="Compile the project"),
+        test    = cli.Command(cli.Arg("name", default=nil), only=cli.Option(short="o"), help="Run the tests"),
+        dry_run = cli.Command(),
+        verbose = cli.Flag(short="v"),
+        help    = "Project tool.",
+    )
+}
+tool(["build", "--release"])
+tool(["-v", "test", "parser", "-o", "x"])
+tool(["test", "-v"])
+tool(["dry-run"])
+tool(["dry_run"])
+tool(["--release", "build"])
+tool(["build", "extra"])
+tool(["--help"])
+tool(["test", "--help"])
+tool(["test", "-o"])
+var built = cli.parse(build=cli.Command(release=false), test=cli.Command(cli.Arg("name", default=nil)), argv=["build"])
+print(built.command, built.release)
+try {
+    print(built.name)
+} catch e: AttributeError {
+    print(e.message)
+}
+
+# Mistakes in a declaration are the program's, raised in either mode
+declaration(func() { return cli.parse(x={}, argv=[]) })
+declaration(func() { return cli.parse(x=true, argv=[]) })
+declaration(func() { return cli.parse(3, argv=[]) })
+declaration(func() { return cli.parse(cli.Option(), argv=[]) })
+declaration(func() { return cli.parse(**{"Dry-Run": false}, argv=[]) })
+declaration(func() { return cli.parse(cli.Arg("2x"), argv=[]) })
+declaration(func() { return cli.parse(cli.Arg("output"), output=nil, argv=[]) })
+declaration(func() { return cli.parse("a", "a", argv=[]) })
+declaration(func() { return cli.Option(short="ab") })
+declaration(func() { return cli.Flag(short="1") })
+declaration(func() { return cli.parse(output=cli.Option(short="o"), only=cli.Flag(short="o"), argv=[]) })
+declaration(func() { return cli.parse(cli.Arg("source", default="a"), "target", argv=[]) })
+declaration(func() { return cli.parse(cli.Arg("files", many=true), "target", argv=[]) })
+declaration(func() { return cli.Option(required=true, default="x") })
+declaration(func() { return cli.Option(many=true, default="x") })
+declaration(func() { return cli.Arg("files", many=true, default="x") })
+declaration(func() { return cli.Option(default=true) })
+declaration(func() { return cli.Option(choices=[]) })
+declaration(func() { return cli.Option(choices="ab") })
+declaration(func() { return cli.parse("source", build=cli.Command(), argv=[]) })
+declaration(func() { return cli.Command(inner=cli.Command()) })
+declaration(func() { return cli.parse(verbose=false, build=cli.Command(verbose=false), argv=[]) })
+declaration(func() { return cli.parse(build=cli.Command(command=nil), argv=[]) })
+declaration(func() { return cli.parse(argv="a b") })
+declaration(func() { return cli.parse(argv=[1]) })
+declaration(func() { return cli.parse(x=true, argv=["--help"]) })

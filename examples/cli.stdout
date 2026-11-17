@@ -1,0 +1,158 @@
+Args(url="http://x", count=3, timeout=2.5, output="out.txt", token=nil, include=[], dry_run=false)
+http://x 3 2.5 out.txt nil [] false
+["url", "count", "timeout", "output", "token", "include", "dry_run"] true
+Args(url="http://y", count=5, timeout=10.0, output="a.txt", token="abc", include=["a", "b"], dry_run=true)
+true true
+["--output", "a"] Args(output="a", verbose=0, n=nil)
+["--output=a"] Args(output="a", verbose=0, n=nil)
+["-o", "a"] Args(output="a", verbose=0, n=nil)
+["-oa"] Args(output="a", verbose=0, n=nil)
+["-o=a"] Args(output="a", verbose=0, n=nil)
+["--output="] Args(output="", verbose=0, n=nil)
+["-vv"] Args(output=nil, verbose=2, n=nil)
+["-vn", "5"] Args(output=nil, verbose=1, n=5)
+["-vn5"] Args(output=nil, verbose=1, n=5)
+["-vvo", "out.txt"] Args(output="out.txt", verbose=2, n=nil)
+["-v", "-v", "-v"] Args(output=nil, verbose=3, n=nil)
+Args(output="b")
+Args(include=["a", "b"])
+Args(include=["std"])
+Args(rest=["--output", "-"], output=nil)
+Args(source="-", target="x")
+Args(n=-5, delta=-1.5, scale=-0.5)
+UsageError: option --delta needs a value | usage: tool [options]
+Args(pattern="p", paths=["."])
+Args(pattern="p", paths=["a", "b"])
+Args(source="a", target=nil)
+Args(files=["a", "b", "c"])
+Args(verbose=true)
+Args(width=640)
+UsageError: invalid value "-3" for --width: must be positive | usage: tool [options]
+UsageError: invalid value "abc" for --width: Int() invalid literal for Int: "abc" | usage: tool [options]
+passes through: a bug in the converter
+Args(format="jpg")
+Args(level=2)
+UsageError: invalid value "7" for <level>: expected one of 1, 2, 3 | usage: tool [options] <level>
+true ["source", "target", "verbose"]
+Args has no attribute 'verbsoe'
+Args is read-only
+<Option> <Flag> <Arg> <Command> true false
+1 2
+Args cannot be constructed; use cli.parse()
+UsageError: unknown option --widht (did you mean --width?) | usage: tool [options]
+UsageError: unknown option --colour | usage: tool [options]
+UsageError: unknown option -x | usage: tool [options]
+UsageError: option --output needs a value | usage: tool [options]
+UsageError: option --output needs a value | usage: tool [options]
+UsageError: option --verbose takes no value | usage: tool [options]
+UsageError: invalid value "abc" for --count: expected an integer | usage: tool [options]
+UsageError: invalid value "abc" for --timeout: expected a number | usage: tool [options]
+UsageError: invalid value "gif" for --format: expected one of png, jpg | usage: tool [options]
+UsageError: invalid value "abc" for <count>: expected an integer | usage: tool [options] <count>
+UsageError: unexpected argument "extra" | usage: tool [options] <source> <target>
+UsageError: missing argument <target> | usage: tool [options] <source> <target>
+UsageError: missing arguments <source> <target> | usage: tool [options] <source> <target>
+UsageError: missing argument <files> | usage: tool [options] <files>...
+UsageError: missing required option --output | usage: tool [options] <source>
+UsageError: missing command (one of build, test) | usage: tool [options] <command> ...
+UsageError: unknown command "biuld" (did you mean build?) | usage: tool [options] <command> ...
+UsageError: unknown command "deploy" | usage: tool [options] <command> ...
+UsageError: option --help takes no value | usage: tool [options]
+UsageError: unknown option -x | usage: tool [options]
+usage: tool [options] <files>...
+
+Resize images into a directory.
+
+arguments:
+  <files>...              images to resize
+
+options:
+  -w, --width <width>     target width in pixels (default: 800)
+      --format <png|jpg>  (default: png)
+  -o, --output <output>   directory to write to (required)
+      --dry-run
+  -v, --verbose           say what is being done
+  -h, --help              show this help and exit
+--
+usage: tool [options] <source> [<target>] [<rest>...]
+
+arguments:
+  [<target>]
+  [<rest>...]
+
+options:
+  -h, --help   show this help and exit
+--
+usage: tool [options] <mode>
+
+arguments:
+  <mode>                how to run (one of fast, safe)
+
+options:
+  -h, --host <host>     server to use (default: localhost)
+      --tags <tags>...  labels (default: a, b)
+      --ratio <ratio>   (default: 0.5)
+      --help            show this help and exit
+--
+UsageError: option --mode needs a value | usage: tool [options]
+Args(command="build", verbose=false, release=true)
+Args(command="test", verbose=true, name="parser", only="x")
+Args(command="test", verbose=true, name=nil, only=nil)
+Args(command="dry-run", verbose=false)
+UsageError: unknown command "dry_run" (did you mean dry-run?) | usage: tool [options] <command> ...
+UsageError: unknown option --release | usage: tool [options] <command> ...
+UsageError: unexpected argument "extra" | usage: tool build [options]
+usage: tool [options] <command> ...
+
+Project tool.
+
+commands:
+  build          Compile the project
+  test           Run the tests
+  dry-run
+
+options:
+  -v, --verbose
+  -h, --help     show this help and exit
+--
+usage: tool test [options] [<name>]
+
+Run the tests
+
+arguments:
+  [<name>]
+
+options:
+  -o, --only <only>
+  -v, --verbose
+  -h, --help         show this help and exit
+--
+UsageError: option --only needs a value | usage: tool test [options] [<name>]
+build false
+Args has no attribute 'name'
+TypeError: parse() option 'x' must be false, nil, String, Int, Float, List, Flag, Option or Command, got Dict
+ValueError: parse() option 'x' cannot default to true; declare the opposite flag (no_x=false)
+TypeError: parse() argument 1 must be String or Arg, got Int
+TypeError: parse() argument 1 must be String or Arg, got Option
+ValueError: parse() invalid name 'Dry-Run' (use lower case letters, digits and '_')
+ValueError: parse() invalid name '2x' (use lower case letters, digits and '_')
+ValueError: parse() duplicate name 'output'
+ValueError: parse() duplicate name 'a'
+ValueError: Option() argument 'short' must be one letter, got "ab"
+ValueError: Flag() argument 'short' must be one letter, got "1"
+ValueError: parse() short option -o is used by 'output' and 'only'
+ValueError: parse() required argument 'target' follows optional argument 'source'
+ValueError: parse() argument 'files' takes all remaining arguments and must be last
+ValueError: Option() cannot be both required and have a default
+ValueError: Option() argument 'default' must be a List when many is true, got String
+ValueError: Arg() argument 'default' must be a List when many is true, got String
+ValueError: Option() argument 'default' cannot be a Bool; use cli.Flag()
+ValueError: Option() argument 'choices' must be a non-empty List
+TypeError: Option() argument 'choices' must be a non-empty List
+ValueError: parse() cannot combine arguments with commands
+ValueError: Command() commands cannot be nested
+ValueError: parse() command 'build' reuses the name 'verbose'
+ValueError: parse() command 'build' reuses the name 'command'
+TypeError: parse() argument 'argv' must be a List of String, got String
+TypeError: parse() argument 'argv' must be a List of String, got List containing Int
+ValueError: parse() option 'x' cannot default to true; declare the opposite flag (no_x=false)

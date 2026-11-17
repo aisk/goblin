@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/aisk/goblin/extension/internal/filestream"
+	"github.com/aisk/goblin/extension/internal/procargs"
 	"github.com/aisk/goblin/object"
 )
 
@@ -32,7 +33,7 @@ func (s stdStream) Close() error                { return s.file().Close() }
 // Execute builds the os module from the process's own command line. Used by
 // compiled programs, where os.Args[0] is the executable.
 func Execute() (object.Object, error) {
-	return newModule(os.Args), nil
+	return newModule(procargs.Process()), nil
 }
 
 // ExecuteWithFrozenArgs builds the os module from a given command line, the
@@ -43,11 +44,7 @@ func ExecuteWithFrozenArgs(argv []string) (object.Object, error) {
 }
 
 func newModule(argv []string) object.Object {
-	program := ""
-	var rest []string
-	if len(argv) > 0 {
-		program, rest = argv[0], argv[1:]
-	}
+	program, rest := procargs.Split(argv)
 	args := make([]object.Object, len(rest))
 	for i, a := range rest {
 		args[i] = object.String(a)

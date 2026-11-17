@@ -95,8 +95,8 @@ for `type_of(os.env) == os.Env`; it cannot be called.
 
 - Prompting is the built-in `input(prompt)`, not a member of this module. It
   reads through the same buffer as `os.stdin`, so the two can be mixed.
-- There is no command-line flag parser; `os.args` and destructuring cover
-  positional arguments.
+- Options, help and usage errors are the [cli](./module-cli.md) module's;
+  `os.args` is the raw list.
 - The host name and user and group ids are not in the module:
   `exec.capture(["hostname"]).stdout.trim()` or `exec.capture(["id", "-u"])`.
 - The working directory and temporary directories are in fs: `fs.cwd()`,

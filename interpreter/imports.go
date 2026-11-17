@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/aisk/goblin/ast"
-	osExt "github.com/aisk/goblin/extension/os"
 	"github.com/aisk/goblin/extension/stdlib"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/source"
@@ -28,11 +27,12 @@ func resolveImport(imp *ast.Import, baseDir string, reg *object.Registry, argv [
 			return loadModuleFile(full, reg, argv)
 		})
 	}
-	// os binds argv per run, so the script (or REPL session) sees its own
-	// arguments without process-global state.
-	if imp.Path == "os" {
+	// Modules that read the command line (os, cli) bind argv per run, so
+	// the script (or REPL session) sees its own arguments without
+	// process-global state.
+	if withArgs, ok := stdlib.LookupWithArgs(imp.Path); ok {
 		return reg.Load(imp.Path, func() (object.Object, error) {
-			return osExt.ExecuteWithFrozenArgs(argv)
+			return withArgs(argv)
 		})
 	}
 	exec, ok := stdlib.Lookup(imp.Path)
