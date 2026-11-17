@@ -28,9 +28,8 @@ for line in os.stdin {
     }
 }
 
-# Ask a question (write() adds no newline)
-os.stdout.write("Delete everything? [y/N] ")
-var answer = os.stdin.read_line()
+# Ask a question: the built-in input() writes the prompt and reads a line
+var answer = input("Delete everything? [y/N] ")
 if answer == nil || answer.trim().lower() != "y" {
     os.exit(1)
 }
@@ -94,8 +93,8 @@ for `type_of(os.env) == os.Env`; it cannot be called.
 
 ## Left out
 
-- There is no `input()` built-in, so prompting takes two calls:
-  `os.stdout.write(question)` and `os.stdin.read_line()`.
+- Prompting is the built-in `input(prompt)`, not a member of this module. It
+  reads through the same buffer as `os.stdin`, so the two can be mixed.
 - There is no command-line flag parser; `os.args` and destructuring cover
   positional arguments.
 - The host name and user and group ids are not in the module:

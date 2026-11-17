@@ -163,6 +163,15 @@ func (d *Dict) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	return nil, false, nil
 }
 
+func (i Integer) CallMethod(name string, args CallArgs) (Object, bool, error) {
+	switch name {
+	case "to_char":
+		v, err := i.ToChar(args)
+		return v, true, err
+	}
+	return nil, false, nil
+}
+
 func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	switch name {
 	case "decode":

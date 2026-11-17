@@ -1,0 +1,13 @@
+65 A 😀
+a a a
+[71, 114, 252, 223, 101, 44, 32, 19990, 30028, 32, 128512]
+true
+Uryyb, Jbeyq! Hello, World!
+true 1114111 1
+to_char() code point out of range: -1
+to_char() code point out of range: 1114112
+to_char() code point 55296 is not a Unicode scalar value
+to_char() code point 57343 is not a Unicode scalar value
+Float has no attribute 'to_char'
+String has no attribute 'to_char'
+to_char() takes 0 positional arguments, got 1

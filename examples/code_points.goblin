@@ -1,0 +1,54 @@
+# Characters and code points: String.code_point and Int.to_char() convert
+# between a one-character string and its Unicode code point.
+
+print("A".code_point, (65).to_char(), 0x1F600.to_char())
+
+# A decimal literal needs parentheses before a method: `97.to_char()` reads
+# as the start of a float. A hexadecimal literal or a variable does not.
+var a = 97
+print((97).to_char(), 0x61.to_char(), a.to_char())
+
+# The two are inverse to each other over every character
+var text = "Grüße, 世界 😀"
+var codes = List(text).map(func(c) { return c.code_point })
+print(codes)
+print(codes.map(func(n) { return n.to_char() }).join("") == text)
+
+func rot13(c) {
+    if c >= "a" && c <= "z" {
+        return ((c.code_point - 97 + 13) % 26 + 97).to_char()
+    }
+    if c >= "A" && c <= "Z" {
+        return ((c.code_point - 65 + 13) % 26 + 65).to_char()
+    }
+    return c
+}
+var secret = List("Hello, World!").map(rot13).join("")
+print(secret, List(secret).map(rot13).join(""))
+
+# The ends of the range
+print((0).to_char() == "\0", (0x10FFFF).to_char().code_point, (0xD7FF).to_char().size)
+
+# Numbers that are not characters, and values that are not Ints
+var not_characters = [-1, 0x110000, 0xD800, 0xDFFF]
+for n in not_characters {
+    try {
+        n.to_char()
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+var others = [3.5, "a"]
+for v in others {
+    try {
+        v.to_char()
+    } catch e: AttributeError {
+        print(e.message)
+    }
+}
+try {
+    var to_char = a.to_char
+    to_char(1)
+} catch e: TypeError {
+    print(e.message)
+}

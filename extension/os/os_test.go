@@ -157,3 +157,44 @@ func TestEnv(t *testing.T) {
 		t.Fatal("Env is iterable")
 	}
 }
+
+// os.stdin reads through object.Stdin, the buffer input() reads, so the two
+// can be mixed without losing or reordering lines.
+func TestStdinSharesTheInputBuffer(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	orig := os.Stdin
+	os.Stdin = r
+	defer func() { os.Stdin = orig; r.Close() }()
+	if _, err := w.WriteString("one\ntwo\r\nthree\nrest"); err != nil {
+		t.Fatal(err)
+	}
+	w.Close()
+
+	stdin := load(t, "").Members["stdin"]
+	next := func() object.Object {
+		line, ok, err := object.ReadLine(object.Stdin) // what input() reads
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !ok {
+			return object.Nil
+		}
+		return object.String(line)
+	}
+	if got := next(); got != object.String("one") {
+		t.Fatalf("first line = %v", got)
+	}
+	if got, err := callMethod(t, stdin, "read_line", object.CallArgs{}); err != nil || got != object.String("two") {
+		t.Fatalf("read_line() = %v, %v", got, err)
+	}
+	if got := next(); got != object.String("three") {
+		t.Fatalf("third line = %v", got)
+	}
+	got, err := callMethod(t, stdin, "read", object.CallArgs{})
+	if err != nil || string(got.(object.Bytes)) != "rest" {
+		t.Fatalf("read() = %v, %v", got, err)
+	}
+}

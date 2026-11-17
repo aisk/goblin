@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math"
 	"strconv"
+	"unicode"
+	"unicode/utf8"
 )
 
 type Integer int64
@@ -86,10 +88,29 @@ func (i Integer) Index(index Object) (Object, error) {
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {
+	if fn, ok := intMethods.bind(i, name); ok {
+		return fn, nil
+	}
 	return nil, NewAttributeError("Int has no attribute '%s'", name)
 }
 
-func (i Integer) Attributes() []string { return []string{} }
+func (i Integer) Attributes() []string { return intMethods.attributes() }
+
+var intMethods = newMethodTable("to_char")
+
+// ToChar returns the one-character String whose code point is the receiver.
+func (i Integer) ToChar(args CallArgs) (Object, error) {
+	if err := RequireNoArgs("to_char", args); err != nil {
+		return nil, err
+	}
+	if i < 0 || i > unicode.MaxRune {
+		return nil, NewValueError("to_char() code point out of range: %d", int64(i))
+	}
+	if !utf8.ValidRune(rune(i)) {
+		return nil, NewValueError("to_char() code point %d is not a Unicode scalar value", int64(i))
+	}
+	return String(string(rune(i))), nil
+}
 
 var IntConstructorFn = &Function{Name: "Int", Fn: IntConstructor}
 

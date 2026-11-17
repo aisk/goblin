@@ -29,6 +29,8 @@ an integer result when both operands are integers. If either operand is a
 float, the result is a float. Integer division truncates its fractional part.
 The `%` operator returns the remainder after truncating division; the result
 has the dividend's sign and is a float if either operand is a float.
+An Int has one method, `to_char()`, the character with that code point (see
+[Characters and code points](./strings.md#characters-and-code-points)).
 
 ~~~goblin
 print(7 / 2)     # 3
@@ -113,7 +115,9 @@ if limit == nil {
 Strings are immutable Unicode text. They can be iterated by character,
 indexed with `text[i]` (giving a one-character string), combined with +,
 repeated with *, and sliced with `text[low:high]`.
-Use `index()` to find a character position. See
+Use `index()` to find a character position. The property `code_point` is the
+code point of the first character as an Int (nil for `""`), and an Int's
+`to_char()` method turns a code point back into a one-character string. See
 [Strings](./strings.md) for conversions and typical methods.
 
 Bytes are immutable raw byte sequences. Bytes("ABC") has size 3 and its first

@@ -18,6 +18,14 @@ var audience = "world"
 print("Hello,", audience)
 ```
 
+A program can also ask a question. `input` writes the prompt and returns the
+line that was typed, or nil when there is nothing more to read:
+
+```goblin
+var name = input("Your name: ")
+print("Hello, {name}!")
+```
+
 ## Run it directly
 
 ```sh

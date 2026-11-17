@@ -182,6 +182,8 @@ Closed by the language, so no module should offer its own version:
 
 - **Formatting numbers and padding text**: a format specifier in an interpolation (`"{x:>8.2f}"`) and the global `format(value, spec)` for a spec built at run time. A module formats only its own values' text forms (`time` layouts); there is no number formatting in `math` or elsewhere.
 - **Errors that carry data and are caught by kind**: `catch e: Kind`, `Kind("message", **data)`, and `object.NewErrorKind` / `With` in Go (§7).
+- **Reading a line from standard input**: the global `input(prompt="")`, nil at the end of input. It reads through `object.Stdin`, the buffer `os.stdin` shares; a module that reads standard input must go through it too.
+- **Code point and character**: the String property `code_point` and the Int method `to_char()`. Hex text from Bytes is `to_hex()`; there is deliberately no reverse.
 
 ## 11. Checklist for a new module
 

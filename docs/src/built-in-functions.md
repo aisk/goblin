@@ -18,6 +18,7 @@ These names are available without an import.
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
 | `Error(message="", **data)` | Create an error value, optionally carrying named data |
+| `input(prompt="")` | Write a prompt to stdout and read one line from stdin, or nil at the end of input |
 | `format(value, spec)` | Format a value under a format specifier, as `"{value:spec}"` does |
 | `type_of(value)` | The constructor of a value's type |
 | `attributes(value)` | List the names of a value's properties and methods |
@@ -52,6 +53,24 @@ language is described under [Formatting](./strings.md#formatting); `spec`
 must be a String, an empty one gives the text `print` shows, and a malformed
 one raises ValueError (`format() invalid format specifier ".2": precision
 needs 'f' or 'e'`).
+
+`input(prompt="")` writes the prompt (a String, with no newline added) to
+stdout and reads one line from stdin. It returns the line without its `\n` or
+`\r\n`; a last line with no terminator counts. At the end of input it
+returns nil. An empty line is `""`, which is false in a condition, so test
+`== nil` to detect the end. A line that is not valid UTF-8 raises ValueError.
+`input()` and `os.stdin` read through one shared buffer, so they can be mixed
+without losing lines.
+
+~~~goblin
+var total = 0
+while true {
+    var line = input()
+    if line == nil { break }
+    total = total + Int(line)
+}
+print(total)
+~~~
 
 Use `eprint` for diagnostics and warnings so they stay off the program's
 normal stdout stream (the same role as Python's

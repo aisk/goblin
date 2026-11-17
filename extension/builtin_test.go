@@ -1,7 +1,9 @@
 package extension
 
 import (
+	"bufio"
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -164,3 +166,76 @@ func TestRangeForms(t *testing.T) {
 		}
 	}
 }
+
+// withStdin points object.Stdin at text for the duration of fn.
+func withStdin(t *testing.T, text string, fn func()) {
+	t.Helper()
+	orig := object.Stdin
+	object.Stdin = bufio.NewReader(strings.NewReader(text))
+	defer func() { object.Stdin = orig }()
+	fn()
+}
+
+func TestInputReadsLines(t *testing.T) {
+	cases := []struct {
+		name  string
+		input string
+		want  []object.Object
+	}{
+		{"newline", "a\nb\n", []object.Object{object.String("a"), object.String("b"), object.Nil}},
+		{"crlf", "a\r\n\r\nb\r\n", []object.Object{object.String("a"), object.String(""), object.String("b"), object.Nil}},
+		{"no terminator", "a\nlast", []object.Object{object.String("a"), object.String("last"), object.Nil}},
+		{"empty input", "", []object.Object{object.Nil, object.Nil}},
+		{"non-ASCII", "héllo\n", []object.Object{object.String("héllo"), object.Nil}},
+	}
+	for _, c := range cases {
+		withStdin(t, c.input, func() {
+			for i, want := range c.want {
+				got, err := Input(object.CallArgs{})
+				if err != nil || got != want {
+					t.Errorf("%s: input() #%d = %v, %v; want %v", c.name, i, got, err, want)
+				}
+			}
+		})
+	}
+}
+
+func TestInputWritesThePrompt(t *testing.T) {
+	var got object.Object
+	stdout, _ := captureStdio(t, func() {
+		withStdin(t, "Ada\n", func() {
+			var err error
+			got, err = Input(object.CallArgs{Positional: object.Args{object.String("Name: ")}})
+			if err != nil {
+				t.Fatal(err)
+			}
+		})
+	})
+	if stdout != "Name: " || got != object.String("Ada") {
+		t.Fatalf("stdout %q, result %v", stdout, got)
+	}
+}
+
+func TestInputErrors(t *testing.T) {
+	withStdin(t, "\xff\n", func() {
+		_, err := Input(object.CallArgs{})
+		if err == nil || err.Error() != "input() line is not valid UTF-8" || !errors.Is(err, object.ValueError) {
+			t.Errorf("invalid UTF-8: %v", err)
+		}
+	})
+	_, err := Input(object.CallArgs{Positional: object.Args{object.Integer(1)}})
+	if err == nil || err.Error() != "input() argument 'prompt' must be String, got Int" || !errors.Is(err, object.TypeError) {
+		t.Errorf("non-String prompt: %v", err)
+	}
+	withStdin(t, "", func() {
+		object.Stdin = bufio.NewReader(failingReader{})
+		_, err := Input(object.CallArgs{})
+		if err == nil || !strings.HasPrefix(err.Error(), "input() failed to read standard input: ") || !errors.Is(err, object.IOError) {
+			t.Errorf("failed read: %v", err)
+		}
+	})
+}
+
+type failingReader struct{}
+
+func (failingReader) Read([]byte) (int, error) { return 0, errors.New("broken pipe") }

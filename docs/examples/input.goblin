@@ -1,0 +1,24 @@
+# Ask a question, then add up the numbers on the remaining lines. Run with
+# the lines "Ada", "1", "2", "3" on standard input.
+import "os"
+
+var name = input("Your name: ")
+if name == nil {
+    name = "nobody"
+}
+print("hello, {name.trim()}")
+
+# input() and os.stdin share one buffer, so they can be mixed
+var first = os.stdin.read_line()
+var total = Int(first)
+while true {
+    var line = input()
+    if line == nil {
+        break
+    }
+    total = total + Int(line)
+}
+print(total)
+if name != "Ada" || total != 6 {
+    raise ValueError("unexpected input: {name}, {total}")
+}

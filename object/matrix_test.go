@@ -15,12 +15,12 @@ var members = []struct {
 	value Object
 	names []string
 }{
-	{Integer(1), nil},
+	{Integer(1), []string{"to_char"}},
 	{Float(1), nil},
 	{True, nil},
 	{Nil, nil},
 	{String("x"), []string{
-		"size", "upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",
+		"size", "code_point", "upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",
 		"trim_suffix", "has_prefix", "has_suffix", "contains", "count", "index",
 		"replace", "split", "cut",
 	}},
@@ -143,7 +143,21 @@ var calls = []struct {
 	args   CallArgs
 	want   outcome
 }{
+	// Int
+	{func() Object { return Integer(97) }, "to_char", CallArgs{}, val(`"a"`)},
+	{func() Object { return Integer(0x1F600) }, "to_char", CallArgs{}, val(`"😀"`)},
+	{func() Object { return Integer(0x10FFFF) }, "to_char", CallArgs{}, val(`"\U0010ffff"`)},
+	{func() Object { return Integer(-1) }, "to_char", CallArgs{}, fails(ValueError, "to_char() code point out of range: -1")},
+	{func() Object { return Integer(0x110000) }, "to_char", CallArgs{}, fails(ValueError, "to_char() code point out of range: 1114112")},
+	{func() Object { return Integer(0xD800) }, "to_char", CallArgs{}, fails(ValueError, "to_char() code point 55296 is not a Unicode scalar value")},
+	{func() Object { return Integer(65) }, "to_char", pos(Integer(1)), fails(TypeError, "to_char() takes 0 positional arguments, got 1")},
+
 	// String
+	{func() Object { return String("A") }, "code_point", CallArgs{}, val("65")},
+	{func() Object { return String("é") }, "code_point", CallArgs{}, val("233")},
+	{func() Object { return String("") }, "code_point", CallArgs{}, val("nil")},
+	{func() Object { return String("abc") }, "code_point", CallArgs{}, val("97")},
+	{func() Object { return String("\xff") }, "code_point", CallArgs{}, val("65533")},
 	{func() Object { return String("aXa") }, "upper", CallArgs{}, val(`"AXA"`)},
 	{func() Object { return String("aXa") }, "lower", CallArgs{}, val(`"axa"`)},
 	{func() Object { return String("xax") }, "trim", kw("chars", String("x")), val(`"a"`)},

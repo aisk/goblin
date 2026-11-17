@@ -296,6 +296,8 @@ func (s String) GetAttr(name string) (Object, error) {
 	switch name {
 	case "size":
 		return s.Size(), nil
+	case "code_point":
+		return s.CodePoint(), nil
 	}
 	if fn, ok := stringMethods.bind(s, name); ok {
 		return fn, nil
@@ -303,7 +305,17 @@ func (s String) GetAttr(name string) (Object, error) {
 	return nil, NewAttributeError("String has no attribute '%s'", name)
 }
 
-func (s String) Attributes() []string { return stringMethods.attributes("size") }
+func (s String) Attributes() []string { return stringMethods.attributes("size", "code_point") }
+
+// CodePoint is the code point of the string's first character as an Int, or
+// nil for the empty string. Like indexing, an invalid byte reads as U+FFFD.
+func (s String) CodePoint() Object {
+	if s == "" {
+		return Nil
+	}
+	r, _ := utf8.DecodeRuneInString(string(s))
+	return Integer(r)
+}
 
 var stringMethods = newMethodTable(
 	"upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",

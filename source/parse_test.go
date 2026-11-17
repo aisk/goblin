@@ -105,6 +105,20 @@ func TestParseCatchClauses(t *testing.T) {
 	}
 }
 
+// A decimal integer literal directly followed by `.name` does not lex as an
+// integer and a member: the lexer reads `97.` as the start of a float and
+// fails at the letter. Parentheses, a hexadecimal literal or a variable work.
+func TestParseMethodOnIntLiteral(t *testing.T) {
+	if _, err := ParseString("var c = 97.to_char()\n"); err == nil || !strings.Contains(err.Error(), `1:9: error: `) {
+		t.Errorf("97.to_char(): error %v, want a lexical error at 1:9", err)
+	}
+	for _, src := range []string{"var c = (97).to_char()\n", "var c = 0x61.to_char()\n", "var n = 97\nvar c = n.to_char()\n"} {
+		if _, err := ParseString(src); err != nil {
+			t.Errorf("%q: %v", src, err)
+		}
+	}
+}
+
 func TestParseReportsFilename(t *testing.T) {
 	path := t.TempDir() + "/glue.goblin"
 	if err := os.WriteFile(path, []byte("var a = 1 var b = 2\n"), 0o644); err != nil {

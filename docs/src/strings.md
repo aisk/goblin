@@ -169,6 +169,35 @@ Bounds are positions between characters, from `-size` to `size`, a negative
 one counting from the end (`text[:-1]` drops the last character); anything
 else raises IndexError, exactly as for a [list slice](./collections.md#slicing).
 
+## Characters and code points
+
+`c.code_point` is the Unicode code point of a string's first character, as an
+Int, and nil for the empty string. Indexing or iterating a string gives
+one-character strings, which is where it is used. In the other direction,
+`n.to_char()` is the one-character string for the code point `n`; it raises
+ValueError for a number outside `0` to `0x10FFFF` or a surrogate
+(`0xD800`–`0xDFFF`).
+
+~~~goblin
+print("A".code_point)      # 65
+print("é".code_point)      # 233
+print("".code_point)       # nil
+print((97).to_char())      # a
+print(0x1F600.to_char())   # 😀
+
+func rot13(c) {
+    if c >= "a" && c <= "z" {
+        return ((c.code_point - 97 + 13) % 26 + 97).to_char()
+    }
+    return c
+}
+print(List("hello").map(rot13).join(""))   # uryyb
+~~~
+
+A decimal integer literal needs parentheses before a method, `(97).to_char()`:
+written `97.to_char()` it reads as the start of a float. A variable or a
+hexadecimal literal needs none.
+
 ## Combining and converting text
 
 Use + to concatenate strings. A string can also concatenate an integer or

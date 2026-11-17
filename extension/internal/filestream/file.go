@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 	"os"
-	"strings"
 	"sync"
 	"unicode/utf8"
 
@@ -168,24 +167,24 @@ func (f *File) nextLine(method string) (string, bool, error) {
 		return "", false, err
 	}
 	if f.lines == nil {
+		// A stream that is already a large enough bufio.Reader (os.stdin's
+		// object.Stdin) is used as it is, so its buffer stays shared.
 		f.lines = bufio.NewReader(f.r)
 	}
-	text, err := f.lines.ReadString('\n')
-	if err != nil && err != io.EOF {
+	text, ok, err := object.ReadLine(f.lines)
+	if err != nil {
 		if method == "" {
 			return "", false, object.WrapNativeError(object.IOError, "failed to read lines of "+f.where(), err)
 		}
 		return "", false, ioError(method, "read "+f.where(), err)
 	}
-	if err == io.EOF && text == "" {
+	if !ok {
 		return "", false, nil
 	}
 	f.lineNo++
 	if !utf8.ValidString(text) {
 		return "", false, object.NewValueError("line %d of %s is not valid UTF-8", f.lineNo, f.where())
 	}
-	text = strings.TrimSuffix(text, "\n")
-	text = strings.TrimSuffix(text, "\r")
 	return text, true, nil
 }
 

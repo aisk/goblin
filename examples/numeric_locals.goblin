@@ -119,3 +119,15 @@ while m < 5 {
     m = m + 1
 }
 print(ftotal)
+
+# A method call on a native int local boxes the receiver first.
+var letters = ""
+var code = 97
+while code < 102 {
+    letters = letters + code.to_char()
+    code = code + 1
+}
+print(letters, code.to_char(), (code * 2).to_char())
+for c in range(65, 68) {
+    print(c.to_char(), c)
+}

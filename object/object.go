@@ -101,6 +101,10 @@ func CallMethod(obj Object, name string, args CallArgs) (Object, error) {
 		if result, handled, err := v.CallMethod(name, args); handled {
 			return result, err
 		}
+	case Integer:
+		if result, handled, err := v.CallMethod(name, args); handled {
+			return result, err
+		}
 	case MethodCaller:
 		if result, handled, err := v.CallMethod(name, args.copy()); handled {
 			return result, err

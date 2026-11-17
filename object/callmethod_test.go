@@ -14,6 +14,7 @@ func TestCallMethodMatchesGetAttr(t *testing.T) {
 		"String": func() (Object, MethodCaller) { s := String("x"); return s, s },
 		"Dict":   func() (Object, MethodCaller) { d := NewDict(); return d, d },
 		"Bytes":  func() (Object, MethodCaller) { b := Bytes("x"); return b, b },
+		"Int":    func() (Object, MethodCaller) { i := Integer(65); return i, i },
 	}
 
 	for typeName, fresh := range types {

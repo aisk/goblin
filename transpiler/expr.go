@@ -398,6 +398,7 @@ var directBuiltins = map[string]directBuiltin{
 	"attributes": {pathExtension, "Attributes", extension.Attributes},
 	"traits":     {pathExtension, "Traits", extension.Traits},
 	"format":     {pathExtension, "Format", extension.Format},
+	"input":      {pathExtension, "Input", extension.Input},
 	"Error":      {pathObject, "ErrorConstructor", object.ErrorConstructor},
 	"Int":        {pathObject, "IntConstructor", object.IntConstructor},
 	"Float":      {pathObject, "FloatConstructor", object.FloatConstructor},

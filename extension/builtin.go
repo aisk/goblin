@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/aisk/goblin/object"
 )
@@ -67,7 +68,35 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"attributes": Attributes,
 	"traits":     Traits,
 	"format":     Format,
+	"input":      Input,
 })
+
+// Input writes prompt to stdout, with no newline, and reads one line from
+// stdin, returning it without its terminator, or nil at the end of input. It
+// reads through object.Stdin, so it shares its buffer with os.stdin.
+func Input(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("input", args)
+	prompt := p.StrOr("prompt", "")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	if prompt != "" {
+		if _, err := io.WriteString(os.Stdout, string(prompt)); err != nil {
+			return nil, object.WrapNativeError(object.IOError, "input() failed to write the prompt", err)
+		}
+	}
+	line, ok, err := object.ReadLine(object.Stdin)
+	if err != nil {
+		return nil, object.WrapNativeError(object.IOError, "input() failed to read standard input", err)
+	}
+	if !ok {
+		return object.Nil, nil
+	}
+	if !utf8.ValidString(line) {
+		return nil, object.NewValueError("input() line is not valid UTF-8")
+	}
+	return object.String(line), nil
+}
 
 // Format renders a value under a format specifier given at run time; see
 // object.Format. `"{x:spec}"` runs the same code.

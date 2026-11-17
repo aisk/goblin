@@ -47,6 +47,8 @@ split() missing required argument: 'sep'
 true decode() invalid UTF-8
 00ff10a4 476f true
 476F
+65 233 128512 nil 97
+233 [104, 233]
 false
 false
 false

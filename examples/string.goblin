@@ -107,6 +107,10 @@ try {
 print(Bytes([0, 255, 16, 164]).to_hex(), Bytes("Go").to_hex(), Bytes("").to_hex() == "")
 print(Bytes("Go").to_hex().upper())
 
+# code_point is the code point of the first character, nil for ""
+print("A".code_point, "é".code_point, "😀".code_point, "".code_point, "abc".code_point)
+print("héllo"[1].code_point, List("hé").map(func(c) { return c.code_point }))
+
 # Methods Go's strings package has but Goblin leaves out
 for name in ["repeat", "fields", "trim_left", "last_index", "encode"] {
     print(attributes("").contains(name))

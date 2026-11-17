@@ -174,7 +174,7 @@ try {
     print(e.is(LookupError)) # true
 }
 
-# Built-ins include print, eprint, range, max, min, sum, compare, hash,
+# Built-ins include print, eprint, input, range, max, min, sum, compare, hash,
 # format, type_of, attributes, spawn, wait_any, Error and typed constructors
 print(max(1, 2, 3))      # 3
 print("{2 / 3.0:.2f}")   # 0.67, formatted in place

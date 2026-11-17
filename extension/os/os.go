@@ -12,11 +12,12 @@ import (
 )
 
 // The standard streams are shared by every load of the module, so a line
-// buffer on stdin is never split between two values. Each one looks up the
-// process's stream when it is used, as print does, so a program that
-// redirects os.Stdout (a test capturing output) redirects both alike.
+// buffer on stdin is never split between two values; stdin reads through
+// object.Stdin, the buffer input() uses too. Each one looks up the process's
+// stream when it is used, as print does, so a program that redirects
+// os.Stdout (a test capturing output) redirects both alike.
 var (
-	stdin  = filestream.NewReader("stdin", stdStream{func() *os.File { return os.Stdin }}, stdStream{func() *os.File { return os.Stdin }})
+	stdin  = filestream.NewReader("stdin", object.Stdin, stdStream{func() *os.File { return os.Stdin }})
 	stdout = filestream.NewWriter("stdout", stdStream{func() *os.File { return os.Stdout }}, stdStream{func() *os.File { return os.Stdout }})
 	stderr = filestream.NewWriter("stderr", stdStream{func() *os.File { return os.Stderr }}, stdStream{func() *os.File { return os.Stderr }})
 )
