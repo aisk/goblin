@@ -1,4 +1,4 @@
-package regexp
+package regex
 
 import (
 	"strings"
@@ -16,7 +16,7 @@ import (
 // The scan mirrors regexp.Regexp.expand: it must accept exactly what Expand
 // would resolve. A malformed reference — a '$' that starts no valid name — is
 // kept as literal text by Expand and is therefore not an error here.
-func (p *Pattern) checkTemplate(template string) error {
+func checkTemplate(names []string, template string) error {
 	for {
 		_, after, ok := strings.Cut(template, "$")
 		if !ok {
@@ -34,20 +34,18 @@ func (p *Pattern) checkTemplate(template string) error {
 		}
 		template = rest
 		if num >= 0 {
-			if num >= len(p.names) {
-				return object.NewValueError(
-					"replace() template references group %d, but the pattern has %d capture group(s)",
-					num, len(p.names)-1)
+			if num >= len(names) {
+				return object.NewValueError("replace() template refers to unknown group %d", num)
 			}
 			continue
 		}
-		if !p.hasGroupName(name) {
+		if !hasGroupName(names, name) {
 			if name[0] >= '0' && name[0] <= '9' {
 				return object.NewValueError(
-					"replace() template references unknown capture group '%s'; write ${...} to separate a group number from the text after it",
+					"replace() template refers to unknown group '%s'; write ${...} to separate a group number from the text after it",
 					name)
 			}
-			return object.NewValueError("replace() template references unknown capture group '%s'", name)
+			return object.NewValueError("replace() template refers to unknown group '%s'", name)
 		}
 	}
 }
@@ -101,4 +99,14 @@ func extractRef(str string) (name string, num int, rest string, ok bool) {
 	rest = str[i:]
 	ok = true
 	return
+}
+
+// hasGroupName reports whether the pattern declares a group called name.
+func hasGroupName(names []string, name string) bool {
+	for _, candidate := range names[1:] {
+		if candidate != "" && candidate == name {
+			return true
+		}
+	}
+	return false
 }

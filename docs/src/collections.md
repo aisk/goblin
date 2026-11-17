@@ -163,8 +163,8 @@ implements `Hashable`. Key identity follows `==`: keys of different types stay
 distinct (`d[1]` and `d["1"]` are separate entries), while equal numbers name
 the same entry (`d[1]` and `d[1.0]` are one key). Values whose equality is
 identity, such as functions, error kinds and channels, hash by
-identity. Standard library values like `Time`, `Path`, `URL`, `UUID` and
-`Pattern` hash by the value they compare equal on. Using a list, dictionary,
+identity. Standard library values like `Time`, `Path`, `URL` and `UUID` hash
+by the value they compare equal on. Using a list, dictionary,
 or a user type without an `impl Hashable` as a key raises TypeError.
 
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a

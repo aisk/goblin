@@ -20,7 +20,7 @@ import (
 	mathExt "github.com/aisk/goblin/extension/math"
 	osExt "github.com/aisk/goblin/extension/os"
 	randExt "github.com/aisk/goblin/extension/rand"
-	regexpExt "github.com/aisk/goblin/extension/regexp"
+	regexExt "github.com/aisk/goblin/extension/regex"
 	timeExt "github.com/aisk/goblin/extension/time"
 	urlExt "github.com/aisk/goblin/extension/url"
 	uuidExt "github.com/aisk/goblin/extension/uuid"
@@ -39,7 +39,7 @@ var modules = map[string]object.ModuleExecutor{
 	"math":   mathExt.Execute,
 	"os":     osExt.Execute,
 	"rand":   randExt.Execute,
-	"regexp": regexpExt.Execute,
+	"regex":  regexExt.Execute,
 	"time":   timeExt.Execute,
 	"url":    urlExt.Execute,
 	"uuid":   uuidExt.Execute,

@@ -296,7 +296,7 @@ the same at one end. Use trim_prefix() or trim_suffix() to remove an exact
 substring.
 
 To repeat text use `*`; to find the last occurrence of a separator, split and
-take `.last`, or use the [regexp](./module-regexp.md) module; to split at
+take `.last`, or use the [regex](./module-regex.md) module; to split at
 whitespace use split() without a separator.
 
 ## Common text-processing patterns

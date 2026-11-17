@@ -39,7 +39,7 @@
 - [math](./module-math.md)
 - [http](./module-http.md)
 - [uuid](./module-uuid.md)
-- [regexp](./module-regexp.md)
+- [regex](./module-regex.md)
 - [url](./module-url.md)
 - [csv](./module-csv.md)
 - [hash](./module-hash.md)

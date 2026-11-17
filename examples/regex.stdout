@@ -1,0 +1,55 @@
+ada@example.com 5 20
+ada example
+true true
+nil
+valid name
+false
+true
+ab
+<regex.Match "ada@example.com">
+port= port port nil nil
+["port", nil, nil]
+{"key": "port", "value": nil, "unit": nil}
+{}
+no such capture group: 4
+no such capture group: nope
+no such capture group: -1
+Match index must be Int or String, got Float
+6 11 wörld
+7 8 ö [6, 11] true
+nil
+no such capture group: 9
+port=80a
+     ^^^
+{"n": "b"} b
+{"n": "a"} nil
+404 /missing
+{"ip": "203.0.113.9", "when": "19/Jul/2026:09:30:00 +0800", "verb": "GET", "path": "/missing", "status": "404", "bytes": "512"}
+["a", "cc", "d"]
+2 []
+2
+[0, 2]
+a b c
+20-10
+<hi> there
+a$ ax
+a<1>b<22>
+1 2
+replace() template refers to unknown group 'x'
+replace() template refers to unknown group 2
+replace() template refers to unknown group '1x'; write ${...} to separate a group number from the text after it
+replace() replacement function must return String, got Int
+from the function
+replace() argument 'replacement' must be String or Function, got Int
+["a", "b", "c"]
+["a", "b,c"] ["a,b"] ["abc"]
+split() count must not be negative
+(?i)a\.c
+nil
+A.C
+find() invalid pattern: missing closing ): `(` | (
+find() invalid pattern: missing closing ): `(` | (
+find() invalid pattern: missing closing ): `a(` | a(
+find() argument 'pattern' must be String, got Bytes
+Match cannot be constructed; use regex.find(pattern, text)
+["text", "start", "end", "groups", "to_dict", "span"]

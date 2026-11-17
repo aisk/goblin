@@ -1,0 +1,102 @@
+# The common tasks of the regex chapter, checking their own results.
+# docs/check-examples.sh runs it with the pattern `err` as its argument and a
+# few lines on standard input.
+import "fs"
+import "json"
+import "os"
+import "regex"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+var dir = fs.mkdir_temp(prefix="goblin-regex-")
+defer fs.remove(dir, recursive=true)
+
+# Does it look right
+var username = "ada_99"
+if !regex.find(`^[a-z0-9_]+$`, username) {
+    raise ValueError("bad user name: {username}")
+}
+var text = "2026-07-19"
+var is_date = regex.find(`\d{4}-\d{2}-\d{2}`, text, full=true) != nil
+expect(is_date, true)
+expect(regex.find(`\d{4}-\d{2}-\d{2}`, "on {text}", full=true), nil)
+
+# Pull fields out
+var m = regex.find(`(\w+)@(\w+)\.com`, "mail ada@example.com today")
+if m {
+    var user, domain = m.groups
+    expect([user, domain, m.start], ["ada", "example", 5])
+}
+
+# Parse a log line: name the fields in the pattern, then look them up
+fs.write(dir.join("access.log"), `203.0.113.9 - - [19/Jul/2026:09:30:00 +0800] "GET /missing HTTP/1.1" 404 512
+not an access line
+198.51.100.2 - - [19/Jul/2026:09:31:00 +0800] "GET / HTTP/1.1" 200 1024
+203.0.113.9 - - [19/Jul/2026:09:32:00 +0800] "POST /missing HTTP/1.1" 404 -
+`)
+var access = `(?P<ip>\S+) \S+ \S+ \[(?P<when>[^\]]+)\] "(?P<verb>[A-Z]+) (?P<path>\S+)[^"]*" (?P<status>\d{3}) (?P<bytes>\d+|-)`
+var hits = {}
+var records = []
+for line in fs.read_lines(dir.join("access.log")) {
+    var entry = regex.find(access, line)
+    if entry == nil {
+        continue
+    }
+    if entry["status"] == "404" {
+        hits[entry["path"]] = hits.get(entry["path"], default=0) + 1
+    }
+    records.push(entry.to_dict())
+}
+fs.write(dir.join("access.json"), json.encode(records))
+expect(hits, {"/missing": 2})
+expect(records.size, 3)
+expect(records[0], {"ip": "203.0.113.9", "when": "19/Jul/2026:09:30:00 +0800", "verb": "GET", "path": "/missing", "status": "404", "bytes": "512"})
+expect(json.decode(fs.read(dir.join("access.json")))[2]["bytes"], "-")
+
+# Point at the part that is wrong
+var config_line = "port=80a"
+var setting = regex.find(`port=(?P<port>\S+)`, config_line)
+var start, end = setting.span("port")
+expect(" " * start + "^" * (end - start), "     ^^^")
+
+# Every occurrence
+var post = "shipping #goblin with #regex"
+var tags = []
+for hit in regex.find_all(`#(\w+)`, post) {
+    tags.push(hit[1])
+}
+expect(tags, ["goblin", "regex"])
+
+# Rewrite
+expect(regex.replace(`\s+`, "a   b \t c", " "), "a b c")
+expect(regex.replace(`(\d+)-(\d+)`, "10-20", "$2-$1"), "20-10")
+expect(regex.replace(`\d+`, "a1b22", func(m) { return "<{m.text}>" }), "a<1>b<22>")
+
+# Split on a pattern
+expect(regex.split(`,\s*`, "a, b,c"), ["a", "b", "c"])
+
+# Search for text that is not a pattern, ignoring case
+var needle = "(?i)" + regex.escape("a.c")
+expect(regex.find(needle, "abc"), nil)
+expect(regex.find(needle, "xA.Cx").text, "A.C")
+
+# A pattern from the command line: check it once, then use it on every line
+var pattern = os.args[0]
+try {
+    regex.find(pattern, "")
+} catch e: ParseError {
+    eprint(e.message)
+    os.exit(2)
+}
+var found = []
+for line in os.stdin {
+    if regex.find(pattern, line) {
+        print(line)
+        found.push(line)
+    }
+}
+expect(found, ["error: disk full", "error again"])

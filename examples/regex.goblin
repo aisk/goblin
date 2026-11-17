@@ -1,0 +1,143 @@
+import "regex"
+
+# find: the leftmost match, or nil
+var m = regex.find(`(\w+)@(\w+)\.com`, "mail ada@example.com today")
+print(m.text, m.start, m.end)
+var user, domain = m.groups
+print(user, domain)
+print(m.groups == m.groups, type_of(m) == regex.Match)
+print(regex.find(`x`, "abc"))
+if regex.find(`^[a-z0-9_]+$`, "ada_99") {
+    print("valid name")
+}
+print(regex.find(`\d{4}-\d{2}-\d{2}`, "on 2026-07-19", full=true) != nil)
+print(regex.find(`\d{4}-\d{2}-\d{2}`, "2026-07-19", full=true) != nil)
+print(regex.find(`a|ab`, "ab", full=true).text)
+print(m)
+
+# Groups by number and by name; nil for a group that took no part
+var setting = regex.find(`(?P<key>[a-z]+)=(?P<value>\d+)?(?<unit>[a-z]+)?`, "port=")
+print(setting[0], setting[1], setting["key"], setting["value"], setting[3])
+print(setting.groups)
+print(setting.to_dict())
+print(regex.find(`(a)(b)`, "ab").to_dict())
+for key in [4, "nope", -1] {
+    try {
+        print(setting[key])
+    } catch e: IndexError {
+        print(e.message)
+    }
+}
+try {
+    print(setting[1.5])
+} catch e: TypeError {
+    print(e.message)
+}
+
+# Positions are characters, so they slice the String
+var text = "héllo wörld"
+var w = regex.find(`w(?P<o>ö)rld`, text)
+print(w.start, w.end, text[w.start:w.end])
+var start, end = w.span("o")
+print(start, end, text[start:end], w.span(0), w.span("o") == [7, 8])
+print(regex.find(`(a)?b`, "b").span(1))
+try {
+    w.span(9)
+} catch e: IndexError {
+    print(e.message)
+}
+
+# Point at the part that is wrong
+var config_line = "port=80a"
+var bad = regex.find(`port=(?P<port>\S+)`, config_line)
+var from, to = bad.span("port")
+print(config_line)
+print(" " * from + "^" * (to - from))
+
+# A name used twice: the last group that took part
+var twice = `(?P<n>a)?(?P<n>b)?`
+print(regex.find(twice, "ab").to_dict(), regex.find(twice, "ab")["n"])
+print(regex.find(twice, "a").to_dict(), regex.find(twice, "")["n"])
+
+# A log line as a record
+var access = `(?P<ip>\S+) \S+ \S+ \[(?P<when>[^\]]+)\] "(?P<verb>[A-Z]+) (?P<path>\S+)[^"]*" (?P<status>\d{3}) (?P<bytes>\d+|-)`
+var line = `203.0.113.9 - - [19/Jul/2026:09:30:00 +0800] "GET /missing HTTP/1.1" 404 512`
+var entry = regex.find(access, line)
+print(entry["status"], entry["path"])
+print(entry.to_dict())
+
+# Every occurrence, and a limit
+print(regex.find_all(`#(\w+)`, "#a b #cc #d").map(func(hit) { return hit[1] }))
+print(regex.find_all(`#(\w+)`, "#a b #cc #d", count=2).size, regex.find_all(`z`, "abc"))
+print(regex.find_all(`^|$`, "ab").size)
+print(regex.find_all(`ö`, "öxö").map(func(hit) { return hit.start }))
+
+# Rewrite
+print(regex.replace(`\s+`, "a   b \t c", " "))
+print(regex.replace(`(\d+)-(\d+)`, "10-20", "$2-$1"))
+print(regex.replace(`(?P<word>\w+)`, "hi there", `<${word}>`, count=1))
+print(regex.replace(`\d`, "a1", "$$"), regex.replace(`(a)`, "a", `${1}x`))
+print(regex.replace(`\d+`, "a1b22", func(m) { return "<{m.text}>" }))
+print(regex.replace(`\w+`, "x yy", func(m) { return String(m.end - m.start) }))
+for template in ["$x", "$2", "$1x"] {
+    try {
+        regex.replace(`(a)`, "a", template)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+try {
+    regex.replace(`\d`, "a1", func(m) { return 1 })
+} catch e: TypeError {
+    print(e.message)
+}
+try {
+    regex.replace(`\d`, "a1", func(m) { raise KeyError("from the function") })
+} catch e: KeyError {
+    print(e.message)
+}
+try {
+    regex.replace(`\d`, "a1", 3)
+} catch e: TypeError {
+    print(e.message)
+}
+
+# Split on a pattern
+print(regex.split(`,\s*`, "a, b,c"))
+print(regex.split(`,\s*`, "a, b,c", count=1), regex.split(`,`, "a,b", count=0), regex.split(`;`, "abc"))
+try {
+    regex.split(`,`, "a,b", count=-1)
+} catch e: ValueError {
+    print(e.message)
+}
+
+# Text that is not a pattern, ignoring case
+var needle = "(?i)" + regex.escape("a.c")
+print(needle)
+print(regex.find(needle, "abc"))
+print(regex.find(needle, "xA.Cx").text)
+
+# A bad pattern is a ParseError carrying the pattern, every time it is used
+for attempt in range(2) {
+    try {
+        regex.find(`(`, "")
+    } catch e: ParseError {
+        print(e.message, "|", e.pattern)
+    }
+}
+try {
+    regex.find(`a(`, "a", full=true)
+} catch e: ParseError {
+    print(e.message, "|", e.pattern)
+}
+try {
+    regex.find(Bytes("a"), "a")
+} catch e: TypeError {
+    print(e.message)
+}
+try {
+    regex.Match()
+} catch e: TypeError {
+    print(e.message)
+}
+print(attributes(m))

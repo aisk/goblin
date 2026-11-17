@@ -1,7 +1,7 @@
 package object
 
 // OpaqueBase provides the boilerplate Object methods shared by opaque handle
-// types (files, HTTP responses, compiled patterns, UUIDs, ...): always
+// types (files, HTTP responses, regex matches, UUIDs, ...): always
 // truthy, no structural equality (object.Equals' identity backstop still
 // applies), and no arithmetic, comparison, iteration, or indexing. A concrete
 // type embeds MakeOpaqueBase("Name") and implements String(), ToString(),
