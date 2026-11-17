@@ -1,44 +1,46 @@
 # Concurrency
 
-There are two ways to start a function in a new goroutine. `Goblin(function,
-args...)` starts it immediately and returns a handle; `wait()` on the handle
-joins the function and delivers its result. `spawn(function, args...)` is
-fire-and-forget: it returns nil immediately, and the function's return value
-and unhandled error are discarded. Use a Goblin handle when the caller cares
-about the outcome, and spawn when it does not.
+`spawn(function, args...)` starts a function in a new goroutine and returns a
+Goblin handle; `wait()` on the handle joins the function and delivers its
+result. Channels (`Chan`) carry streams of values between goroutines, and every
+blocking operation takes the same `timeout=` keyword. That is the whole model:
+a Goblin is a task, a Chan is a stream, and `timeout=` is a time limit.
 
 ~~~goblin
 func square(value) {
     return value * value
 }
 
-var worker = Goblin(square, 6)
+var worker = spawn(square, 6)
 print(worker.wait()) # 36
 ~~~
 
 ## Goblin handles
 
-Construction starts the function right away; there is no separate start step.
-Arguments after the function are forwarded to it.
+`spawn` starts the function right away; there is no separate start step.
+Arguments after the function, positional and keyword alike, are forwarded to
+it. A handle is only ever obtained from `spawn`: `Goblin` is the name of its
+type, not a function you can call.
 
 | Operation | Behavior |
 | --- | --- |
-| `Goblin(function, args...)` | Start the function in a new goroutine and return a handle |
+| `spawn(function, args...)` | Start the function in a new goroutine and return a handle |
 | `handle.wait()` | Block until the function finishes, then return its result |
 | `handle.wait(timeout = seconds)` | Same, but raise TimeoutError if the function is still running when the timeout expires |
-| `handle.done()` | Report whether the function has finished, without blocking |
+| `handle.done` | Whether the function has finished; reading it never blocks |
+| `wait_any(goblins, timeout = nil)` | Block until one of the goblins finishes and return its handle |
 
 The outcome is computed once and cached, so `wait()` can be called any number
 of times — and from several places at once — with the same answer. An error
-raised inside the function is not printed anywhere; it is stored and re-raised
-by every `wait()` call, where the normal `try`/`catch` machinery applies:
+raised inside the function is stored and re-raised by every `wait()` call,
+where the normal `try`/`catch` machinery applies:
 
 ~~~goblin
 func fail() {
     raise ValueError.wrap("bad input")
 }
 
-var failing = Goblin(fail)
+var failing = spawn(fail)
 try {
     failing.wait()
 } catch err {
@@ -46,11 +48,49 @@ try {
 }
 ~~~
 
-A handle that is never waited on is abandoned: when the program ends, running
-goblins are stopped mid-flight, and a stored error nobody asked for is
-discarded silently. If a function's failure matters, `wait()` for it; if the
-result never matters, `spawn` is the honest way to say so (an uncaught error
-in a spawned function is at least reported on stderr).
+A handle you do not need can simply be dropped; `spawn(log_visit, user)` on a
+line of its own is fine. An error is still never lost: when the program ends
+normally, every goblin that failed without any `wait()` seeing its error is
+reported on stderr as `uncaught error in goblin: <error>`, in the order they
+failed. The report does not change the exit status. Goblins still running when
+the program ends are stopped mid-flight and not reported. The REPL makes the
+same report after each line it evaluates.
+
+### Waiting for the first of several
+
+`wait_any(goblins)` takes any iterable of handles and returns the first one to
+finish. It does not take the result or raise the error; call `wait()` on the
+handle it returns for that. When several have already finished, it returns the
+one earliest in the list, so the answer is reproducible; which of several
+goblins finishing at the same moment it picks while it waits is not defined.
+An empty iterable raises ValueError, an element that is not a Goblin handle
+raises TypeError.
+
+~~~goblin
+import "time"
+
+func fetch(name, delay) {
+    time.sleep(delay)
+    return name
+}
+
+var jobs = [spawn(fetch, "slow", 1), spawn(fetch, "fast", 0.01)]
+var first = wait_any(jobs, timeout = 5)
+print(first.wait()) # fast
+~~~
+
+There is no cancellation: the goblins that did not finish first keep running
+until they return or the program ends.
+
+## Time limits
+
+`wait`, `send`, `receive` and `wait_any` all take an optional `timeout` in
+seconds, an Integer or a Float. When it expires the operation raises
+TimeoutError (`receive() timed out after 2 seconds`). `nil`, the default,
+waits forever; a negative timeout raises ValueError and any other type
+TypeError. An operation that can complete immediately always does, even with
+`timeout = 0`, so `channel.receive(timeout = 0)` means "take a value if one
+is ready".
 
 ## Sharing data with a goblin
 
@@ -79,21 +119,41 @@ exercise it when in doubt.
 
 ## Channels
 
-`Chan()` and `Chan(0)` create an unbuffered channel. A send waits until some
-goroutine receives it, and a receive waits until a value is sent. `Chan(size)`
-creates a buffer that can hold up to `size` values before sends block.
+`Chan()` creates an unbuffered channel: a send waits until some goroutine
+receives it, and a receive waits until a value is sent. `Chan(capacity = n)`
+creates a buffer that can hold up to `n` values before sends block.
 
 | Operation | Behavior |
 | --- | --- |
-| `channel.send(value)` | Blocks until a receiver is ready or buffer space exists |
-| `channel.recv()` | Blocks until a value is available |
+| `channel.send(value, timeout = nil)` | Blocks until a receiver is ready or buffer space exists |
+| `channel.receive(timeout = nil)` | Blocks until a value is available |
 | `channel.close()` | Prevents future sends; buffered values can still be received |
-| `Chan(size)` | Requires a non-negative integer; omitting size means zero |
+| `for value in channel` | Receives values until the channel is closed and drained |
+| `Chan(capacity = 0)` | Requires a non-negative integer |
 
-Sending on a closed channel, closing a channel twice, or receiving after a
-channel is closed and drained raises ValueError. Channels are not iterable and
-there is no special end-of-stream value, so a receiver must know how many
-values to expect or use a separate completion signal.
+Sending on a closed channel, closing a channel twice, or calling `receive()`
+after a channel is closed and drained raises ValueError.
+
+A channel is iterable, and closing it is how a sender says the stream is over:
+a `for` loop receives one value per iteration and ends when the channel is
+closed and every buffered value has been received. Several loops iterating the
+same channel at once each receive different values.
+
+~~~goblin
+var words = Chan(capacity = 16)
+spawn(func() {
+    defer words.close()
+    for word in ["alpha", "beta", "gamma"] {
+        words.send(word)
+    }
+})
+for word in words {
+    print(word)
+}
+~~~
+
+Values from several channels are combined by forwarding them into one channel
+(a goblin per source, each looping over its own channel); there is no `select`.
 
 ## Buffering a known number of results
 
@@ -105,14 +165,14 @@ func square(value, result) {
     result.send(value * value)
 }
 
-var results = Chan(3)
+var results = Chan(capacity = 3)
 for value in [2, 3, 4] {
     spawn(square, value, results)
 }
 
 var total = 0
-for ignored in range(0, 3) {
-    total = total + results.recv()
+for ignored in range(3) {
+    total = total + results.receive()
 }
 results.close()
 print(total) # 29
@@ -121,15 +181,16 @@ print(total) # 29
 An unbuffered `results` channel also works in this example because the caller
 begins receiving after it starts the workers. Buffering changes *when* sends
 block; it does not guarantee a result order. Do not rely on spawned work
-finishing in the order it was started.
+finishing in the order it was started. When each job has a single result,
+returning it and calling `wait()` on every handle is simpler still.
 
 ## Returning errors explicitly
 
 `wait()` re-raises a goblin's error at the call site, which covers the common
 case of one job whose failure the caller handles. When workers stream results
-through a channel instead, an error raised inside a spawned function is not
-delivered to the caller. Catch it in the worker and send a result record when
-the caller needs to handle failures.
+through a channel instead, the caller receives values, not errors. Catch the
+error in the worker and send a result record when the caller needs to handle
+failures.
 
 ~~~goblin
 func load_number(text, result) {
@@ -142,7 +203,7 @@ func load_number(text, result) {
 
 var result = Chan()
 spawn(load_number, "not-a-number", result)
-var outcome = result.recv()
+var outcome = result.receive()
 if outcome["error"] {
     print(outcome["error"].message)
 }
@@ -163,13 +224,12 @@ receiver:
 var messages = Chan()
 # messages.send("hello") would block here: no receiver can run yet.
 spawn(func() { messages.send("hello") })
-print(messages.recv())
+print(messages.receive())
 messages.close()
 ~~~
 
-Goblin has no select operation, no cancellation primitive, and no timeout on
-channel operations; `wait(timeout = seconds)` on a Goblin handle is the only
-time-bounded wait, and functions started with `spawn` cannot be joined at all.
-Design each concurrent operation so every blocking send has a receiver, every
-expected result is received, and the owner can decide when it is safe to close
-its channel.
+Goblin has no `select` operation and no cancellation primitive. Design each
+concurrent operation so every blocking send has a receiver, every expected
+result is received, and the owner can decide when it is safe to close its
+channel; where waiting forever would be a bug, give the operation a
+`timeout`.

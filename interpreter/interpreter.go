@@ -13,6 +13,7 @@
 package interpreter
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/aisk/goblin/ast"
@@ -247,6 +248,9 @@ func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 	copy(argv[1:], scriptArgs)
 
 	_, err = runModule(mod, filepath.Dir(sourcePath), source.ModuleName(sourcePath), object.NewRegistry(), argv)
+	if err == nil {
+		object.ReportUnwaitedErrors(os.Stderr)
+	}
 	return err
 }
 

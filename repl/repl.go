@@ -158,6 +158,9 @@ func isIdentifierStart(r rune) bool {
 }
 
 func evalLine(out io.Writer, session *interpreter.Session, src string) {
+	// Goblins failing in the background, during this evaluation or since the
+	// previous one, are reported after it like its own error would be.
+	defer object.ReportUnwaitedErrors(out)
 	result, err := session.Eval(src)
 	if err != nil {
 		fmt.Fprintf(out, "%+v\n", err)

@@ -370,7 +370,8 @@ type directBuiltin struct {
 var directBuiltins = map[string]directBuiltin{
 	"print":    {pathExtension, "Print", extension.Print},
 	"eprint":   {pathExtension, "Eprint", extension.Eprint},
-	"spawn":    {pathExtension, "Spawn", extension.Spawn},
+	"spawn":    {pathObject, "Spawn", object.Spawn},
+	"wait_any": {pathObject, "WaitAny", object.WaitAny},
 	"range":    {pathExtension, "Range", extension.Range},
 	"max":      {pathExtension, "Max", extension.Max},
 	"min":      {pathExtension, "Min", extension.Min},
@@ -383,7 +384,6 @@ var directBuiltins = map[string]directBuiltin{
 	"List":     {pathObject, "ListConstructor", object.ListConstructor},
 	"Dict":     {pathObject, "DictConstructor", object.DictConstructor},
 	"Chan":     {pathObject, "ChanConstructor", object.ChanConstructor},
-	"Goblin":   {pathObject, "GoblinConstructor", object.GoblinConstructor},
 	"Function": {pathObject, "FunctionConstructor", object.FunctionConstructor},
 }
 

@@ -51,7 +51,7 @@ func TestListFirstAndLastDoNotMutate(t *testing.T) {
 func TestChanSendAcceptsValueByKeyword(t *testing.T) {
 	channel := NewChan(1)
 	callMethod(t, channel, "send", CallArgs{Keyword: Kwargs{{Name: "value", Value: Integer(1)}}})
-	if got := callMethod(t, channel, "recv", CallArgs{}); got != Integer(1) {
+	if got := callMethod(t, channel, "receive", CallArgs{}); got != Integer(1) {
 		t.Fatalf("recv = %v, want 1", got)
 	}
 	if _, err := Call(mustAttr(t, channel, "send"), CallArgs{Keyword: Kwargs{{Name: "bogus", Value: Integer(1)}}}); err == nil {

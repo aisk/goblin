@@ -2,6 +2,7 @@ package repl
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/aisk/goblin/interpreter"
@@ -102,5 +103,19 @@ func TestBracketsBalanced(t *testing.T) {
 		if got := bracketsBalanced(src); got != want {
 			t.Errorf("bracketsBalanced(%q) = %v, want %v", src, got, want)
 		}
+	}
+}
+
+// A goblin that fails without being waited for is reported once, after the
+// first evaluation that ends once it has failed.
+func TestEvalLineReportsUnwaitedGoblinErrors(t *testing.T) {
+	s := interpreter.NewSession(".")
+	var out strings.Builder
+	evalLine(&out, s, `var g = spawn(func() { raise Error("lost") })`)
+	evalLine(&out, s, `while !g.done {}`)
+	evalLine(&out, s, `1 + 1`)
+	want := "uncaught error in goblin: lost\n2\n"
+	if got := out.String(); got != want {
+		t.Errorf("output = %q, want %q", got, want)
 	}
 }

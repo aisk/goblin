@@ -17,8 +17,8 @@ before designing a larger program:
 | Lists | Direct indexes and slice bounds are non-negative; some methods such as pop() accept negative indexes |
 | Destructuring | `var a, b = value`, `a, b = value`, and `for a, b in values` split an iterable of exactly that many elements; there are no tuples or nested patterns |
 | Imports | Module scope only; local paths are relative to the importing file |
-| Concurrency | Goroutines, channels, and joinable Goblin handles; no select or cancellation |
-| Errors | Explicit raise and try/catch; spawned-function errors are not propagated |
+| Concurrency | `spawn` returns a joinable Goblin handle; iterable channels; `timeout=` on every blocking operation; no select or cancellation |
+| Errors | Explicit raise and try/catch; a spawned function's error is re-raised by `wait()`, and reported on stderr at exit if nobody waited |
 | Cleanup | `defer call()` runs the call when the enclosing function ends; there is no `finally` and no block-scoped cleanup |
 
 Goblin favors direct, explicit code over a large amount of syntax. When a

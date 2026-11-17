@@ -1,8 +1,47 @@
-var ch = Chan(3)
+var ch = Chan(capacity = 3)
 ch.send(1)
 ch.send(2)
 ch.send(3)
-print(ch.recv())
-print(ch.recv())
-print(ch.recv())
+print(ch.receive())
+print(ch.receive())
+print(ch.receive())
+
+# An operation that can complete at once always does, even with timeout=0,
+# so receive(timeout=0) means "take a value if there is one".
+ch.send(4)
+print(ch.receive(timeout = 0))
+try {
+    ch.receive(timeout = 0)
+} catch e {
+    print(e.message)
+    print(e.is(TimeoutError))
+}
+
+# A full channel makes send wait; with a timeout it gives up.
+var full = Chan(capacity = 1)
+full.send("first")
+try {
+    full.send("second", timeout = 0.01)
+} catch e {
+    print(e.message)
+}
+
+# A channel is iterable: a for loop receives until it is closed and drained.
+var lines = Chan(capacity = 2)
+spawn(func() {
+    defer lines.close()
+    for word in ["alpha", "beta", "gamma"] {
+        lines.send(word)
+    }
+})
+for line in lines {
+    print(line)
+}
+
+# Receiving from a closed and drained channel is an error.
+try {
+    lines.receive()
+} catch e {
+    print(e.message)
+}
 ch.close()

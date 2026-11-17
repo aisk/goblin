@@ -1,22 +1,28 @@
 import "time"
 
-# Goblin(fn, args...) starts fn in a new goroutine right away and returns a
-# handle. wait() joins it and returns the function's result.
+# spawn(fn, args...) starts fn in a new goroutine right away and returns a
+# Goblin handle. wait() joins it and returns the function's result.
 func square(n) {
     return n * n
 }
-var g = Goblin(square, 7)
+var g = spawn(square, 7)
 print(g.wait())
 
-# The outcome is cached: wait() can be called again, and done() reports
-# completion without blocking.
+# The outcome is cached: wait() can be called again, and the done property
+# reports completion without blocking.
 print(g.wait())
-print(g.done())
+print(g.done)
+
+# Keyword arguments are forwarded too.
+func scaled(n, factor = 1) {
+    return n * factor
+}
+print(spawn(scaled, 7, factor = 3).wait())
 
 # Joining several goblins in order makes concurrent output deterministic.
 var goblins = []
 for n in [1, 2, 3] {
-    goblins.push(Goblin(square, n))
+    goblins.push(spawn(square, n))
 }
 var total = 0
 for worker in goblins {
@@ -28,7 +34,7 @@ print(total)
 func fail() {
     raise ValueError.wrap("bad input")
 }
-var failing = Goblin(fail)
+var failing = spawn(fail)
 try {
     failing.wait()
 } catch e {
@@ -38,11 +44,35 @@ try {
 
 # wait(timeout = seconds) raises TimeoutError if the function is still
 # running when the timeout expires.
-var slow = Goblin(func() {
+var slow = spawn(func() {
     time.sleep(10)
 })
 try {
     slow.wait(timeout = 0.05)
 } catch e {
+    print(e.message)
     print(e.is(TimeoutError))
 }
+
+# wait_any returns the first goblin to finish; when several already have, the
+# earliest in the list. It neither takes the result nor raises the error.
+var quick = spawn(square, 4)
+quick.wait()
+var winner = wait_any([slow, failing, quick])
+print(winner == failing)
+print(wait_any([slow, quick], timeout = 0) == quick)
+try {
+    wait_any([slow], timeout = 0.01)
+} catch e {
+    print(e.message)
+}
+
+# A goblin that fails while nobody waits for it is reported on stderr when the
+# program ends, so the error is never silently lost.
+var unwatched = spawn(func() {
+    raise ValueError.wrap("nobody waited for this")
+})
+while !unwatched.done {
+    time.sleep(0.001)
+}
+print("end of program")

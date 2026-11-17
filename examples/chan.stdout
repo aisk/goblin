@@ -1,3 +1,11 @@
 1
 2
 3
+4
+receive() timed out after 0 seconds
+true
+send() timed out after 0.01 seconds
+alpha
+beta
+gamma
+receive on closed channel

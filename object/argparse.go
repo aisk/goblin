@@ -1,6 +1,10 @@
 package object
 
-import "strconv"
+import (
+	"math"
+	"strconv"
+	"time"
+)
 
 // ArgParser is a fluent helper for extracting and type-checking the arguments
 // of a builtin function. It removes the boilerplate of manually asserting types
@@ -37,6 +41,9 @@ type ArgParser struct {
 	usedHigh []bool
 	failed   bool
 	errMsg   string
+	// valueErr makes the pending failure a ValueError rather than the
+	// TypeError every other failure is.
+	valueErr bool
 }
 
 // NewArgParser creates an ArgParser for the given function name and call arguments.
@@ -327,6 +334,39 @@ func (p *ArgParser) Float64(name string) float64 {
 	return 0
 }
 
+// Timeout returns an optional `timeout=` argument, a number of seconds, as a
+// duration, and whether there is one: nil is the same as leaving it out and
+// means no time limit. Every blocking operation takes its time limit through
+// this accessor, so they all accept and reject the same values: an Integer
+// or Float, a negative one raising ValueError and any other type TypeError.
+func (p *ArgParser) Timeout(name string) (time.Duration, bool) {
+	v, ok := p.next(name)
+	if !ok || v == Nil {
+		return 0, false
+	}
+	var seconds float64
+	switch n := v.(type) {
+	case Integer:
+		seconds = float64(n)
+	case Float:
+		seconds = float64(n)
+	default:
+		p.typeErr(name, "Integer, Float or Nil", v)
+		return 0, false
+	}
+	if seconds < 0 || math.IsNaN(seconds) {
+		if !p.failed {
+			p.fail("() argument '" + name + "' must be non-negative, got " + strconv.FormatFloat(seconds, 'g', -1, 64))
+			p.valueErr = true
+		}
+		return 0, false
+	}
+	if seconds >= float64(math.MaxInt64)/float64(time.Second) {
+		return time.Duration(math.MaxInt64), true
+	}
+	return time.Duration(seconds * float64(time.Second)), true
+}
+
 // Rest consumes and returns all remaining positional arguments. It should be
 // called after the fixed positional accessors and captures the variadic tail.
 func (p *ArgParser) Rest() Args {
@@ -343,6 +383,9 @@ func (p *ArgParser) Rest() Args {
 // accept an open-ended argument list should call Rest before Finish.
 func (p *ArgParser) Finish() error {
 	if p.failed {
+		if p.valueErr {
+			return &Error{Value: p.funcName + p.errMsg, Wrapped: ValueError}
+		}
 		return NewTypeErrorText(p.funcName + p.errMsg)
 	}
 	if p.pos < len(p.call.Positional) {

@@ -30,7 +30,7 @@ func TestExamples(t *testing.T) {
 // channels; any example using one is also run under the Go race detector.
 // Detection by content means a new concurrency example cannot silently skip
 // the race run.
-var concurrencyMarkers = regexp.MustCompile(`\bspawn\b|\bChan\(|\bGoblin\(`)
+var concurrencyMarkers = regexp.MustCompile(`\bspawn\b|\bChan\(|\bwait_any\b`)
 
 // TestExamplesRace runs the concurrency examples under the race detector,
 // guarding the coordination patterns the book recommends.

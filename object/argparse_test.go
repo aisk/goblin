@@ -1,8 +1,10 @@
 package object
 
 import (
+	"errors"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestArgParserPositional(t *testing.T) {
@@ -287,5 +289,42 @@ func TestArgParserFloat64Coerces(t *testing.T) {
 	}
 	if got != 2.5 {
 		t.Fatalf("expected 2.5, got %v", got)
+	}
+}
+
+func TestArgParserTimeout(t *testing.T) {
+	parse := func(v Object) (time.Duration, bool, error) {
+		args := CallArgs{}
+		if v != nil {
+			args.Keyword = Kwargs{{Name: "timeout", Value: v}}
+		}
+		p := NewArgParser("f", args)
+		d, ok := p.Timeout("timeout")
+		return d, ok, p.Finish()
+	}
+	for _, tc := range []struct {
+		v  Object
+		d  time.Duration
+		ok bool
+	}{
+		{nil, 0, false},
+		{Nil, 0, false},
+		{Integer(2), 2 * time.Second, true},
+		{Float(0.5), 500 * time.Millisecond, true},
+		{Integer(0), 0, true},
+	} {
+		d, ok, err := parse(tc.v)
+		if err != nil || d != tc.d || ok != tc.ok {
+			t.Errorf("Timeout(%v) = %v, %v, %v; want %v, %v", tc.v, d, ok, err, tc.d, tc.ok)
+		}
+	}
+	if _, _, err := parse(Float(-1)); !errors.Is(err, ValueError) || err.Error() != "f() argument 'timeout' must be non-negative, got -1" {
+		t.Errorf("negative timeout: %v", err)
+	}
+	if _, _, err := parse(String("1")); !errors.Is(err, TypeError) || err.Error() != "f() argument 'timeout' must be Integer, Float or Nil, got String" {
+		t.Errorf("String timeout: %v", err)
+	}
+	if d, ok, err := parse(Float(1e300)); err != nil || !ok || d <= 0 {
+		t.Errorf("huge timeout = %v, %v, %v", d, ok, err)
 	}
 }

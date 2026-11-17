@@ -191,6 +191,8 @@ func moduleVarName(name string) string {
 
 // mainBody emits the generated main(): run Execute, print failures, and turn a
 // Go-side runtime panic into a clean internal error instead of a Go stack dump.
+// A program that ends normally reports the errors of goblins nobody waited
+// for, as interpreter.Run does.
 func mainBody() []jen.Code {
 	return []jen.Code{
 		jen.Defer().Func().Params().Block(
@@ -204,6 +206,7 @@ func mainBody() []jen.Code {
 			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
 			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),
+		jen.Qual(pathObject, "ReportUnwaitedErrors").Call(jen.Qual("os", "Stderr")),
 	}
 }
 

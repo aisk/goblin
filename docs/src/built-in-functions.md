@@ -10,10 +10,10 @@ These names are available without an import.
 | `min(values...)` / `max(values...)` | Choose the smallest or largest value |
 | `Int(value)` / `Float(value)` / `Str(value)` / `Bool(value)` | Convert a value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
-| `Chan([size])` | Create a channel; no size means unbuffered |
+| `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
 | `Function(value)` | Validate and return a callable value unchanged |
-| `spawn(function, args...)` | Run a function concurrently, fire-and-forget |
-| `Goblin(function, args...)` | Run a function concurrently, returning a joinable handle |
+| `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
+| `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
 | `Error(message)` | Create an error value |
 
 `print` and `eprint` return `nil`. `range(n)` is short for `range(0, n)`;
@@ -21,8 +21,9 @@ with keywords, `start` is optional and `end` is required. `min` and `max` requir
 argument and order their arguments the way `<` does, so they work on strings
 and on user types that implement `Ord`. Constructors that use an
 argument parser, including `range`, numeric conversions, and `Dict`, accept
-their documented keyword names; `print`, `eprint`, and `spawn` are
-positional-only.
+their documented keyword names; `print` and `eprint` are positional-only, and
+`spawn` takes its function positionally and forwards every other argument,
+keyword arguments included, to it.
 
 Use `eprint` for diagnostics and warnings so they stay off the program's
 normal stdout stream (the same role as Python's

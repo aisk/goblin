@@ -12,7 +12,7 @@ func worker(updates, amount, times) {
 func owner(updates, expected, result) {
     var total = 0
     for ignored in range(0, expected) {
-        total = total + updates.recv()
+        total = total + updates.receive()
     }
     result.send(total)
 }
@@ -23,6 +23,6 @@ spawn(owner, updates, 200, result)
 spawn(worker, updates, 1, 100)
 spawn(worker, updates, 2, 100)
 
-print(result.recv())
+print(result.receive())
 updates.close()
 result.close()

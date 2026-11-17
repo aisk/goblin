@@ -1,7 +1,13 @@
 49
 49
 true
+21
 14
 bad input: ValueError
 true
+wait() timed out after 0.05 seconds
 true
+true
+true
+wait_any() timed out after 0.01 seconds
+end of program

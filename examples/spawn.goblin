@@ -1,16 +1,16 @@
-var ch = Chan(0)
+var ch = Chan()
 
 # spawn a function with no arguments
 spawn(func() {
     ch.send("hello from goroutine")
 })
-print(ch.recv())
+print(ch.receive())
 
 # spawn a function with arguments forwarded to it
 func worker(n) {
     ch.send(n * n)
 }
 spawn(worker, 7)
-print(ch.recv())
+print(ch.receive())
 
 ch.close()

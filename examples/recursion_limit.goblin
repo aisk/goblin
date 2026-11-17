@@ -57,4 +57,4 @@ func in_goblin() {
         return err.is(RecursionError)
     }
 }
-print(Goblin(in_goblin).wait())
+print(spawn(in_goblin).wait())

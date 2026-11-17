@@ -1,7 +1,6 @@
 package extension
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -39,8 +38,9 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"List":                object.ListConstructorFn,
 	"Dict":                object.DictConstructorFn,
 	"Chan":                object.ChanConstructorFn,
-	"Goblin":              object.GoblinConstructorFn,
 	"Function":            object.FunctionConstructorFn,
+	"spawn":               object.SpawnFn,
+	"wait_any":            object.WaitAnyFn,
 	"Eq":                  object.EqTrait,
 	"Ord":                 object.OrdTrait,
 	"Hashable":            object.HashableTrait,
@@ -57,7 +57,6 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 }, object.Funcs{
 	"print":  Print,
 	"eprint": Eprint,
-	"spawn":  Spawn,
 	"range":  Range,
 	"max":    Max,
 	"min":    Min,
@@ -95,36 +94,6 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 	if _, err := io.WriteString(w, b.String()); err != nil {
 		return nil, object.WrapNativeError(object.IOError, name+"() failed to write output", err)
 	}
-	return object.Nil, nil
-}
-
-// spawn launches a goblin function in a new goroutine, passing any extra
-// positional arguments along to it. Goroutines are fire-and-forget: the
-// function's return value and error are discarded, mirroring Go's `go`
-// statement. Use a Chan to communicate results back.
-func Spawn(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("spawn", args)
-	fn := p.Func("fn")
-	// The arguments only live for this call (see object.CallArgs); the
-	// goroutine runs after it returns, so it gets its own copy.
-	rest := append(object.Args(nil), p.Rest()...)
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	go func() {
-		// A panic inside a goroutine would kill the whole process regardless
-		// of any recovery in main; contain it here. Errors are otherwise
-		// fire-and-forget, but leaving them fully silent makes failures
-		// undebuggable, so report both on stderr.
-		defer func() {
-			if r := recover(); r != nil {
-				fmt.Fprintf(os.Stderr, "internal error in spawned function: %v\n", r)
-			}
-		}()
-		if _, err := fn.Call(object.CallArgs{Positional: rest}); err != nil {
-			fmt.Fprintf(os.Stderr, "uncaught error in spawned function: %v\n", err)
-		}
-	}()
 	return object.Nil, nil
 }
 

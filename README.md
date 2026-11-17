@@ -166,18 +166,18 @@ try {
     print(e.is(LookupError)) # true
 }
 
-# Built-ins include print, eprint, range, max, min, spawn, Error and typed constructors
+# Built-ins include print, eprint, range, max, min, spawn, wait_any, Error and typed constructors
 print(max(1, 2, 3))  # 3
 print(min(1, 2.5))   # 1
 print(Int("42"))     # 42
 print(Str(nil))      # nil
 
 # Concurrency uses Chan plus spawn()
-var ch = Chan(0)
+var ch = Chan()
 spawn(func() {
     ch.send("done")
 })
-print(ch.recv())     # done
+print(ch.receive())  # done
 ch.close()
 
 # Standard modules must be imported before use

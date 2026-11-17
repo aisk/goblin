@@ -13,8 +13,8 @@ operation succeeds only when its value types are compatible.
 | Bytes | Bytes("data") | Immutable raw byte sequence |
 | List | [1, "two"] | Ordered, mutable collection |
 | Dict | {"name": "Ada"} | Mutable key/value collection |
-| Chan | Chan(0) | Channel for concurrent functions |
-| Goblin | Goblin(func() {}) | Handle to a function running concurrently |
+| Chan | Chan() | Channel for concurrent functions |
+| Goblin | spawn(func() {}) | Handle to a function running concurrently |
 | Function | func() {} | Callable value |
 
 Custom types are covered in [Types and methods](./types.md).
@@ -141,50 +141,61 @@ method guides.
 
 ## Channels
 
-Chan(capacity) creates a channel. Send with send(), receive with recv(), and
-close with close(). Capacity 0 creates an unbuffered channel. Use spawn() to
-start a concurrent function.
+Chan(capacity=0) creates a channel. Send with send(), receive with receive(),
+and close with close(); send() and receive() take an optional timeout= in
+seconds. Capacity 0 creates an unbuffered channel. Use spawn() to start a
+concurrent function.
 
 ~~~goblin
-var done = Chan(0)
+var done = Chan()
 spawn(func() {
     done.send("finished")
 })
-print(done.recv())
+print(done.receive())
 done.close()
 ~~~
 
 ### Coordinating concurrent work
 
-An unbuffered channel makes send() wait until another function calls recv().
-This makes it useful for returning one result from spawned work. A buffered
-channel can accept up to its capacity before a receiver is ready.
+An unbuffered channel makes send() wait until another function calls
+receive(). A buffered channel can accept up to its capacity before a receiver
+is ready. A for loop over a channel receives values until it is closed and
+drained.
 
 ~~~goblin
-var results = Chan(2)
-spawn(func() { results.send(2 * 2) })
-spawn(func() { results.send(3 * 3) })
-print(results.recv() + results.recv())
-results.close()
+var results = Chan(capacity = 2)
+spawn(func() {
+    defer results.close()
+    results.send(2 * 2)
+    results.send(3 * 3)
+})
+var total = 0
+for value in results {
+    total = total + value
+}
+print(total) # 13
 ~~~
 
-Close a channel only when no more values will be sent. Receiving from a closed,
-drained channel raises ValueError, rather than producing a special nil value.
+Close a channel only when no more values will be sent. Calling receive() on a
+closed, drained channel raises ValueError, rather than producing a special nil
+value.
 
 ## Goblin handles
 
-Goblin(function, args...) starts the function in a new goroutine and returns a
-handle. wait() joins it: the function's result is returned, an error it raised
-is re-raised, and the outcome is cached across repeated calls. done() reports
-completion without blocking, and wait(timeout = seconds) raises TimeoutError
-when the function outlives the timeout.
+spawn(function, args...) starts the function in a new goroutine and returns a
+Goblin handle; there is no Goblin constructor. wait() joins it: the function's
+result is returned, an error it raised is re-raised, and the outcome is cached
+across repeated calls. The done property reports completion without blocking,
+and wait(timeout = seconds) raises TimeoutError when the function outlives the
+timeout. An error no wait() ever saw is reported on stderr when the program
+ends.
 
 ~~~goblin
 func square(value) {
     return value * value
 }
 
-var worker = Goblin(square, 6)
+var worker = spawn(square, 6)
 print(worker.wait()) # 36
 ~~~
 
@@ -201,8 +212,8 @@ together.
 | Bytes | Bytes(value), size, decode(), contains(), split() |
 | List | List(value), size, first, last, push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |
-| Chan | Chan(size), send(value), recv(), close() |
-| Goblin | Goblin(function, args...), wait(), done() |
+| Chan | Chan(capacity), send(value), receive(), close(), for value in channel |
+| Goblin | spawn(function, args...), wait(), done, wait_any(goblins) |
 | Function | Function(value), value(...) |
 
 Use value.attributes() in the REPL to inspect all operations provided by a

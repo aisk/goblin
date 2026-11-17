@@ -1,15 +1,19 @@
 package object
 
 import (
+	"fmt"
+	"io"
+	"reflect"
+	"sync"
 	"time"
 )
 
-// Goblin is a handle to a function running in its own goroutine. Construction
-// starts the function immediately; wait() joins it and delivers its return
-// value or re-raises its error, so unlike spawn nothing is silently dropped.
-// The result fields are written exactly once before done is closed, and only
-// read after done is observed closed, so the channel provides the necessary
-// happens-before edge without a lock.
+// Goblin is a handle to a function running in its own goroutine, obtained
+// from spawn, which starts the function immediately. wait() joins it and
+// delivers its return value or re-raises its error. The result fields are
+// written exactly once before done is closed, and only read after done is
+// observed closed, so the channel provides the necessary happens-before edge
+// without a lock.
 type Goblin struct {
 	OpaqueBase
 	done   chan struct{}
@@ -20,12 +24,10 @@ type Goblin struct {
 var _ Object = &Goblin{}
 
 func (g *Goblin) String() string {
-	select {
-	case <-g.done:
+	if g.finished() {
 		return "<goblin done>"
-	default:
-		return "<goblin running>"
 	}
+	return "<goblin running>"
 }
 
 func (g *Goblin) ToString() (string, error) { return g.String(), nil }
@@ -43,30 +45,26 @@ func (g *Goblin) GetAttr(name string) (Object, error) {
 	case "attributes":
 		return AttributesFunction(g), nil
 	case "done":
-		return &Function{Name: "done", Fn: g.Done}, nil
+		return Bool(g.finished()), nil
 	case "wait":
 		return &Function{Name: "wait", Fn: g.Wait}, nil
-	case "constructor":
-		return GoblinConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Goblin has no attribute '%s'", name)
 	}
 }
 
 func (g *Goblin) Attributes() []string {
-	return []string{"attributes", "done", "wait", "constructor"}
+	return []string{"attributes", "done", "wait"}
 }
 
-// Done reports without blocking whether the function has finished.
-func (g *Goblin) Done(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("done", args); err != nil {
-		return nil, err
-	}
+// finished reports without blocking whether the function has returned; it
+// backs the done property.
+func (g *Goblin) finished() bool {
 	select {
 	case <-g.done:
-		return True, nil
+		return true
 	default:
-		return False, nil
+		return false
 	}
 }
 
@@ -74,37 +72,29 @@ func (g *Goblin) Done(args CallArgs) (Object, error) {
 // re-raises its error. The outcome is cached, so wait() may be called any
 // number of times (and from several goblins at once) with the same answer.
 // An optional timeout in seconds raises TimeoutError if the function is
-// still running when it expires; a nil timeout means wait forever.
+// still running when it expires; a nil timeout means wait forever. A goblin
+// that has already finished is always delivered, even with timeout=0.
 func (g *Goblin) Wait(args CallArgs) (Object, error) {
 	p := NewArgParser("wait", args)
-	tv, supplied := p.OptionalAny("timeout")
+	timeout, hasTimeout := p.Timeout("timeout")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	if supplied && tv != Nil {
-		var seconds float64
-		switch n := tv.(type) {
-		case Integer:
-			seconds = float64(n)
-		case Float:
-			seconds = float64(n)
-		default:
-			return nil, NewTypeError("wait() argument 'timeout' must be Integer, Float or Nil, got %s", tv.TypeName())
+	if !g.finished() {
+		if hasTimeout {
+			timer := time.NewTimer(timeout)
+			defer timer.Stop()
+			select {
+			case <-g.done:
+			case <-timer.C:
+				return nil, NewTimeoutError("wait() timed out after %g seconds", timeout.Seconds())
+			}
+		} else {
+			<-g.done
 		}
-		if seconds < 0 {
-			return nil, NewValueError("wait() timeout must be non-negative, got %g", seconds)
-		}
-		timer := time.NewTimer(time.Duration(seconds * float64(time.Second)))
-		defer timer.Stop()
-		select {
-		case <-g.done:
-		case <-timer.C:
-			return nil, NewTimeoutError("wait() timed out after %g seconds", seconds)
-		}
-	} else {
-		<-g.done
 	}
 	if g.err != nil {
+		unwaited.observe(g)
 		return nil, g.err
 	}
 	if g.result == nil {
@@ -113,20 +103,26 @@ func (g *Goblin) Wait(args CallArgs) (Object, error) {
 	return g.result, nil
 }
 
-var GoblinConstructorFn = &Function{Name: "Goblin", Fn: GoblinConstructor}
+var SpawnFn = &Function{Name: "spawn", Fn: Spawn}
 
-// GoblinConstructor starts fn in a new goroutine with the remaining positional
-// arguments and returns a handle to it. A Go-level panic inside the function
-// is contained and surfaces as an InternalError from wait(), matching how the
-// top-level runtime reports panics, instead of killing the process.
-func GoblinConstructor(args CallArgs) (Object, error) {
-	p := NewArgParser("Goblin", args)
+// Spawn implements spawn(fn, *args, **kwargs): it starts fn in a new
+// goroutine with the remaining arguments, positional and keyword alike, and
+// returns the Goblin handle. fn is positional-only, so every keyword argument
+// reaches fn. A Go-level panic inside the function is contained and surfaces
+// as an InternalError from wait(), matching how the top-level runtime reports
+// panics, instead of killing the process. An error nobody waits for is
+// reported by ReportUnwaitedErrors.
+func Spawn(args CallArgs) (Object, error) {
+	p := NewArgParser("spawn", CallArgs{Positional: args.Positional})
 	fn := p.Func("fn")
 	// The arguments only live for this call (see CallArgs); the goroutine
 	// runs after it returns, so it gets its own copy.
-	rest := append(Args(nil), p.Rest()...)
+	call := CallArgs{Positional: append(Args(nil), p.Rest()...)}
 	if err := p.Finish(); err != nil {
 		return nil, err
+	}
+	if len(args.Keyword) > 0 {
+		call.Keyword = append(Kwargs(nil), args.Keyword...)
 	}
 	g := &Goblin{OpaqueBase: MakeOpaqueBase("Goblin"), done: make(chan struct{})}
 	go func() {
@@ -135,8 +131,102 @@ func GoblinConstructor(args CallArgs) (Object, error) {
 			if r := recover(); r != nil {
 				g.err = NewInternalError("panic in goblin: %v", r)
 			}
+			if g.err != nil {
+				unwaited.add(g)
+			}
 		}()
-		g.result, g.err = fn.Call(CallArgs{Positional: rest})
+		g.result, g.err = fn.Call(call)
 	}()
 	return g, nil
+}
+
+var WaitAnyFn = &Function{Name: "wait_any", Fn: WaitAny}
+
+// WaitAny implements wait_any(goblins, timeout=nil): it returns the first of
+// the goblins to finish, without taking its result or raising its error. When
+// several have already finished it returns the earliest in the list, so the
+// answer is reproducible; only when none has does it block, and the order of
+// goblins finishing together while it blocks is unspecified.
+func WaitAny(args CallArgs) (Object, error) {
+	p := NewArgParser("wait_any", args)
+	iterable := p.Any("goblins")
+	timeout, hasTimeout := p.Timeout("timeout")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	items, err := Collect(iterable)
+	if err != nil {
+		return nil, err
+	}
+	if len(items) == 0 {
+		return nil, NewValueError("wait_any() needs at least one goblin")
+	}
+	goblins := make([]*Goblin, len(items))
+	for i, item := range items {
+		g, ok := item.(*Goblin)
+		if !ok {
+			return nil, NewTypeError("wait_any() argument 'goblins' must contain only Goblin values, got %s", item.TypeName())
+		}
+		goblins[i] = g
+	}
+	for _, g := range goblins {
+		if g.finished() {
+			return g, nil
+		}
+	}
+	cases := make([]reflect.SelectCase, len(goblins), len(goblins)+1)
+	for i, g := range goblins {
+		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(g.done)}
+	}
+	if hasTimeout {
+		timer := time.NewTimer(timeout)
+		defer timer.Stop()
+		cases = append(cases, reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(timer.C)})
+	}
+	chosen, _, _ := reflect.Select(cases)
+	if chosen == len(goblins) {
+		return nil, NewTimeoutError("wait_any() timed out after %g seconds", timeout.Seconds())
+	}
+	return goblins[chosen], nil
+}
+
+// unwaited holds the goblins that failed and whose error no wait() has
+// observed yet, in the order they finished.
+var unwaited unwaitedSet
+
+type unwaitedSet struct {
+	mu      sync.Mutex
+	goblins []*Goblin
+}
+
+func (s *unwaitedSet) add(g *Goblin) {
+	s.mu.Lock()
+	s.goblins = append(s.goblins, g)
+	s.mu.Unlock()
+}
+
+func (s *unwaitedSet) observe(g *Goblin) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for i, pending := range s.goblins {
+		if pending == g {
+			s.goblins = append(s.goblins[:i], s.goblins[i+1:]...)
+			return
+		}
+	}
+}
+
+// ReportUnwaitedErrors writes one line per goblin that failed without any
+// wait() observing its error, in the order they finished, and forgets them.
+// Both backends call it when a program ends normally, and the REPL after each
+// evaluation, so an error in a goblin nobody waits for is never silently
+// lost. A goblin still running is not reported.
+func ReportUnwaitedErrors(w io.Writer) {
+	unwaited.mu.Lock()
+	goblins := unwaited.goblins
+	unwaited.goblins = nil
+	unwaited.mu.Unlock()
+	for _, g := range goblins {
+		fmt.Fprintf(w, "uncaught error in goblin: %v\n", g.err)
+	}
 }

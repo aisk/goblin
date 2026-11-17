@@ -4,5 +4,5 @@ spawn(func() {
     result.send(21 * 2)
 })
 
-print(result.recv())
+print(result.receive())
 result.close()
