@@ -47,16 +47,32 @@ try {
 }
 ~~~
 
-wrap("context") adds a message while preserving the original error. unwrap()
-returns the direct cause, and is() tests the complete error chain.
+wrap("context") adds a message while preserving the original error. The
+`cause` property is the next error down the chain, or nil at the bottom, and
+is() tests the complete chain, the error itself included.
 
 ~~~goblin
 var base = Error("connection failed")
 var err = base.wrap("loading profile")
-print(err.message)
-print(err.unwrap().message)
-print(err.is(base))
+print(err.message)       # loading profile: connection failed
+print(err.cause.message) # connection failed
+print(err.cause == base) # true
+print(err.is(base))      # true
+print(base.cause)        # nil
 ~~~
+
+The chain continues through error kinds: a kind's `cause` is its parent kind,
+so `IndexError.cause == LookupError`, and the base `Error` kind, at the top,
+has a nil cause. A failure reported by a library module carries its kind one
+level down: when `fs.read` fails, `e.message` describes what failed,
+`e.cause` is the operating system's own error (`open nope.txt: no such file
+or directory`), and `e.cause.is(NotExistError)` is true.
+
+The error a `catch` binds is the error that was raised, however many calls it
+passed through on the way: `e == not_found` and `e.cause` give the same answer
+for a raise at module level and one three functions deep. Errors compare and
+hash by identity, so a sentinel can key a dictionary and a caught error finds
+its entry.
 
 ## Error kinds
 

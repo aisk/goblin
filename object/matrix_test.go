@@ -37,7 +37,7 @@ var members = []struct {
 		"size", "keys", "values", "items", "contains", "get", "get_or_set", "pop",
 		"remove", "update", "clear", "copy",
 	}},
-	{NewError("boom"), []string{"message", "traceback", "wrap", "unwrap", "is"}},
+	{NewError("boom"), []string{"message", "traceback", "cause", "wrap", "is"}},
 	{&Function{Name: "f"}, []string{"name"}},
 	{NewChan(0), []string{"send", "receive", "close"}},
 	{&Goblin{}, []string{"done", "wait"}},

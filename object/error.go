@@ -56,8 +56,13 @@ func NewWrappedError(message string, cause error) *Error {
 	return &Error{Value: message + ": " + cause.Error(), Wrapped: cause}
 }
 
+// WrapError wraps a native Go error as a Goblin error of kind base, adding
+// message. It builds two layers, so that `cause` reaches a typed error: the
+// outer one carries "message: cause", the inner one the native error's own
+// message, matching both base and the native error under errors.Is.
 func WrapError(base *Error, message string, cause error) *Error {
-	return &Error{Value: fmt.Sprintf("%s: %s", message, cause.Error()), Wrapped: typedCause{cause: cause, base: base}}
+	inner := &Error{Value: cause.Error(), Wrapped: typedCause{cause: cause, base: base}}
+	return &Error{Value: message + ": " + inner.Value, Wrapped: inner}
 }
 
 type typedCause struct {
@@ -89,13 +94,51 @@ func (e *Error) ToString() (string, error) { return e.String(), nil }
 
 func (e *Error) ToBool() (bool, error) { return true, nil }
 
+// origin is the error as raised: the receiver without the stack-frame
+// wrappers WithFrame adds while it propagates. The error a `catch` binds is
+// such a wrapper, so identity, hashing and the cause chain all go through
+// origin; otherwise how deep the raise happened would change the answers.
+func (e *Error) origin() *Error {
+	for e.frames != nil {
+		inner, ok := e.Wrapped.(*Error)
+		if !ok {
+			break
+		}
+		e = inner
+	}
+	return e
+}
+
+// Equals is identity of the raised error, so a caught error equals the
+// sentinel or value that was raised.
 func (e *Error) Equals(other Object) (bool, error) {
 	v, ok := other.(*Error)
-	return ok && e == v, nil
+	return ok && e.origin() == v.origin(), nil
 }
 
 // Hash follows identity, so errors and error kinds can be dict keys.
-func (e *Error) Hash() (uint64, error) { return identityHash(e), nil }
+func (e *Error) Hash() (uint64, error) { return identityHash(e.origin()), nil }
+
+// Cause is the next error down the cause chain, or Nil: what the error
+// wraps, the kind of a native error, or the parent of an error kind.
+func (e *Error) Cause() Object {
+	origin := e.origin()
+	switch w := origin.Wrapped.(type) {
+	case nil:
+		return Nil
+	case *Error:
+		return w
+	case typedCause:
+		return w.base
+	default:
+		if origin.frames != nil {
+			// A frame wrapper around a native error: the native error is
+			// the error itself, not its cause.
+			return Nil
+		}
+		return NewError(w.Error())
+	}
+}
 
 func (e *Error) Error() string {
 	return e.Value
@@ -214,8 +257,8 @@ func (e *Error) GetAttr(name string) (Object, error) {
 		return String(e.Value), nil
 	case "wrap":
 		return &Function{Name: "wrap", Fn: e.Wrap}, nil
-	case "unwrap":
-		return &Function{Name: "unwrap", Fn: e.Unwrapped}, nil
+	case "cause":
+		return e.Cause(), nil
 	case "is":
 		return &Function{Name: "is", Fn: e.IsValue}, nil
 	case "traceback":
@@ -225,7 +268,7 @@ func (e *Error) GetAttr(name string) (Object, error) {
 }
 
 func (e *Error) Attributes() []string {
-	return []string{"message", "traceback", "wrap", "unwrap", "is"}
+	return []string{"message", "traceback", "cause", "wrap", "is"}
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its
@@ -237,24 +280,6 @@ func (e *Error) Wrap(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	return NewWrappedError(string(message), e), nil
-}
-
-// Unwrapped returns the immediate cause of the receiver, or Nil if it wraps
-// nothing. Usage: err.unwrap(). Traversal is delegated to the standard library.
-func (e *Error) Unwrapped(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("unwrap", args); err != nil {
-		return nil, err
-	}
-	cause := errors.Unwrap(e)
-	if cause == nil {
-		return Nil, nil
-	}
-	if obj, ok := cause.(Object); ok {
-		return obj, nil
-	}
-	// A non-Object Go error can only appear if native code injected one; present
-	// it to Goblin as a plain Error.
-	return NewError(cause.Error()), nil
 }
 
 // IsValue reports whether target appears anywhere in the receiver's cause chain,
@@ -273,7 +298,7 @@ func (e *Error) IsValue(args CallArgs) (Object, error) {
 	if !ok {
 		return nil, NewTypeError("is() argument must be an Error, got %s", target.TypeName())
 	}
-	return Bool(errors.Is(e, t)), nil
+	return Bool(errors.Is(e, t.origin())), nil
 }
 
 var _ error = (*Error)(nil)

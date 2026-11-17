@@ -1,6 +1,7 @@
+import "fs"
 import "json"
 
-# Errors are values. Error() makes one; wrap/unwrap/is relate them.
+# Errors are values. Error() makes one; wrap, cause and is relate them.
 
 # A sentinel error, reused by identity (like a named error constant)
 var not_found = Error("not found")
@@ -9,8 +10,8 @@ var not_found = Error("not found")
 var err = not_found.wrap("loading config")
 print(err.message)
 
-# unwrap walks one level down the cause chain
-print(err.unwrap().message)
+# cause is one level down the cause chain
+print(err.cause.message, err.cause == not_found)
 
 # is reports whether a sentinel appears anywhere in the chain
 print(err.is(not_found))
@@ -21,8 +22,9 @@ var deep = err.wrap("startup")
 print(deep.message)
 print(deep.is(not_found))
 
-# unwrap at the bottom of the chain returns nil
-print(not_found.unwrap())
+# cause at the bottom of the chain is nil; an error kind's cause is its
+# parent kind
+print(not_found.cause, IndexError.cause == LookupError, LookupError.cause.message)
 
 # wrap/is compose with raise and catch
 func load() {
@@ -122,4 +124,42 @@ try {
     }
 } catch e {
     print("outer caught:", e)
+}
+
+# A caught error is the error that was raised, however deep the raise was:
+# it equals the sentinel, keys a dict like it, and its cause is what the
+# raised error wraps.
+var base = Error("base")
+func inner(wrapped) {
+    if wrapped {
+        raise base.wrap("ctx")
+    }
+    raise base
+}
+func outer(wrapped) {
+    inner(wrapped)
+}
+try {
+    outer(false)
+} catch e {
+    print(e == base, {base: "found"}[e], e.cause)
+}
+try {
+    outer(true)
+} catch e {
+    print(e.message, e.cause == base, e.cause.message)
+}
+
+# A library failure keeps its kind one level down the chain.
+try {
+    fs.read("errors_missing_file.txt")
+} catch e {
+    print(e.is(NotExistError), e.cause.is(NotExistError), e.cause.is(IOError))
+    print(e.cause.cause == NotExistError)
+}
+
+try {
+    not_found.unwrap()
+} catch e {
+    print(e)
 }

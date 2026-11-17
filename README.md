@@ -149,11 +149,11 @@ try {
     print(e.is(ZeroDivisionError)) # true
 }
 
-# Errors are values built with Error(); wrap adds context, unwrap/is inspect the chain
+# Errors are values built with Error(); wrap adds context, cause/is inspect the chain
 var not_found = Error("not found")
 var err = not_found.wrap("loading config")
 print(err.message)          # loading config: not found
-print(err.unwrap().message) # not found
+print(err.cause.message)    # not found
 print(err.is(not_found))    # true
 
 # Predefined kinds are hierarchical: IndexError is a LookupError,
