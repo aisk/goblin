@@ -37,5 +37,3 @@ true Nil cannot be constructed
 ["constructor", "attributes", "traits"] true
 shadowed
 true
-[<trait Eq>, <trait Show>] []
-true traits() argument must be an instance of a user type, got Int

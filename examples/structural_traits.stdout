@@ -13,6 +13,6 @@ cannot hash List
 cannot compare List and Dict
 cannot compare Point and Bag
 5
-true [<trait Eq>, <trait Ord>]
+true
 true true
 true found

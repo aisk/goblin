@@ -90,15 +90,3 @@ type Shadow() {
 var s = Shadow()
 print(s.constructor())
 print(type_of(s) == Shadow)
-
-# traits(value) lists a user type's impls, in declaration order.
-type Shown(v) {
-    impl Eq {}
-    impl Show {}
-}
-print(traits(Shown(1)), traits(p))
-try {
-    traits(1)
-} catch e {
-    print(e.is(TypeError), e.message)
-}

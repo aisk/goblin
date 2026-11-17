@@ -24,7 +24,7 @@ print(max(Point(0, 1), Point(0, 2)))
 var seen = {a: "first"}
 seen[Point(1, 2)] = "second"
 print(seen.size, seen[Point(1, 2)])
-print(Hashable.hash(a) == Hashable.hash(Point(1, 2)))
+print(hash(a) == hash(Point(1, 2)))
 
 # Show renders nested values the way collections do.
 type Line(start, end, label = "line") {
@@ -65,7 +65,7 @@ type Temperature(degrees) {
     impl Ord {}
 }
 print(max(Temperature(1), Temperature(5), Temperature(3)).degrees)
-print(Temperature(1) == Temperature(1), traits(Temperature(1)))
+print(Temperature(1) == Temperature(1))
 
 # != is always the negation of ==, so a custom eq covers both.
 type Approx(value) {

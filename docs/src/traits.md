@@ -26,7 +26,6 @@ var r = Rect(2, 3)
 print(r)                                # Rect(w=2, h=3)
 print(r == Rect(2, 3))                  # true
 print(Shape.describe(r))                # area 6
-print(traits(r))                        # [<trait Eq>, <trait Show>, <trait Shape>]
 ~~~
 
 ## Declaring a trait
@@ -93,7 +92,6 @@ method is called through the trait, with the receiver as the first argument:
 
 ~~~goblin
 print(Shape.area(r))
-print(Ord.lt(3, 7))                     # built-in traits work on built-in values
 ~~~
 
 The call runs the receiver's implementation, or the trait's default when the

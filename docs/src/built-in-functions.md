@@ -94,14 +94,9 @@ See [Built-in types](./built-in-types.md) for value-specific methods, and
 The traits behind operators and conversions are globals as well: `Eq`, `Ord`,
 `Hashable`, `Show`, `Truth`, `Add`, `Sub`, `Mul`, `Div`, `Mod`, `Neg`, `Iter`
 and `Index`. Types implement them in
-`impl` blocks, and their methods can be called directly with the receiver
-first, on any value:
-
-~~~goblin
-print(Ord.lt(3, 7))             # true
-print(Eq.ne("a", "b"))          # true
-print(Sub.rsub(1, 10))          # 9, that is 10 - 1
-~~~
+`impl` blocks; on any value they are reached through their operators and
+conversions (`a < b`, `a != b`, `String(x)`), and `compare(a, b)` and
+`hash(x)` for the two that have no operator.
 
 See [Traits](./traits.md) for the methods of each trait.
 
