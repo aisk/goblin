@@ -39,7 +39,7 @@ print(path.Path(".").iterdir().size > 0)
 print(path.Path(".").glob("*.goblin").size > 0)
 
 # constructor identity
-print(p.constructor == path.Path)
+print(type_of(p) == path.Path)
 
 # Paths are hashable, so equal paths are one dict key
 var seen = {path.Path("/tmp/a"): 1}

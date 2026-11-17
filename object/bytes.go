@@ -483,12 +483,8 @@ func (b Bytes) Decode(args CallArgs) (Object, error) {
 
 func (b Bytes) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(b), nil
 	case "size":
 		return b.Size(), nil
-	case "constructor":
-		return BytesConstructorFn, nil
 	}
 	if fn, ok := bytesMethods.bind(b, name); ok {
 		return fn, nil

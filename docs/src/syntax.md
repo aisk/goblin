@@ -100,4 +100,4 @@ Calls can use positional arguments, named arguments, `*` list expansion, and
 `**` dictionary expansion. Positional arguments must come before named ones.
 Whether a particular built-in or method accepts names is API-specific: many
 small methods are positional-only. Use the documented parameter names or
-`value.attributes()` in the REPL to discover a value's available methods.
+`attributes(value)` in the REPL to discover a value's available methods.

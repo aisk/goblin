@@ -7,7 +7,7 @@ import "x/compress/bzip2"
 var text = "goblin goblin goblin"
 print(gzip.decompress(gzip.compress(text)).decode())
 print(zlib.decompress(zlib.compress(text)).decode())
-print(gzip.compress(text, level=gzip.BEST_COMPRESSION).constructor == Bytes)
+print(type_of(gzip.compress(text, level=gzip.BEST_COMPRESSION)) == Bytes)
 
 print(lzw.decompress(lzw.compress("Goblin")))
 print(flate.decompress(flate.compress("Goblin compression")).decode())

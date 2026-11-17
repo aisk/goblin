@@ -210,8 +210,6 @@ func (e *Error) Format(s fmt.State, verb rune) {
 
 func (e *Error) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(e), nil
 	case "message":
 		return String(e.Value), nil
 	case "wrap":
@@ -220,8 +218,6 @@ func (e *Error) GetAttr(name string) (Object, error) {
 		return &Function{Name: "unwrap", Fn: e.Unwrapped}, nil
 	case "is":
 		return &Function{Name: "is", Fn: e.IsValue}, nil
-	case "constructor":
-		return ErrorConstructorFn, nil
 	case "traceback":
 		return String(e.Traceback()), nil
 	}
@@ -229,7 +225,7 @@ func (e *Error) GetAttr(name string) (Object, error) {
 }
 
 func (e *Error) Attributes() []string {
-	return []string{"attributes", "message", "wrap", "unwrap", "is", "constructor", "traceback"}
+	return []string{"message", "traceback", "wrap", "unwrap", "is"}
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its

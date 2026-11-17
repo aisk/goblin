@@ -30,12 +30,9 @@ func (t methodTable) bind(recv MethodCaller, name string) (*Function, bool) {
 	}}, true
 }
 
-// attributes lists "attributes", the type's properties, its methods and
-// "constructor", in that order.
+// attributes lists the type's properties, then its methods.
 func (t methodTable) attributes(properties ...string) []string {
-	names := make([]string, 0, len(t.names)+len(properties)+2)
-	names = append(names, "attributes")
+	names := make([]string, 0, len(t.names)+len(properties))
 	names = append(names, properties...)
-	names = append(names, t.names...)
-	return append(names, "constructor")
+	return append(names, t.names...)
 }

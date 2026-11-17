@@ -121,13 +121,12 @@ func errTimeRange() error {
 	return object.NewValueError("Time arithmetic result is out of range")
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (t *Time) Constructor() *object.Function { return timeType.Function }
+
 func (t *Time) GetAttr(name string) (object.Object, error) {
-	if value, ok := timeType.Attribute(name); ok {
-		return value, nil
-	}
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(t), nil
 	// Date components
 	case "year":
 		return object.Integer(t.Value.Year()), nil
@@ -185,7 +184,7 @@ func (t *Time) GetAttr(name string) (object.Object, error) {
 }
 
 func (t *Time) Attributes() []string {
-	return timeType.Attributes("attributes", "year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "elapsed", "format")
+	return []string{"year", "month", "day", "hour", "minute", "second", "nanosecond", "unix", "unix_nano", "weekday", "elapsed", "format"}
 }
 
 var _ object.Object = (*Time)(nil)

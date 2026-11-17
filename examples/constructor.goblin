@@ -12,44 +12,76 @@ print(p.x)
 print(p.y)
 print(p.sum())
 
-var q = p.constructor(10, 20)
+# type_of(value) is the constructor of the value's type.
+var q = type_of(p)(10, 20)
 print(q.x)
 print(q.y)
 print(q.sum())
 
-print(p.constructor == Point)
-print(p.constructor == Box)
-print(p.constructor != Box)
+print(type_of(p) == Point)
+print(type_of(p) == Box)
+print(type_of(p) != Box)
 
 var b = Box(3, 4)
-print(p.constructor == b.constructor)
-print(p.constructor == q.constructor)
+print(type_of(p) == type_of(b))
+print(type_of(p) == type_of(q))
 
 var xs = [1, 2, 3]
-print(xs.constructor == List)
+print(type_of(xs) == List)
 
 var name = "hi"
-print(name.constructor == String)
+print(type_of(name) == String)
 
 var n = 42
-print(n.constructor == Int)
+print(type_of(n) == Int)
 
 var flag = true
-print(flag.constructor == Bool)
+print(type_of(flag) == Bool)
 
 var d = {"a": 1}
-print(d.constructor == Dict)
+print(type_of(d) == Dict)
 
-print(xs.constructor == String)
+print(type_of(xs) == String)
+print(type_of(1.5) == Float, type_of(Bytes("x")) == Bytes, type_of(Error("e")) == Error)
+print(type_of(TypeError) == Error, type_of(Chan()) == Chan)
 
-# Type objects are themselves callables, so their constructor is Function.
-print(Int.constructor == Function)
-print(String.constructor == Function)
-print(Int.constructor == String.constructor)
-print(Point.constructor == Function)
-print(Function.constructor == Function)
+# Type objects are themselves callables, so their type is Function.
+print(type_of(Int) == Function)
+print(type_of(String) == Function)
+print(type_of(Int) == type_of(String))
+print(type_of(Point) == Function)
+print(type_of(Function) == Function)
+print(type_of(func() {}) == Function, type_of(print) == Function)
 
-# Shadowing: a user-defined `constructor` method wins over the built-in attribute
+# A function knows its name.
+print(Int.name, String.name, Point.name, type_of(p).name, type_of(Int).name)
+func helper() {}
+print(helper.name, p.sum.name, p.sum)
+
+# Values whose type cannot be constructed still have one: comparing works,
+# and so does its name, but calling it fails.
+print(type_of(nil).name, type_of(nil) == type_of(nil), type_of(nil) == type_of(1))
+print(type_of(Eq).name, type_of(spawn(func() {})).name)
+try {
+    type_of(nil)()
+} catch e {
+    print(e.is(TypeError), e.message)
+}
+
+# attributes(value) lists properties and fields first, then methods.
+print(attributes(p))
+print(attributes([]))
+print(attributes(1), attributes(nil))
+print(attributes(Error("e")))
+print(attributes(Int))
+
+# Reflection is global, so a member named constructor, attributes or traits
+# is an ordinary member and reads the same in both backends.
+type Members(constructor, attributes, traits) {}
+var m = Members(1, 2, 3)
+print(m.constructor, m.attributes, m.traits)
+print(attributes(m), type_of(m) == Members)
+
 type Shadow() {
     func constructor(self) {
         return "shadowed"
@@ -57,3 +89,16 @@ type Shadow() {
 }
 var s = Shadow()
 print(s.constructor())
+print(type_of(s) == Shadow)
+
+# traits(value) lists a user type's impls, in declaration order.
+type Shown(v) {
+    impl Eq {}
+    impl Show {}
+}
+print(traits(Shown(1)), traits(p))
+try {
+    traits(1)
+} catch e {
+    print(e.is(TypeError), e.message)
+}

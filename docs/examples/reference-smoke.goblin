@@ -50,4 +50,4 @@ func identity(value) {
     return value
 }
 Function(identity)
-identity.constructor
+type_of(identity)

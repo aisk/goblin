@@ -68,28 +68,11 @@ func inspect(obj Object) string {
 	return obj.TypeName()
 }
 
-// AttributesFunction exposes an object's attribute names as the bound
-// attributes() method. A fresh List is returned on every call so callers
-// cannot mutate shared runtime metadata.
-func AttributesFunction(obj Object) *Function {
-	return &Function{Name: "attributes", Fn: func(args CallArgs) (Object, error) {
-		if err := RequireNoArgs("attributes", args); err != nil {
-			return nil, err
-		}
-		names := obj.Attributes()
-		elements := make([]Object, len(names))
-		for i, name := range names {
-			elements[i] = String(name)
-		}
-		return &List{Elements: elements}, nil
-	}}
-}
-
 // MethodCaller is implemented by types that can run one of their own methods
 // without handing out a bound *Function first. handled reports whether the
 // name is one of the receiver's methods; when it is false the caller falls
-// back to GetAttr, so fields holding a function, "constructor", "attributes"
-// and unknown-attribute errors all keep their original behavior.
+// back to GetAttr, so fields holding a function, properties and
+// unknown-attribute errors all keep their original behavior.
 type MethodCaller interface {
 	CallMethod(name string, args CallArgs) (Object, bool, error)
 }

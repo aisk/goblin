@@ -32,8 +32,6 @@ func (h *Header) ToString() (string, error) { return h.String(), nil }
 
 func (h *Header) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(h), nil
 	case "get":
 		return &object.Function{Name: "get", Fn: h.get}, nil
 	case "values":
@@ -50,7 +48,7 @@ func (h *Header) GetAttr(name string) (object.Object, error) {
 }
 
 func (h *Header) Attributes() []string {
-	return []string{"attributes", "get", "values", "set", "add", "del"}
+	return []string{"get", "values", "set", "add", "del"}
 }
 
 // Index reads h[key] like get(), except that a missing header raises

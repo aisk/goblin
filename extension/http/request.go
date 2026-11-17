@@ -31,13 +31,12 @@ func (r *Request) String() string {
 
 func (r *Request) ToString() (string, error) { return r.String(), nil }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (r *Request) Constructor() *object.Function { return requestType.Function }
+
 func (r *Request) GetAttr(name string) (object.Object, error) {
-	if value, ok := requestType.Attribute(name); ok {
-		return value, nil
-	}
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(r), nil
 	case "method":
 		return object.String(r.Req.Method), nil
 	case "url":
@@ -57,7 +56,7 @@ func (r *Request) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Request) Attributes() []string {
-	return requestType.Attributes("attributes", "method", "url", "header", "body")
+	return []string{"method", "url", "header", "body"}
 }
 
 var _ object.Object = (*Request)(nil)

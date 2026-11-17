@@ -7,12 +7,12 @@ print(json.marshal({"name": "Alice"}))
 var obj = {"name": "Alice", "age": 30, "scores": [90, 95]}
 var data = json.unmarshal(json.marshal(obj))
 print(data["name"])
-print(data["age"].constructor == Int)
+print(type_of(data["age"]) == Int)
 print(data["scores"][1])
 
 # scalar unmarshal
 print(json.unmarshal("42"))
-print(json.unmarshal("3.14").constructor == Float)
+print(type_of(json.unmarshal("3.14")) == Float)
 print(json.unmarshal("true"))
 print(json.unmarshal("null"))
 

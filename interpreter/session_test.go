@@ -45,7 +45,7 @@ func TestSessionCompletionCandidates(t *testing.T) {
 	if _, err := s.Eval(`var user = User("alice")`); err != nil {
 		t.Fatal(err)
 	}
-	if names := s.CompletionCandidates([]string{"user"}); !reflect.DeepEqual(names, []string{"name", "hello", "constructor", "attributes", "traits"}) {
+	if names := s.CompletionCandidates([]string{"user"}); !reflect.DeepEqual(names, []string{"name", "hello"}) {
 		t.Fatalf("user completion candidates = %v", names)
 	}
 	if names := s.CompletionCandidates([]string{"user", "name"}); !containsString(names, "trim") {
@@ -222,12 +222,13 @@ func TestSessionUserTypeAttributes(t *testing.T) {
 	if _, err := s.Eval(`var user = User("alice")`); err != nil {
 		t.Fatal(err)
 	}
-	if got := evalString(t, s, "user.attributes()"); got != `["name", "hello", "constructor", "attributes", "traits"]` {
-		t.Fatalf("user.attributes() = %q", got)
+	if got := evalString(t, s, "attributes(user)"); got != `["name", "hello"]` {
+		t.Fatalf("attributes(user) = %q", got)
 	}
 }
 
-func TestSessionUserCanOverrideAttributes(t *testing.T) {
+// A method named like a reflection function is an ordinary member.
+func TestSessionUserMethodNamedAttributes(t *testing.T) {
 	s := NewSession(".")
 	if _, err := s.Eval(`type User() { func attributes(self) { return ["custom"] } }`); err != nil {
 		t.Fatal(err)
@@ -236,7 +237,10 @@ func TestSessionUserCanOverrideAttributes(t *testing.T) {
 		t.Fatal(err)
 	}
 	if got := evalString(t, s, "user.attributes()"); got != `["custom"]` {
-		t.Fatalf("overridden user.attributes() = %q", got)
+		t.Fatalf("user.attributes() = %q", got)
+	}
+	if got := evalString(t, s, "attributes(user)"); got != `["attributes"]` {
+		t.Fatalf("attributes(user) = %q", got)
 	}
 }
 

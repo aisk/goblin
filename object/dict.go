@@ -369,12 +369,8 @@ func (d *Dict) SetIndex(index Object, value Object) (bool, error) {
 
 func (d *Dict) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(d), nil
 	case "size":
 		return d.Size(), nil
-	case "constructor":
-		return DictConstructorFn, nil
 	}
 	if fn, ok := dictMethods.bind(d, name); ok {
 		return fn, nil

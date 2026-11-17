@@ -17,8 +17,6 @@ func (r *Result) ToString() (string, error) { return r.String(), nil }
 func (r *Result) ToBool() (bool, error)     { return r.code == 0, nil }
 func (r *Result) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(r), nil
 	case "code":
 		return object.Integer(r.code), nil
 	case "success":
@@ -31,7 +29,7 @@ func (r *Result) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Result has no attribute '%s'", name)
 }
 func (r *Result) Attributes() []string {
-	return []string{"attributes", "code", "success", "stdout", "stderr"}
+	return []string{"code", "success", "stdout", "stderr"}
 }
 
 var _ object.Object = (*Cmd)(nil)

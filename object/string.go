@@ -469,12 +469,8 @@ func (s String) Index(index Object) (Object, error) {
 
 func (s String) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(s), nil
 	case "size":
 		return s.Size(), nil
-	case "constructor":
-		return StringConstructorFn, nil
 	}
 	if fn, ok := stringMethods.bind(s, name); ok {
 		return fn, nil

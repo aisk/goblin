@@ -52,7 +52,7 @@ func TestStaticCallAndAttributeChecks(t *testing.T) {
 		{"store to a method", "type P(x) {\n  func f(self) {\n    self.f = 1\n  }\n}\n", "3:10: semantic error: P has no attribute 'f'"},
 		{"self in an impl method", "type P(x) {\n  impl Show {\n    func show(self) {\n      return self.z\n    }\n  }\n}\n", "4:19: semantic error: P has no attribute 'z'"},
 		{"self captured by a closure", "type P(x) {\n  func f(self) {\n    return func() { return self.z }\n  }\n}\n", "3:33: semantic error: P has no attribute 'z'"},
-		{"built-in attributes", "type P(x) {\n  func f(self) {\n    return [self.constructor, self.attributes(), self.traits()]\n  }\n}\n", ""},
+		{"no built-in attributes", "type P(x) {\n  func f(self) {\n    return self.constructor\n  }\n}\n", "3:17: semantic error: P has no attribute 'constructor'"},
 		{"reassigned self", "type P(x) {\n  func f(self) {\n    self = 1\n    return self.z\n  }\n}\n", ""},
 		{"self of a trait default method", "trait T {\n  func f(self) {\n    return self.z\n  }\n}\n", ""},
 		{"another parameter named like a field holder", "type P(x) {\n  func f(self, other) {\n    return other.z\n  }\n}\n", ""},

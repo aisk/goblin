@@ -7,8 +7,8 @@ package object
 // `x.m` taken as a value still goes through GetAttr.
 //
 // handled reports whether name is one of the receiver's methods. It is false
-// for "constructor", for "attributes", and for anything unknown, so the caller
-// falls back to GetAttr and the resulting value or error is unchanged.
+// for a property and for anything unknown, so the caller falls back to
+// GetAttr and the resulting value or error is unchanged.
 //
 // Each switch names the same methods as the type's methodTable, and
 // TestCallMethodMatchesGetAttr holds them to that.

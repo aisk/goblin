@@ -21,6 +21,9 @@ type UserValue interface {
 type UserType struct {
 	Name   string
 	Fields []string
+	// Constructor is the type's constructor, what type_of answers for its
+	// values. Both backends set it when they define the type.
+	Constructor *Function
 
 	pending []ImplSpec
 	impls   []*TraitImpl
@@ -416,22 +419,6 @@ func userHash(v UserValue) (uint64, error) {
 		return 0, err
 	}
 	return uint64(r.(Integer)), nil
-}
-
-// TraitsFunction exposes a user value's implemented traits as the bound
-// traits() method. A fresh List is returned on every call.
-func TraitsFunction(v UserValue) *Function {
-	return &Function{Name: "traits", Fn: func(args CallArgs) (Object, error) {
-		if err := RequireNoArgs("traits", args); err != nil {
-			return nil, err
-		}
-		traits := v.UserType().Traits()
-		elements := make([]Object, len(traits))
-		for i, tr := range traits {
-			elements[i] = tr
-		}
-		return &List{Elements: elements}, nil
-	}}
 }
 
 // structuralShow renders `Name(field=value, ...)`. Values render the way a

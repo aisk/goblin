@@ -19,12 +19,9 @@ type streamPolicy struct {
 func (p *streamPolicy) String() string            { return "exec." + p.name }
 func (p *streamPolicy) ToString() (string, error) { return p.String(), nil }
 func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
-	if name == "attributes" {
-		return object.AttributesFunction(p), nil
-	}
 	return nil, object.NewAttributeError("StreamPolicy has no attribute '%s'", name)
 }
-func (p *streamPolicy) Attributes() []string { return []string{"attributes"} }
+func (p *streamPolicy) Attributes() []string { return []string{} }
 
 var (
 	inherit     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "INHERIT"}

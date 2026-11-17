@@ -104,9 +104,9 @@ traits and how to declare traits of your own.
 ## Checking a value's type
 
 A type name such as `Point` is the constructor function for that type; it is
-not a separate type object, and there is no `isinstance` built-in. Every value
-except nil has a `constructor` attribute holding the function that builds
-values of its type, so comparing it answers "is this a Point":
+not a separate type object, and there is no `isinstance` built-in.
+`type_of(value)` returns the function that builds values of the value's type,
+so comparing it answers "is this a Point":
 
 ```goblin
 type Point(x, y) {}
@@ -115,10 +115,10 @@ func describe(value) {
     if value == nil {
         return "nothing"
     }
-    if value.constructor == Point {
+    if type_of(value) == Point {
         return "a point"
     }
-    if value.constructor == Int || value.constructor == Float {
+    if type_of(value) == Int || type_of(value) == Float {
         return "a number"
     }
     return "something else"
@@ -130,6 +130,9 @@ print(describe(nil))          # nothing
 ```
 
 Built-in values answer with the conversion functions: `Int`, `Float`, `String`,
-`Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error`, `Chan` and `Goblin`.
-For behaviour rather than identity, check traits instead:
-`value.traits().contains(Show)` on an instance of a user type.
+`Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error` and `Chan`. A value whose
+type has no constructor (`nil`, a module, a trait, a Goblin handle) answers a
+stand-in that still compares equal across values of that type and has its
+`name`, such as `type_of(nil).name == "Nil"`. For behaviour rather than
+identity, check traits instead: `traits(value).contains(Show)` on an instance
+of a user type.

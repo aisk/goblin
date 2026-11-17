@@ -57,10 +57,12 @@ func (a *Addr) unmap(args object.CallArgs) (object.Object, error) {
 	return newAddr(a.value.Unmap()), nil
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (a *Addr) Constructor() *object.Function { return addrType.Function }
+
 func (a *Addr) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(a), nil
 	case "bits":
 		return object.Integer(a.value.BitLen()), nil
 	case "bytes":
@@ -95,7 +97,7 @@ func (a *Addr) GetAttr(name string) (object.Object, error) {
 	}
 }
 func (a *Addr) Attributes() []string {
-	return []string{"attributes", "bits", "bytes", "zone", "is4", "is6", "is_loopback", "is_multicast", "is_private", "is_unspecified", "is_link_local_unicast", "is_link_local_multicast", "next", "prev", "unmap"}
+	return []string{"bits", "bytes", "zone", "is4", "is6", "is_loopback", "is_multicast", "is_private", "is_unspecified", "is_link_local_unicast", "is_link_local_multicast", "next", "prev", "unmap"}
 }
 
 var _ object.Object = (*Addr)(nil)

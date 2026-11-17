@@ -101,8 +101,6 @@ func (b *Body) close(args object.CallArgs) (object.Object, error) {
 
 func (b *Body) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(b), nil
 	case "read":
 		return &object.Function{Name: "read", Fn: b.read}, nil
 	case "close":
@@ -115,7 +113,7 @@ func (b *Body) GetAttr(name string) (object.Object, error) {
 }
 
 func (b *Body) Attributes() []string {
-	return []string{"attributes", "read", "close", "closed"}
+	return []string{"read", "close", "closed"}
 }
 
 var (

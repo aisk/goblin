@@ -86,17 +86,10 @@ func (i Integer) Index(index Object) (Object, error) {
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {
-	switch name {
-	case "attributes":
-		return AttributesFunction(i), nil
-	case "constructor":
-		return IntConstructorFn, nil
-	default:
-		return nil, NewAttributeError("Int has no attribute '%s'", name)
-	}
+	return nil, NewAttributeError("Int has no attribute '%s'", name)
 }
 
-func (i Integer) Attributes() []string { return []string{"attributes", "constructor"} }
+func (i Integer) Attributes() []string { return []string{} }
 
 var IntConstructorFn = &Function{Name: "Int", Fn: IntConstructor}
 

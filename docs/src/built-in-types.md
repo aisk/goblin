@@ -216,6 +216,6 @@ together.
 | Goblin | spawn(function, args...), wait(), done, wait_any(goblins) |
 | Function | Function(value), value(...) |
 
-Use value.attributes() in the REPL to inspect all operations provided by a
-runtime value. Constructible values also expose `value.constructor`; see
+Use `attributes(value)` in the REPL to inspect all operations provided by a
+runtime value, and `type_of(value)` for its type; see
 [Built-in functions](./built-in-functions.md#constructors-and-type-identity).

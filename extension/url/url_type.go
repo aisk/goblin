@@ -38,8 +38,6 @@ func (u *URL) resolveReference(args object.CallArgs) (object.Object, error) {
 
 func (u *URL) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(u), nil
 	case "scheme":
 		return object.String(u.value.Scheme), nil
 	case "host":
@@ -63,7 +61,7 @@ func (u *URL) GetAttr(name string) (object.Object, error) {
 }
 
 func (u *URL) Attributes() []string {
-	return []string{"attributes", "scheme", "host", "path", "raw_query", "fragment", "hostname", "port", "escaped_path", "resolve_reference"}
+	return []string{"scheme", "host", "path", "raw_query", "fragment", "hostname", "port", "escaped_path", "resolve_reference"}
 }
 
 var _ object.Object = (*URL)(nil)

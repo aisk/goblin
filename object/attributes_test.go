@@ -1,13 +1,17 @@
 package object
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
-func TestAttributesMethodReturnsResolvableNames(t *testing.T) {
+func TestAttributesReturnsResolvableNames(t *testing.T) {
 	objects := []Object{
 		Nil, True, Integer(1), Float(1), String("x"), Bytes("x"),
 		&List{Elements: []Object{Integer(1)}}, NewDict(), NewChan(0),
 		&Function{Name: "f", Fn: func(CallArgs) (Object, error) { return Nil, nil }},
 		NewError("boom"), &Module{Name: "m", Members: map[string]Object{"value": Integer(1)}},
+		OrdTrait,
 	}
 	for _, obj := range objects {
 		for _, name := range obj.Attributes() {
@@ -15,33 +19,61 @@ func TestAttributesMethodReturnsResolvableNames(t *testing.T) {
 				t.Errorf("%T.Attributes() contains %q, but GetAttr failed: %v", obj, name, err)
 			}
 		}
+		// Reflection is a set of global functions, never a member.
+		for _, name := range []string{"attributes", "constructor", "traits"} {
+			if _, err := obj.GetAttr(name); !errors.Is(err, AttributeError) {
+				t.Errorf("%T has a %q member: %v", obj, name, err)
+			}
+		}
 	}
 }
 
-func TestAttributesMethodReturnsFreshList(t *testing.T) {
+func TestAttributesReturnsFreshList(t *testing.T) {
 	obj := &List{}
-	method, err := obj.GetAttr("attributes")
-	if err != nil {
-		t.Fatal(err)
-	}
-	first, err := Call(method, CallArgs{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	first.(*List).Elements[0] = String("changed")
-
-	second, err := Call(method, CallArgs{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := second.(*List).Elements[0]; got != String("attributes") {
-		t.Fatalf("second attributes() result starts with %v, want attributes", got)
+	first := Attributes(obj)
+	first.Elements[0] = String("changed")
+	if got := Attributes(obj).Elements[0]; got != String("size") {
+		t.Fatalf("second attributes() result starts with %v, want size", got)
 	}
 }
 
-func TestAttributesMethodRejectsArguments(t *testing.T) {
-	method, _ := Integer(1).GetAttr("attributes")
-	if _, err := Call(method, CallArgs{Positional: Args{Integer(1)}}); err == nil {
-		t.Fatal("attributes() accepted a positional argument")
+func TestTypeOf(t *testing.T) {
+	tests := []struct {
+		value Object
+		want  *Function
+	}{
+		{Integer(1), IntConstructorFn},
+		{Float(1), FloatConstructorFn},
+		{True, BoolConstructorFn},
+		{String("x"), StringConstructorFn},
+		{Bytes("x"), BytesConstructorFn},
+		{&List{}, ListConstructorFn},
+		{NewDict(), DictConstructorFn},
+		{NewError("x"), ErrorConstructorFn},
+		{TypeError, ErrorConstructorFn},
+		{IntConstructorFn, FunctionConstructorFn},
+		{NewChan(0), ChanConstructorFn},
+	}
+	for _, tt := range tests {
+		if got := TypeOf(tt.value); got != tt.want {
+			t.Errorf("TypeOf(%v) = %v, want %v", tt.value, got, tt.want)
+		}
+	}
+	// A type that cannot be constructed has one stand-in per type name.
+	if TypeOf(Nil) != TypeOf(Unit{}) || TypeOf(Nil).Name != "Nil" {
+		t.Errorf("TypeOf(nil) = %v", TypeOf(Nil))
+	}
+	if TypeOf(OrdTrait) == TypeOf(Nil) || TypeOf(OrdTrait).Name != "Trait" {
+		t.Errorf("TypeOf(Ord) = %v", TypeOf(OrdTrait))
+	}
+	if _, err := TypeOf(Nil).Call(CallArgs{}); err == nil || err.Error() != "Nil cannot be constructed" {
+		t.Errorf("calling type_of(nil): %v", err)
+	}
+}
+
+func TestTraitsRejectsBuiltInValues(t *testing.T) {
+	_, err := Traits(Integer(1))
+	if !errors.Is(err, TypeError) || err.Error() != "traits() argument must be an instance of a user type, got Int" {
+		t.Errorf("Traits(1) = %v", err)
 	}
 }

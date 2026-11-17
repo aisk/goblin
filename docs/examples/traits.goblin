@@ -20,7 +20,7 @@ var r = Rect(2, 3)
 print(r)
 print(r == Rect(2, 3))
 print(Shape.describe(r))
-print(r.traits())
+print(traits(r))
 print(Shape.area(r))
 print(Ord.max(3, 7))
 

@@ -45,13 +45,12 @@ func (u *UUID) Compare(other object.Object) (int, error) {
 
 func (u *UUID) Hash() (uint64, error) { return maphash.Bytes(hashSeed, u.Value[:]), nil }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (u *UUID) Constructor() *object.Function { return uuidType.Function }
+
 func (u *UUID) GetAttr(name string) (object.Object, error) {
-	if value, ok := uuidType.Attribute(name); ok {
-		return value, nil
-	}
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(u), nil
 	case "version":
 		return object.Integer(u.version()), nil
 	case "bytes":
@@ -72,7 +71,7 @@ func (u *UUID) GetAttr(name string) (object.Object, error) {
 }
 
 func (u *UUID) Attributes() []string {
-	return uuidType.Attributes("attributes", "bytes", "urn", "version", "time")
+	return []string{"bytes", "urn", "version", "time"}
 }
 
 // version reads the version field from the high nibble of octet 6.

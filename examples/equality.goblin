@@ -25,7 +25,7 @@ var p = Point(1, 2)
 var q = Point(1, 2)
 print(p == p)
 print(p == q)
-print(p.constructor == Point)
+print(type_of(p) == Point)
 
 # An Eq impl defines equality for a type, and works on either side of ==.
 type Money(amount) {

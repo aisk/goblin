@@ -157,7 +157,7 @@ func (c *checker) noteAttr(obj ast.Expression, name string, at ast.Statement, st
 }
 
 // hasAttribute mirrors an instance's GetAttr and SetAttr: fields can be read
-// and written; methods and the built-in attributes only read.
+// and written; methods only read. An instance has no other attributes.
 func hasAttribute(def *ast.TypeDefine, name string, store bool) bool {
 	for _, field := range def.Fields {
 		if field.Name == name {
@@ -171,10 +171,6 @@ func hasAttribute(def *ast.TypeDefine, name string, store bool) bool {
 		if method.Name == name {
 			return true
 		}
-	}
-	switch name {
-	case "constructor", "attributes", "traits":
-		return true
 	}
 	return false
 }

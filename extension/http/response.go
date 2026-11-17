@@ -31,8 +31,6 @@ func (r *Response) ToString() (string, error) { return r.String(), nil }
 
 func (r *Response) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(r), nil
 	case "status_code":
 		return object.Integer(r.resp.StatusCode), nil
 	case "status":
@@ -49,7 +47,7 @@ func (r *Response) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Response) Attributes() []string {
-	return []string{"attributes", "status_code", "status", "header", "body", "json"}
+	return []string{"status_code", "status", "header", "body", "json"}
 }
 
 // json parses the response body as JSON and returns the corresponding goblin

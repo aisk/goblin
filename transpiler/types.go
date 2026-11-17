@@ -107,7 +107,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			jen.Case(jen.Lit(method.Name)).Block(
 				jen.Return(
 					jen.Op("&").Qual(pathObject, "Function").Values(
-						jen.Id("Name").Op(":").Lit(method.Name),
+						jen.Id("Name").Op(":").Lit(typeDef.Name+"."+method.Name),
 						jen.Id("Fn").Op(":").Id(receiverName).Dot(wrapperName),
 					),
 					jen.Nil(),
@@ -118,47 +118,6 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			attributeNames = append(attributeNames, jen.Lit(method.Name))
 			seenAttributes[method.Name] = true
 		}
-	}
-	userDefinedConstructor := false
-	for _, field := range typeDef.Fields {
-		if field.Name == "constructor" {
-			userDefinedConstructor = true
-			break
-		}
-	}
-	if !userDefinedConstructor {
-		for _, method := range typeDef.Methods {
-			if method.Name == "constructor" {
-				userDefinedConstructor = true
-				break
-			}
-		}
-	}
-	if !userDefinedConstructor {
-		getAttrCases = append(getAttrCases,
-			jen.Case(jen.Lit("constructor")).Block(
-				jen.Return(jen.Id(ctorVarName), jen.Nil()),
-			),
-		)
-		attributeNames = append(attributeNames, jen.Lit("constructor"))
-		seenAttributes["constructor"] = true
-	}
-	if !seenAttributes["attributes"] {
-		getAttrCases = append(getAttrCases,
-			jen.Case(jen.Lit("attributes")).Block(
-				jen.Return(jen.Qual(pathObject, "AttributesFunction").Call(jen.Id(receiverName)), jen.Nil()),
-			),
-		)
-		attributeNames = append(attributeNames, jen.Lit("attributes"))
-		seenAttributes["attributes"] = true
-	}
-	if !seenAttributes["traits"] {
-		getAttrCases = append(getAttrCases,
-			jen.Case(jen.Lit("traits")).Block(
-				jen.Return(jen.Qual(pathObject, "TraitsFunction").Call(jen.Id(receiverName)), jen.Nil()),
-			),
-		)
-		attributeNames = append(attributeNames, jen.Lit("traits"))
 	}
 	getAttrCases = append(getAttrCases,
 		jen.Default().Block(
@@ -185,8 +144,8 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	// CallMethod satisfies object.MethodCaller, so `p.step()` calls the
 	// method body directly instead of allocating the bound function GetAttr
 	// hands out. Only real methods are answered here: a field shadowing a
-	// method name, "constructor" and "attributes" all fall through to
-	// GetAttr, which keeps their behavior exactly as it was.
+	// method name falls through to GetAttr, which keeps its behavior exactly
+	// as it was.
 	fieldNamed := make(map[string]bool, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
 		fieldNamed[field.Name] = true
@@ -463,12 +422,19 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		)
 	}
 
-	constructor := jen.Id(ctorVarName).Op("=").Op("&").Qual(pathObject, "Function").Values(
-		jen.Id("Name").Op(":").Lit(typeDef.Name),
-		jen.Id("Fn").Op(":").Add(constructorClosure),
-	)
+	// The constructor is built into a local first so the type's UserType can
+	// record it for type_of.
+	ctorFn := g.localName("ctor")
+	constructor := []jen.Code{
+		jen.Id(ctorFn).Op(":=").Op("&").Qual(pathObject, "Function").Values(
+			jen.Id("Name").Op(":").Lit(typeDef.Name),
+			jen.Id("Fn").Op(":").Add(constructorClosure),
+		),
+		jen.Id(typeVar).Dot("Constructor").Op("=").Id(ctorFn),
+		jen.Id(ctorVarName).Op("=").Id(ctorFn),
+	}
 
-	return append(registration, constructor), nil
+	return append(registration, constructor...), nil
 }
 
 // newUser allocates a generated struct and wires its embedded UserBase.

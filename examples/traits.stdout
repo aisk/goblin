@@ -5,7 +5,7 @@ BEEP unit 7
 HEY!
 [<trait Named>, <trait Titled>]
 true
-["first", "last", "name", "constructor", "attributes", "traits"]
+["first", "last", "name"]
 <trait Named> true false
 BEEP unit 1
 -1 b false

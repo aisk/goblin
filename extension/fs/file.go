@@ -200,8 +200,6 @@ func (f *File) Equals(other object.Object) (bool, error) {
 
 func (f *File) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(f), nil
 	case "name":
 		return object.String(f.Name), nil
 	case "closed":
@@ -220,7 +218,7 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 }
 
 func (f *File) Attributes() []string {
-	return []string{"attributes", "name", "closed", "read", "write", "stat", "close"}
+	return []string{"name", "closed", "read", "write", "stat", "close"}
 }
 
 var _ object.Object = (*File)(nil)

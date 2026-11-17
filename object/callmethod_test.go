@@ -51,12 +51,14 @@ func TestCallMethodFallsBack(t *testing.T) {
 		t.Fatal("expected an attribute error for an unknown method")
 	}
 
-	ctor, err := CallMethod(list, "constructor", CallArgs{Positional: Args{list}})
+	// A field holding a function is reached through GetAttr.
+	m := &Module{Members: map[string]Object{"f": ListConstructorFn}}
+	made, err := CallMethod(m, "f", CallArgs{Positional: Args{list}})
 	if err != nil {
-		t.Fatalf("constructor via CallMethod: %v", err)
+		t.Fatalf("member function via CallMethod: %v", err)
 	}
-	if _, ok := ctor.(*List); !ok {
-		t.Fatalf("expected a list from the constructor, got %T", ctor)
+	if _, ok := made.(*List); !ok {
+		t.Fatalf("expected a list from the member function, got %T", made)
 	}
 
 	// size is a property, not a method: calling it falls through to GetAttr

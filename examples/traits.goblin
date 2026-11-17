@@ -67,9 +67,9 @@ type Word(text) {
 print(Loud.shout(Word("hey")))
 
 # traits() lists what a value implements, in declaration order.
-print(ada.traits())
-print(Word("x").traits().contains(Loud))
-print(ada.attributes())
+print(traits(ada))
+print(traits(Word("x")).contains(Loud))
+print(attributes(ada))
 print(Named, Named == Named, Named == Titled)
 
 # Trait objects are values, and so are their methods.

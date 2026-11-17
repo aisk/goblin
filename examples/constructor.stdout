@@ -15,9 +15,27 @@ true
 true
 true
 false
+true true true
+true true
 true
 true
 true
 true
 true
+true true
+Int String Point Point Function
+helper Point.sum <function Point.sum>
+Nil true false
+Trait Goblin
+true Nil cannot be constructed
+["x", "y", "sum"]
+["size", "first", "last", "push", "pop", "join", "insert", "contains", "count", "index", "remove", "reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find", "any", "all", "sum"]
+[] []
+["message", "traceback", "wrap", "unwrap", "is"]
+["name"]
+1 2 3
+["constructor", "attributes", "traits"] true
 shadowed
+true
+[<trait Eq>, <trait Show>] []
+true traits() argument must be an instance of a user type, got Int

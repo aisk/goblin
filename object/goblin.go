@@ -42,8 +42,6 @@ func (g *Goblin) Hash() (uint64, error) { return identityHash(g), nil }
 
 func (g *Goblin) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(g), nil
 	case "done":
 		return Bool(g.finished()), nil
 	case "wait":
@@ -54,7 +52,7 @@ func (g *Goblin) GetAttr(name string) (Object, error) {
 }
 
 func (g *Goblin) Attributes() []string {
-	return []string{"attributes", "done", "wait"}
+	return []string{"done", "wait"}
 }
 
 // finished reports without blocking whether the function has returned; it

@@ -29,25 +29,23 @@ func (f *Function) Equals(other Object) (bool, error) {
 // Hash follows identity, so functions can be dict keys.
 func (f *Function) Hash() (uint64, error) { return identityHash(f), nil }
 
+// GetAttr exposes the read-only property name: "Int", "Point",
+// "Point.area".
 func (f *Function) GetAttr(name string) (Object, error) {
-	switch name {
-	case "attributes":
-		return AttributesFunction(f), nil
-	case "constructor":
-		return FunctionConstructorFn, nil
-	default:
-		return nil, NewAttributeError("Function has no attribute '%s'", name)
+	if name == "name" {
+		return String(f.Name), nil
 	}
+	return nil, NewAttributeError("Function has no attribute '%s'", name)
 }
 
-func (f *Function) Attributes() []string { return []string{"attributes", "constructor"} }
+func (f *Function) Attributes() []string { return []string{"name"} }
 
 var _ Object = (*Function)(nil)
 
 // FunctionConstructorFn is the constructor shared by every callable, including
-// the built-in type objects (Int, Str, ...) and user-defined type
-// constructors. It is its own constructor, so `Function.constructor` returns
-// itself, mirroring how a metaclass is its own type.
+// the built-in type objects (Int, String, ...) and user-defined type
+// constructors. It is its own type, so `type_of(Function) == Function`,
+// mirroring how a metaclass is its own type.
 var FunctionConstructorFn = &Function{Name: "Function", Fn: FunctionConstructor}
 
 func FunctionConstructor(args CallArgs) (Object, error) {

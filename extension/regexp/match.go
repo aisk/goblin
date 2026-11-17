@@ -157,8 +157,6 @@ func (m *Match) namedGroups() (object.Object, error) {
 
 func (m *Match) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(m), nil
 	case "source":
 		return object.String(m.source), nil
 	case "text":
@@ -182,7 +180,7 @@ func (m *Match) GetAttr(name string) (object.Object, error) {
 
 func (m *Match) Attributes() []string {
 	return []string{
-		"attributes", "source", "text", "start", "end",
+		"source", "text", "start", "end",
 		"groups", "named_groups", "group", "span",
 	}
 }

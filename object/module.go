@@ -36,19 +36,14 @@ func (m *Module) GetAttr(name string) (Object, error) {
 	if val, ok := m.Members[name]; ok {
 		return val, nil
 	}
-	if name == "attributes" {
-		return AttributesFunction(m), nil
-	}
 	return nil, NewAttributeError("Module has no attribute '%s'", name)
 }
 
+// Attributes lists the module's members, sorted by name.
 func (m *Module) Attributes() []string {
-	names := make([]string, 0, len(m.Members)+1)
+	names := make([]string, 0, len(m.Members))
 	for name := range m.Members {
 		names = append(names, name)
-	}
-	if _, overridden := m.Members["attributes"]; !overridden {
-		names = append(names, "attributes")
 	}
 	sort.Strings(names)
 	return names

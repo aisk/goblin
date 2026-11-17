@@ -65,7 +65,7 @@ type Temperature(degrees) {
     impl Ord {}
 }
 print(max(Temperature(1), Temperature(5), Temperature(3)).degrees)
-print(Temperature(1) == Temperature(1), Temperature(1).traits())
+print(Temperature(1) == Temperature(1), traits(Temperature(1)))
 
 # != is always the negation of ==, so a custom eq covers both.
 type Approx(value) {

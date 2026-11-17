@@ -1,7 +1,7 @@
 import "uuid"
 
 var id = uuid.new()
-print(id.constructor == uuid.UUID)
+print(type_of(id) == uuid.UUID)
 print(id.version)
 print(uuid.new(version=7).version)
 

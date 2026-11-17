@@ -152,13 +152,11 @@ func (r *Rand) Equals(other object.Object) (bool, error) {
 	return ok && r == value, nil
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (r *Rand) Constructor() *object.Function { return randType.Function }
+
 func (r *Rand) GetAttr(name string) (object.Object, error) {
-	if value, ok := randType.Attribute(name); ok {
-		return value, nil
-	}
-	if name == "attributes" {
-		return object.AttributesFunction(r), nil
-	}
 	var fn func(object.CallArgs) (object.Object, error)
 	switch name {
 	case "int":
@@ -181,7 +179,7 @@ func (r *Rand) GetAttr(name string) (object.Object, error) {
 }
 
 func (r *Rand) Attributes() []string {
-	return randType.Attributes("attributes", "int", "float", "perm", "shuffle", "norm_float", "exp_float")
+	return []string{"int", "float", "perm", "shuffle", "norm_float", "exp_float"}
 }
 
 var _ object.Object = (*Rand)(nil)

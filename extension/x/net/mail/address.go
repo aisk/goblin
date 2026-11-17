@@ -30,13 +30,12 @@ func (a *Address) Compare(other object.Object) (int, error) {
 	}
 	return strings.Compare(a.String(), value.String()), nil
 }
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (a *Address) Constructor() *object.Function { return addressType.Function }
+
 func (a *Address) GetAttr(name string) (object.Object, error) {
-	if value, ok := addressType.Attribute(name); ok {
-		return value, nil
-	}
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(a), nil
 	case "name":
 		return object.String(a.value.Name), nil
 	case "address":
@@ -45,7 +44,7 @@ func (a *Address) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Address has no attribute '%s'", name)
 }
 func (a *Address) Attributes() []string {
-	return addressType.Attributes("attributes", "name", "address")
+	return []string{"name", "address"}
 }
 
 var _ object.Object = (*Address)(nil)

@@ -32,23 +32,19 @@ func (c *Chan) Hash() (uint64, error) { return identityHash(c), nil }
 
 func (c *Chan) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(c), nil
 	case "send":
 		return &Function{Name: "send", Fn: c.Send}, nil
 	case "receive":
 		return &Function{Name: "receive", Fn: c.Receive}, nil
 	case "close":
 		return &Function{Name: "close", Fn: c.Close}, nil
-	case "constructor":
-		return ChanConstructorFn, nil
 	default:
 		return nil, NewAttributeError("Chan has no attribute '%s'", name)
 	}
 }
 
 func (c *Chan) Attributes() []string {
-	return []string{"attributes", "send", "receive", "close", "constructor"}
+	return []string{"send", "receive", "close"}
 }
 
 // Iter receives every value until the channel is closed; see Iterator.

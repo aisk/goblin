@@ -341,16 +341,12 @@ func (l *List) SetIndex(index Object, value Object) (bool, error) {
 
 func (l *List) GetAttr(name string) (Object, error) {
 	switch name {
-	case "attributes":
-		return AttributesFunction(l), nil
 	case "size":
 		return l.Size(), nil
 	case "first":
 		return l.First()
 	case "last":
 		return l.Last()
-	case "constructor":
-		return ListConstructorFn, nil
 	}
 	if fn, ok := listMethods.bind(l, name); ok {
 		return fn, nil

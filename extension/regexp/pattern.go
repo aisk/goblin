@@ -180,8 +180,6 @@ func (p *Pattern) hasGroupName(name string) bool {
 
 func (p *Pattern) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(p), nil
 	case "pattern":
 		return object.String(p.source), nil
 	case "group_names":
@@ -208,7 +206,7 @@ func (p *Pattern) GetAttr(name string) (object.Object, error) {
 
 func (p *Pattern) Attributes() []string {
 	return []string{
-		"attributes", "pattern", "group_names",
+		"pattern", "group_names",
 		"match", "find", "find_all", "replace", "split",
 	}
 }

@@ -33,13 +33,10 @@ func (n Unit) Compare(other Object) (int, error) {
 }
 
 func (n Unit) GetAttr(name string) (Object, error) {
-	if name == "attributes" {
-		return AttributesFunction(n), nil
-	}
 	return nil, NewAttributeError("Nil has no attribute '%s'", name)
 }
 
-func (n Unit) Attributes() []string { return []string{"attributes"} }
+func (n Unit) Attributes() []string { return []string{} }
 
 type nilName struct{}
 

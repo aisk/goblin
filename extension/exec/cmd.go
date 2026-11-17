@@ -148,13 +148,12 @@ func (c *Cmd) makeResult() *Result {
 	return &Result{OpaqueBase: object.MakeOpaqueBase("Result"), code: c.cmd.ProcessState.ExitCode(), stdout: stdout, stderr: stderr}
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (c *Cmd) Constructor() *object.Function { return commandType.Function }
+
 func (c *Cmd) GetAttr(name string) (object.Object, error) {
-	if value, ok := commandType.Attribute(name); ok {
-		return value, nil
-	}
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(c), nil
 	case "run":
 		return &object.Function{Name: "run", Fn: c.run}, nil
 	case "start":
@@ -176,5 +175,5 @@ func (c *Cmd) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Command has no attribute '%s'", name)
 }
 func (c *Cmd) Attributes() []string {
-	return commandType.Attributes("attributes", "run", "start", "wait", "kill", "pid", "running")
+	return []string{"run", "start", "wait", "kill", "pid", "running"}
 }

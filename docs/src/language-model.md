@@ -13,8 +13,9 @@ before designing a larger program:
 | Types | Dynamic; functions and fields have no annotations |
 | Static checks | Names and scopes, plus argument counts of calls to known functions and attribute names on values of a known user type; anything dynamic is checked at runtime |
 | Functions | Required and defaulted parameters plus `*args` and `**kwargs` |
-| Strings | Unicode-aware iteration, size, and `string[low:high]` slices; no `string[index]` syntax |
-| Lists | Direct indexes and slice bounds are non-negative; some methods such as pop() accept negative indexes |
+| Strings | Unicode-aware iteration, size, `string[index]` and `string[low:high]`, all counting characters |
+| Positions | Indexes, slice bounds and method positions count from the end when negative; out of range is an IndexError, never clamped |
+| Reflection | The global functions `type_of`, `attributes` and `traits`; a value's members are only its fields, properties and methods |
 | Destructuring | `var a, b = value`, `a, b = value`, and `for a, b in values` split an iterable of exactly that many elements; there are no tuples or nested patterns |
 | Imports | Module scope only; local paths are relative to the importing file |
 | Concurrency | `spawn` returns a joinable Goblin handle; iterable channels; `timeout=` on every blocking operation; no select or cancellation |

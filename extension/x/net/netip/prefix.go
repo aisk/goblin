@@ -53,10 +53,12 @@ func (p *Prefix) masked(args object.CallArgs) (object.Object, error) {
 	}
 	return newPrefix(p.value.Masked()), nil
 }
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (p *Prefix) Constructor() *object.Function { return prefixType.Function }
+
 func (p *Prefix) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(p), nil
 	case "addr":
 		return newAddr(p.value.Addr()), nil
 	case "bits":
@@ -74,7 +76,7 @@ func (p *Prefix) GetAttr(name string) (object.Object, error) {
 	}
 }
 func (p *Prefix) Attributes() []string {
-	return []string{"attributes", "addr", "bits", "is_single_ip", "contains", "overlaps", "masked"}
+	return []string{"addr", "bits", "is_single_ip", "contains", "overlaps", "masked"}
 }
 
 var _ object.Object = (*Prefix)(nil)

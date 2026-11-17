@@ -245,11 +245,10 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 		"object.NewUser(&User{",
 		`case "name":`,
 		`case "hello":`,
-		`case "constructor":`,
-		`case "attributes":`,
-		`return []string{"name", "age", "hello", "constructor", "attributes", "traits"}`,
+		`return []string{"name", "age", "hello"}`,
 		`var UserConstructor object.Object`,
-		`UserConstructor = &object.Function{`,
+		`.Constructor = _ctor_`,
+		`UserConstructor = _ctor_`,
 	} {
 		if !strings.Contains(code, want) {
 			t.Fatalf("expected transpiled code to contain %q\n%s", want, code)
@@ -260,14 +259,11 @@ func TestTranspileTypeDefineGeneratesStructAndMethods(t *testing.T) {
 	}
 }
 
-func TestTranspileTypeAllowsAttributesOverride(t *testing.T) {
+// A method named like a reflection function is an ordinary member.
+func TestTranspileTypeMethodNamedAttributes(t *testing.T) {
 	code := transpileSource(t, `type User() { func attributes(self) { return ["custom"] } }`)
-	if strings.Contains(code, `case "attributes": {
-		return object.AttributesFunction`) {
-		t.Fatalf("generated default attributes method despite user override\n%s", code)
-	}
-	if !strings.Contains(code, `return []string{"attributes", "constructor", "traits"}`) {
-		t.Fatalf("generated Attributes metadata does not include override\n%s", code)
+	if !strings.Contains(code, `return []string{"attributes"}`) {
+		t.Fatalf("generated Attributes metadata does not list the method\n%s", code)
 	}
 }
 

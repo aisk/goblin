@@ -90,10 +90,12 @@ func (b *PEMBlock) encode(args object.CallArgs) (object.Object, error) {
 	return object.NewBytes(pem.EncodeToMemory(b.native())), nil
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (b *PEMBlock) Constructor() *object.Function { return pemBlockType.Function }
+
 func (b *PEMBlock) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(b), nil
 	case "label":
 		return object.String(b.label), nil
 	case "data":
@@ -117,7 +119,7 @@ func (b *PEMBlock) GetAttr(name string) (object.Object, error) {
 }
 
 func (b *PEMBlock) Attributes() []string {
-	return []string{"attributes", "label", "data", "headers", "encode"}
+	return []string{"label", "data", "headers", "encode"}
 }
 
 func pemDecode(args object.CallArgs) (object.Object, error) {

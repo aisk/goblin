@@ -104,10 +104,12 @@ func (p *Path) Index(object.Object) (object.Object, error) {
 	return nil, object.Unsupported("Path", object.ErrFmtNotIndexable)
 }
 
+// Constructor satisfies object.Constructed, so type_of answers the
+// constructor the module exports.
+func (p *Path) Constructor() *object.Function { return PathConstructorFn }
+
 func (p *Path) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "attributes":
-		return object.AttributesFunction(p), nil
 	// Pure properties — return values directly.
 	case "name":
 		return object.String(filepath.Base(p.raw)), nil
@@ -164,19 +166,17 @@ func (p *Path) GetAttr(name string) (object.Object, error) {
 		return &object.Function{Name: "unlink", Fn: p.Unlink}, nil
 	case "rename":
 		return &object.Function{Name: "rename", Fn: p.Rename}, nil
-	case "constructor":
-		return PathConstructorFn, nil
 	}
 	return nil, object.NewAttributeError("Path has no attribute '%s'", name)
 }
 
 func (p *Path) Attributes() []string {
 	return []string{
-		"attributes", "name", "stem", "suffix", "parent", "parts", "is_absolute", "as_posix",
+		"name", "stem", "suffix", "parent", "parts", "is_absolute", "as_posix",
 		"with_name", "with_suffix", "join", "relative_to", "match",
 		"exists", "is_dir", "is_file", "is_symlink", "resolve",
 		"read_text", "read_bytes", "write_text", "write_bytes",
-		"iterdir", "glob", "mkdir", "unlink", "rename", "constructor",
+		"iterdir", "glob", "mkdir", "unlink", "rename",
 	}
 }
 

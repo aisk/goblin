@@ -51,15 +51,15 @@ func (c *Counter) GetAttr(name string) (object.Object, error) {
         return object.Integer(c.Value), nil
     case "increment":
         return &object.Function{Name: "increment", Fn: c.increment}, nil
-    case "attributes":
-        return object.AttributesFunction(c), nil
     default:
         return nil, object.NewAttributeError("Counter has no attribute '%s'", name)
     }
 }
 
+// Attributes lists what attributes(counter) shows: properties first, then
+// methods.
 func (c *Counter) Attributes() []string {
-    return []string{"attributes", "increment", "value"}
+    return []string{"value", "increment"}
 }
 
 func (c *Counter) increment(args object.CallArgs) (object.Object, error) {
@@ -206,8 +206,8 @@ A Go type does not implement traits: it implements the object.Object methods,
 and the built-in trait objects route to them. `Ord.compare(a, b)` on a Go value
 calls object.Compare, `Show.show(x)` calls ToString, `Add.add(a, b)` calls
 object.Add, and so on, so a Go type that implements Compare works with
-`Ord.max` and `sort` without further work. Only Goblin-defined types have impls
-and `traits()`.
+`max` and `sort` without further work. Only Goblin-defined types have impls,
+and only their instances answer `traits(value)`.
 
 For a complete reference implementation, read the existing runtime types in
 object/, especially path.go, list.go, dict.go, bytes.go, and chan.go. They show
@@ -233,30 +233,12 @@ var CounterType = object.NewNativeConstructor(
 )
 ~~~
 
-Place `CounterType.Function` in the module members map. The value's `GetAttr`
-and `Attributes` methods must delegate the constructor member to the same
-helper:
+Place `CounterType.Function` in the module members map, and have the value
+return the same function from a `Constructor` method, which is what
+`type_of` asks for (the `object.Constructed` interface):
 
 ~~~go
-func (c *Counter) GetAttr(name string) (object.Object, error) {
-	if value, ok := CounterType.Attribute(name); ok {
-		return value, nil
-	}
-	switch name {
-	case "value":
-		return object.Integer(c.Value), nil
-	case "increment":
-		return &object.Function{Name: "increment", Fn: c.increment}, nil
-	case "attributes":
-		return object.AttributesFunction(c), nil
-	default:
-		return nil, object.NewAttributeError("Counter has no attribute '%s'", name)
-	}
-}
-
-func (c *Counter) Attributes() []string {
-	return CounterType.Attributes("attributes", "increment", "value")
-}
+func (c *Counter) Constructor() *object.Function { return CounterType.Function }
 ~~~
 
 Goblin can then use the same constructor identity check for native, built-in,
@@ -264,8 +246,11 @@ and source-defined values:
 
 ~~~goblin
 var counter = module.Counter(start=10)
-print(counter.constructor == module.Counter) # true
+print(type_of(counter) == module.Counter) # true
 ~~~
+
+A value without a `Constructor` method still has a type: `type_of` answers a
+stand-in function named after its `TypeName`, which cannot be called.
 
 Create the helper once at package scope. Constructing it during every module
 load would give the same native type multiple identities. See [Functions and

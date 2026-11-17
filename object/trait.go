@@ -141,9 +141,6 @@ func (t *Trait) GetAttr(name string) (Object, error) {
 	if i, ok := t.index[name]; ok {
 		return t.bound[i], nil
 	}
-	if name == "attributes" {
-		return AttributesFunction(t), nil
-	}
 	return nil, NewAttributeError("trait %s has no method '%s'", t.Name, name)
 }
 
@@ -159,11 +156,11 @@ func (t *Trait) CallMethod(name string, args CallArgs) (Object, bool, error) {
 }
 
 func (t *Trait) Attributes() []string {
-	names := make([]string, 0, len(t.Methods)+1)
+	names := make([]string, 0, len(t.Methods))
 	for _, m := range t.Methods {
 		names = append(names, m.Name)
 	}
-	return append(names, "attributes")
+	return names
 }
 
 // AsTrait checks that an impl block or a dependency list names a trait. site

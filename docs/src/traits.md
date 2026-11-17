@@ -26,7 +26,7 @@ var r = Rect(2, 3)
 print(r)                                # Rect(w=2, h=3)
 print(r == Rect(2, 3))                  # true
 print(Shape.describe(r))                # area 6
-print(r.traits())                       # [<trait Eq>, <trait Show>, <trait Shape>]
+print(traits(r))                        # [<trait Eq>, <trait Show>, <trait Shape>]
 ~~~
 
 ## Declaring a trait
@@ -106,8 +106,8 @@ the operator's message, so `Ord.compare([1], {})` raises
 `cannot compare List and Dict`.
 
 Default methods call their siblings the same way, as `Shape.area(self)`.
-`value.traits()` returns the traits a user type implements, in declaration
-order, so `r.traits().contains(Shape)` answers whether `r` is a Shape.
+`traits(value)` returns the traits a user type implements, in declaration
+order, so `traits(r).contains(Shape)` answers whether `r` is a Shape.
 
 ## Built-in traits
 

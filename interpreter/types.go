@@ -7,7 +7,7 @@ import (
 
 // goblinType is the runtime representation of a user-defined `type`. Its
 // constructor is a callable object.Function; the same pointer is what
-// `instance.constructor` returns, so identity comparisons (`p.constructor ==
+// `type_of(instance)` returns, so identity comparisons (`type_of(p) ==
 // Point`) work via object.Equals.
 type goblinType struct {
 	name     string
@@ -28,7 +28,7 @@ type goblinType struct {
 func defineType(tp *typeProto, g *globals, f *frame) error {
 	def := tp.def
 	methods := make(map[string]*closure, len(def.Methods))
-	attributes := make([]string, 0, len(def.Methods)+len(def.Fields)+2)
+	attributes := make([]string, 0, len(def.Methods)+len(def.Fields))
 	seen := make(map[string]bool, cap(attributes))
 	for _, field := range def.Fields {
 		if !seen[field.Name] {
@@ -41,12 +41,6 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 		if !seen[m.Name] {
 			attributes = append(attributes, m.Name)
 			seen[m.Name] = true
-		}
-	}
-	for _, name := range []string{"constructor", "attributes", "traits"} {
-		if !seen[name] {
-			attributes = append(attributes, name)
-			seen[name] = true
 		}
 	}
 	t := &goblinType{
@@ -86,6 +80,7 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 		Name: def.Name,
 		Fn:   t.construct,
 	}
+	t.info.Constructor = t.constructor
 	g.Define(def.Name, t.constructor)
 	return nil
 }
@@ -179,8 +174,8 @@ func (in *instance) bindMethod(m *closure) *object.Function {
 
 // CallMethod satisfies object.MethodCaller: `p.step()` runs the method body
 // without building the callable that GetAttr hands out. Anything that is not a
-// method (a field, "constructor", "attributes") is declined, so the caller
-// falls back to GetAttr and behavior is unchanged.
+// method (a field) is declined, so the caller falls back to GetAttr and
+// behavior is unchanged.
 func (in *instance) CallMethod(name string, args object.CallArgs) (object.Object, bool, error) {
 	m, ok := in.typ.methods[name]
 	if !ok {
@@ -191,22 +186,11 @@ func (in *instance) CallMethod(name string, args object.CallArgs) (object.Object
 }
 
 func (in *instance) GetAttr(name string) (object.Object, error) {
-	// A user-defined method (including one named "constructor") shadows the
-	// built-in constructor attribute and any field.
 	if m, ok := in.typ.methods[name]; ok {
 		return in.bindMethod(m), nil
 	}
-	if name == "constructor" {
-		return in.typ.constructor, nil
-	}
 	if i := in.typ.fieldIndex(name); i >= 0 {
 		return in.fields[i], nil
-	}
-	if name == "attributes" {
-		return object.AttributesFunction(in), nil
-	}
-	if name == "traits" {
-		return object.TraitsFunction(in), nil
 	}
 	return nil, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }

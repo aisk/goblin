@@ -55,12 +55,51 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"Iter":                object.IterTrait,
 	"Index":               object.IndexTrait,
 }, object.Funcs{
-	"print":  Print,
-	"eprint": Eprint,
-	"range":  Range,
-	"max":    Max,
-	"min":    Min,
+	"print":      Print,
+	"eprint":     Eprint,
+	"range":      Range,
+	"max":        Max,
+	"min":        Min,
+	"type_of":    TypeOf,
+	"attributes": Attributes,
+	"traits":     Traits,
 })
+
+// TypeOf returns the constructor of its argument's type; see object.TypeOf.
+func TypeOf(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("type_of", args)
+	value := p.Any("value")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return object.TypeOf(value), nil
+}
+
+// Attributes lists the attribute names of its argument; see
+// object.Attributes.
+func Attributes(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("attributes", args)
+	value := p.Any("value")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	return object.Attributes(value), nil
+}
+
+// Traits lists the traits a user type's instance implements; see
+// object.Traits.
+func Traits(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("traits", args)
+	value := p.Any("value")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	traits, err := object.Traits(value)
+	if err != nil {
+		return nil, err
+	}
+	return traits, nil
+}
 
 // Print writes values to stdout, separated by spaces, ending with a newline.
 // Positional-only.

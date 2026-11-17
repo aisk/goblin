@@ -12,8 +12,8 @@ import (
 // evaluation of the definition binds it to a frame (see closure).
 type funcProto struct {
 	// name is used for repr-free diagnostics: binding errors and traceback
-	// frames. fnName is the name of the object.Function handed out, which
-	// for a method is the bare method name.
+	// frames. fnName is the name of the object.Function handed out: a bound
+	// method is "Type.method", an impl or trait method the bare name.
 	name   string
 	fnName string
 	pos    token.Pos
@@ -205,7 +205,7 @@ func (c *compiler) typeDef(def *ast.TypeDefine) *typeProto {
 		}
 	}
 	for _, m := range def.Methods {
-		tp.methods[m.Name] = c.function(def.Name+"."+m.Name, m.Name, m.Position(), m.Parameters, m.Body, true)
+		tp.methods[m.Name] = c.function(def.Name+"."+m.Name, def.Name+"."+m.Name, m.Position(), m.Parameters, m.Body, true)
 	}
 	for i, block := range def.Impls {
 		tp.impls[i] = make([]*funcProto, len(block.Methods))
