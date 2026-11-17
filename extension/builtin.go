@@ -42,19 +42,6 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"Function":            object.FunctionConstructorFn,
 	"spawn":               object.SpawnFn,
 	"wait_any":            object.WaitAnyFn,
-	"Eq":                  object.EqTrait,
-	"Ord":                 object.OrdTrait,
-	"Hashable":            object.HashableTrait,
-	"Show":                object.ShowTrait,
-	"Truth":               object.TruthTrait,
-	"Add":                 object.AddTrait,
-	"Sub":                 object.SubTrait,
-	"Mul":                 object.MulTrait,
-	"Div":                 object.DivTrait,
-	"Mod":                 object.ModTrait,
-	"Neg":                 object.NegTrait,
-	"Iter":                object.IterTrait,
-	"Index":               object.IndexTrait,
 }, object.Funcs{
 	"print":      Print,
 	"eprint":     Eprint,
@@ -66,7 +53,6 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"hash":       Hash,
 	"type_of":    TypeOf,
 	"attributes": Attributes,
-	"traits":     Traits,
 	"format":     Format,
 	"input":      Input,
 })
@@ -128,21 +114,6 @@ func Attributes(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	return object.Attributes(value), nil
-}
-
-// Traits lists the traits a user type's instance implements; see
-// object.Traits.
-func Traits(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("traits", args)
-	value := p.Any("value")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	traits, err := object.Traits(value)
-	if err != nil {
-		return nil, err
-	}
-	return traits, nil
 }
 
 // Print writes values to stdout, separated by spaces, ending with a newline.

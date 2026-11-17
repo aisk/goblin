@@ -70,13 +70,13 @@ try {
     print(e)
 }
 
-# Values whose equality is identity hash by identity, so functions, traits
-# and error kinds can key a dispatch table
+# Values whose equality is identity hash by identity, so functions and error
+# kinds can key a dispatch table
 func greet() {
     return "hi"
 }
-var handlers = {greet: "greet", Show: "show", TypeError: "type"}
-print(handlers[greet], handlers[Show], handlers[TypeError])
+var handlers = {greet: "greet", TypeError: "type"}
+print(handlers[greet], handlers[TypeError])
 
 # A dict remembers insertion order: keys(), values(), items(), copy(), for,
 # printing and update() all follow it. Overwriting keeps a key's place;

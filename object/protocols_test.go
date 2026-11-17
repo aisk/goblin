@@ -56,7 +56,7 @@ func sealed(t *testing.T, name string, fields []string, impls ...ImplSpec) *User
 	t.Helper()
 	typ := NewUserType(name, fields)
 	for _, impl := range impls {
-		typ.Implement(impl.Trait, impl.Methods)
+		typ.Implement(impl.Protocol, impl.Methods)
 	}
 	if err := typ.Seal(); err != nil {
 		t.Fatal(err)
@@ -70,13 +70,13 @@ func method(name string, arity int, fn func(args []Object) (Object, error)) Impl
 
 func TestStructuralImpls(t *testing.T) {
 	point := sealed(t, "Point", []string{"x", "y"},
-		ImplSpec{Trait: EqTrait}, ImplSpec{Trait: OrdTrait}, ImplSpec{Trait: HashableTrait}, ImplSpec{Trait: ShowTrait})
+		ImplSpec{Protocol: EqProtocol}, ImplSpec{Protocol: OrdProtocol}, ImplSpec{Protocol: HashableProtocol}, ImplSpec{Protocol: ShowProtocol})
 	p := func(x, y Object) *fakeValue { return &fakeValue{typ: point, fields: []Object{x, y}} }
 
 	if eq, err := Equals(p(Integer(1), String("a")), p(Float(1), String("a"))); err != nil || !eq {
 		t.Fatalf("structural eq = %v, %v", eq, err)
 	}
-	other := sealed(t, "Other", []string{"x", "y"}, ImplSpec{Trait: EqTrait})
+	other := sealed(t, "Other", []string{"x", "y"}, ImplSpec{Protocol: EqProtocol})
 	if eq, _ := Equals(p(Integer(1), Integer(2)), &fakeValue{typ: other, fields: []Object{Integer(1), Integer(2)}}); eq {
 		t.Fatal("values of different types must be unequal")
 	}
@@ -97,27 +97,27 @@ func TestStructuralImpls(t *testing.T) {
 	if s, err := userToString(p(String("a"), &List{Elements: []Object{Integer(1)}})); err != nil || s != `Point(x="a", y=[1])` {
 		t.Fatalf("structural show = %q, %v", s, err)
 	}
-	if got := point.Traits(); len(got) != 4 || got[0] != EqTrait || got[3] != ShowTrait {
-		t.Fatalf("traits = %v", got)
+	if !point.Implements(OrdProtocol) || other.Implements(OrdProtocol) {
+		t.Fatal("Implements disagrees with the impls")
 	}
 }
 
 func TestOrdOverCompareEq(t *testing.T) {
 	calls := 0
 	money := sealed(t, "Money", []string{"amount"},
-		ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
+		ImplSpec{Protocol: OrdProtocol, Methods: []ImplMethod{
 			method("compare", 2, func(args []Object) (Object, error) {
 				calls++
 				return Minus(args[0].(UserValue).FieldValues()[0], args[1])
 			}),
 		}},
-		ImplSpec{Trait: EqTrait, Methods: []ImplMethod{
+		ImplSpec{Protocol: EqProtocol, Methods: []ImplMethod{
 			method("eq", 2, func(args []Object) (Object, error) {
-				c, err := OrdTrait.call(OrdCompare, args)
+				c, err := Compare(args[0], args[1])
 				if err != nil {
 					return nil, err
 				}
-				return Bool(c.(Integer) == 0), nil
+				return Bool(c == 0), nil
 			}),
 		}},
 	)
@@ -140,8 +140,8 @@ func TestOrdOverCompareEq(t *testing.T) {
 
 func TestStrictReturnTypes(t *testing.T) {
 	liar := sealed(t, "Liar", nil,
-		ImplSpec{Trait: EqTrait, Methods: []ImplMethod{method("eq", 2, func([]Object) (Object, error) { return Integer(1), nil })}},
-		ImplSpec{Trait: ShowTrait, Methods: []ImplMethod{method("show", 1, func([]Object) (Object, error) { return Nil, nil })}},
+		ImplSpec{Protocol: EqProtocol, Methods: []ImplMethod{method("eq", 2, func([]Object) (Object, error) { return Integer(1), nil })}},
+		ImplSpec{Protocol: ShowProtocol, Methods: []ImplMethod{method("show", 1, func([]Object) (Object, error) { return Nil, nil })}},
 	)
 	v := &fakeValue{typ: liar}
 	_, err := Equals(v, Integer(1))
@@ -158,18 +158,18 @@ func TestStrictReturnTypes(t *testing.T) {
 
 func TestArithDispatch(t *testing.T) {
 	vec := sealed(t, "Vec", []string{"x"},
-		ImplSpec{Trait: AddTrait, Methods: []ImplMethod{
+		ImplSpec{Protocol: AddProtocol, Methods: []ImplMethod{
 			method("add", 2, func(args []Object) (Object, error) {
 				x, err := Add(args[0].(UserValue).FieldValues()[0], args[1].(UserValue).FieldValues()[0])
 				return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{x}}, err
 			}),
 		}},
-		ImplSpec{Trait: NegTrait, Methods: []ImplMethod{
+		ImplSpec{Protocol: NegProtocol, Methods: []ImplMethod{
 			method("neg", 1, func(args []Object) (Object, error) {
 				return &fakeValue{typ: args[0].(UserValue).UserType(), fields: []Object{-args[0].(UserValue).FieldValues()[0].(Integer)}}, nil
 			}),
 		}},
-		ImplSpec{Trait: MulTrait, Methods: []ImplMethod{
+		ImplSpec{Protocol: MulProtocol, Methods: []ImplMethod{
 			method("mul", 2, func(args []Object) (Object, error) { return String("mul"), nil }),
 			method("rmul", 2, func(args []Object) (Object, error) { return String("rmul"), nil }),
 		}},
@@ -179,7 +179,7 @@ func TestArithDispatch(t *testing.T) {
 	if sum, err := Add(v(5), v(3)); err != nil || sum.(UserValue).FieldValues()[0] != Integer(8) {
 		t.Fatalf("add = %v, %v", sum, err)
 	}
-	// Sub is a trait of its own: add and neg do not imply it.
+	// Sub is a protocol of its own: add and neg do not imply it.
 	if _, err := Minus(v(5), v(3)); err == nil || err.Error() != "cannot subtract Vec" {
 		t.Fatalf("missing sub = %v", err)
 	}
@@ -197,74 +197,27 @@ func TestArithDispatch(t *testing.T) {
 	}
 }
 
-func TestTraitObjectOnBuiltinValues(t *testing.T) {
-	call := func(trait *Trait, name string, args ...Object) (Object, error) {
-		result, handled, err := trait.CallMethod(name, CallArgs{Positional: args})
-		if !handled {
-			t.Fatalf("%s has no method %s", trait.Name, name)
-		}
-		return result, err
-	}
-	cases := []struct {
-		trait *Trait
-		name  string
-		args  []Object
-		want  string
-	}{
-		{EqTrait, "eq", []Object{Integer(1), Float(1)}, "true"},
-		{EqTrait, "ne", []Object{String("a"), String("b")}, "true"},
-		{OrdTrait, "compare", []Object{Integer(3), Integer(2)}, "1"},
-		{OrdTrait, "le", []Object{String("a"), String("a")}, "true"},
-		{ShowTrait, "show", []Object{&List{Elements: []Object{String("x")}}}, `["x"]`},
-		{TruthTrait, "truth", []Object{String("")}, "false"},
-		{SubTrait, "rsub", []Object{Integer(1), Integer(10)}, "9"},
-		{NegTrait, "neg", []Object{Float(2)}, "-2.0"},
-		{IterTrait, "iter", []Object{String("ab")}, `["a", "b"]`},
-		{IndexTrait, "get", []Object{&List{Elements: []Object{Integer(7)}}, Integer(0)}, "7"},
-	}
-	for _, tc := range cases {
-		got, err := call(tc.trait, tc.name, tc.args...)
-		if err != nil || inspect(got) != tc.want {
-			t.Errorf("%s.%s(%v) = %v, %v; want %s", tc.trait.Name, tc.name, tc.args, got, err, tc.want)
-		}
-	}
-	if h, err := call(HashableTrait, "hash", Integer(1)); err != nil || h.TypeName() != "Int" {
-		t.Errorf("Hashable.hash(1) = %v, %v", h, err)
-	}
-	if _, err := call(HashableTrait, "hash", &List{}); err == nil || err.Error() != "List does not implement Hashable" {
-		t.Errorf("Hashable.hash([]) error = %v", err)
-	}
-	if _, err := call(OrdTrait, "lt", Integer(1)); err == nil || err.Error() != "Ord.lt() takes 2 positional arguments, got 1" {
-		t.Errorf("arity error = %v", err)
-	}
-	user := NewTrait("Shape", nil, []TraitMethod{{Name: "area", Arity: 1, Required: true}})
-	if _, err := call(user, "area", Integer(1)); err == nil || err.Error() != "Int does not implement Shape" {
-		t.Errorf("user trait on a built-in = %v", err)
-	}
-}
-
 func TestCheckImpls(t *testing.T) {
-	shape := NewTrait("Shape", []*Trait{ShowTrait}, []TraitMethod{
-		{Name: "area", Arity: 1, Required: true},
-		{Name: "describe", Arity: 1},
-	})
-	spec := func(trait *Trait, methods ...ImplMethod) ImplSpec { return ImplSpec{Trait: trait, Methods: methods} }
+	spec := func(p *Protocol, methods ...ImplMethod) ImplSpec { return ImplSpec{Protocol: p, Methods: methods} }
 	named := func(name string, arity int) ImplMethod { return ImplMethod{Name: name, Arity: arity} }
 	cases := []struct {
 		impls []ImplSpec
 		want  string
 	}{
-		{[]ImplSpec{spec(ShowTrait), spec(shape, named("area", 1))}, ""},
-		{[]ImplSpec{spec(shape, named("area", 1))}, "impl Shape for T requires impl Show"},
-		{[]ImplSpec{spec(ShowTrait), spec(shape)}, "impl Shape for T is missing method 'area'"},
-		{[]ImplSpec{spec(ShowTrait), spec(shape, named("area", 2))}, "impl Shape for T: method 'area' must declare 1 parameters including self, got 2"},
-		{[]ImplSpec{spec(ShowTrait), spec(ShowTrait)}, "duplicate impl Show for T"},
-		{[]ImplSpec{spec(AddTrait)}, "impl Add for T is missing method 'add'"},
-		{[]ImplSpec{spec(OrdTrait, named("compare", 2), named("lt", 2))}, "impl Ord for T: method 'lt' derives from the required methods and cannot be overridden"},
-		{[]ImplSpec{spec(EqTrait), spec(OrdTrait), spec(HashableTrait)}, ""},
-		{[]ImplSpec{spec(OrdTrait)}, "impl Ord for T requires impl Eq"},
-		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait)}, "structural Ord requires structural Eq on T"},
-		{[]ImplSpec{spec(EqTrait, named("eq", 2)), spec(OrdTrait, named("compare", 2)), spec(HashableTrait, named("hash", 1))}, ""},
+		{[]ImplSpec{spec(ShowProtocol), spec(IndexProtocol, named("get", 2))}, ""},
+		{[]ImplSpec{spec(HashableProtocol, named("hash", 1))}, "impl Hashable for T requires impl Eq"},
+		{[]ImplSpec{spec(TruthProtocol)}, "impl Truth for T is missing method 'truth'"},
+		{[]ImplSpec{spec(IndexProtocol, named("get", 2), named("set", 2))}, "impl Index for T: method 'set' must declare 3 parameters including self, got 2"},
+		{[]ImplSpec{spec(IterProtocol, named("iter", 1), named("iter", 1))}, "duplicate method 'iter' in impl Iter for T"},
+		{[]ImplSpec{spec(MulProtocol, named("rmul", 2))}, "impl Mul for T is missing method 'mul'"},
+		{[]ImplSpec{spec(ShowProtocol), spec(ShowProtocol)}, "duplicate impl Show for T"},
+		{[]ImplSpec{spec(AddProtocol)}, "impl Add for T is missing method 'add'"},
+		{[]ImplSpec{spec(OrdProtocol, named("compare", 2), named("lt", 2))}, "impl Ord for T: Ord has no method 'lt'"},
+		{[]ImplSpec{spec(EqProtocol, named("eq", 2), named("ne", 2))}, "impl Eq for T: Eq has no method 'ne'"},
+		{[]ImplSpec{spec(EqProtocol), spec(OrdProtocol), spec(HashableProtocol)}, ""},
+		{[]ImplSpec{spec(OrdProtocol)}, "impl Ord for T requires impl Eq"},
+		{[]ImplSpec{spec(EqProtocol, named("eq", 2)), spec(OrdProtocol)}, "structural Ord requires structural Eq on T"},
+		{[]ImplSpec{spec(EqProtocol, named("eq", 2)), spec(OrdProtocol, named("compare", 2)), spec(HashableProtocol, named("hash", 1))}, ""},
 	}
 	for i, tc := range cases {
 		issue := CheckImpls("T", tc.impls)
@@ -281,7 +234,7 @@ func TestCheckImpls(t *testing.T) {
 func TestReviewRegressions(t *testing.T) {
 	// A user type named like a built-in must not pass the return type check.
 	impostorType := sealed(t, "String", nil)
-	liar := sealed(t, "Liar", nil, ImplSpec{Trait: ShowTrait, Methods: []ImplMethod{
+	liar := sealed(t, "Liar", nil, ImplSpec{Protocol: ShowProtocol, Methods: []ImplMethod{
 		method("show", 1, func([]Object) (Object, error) { return &fakeValue{typ: impostorType}, nil }),
 	}})
 	if _, err := userToString(&fakeValue{typ: liar}); err == nil || !errors.Is(err, TypeError) {
@@ -289,45 +242,41 @@ func TestReviewRegressions(t *testing.T) {
 	}
 
 	// A failure on the right side of a reflected ordering is reported.
-	boom := sealed(t, "Boom", nil, ImplSpec{Trait: EqTrait}, ImplSpec{Trait: OrdTrait, Methods: []ImplMethod{
+	boom := sealed(t, "Boom", nil, ImplSpec{Protocol: EqProtocol}, ImplSpec{Protocol: OrdProtocol, Methods: []ImplMethod{
 		method("compare", 2, func([]Object) (Object, error) { return nil, NewZeroDivisionError("division by zero") }),
 	}})
 	if _, err := Less(Integer(1), &fakeValue{typ: boom}); err == nil || !errors.Is(err, ZeroDivisionError) {
 		t.Fatalf("right-hand failure = %v", err)
 	}
+}
 
-	// A zero-parameter trait method (possible without the checker) fails cleanly.
-	zero := NewTrait("Z", nil, []TraitMethod{{Name: "m", Arity: 0, Required: true}})
-	if _, _, err := zero.CallMethod("m", CallArgs{}); err == nil {
-		t.Fatal("calling a method without a receiver must fail")
+func TestLookupProtocol(t *testing.T) {
+	for _, p := range []*Protocol{EqProtocol, OrdProtocol, HashableProtocol, ShowProtocol, TruthProtocol,
+		AddProtocol, SubProtocol, MulProtocol, DivProtocol, ModProtocol, NegProtocol, IterProtocol, IndexProtocol} {
+		got, err := LookupProtocol("T", p.Name)
+		if err != nil || got != p {
+			t.Errorf("LookupProtocol(%s) = %v, %v", p.Name, got, err)
+		}
+	}
+	_, err := LookupProtocol("Rect", "Shape")
+	want := "impl Shape for Rect: Shape is not a protocol (protocols: Eq, Ord, Hashable, Show, Truth, Add, Sub, Mul, Div, Mod, Neg, Iter, Index); other methods go directly in the type body"
+	if err == nil || !errors.Is(err, TypeError) || err.Error() != want {
+		t.Fatalf("LookupProtocol(Shape) = %v", err)
 	}
 }
 
-func TestBuiltinValueMissingTrait(t *testing.T) {
-	fn := &Function{Name: "f"}
-	call := func(tr *Trait, method string, args ...Object) error {
-		i, _ := tr.MethodIndex(method)
-		_, err := tr.Invoke(i, CallArgs{Positional: args})
-		return err
+func TestOptionalMethods(t *testing.T) {
+	readOnly := sealed(t, "ReadOnly", nil, ImplSpec{Protocol: IndexProtocol, Methods: []ImplMethod{
+		method("get", 2, func(args []Object) (Object, error) { return args[1], nil }),
+	}})
+	v := &fakeValue{typ: readOnly}
+	if got, err := v.Index(Integer(3)); err != nil || got != Integer(3) {
+		t.Fatalf("get = %v, %v", got, err)
 	}
-	cases := []struct {
-		err  error
-		want string
-	}{
-		{call(OrdTrait, "compare", fn, fn), "Function does not implement Ord"},
-		{call(OrdTrait, "lt", &Dict{}, &Dict{}), "Dict does not implement Ord"},
-		{call(NegTrait, "neg", String("a")), "String does not implement Neg"},
-		// The receiver implements the trait; only the operand is wrong.
-		{call(OrdTrait, "compare", &List{}, &Dict{}), "cannot compare List and Dict"},
-		// radd on an Integer computes fn + 1: the failing type is not the receiver.
-		{call(AddTrait, "radd", Integer(1), fn), "cannot add Function"},
+	if handled, err := userSetIndex(v, Integer(0), Nil); handled || err != nil {
+		t.Fatalf("set without an impl method = %v, %v", handled, err)
 	}
-	for _, tc := range cases {
-		if tc.err == nil || tc.err.Error() != tc.want {
-			t.Errorf("error = %v, want %q", tc.err, tc.want)
-		}
-		if !errors.Is(tc.err, TypeError) {
-			t.Errorf("%v should be a TypeError", tc.err)
-		}
+	if _, handled, err := userReflected(v, ArithAdd, Integer(1)); handled || err != nil {
+		t.Fatalf("radd without an impl = %v, %v", handled, err)
 	}
 }

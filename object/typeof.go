@@ -11,7 +11,7 @@ type Constructed interface {
 
 // TypeOf returns the constructor of obj's type, what `type_of(obj)` answers.
 // Every value has one: a type that cannot be constructed (Nil, Module,
-// Trait, Goblin, a native handle without a constructor) answers its
+// Goblin, a native handle without a constructor) answers its
 // OpaqueType, so `type_of(a) == type_of(b)` and `type_of(x).name` hold for
 // any value.
 func TypeOf(obj Object) *Function {
@@ -72,19 +72,4 @@ func Attributes(obj Object) *List {
 		elements[i] = String(name)
 	}
 	return &List{Elements: elements}
-}
-
-// Traits performs `traits(obj)`: a new List of the traits obj's user type
-// implements, in declaration order.
-func Traits(obj Object) (*List, error) {
-	v, ok := obj.(UserValue)
-	if !ok {
-		return nil, NewTypeError("traits() argument must be an instance of a user type, got %s", obj.TypeName())
-	}
-	traits := v.UserType().Traits()
-	elements := make([]Object, len(traits))
-	for i, tr := range traits {
-		elements[i] = tr
-	}
-	return &List{Elements: elements}, nil
 }

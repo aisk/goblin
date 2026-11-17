@@ -41,6 +41,13 @@ type Show(text) {
 var shown = Show("x")
 print(Show("shown"), "{shown}")
 
+# The protocol names are not globals, so a program may use them.
+var Index = 2
+func Add(a, b) {
+    return a + b
+}
+print(Add(Index, 1), s[Index])
+
 # Types from another module keep their impls.
 var small = shapes.Square(2)
 var big = shapes.Square(3)

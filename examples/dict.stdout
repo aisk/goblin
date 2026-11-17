@@ -27,7 +27,7 @@ string key
 second
 1
 cannot hash List
-greet show type
+greet type
 {"b": 10, "a": 2, "c": 3} ["b", "a", "c"] [10, 2, 3] [["b", 10], ["a", 2], ["c", 3]]
 {"a": 2, "c": 3} 2
 {"a": 2, "c": 3, "b": 20}

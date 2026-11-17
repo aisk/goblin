@@ -135,6 +135,6 @@ func (r *renderer) user(v UserValue) (string, error) {
 // hasStructuralShow reports whether v's type got its Show from an empty
 // `impl Show {}`, whose rendering the renderer can do itself.
 func hasStructuralShow(v UserValue) bool {
-	impl := v.UserType().show
-	return impl != nil && impl.methods[ShowShow] == ShowTrait.structural[ShowShow]
+	impl := v.UserType().impls[showID]
+	return impl != nil && impl.structural
 }

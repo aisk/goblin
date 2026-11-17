@@ -15,7 +15,6 @@ func TestOperatorErrorWording(t *testing.T) {
 		{"function add", func() error { _, err := fn.Add(Integer(1)); return err }, "cannot add Function"},
 		{"function compare", func() error { _, err := fn.Compare(fn); return err }, "cannot compare Function"},
 		{"module iter", func() error { _, err := (&Module{Name: "m"}).Iter(); return err }, "Module is not iterable"},
-		{"trait index", func() error { _, err := EqTrait.Index(Integer(0)); return err }, "Trait is not indexable"},
 		{"error subtract", func() error { _, err := NewError("e").Minus(Integer(1)); return err }, "cannot subtract Error"},
 		{"nil add", func() error { _, err := Nil.Add(Integer(1)); return err }, "cannot add Nil"},
 		{"nil compare", func() error { _, err := Nil.Compare(Integer(1)); return err }, "cannot compare Nil and Int"},

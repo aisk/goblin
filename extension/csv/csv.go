@@ -314,7 +314,7 @@ func fieldText(n int, value object.Object) (string, error) {
 	case *object.List, *object.Dict:
 		return "", object.NewTypeError("encode() row %d cannot hold a %s as a field", n, value.TypeName())
 	case object.UserValue:
-		if v.UserType().Impl(object.ShowTrait) == nil {
+		if !v.UserType().Implements(object.ShowProtocol) {
 			return "", object.NewTypeError("encode() row %d cannot hold a %s as a field (add 'impl Show' to type %s)", n, value.TypeName(), value.TypeName())
 		}
 	}

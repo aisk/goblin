@@ -61,7 +61,7 @@ print(helper.name, p.sum.name, p.sum)
 # Values whose type cannot be constructed still have one: comparing works,
 # and so does its name, but calling it fails.
 print(type_of(nil).name, type_of(nil) == type_of(nil), type_of(nil) == type_of(1))
-print(type_of(Eq).name, type_of(spawn(func() {})).name)
+print(type_of(spawn(func() {})).name)
 try {
     type_of(nil)()
 } catch e {

@@ -1,12 +1,8 @@
 package object
 
-import (
-	"errors"
-	"fmt"
-	"strings"
-)
+import "fmt"
 
-// Diagnostics raised by operator and trait dispatch. Both backends format them
+// Diagnostics raised by operator and protocol dispatch. Both backends format them
 // with the type's declared name, so an error reads identically whichever
 // backend runs the program.
 //
@@ -25,25 +21,16 @@ const (
 	ErrFmtCannotCompare  = "cannot compare %s"
 	ErrFmtNotIterable    = "%s is not iterable"
 	ErrFmtNotIndexable   = "%s is not indexable"
-	// ErrFmtNotImplemented is raised by `Trait.method(x)` for an x without an
-	// impl of the trait: the type name, then the trait name.
-	ErrFmtNotImplemented = "%s does not implement %s"
-	// ErrFmtMustReturn is raised when a trait method returns the wrong type:
-	// the receiver type, the method, the expected and the actual type names.
+	// ErrFmtMustReturn is raised when a protocol method returns the wrong
+	// type: the receiver type, the method, the expected and the actual type
+	// names.
 	ErrFmtMustReturn = "%s.%s must return %s, got %s"
-	// ErrFmtTraitNotDefined and ErrFmtNotATrait report a trait reference that
-	// does not resolve: where it appears ("impl Shape", "trait Titled"), then
-	// the reference.
-	ErrFmtTraitNotDefined = "%s: %s is not defined"
-	ErrFmtNotATrait       = "%s: %s is not a trait"
 )
 
 // unsupported marks a TypeError saying that a type has no form of an
 // operation at all, as opposed to not accepting this particular operand:
 // Function has no + whatever the other side is, while Integer has one that a
-// String does not fit. The operators read it as any other TypeError. A trait
-// method called on a built-in value reports it as the type not implementing
-// the trait instead (see Trait.call).
+// String does not fit. The operators read it as any other TypeError.
 type unsupported struct{ typeName string }
 
 func (u unsupported) Error() string { return u.typeName + " does not support the operation" }
@@ -101,26 +88,3 @@ func (inert[N]) Divide(Object) (Object, error)   { return nil, inertError[N](Err
 func (inert[N]) Modulo(Object) (Object, error)   { return nil, inertError[N](ErrFmtCannotModulo) }
 func (inert[N]) Iter() ([]Object, error)         { return nil, inertError[N](ErrFmtNotIterable) }
 func (inert[N]) Index(Object) (Object, error)    { return nil, inertError[N](ErrFmtNotIndexable) }
-
-// isUnsupported reports whether err says that recv's type lacks the
-// operation entirely.
-func isUnsupported(err error, recv Object) bool {
-	var u unsupported
-	return errors.As(err, &u) && u.typeName == recv.TypeName()
-}
-
-// protocolNames lists the language protocols in the order messages give them.
-var protocolNames = []string{"Eq", "Ord", "Hashable", "Show", "Truth", "Add", "Sub", "Mul", "Div", "Mod", "Neg", "Iter", "Index"}
-
-// LookupProtocol resolves the name written after `impl` in the definition of
-// typeName. The name is never looked up in a scope: a program may declare its
-// own Show, and `impl Show` still means the protocol. The semantic checker and
-// both backends call it, so the REPL, which skips the checker, reports the
-// same message.
-func LookupProtocol(typeName, name string) (*Trait, error) {
-	if p, ok := BuiltinTraits[name]; ok {
-		return p, nil
-	}
-	return nil, NewTypeError("impl %s for %s: %s is not a protocol (protocols: %s); other methods go directly in the type body",
-		name, typeName, name, strings.Join(protocolNames, ", "))
-}

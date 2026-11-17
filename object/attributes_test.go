@@ -11,7 +11,6 @@ func TestAttributesReturnsResolvableNames(t *testing.T) {
 		&List{Elements: []Object{Integer(1)}}, NewDict(), NewChan(0),
 		&Function{Name: "f", Fn: func(CallArgs) (Object, error) { return Nil, nil }},
 		NewError("boom"), &Module{Name: "m", Members: map[string]Object{"value": Integer(1)}},
-		OrdTrait,
 	}
 	for _, obj := range objects {
 		for _, name := range obj.Attributes() {
@@ -20,7 +19,7 @@ func TestAttributesReturnsResolvableNames(t *testing.T) {
 			}
 		}
 		// Reflection is a set of global functions, never a member.
-		for _, name := range []string{"attributes", "constructor", "traits"} {
+		for _, name := range []string{"attributes", "constructor"} {
 			if _, err := obj.GetAttr(name); !errors.Is(err, AttributeError) {
 				t.Errorf("%T has a %q member: %v", obj, name, err)
 			}
@@ -63,17 +62,10 @@ func TestTypeOf(t *testing.T) {
 	if TypeOf(Nil) != TypeOf(Unit{}) || TypeOf(Nil).Name != "Nil" {
 		t.Errorf("TypeOf(nil) = %v", TypeOf(Nil))
 	}
-	if TypeOf(OrdTrait) == TypeOf(Nil) || TypeOf(OrdTrait).Name != "Trait" {
-		t.Errorf("TypeOf(Ord) = %v", TypeOf(OrdTrait))
+	if mod := (&Module{Name: "m"}); TypeOf(mod) == TypeOf(Nil) || TypeOf(mod).Name != "Module" {
+		t.Errorf("TypeOf(module) = %v", TypeOf(mod))
 	}
 	if _, err := TypeOf(Nil).Call(CallArgs{}); err == nil || err.Error() != "Nil cannot be constructed" {
 		t.Errorf("calling type_of(nil): %v", err)
-	}
-}
-
-func TestTraitsRejectsBuiltInValues(t *testing.T) {
-	_, err := Traits(Integer(1))
-	if !errors.Is(err, TypeError) || err.Error() != "traits() argument must be an instance of a user type, got Int" {
-		t.Errorf("Traits(1) = %v", err)
 	}
 }

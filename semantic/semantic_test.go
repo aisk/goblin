@@ -544,6 +544,11 @@ func TestCheckImpls(t *testing.T) {
 			source: "type Show() {\n  impl Show {}\n}\nvar Eq = 1\nfunc Add() {}\ntype P(x) {\n  impl Eq {}\n  impl Add { func add(self, o) { return self } }\n}\n",
 		},
 		{
+			name:   "a protocol name is not a value",
+			source: "print(Eq)\n",
+			err:    "1:7: semantic error: undefined identifier: Eq",
+		},
+		{
 			name:   "trait is an ordinary identifier",
 			source: "var trait = 1\nprint(trait)\n",
 		},
@@ -574,14 +579,14 @@ func TestCheckImpls(t *testing.T) {
 			err:    "1:41: semantic error: impl method 'get' cannot use variadic or keyword parameters",
 		},
 		{
-			name:   "override of a derived method",
+			name:   "a method the protocol does not have",
 			source: "type P() { impl Ord { func lt(self, o) { return true } } }\n",
-			err:    "1:28: semantic error: impl Ord for P: method 'lt' derives from the required methods and cannot be overridden",
+			err:    "1:28: semantic error: impl Ord for P: Ord has no method 'lt'",
 		},
 		{
-			name:   "override of ne",
+			name:   "ne is not a method of Eq",
 			source: "type P() { impl Eq {\n  func eq(self, o) { return true }\n  func ne(self, o) { return false }\n} }\n",
-			err:    "3:8: semantic error: impl Eq for P: method 'ne' derives from the required methods and cannot be overridden",
+			err:    "3:8: semantic error: impl Eq for P: Eq has no method 'ne'",
 		},
 		{
 			name:   "duplicate impl",

@@ -26,7 +26,7 @@ true true
 Int String Point Point Function
 helper Point.sum <function Point.sum>
 Nil true false
-Trait Goblin
+Goblin
 true Nil cannot be constructed
 ["x", "y", "sum"]
 ["size", "first", "last", "push", "pop", "insert", "remove", "clear", "reverse", "sort", "copy", "contains", "count", "index", "find", "join", "map", "filter", "reduce", "any", "all"]

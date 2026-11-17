@@ -57,8 +57,8 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	}
 	// forward maps each implemented protocol to the wrapper of its first
 	// method; for the arithmetic protocols that is the forward operator.
-	forward := map[*object.Trait]string{}
-	protocols := make([]*object.Trait, len(typeDef.Impls))
+	forward := map[*object.Protocol]string{}
+	protocols := make([]*object.Protocol, len(typeDef.Impls))
 	for i, block := range typeDef.Impls {
 		protocol, err := object.LookupProtocol(typeDef.Name, block.Protocol)
 		if err != nil {
@@ -74,15 +74,15 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 	}
 	for _, op := range []struct {
 		goMethod string
-		trait    *object.Trait
+		protocol *object.Protocol
 	}{
-		{"Add", object.AddTrait},
-		{"Minus", object.SubTrait},
-		{"Multiply", object.MulTrait},
-		{"Divide", object.DivTrait},
-		{"Modulo", object.ModTrait},
+		{"Add", object.AddProtocol},
+		{"Minus", object.SubProtocol},
+		{"Multiply", object.MulProtocol},
+		{"Divide", object.DivProtocol},
+		{"Modulo", object.ModProtocol},
 	} {
-		if wrapper, ok := forward[op.trait]; ok {
+		if wrapper, ok := forward[op.protocol]; ok {
 			method(op.goMethod, other("other"), jen.Parens(jen.List(obj(), jen.Error())),
 				jen.Return(jen.Id(receiverName).Dot(wrapper).Call(jen.Qual(pathObject, "CallArgs").Values(jen.Dict{
 					jen.Id("Positional"): jen.Qual(pathObject, "Args").Values(jen.Id("other")),
@@ -312,7 +312,7 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 			}))
 		}
 		registration = append(registration,
-			jen.Id(typeVar).Dot("Implement").Call(jen.Qual(pathObject, protocols[i].Name+"Trait"), jen.Index().Qual(pathObject, "ImplMethod").Values(methods...)),
+			jen.Id(typeVar).Dot("Implement").Call(jen.Qual(pathObject, protocols[i].Name+"Protocol"), jen.Index().Qual(pathObject, "ImplMethod").Values(methods...)),
 		)
 	}
 	sealErr := g.localName("err")

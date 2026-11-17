@@ -131,7 +131,7 @@ func Negate(v Object) (Object, error) {
 	case Float:
 		return Float(-float64(n)), nil
 	case UserValue:
-		if impl := n.UserType().neg; impl != nil {
+		if impl := n.UserType().impls[negID]; impl != nil {
 			return impl.call(n, NegNeg, []Object{n})
 		}
 	}

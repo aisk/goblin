@@ -140,42 +140,28 @@ func TestUUIDTimeV7(t *testing.T) {
 	}
 }
 
-func TestUUIDTraits(t *testing.T) {
+func TestUUIDProtocols(t *testing.T) {
 	a := NewUUID(stduuid.MustParse("00000000-0000-0000-0000-000000000001"))
 	b := NewUUID(stduuid.MustParse("00000000-0000-0000-0000-000000000002"))
-	call := func(trait *object.Trait, method string, args ...object.Object) object.Object {
-		t.Helper()
-		i, ok := trait.MethodIndex(method)
-		if !ok {
-			t.Fatalf("%s has no method %s", trait.Name, method)
-		}
-		got, err := trait.Invoke(i, object.CallArgs{Positional: args})
-		if err != nil {
-			t.Fatalf("%s.%s error = %v", trait.Name, method, err)
-		}
-		return got
+	if eq, err := object.Equals(a, NewUUID(a.Value)); err != nil || !eq {
+		t.Fatalf("a == copy of a: %v, %v", eq, err)
 	}
-
-	if got := call(object.EqTrait, "eq", a, NewUUID(a.Value)); got != object.True {
-		t.Fatalf("Eq.eq(a, copy of a) = %v, want true", got)
+	if eq, err := object.Equals(a, object.String(a.String())); err != nil || eq {
+		t.Fatalf("a == String(a): %v, %v", eq, err)
 	}
-	if got := call(object.EqTrait, "eq", a, object.String(a.String())); got != object.False {
-		t.Fatalf("Eq.eq(a, str) = %v, want false", got)
+	if c, err := object.Compare(a, b); err != nil || c >= 0 {
+		t.Fatalf("compare(a, b) = %v, %v", c, err)
 	}
-	if got := call(object.OrdTrait, "compare", a, b); got != object.Integer(-1) {
-		t.Fatalf("Ord.compare(a, b) = %v, want -1", got)
-	}
-	if got := call(object.OrdTrait, "lt", a, b); got != object.True {
-		t.Fatalf("Ord.lt(a, b) = %v, want true", got)
-	}
-	if call(object.HashableTrait, "hash", a) != call(object.HashableTrait, "hash", NewUUID(a.Value)) {
+	ha, _ := object.Hash(a)
+	hc, _ := object.Hash(NewUUID(a.Value))
+	if ha != hc {
 		t.Fatal("equal UUIDs must hash equal")
 	}
-	if got := call(object.ShowTrait, "show", a); got != object.String(a.String()) {
-		t.Fatalf("Show.show(a) = %v", got)
+	if s, err := a.ToString(); err != nil || s != a.String() {
+		t.Fatalf("String(a) = %v, %v", s, err)
 	}
-	if got := call(object.TruthTrait, "truth", NewUUID(stduuid.Nil())); got != object.True {
-		t.Fatalf("Truth.truth(NIL) = %v, want true", got)
+	if ok, err := NewUUID(stduuid.Nil()).ToBool(); err != nil || !ok {
+		t.Fatalf("Bool(NIL) = %v, %v", ok, err)
 	}
 
 	_, err := object.Compare(a, object.String(a.String()))

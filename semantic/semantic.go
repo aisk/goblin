@@ -506,7 +506,7 @@ func (c *checker) checkImpls(def *ast.TypeDefine) error {
 			}
 			methods[i] = object.ImplMethod{Name: method.Name, Arity: len(method.Parameters)}
 		}
-		specs = append(specs, object.ImplSpec{Trait: protocol, Methods: methods})
+		specs = append(specs, object.ImplSpec{Protocol: protocol, Methods: methods})
 	}
 	issue := object.CheckImpls(def.Name, specs)
 	if issue == nil {
