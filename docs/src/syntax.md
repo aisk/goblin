@@ -6,8 +6,14 @@ and continue to the end of the line.
 
 ## Literals and collection syntax
 
-Integer literals such as `42` and float literals such as `3.14` are decimal
-only. Strings use double quotes. They support `\n`, `\t`, `\r`, `\"`, and `\\`.
+Integer literals are decimal (`42`), hexadecimal (`0x1F`), octal (`0o644`)
+or binary (`0b1010`); the prefix is lowercase, hexadecimal digits may be either
+case. A decimal integer cannot start with `0`: `0644` is an error, so it can
+never be mistaken for an octal number. Float literals have a decimal point
+(`3.14`), an exponent (`1e9`), or both (`1.5e-3`). An `_` may separate two
+digits in any number literal (`1_000_000`, `0xFF_FF`); anywhere else it is an
+error. An integer literal outside the 64-bit range is an error too.
+Strings use double quotes. They support `\n`, `\t`, `\r`, `\"`, and `\\`.
 Any other escape sequence is a syntax error.
 
 ~~~goblin

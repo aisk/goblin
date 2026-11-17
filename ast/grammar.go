@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -350,20 +351,83 @@ func NewIdentifier(x any) (any, error) {
 	return &Identifier{expressionMixin: exprAt(tokenOf(x).Pos), Name: lit(x)}, nil
 }
 
+// NewIntegerLiteral reads a decimal, 0x hexadecimal, 0o octal or 0b binary
+// integer literal, with optional '_' separators between digits. A decimal
+// literal with a leading zero is an error rather than either a decimal or an
+// octal number, so `0644` cannot silently mean the wrong thing.
 func NewIntegerLiteral(x any) (any, error) {
-	d, err := strconv.Atoi(lit(x))
-	if err != nil {
+	text := lit(x)
+	digits, base, kind := text, 10, "decimal"
+	if len(text) > 1 && text[0] == '0' {
+		switch text[1] {
+		case 'x':
+			digits, base, kind = text[2:], 16, "hexadecimal"
+		case 'o':
+			digits, base, kind = text[2:], 8, "octal"
+		case 'b':
+			digits, base, kind = text[2:], 2, "binary"
+		}
+	}
+	if err := checkSeparators(text, digits, base); err != nil {
 		return nil, err
+	}
+	digits = strings.ReplaceAll(digits, "_", "")
+	if base == 10 && len(digits) > 1 && digits[0] == '0' {
+		octal := strings.TrimLeft(digits, "0")
+		if octal == "" {
+			octal = "0"
+		}
+		return nil, fmt.Errorf("invalid integer literal %s: a decimal number cannot start with 0 (write 0o%s for an octal number)", text, octal)
+	}
+	d, err := strconv.ParseInt(digits, base, 64)
+	if err != nil {
+		if errors.Is(err, strconv.ErrRange) {
+			return nil, fmt.Errorf("integer literal %s is out of range for Integer", text)
+		}
+		return nil, fmt.Errorf("invalid digit in %s literal %s", kind, text)
 	}
 	return &Literal{expressionMixin: exprAt(tokenOf(x).Pos), Value: object.Integer(d)}, nil
 }
 
+// NewFloatLiteral reads a decimal floating-point literal with an optional
+// exponent (`1.5`, `1e9`, `1.5e-3`) and '_' separators between digits.
 func NewFloatLiteral(x any) (any, error) {
-	f, err := strconv.ParseFloat(lit(x), 64)
-	if err != nil {
+	text := lit(x)
+	if err := checkSeparators(text, text, 10); err != nil {
 		return nil, err
 	}
+	f, err := strconv.ParseFloat(strings.ReplaceAll(text, "_", ""), 64)
+	if err != nil {
+		if errors.Is(err, strconv.ErrRange) {
+			return nil, fmt.Errorf("float literal %s is out of range for Float", text)
+		}
+		return nil, fmt.Errorf("invalid float literal %s", text)
+	}
 	return &Literal{expressionMixin: exprAt(tokenOf(x).Pos), Value: object.Float(f)}, nil
+}
+
+// checkSeparators reports an error unless every '_' in digits sits between
+// two digits of the given base.
+func checkSeparators(text, digits string, base int) error {
+	isDigit := func(i int) bool {
+		if i < 0 || i >= len(digits) {
+			return false
+		}
+		d := digits[i]
+		switch {
+		case d >= '0' && d <= '9':
+			return int(d-'0') < base
+		case d >= 'a' && d <= 'f', d >= 'A' && d <= 'F':
+			return base == 16
+		}
+		return false
+	}
+	for i := 0; i < len(digits); i++ {
+		if digits[i] == '_' && (!isDigit(i-1) || !isDigit(i+1)) {
+			return fmt.Errorf("invalid number literal %s: '_' must separate two digits", text)
+		}
+	}
+	return nil
 }
 
 func NewStringLiteral(x any) (any, error) {

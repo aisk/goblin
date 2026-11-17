@@ -4,6 +4,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/aisk/goblin/ast"
 )
 
 // Newlines terminate statements, so a line can only continue the previous
@@ -74,5 +76,43 @@ func TestParseReportsFilename(t *testing.T) {
 	_, err := ParseFile(path)
 	if err == nil || !strings.HasPrefix(err.Error(), path+":1:11: error: ") {
 		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+// Number literals: prefixed bases, '_' separators between digits, float
+// exponents, and a decimal integer with a leading zero is an error.
+func TestParseNumberLiterals(t *testing.T) {
+	values := map[string]string{
+		"0x1F": "31", "0xff_FF": "65535", "0o644": "420", "0b1010": "10",
+		"1_000_000": "1000000", "0": "0", "9223372036854775807": "9223372036854775807",
+		"1e9": "1000000000.0", "1.5e-3": "0.0015", "2E+2": "200.0", "1_000.25": "1000.25",
+	}
+	for src, want := range values {
+		mod, err := ParseString("var x = " + src + "\n")
+		if err != nil {
+			t.Errorf("%s: %v", src, err)
+			continue
+		}
+		got, _ := mod.Body[0].(*ast.Declare).Value.(*ast.Literal).Value.ToString()
+		if got != want {
+			t.Errorf("%s = %s, want %s", src, got, want)
+		}
+	}
+	errs := map[string]string{
+		"0644":                "write 0o644 for an octal number",
+		"1__0":                "'_' must separate two digits",
+		"1_":                  "'_' must separate two digits",
+		"0x_F":                "'_' must separate two digits",
+		"1_.5":                "'_' must separate two digits",
+		"0o8":                 "invalid digit in octal literal 0o8",
+		"0b102":               "invalid digit in binary literal 0b102",
+		"9223372036854775808": "out of range for Integer",
+		"1e400":               "out of range for Float",
+	}
+	for src, want := range errs {
+		_, err := ParseString("var x = " + src + "\n")
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: error %v, want one containing %q", src, err, want)
+		}
 	}
 }

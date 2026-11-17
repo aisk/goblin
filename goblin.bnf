@@ -1,6 +1,22 @@
+// Number literals. The lexer accepts '_' anywhere after the first digit and
+// any decimal digits after a leading zero; ast.NewIntegerLiteral and
+// ast.NewFloatLiteral then reject a '_' that does not sit between two digits
+// and a decimal integer with a leading zero, with a message saying what to
+// write instead.
 _digit : '0'-'9' ;
-int_lit : _digit { _digit } ;
-float_lit : _digit { _digit } '.' _digit { _digit } ;
+_hex_digit : _digit | 'a'-'f' | 'A'-'F' ;
+_decimals : _digit { _digit | '_' } ;
+int_lit
+    : _decimals
+    | '0' 'x' ( _hex_digit | '_' ) { _hex_digit | '_' }
+    | '0' 'o' ( _digit | '_' ) { _digit | '_' }
+    | '0' 'b' ( _digit | '_' ) { _digit | '_' }
+;
+_exponent : ( 'e' | 'E' ) [ '+' | '-' ] _decimals ;
+float_lit
+    : _decimals '.' _decimals [ _exponent ]
+    | _decimals _exponent
+;
 
 _alpha : 'a'-'z' | 'A'-'Z' | '_' ;
 _alphanum : _alpha | _digit ;

@@ -1,0 +1,8 @@
+# Integer literals in every base, with separators.
+print(0x1F, 0xff_FF, 0o644, 0b1010)
+print(1_000_000, 0x7FFF_FFFF_FFFF_FFFF)
+print(0o644 == 420, 0b1111_1111 == 0xFF)
+
+# Float literals with exponents.
+print(1e9, 1.5e-3, 2E+2, 6.022_140e23)
+print(1_000.25 * 2)

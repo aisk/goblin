@@ -21,7 +21,10 @@ Custom types are covered in [Types and methods](./types.md).
 
 ## Numbers
 
-Integer literals have no decimal point; float literals do. Arithmetic preserves
+Integer literals have no decimal point and can be written in decimal,
+hexadecimal, octal or binary (`255`, `0xFF`, `0o377`, `0b1111_1111`); float
+literals have a decimal point or an exponent (`2.5`, `1e9`). See
+[Syntax](./syntax.md) for the exact rules. Arithmetic preserves
 an integer result when both operands are integers. If either operand is a
 float, the result is a float. Integer division truncates its fractional part.
 The `%` operator returns the remainder after truncating division; the result
