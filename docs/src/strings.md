@@ -133,32 +133,55 @@ print("port={port}")       # port=8080
 | Method | Purpose |
 | --- | --- |
 | size | Character count (property) |
-| upper() / lower() / title() | Change letter case |
-| contains(substring) | Test for a substring |
+| upper() / lower() | Change letter case |
+| contains(value) | Test for a substring |
 | has_prefix(prefix) / has_suffix(suffix) | Test the beginning or end |
-| index(substring) / last_index(substring) | Find a substring; returns -1 if absent |
-| count(substring) | Count non-overlapping occurrences |
-| replace(old, new, count=-1) | Replace all occurrences by default |
-| split(separator, count=-1) | Split into a list |
-| split_after(separator, count=-1) | Split while retaining separators |
-| trim(cutset=nil) | Trim Unicode whitespace or supplied characters |
+| index(value, start=0) | Character position of a substring, or nil |
+| count(value) | Count non-overlapping occurrences |
+| replace(old, new, count=nil) | Replace occurrences, at most `count` of them |
+| split(sep=nil, count=nil) | Split into a list, at most `count` times |
+| cut(sep) | Split once: `[before, after]`, or `[text, nil]` |
+| trim(chars=nil) / trim_start(chars=nil) / trim_end(chars=nil) | Trim both ends, the start, or the end |
 | trim_prefix(prefix) / trim_suffix(suffix) | Remove one matching edge |
-| cut(separator) | Split once, returning a three-element result |
-| repeat(count) | Repeat text |
 
 Methods accept named arguments as well as positional ones.
 
 ~~~goblin
 var title = "  Goblin book  "
 print(title.trim().upper())
-print("a,b,c".split(sep=",", count=2))
+print("a,b,c".split(sep=",", count=1))   # ["a", "b,c"]
 print("one one one".replace(old="one", new="two", count=2))
 print("config.toml".trim_suffix(".toml"))
 ~~~
 
-trim() with no argument removes Unicode whitespace. Supplying a string trims
-any of its characters from both ends; it does not remove an exact substring.
-Use trim_prefix() or trim_suffix() when that distinction matters.
+index() counts characters, like `text[i]`, and returns nil when the substring
+is absent; `start` is a position from `-size` to `size`. Position `0` is false
+in a condition, so test the result with `!= nil`, or use contains().
+
+`count` on replace() and split() is how many times the operation runs; leaving
+it out (or passing nil) means no limit, and a negative count raises
+ValueError. So `split(",", count=1)` gives at most two pieces. split() without
+a separator splits at runs of Unicode whitespace and drops empty pieces:
+`" a  b ".split()` is `["a", "b"]`; with a count, the rest of the text after
+the last split, leading whitespace removed, is the final piece. An empty
+separator raises ValueError.
+
+cut() returns two values, so it destructures:
+
+~~~goblin
+var key, value = "port=80".cut("=")
+print(key, value)               # port 80
+print("port".cut("="))          # ["port", nil]
+~~~
+
+trim() with no argument removes Unicode whitespace. Supplying `chars` trims
+any of its characters, not an exact substring; trim_start() and trim_end() do
+the same at one end. Use trim_prefix() or trim_suffix() to remove an exact
+substring.
+
+To repeat text use `*`; to find the last occurrence of a separator, split and
+take `.last`, or use the [regexp](./module-regexp.md) module; to split at
+whitespace use split() without a separator.
 
 ## Common text-processing patterns
 
@@ -179,5 +202,5 @@ if filename.lower().has_suffix(".txt") {
 }
 ~~~
 
-Use contains() when a yes/no answer is enough. Use index() or last_index() when
-you need the position, such as separating a filename from its final extension.
+Use contains() when a yes/no answer is enough, and index() when you need the
+position.

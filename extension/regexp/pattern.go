@@ -91,16 +91,33 @@ func (p *Pattern) find(args object.CallArgs) (object.Object, error) {
 }
 
 // parseTextCount reads the (text, count) argument pair shared by find_all and
-// split. count follows the built-in str methods: any negative value means "no
-// limit", and it is passed straight through to the Go engine.
+// split. count follows the built-in String methods: the most times the
+// operation runs, nil for no limit. The result is a limit for the Go engine,
+// where -1 means none.
 func parseTextCount(name string, args object.CallArgs) (string, int, error) {
 	ap := object.NewArgParser(name, args)
 	text := ap.Str("text")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
+	count, err := countArg(name, ap)
+	if err != nil {
 		return "", 0, err
 	}
-	return string(text), int(count), nil
+	return string(text), count, nil
+}
+
+// countArg reads the optional count argument as a limit for the Go engine,
+// finishing the parse.
+func countArg(name string, ap *object.ArgParser) (int, error) {
+	count, limited := ap.NullableInt("count")
+	if err := ap.Finish(); err != nil {
+		return 0, err
+	}
+	if !limited {
+		return -1, nil
+	}
+	if count < 0 {
+		return 0, object.NewValueError("%s() count must not be negative", name)
+	}
+	return int(count), nil
 }
 
 func (p *Pattern) findAll(args object.CallArgs) (object.Object, error) {
@@ -120,15 +137,15 @@ func (p *Pattern) replace(args object.CallArgs) (object.Object, error) {
 	ap := object.NewArgParser("replace", args)
 	text := ap.Str("text")
 	replacement := ap.Str("replacement")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
+	count, err := countArg("replace", ap)
+	if err != nil {
 		return nil, err
 	}
 	if err := p.checkTemplate(string(replacement)); err != nil {
 		return nil, err
 	}
 	s := string(text)
-	matches := p.re.FindAllStringSubmatchIndex(s, int(count))
+	matches := p.re.FindAllStringSubmatchIndex(s, count)
 	result := make([]byte, 0, len(s))
 	last := 0
 	for _, match := range matches {
@@ -144,6 +161,10 @@ func (p *Pattern) split(args object.CallArgs) (object.Object, error) {
 	text, count, err := parseTextCount("split", args)
 	if err != nil {
 		return nil, err
+	}
+	// count limits the splits, so the pieces number at most one more.
+	if count >= 0 {
+		count++
 	}
 	pieces := p.re.Split(text, count)
 	items := make([]object.Object, len(pieces))

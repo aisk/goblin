@@ -23,10 +23,16 @@ var words = regexp.compile("[a-z]+")
 print(words.find_all("one two three", count=2).size)
 print(assignment.replace("a=1 b=2", `${key}:$2`, count=1))
 
-# count means the same thing as it does on the built-in str methods: for split
-# it is the number of pieces, for replace the number of replacements.
-print(regexp.compile(",\\s*").split("a, b,c", count=2))
-print("a, b,c".split(sep=", ", count=2))
+# count means the same thing as it does on the built-in String methods: the
+# most splits, replacements or matches; nil, the default, means no limit.
+print(regexp.compile(",\\s*").split("a, b,c", count=1))
+print("a, b,c".split(sep=", ", count=1))
+print(regexp.compile(",").split("a,b", count=0), words.find_all("one two", count=nil).size)
+try {
+    words.find_all("one", count=-1)
+} catch e {
+    print(e.is(ValueError), e)
+}
 
 # escape() is how to search for text that is not itself a pattern.
 print(regexp.compile(regexp.escape("a.c")).match("abc"))

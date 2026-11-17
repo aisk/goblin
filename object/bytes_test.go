@@ -48,31 +48,26 @@ func TestBytesRejectInvalidValuesAndUTF8(t *testing.T) {
 	}
 }
 
-func TestStringEncode(t *testing.T) {
-	fn, err := String("hi").GetAttr("encode")
-	if err != nil {
-		t.Fatal(err)
-	}
-	got, err := Call(fn, CallArgs{})
-	if err != nil || string(got.(Bytes)) != "hi" {
-		t.Fatalf("encode = %v, %v", got, err)
-	}
-}
-
 func TestBytesSearchMethodsAcceptStringAndKeywords(t *testing.T) {
 	b := Bytes("one two one")
-	if got := callBytesMethod(t, b, "contains", CallArgs{Keyword: Kwargs{{Name: "sub", Value: String("two")}}}); got != True {
+	if got := callBytesMethod(t, b, "contains", CallArgs{Keyword: Kwargs{{Name: "value", Value: String("two")}}}); got != True {
 		t.Fatalf("contains = %v", got)
 	}
 	if got := callBytesMethod(t, b, "count", CallArgs{Positional: Args{Bytes("one")}}); got != Integer(2) {
 		t.Fatalf("count = %v", got)
 	}
-	if got := callBytesMethod(t, b, "last_index", CallArgs{Keyword: Kwargs{{Name: "sub", Value: String("one")}}}); got != Integer(8) {
-		t.Fatalf("last_index = %v", got)
+	if got := callBytesMethod(t, b, "index", CallArgs{Positional: Args{String("one")}, Keyword: Kwargs{{Name: "start", Value: Integer(1)}}}); got != Integer(8) {
+		t.Fatalf("index = %v", got)
+	}
+	if got := callBytesMethod(t, Bytes("hé!"), "index", CallArgs{Positional: Args{String("!")}}); got != Integer(3) {
+		t.Fatalf("index counts bytes: %v", got)
+	}
+	if got := callBytesMethod(t, b, "index", CallArgs{Positional: Args{String("x")}}); got != Nil {
+		t.Fatalf("index miss = %v", got)
 	}
 }
 
-func TestBytesReplaceSplitAndTrimDefaults(t *testing.T) {
+func TestBytesReplaceSplitAndCut(t *testing.T) {
 	replaced := callBytesMethod(t, Bytes("a-a-a"), "replace", CallArgs{
 		Positional: Args{String("a"), Bytes("b")}, Keyword: Kwargs{{Name: "count", Value: Integer(2)}},
 	}).(Bytes)
@@ -80,30 +75,39 @@ func TestBytesReplaceSplitAndTrimDefaults(t *testing.T) {
 		t.Fatalf("replace = %q", replaced)
 	}
 	parts := callBytesMethod(t, Bytes("a,b,c"), "split", CallArgs{
-		Keyword: Kwargs{{Name: "sep", Value: String(",")}, {Name: "count", Value: Integer(2)}},
+		Keyword: Kwargs{{Name: "sep", Value: String(",")}, {Name: "count", Value: Integer(1)}},
 	}).(*List)
 	if len(parts.Elements) != 2 || string(parts.Elements[1].(Bytes)) != "b,c" {
 		t.Fatalf("split = %#v", parts.Elements)
 	}
-	trimmed := callBytesMethod(t, Bytes(" \tvalue\n"), "trim", CallArgs{}).(Bytes)
-	if string(trimmed) != "value" {
-		t.Fatalf("trim = %q", trimmed)
+	fn, _ := Bytes("x").GetAttr("split")
+	if _, err := Call(fn, CallArgs{}); err == nil {
+		t.Fatal("Bytes.split needs a separator")
+	}
+	cut := callBytesMethod(t, Bytes("key=value"), "cut", CallArgs{Keyword: Kwargs{{Name: "sep", Value: String("=")}}}).(*List)
+	if len(cut.Elements) != 2 || string(cut.Elements[0].(Bytes)) != "key" || string(cut.Elements[1].(Bytes)) != "value" {
+		t.Fatalf("cut = %#v", cut.Elements)
+	}
+	cut = callBytesMethod(t, Bytes("key"), "cut", CallArgs{Positional: Args{String("=")}}).(*List)
+	if string(cut.Elements[0].(Bytes)) != "key" || cut.Elements[1] != Nil {
+		t.Fatalf("cut miss = %#v", cut.Elements)
+	}
+	for _, name := range []string{"upper", "trim", "join", "fields", "to_valid_utf8", "index_byte"} {
+		if _, err := Bytes("x").GetAttr(name); err == nil {
+			t.Fatalf("Bytes still has %s", name)
+		}
 	}
 }
 
-func TestBytesCutCaseAndValidUTF8(t *testing.T) {
-	cut := callBytesMethod(t, Bytes("key=value"), "cut", CallArgs{Keyword: Kwargs{{Name: "sep", Value: String("=")}}}).(*List)
-	if string(cut.Elements[0].(Bytes)) != "key" || string(cut.Elements[1].(Bytes)) != "value" || cut.Elements[2] != True {
-		t.Fatalf("cut = %#v", cut.Elements)
+func TestBytesHashByContent(t *testing.T) {
+	d := NewDict()
+	if err := d.Set(Bytes("k"), Integer(1)); err != nil {
+		t.Fatal(err)
 	}
-	upper := callBytesMethod(t, Bytes("hé"), "upper", CallArgs{}).(Bytes)
-	if string(upper) != "HÉ" {
-		t.Fatalf("upper = %q", upper)
+	if v, ok, err := d.Get(NewBytes([]byte("k"))); err != nil || !ok || v != Integer(1) {
+		t.Fatalf("Get = %v, %v, %v", v, ok, err)
 	}
-	valid := callBytesMethod(t, Bytes{'a', 0xff, 'b'}, "to_valid_utf8", CallArgs{
-		Keyword: Kwargs{{Name: "replacement", Value: String("?")}},
-	}).(Bytes)
-	if string(valid) != "a?b" {
-		t.Fatalf("to_valid_utf8 = %q", valid)
+	if _, ok, _ := d.Get(String("k")); ok {
+		t.Fatal("String key found a Bytes entry")
 	}
 }

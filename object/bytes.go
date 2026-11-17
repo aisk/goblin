@@ -3,7 +3,6 @@ package object
 import (
 	"bytes"
 	"strconv"
-	"unicode"
 	"unicode/utf8"
 )
 
@@ -123,73 +122,38 @@ func (b Bytes) Size() Integer {
 	return Integer(len(b))
 }
 
-func bytesArg(name, param string, value Object) ([]byte, error) {
-	switch v := value.(type) {
-	case Bytes:
-		return []byte(v), nil
-	case String:
-		return []byte(v), nil
-	default:
-		return nil, NewTypeError("%s() argument '%s' must be Bytes or String, got %s", name, param, value.TypeName())
-	}
-}
-
 func parseBytesArg(name, param string, args CallArgs) ([]byte, error) {
 	ap := NewArgParser(name, args)
 	value := ap.BytesLike(param)
 	return value, ap.Finish()
 }
 
-func bytesList(values [][]byte) Object {
-	elements := make([]Object, len(values))
-	for i, value := range values {
-		elements[i] = NewBytes(value)
-	}
-	return &List{Elements: elements}
-}
-
 func (b Bytes) Contains(args CallArgs) (Object, error) {
-	sub, err := parseBytesArg("contains", "sub", args)
+	value, err := parseBytesArg("contains", "value", args)
 	if err != nil {
 		return nil, err
 	}
-	return Bool(bytes.Contains(b, sub)), nil
-}
-
-func (b Bytes) ContainsAny(args CallArgs) (Object, error) {
-	chars, err := parseBytesArg("contains_any", "chars", args)
-	if err != nil {
-		return nil, err
-	}
-	return Bool(bytes.ContainsAny(b, string(chars))), nil
-}
-
-func (b Bytes) ContainsRune(args CallArgs) (Object, error) {
-	ap := NewArgParser("contains_rune", args)
-	r := ap.Int("rune")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if r < 0 || r > utf8.MaxRune {
-		return nil, NewValueError("contains_rune() rune must be a valid Unicode code point")
-	}
-	return Bool(bytes.ContainsRune(b, rune(r))), nil
+	return bytesSeq(b).contains(string(value)), nil
 }
 
 func (b Bytes) Count(args CallArgs) (Object, error) {
-	sub, err := parseBytesArg("count", "sub", args)
+	value, err := parseBytesArg("count", "value", args)
 	if err != nil {
 		return nil, err
 	}
-	return Integer(bytes.Count(b, sub)), nil
+	return bytesSeq(b).count(string(value)), nil
 }
 
-func (b Bytes) EqualFold(args CallArgs) (Object, error) {
-	other, err := parseBytesArg("equal_fold", "other", args)
-	if err != nil {
+// IndexOf returns the byte offset of the first occurrence of value at or
+// after start, or nil.
+func (b Bytes) IndexOf(args CallArgs) (Object, error) {
+	ap := NewArgParser("index", args)
+	value := ap.BytesLike("value")
+	start := ap.IntOr("start", 0)
+	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	return Bool(bytes.EqualFold(b, other)), nil
+	return bytesSeq(b).index(string(value), start)
 }
 
 func (b Bytes) HasPrefix(args CallArgs) (Object, error) {
@@ -208,206 +172,6 @@ func (b Bytes) HasSuffix(args CallArgs) (Object, error) {
 	return Bool(bytes.HasSuffix(b, suffix)), nil
 }
 
-func (b Bytes) IndexOf(args CallArgs) (Object, error) {
-	sub, err := parseBytesArg("index", "sub", args)
-	if err != nil {
-		return nil, err
-	}
-	return Integer(bytes.Index(b, sub)), nil
-}
-
-func (b Bytes) LastIndex(args CallArgs) (Object, error) {
-	sub, err := parseBytesArg("last_index", "sub", args)
-	if err != nil {
-		return nil, err
-	}
-	return Integer(bytes.LastIndex(b, sub)), nil
-}
-
-func (b Bytes) IndexAny(args CallArgs) (Object, error) {
-	chars, err := parseBytesArg("index_any", "chars", args)
-	if err != nil {
-		return nil, err
-	}
-	return Integer(bytes.IndexAny(b, string(chars))), nil
-}
-
-func (b Bytes) LastIndexAny(args CallArgs) (Object, error) {
-	chars, err := parseBytesArg("last_index_any", "chars", args)
-	if err != nil {
-		return nil, err
-	}
-	return Integer(bytes.LastIndexAny(b, string(chars))), nil
-}
-
-func (b Bytes) IndexByte(args CallArgs) (Object, error) {
-	return b.byteIndex("index_byte", args, false)
-}
-func (b Bytes) LastIndexByte(args CallArgs) (Object, error) {
-	return b.byteIndex("last_index_byte", args, true)
-}
-
-func (b Bytes) byteIndex(name string, args CallArgs, last bool) (Object, error) {
-	ap := NewArgParser(name, args)
-	value := ap.Int("value")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if value < 0 || value > 255 {
-		return nil, NewValueError("%s() value must be from 0 to 255", name)
-	}
-	if last {
-		return Integer(bytes.LastIndexByte(b, byte(value))), nil
-	}
-	return Integer(bytes.IndexByte(b, byte(value))), nil
-}
-
-func (b Bytes) IndexRune(args CallArgs) (Object, error) {
-	ap := NewArgParser("index_rune", args)
-	r := ap.Int("rune")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if r < 0 || r > utf8.MaxRune {
-		return nil, NewValueError("index_rune() rune must be a valid Unicode code point")
-	}
-	return Integer(bytes.IndexRune(b, rune(r))), nil
-}
-
-func (b Bytes) Join(args CallArgs) (Object, error) {
-	ap := NewArgParser("join", args)
-	iterable := ap.Any("iterable")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	list, ok := iterable.(*List)
-	if !ok {
-		return nil, NewTypeError("join() argument 'iterable' must be a List, got %s", iterable.TypeName())
-	}
-	parts := make([][]byte, len(list.Elements))
-	for i, elem := range list.Elements {
-		part, err := bytesArg("join", "iterable", elem)
-		if err != nil {
-			return nil, NewTypeError("join() element %d must be Bytes or String, got %s", i, elem.TypeName())
-		}
-		parts[i] = part
-	}
-	return NewBytes(bytes.Join(parts, b)), nil
-}
-
-func (b Bytes) Repeat(args CallArgs) (Object, error) {
-	ap := NewArgParser("repeat", args)
-	count := ap.Int("count")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if count < 0 {
-		return nil, NewValueError("repeat() count must not be negative")
-	}
-	if err := checkRepeat(len(b), count); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.Repeat(b, int(count))), nil
-}
-
-func (b Bytes) Replace(args CallArgs) (Object, error) {
-	ap := NewArgParser("replace", args)
-	old, newValue := ap.BytesLike("old"), ap.BytesLike("new")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.Replace(b, old, newValue, int(count))), nil
-}
-
-func (b Bytes) Split(args CallArgs) (Object, error) {
-	ap := NewArgParser("split", args)
-	sep := ap.BytesLike("sep")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return bytesList(bytes.SplitN(b, sep, int(count))), nil
-}
-
-func (b Bytes) SplitAfter(args CallArgs) (Object, error) {
-	ap := NewArgParser("split_after", args)
-	sep := ap.BytesLike("sep")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return bytesList(bytes.SplitAfterN(b, sep, int(count))), nil
-}
-
-func (b Bytes) Fields(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("fields", args); err != nil {
-		return nil, err
-	}
-	return bytesList(bytes.Fields(b)), nil
-}
-
-func (b Bytes) Cut(args CallArgs) (Object, error) {
-	sep, err := parseBytesArg("cut", "sep", args)
-	if err != nil {
-		return nil, err
-	}
-	before, after, found := bytes.Cut(b, sep)
-	return &List{Elements: []Object{NewBytes(before), NewBytes(after), Bool(found)}}, nil
-}
-
-func (b Bytes) CutPrefix(args CallArgs) (Object, error) {
-	prefix, err := parseBytesArg("cut_prefix", "prefix", args)
-	if err != nil {
-		return nil, err
-	}
-	value, found := bytes.CutPrefix(b, prefix)
-	return &List{Elements: []Object{NewBytes(value), Bool(found)}}, nil
-}
-
-func (b Bytes) CutSuffix(args CallArgs) (Object, error) {
-	suffix, err := parseBytesArg("cut_suffix", "suffix", args)
-	if err != nil {
-		return nil, err
-	}
-	value, found := bytes.CutSuffix(b, suffix)
-	return &List{Elements: []Object{NewBytes(value), Bool(found)}}, nil
-}
-
-func (b Bytes) Trim(args CallArgs) (Object, error)      { return b.trim("trim", args, trimBoth) }
-func (b Bytes) TrimLeft(args CallArgs) (Object, error)  { return b.trim("trim_left", args, trimLeft) }
-func (b Bytes) TrimRight(args CallArgs) (Object, error) { return b.trim("trim_right", args, trimRight) }
-
-func (b Bytes) trim(name string, args CallArgs, direction trimDirection) (Object, error) {
-	ap := NewArgParser(name, args)
-	cutsetObj := ap.AnyOr("cutset", Nil)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if _, ok := cutsetObj.(Unit); ok {
-		switch direction {
-		case trimBoth:
-			return NewBytes(bytes.TrimSpace(b)), nil
-		case trimLeft:
-			return NewBytes(bytes.TrimLeftFunc(b, unicode.IsSpace)), nil
-		case trimRight:
-			return NewBytes(bytes.TrimRightFunc(b, unicode.IsSpace)), nil
-		}
-	}
-	cutset, err := bytesArg(name, "cutset", cutsetObj)
-	if err != nil {
-		return nil, err
-	}
-	switch direction {
-	case trimBoth:
-		return NewBytes(bytes.Trim(b, string(cutset))), nil
-	case trimLeft:
-		return NewBytes(bytes.TrimLeft(b, string(cutset))), nil
-	default:
-		return NewBytes(bytes.TrimRight(b, string(cutset))), nil
-	}
-}
-
 func (b Bytes) TrimPrefix(args CallArgs) (Object, error) {
 	prefix, err := parseBytesArg("trim_prefix", "prefix", args)
 	if err != nil {
@@ -424,43 +188,34 @@ func (b Bytes) TrimSuffix(args CallArgs) (Object, error) {
 	return NewBytes(bytes.TrimSuffix(b, suffix)), nil
 }
 
-func (b Bytes) Upper(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("upper", args); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.ToUpper(b)), nil
-}
-func (b Bytes) Lower(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("lower", args); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.ToLower(b)), nil
-}
-func (b Bytes) Title(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("title", args); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.Title(b)), nil
-}
-
-func (b Bytes) ToTitle(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("to_title", args); err != nil {
-		return nil, err
-	}
-	return NewBytes(bytes.ToTitle(b)), nil
-}
-
-func (b Bytes) ToValidUTF8(args CallArgs) (Object, error) {
-	ap := NewArgParser("to_valid_utf8", args)
-	replacementObj := ap.AnyOr("replacement", Bytes{})
+func (b Bytes) Replace(args CallArgs) (Object, error) {
+	ap := NewArgParser("replace", args)
+	old, newValue := ap.BytesLike("old"), ap.BytesLike("new")
+	count, limited := ap.NullableInt("count")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	replacement, err := bytesArg("to_valid_utf8", "replacement", replacementObj)
+	return bytesSeq(b).replace(string(old), string(newValue), count, limited)
+}
+
+// Split takes a separator: splitting at whitespace is a text operation, for
+// a String.
+func (b Bytes) Split(args CallArgs) (Object, error) {
+	ap := NewArgParser("split", args)
+	sep := ap.BytesLike("sep")
+	count, limited := ap.NullableInt("count")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return bytesSeq(b).split(string(sep), true, count, limited)
+}
+
+func (b Bytes) Cut(args CallArgs) (Object, error) {
+	sep, err := parseBytesArg("cut", "sep", args)
 	if err != nil {
 		return nil, err
 	}
-	return NewBytes(bytes.ToValidUTF8(b, replacement)), nil
+	return bytesSeq(b).cut(string(sep)), nil
 }
 
 func (b Bytes) Decode(args CallArgs) (Object, error) {
@@ -468,7 +223,7 @@ func (b Bytes) Decode(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if !utf8.Valid(b) {
-		return nil, NewValueError("decode() received invalid UTF-8")
+		return nil, NewValueError("decode() invalid UTF-8")
 	}
 	return String(b), nil
 }
@@ -487,12 +242,8 @@ func (b Bytes) GetAttr(name string) (Object, error) {
 func (b Bytes) Attributes() []string { return bytesMethods.attributes("size") }
 
 var bytesMethods = newMethodTable(
-	"decode", "contains", "contains_any", "contains_rune", "count", "equal_fold",
-	"has_prefix", "has_suffix", "index", "last_index", "index_any",
-	"last_index_any", "index_byte", "last_index_byte", "index_rune", "join",
-	"repeat", "replace", "split", "split_after", "fields", "cut", "cut_prefix",
-	"cut_suffix", "trim", "trim_left", "trim_right", "trim_prefix", "trim_suffix",
-	"upper", "lower", "title", "to_title", "to_valid_utf8",
+	"decode", "contains", "count", "index", "has_prefix", "has_suffix",
+	"trim_prefix", "trim_suffix", "replace", "split", "cut",
 )
 
 var BytesConstructorFn = &Function{Name: "Bytes", Fn: BytesConstructor}

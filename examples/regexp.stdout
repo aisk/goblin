@@ -16,6 +16,8 @@ nil
 a:1 b=2
 ["a", "b,c"]
 ["a", "b,c"]
+["a,b"] 2
+true find_all() count must not be negative
 false
 true
 3

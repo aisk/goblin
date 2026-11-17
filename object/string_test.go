@@ -20,18 +20,23 @@ func TestStringSearchMethodsUseRuneIndexes(t *testing.T) {
 		method, value, arg string
 		want               Object
 	}{
-		{"contains_any", "goblin", "xyzl", True},
+		{"contains", "goblin", "bl", True},
 		{"count", "banana", "an", Integer(2)},
-		{"equal_fold", "Goblin", "gObLiN", True},
+		{"count", "日本", "", Integer(3)},
 		{"index", "日本語-日本", "語", Integer(2)},
-		{"last_index", "日本語-日本", "日", Integer(4)},
-		{"index_any", "日本語", "語本", Integer(1)},
+		{"index", "日本語", "x", Nil},
 	}
 	for _, tt := range tests {
 		got := callStringMethod(t, tt.value, tt.method, Args{String(tt.arg)}, nil)
 		if got != tt.want {
 			t.Errorf("%s: got %v, want %v", tt.method, got, tt.want)
 		}
+	}
+	if got := callStringMethod(t, "日本語-日本", "index", Args{String("日")}, Kwargs{{Name: "start", Value: Integer(1)}}); got != Integer(4) {
+		t.Errorf("index from 1 = %v, want 4", got)
+	}
+	if got := callStringMethod(t, "日本語-日本", "index", Args{String("本")}, Kwargs{{Name: "start", Value: Integer(-1)}}); got != Integer(5) {
+		t.Errorf("index from -1 = %v, want 5", got)
 	}
 }
 
@@ -48,9 +53,13 @@ func TestStringReplaceDefaultsAndKeywords(t *testing.T) {
 	if got != String("two two one") {
 		t.Fatalf("named count: got %q", got)
 	}
+	fn, _ := String("x").GetAttr("replace")
+	if _, err := Call(fn, CallArgs{Positional: Args{String("x"), String("y"), Integer(-1)}}); err == nil || err.Error() != "replace() count must not be negative" {
+		t.Fatalf("negative count error = %v", err)
+	}
 }
 
-func TestStringSplitOverloads(t *testing.T) {
+func TestStringSplitCounts(t *testing.T) {
 	assertList := func(got Object, want ...Object) {
 		t.Helper()
 		list := got.(*List)
@@ -64,43 +73,58 @@ func TestStringSplitOverloads(t *testing.T) {
 		}
 	}
 	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, nil), String("a"), String("b"), String("c"))
-	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(2)}}), String("a"), String("b,c"))
-	assertList(callStringMethod(t, "a,b,c", "split_after", nil, Kwargs{{Name: "sep", Value: String(",")}}), String("a,"), String("b,"), String("c"))
-	assertList(callStringMethod(t, "a,b,c", "split_after", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(2)}}), String("a,"), String("b,c"))
-	assertList(callStringMethod(t, " a\t b\n", "fields", nil, nil), String("a"), String("b"))
+	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(1)}}), String("a"), String("b,c"))
+	assertList(callStringMethod(t, "a,b,c", "split", Args{String(",")}, Kwargs{{Name: "count", Value: Integer(0)}}), String("a,b,c"))
+	assertList(callStringMethod(t, " a\t b\n", "split", nil, nil), String("a"), String("b"))
+	assertList(callStringMethod(t, "  ", "split", nil, nil))
+	assertList(callStringMethod(t, " a  b  c ", "split", Args{Nil, Integer(1)}, nil), String("a"), String("b  c "))
+	assertList(callStringMethod(t, " a ", "split", Args{Nil, Integer(0)}, nil), String("a "))
+	fn, _ := String("x").GetAttr("split")
+	if _, err := Call(fn, CallArgs{Positional: Args{String("")}}); err == nil || err.Error() != "split() separator must not be empty" {
+		t.Fatalf("empty separator error = %v", err)
+	}
+	if _, err := Call(fn, CallArgs{Positional: Args{String(","), Integer(-1)}}); err == nil || err.Error() != "split() count must not be negative" {
+		t.Fatalf("negative count error = %v", err)
+	}
 }
 
-func TestStringTrimCutAndRepeat(t *testing.T) {
+func TestStringTrimAndCut(t *testing.T) {
 	if got := callStringMethod(t, "\u3000 hello \t", "trim", nil, nil); got != String("hello") {
 		t.Fatalf("default whitespace trim: got %q", got)
 	}
-	if got := callStringMethod(t, "  hello  ", "trim_left", nil, nil); got != String("hello  ") {
-		t.Fatalf("default whitespace trim_left: got %q", got)
+	if got := callStringMethod(t, "  hello  ", "trim_start", nil, nil); got != String("hello  ") {
+		t.Fatalf("default whitespace trim_start: got %q", got)
+	}
+	if got := callStringMethod(t, "  hello  ", "trim_end", nil, Kwargs{{Name: "chars", Value: Nil}}); got != String("  hello") {
+		t.Fatalf("trim_end(chars=nil): got %q", got)
 	}
 	if got := callStringMethod(t, "  hello  ", "trim", Args{String("")}, nil); got != String("  hello  ") {
-		t.Fatalf("explicit empty cutset: got %q", got)
+		t.Fatalf("explicit empty chars: got %q", got)
 	}
-	if got := callStringMethod(t, "xyhello", "trim_left", Args{String("xy")}, nil); got != String("hello") {
+	if got := callStringMethod(t, "xyhelloyx", "trim_start", nil, Kwargs{{Name: "chars", Value: String("xy")}}); got != String("helloyx") {
 		t.Fatal(got)
 	}
 	if got := callStringMethod(t, "hello.go", "trim_suffix", nil, Kwargs{{Name: "suffix", Value: String(".go")}}); got != String("hello") {
 		t.Fatal(got)
 	}
-	if got := callStringMethod(t, "go", "repeat", nil, Kwargs{{Name: "count", Value: Integer(3)}}); got != String("gogogo") {
-		t.Fatal(got)
+	cut := callStringMethod(t, "key=value=x", "cut", Args{String("=")}, nil).(*List)
+	if len(cut.Elements) != 2 || cut.Elements[0] != String("key") || cut.Elements[1] != String("value=x") {
+		t.Fatal(cut)
 	}
-	cut := callStringMethod(t, "key=value", "cut", Args{String("=")}, nil).(*List)
-	if cut.Elements[0] != String("key") || cut.Elements[1] != String("value") || cut.Elements[2] != True {
+	cut = callStringMethod(t, "key", "cut", nil, Kwargs{{Name: "sep", Value: String("=")}}).(*List)
+	if len(cut.Elements) != 2 || cut.Elements[0] != String("key") || cut.Elements[1] != Nil {
 		t.Fatal(cut)
 	}
 }
 
 func TestStringMethodArgumentErrors(t *testing.T) {
-	fn, _ := String("x").GetAttr("repeat")
-	if _, err := Call(fn, CallArgs{Positional: Args{Integer(-1)}}); err == nil {
-		t.Fatal("negative repeat count should fail")
+	fn, _ := String("x").GetAttr("contains")
+	if _, err := Call(fn, CallArgs{Keyword: Kwargs{{Name: "sub", Value: String("x")}}}); err == nil {
+		t.Fatal("the old keyword name should fail")
 	}
-	if _, err := Call(fn, CallArgs{Keyword: Kwargs{{Name: "unknown", Value: Integer(1)}}}); err == nil {
-		t.Fatal("unknown keyword should fail")
+	for _, name := range []string{"repeat", "encode", "fields", "trim_left", "last_index", "title"} {
+		if _, err := String("x").GetAttr(name); err == nil {
+			t.Fatalf("String still has %s", name)
+		}
 	}
 }

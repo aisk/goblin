@@ -8,8 +8,9 @@ import (
 // Hashable marks a value usable as a dict key. The one law is consistency
 // with Equals: values that compare equal under == must return the same hash.
 // The reverse never has to hold — the dict resolves equal hashes with Equals
-// (see keysMatch) — so a hash needs to be stable, not unique. Mutable
-// built-ins (List, Dict) stay non-Hashable on purpose: mutating a stored key
+// (see keysMatch) — so a hash needs to be stable, not unique. Immutable
+// built-ins (String, Bytes, numbers) hash by value; mutable ones (List, Dict)
+// stay non-Hashable on purpose: mutating a stored key
 // would strand its entry under a stale hash.
 type Hashable interface {
 	Hash() (uint64, error)
@@ -38,6 +39,11 @@ const (
 
 func (v String) Hash() (uint64, error) { return maphash.String(hashSeed, string(v)), nil }
 
+// Bytes are immutable, so they hash by content like a String; equal Bytes
+// hash equal. A String and Bytes with the same content may share a hash,
+// a collision the dict resolves since they are unequal.
+func (v Bytes) Hash() (uint64, error) { return maphash.Bytes(hashSeed, v), nil }
+
 // Integer and Float hash through the float64 domain because their equality is
 // decided there (see numericEquals): 1 and 1.0 are one dict key. Distinct
 // huge integers may round to the same float64 and thus share a hash; that is
@@ -61,7 +67,7 @@ func identityHash[T any](p *T) uint64 { return maphash.Comparable(hashSeed, p) }
 // hashNumber hashes a number by its float64 bits. -0.0 folds into +0.0 (they
 // compare equal), and every NaN takes one canonical pattern because the dict
 // treats all NaNs as a single key (see keysMatch). No mixing is needed: the
-// buckets map re-hashes this value itself.
+// dict's index map re-hashes this value itself.
 func hashNumber(f float64) uint64 {
 	if f == 0 {
 		f = 0

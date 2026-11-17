@@ -45,9 +45,9 @@ print(needle.match("a.c"))
 | `group_names` | Capture-group names by number, excluding group 0. |
 | `match(text, full=false)` | Reports whether a match exists. With `full=true`, the entire text must match. |
 | `find(text, full=false)` | Returns the first `Match`, or `nil`. With `full=true`, the entire text must match. |
-| `find_all(text, count=-1)` | Returns non-overlapping `Match` values. |
-| `replace(text, replacement, count=-1)` | Replaces matches using a template and returns a new string. |
-| `split(text, count=-1)` | Splits around matches and returns strings. |
+| `find_all(text, count=nil)` | Returns non-overlapping `Match` values. |
+| `replace(text, replacement, count=nil)` | Replaces matches using a template and returns a new string. |
+| `split(text, count=nil)` | Splits around matches and returns strings. |
 
 `find` means leftmost substring search, and `match` is the same search reduced
 to a boolean — the name matches `path.match`, which is also a boolean pattern
@@ -58,14 +58,16 @@ so patterns that never ask for it pay nothing.
 `group_names` lines up element for element with a `Match`'s `groups`: entry *i*
 is the name of group *i + 1*, or `nil` when that group is unnamed.
 
-`count` means exactly what it means on the built-in `str` methods, so the two
-families stay interchangeable: for `split` it is the number of pieces returned,
-for `replace` the number of replacements made, and for `find_all` the number of
-matches returned. `0` produces nothing, and any negative value means "no limit".
+`count` means exactly what it means on the built-in String methods, so the two
+families stay interchangeable: it is the most times the operation runs, so for
+`split` the number of splits (at most `count + 1` pieces), for `replace` the
+number of replacements made, and for `find_all` the number of matches
+returned. `nil`, the default, means no limit, and a negative count raises
+ValueError.
 
 ~~~goblin
-print(regexp.compile(",\\s*").split("a, b,c", count=2))
-print("a, b,c".split(sep=", ", count=2))
+print(regexp.compile(",\\s*").split("a, b,c", count=1))
+print("a, b,c".split(sep=", ", count=1))
 ~~~
 
 Replacement templates use Go regexp expansion syntax: `$1` and `${1}` name a

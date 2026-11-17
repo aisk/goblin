@@ -81,68 +81,14 @@ func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "lower":
 		v, err := s.Lower(args)
 		return v, true, err
-	case "has_prefix":
-		v, err := s.HasPrefix(args)
-		return v, true, err
-	case "has_suffix":
-		v, err := s.HasSuffix(args)
-		return v, true, err
 	case "trim":
-		v, err := s.Trim(args)
+		v, err := s.trim("trim", args, trimBoth)
 		return v, true, err
-	case "contains":
-		v, err := s.Contains(args)
+	case "trim_start":
+		v, err := s.trim("trim_start", args, trimStart)
 		return v, true, err
-	case "contains_any":
-		v, err := s.ContainsAny(args)
-		return v, true, err
-	case "count":
-		v, err := s.Count(args)
-		return v, true, err
-	case "equal_fold":
-		v, err := s.EqualFold(args)
-		return v, true, err
-	case "index":
-		v, err := s.IndexOf(args)
-		return v, true, err
-	case "last_index":
-		v, err := s.LastIndex(args)
-		return v, true, err
-	case "index_any":
-		v, err := s.IndexAny(args)
-		return v, true, err
-	case "last_index_any":
-		v, err := s.LastIndexAny(args)
-		return v, true, err
-	case "repeat":
-		v, err := s.Repeat(args)
-		return v, true, err
-	case "replace":
-		v, err := s.Replace(args)
-		return v, true, err
-	case "split":
-		v, err := s.Split(args)
-		return v, true, err
-	case "split_after":
-		v, err := s.SplitAfter(args)
-		return v, true, err
-	case "fields":
-		v, err := s.Fields(args)
-		return v, true, err
-	case "title":
-		v, err := s.Title(args)
-		return v, true, err
-	case "to_title":
-		v, err := s.ToTitle(args)
-		return v, true, err
-	case "to_valid_utf8":
-		v, err := s.ToValidUTF8(args)
-		return v, true, err
-	case "trim_left":
-		v, err := s.TrimLeft(args)
-		return v, true, err
-	case "trim_right":
-		v, err := s.TrimRight(args)
+	case "trim_end":
+		v, err := s.trim("trim_end", args, trimEnd)
 		return v, true, err
 	case "trim_prefix":
 		v, err := s.TrimPrefix(args)
@@ -150,20 +96,30 @@ func (s String) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "trim_suffix":
 		v, err := s.TrimSuffix(args)
 		return v, true, err
+	case "has_prefix":
+		v, err := s.HasPrefix(args)
+		return v, true, err
+	case "has_suffix":
+		v, err := s.HasSuffix(args)
+		return v, true, err
+	case "contains":
+		v, err := s.Contains(args)
+		return v, true, err
+	case "count":
+		v, err := s.Count(args)
+		return v, true, err
+	case "index":
+		v, err := s.IndexOf(args)
+		return v, true, err
+	case "replace":
+		v, err := s.Replace(args)
+		return v, true, err
+	case "split":
+		v, err := s.Split(args)
+		return v, true, err
 	case "cut":
 		v, err := s.Cut(args)
 		return v, true, err
-	case "cut_prefix":
-		v, err := s.CutPrefix(args)
-		return v, true, err
-	case "cut_suffix":
-		v, err := s.CutSuffix(args)
-		return v, true, err
-	case "encode":
-		if err := RequireNoArgs("encode", args); err != nil {
-			return nil, true, err
-		}
-		return NewBytes([]byte(s)), true, nil
 	}
 	return nil, false, nil
 }
@@ -215,17 +171,11 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "contains":
 		v, err := b.Contains(args)
 		return v, true, err
-	case "contains_any":
-		v, err := b.ContainsAny(args)
-		return v, true, err
-	case "contains_rune":
-		v, err := b.ContainsRune(args)
-		return v, true, err
 	case "count":
 		v, err := b.Count(args)
 		return v, true, err
-	case "equal_fold":
-		v, err := b.EqualFold(args)
+	case "index":
+		v, err := b.IndexOf(args)
 		return v, true, err
 	case "has_prefix":
 		v, err := b.HasPrefix(args)
@@ -233,32 +183,11 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "has_suffix":
 		v, err := b.HasSuffix(args)
 		return v, true, err
-	case "index":
-		v, err := b.IndexOf(args)
+	case "trim_prefix":
+		v, err := b.TrimPrefix(args)
 		return v, true, err
-	case "last_index":
-		v, err := b.LastIndex(args)
-		return v, true, err
-	case "index_any":
-		v, err := b.IndexAny(args)
-		return v, true, err
-	case "last_index_any":
-		v, err := b.LastIndexAny(args)
-		return v, true, err
-	case "index_byte":
-		v, err := b.IndexByte(args)
-		return v, true, err
-	case "last_index_byte":
-		v, err := b.LastIndexByte(args)
-		return v, true, err
-	case "index_rune":
-		v, err := b.IndexRune(args)
-		return v, true, err
-	case "join":
-		v, err := b.Join(args)
-		return v, true, err
-	case "repeat":
-		v, err := b.Repeat(args)
+	case "trim_suffix":
+		v, err := b.TrimSuffix(args)
 		return v, true, err
 	case "replace":
 		v, err := b.Replace(args)
@@ -266,50 +195,8 @@ func (b Bytes) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "split":
 		v, err := b.Split(args)
 		return v, true, err
-	case "split_after":
-		v, err := b.SplitAfter(args)
-		return v, true, err
-	case "fields":
-		v, err := b.Fields(args)
-		return v, true, err
 	case "cut":
 		v, err := b.Cut(args)
-		return v, true, err
-	case "cut_prefix":
-		v, err := b.CutPrefix(args)
-		return v, true, err
-	case "cut_suffix":
-		v, err := b.CutSuffix(args)
-		return v, true, err
-	case "trim":
-		v, err := b.Trim(args)
-		return v, true, err
-	case "trim_left":
-		v, err := b.TrimLeft(args)
-		return v, true, err
-	case "trim_right":
-		v, err := b.TrimRight(args)
-		return v, true, err
-	case "trim_prefix":
-		v, err := b.TrimPrefix(args)
-		return v, true, err
-	case "trim_suffix":
-		v, err := b.TrimSuffix(args)
-		return v, true, err
-	case "upper":
-		v, err := b.Upper(args)
-		return v, true, err
-	case "lower":
-		v, err := b.Lower(args)
-		return v, true, err
-	case "title":
-		v, err := b.Title(args)
-		return v, true, err
-	case "to_title":
-		v, err := b.ToTitle(args)
-		return v, true, err
-	case "to_valid_utf8":
-		v, err := b.ToValidUTF8(args)
 		return v, true, err
 	}
 	return nil, false, nil

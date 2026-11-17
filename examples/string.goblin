@@ -21,14 +21,16 @@ print("hello".has_prefix("lo"))
 print("hello".has_suffix("lo"))
 print("hello".has_suffix("he"))
 
-# trim defaults to trimming Unicode whitespace
+# trim defaults to trimming Unicode whitespace; chars names the characters
 print("xyhelloxy".trim("xy"))
 print("  hello  ".trim())
-print("[" + "  hello  ".trim_left() + "]")
+print("[" + "  hello  ".trim_start() + "]", "[" + "  hello  ".trim_end() + "]")
+print("xyhelloyx".trim_start(chars="xy"), "xyhelloyx".trim_end("xy"), "[" + " a ".trim(nil) + "]")
+print("hello.go".trim_suffix(suffix=".go"), "v1.2".trim_prefix("v"))
 
 # contains
 print("hello".contains("ell"))
-print("hello".contains("world"))
+print("hello".contains(value="world"))
 
 # String constructor
 print(String(42))
@@ -37,26 +39,72 @@ print(String(true))
 print(String())
 print(String(nil))
 
-# Go strings-style search and comparison
-print("banana".count("an"))
-print("Goblin".equal_fold(other="gObLiN"))
-print("日本語-日本".index("語"))
-print("日本語-日本".last_index("日"))
-print("goblin".contains_any(chars="xyzl"))
+# Searching counts characters, not bytes; index is nil on a miss
+print("banana".count("an"), "banana".count(""))
+print("日本語-日本".index("語"), "日本語-日本".index("日", start=1), "日本語".index("x"))
+print("abc".index("c", start=-1), "abc".index("", start=3))
+try {
+    "abc".index("a", start=4)
+} catch e {
+    print(e)
+}
 
-# replace defaults to all occurrences; count can limit replacements
+# replace defaults to all occurrences; count limits the replacements
 print("one one one".replace("one", "two"))
 print("one one one".replace(old="one", new="two", count=2))
+print("one".replace("one", "two", count=0), "one".replace("one", "two", count=nil))
+try {
+    "x".replace("x", "y", count=-1)
+} catch e {
+    print(e.is(ValueError), e)
+}
 
-# count combines Split with SplitN, and SplitAfter with SplitAfterN
+# split's count is the most splits, so there are at most count+1 pieces;
+# without a separator it splits at runs of whitespace
 print("a,b,c".split(","))
-print("a,b,c".split(sep=",", count=2))
-print("a,b,c".split_after(sep=","))
-print("a,b,c".split_after(sep=",", count=2))
-print("  one\ttwo\nthree  ".fields())
+print("a,b,c".split(sep=",", count=1))
+print("a,b,c".split(",", count=0), ",".split(","), "".split(","))
+print("  one\ttwo\nthree  ".split())
+print("  one\ttwo\nthree  ".split(count=1), "   ".split())
+try {
+    "a b".split("")
+} catch e {
+    print(e.is(ValueError), e)
+}
+try {
+    "a b".split(",", count=-1)
+} catch e {
+    print(e.is(ValueError), e)
+}
 
-# trimming, cutting, and repetition
-print("xyhelloxy".trim_left("xy"))
-print("hello.go".trim_suffix(suffix=".go"))
-print("key=value".cut("="))
-print("go".repeat(count=3))
+# cut splits around the first separator; the second part is nil on a miss
+print("key=value=x".cut("="), "key".cut(sep="="))
+var key, value = "port=80".cut("=")
+print(key, value)
+
+# Bytes share contains, count, index, has_prefix, has_suffix, trim_prefix,
+# trim_suffix, replace, split and cut; positions count bytes
+var data = Bytes("héllo, world")
+print(data.contains("llo"), data.count(Bytes("l")), data.index("l"), data.index("z"))
+print(data.has_prefix("hé"), data.has_suffix(Bytes("ld")), data.trim_prefix("hé"), data.trim_suffix("world"))
+print(data.replace("l", "L", count=2), data.split(", "), data.split("l", count=1), data.cut(", "), data.cut("?"))
+try {
+    data.split()
+} catch e {
+    print(e)
+}
+
+# Bytes are hashable and decode() reports invalid UTF-8 as ValueError
+var seen = {Bytes("a"): 1}
+print(seen[Bytes("a")], seen.contains("a"), Bytes([104, 105]).decode())
+try {
+    Bytes([255]).decode()
+} catch e {
+    print(e.is(ValueError), e)
+}
+
+# Methods Go's strings package has but Goblin leaves out
+for name in ["repeat", "fields", "trim_left", "last_index", "encode"] {
+    print(attributes("").contains(name))
+}
+print(attributes(Bytes("")))

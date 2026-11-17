@@ -37,7 +37,7 @@ func TestREPLCompleter(t *testing.T) {
 		{line: "ret", candidates: []string{"urn"}, offset: 3},
 		{line: "user.na", candidates: []string{"me"}, offset: 2},
 		{line: "print(user.he", candidates: []string{"llo"}, offset: 2},
-		{line: "user.name.trim_s", candidates: []string{"uffix"}, offset: 6},
+		{line: "user.name.trim_su", candidates: []string{"ffix"}, offset: 7},
 		{line: "make().pu", candidates: []string{}, offset: 0},
 		{line: "missing.na", candidates: []string{}, offset: 2},
 	}

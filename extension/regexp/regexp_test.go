@@ -237,30 +237,36 @@ func TestBytesAreRejected(t *testing.T) {
 }
 
 // TestSplitCountMatchesStrSplit pins split's count to the built-in
-// str.split(sep, count) meaning: count is the number of pieces returned.
+// String.split(sep, count) meaning: count is the most splits made.
 func TestSplitCountMatchesStrSplit(t *testing.T) {
 	p := compilePattern(t, `,`)
 	text := object.String("a,b,c")
-	for _, count := range []int64{-2, -1, 0, 1, 2, 3, 4} {
-		got := call(t, p, "split", text, object.Integer(count)).(*object.List)
-		want := call(t, text, "split", object.String(","), object.Integer(count)).(*object.List)
+	for _, count := range []object.Object{object.Nil, object.Integer(0), object.Integer(1), object.Integer(2), object.Integer(3)} {
+		got := call(t, p, "split", text, count).(*object.List)
+		want := call(t, text, "split", object.String(","), count).(*object.List)
 		if got.String() != want.String() {
-			t.Fatalf("split(count=%d) = %v, want str.split = %v", count, got, want)
+			t.Fatalf("split(count=%v) = %v, want String.split = %v", count, got, want)
 		}
+	}
+	if err := callErr(t, p, "split", text, object.Integer(-1)); !errors.Is(err, object.ValueError) {
+		t.Fatalf("split(count=-1) error = %v, want ValueError", err)
 	}
 }
 
 // TestReplaceCountMatchesStrReplace pins replace's count to the built-in
-// str.replace(old, new, count) meaning: count is the number of replacements.
+// String.replace(old, new, count) meaning: count is the most replacements.
 func TestReplaceCountMatchesStrReplace(t *testing.T) {
 	p := compilePattern(t, `a`)
 	text := object.String("aaa")
-	for _, count := range []int64{-2, -1, 0, 1, 2, 3, 4} {
-		got := call(t, p, "replace", text, object.String("x"), object.Integer(count))
-		want := call(t, text, "replace", object.String("a"), object.String("x"), object.Integer(count))
+	for _, count := range []object.Object{object.Nil, object.Integer(0), object.Integer(1), object.Integer(3), object.Integer(4)} {
+		got := call(t, p, "replace", text, object.String("x"), count)
+		want := call(t, text, "replace", object.String("a"), object.String("x"), count)
 		if got != want {
-			t.Fatalf("replace(count=%d) = %v, want str.replace = %v", count, got, want)
+			t.Fatalf("replace(count=%v) = %v, want String.replace = %v", count, got, want)
 		}
+	}
+	if err := callErr(t, p, "find_all", text, object.Integer(-2)); !errors.Is(err, object.ValueError) {
+		t.Fatalf("find_all(count=-2) error = %v, want ValueError", err)
 	}
 }
 

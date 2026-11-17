@@ -15,14 +15,14 @@ type trimDirection uint8
 
 const (
 	trimBoth trimDirection = iota
-	trimLeft
-	trimRight
+	trimStart
+	trimEnd
 )
 
 // Size returns the length in runes, exposed to Goblin as the read-only
 // property str.size.
 func (s String) Size() Integer {
-	return Integer(len([]rune(string(s))))
+	return Integer(utf8.RuneCountInString(string(s)))
 }
 
 func (s String) Upper(args CallArgs) (Object, error) {
@@ -37,6 +37,33 @@ func (s String) Lower(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	return String(strings.ToLower(string(s))), nil
+}
+
+// trim removes the characters in chars from one or both ends, Unicode
+// whitespace when chars is nil.
+func (s String) trim(name string, args CallArgs, direction trimDirection) (Object, error) {
+	ap := NewArgParser(name, args)
+	chars, hasChars := ap.NullableStr("chars")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	value := string(s)
+	if !hasChars {
+		switch direction {
+		case trimStart:
+			return String(strings.TrimLeftFunc(value, unicode.IsSpace)), nil
+		case trimEnd:
+			return String(strings.TrimRightFunc(value, unicode.IsSpace)), nil
+		}
+		return String(strings.TrimSpace(value)), nil
+	}
+	switch direction {
+	case trimStart:
+		return String(strings.TrimLeft(value, string(chars))), nil
+	case trimEnd:
+		return String(strings.TrimRight(value, string(chars))), nil
+	}
+	return String(strings.Trim(value, string(chars))), nil
 }
 
 func (s String) HasPrefix(args CallArgs) (Object, error) {
@@ -57,228 +84,6 @@ func (s String) HasSuffix(args CallArgs) (Object, error) {
 	return Bool(strings.HasSuffix(string(s), string(suffix))), nil
 }
 
-func (s String) Trim(args CallArgs) (Object, error) {
-	ap := NewArgParser("trim", args)
-	cutset := ap.AnyOr("cutset", Nil)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return s.trimWith("trim", cutset, trimBoth)
-}
-
-func (s String) trimWith(name string, cutset Object, direction trimDirection) (Object, error) {
-	value := string(s)
-	if _, space := cutset.(Unit); space {
-		switch direction {
-		case trimBoth:
-			return String(strings.TrimSpace(value)), nil
-		case trimLeft:
-			return String(strings.TrimLeftFunc(value, unicode.IsSpace)), nil
-		case trimRight:
-			return String(strings.TrimRightFunc(value, unicode.IsSpace)), nil
-		}
-	}
-	chars, ok := cutset.(String)
-	if !ok {
-		return nil, NewTypeError("%s() argument 'cutset' must be String or Nil, got %s", name, cutset.TypeName())
-	}
-	switch direction {
-	case trimBoth:
-		return String(strings.Trim(value, string(chars))), nil
-	case trimLeft:
-		return String(strings.TrimLeft(value, string(chars))), nil
-	case trimRight:
-		return String(strings.TrimRight(value, string(chars))), nil
-	}
-	panic("invalid trim direction")
-}
-
-func (s String) Contains(args CallArgs) (Object, error) {
-	ap := NewArgParser("contains", args)
-	substr := ap.Str("sub")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return Bool(strings.Contains(string(s), string(substr))), nil
-}
-
-func (s String) ContainsAny(args CallArgs) (Object, error) {
-	ap := NewArgParser("contains_any", args)
-	chars := ap.Str("chars")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return Bool(strings.ContainsAny(string(s), string(chars))), nil
-}
-
-func (s String) Count(args CallArgs) (Object, error) {
-	ap := NewArgParser("count", args)
-	substr := ap.Str("sub")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return Integer(strings.Count(string(s), string(substr))), nil
-}
-
-func (s String) EqualFold(args CallArgs) (Object, error) {
-	ap := NewArgParser("equal_fold", args)
-	other := ap.Str("other")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return Bool(strings.EqualFold(string(s), string(other))), nil
-}
-
-func (s String) IndexOf(args CallArgs) (Object, error) {
-	ap := NewArgParser("index", args)
-	substr := ap.Str("sub")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return runeIndex(string(s), strings.Index(string(s), string(substr))), nil
-}
-
-func (s String) LastIndex(args CallArgs) (Object, error) {
-	ap := NewArgParser("last_index", args)
-	substr := ap.Str("sub")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return runeIndex(string(s), strings.LastIndex(string(s), string(substr))), nil
-}
-
-func (s String) IndexAny(args CallArgs) (Object, error) {
-	ap := NewArgParser("index_any", args)
-	chars := ap.Str("chars")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return runeIndex(string(s), strings.IndexAny(string(s), string(chars))), nil
-}
-
-func (s String) LastIndexAny(args CallArgs) (Object, error) {
-	ap := NewArgParser("last_index_any", args)
-	chars := ap.Str("chars")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return runeIndex(string(s), strings.LastIndexAny(string(s), string(chars))), nil
-}
-
-// Go's strings indexes are byte offsets. Goblin strings iterate and size in
-// Unicode code points, so string indexes consistently use rune offsets.
-func runeIndex(s string, byteIndex int) Integer {
-	if byteIndex < 0 {
-		return -1
-	}
-	return Integer(utf8.RuneCountInString(s[:byteIndex]))
-}
-
-func (s String) Repeat(args CallArgs) (Object, error) {
-	ap := NewArgParser("repeat", args)
-	count := ap.Int("count")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if count < 0 {
-		return nil, NewValueError("repeat() count must not be negative")
-	}
-	if err := checkRepeat(len(s), count); err != nil {
-		return nil, err
-	}
-	return String(strings.Repeat(string(s), int(count))), nil
-}
-
-// Replace combines strings.Replace and strings.ReplaceAll. count defaults to
-// -1, meaning all matches, and may be supplied by name.
-func (s String) Replace(args CallArgs) (Object, error) {
-	ap := NewArgParser("replace", args)
-	old, newValue := ap.Str("old"), ap.Str("new")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return String(strings.Replace(string(s), string(old), string(newValue), int(count))), nil
-}
-
-func stringsList(values []string) Object {
-	elements := make([]Object, len(values))
-	for i, value := range values {
-		elements[i] = String(value)
-	}
-	return &List{Elements: elements}
-}
-
-// Split combines strings.Split and strings.SplitN. count=-1 keeps all pieces.
-func (s String) Split(args CallArgs) (Object, error) {
-	ap := NewArgParser("split", args)
-	sep := ap.Str("sep")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return stringsList(strings.SplitN(string(s), string(sep), int(count))), nil
-}
-
-// SplitAfter combines strings.SplitAfter and strings.SplitAfterN.
-func (s String) SplitAfter(args CallArgs) (Object, error) {
-	ap := NewArgParser("split_after", args)
-	sep := ap.Str("sep")
-	count := ap.IntOr("count", -1)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return stringsList(strings.SplitAfterN(string(s), string(sep), int(count))), nil
-}
-
-func (s String) Fields(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("fields", args); err != nil {
-		return nil, err
-	}
-	return stringsList(strings.Fields(string(s))), nil
-}
-
-func (s String) Title(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("title", args); err != nil {
-		return nil, err
-	}
-	return String(strings.Title(string(s))), nil //nolint:staticcheck -- mirrors strings.Title
-}
-
-func (s String) ToTitle(args CallArgs) (Object, error) {
-	if err := RequireNoArgs("to_title", args); err != nil {
-		return nil, err
-	}
-	return String(strings.ToTitle(string(s))), nil
-}
-
-func (s String) ToValidUTF8(args CallArgs) (Object, error) {
-	ap := NewArgParser("to_valid_utf8", args)
-	replacement := ap.StrOr("replacement", "")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return String(strings.ToValidUTF8(string(s), string(replacement))), nil
-}
-
-func (s String) TrimLeft(args CallArgs) (Object, error) {
-	ap := NewArgParser("trim_left", args)
-	cutset := ap.AnyOr("cutset", Nil)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return s.trimWith("trim_left", cutset, trimLeft)
-}
-
-func (s String) TrimRight(args CallArgs) (Object, error) {
-	ap := NewArgParser("trim_right", args)
-	cutset := ap.AnyOr("cutset", Nil)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return s.trimWith("trim_right", cutset, trimRight)
-}
-
 func (s String) TrimPrefix(args CallArgs) (Object, error) {
 	ap := NewArgParser("trim_prefix", args)
 	prefix := ap.Str("prefix")
@@ -297,34 +102,63 @@ func (s String) TrimSuffix(args CallArgs) (Object, error) {
 	return String(strings.TrimSuffix(string(s), string(suffix))), nil
 }
 
+func (s String) Contains(args CallArgs) (Object, error) {
+	ap := NewArgParser("contains", args)
+	value := ap.Str("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringSeq(s).contains(string(value)), nil
+}
+
+func (s String) Count(args CallArgs) (Object, error) {
+	ap := NewArgParser("count", args)
+	value := ap.Str("value")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringSeq(s).count(string(value)), nil
+}
+
+// IndexOf returns the character position of the first occurrence of value at
+// or after start, or nil.
+func (s String) IndexOf(args CallArgs) (Object, error) {
+	ap := NewArgParser("index", args)
+	value := ap.Str("value")
+	start := ap.IntOr("start", 0)
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringSeq(s).index(string(value), start)
+}
+
+func (s String) Replace(args CallArgs) (Object, error) {
+	ap := NewArgParser("replace", args)
+	old, newValue := ap.Str("old"), ap.Str("new")
+	count, limited := ap.NullableInt("count")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringSeq(s).replace(string(old), string(newValue), count, limited)
+}
+
+func (s String) Split(args CallArgs) (Object, error) {
+	ap := NewArgParser("split", args)
+	sep, hasSep := ap.NullableStr("sep")
+	count, limited := ap.NullableInt("count")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	return stringSeq(s).split(string(sep), hasSep, count, limited)
+}
+
 func (s String) Cut(args CallArgs) (Object, error) {
 	ap := NewArgParser("cut", args)
 	sep := ap.Str("sep")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	before, after, found := strings.Cut(string(s), string(sep))
-	return &List{Elements: []Object{String(before), String(after), Bool(found)}}, nil
-}
-
-func (s String) CutPrefix(args CallArgs) (Object, error) {
-	ap := NewArgParser("cut_prefix", args)
-	prefix := ap.Str("prefix")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	value, found := strings.CutPrefix(string(s), string(prefix))
-	return &List{Elements: []Object{String(value), Bool(found)}}, nil
-}
-
-func (s String) CutSuffix(args CallArgs) (Object, error) {
-	ap := NewArgParser("cut_suffix", args)
-	suffix := ap.Str("suffix")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	value, found := strings.CutSuffix(string(s), string(suffix))
-	return &List{Elements: []Object{String(value), Bool(found)}}, nil
+	return stringSeq(s).cut(string(sep)), nil
 }
 
 func (s String) TypeName() string { return "String" }
@@ -472,11 +306,9 @@ func (s String) GetAttr(name string) (Object, error) {
 func (s String) Attributes() []string { return stringMethods.attributes("size") }
 
 var stringMethods = newMethodTable(
-	"upper", "lower", "has_prefix", "has_suffix", "trim", "contains",
-	"contains_any", "count", "equal_fold", "index", "last_index",
-	"index_any", "last_index_any", "repeat", "replace", "split", "split_after",
-	"fields", "title", "to_title", "to_valid_utf8", "trim_left", "trim_right",
-	"trim_prefix", "trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode",
+	"upper", "lower", "trim", "trim_start", "trim_end", "trim_prefix",
+	"trim_suffix", "has_prefix", "has_suffix", "contains", "count", "index",
+	"replace", "split", "cut",
 )
 
 var StringConstructorFn = &Function{Name: "String", Fn: StringConstructor}
