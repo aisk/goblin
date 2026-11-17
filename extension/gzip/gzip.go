@@ -99,7 +99,9 @@ func decompressError(err error, atStart bool) error {
 	if errors.As(err, &goblinErr) {
 		return err
 	}
-	if atStart && (errors.Is(err, gzip.ErrHeader) || err == io.EOF) {
+	// Input too short to hold a header is not gzip either, as openGzip
+	// decides for a file.
+	if atStart && (errors.Is(err, gzip.ErrHeader) || err == io.EOF || err == io.ErrUnexpectedEOF) {
 		return object.NewParseError("decompress() not gzip data")
 	}
 	return object.NewParseError("decompress() corrupt gzip data")

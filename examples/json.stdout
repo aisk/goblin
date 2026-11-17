@@ -42,7 +42,7 @@ true
 1 9 decode() invalid JSON at line 1, column 9: unexpected "}"
 2 3 decode() invalid JSON at line 2, column 3: invalid UTF-8
 TypeError encode() cannot encode Plain (give its type a to_json() method)
-TypeError encode() cannot encode Bytes (give its type a to_json() method)
+TypeError encode() cannot encode Bytes (convert it first, such as String(value))
 TypeError encode() Dict keys must be String, got Int
 ValueError encode() cannot encode +Inf (JSON has no NaN or infinity)
 ValueError encode() Selfish.to_json() returned the value itself

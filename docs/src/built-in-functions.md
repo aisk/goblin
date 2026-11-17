@@ -29,7 +29,8 @@ with keywords, `start` is optional and `end` is required.
 `min` and `max` order their candidates the way `<` does, so they work on
 strings and on user types that implement `Ord`. Several positional arguments
 are the candidates; a single one must be iterable, and its elements are
-(`max([3, 8, 5])` is `8`). With no argument they raise TypeError, and with an
+(`max([3, 8, 5])` is `8`). So pass a list itself, not `max(*values)`: expanded,
+a list with one element becomes one argument that is not iterable. With no argument they raise TypeError, and with an
 empty iterable ValueError. `key=` takes a function and orders the candidates
 by what it returns for each, as `sort(key=)` does. On a tie `max` answers the
 later candidate and `min` the earlier one, the last and first elements a
@@ -78,7 +79,7 @@ normal stdout stream (the same role as Python's
 
 ~~~goblin
 var limits = [3, 8, 5]
-print(min(limits), max(*limits), sum(limits))
+print(min(limits), max(limits), sum(limits))
 print(max(["kiwi", "fig", "banana"], key=func(s) { return s.size }))
 print(range(start=2, end=5))
 print(Dict(host="127.0.0.1", port=8080))

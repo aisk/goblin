@@ -223,7 +223,12 @@ func (e *encoder) value(obj object.Object, level int) error {
 	}
 	method, err := obj.GetAttr("to_json")
 	if err != nil {
-		return object.NewTypeError("%s() cannot encode %s (give its type a to_json() method)", e.funcname, obj.TypeName())
+		// Only a user type can be given a method; a built-in or library
+		// value is converted where it is encoded.
+		if _, ok := obj.(object.UserValue); ok {
+			return object.NewTypeError("%s() cannot encode %s (give its type a to_json() method)", e.funcname, obj.TypeName())
+		}
+		return object.NewTypeError("%s() cannot encode %s (convert it first, such as String(value))", e.funcname, obj.TypeName())
 	}
 	encoded, err := object.Call(method, object.CallArgs{})
 	if err != nil {

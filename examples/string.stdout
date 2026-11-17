@@ -62,3 +62,4 @@ cannot add String and Bool
 cannot add String and Float
 cannot add String and Nil
 80801 8080true
+replace() argument 'old' must not be empty

@@ -131,15 +131,16 @@ func (c *Chan) Receive(args CallArgs) (Object, error) {
 	return value, nil
 }
 
-// Close closes the channel. Closing an already-closed channel returns an error
-// instead of panicking.
-func (c *Chan) Close(args CallArgs) (_ Object, err error) {
+// Close closes the channel and returns nil. Closing it again does nothing,
+// as for a File, so `defer ch.close()` can sit beside an explicit close.
+func (c *Chan) Close(args CallArgs) (result Object, err error) {
 	if err := RequireNoArgs("close", args); err != nil {
 		return nil, err
 	}
 	defer func() {
+		// Go panics on closing a closed channel; here that is a no-op.
 		if recover() != nil {
-			err = NewValueError("close() of closed channel")
+			result, err = Nil, nil
 		}
 	}()
 	close(c.ch)

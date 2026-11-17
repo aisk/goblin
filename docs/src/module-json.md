@@ -96,6 +96,10 @@ holds.
 A key that appears twice in a JSON object keeps its last value, at the place
 of its first occurrence.
 
+A byte-order mark is not JSON, so text that starts with one raises
+ParseError `unexpected "\ufeff"`. Remove it first:
+`json.decode(text.trim_prefix((0xFEFF).to_char()))`.
+
 ### Errors
 
 | Failure | Raises | Data on the error |
@@ -105,7 +109,8 @@ of its first occurrence.
 | `decode`: a number too large for a Float | ParseError `decode() invalid JSON at line 1, column 2: number 1e999 is out of range` | `line`, `column` |
 | `decode`: `data` has the wrong type | TypeError `decode() argument 'data' must be String, Bytes or have a read(size) method, got Int` | — |
 | `decode`: reading a readable `data` fails | the error the readable raised, such as IOError | — |
-| `encode`: a value with no JSON form | TypeError `encode() cannot encode Chan (give its type a to_json() method)` | — |
+| `encode`: an instance with no `to_json()` method | TypeError `encode() cannot encode Point (give its type a to_json() method)` | — |
+| `encode`: a built-in or library value with no JSON form (Bytes, Path, Time, Chan, …) | TypeError `encode() cannot encode Path (convert it first, such as String(value))` | — |
 | `encode`: a Dict key that is not a String | TypeError `encode() Dict keys must be String, got Int` | — |
 | `encode`: NaN or infinity | ValueError `encode() cannot encode +Inf (JSON has no NaN or infinity)` | — |
 | `encode`: a negative `indent` | ValueError `encode() argument 'indent' must be non-negative, got -1` | — |

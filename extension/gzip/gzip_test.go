@@ -81,6 +81,7 @@ func TestErrors(t *testing.T) {
 		{"compress", object.CallArgs{Positional: object.Args{object.Integer(1)}}, object.TypeError, "compress() argument 'data' must be String, Bytes or have a read(size) method, got Int"},
 		{"decompress", object.CallArgs{Positional: object.Args{object.NewBytes(nil)}}, object.ParseError, "decompress() not gzip data"},
 		{"decompress", object.CallArgs{Positional: object.Args{object.NewBytes([]byte("plain text"))}}, object.ParseError, "decompress() not gzip data"},
+		{"decompress", object.CallArgs{Positional: object.Args{object.NewBytes([]byte("hello"))}}, object.ParseError, "decompress() not gzip data"},
 		{"decompress", object.CallArgs{Positional: object.Args{object.NewBytes(packed[:len(packed)-4])}}, object.ParseError, "decompress() corrupt gzip data"},
 		{"decompress", object.CallArgs{Positional: object.Args{object.String("text")}}, object.TypeError, "decompress() argument 'data' must be Bytes or have a read(size) method, got String"},
 	}

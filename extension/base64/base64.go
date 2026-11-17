@@ -39,12 +39,13 @@ func encode(args object.CallArgs) (object.Object, error) {
 	return object.String(enc.EncodeToString(data)), nil
 }
 
-// decode accepts text with or without its trailing "=" padding: text that
-// ends in "=" must be padded correctly, text that does not is read unpadded.
-// Line breaks anywhere are skipped by the Go decoder.
+// decode accepts data (a String, Bytes or a readable read to its end) with
+// or without its trailing "=" padding: data that ends in "=" must be padded
+// correctly, data that does not is read unpadded. Line breaks anywhere are
+// skipped by the Go decoder.
 func decode(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("decode", args)
-	text := string(p.Str("text"))
+	text := string(p.DataBytes("data"))
 	urlSafe := p.BoolOr("url_safe", false)
 	if err := p.Finish(); err != nil {
 		return nil, err
@@ -57,9 +58,11 @@ func decode(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		var corrupt base64.CorruptInputError
 		if errors.As(err, &corrupt) {
-			// Report the position as a character index into text.
+			// Report the position as a character index into the data.
 			offset := min(int(corrupt), len(text))
-			return nil, object.NewParseError("decode() invalid Base64 at position %d", utf8.RuneCountInString(text[:offset]))
+			position := utf8.RuneCountInString(text[:offset])
+			return nil, object.NewParseError("decode() invalid Base64 at position %d", position).
+				With("position", object.Integer(position))
 		}
 		return nil, object.WrapError(object.ParseError, "decode() invalid Base64", err)
 	}

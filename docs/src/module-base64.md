@@ -32,7 +32,7 @@ var claims = json.decode(base64.decode(token.split(".")[1], url_safe=true).decod
 | Member | Returns | Behaviour |
 | --- | --- | --- |
 | `encode(data, url_safe=false, padding=true)` | String | Base64 text of `data` (a String's UTF-8 bytes, Bytes, or a readable read to its end). `url_safe=true` uses `-` and `_` instead of `+` and `/`. `padding=false` leaves off the trailing `=` |
-| `decode(text, url_safe=false)` | Bytes | The bytes `text` (a String) encodes. Trailing `=` padding may be present or absent, but when present it must be complete. Line breaks inside `text` are ignored. `""` decodes to empty Bytes |
+| `decode(data, url_safe=false)` | Bytes | The bytes `data` encodes: Base64 text as a String, Bytes, or a readable read to its end. Trailing `=` padding may be present or absent, but when present it must be complete. Line breaks inside `data` are ignored. `""` decodes to empty Bytes |
 
 `decode` returns Bytes because Base64 carries binary data; call `.decode()` on
 the result when it is known to be text.
@@ -41,8 +41,8 @@ the result when it is known to be text.
 
 | Failure | Raises |
 | --- | --- |
-| `text` is not valid Base64 in the chosen alphabet | ParseError `decode() invalid Base64 at position 5`, the position being the character index in `text` |
-| `data` or `text` has the wrong type | TypeError |
+| `data` is not valid Base64 in the chosen alphabet | ParseError `decode() invalid Base64 at position 5`, the position being the character index in `data`; the error carries it as `e.position`, an Int |
+| `data` has the wrong type | TypeError |
 | Reading a readable `data` fails | the error the readable raised, such as IOError |
 
 ## Left out

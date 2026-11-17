@@ -179,6 +179,7 @@ var calls = []struct {
 	{func() Object { return String("aa") }, "replace", kw("old", String("a"), "new", String("b"), "count", Integer(1)), val(`"ba"`)},
 	{func() Object { return String("aa") }, "replace", kw("old", String("a"), "new", String("b"), "count", Nil), val(`"bb"`)},
 	{func() Object { return String("aa") }, "replace", kw("old", String("a"), "new", String("b"), "count", Integer(-1)), fails(ValueError, "replace() count must not be negative")},
+	{func() Object { return String("abc") }, "replace", kw("old", String(""), "new", String("-")), fails(ValueError, "replace() argument 'old' must not be empty")},
 	{func() Object { return String("a,b,c") }, "split", kw("sep", String(","), "count", Integer(1)), val(`["a", "b,c"]`)},
 	{func() Object { return String(" a b ") }, "split", kw("sep", Nil), val(`["a", "b"]`)},
 	{func() Object { return String("") }, "split", CallArgs{}, val(`[]`)},
@@ -210,6 +211,7 @@ var calls = []struct {
 	{func() Object { return Bytes("ab") }, "trim_suffix", kw("suffix", String("b")), val(`b"a"`)},
 	{func() Object { return Bytes("aa") }, "replace", kw("old", String("a"), "new", Bytes("b"), "count", Integer(1)), val(`b"ba"`)},
 	{func() Object { return Bytes("aa") }, "replace", kw("old", String("a"), "new", Bytes("b"), "count", Integer(-2)), fails(ValueError, "replace() count must not be negative")},
+	{func() Object { return Bytes("abc") }, "replace", kw("old", Bytes(""), "new", Bytes("-")), fails(ValueError, "replace() argument 'old' must not be empty")},
 	{func() Object { return Bytes("a,b") }, "split", kw("sep", String(","), "count", Nil), val(`[b"a", b"b"]`)},
 	{func() Object { return Bytes("a,b") }, "split", kw("sep", Bytes("")), fails(ValueError, "split() separator must not be empty")},
 	{func() Object { return Bytes("a b") }, "split", CallArgs{}, fails(TypeError, "split() missing required argument: 'sep'")},
@@ -273,7 +275,7 @@ var calls = []struct {
 	{func() Object { return NewError("boom") }, "is", kw("target", Integer(1)), fails(TypeError, "is() argument must be an Error, got Int")},
 	{func() Object { c := NewChan(1); c.Close(CallArgs{}); return c }, "send", kw("value", Integer(1)), fails(ValueError, "send() on closed channel")},
 	{func() Object { c := NewChan(1); c.Close(CallArgs{}); return c }, "receive", CallArgs{}, fails(ValueError, "receive() on closed channel")},
-	{func() Object { c := NewChan(1); c.Close(CallArgs{}); return c }, "close", CallArgs{}, fails(ValueError, "close() of closed channel")},
+	{func() Object { c := NewChan(1); c.Close(CallArgs{}); return c }, "close", CallArgs{}, val("nil")},
 	{func() Object { return NewChan(1) }, "close", CallArgs{}, val("nil")},
 }
 

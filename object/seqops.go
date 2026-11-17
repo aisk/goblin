@@ -81,8 +81,12 @@ func (q seq) index(value string, start Integer) (Object, error) {
 }
 
 // replace replaces the first count occurrences of old, every one when count
-// is absent.
+// is absent. An empty old is refused, as split refuses an empty separator:
+// it would match between every two characters.
 func (q seq) replace(old, new string, count Integer, limited bool) (Object, error) {
+	if old == "" {
+		return nil, NewValueError("replace() argument 'old' must not be empty")
+	}
 	n := -1
 	if limited {
 		if count < 0 {

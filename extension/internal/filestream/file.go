@@ -139,11 +139,14 @@ func (f *File) ioError(method, verb string, err error) error {
 	if errors.As(err, &e) {
 		return err
 	}
+	// The message already names the operation and the path, so the cause
+	// is the operating system's error without Go's repeat of both.
+	cause := OSCause(err)
 	var wrapped *object.Error
 	if method == "" {
-		wrapped = object.WrapNativeError(object.IOError, "failed to "+verb, err)
+		wrapped = object.WrapNativeError(object.IOError, "failed to "+verb, cause)
 	} else {
-		wrapped = object.WrapNativeError(object.IOError, method+"() failed to "+verb, err)
+		wrapped = object.WrapNativeError(object.IOError, method+"() failed to "+verb, cause)
 	}
 	if f.path != nil {
 		wrapped.With("path", f.path)

@@ -12,7 +12,7 @@ import (
 
 func glob(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("glob", args)
-	pattern := string(p.Str("pattern"))
+	pattern := p.Path("pattern")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}

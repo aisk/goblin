@@ -152,7 +152,7 @@ cat.stdin.close()
 print(cat.stdout.read_line(), cat.wait().success)
 cat.stdout.close()
 
-print(type_of(step) == exec.Result, type_of(cat) == exec.Command, type_of(exec.PIPE) == exec.Pipe)
+print(type_of(step) == exec.Result, type_of(cat) == exec.Command, attributes(exec).contains("Pipe"))
 try {
     exec.run(["cat"], stdout=exec.PIPE)
 } catch e {

@@ -180,8 +180,8 @@ func TestEncodeErrors(t *testing.T) {
 		kind    *object.Error
 		message string
 	}{
-		{object.NewChan(0), nil, object.TypeError, "encode() cannot encode Chan (give its type a to_json() method)"},
-		{object.NewBytes([]byte("x")), nil, object.TypeError, "encode() cannot encode Bytes (give its type a to_json() method)"},
+		{object.NewChan(0), nil, object.TypeError, "encode() cannot encode Chan (convert it first, such as String(value))"},
+		{object.NewBytes([]byte("x")), nil, object.TypeError, "encode() cannot encode Bytes (convert it first, such as String(value))"},
 		{dict(object.Integer(1), object.Integer(2)), nil, object.TypeError, "encode() Dict keys must be String, got Int"},
 		{list(), []object.KwArg{{Name: "indent", Value: object.Integer(-1)}}, object.ValueError, "encode() argument 'indent' must be non-negative, got -1"},
 		{selfList, nil, object.RecursionError, object.ErrRecursionDepth},

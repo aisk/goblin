@@ -84,19 +84,19 @@ scratch directory.
 | `read(path)` | String | The whole file as text; an empty file is `""`. ValueError if it is not valid UTF-8 |
 | `read_bytes(path)` | Bytes | The whole file as bytes |
 | `read_lines(path)` | iterable of String | Lazy; see [Lines](#reading-lines) |
-| `write(path, data, append=false)` | `nil` | Creates the file (mode `0o644`) or replaces its content; `append=true` adds to the end. `data` is a String, Bytes or a readable, which is streamed. Parent directories are not created |
-| `open(path, write=false, append=false)` | File | Read-only by default, and the file must exist. `write=true`: write-only, created or truncated. `append=true`: write-only, created, writes go to the end |
-| `exists(path)` | Bool | Whether the path names anything. Follows symlinks, so a broken link is `false` |
-| `is_file(path)` / `is_dir(path)` | Bool | A regular file / a directory, after following symlinks. Missing is `false` |
+| `write(path, data, append=false)` | `nil` | Creates the file (mode `0o644`) or replaces its content; `append=true` adds to the end. `data` is a String, Bytes or a readable, which is streamed. Parent directories are not created. The file is emptied before a readable is read, so when reading it fails partway the file holds what was written up to then |
+| `open(path, write=false, append=false)` | File | Read-only by default, and the file must exist. `write=true`: write-only, created or truncated. `append=true`: write-only, created, writes go to the end, also when `write=true` is given too |
+| `exists(path)` | Bool | Whether the path names anything. Follows symlinks, so a broken link is `false`. A directory on the way that cannot be searched raises PermissionError rather than answering |
+| `is_file(path)` / `is_dir(path)` | Bool | A regular file / a directory, after following symlinks. Missing is `false`; PermissionError as for `exists` |
 | `stat(path)` | FileInfo | A snapshot of the entry; follows symlinks, and describes a broken link itself |
 | `read_dir(path)` | List of Path | The entries, each joined onto `path`, sorted by name. An empty directory is `[]` |
 | `walk(path, skip=nil)` | iterable of Path | Lazy. Every file below `path`, depth first, names sorted within each directory |
-| `glob(pattern)` | List of Path | Paths matching `pattern`, sorted; no match is `[]` |
+| `glob(pattern)` | List of Path | Paths matching `pattern` (a String or a Path, such as `dir.join("*.txt")`), sorted; no match is `[]` |
 | `mkdir(path)` | `nil` | Creates the directory and any missing parents (mode `0o755`). An existing directory is fine |
 | `mkdir_temp(prefix="")` | Path | A new, uniquely named directory under `temp_dir()`; the caller removes it |
 | `remove(path, recursive=false)` | `nil` | Removes a file, a symlink (not its target) or an empty directory; a non-empty directory needs `recursive=true`. Removing what is already absent succeeds |
-| `copy(src, dst)` | `nil` | `dst` is the new path itself. A file is copied with its permission bits, replacing an existing file; a directory is copied as a tree, `dst` must not exist and must not be inside `src` |
-| `move(src, dst)` | `nil` | Renames; `dst` is the new path itself and an existing file there is replaced. Across file systems it copies, then removes |
+| `copy(src, dst)` | `nil` | `dst` is the new path itself. A file is copied with its permission bits, replacing an existing file; a directory is copied as a tree, `dst` must not exist and must not be inside `src`. A symbolic link given as `src` is followed, so its target's content is copied (a broken one raises NotExistError); links inside a copied tree are copied as links |
+| `move(src, dst)` | `nil` | Renames; `dst` is the new path itself and an existing file there is replaced. Across file systems it copies, then removes; a symbolic link is moved as a link there too |
 | `chmod(path, mode)` | `nil` | Sets permission bits, an Int from `0` to `0o777` such as `0o755` |
 | `resolve(path)` | Path | The absolute form: joined onto `cwd()`, cleaned, symlinks resolved. A path that does not exist is still made absolute |
 | `cwd()` / `home()` / `temp_dir()` | Path | The working directory, the user's home directory, the directory for temporary files |
@@ -118,6 +118,10 @@ class, and `**` as a whole component matches zero or more directories. A
 pattern matches files and directories, and names starting with a dot like any
 other. A relative pattern is relative to the working directory. A malformed
 pattern raises ValueError.
+
+A directory that cannot be read stops `walk` and `glob` with PermissionError
+for the whole call, not only for that directory. `walk` can avoid one by name
+with `skip`: `fs.walk(root, skip=func(p) { return p.name == "private" })`.
 
 ### Errors
 

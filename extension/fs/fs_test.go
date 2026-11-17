@@ -306,6 +306,11 @@ func TestGlob(t *testing.T) {
 	if got := glob("*.none"); len(got) != 0 {
 		t.Fatalf("glob(no match) = %q", got)
 	}
+	// A Path is a pattern too; cleaning it leaves * and ** alone.
+	pattern := pathvalue.NewPath(filepath.Join(dir, "a", ".", "**", "*.md"))
+	if got, want := relative(t, dir, collect(t, call(t, "glob", pattern))), []string{"a/deep/y.md", "a/z.md"}; !reflect.DeepEqual(got, want) {
+		t.Fatalf("glob(Path) = %q, want %q", got, want)
+	}
 	callErr(t, object.ValueError, `glob() malformed pattern "[a"`, "glob", []object.Object{str("[a")})
 
 	// A relative pattern is relative to the working directory.
@@ -471,6 +476,50 @@ func TestCopyMoveChmod(t *testing.T) {
 	callErr(t, object.NotExistError, "chmod()", "chmod", []object.Object{str(copied), object.Integer(0o644)})
 }
 
+// Moving to another file system copies; a symbolic link is moved as the
+// link, not as a copy of its target. The rename cannot be made to fail
+// here, so the fallback is called directly.
+func TestMoveAcrossKeepsSymlinks(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symbolic links need privileges on Windows")
+	}
+	dir := t.TempDir()
+	target := filepath.Join(dir, "target.txt")
+	writeFile(t, target, "content")
+	link := filepath.Join(dir, "link")
+	if err := os.Symlink("target.txt", link); err != nil {
+		t.Fatal(err)
+	}
+	moved := filepath.Join(dir, "moved")
+	writeFile(t, moved, "in the way")
+	info, err := os.Lstat(link)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := moveAcross(link, moved, info); err != nil {
+		t.Fatal(err)
+	}
+	if got, err := os.Readlink(moved); err != nil || got != "target.txt" {
+		t.Fatalf("moved link = %q, %v", got, err)
+	}
+	if _, err := os.Lstat(link); !os.IsNotExist(err) {
+		t.Fatal("the original link is still there")
+	}
+	if data, _ := os.ReadFile(target); string(data) != "content" {
+		t.Fatal("the link's target changed")
+	}
+
+	file := filepath.Join(dir, "plain.txt")
+	writeFile(t, file, "plain")
+	info, _ = os.Lstat(file)
+	if err := moveAcross(file, filepath.Join(dir, "plain2.txt"), info); err != nil {
+		t.Fatal(err)
+	}
+	if data, _ := os.ReadFile(filepath.Join(dir, "plain2.txt")); string(data) != "plain" {
+		t.Fatal("a file moved across file systems lost its content")
+	}
+}
+
 func TestLocations(t *testing.T) {
 	dir := t.TempDir()
 	t.Chdir(dir)
@@ -553,6 +602,16 @@ func TestFile(t *testing.T) {
 	callErr(t, object.NotExistError, "open() cannot open", "open", []object.Object{str(filepath.Join(dir, "x"))})
 	callErr(t, object.TypeError, "File cannot be constructed; use fs.open(path)", "File", nil)
 	callErr(t, object.TypeError, "FileInfo cannot be constructed", "FileInfo", nil)
+
+	// A read that fails names the operation and the path once.
+	if runtime.GOOS != "windows" {
+		opened := call(t, "open", str(dir))
+		_, err := methodErr(opened, "read")
+		if want := "read() failed to read " + quote(dir) + ": is a directory"; err == nil || err.Error() != want {
+			t.Fatalf("read() of a directory = %v, want %s", err, want)
+		}
+		method(t, opened, "close")
+	}
 }
 
 func TestPath(t *testing.T) {

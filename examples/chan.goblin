@@ -45,3 +45,11 @@ try {
     print(e.message)
 }
 ch.close()
+
+# Closing again does nothing; sending on a closed channel is still an error.
+print(ch.close())
+try {
+    ch.send(1)
+} catch e: ValueError {
+    print(e.message)
+}

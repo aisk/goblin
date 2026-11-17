@@ -170,7 +170,6 @@ func TestListConstructorDistinguishesOmittedAndExplicitNil(t *testing.T) {
 	}
 }
 
-
 func TestListFunctionalMethods(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(2), Integer(3), Integer(4)}}
 

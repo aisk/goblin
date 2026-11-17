@@ -223,8 +223,13 @@ func TestEnvAndCwd(t *testing.T) {
 	if got != want {
 		t.Fatalf("cwd = %q, want %q", got, want)
 	}
-	if err := callErr("run", helper(), kw("cwd", object.String(filepath.Join(dir, "missing")))); !errors.Is(err, object.NotExistError) {
+	missing := filepath.Join(dir, "missing")
+	if err := callErr("run", helper(), kw("cwd", object.String(missing))); !errors.Is(err, object.NotExistError) || err.Error() != `run() working directory "`+missing+`": no such file or directory` {
 		t.Fatalf("missing cwd error = %v", err)
+	}
+	// A file where the directory belongs is an IOError, as fs reports it.
+	if err := callErr("run", helper(), kw("cwd", object.String(os.Args[0]))); !errors.Is(err, object.IOError) || errors.Is(err, object.NotExistError) || !strings.HasSuffix(err.Error(), `" is not a directory`) {
+		t.Fatalf("file cwd error = %v", err)
 	}
 }
 
@@ -336,8 +341,8 @@ func TestFindAndTypes(t *testing.T) {
 			t.Errorf("%s() error = %v", name, err)
 		}
 	}
-	if object.TypeOf(pipe) != m.(*object.Module).Members["Pipe"] {
-		t.Fatal("type_of(PIPE) is not exec.Pipe")
+	if _, exported := m.(*object.Module).Members["Pipe"]; exported {
+		t.Fatal("the type of PIPE is exported")
 	}
 }
 

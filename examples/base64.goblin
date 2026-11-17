@@ -46,11 +46,13 @@ for text in ["aGVs!G8=", "QQ=", "-_8", "héllo"] {
     try {
         base64.decode(text)
     } catch e: ParseError {
-        print(e)
+        print(e, e.position)
     }
 }
+# Bytes and readables are read as text, as encode reads them
+print(base64.decode(Bytes("QQ==")))
 try {
-    base64.decode(Bytes("QQ=="))
+    base64.decode(42)
 } catch e: TypeError {
     print(e)
 }

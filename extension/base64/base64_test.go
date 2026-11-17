@@ -78,12 +78,25 @@ func TestDecodeErrors(t *testing.T) {
 		{call(object.String("éZm9v")), object.ParseError, "decode() invalid Base64 at position 0"},
 		{call(object.String("Zm9vé")), object.ParseError, "decode() invalid Base64 at position 4"},
 		{call(object.String("-_8")), object.ParseError, "decode() invalid Base64 at position 0"},
-		{call(object.NewBytes([]byte("Zg=="))), object.TypeError, "decode() argument 'text' must be String, got Bytes"},
+		{call(object.NewBytes([]byte("Zm9v!"))), object.ParseError, "decode() invalid Base64 at position 4"},
+		{call(object.Integer(1)), object.TypeError, "decode() argument 'data' must be String, Bytes or have a read(size) method, got Int"},
 	}
 	for _, c := range cases {
 		_, err := decode.Call(c.args)
 		if err == nil || !errors.Is(err, c.kind) || err.Error() != c.msg {
 			t.Errorf("decode(%v): err = %v, want %q", c.args.Positional[0], err, c.msg)
 		}
+	}
+	// The position is data on the error too.
+	_, err := decode.Call(call(object.String("Zm9v!mFy")))
+	var e *object.Error
+	if !errors.As(err, &e) {
+		t.Fatal(err)
+	}
+	if position, _ := e.Field("position"); position != object.Integer(4) {
+		t.Errorf("position = %v", position)
+	}
+	if got := modtest.CallModule(t, Execute, "decode", call(object.NewBytes([]byte("Zg==")))); !modtest.Equal(got, object.NewBytes([]byte("f"))) {
+		t.Errorf("decode(Bytes) = %v", got)
 	}
 }

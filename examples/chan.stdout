@@ -9,3 +9,5 @@ alpha
 beta
 gamma
 receive() on closed channel
+nil
+send() on closed channel

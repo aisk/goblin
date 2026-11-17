@@ -171,7 +171,8 @@ func move(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := os.Lstat(src); err != nil {
+	srcInfo, err := os.Lstat(src)
+	if err != nil {
 		return nil, fail("move", "cannot move", src, err)
 	}
 	if info, err := os.Lstat(dst); err == nil && info.IsDir() {
@@ -184,12 +185,33 @@ func move(args object.CallArgs) (object.Object, error) {
 	if !errors.Is(err, syscall.EXDEV) {
 		return nil, failPair("move", "move", src, dst, err)
 	}
-	// Another file system: copy, then remove the original.
-	if err := copyAny("move", src, dst); err != nil {
+	if err := moveAcross(src, dst, srcInfo); err != nil {
 		return nil, err
 	}
-	if err := os.RemoveAll(src); err != nil {
-		return nil, fail("move", "cannot remove", src, err)
-	}
 	return object.Nil, nil
+}
+
+// moveAcross moves src to dst on another file system: it copies, then
+// removes the original. A symbolic link is moved as a link, as rename moves
+// it, rather than as a copy of what it points to.
+func moveAcross(src, dst string, srcInfo stdfs.FileInfo) error {
+	if srcInfo.Mode()&stdfs.ModeSymlink != 0 {
+		target, err := os.Readlink(src)
+		if err != nil {
+			return fail("move", "cannot move", src, err)
+		}
+		// Like rename, replace a file already at dst.
+		if err := os.Remove(dst); err != nil && !notThere(err) {
+			return failPair("move", "move", src, dst, err)
+		}
+		if err := os.Symlink(target, dst); err != nil {
+			return failPair("move", "move", src, dst, err)
+		}
+	} else if err := copyAny("move", src, dst); err != nil {
+		return err
+	}
+	if err := os.RemoveAll(src); err != nil {
+		return fail("move", "cannot remove", src, err)
+	}
+	return nil
 }

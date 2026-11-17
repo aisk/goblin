@@ -272,7 +272,8 @@ ValueError. So `split(",", count=1)` gives at most two pieces. split() without
 a separator splits at runs of Unicode whitespace and drops empty pieces:
 `" a  b ".split()` is `["a", "b"]`; with a count, the rest of the text after
 the last split, leading whitespace removed, is the final piece. An empty
-separator raises ValueError.
+separator raises ValueError, and so does an empty `old` in replace(), which
+would otherwise match between every two characters.
 
 lines() is how text becomes its lines: a line ends at `\n` or `\r\n` (a lone
 `\r` does not end one), the endings are removed, text that ends with a line

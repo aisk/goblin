@@ -172,8 +172,8 @@ method guides.
 ## Channels
 
 Chan(capacity=0) creates a channel. Send with send(), receive with receive(),
-and close with close(); send() and receive() take an optional timeout= in
-seconds. Capacity 0 creates an unbuffered channel. Use spawn() to start a
+and close with close(), which does nothing on a channel already closed;
+send() and receive() take an optional timeout= in seconds. Capacity 0 creates an unbuffered channel. Use spawn() to start a
 concurrent function.
 
 ~~~goblin

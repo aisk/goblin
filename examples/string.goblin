@@ -131,3 +131,10 @@ for other in [1, true, 1.5, nil] {
     }
 }
 print(port + String(1), "{port}{true}")
+
+# An empty search text matches nowhere in particular, so replace() refuses it.
+try {
+    "abc".replace("", "-")
+} catch e: ValueError {
+    print(e.message)
+}

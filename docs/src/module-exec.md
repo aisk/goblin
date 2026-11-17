@@ -109,16 +109,17 @@ The parameters they share:
 | `check=true` | Bool | A non-zero exit raises. `false` returns the Result for you to inspect |
 | `timeout=nil` | seconds | When it expires the process is killed and TimeoutError is raised |
 
-The type names `Command`, `Result` and `Pipe` (the type of `PIPE`) are exported
-for `type_of`; calling them raises TypeError pointing at `exec.start` /
-`exec.run`.
+The type names `Command` and `Result` are exported for `type_of`; calling them
+raises TypeError pointing at `exec.start` / `exec.run`. `PIPE` is compared as
+itself (`stream == exec.PIPE`), so its type has no exported name.
 
 ### Errors
 
 | Failure | Raises | Data |
 | --- | --- | --- |
 | The program is not found | NotExistError `run() program "gti" not found` | — |
-| `cwd` is missing or not a directory | NotExistError, IOError | `path`: the `cwd` given, a Path |
+| `cwd` does not exist | NotExistError `run() working directory "build": no such file or directory` | `path`: the `cwd` given, a Path |
+| `cwd` is not a directory | IOError `run() working directory "notes.txt" is not a directory`, as `fs` reports a file where a directory belongs | `path` |
 | It cannot be run | PermissionError, IOError | — |
 | `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` | `stdout`, `stderr`: what `capture` had collected when the process was killed; `nil` from `run` |
 | Non-zero exit with `check=true` | `exec.ExitError` `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository`; `Command.wait` says `wait() "make" exited with status 2` | `code`, `stdout`, `stderr` |

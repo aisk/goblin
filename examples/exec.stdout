@@ -29,5 +29,5 @@ capture() "printf" wrote stdout that is not valid UTF-8 (use exec.start with std
 b"a\xffb" true
 2 a�b
 through a pipe true
-true true true
+true true false
 run() argument 'stdout' does not accept exec.PIPE (use exec.start)

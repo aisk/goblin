@@ -25,7 +25,8 @@ var (
 )
 
 // Pipe is the type of exec.PIPE, which asks exec.start to connect a
-// standard stream of the command to this program.
+// standard stream of the command to this program. Its name is not exported:
+// PIPE is the only value of it, compared by identity.
 type Pipe struct{ object.OpaqueBase }
 
 var pipe = &Pipe{OpaqueBase: object.MakeOpaqueBase("Pipe")}
@@ -49,7 +50,6 @@ func Execute() (object.Object, error) {
 		"PIPE":      pipe,
 		"Command":   commandType.Function,
 		"Result":    resultType.Function,
-		"Pipe":      pipeType.Function,
 	}, object.Funcs{
 		"run":     run,
 		"capture": capture,
@@ -165,7 +165,7 @@ func (s *spec) command(ctx context.Context) (*stdexec.Cmd, error) {
 				With("path", pathvalue.NewPath(s.cwd))
 		}
 		if !info.IsDir() {
-			return nil, object.NewKindError(object.NotExistError, `%s() working directory "%s" is not a directory`, s.fn, s.cwd).
+			return nil, object.NewKindError(object.IOError, `%s() working directory "%s" is not a directory`, s.fn, s.cwd).
 				With("path", pathvalue.NewPath(s.cwd))
 		}
 		cmd.Dir = s.cwd
