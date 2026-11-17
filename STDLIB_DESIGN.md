@@ -56,7 +56,7 @@ When a library function needs something from the object it is given, it asks for
 | JSON-encodable | `to_json()` |
 
 - This table is the complete list. Adding a row is an API decision that needs review, because the name becomes reserved in practice for every user type.
-- A function that accepts one of these says so in its error: `csv.write_all() argument 'dest' must have a write(data) method, got Int`.
+- A function that accepts one of these says so in its error: `exec.run() argument 'stdout' must be Nil or have a write(data) method, got Int`.
 - Functions accept the widest sensible input rather than making the caller adapt it: `json.decode` takes a String, Bytes, or anything readable.
 - **Reader shape.** `read(size)` with a non-negative Int returns a chunk as Bytes (consumers also tolerate String). End of stream is an empty chunk or `nil`: consumers accept both, producers return empty Bytes. A producer may also allow `read()` with no argument to mean "everything".
 - **Writer shape.** `write(data)` takes a chunk (consumers pass Bytes; producers also accept String) and returns the number of bytes written; `nil` counts as the whole chunk, and consumers accept both.
@@ -73,7 +73,7 @@ Everything a user calls is an ordinary method on a concrete type or a function i
 - **A value type for the algebra of a name, module functions for I/O on what it names.** When a domain has a structured name (a path, a URL), operations on the name itself belong to a value type: components are properties, transformations are methods, and it performs no I/O (`p.parent`, `p.with_suffix(".md")`, `u.host`). Operations on the thing the name refers to are module functions that accept the name as a String or as the value type (`fs.read(path)`, `http.get(url)`), and functions that produce names return the value type. This keeps the first line of a script free of wrapping, because names mostly arrive as Strings (literals, arguments, configuration), and it gives one line to remember: `fs.` touches the disk, `Path` only looks at the name.
   - `fs` is the one module for files and paths: `Path` lives in it, there is no separate `path` module, and file-system locations (`cwd`, `home`, `temp_dir`) are `fs` functions rather than `os` ones.
   - A value type must not grow methods named like a library protocol of §2 unless it is that thing: a `Path` with a `write` method would be accepted wherever a writable stream is.
-  - A parameter that already means data does not also accept a path. `json.decode(text)` and `csv.read_all(text)` take data or a readable object; reading the file is the caller's `fs.read(path)`.
+  - A parameter that already means data does not also accept a path. `json.decode(data)` and `csv.decode(data)` take data or a readable object; reading the file is the caller's `fs.read(path)`.
 - **An object when the task needs control.** The object-level API of a module is the thing that has state and a lifetime (`File`, `Command`, `Client`, `Response`), obtained from a module function and released with `close()` where it holds a resource.
 - **Value-shaped domains stay as plain functions** (`math`, `base64`).
 - **One home per operation.** The same operation is not offered as a global, a module function and a method at once. Pick the place a user would look first and delete the others. An operation that has syntax or a constructor has no method twin (`s * n`, not also `s.repeat(n)`; `a < b`, not also `a.compare(b)`); when an operator and a method would do the same job, keep one.

@@ -199,7 +199,7 @@ import "json"
 
 print(os.env.get("HOME"))
 print(os.pid)
-print(json.unmarshal("42"))
+print(json.decode("42"))
 
 # Export
 export name

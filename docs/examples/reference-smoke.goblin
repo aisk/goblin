@@ -12,8 +12,9 @@ url.join_path("https://example.com/api", ["v1", "items"])
 url.query_escape("name=Goblin language")
 url.path_escape("folder/item")
 
-var rows = csv.read_all("name,score\nAda,10\n")
-csv.write_all(rows)
+var rows = csv.decode("name,score\nAda,10\n")
+csv.encode(rows, sep=";")
+csv.encode(csv.decode_dicts("name,score\nAda,10\n"), columns=["score", "name"])
 
 uuid.UUID("550e8400-e29b-41d4-a716-446655440000").version
 

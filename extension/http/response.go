@@ -1,11 +1,11 @@
 package http
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	stdhttp "net/http"
 
-	goblinjson "github.com/aisk/goblin/extension/json"
+	"github.com/aisk/goblin/extension/internal/jsonvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -56,13 +56,11 @@ func (r *Response) json(args object.CallArgs) (object.Object, error) {
 	if err := object.NewArgParser("json", args).Finish(); err != nil {
 		return nil, err
 	}
-	dec := json.NewDecoder(r.body)
-	dec.UseNumber()
-	var v any
-	if err := dec.Decode(&v); err != nil {
-		return nil, object.WrapError(object.ParseError, "json() failed to parse response body", err)
+	data, err := io.ReadAll(r.body)
+	if err != nil {
+		return nil, object.WrapNativeError(object.IOError, "json() failed to read HTTP body", err)
 	}
-	return goblinjson.ToGoblin(v, "json")
+	return jsonvalue.Decode("json", data)
 }
 
 var _ object.Object = (*Response)(nil)

@@ -65,10 +65,9 @@ func DataReader(fn, param string, v Object) (io.Reader, bool) {
 	}
 	attr, err := v.GetAttr("read")
 	if err != nil {
-		if _, isUser := v.(UserValue); !isUser {
-			return nil, false
-		}
-	} else if _, callable := attr.(*Function); !callable {
+		return nil, false
+	}
+	if _, callable := attr.(*Function); !callable {
 		return nil, false
 	}
 	r, err := NewDuckReader(fn, param, v)

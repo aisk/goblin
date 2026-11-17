@@ -31,14 +31,14 @@ ParseError. Always close a response body when it has not been fully consumed.
 
 ## Sending JSON
 
-Use json.marshal() to build a request body and set the matching content type.
+Use json.encode() to build a request body and set the matching content type.
 The response body is a stream, so close it after reading text or bytes.
 
 ~~~goblin
 import "http"
 import "json"
 
-var payload = json.marshal({"name": "Ada"})
+var payload = json.encode({"name": "Ada"})
 var response = http.post(
     "https://api.example.com/users",
     "application/json",
@@ -78,7 +78,7 @@ non-negative integer size, it returns at most that many bytes; an empty `Bytes`
 value signals end of stream.
 
 Objects supplied as request bodies use the same protocol. They must provide a
-callable `read(size)` method or implement [`io.Reader`](./module-io.md). Each call must return `Bytes`, `String`, or
+callable `read(size)` method. Each call must return `Bytes`, `String`, or
 `nil`; an empty byte/string value or `nil` signals end of stream. A callable
 `close()` method is optional and is invoked when the HTTP client closes the
 request body. A request-body reader should therefore look like:

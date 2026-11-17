@@ -14,9 +14,9 @@ var scratch = fs.mkdir_temp(prefix="goblin-base64-")
 defer fs.remove(scratch, recursive=true)
 var logo = scratch.join("logo.png")
 fs.write(logo, Bytes([137, 80, 78, 71, 13, 10, 26, 10, 0, 255]))
-var payload = json.marshal({"name": "logo.png", "data": base64.encode(fs.read_bytes(logo))})
+var payload = json.encode({"name": "logo.png", "data": base64.encode(fs.read_bytes(logo))})
 print(payload)
-var image = base64.decode(json.unmarshal(payload)["data"])
+var image = base64.decode(json.decode(payload)["data"])
 fs.write(scratch.join("logo-copy.png"), image)
 print(fs.read_bytes(scratch.join("logo-copy.png")) == fs.read_bytes(logo))
 
@@ -24,7 +24,7 @@ print(fs.read_bytes(scratch.join("logo-copy.png")) == fs.read_bytes(logo))
 var claims_text = `{"sub":"1234567890","name":"John Doe","admin":true}`
 var token = "eyJhbGciOiJIUzI1NiJ9." + base64.encode(claims_text, url_safe=true, padding=false) + ".c2ln"
 print(token)
-var claims = json.unmarshal(base64.decode(token.split(".")[1], url_safe=true).decode())
+var claims = json.decode(base64.decode(token.split(".")[1], url_safe=true).decode())
 print(claims["name"], claims["admin"])
 
 # Alphabet and padding

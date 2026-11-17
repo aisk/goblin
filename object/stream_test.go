@@ -118,7 +118,7 @@ func TestDuckWriterRejectsBadReturnAndCounts(t *testing.T) {
 }
 
 func TestDuckWriterRequiresWriteMethod(t *testing.T) {
-	if _, err := NewDuckWriter("test", "dest", Integer(1)); err == nil || !strings.Contains(err.Error(), "write(data)") {
+	if _, err := NewDuckWriter("write_all", "dest", Integer(1)); err == nil || err.Error() != "write_all() argument 'dest' must have a write(data) method, got Int" {
 		t.Fatalf("NewDuckWriter() error = %v, want missing write(data) TypeError", err)
 	}
 	notCallable := duckObject(map[string]Object{"write": String("nope")})
@@ -192,7 +192,7 @@ func TestDuckReaderReadsChunksAndCloses(t *testing.T) {
 }
 
 func TestDuckReaderRequiresReadMethod(t *testing.T) {
-	if _, err := NewDuckReader("test", "src", Integer(1)); err == nil || !strings.Contains(err.Error(), "read(size)") {
+	if _, err := NewDuckReader("load", "src", Integer(1)); err == nil || err.Error() != "load() argument 'src' must have a read(size) method, got Int" {
 		t.Fatalf("NewDuckReader() error = %v, want missing read(size) TypeError", err)
 	}
 }

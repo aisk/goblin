@@ -16,7 +16,6 @@ import (
 	gzipExt "github.com/aisk/goblin/extension/gzip"
 	hashExt "github.com/aisk/goblin/extension/hash"
 	httpExt "github.com/aisk/goblin/extension/http"
-	ioExt "github.com/aisk/goblin/extension/io"
 	jsonExt "github.com/aisk/goblin/extension/json"
 	mathExt "github.com/aisk/goblin/extension/math"
 	osExt "github.com/aisk/goblin/extension/os"
@@ -36,7 +35,6 @@ var modules = map[string]object.ModuleExecutor{
 	"gzip":   gzipExt.Execute,
 	"hash":   hashExt.Execute,
 	"http":   httpExt.Execute,
-	"io":     ioExt.Execute,
 	"json":   jsonExt.Execute,
 	"math":   mathExt.Execute,
 	"os":     osExt.Execute,

@@ -10,7 +10,7 @@ import "json"
 import "fs"
 
 var cwd = fs.cwd()
-var text = json.marshal({"cwd": String(cwd)})
+var text = json.encode({"cwd": String(cwd)})
 print(text)
 ~~~
 
@@ -23,7 +23,7 @@ needed.
 
 | Module | Main purpose | Start with |
 | --- | --- | --- |
-| [json](./module-json.md) | Encode and decode JSON | marshal(), unmarshal() |
+| [json](./module-json.md) | JSON text to values and back | encode(), decode() |
 | [fs](./module-fs.md) | Files, directories and path names | read(), write(), Path() |
 | [os](./module-os.md) | Arguments, environment, standard streams, exit | args, env, stdin, exit() |
 | [exec](./module-exec.md) | Run other programs | run(), capture(), start() |
@@ -34,8 +34,7 @@ needed.
 | [uuid](./module-uuid.md) | Generate and parse UUID values | UUID(), new(), NIL |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
-| [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
-| [io](./module-io.md) | Implement readers and writers as traits | Reader, Writer |
+| [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode() |
 | [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
 | [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |
 | [gzip](./module-gzip.md) | Compress and decompress gzip data | compress(), decompress() |

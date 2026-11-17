@@ -18,7 +18,7 @@ for line in text.split("\n") {
 }
 
 # Compress before uploading
-var body = gzip.compress(json.marshal(records))
+var body = gzip.compress(json.encode(records))
 var headers = {"Content-Encoding": "gzip", "Content-Type": "application/json"}
 
 # Compress a file

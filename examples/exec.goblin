@@ -46,6 +46,17 @@ exec.run(["sh", "-c", "echo compiling; echo warning >&2"], stdout=log, stderr=lo
 log.close()
 print(fs.read(scratch.join("build.log")).split("\n"))
 
+# Or to any value with a write(data) method.
+type Collector(chunks) {
+    func write(self, data) {
+        self.chunks.push(data.decode())
+        return data.size
+    }
+}
+var collected = Collector([])
+exec.run(["sh", "-c", "echo collected"], stdout=collected)
+print(collected.chunks)
+
 # Give up after a while.
 try {
     exec.run(["sleep", "10"], timeout=0.1)

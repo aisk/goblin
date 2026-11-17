@@ -1,257 +1,44 @@
+// Package json converts between JSON text and Goblin values. The codec lives
+// in extension/internal/jsonvalue, which http shares.
 package json
 
 import (
-	"bytes"
-	"encoding/json"
-	"math"
-	"slices"
-	"strconv"
-	"strings"
-
+	"github.com/aisk/goblin/extension/internal/jsonvalue"
 	"github.com/aisk/goblin/object"
 )
 
 func Execute() (object.Object, error) {
-	return object.NewModule("json", map[string]object.Object{
-		"ToJSON": ToJSONTrait,
-	}, object.Funcs{
-		"marshal":   jsonMarshal,
-		"unmarshal": jsonUnmarshal,
+	return object.NewModule("json", nil, object.Funcs{
+		"encode": encode,
+		"decode": decode,
 	}), nil
 }
 
-// ToJSONTrait lets a user type take part in marshal: to_json(self) returns
-// the value to encode in its place. The default, which an empty impl gets,
-// is a dict of the fields in declaration order. It is a package-level value
-// so every import of the module sees the same trait.
-var ToJSONTrait = object.NewTrait("ToJSON", nil, []object.TraitMethod{
-	{Name: "to_json", Arity: 1, Default: &object.Function{Name: "to_json", Fn: fieldsDict}},
-})
-
-func fieldsDict(args object.CallArgs) (object.Object, error) {
-	v := args.Positional[0].(object.UserValue)
-	result := object.NewDict()
-	for i, name := range v.UserType().Fields {
-		if err := result.Set(object.String(name), v.FieldValues()[i]); err != nil {
-			return nil, err
-		}
-	}
-	return result, nil
-}
-
-func jsonUnmarshal(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("unmarshal", args)
-	data := ap.BytesLike("data")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-
-	dec := json.NewDecoder(strings.NewReader(string(data)))
-	dec.UseNumber()
-
-	var v any
-	if err := dec.Decode(&v); err != nil {
-		return nil, object.WrapError(object.ParseError, "unmarshal() invalid JSON", err)
-	}
-	if dec.More() {
-		return nil, object.NewValueError("unmarshal() unexpected trailing data after JSON value")
-	}
-	return ToGoblin(v, "unmarshal")
-}
-
-// ToGoblin converts a value decoded by encoding/json (with UseNumber) into
-// the corresponding goblin object. It is exported so other modules (e.g. http)
-// can reuse it for their own JSON decoding; funcname is the user-visible
-// function to blame in error messages.
-func ToGoblin(v any, funcname string) (object.Object, error) {
-	switch x := v.(type) {
-	case nil:
-		return object.Unit{}, nil
-	case bool:
-		return object.Bool(x), nil
-	case string:
-		return object.String(x), nil
-	case json.Number:
-		if i, err := x.Int64(); err == nil {
-			return object.Integer(i), nil
-		}
-		f, err := x.Float64()
-		if err != nil {
-			return nil, object.WrapError(object.ParseError, funcname+"() invalid JSON number", err)
-		}
-		return object.Float(f), nil
-	case []any:
-		elements := make([]object.Object, 0, len(x))
-		for _, item := range x {
-			g, err := ToGoblin(item, funcname)
-			if err != nil {
-				return nil, err
-			}
-			elements = append(elements, g)
-		}
-		return &object.List{Elements: elements}, nil
-	case map[string]any:
-		d := object.NewDict()
-		for k, val := range x {
-			g, err := ToGoblin(val, funcname)
-			if err != nil {
-				return nil, err
-			}
-			if err := d.Set(object.String(k), g); err != nil {
-				return nil, err
-			}
-		}
-		return d, nil
-	}
-	return nil, object.NewTypeError("%s() unsupported JSON value: %T", funcname, v)
-}
-
-func jsonMarshal(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("marshal", args)
-	v := ap.Any("value")
-	indent := int(ap.IntOr("indent", 0))
-	if err := ap.Finish(); err != nil {
+// encode(value, indent=nil) returns the JSON text of value.
+func encode(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("encode", args)
+	value := p.Any("value")
+	indent, pretty := p.NullableInt("indent")
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
 	if indent < 0 {
-		return nil, object.NewValueError("marshal() argument 'indent' must be non-negative, got %d", indent)
+		return nil, object.NewValueError("encode() argument 'indent' must be non-negative, got %d", int64(indent))
 	}
-
-	var buf bytes.Buffer
-	if err := goblinToJSON(v, &buf, indent, 0); err != nil {
+	text, err := jsonvalue.Encode("encode", value, int(indent), pretty)
+	if err != nil {
 		return nil, err
 	}
-	return object.String(buf.String()), nil
+	return object.String(text), nil
 }
 
-func goblinToJSON(obj object.Object, buf *bytes.Buffer, indent, level int) error {
-	switch v := obj.(type) {
-	case object.Unit:
-		buf.WriteString("null")
-		return nil
-	case object.Bool:
-		if bool(v) {
-			buf.WriteString("true")
-		} else {
-			buf.WriteString("false")
-		}
-		return nil
-	case object.Integer:
-		buf.WriteString(strconv.FormatInt(int64(v), 10))
-		return nil
-	case object.Float:
-		// Float's own text is valid JSON for every finite value and keeps
-		// the ".0" that makes 2.0 parse back as a Float rather than an Int.
-		if math.IsInf(float64(v), 0) || math.IsNaN(float64(v)) {
-			_, err := json.Marshal(float64(v))
-			return object.WrapError(object.ValueError, "marshal() unsupported float value", err)
-		}
-		buf.WriteString(v.String())
-		return nil
-	case object.String:
-		b, err := json.Marshal(string(v))
-		if err != nil {
-			return object.WrapError(object.ValueError, "marshal() invalid string", err)
-		}
-		buf.Write(b)
-		return nil
-	case *object.List:
-		return goblinListToJSON(v.Elements, buf, indent, level)
-	case *object.Dict:
-		return goblinDictToJSON(v, buf, indent, level)
-	case object.UserValue:
-		if v.UserType().Impl(ToJSONTrait) == nil {
-			break
-		}
-		encoded, err := ToJSONTrait.Invoke(0, object.CallArgs{Positional: []object.Object{v}})
-		if err != nil {
-			return err
-		}
-		if encoded == obj {
-			return object.NewValueError("marshal() %s.to_json returned the value itself", v.TypeName())
-		}
-		return goblinToJSON(encoded, buf, indent, level)
+// decode(data) returns the value of the JSON document data holds: a String,
+// Bytes or a readable read to its end.
+func decode(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("decode", args)
+	data := p.DataBytes("data")
+	if err := p.Finish(); err != nil {
+		return nil, err
 	}
-	return object.NewTypeError("marshal() unsupported type: %s", obj.TypeName())
-}
-
-func goblinListToJSON(elements []object.Object, buf *bytes.Buffer, indent, level int) error {
-	if len(elements) == 0 {
-		buf.WriteString("[]")
-		return nil
-	}
-	pretty := indent > 0
-	buf.WriteByte('[')
-	for i, e := range elements {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		if pretty {
-			buf.WriteByte('\n')
-			writeSpaces(buf, indent*(level+1))
-		}
-		if err := goblinToJSON(e, buf, indent, level+1); err != nil {
-			return err
-		}
-	}
-	if pretty {
-		buf.WriteByte('\n')
-		writeSpaces(buf, indent*level)
-	}
-	buf.WriteByte(']')
-	return nil
-}
-
-func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) error {
-	if d.Len() == 0 {
-		buf.WriteString("{}")
-		return nil
-	}
-	// Keys are written in sorted order, as Go's encoding/json does for maps,
-	// rather than in the dict's insertion order.
-	entries := d.Entries()
-	for _, entry := range entries {
-		if _, ok := entry.Key.(object.String); !ok {
-			return object.NewTypeError("marshal() dict keys must be String, got %s", entry.Key.TypeName())
-		}
-	}
-	slices.SortFunc(entries, func(a, b object.DictEntry) int {
-		return strings.Compare(string(a.Key.(object.String)), string(b.Key.(object.String)))
-	})
-	pretty := indent > 0
-	buf.WriteByte('{')
-	for i, entry := range entries {
-		if i > 0 {
-			buf.WriteByte(',')
-		}
-		if pretty {
-			buf.WriteByte('\n')
-			writeSpaces(buf, indent*(level+1))
-		}
-		kb, err := json.Marshal(string(entry.Key.(object.String)))
-		if err != nil {
-			return object.WrapError(object.ValueError, "marshal() invalid dict key", err)
-		}
-		buf.Write(kb)
-		if pretty {
-			buf.WriteString(": ")
-		} else {
-			buf.WriteByte(':')
-		}
-		if err := goblinToJSON(entry.Value, buf, indent, level+1); err != nil {
-			return err
-		}
-	}
-	if pretty {
-		buf.WriteByte('\n')
-		writeSpaces(buf, indent*level)
-	}
-	buf.WriteByte('}')
-	return nil
-}
-
-func writeSpaces(buf *bytes.Buffer, n int) {
-	for i := 0; i < n; i++ {
-		buf.WriteByte(' ')
-	}
+	return jsonvalue.Decode("decode", data)
 }

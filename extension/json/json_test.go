@@ -1,170 +1,220 @@
 package json
 
 import (
-	"fmt"
+	"errors"
 	"strings"
 	"testing"
 
+	"github.com/aisk/goblin/extension/internal/modtest"
 	"github.com/aisk/goblin/object"
 )
 
-func jsonFunction(t *testing.T, name string) *object.Function {
-	t.Helper()
-
-	modObj, err := Execute()
+func call(name string, positional object.Args, keyword ...object.KwArg) (object.Object, error) {
+	module, err := Execute()
 	if err != nil {
-		t.Fatalf("Execute() error = %v", err)
+		return nil, err
 	}
-
-	mod, ok := modObj.(*object.Module)
-	if !ok {
-		t.Fatalf("Execute() returned %T", modObj)
-	}
-
-	member, ok := mod.Members[name]
-	if !ok {
-		t.Fatalf("json module missing %q", name)
-	}
-
-	fn, ok := member.(*object.Function)
-	if !ok {
-		t.Fatalf("json module member %q is %T", name, member)
-	}
-
-	return fn
+	fn := module.(*object.Module).Members[name].(*object.Function)
+	return fn.Call(object.CallArgs{Positional: positional, Keyword: keyword})
 }
 
-func TestJsonUnmarshalScalars(t *testing.T) {
+func encodeText(t *testing.T, v object.Object, keyword ...object.KwArg) string {
+	t.Helper()
+	got, err := call("encode", object.Args{v}, keyword...)
+	if err != nil {
+		t.Fatalf("encode(%v) error: %v", v, err)
+	}
+	return string(got.(object.String))
+}
+
+func decodeValue(t *testing.T, text string) object.Object {
+	t.Helper()
+	got, err := call("decode", object.Args{object.String(text)})
+	if err != nil {
+		t.Fatalf("decode(%q) error: %v", text, err)
+	}
+	return got
+}
+
+func dict(pairs ...object.Object) *object.Dict {
+	d := object.NewDict()
+	for i := 0; i < len(pairs); i += 2 {
+		d.Set(pairs[i], pairs[i+1])
+	}
+	return d
+}
+
+func list(elements ...object.Object) *object.List {
+	return &object.List{Elements: elements}
+}
+
+func TestModuleMembers(t *testing.T) {
+	module, _ := Execute()
+	got := module.(*object.Module).Attributes()
+	if strings.Join(got, ",") != "decode,encode" {
+		t.Fatalf("json members = %v", got)
+	}
+}
+
+func TestDecodeScalars(t *testing.T) {
 	cases := []struct {
 		in   string
 		want object.Object
 	}{
 		{"42", object.Integer(42)},
+		{"-7", object.Integer(-7)},
 		{"3.14", object.Float(3.14)},
+		{"1e2", object.Float(100)},
+		{"9223372036854775808", object.Float(9223372036854775808)},
 		{"true", object.True},
 		{"false", object.False},
-		{"null", object.Unit{}},
-		{`"hi"`, object.String("hi")},
+		{"null", object.Nil},
+		{` "hi" `, object.String("hi")},
 	}
 	for _, c := range cases {
-		got, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String(c.in)}})
-		if err != nil {
-			t.Fatalf("unmarshal(%q) error: %v", c.in, err)
-		}
-		if fmt.Sprint(got) != fmt.Sprint(c.want) {
-			t.Errorf("unmarshal(%q) = %q, want %q", c.in, fmt.Sprint(got), fmt.Sprint(c.want))
+		got := decodeValue(t, c.in)
+		if got.TypeName() != c.want.TypeName() || !modtest.Equal(got, c.want) {
+			t.Errorf("decode(%q) = %v (%s), want %v (%s)", c.in, got, got.TypeName(), c.want, c.want.TypeName())
 		}
 	}
 }
 
-func TestJsonUnmarshalNumberTypes(t *testing.T) {
-	got, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String(`{"i": 1, "f": 2.5}`)}})
-	if err != nil {
-		t.Fatalf("unmarshal error: %v", err)
-	}
-	d := got.(*object.Dict)
-	iv, _, _ := d.Get(object.String("i"))
-	if _, ok := iv.(object.Integer); !ok {
-		t.Errorf("i want Int, got %T", iv)
-	}
-	fv, _, _ := d.Get(object.String("f"))
-	if _, ok := fv.(object.Float); !ok {
-		t.Errorf("f want Float, got %T", fv)
+func TestDecodeKeepsDocumentOrder(t *testing.T) {
+	got := decodeValue(t, `{"z": 1, "a": [true, null], "m": {"y": 2, "b": 3}, "z": 4}`)
+	if s := got.(*object.Dict).String(); s != `{"z": 4, "a": [true, nil], "m": {"y": 2, "b": 3}}` {
+		t.Fatalf("decode order = %s", s)
 	}
 }
 
-func TestJsonUnmarshalRejectsBadInput(t *testing.T) {
-	if _, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.Integer(1)}}); err == nil {
-		t.Fatalf("expected error for non-string argument")
+func TestDecodeAcceptsBytesAndReadables(t *testing.T) {
+	got, err := call("decode", object.Args{object.NewBytes([]byte(`[1]`))})
+	if err != nil || !modtest.Equal(got, list(object.Integer(1))) {
+		t.Fatalf("decode(Bytes) = %v, %v", got, err)
 	}
-	if _, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String("{bad")}}); err == nil {
-		t.Fatalf("expected error for invalid JSON")
+	if _, err := call("decode", object.Args{object.Integer(1)}); err == nil ||
+		err.Error() != "decode() argument 'data' must be String, Bytes or have a read(size) method, got Int" {
+		t.Fatalf("decode(1) error = %v", err)
 	}
-	for _, in := range []string{"42 43", "42 hello", "{} {}", "[1] [2]"} {
-		if _, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{object.String(in)}}); err == nil {
-			t.Fatalf("expected error for trailing data: %q", in)
+}
+
+func TestDecodeErrorsCarryPosition(t *testing.T) {
+	cases := []struct {
+		in           string
+		message      string
+		line, column int64
+	}{
+		{"", "decode() invalid JSON at line 1, column 1: unexpected end of input", 1, 1},
+		{"  ", "decode() invalid JSON at line 1, column 3: unexpected end of input", 1, 3},
+		{"{\n  \"port\": 80,\n}", "decode() invalid JSON at line 3, column 1: unexpected \"}\"", 3, 1},
+		{"[1, 2", "decode() invalid JSON at line 1, column 6: unexpected end of input", 1, 6},
+		{"{\"é\": tru!}", "decode() invalid JSON at line 1, column 10: unexpected \"!\"", 1, 10},
+		{"1 2", "decode() invalid JSON at line 1, column 3: unexpected \"2\"", 1, 3},
+		{"\"a\nb\"", "decode() invalid JSON at line 1, column 3: unexpected \"\\n\"", 1, 3},
+		{"\xef\xbb\xbf1", "decode() invalid JSON at line 1, column 1: unexpected \"\\ufeff\"", 1, 1},
+		{"[1e999]", "decode() invalid JSON at line 1, column 2: number 1e999 is out of range", 1, 2},
+	}
+	for _, c := range cases {
+		_, err := call("decode", object.Args{object.String(c.in)})
+		var e *object.Error
+		if !errors.As(err, &e) || !errors.Is(err, object.ParseError) {
+			t.Fatalf("decode(%q) error = %v, want ParseError", c.in, err)
+		}
+		if e.Error() != c.message {
+			t.Errorf("decode(%q) message = %q, want %q", c.in, e.Error(), c.message)
+		}
+		line, _ := e.Field("line")
+		column, _ := e.Field("column")
+		if line != object.Integer(c.line) || column != object.Integer(c.column) {
+			t.Errorf("decode(%q) data = line %v, column %v", c.in, line, column)
 		}
 	}
 }
 
-func TestJsonMarshalCompact(t *testing.T) {
-	d := object.NewDict()
-	d.Set(object.String("b"), object.Integer(2))
-	d.Set(object.String("a"), object.Integer(1))
-
-	got, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{d}})
-	if err != nil {
-		t.Fatalf("marshal error: %v", err)
-	}
-	// Keys are sorted, whatever order the dict iterates in.
-	if s := fmt.Sprint(got); s != `{"a":1,"b":2}` {
-		t.Errorf("marshal = %q, want %q", s, `{"a":1,"b":2}`)
+func TestEncodeKeepsDictOrder(t *testing.T) {
+	d := dict(object.String("b"), object.Integer(2), object.String("a"), list(object.Integer(1), object.Nil))
+	if got := encodeText(t, d); got != `{"b":2,"a":[1,null]}` {
+		t.Errorf("encode = %s", got)
 	}
 }
 
-func TestJsonMarshalIndent(t *testing.T) {
-	got, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{
-		&object.List{Elements: []object.Object{object.Integer(1), object.Integer(2)}},
-		object.Integer(2),
-	}})
-	if err != nil {
-		t.Fatalf("marshal error: %v", err)
+func TestEncodeIndent(t *testing.T) {
+	d := dict(object.String("a"), list(object.Integer(1), object.Integer(2)), object.String("e"), list())
+	indent := object.KwArg{Name: "indent", Value: object.Integer(2)}
+	if got, want := encodeText(t, d, indent), "{\n  \"a\": [\n    1,\n    2\n  ],\n  \"e\": []\n}"; got != want {
+		t.Errorf("encode indent=2 = %q, want %q", got, want)
 	}
-	want := "[\n  1,\n  2\n]"
-	if fmt.Sprint(got) != want {
-		t.Errorf("marshal indent = %q, want %q", fmt.Sprint(got), want)
+	zero := object.KwArg{Name: "indent", Value: object.Integer(0)}
+	if got, want := encodeText(t, list(object.Integer(1)), zero), "[\n1\n]"; got != want {
+		t.Errorf("encode indent=0 = %q, want %q", got, want)
 	}
-}
-
-func TestJsonMarshalNilAndEmpty(t *testing.T) {
-	got, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{object.Unit{}}})
-	if err != nil {
-		t.Fatalf("marshal nil error: %v", err)
-	}
-	if fmt.Sprint(got) != "null" {
-		t.Errorf("marshal(nil) = %q, want null", fmt.Sprint(got))
-	}
-
-	got, err = jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{&object.Dict{}}})
-	if err != nil {
-		t.Fatalf("marshal empty dict error: %v", err)
-	}
-	if fmt.Sprint(got) != "{}" {
-		t.Errorf("marshal({}) = %q, want {}", fmt.Sprint(got))
+	none := object.KwArg{Name: "indent", Value: object.Nil}
+	if got := encodeText(t, list(object.Integer(1)), none); got != "[1]" {
+		t.Errorf("encode indent=nil = %q", got)
 	}
 }
 
-func TestJsonMarshalUnsupportedType(t *testing.T) {
-	if _, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{jsonFunction(t, "marshal")}}); err == nil {
-		t.Fatalf("expected error for unsupported type")
+func TestEncodeScalars(t *testing.T) {
+	cases := map[string]object.Object{
+		"null": object.Nil, "true": object.True, "2.0": object.Float(2), "0.1": object.Float(0.1),
+		`"a\"\n"`: object.String("a\"\n"), "-3": object.Integer(-3),
+	}
+	for want, v := range cases {
+		if got := encodeText(t, v); got != want {
+			t.Errorf("encode(%v) = %s, want %s", v, got, want)
+		}
 	}
 }
 
-func TestJsonRoundTrip(t *testing.T) {
-	original := object.NewDict()
-	original.Set(object.String("name"), object.String("Bob"))
-	original.Set(object.String("active"), object.True)
-
-	s, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{original}})
-	if err != nil {
-		t.Fatalf("marshal error: %v", err)
+func TestEncodeErrors(t *testing.T) {
+	selfList := list(object.Integer(1))
+	selfList.Elements = append(selfList.Elements, selfList)
+	cases := []struct {
+		value   object.Object
+		kw      []object.KwArg
+		kind    *object.Error
+		message string
+	}{
+		{object.NewChan(0), nil, object.TypeError, "encode() cannot encode Chan (give its type a to_json() method)"},
+		{object.NewBytes([]byte("x")), nil, object.TypeError, "encode() cannot encode Bytes (give its type a to_json() method)"},
+		{dict(object.Integer(1), object.Integer(2)), nil, object.TypeError, "encode() Dict keys must be String, got Int"},
+		{list(), []object.KwArg{{Name: "indent", Value: object.Integer(-1)}}, object.ValueError, "encode() argument 'indent' must be non-negative, got -1"},
+		{selfList, nil, object.RecursionError, object.ErrRecursionDepth},
 	}
-	back, err := jsonFunction(t, "unmarshal").Call(object.CallArgs{Positional: object.Args{s}})
-	if err != nil {
-		t.Fatalf("unmarshal error: %v", err)
-	}
-	d := back.(*object.Dict)
-	if v, _, _ := d.Get(object.String("name")); fmt.Sprint(v) != "Bob" {
-		t.Errorf("round-trip name = %q, want Bob", fmt.Sprint(v))
-	}
-	if v, _, _ := d.Get(object.String("active")); fmt.Sprint(v) != "true" {
-		t.Errorf("round-trip active = %q, want true", fmt.Sprint(v))
+	for _, c := range cases {
+		_, err := call("encode", object.Args{c.value}, c.kw...)
+		if err == nil || !errors.Is(err, c.kind) || err.Error() != c.message {
+			t.Errorf("encode(%s) error = %v, want %s %q", c.value.TypeName(), err, c.kind, c.message)
+		}
 	}
 }
 
-func TestJsonMarshalArgCount(t *testing.T) {
-	_, err := jsonFunction(t, "marshal").Call(object.CallArgs{Positional: object.Args{}})
-	if err == nil || !strings.Contains(err.Error(), "missing required argument") {
-		t.Fatalf("expected arg-count error, got %v", err)
+func TestEncodeRejectsNaNAndInfinity(t *testing.T) {
+	for _, v := range []float64{inf(1), inf(-1), nan()} {
+		_, err := call("encode", object.Args{object.Float(v)})
+		if err == nil || !errors.Is(err, object.ValueError) || !strings.Contains(err.Error(), "JSON has no NaN or infinity") {
+			t.Errorf("encode(%v) error = %v", v, err)
+		}
+	}
+}
+
+func inf(sign int) float64 {
+	big := 1e308
+	return big * 10 * float64(sign)
+}
+
+func nan() float64 {
+	x := inf(1)
+	return x - x
+}
+
+func TestRoundTrip(t *testing.T) {
+	original := dict(
+		object.String("name"), object.String("Bob"),
+		object.String("tags"), list(object.String("x"), object.Float(1.5), object.Nil),
+		object.String("ok"), object.True,
+	)
+	back := decodeValue(t, encodeText(t, original))
+	if !modtest.Equal(back, original) || back.(*object.Dict).String() != original.String() {
+		t.Fatalf("round trip = %v", back)
 	}
 }

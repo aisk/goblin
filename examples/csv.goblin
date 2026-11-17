@@ -1,21 +1,112 @@
 import "csv"
+import "fs"
 
-var records = csv.read_all("name,score\nGoblin,10\n")
-print(records)
-print(csv.write_all(records))
-print(csv.read_all("a;b\n1;2\n", comma=";"))
+var scratch = fs.mkdir_temp(prefix="goblin-csv-")
+defer fs.remove(scratch, recursive=true)
+fs.write(scratch.join("people.csv"), "name,age\nAda,36\nLinus,28\n")
+fs.write(scratch.join("data.tsv"), "city\tpopulation\nOslo\t709000\nBergen\t291000\n")
+fs.write(scratch.join("legacy.csv"), "id,name,score,note\n1,Ada,97,late\n2,Linus,88\n")
+fs.write(scratch.join("upload.csv"), "id,name\n1,Ada\n2,Li\"nus\n")
 
-# Numbers, bools and values implementing Show are written through Show
+# Read a spreadsheet export by column name
+for person in csv.decode_dicts(fs.read(scratch.join("people.csv"))) {
+    print(person["name"], Int(person["age"]) + 1)
+}
+
+# Read plain rows, tab separated
+var rows = csv.decode(fs.read(scratch.join("data.tsv")), sep="\t")
+var header = rows[0]
+var body = rows[1:]
+print(header, body)
+
+# An export whose rows are not all the same length: read it raw, pad it yourself
+for row in csv.decode(fs.read(scratch.join("legacy.csv")))[1:] {
+    var note = ""
+    if row.size > 3 {
+        note = row[3]
+    }
+    print(row[0], note)
+}
+
+# Write rows; numbers are written as print shows them, so format the ones that need it
+var table = [["name", "score"], ["Ada", 97], ["Linus", format(88.5, ".2f")]]
+fs.write(scratch.join("scores.csv"), csv.encode(table))
+print(fs.read(scratch.join("scores.csv")))
+
+# Write records, choosing the column order
+var people = [{"name": "Ada", "age": 36}, {"name": "Linus", "age": 28}]
+fs.write(scratch.join("people.csv"), csv.encode(people, columns=["age", "name"]))
+print(fs.read(scratch.join("people.csv")))
+
+# A file that may be broken: say where
+try {
+    rows = csv.decode(fs.read(scratch.join("upload.csv")))
+} catch e: ParseError {
+    print("upload.csv, line {e.line}: {e.message}")
+}
+
+# Decoding: quoted fields, embedded line breaks, a byte-order mark, blank
+# lines; every field is a String
+print(csv.decode("\u{feff}a,\"b,c\"\n\n\"say \"\"hi\"\"\",\"two\r\nlines\"\r\n"))
+print(csv.decode(""), csv.decode_dicts(""), csv.decode_dicts("only,header\n"))
+print(csv.decode(Bytes("x;y\n1;2\n"), sep=";"))
+
+# Any value with a read(size) method is read to its end
+type Chunks(parts) {
+    func read(self, size) {
+        if self.parts.size == 0 {
+            return Bytes("")
+        }
+        return Bytes(self.parts.pop(0))
+    }
+}
+print(csv.decode_dicts(Chunks(["na", "me,age\nAd", "a,36\n"])))
+var file = fs.open(scratch.join("scores.csv"))
+print(csv.decode(file).size, file.closed)
+file.close()
+
+# Encoding: the header is the first Dict's keys unless columns= says
+# otherwise; a missing key is an empty field, as is nil; anything else but a
+# List or Dict is written as print shows it
 type Score(points) {
     impl Show {
         func show(self) {
-            return String(self.points) + "pt"
+            return "{self.points}pt"
         }
     }
 }
-print(csv.write_all([["Ada", 10, 2.5, true, Score(12)]]))
-try {
-    csv.write_all([["Ada", nil]])
-} catch e {
-    print(e)
+print(csv.encode([{"name": "Ada", "score": Score(12)}, {"score": 2.5}, {"name": nil}]))
+print(csv.encode([["a b", "quote \"me\"", "x,y", "two\nlines", true]]))
+print(csv.encode([]) == "", csv.encode([], columns=["a", "b"]))
+print(csv.encode(List(range(3)).map(func(i) { return [i, i * i] }), sep="\t"))
+
+# Errors
+for text in ["a,b\n\"x\"y,z\n", "a,\"b\nc\n"] {
+    try {
+        csv.decode(text)
+    } catch e: ParseError {
+        print(e.line, e.column, e.message)
+    }
+}
+for text in ["id,name\n1\n", "id,näme,id\n"] {
+    try {
+        csv.decode_dicts(text)
+    } catch e: ParseError {
+        print(e.line, e.column, e.message)
+    }
+}
+type Plain(v) {}
+for bad in [[["a"], 1], [[["nested"]]], [{"a": 1}, {"b": 2}], [["a"], {"a": 1}], [[Plain(1)]]] {
+    try {
+        csv.encode(bad)
+    } catch e {
+        print(e.cause, e.message)
+    }
+}
+for sep in ["", ";;", "\""] {
+    try {
+        csv.decode("a", sep=sep)
+    } catch e: ValueError {
+        print(e.message)
+    }
 }

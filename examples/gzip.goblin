@@ -11,7 +11,7 @@ fs.write(events_file, gzip.compress(`{"event": "start"}` + "\n" + `{"event": "st
 var text = gzip.decompress(fs.read_bytes(events_file)).decode()
 for line in text.split("\n") {
     if line != "" {
-        print(json.unmarshal(line)["event"])
+        print(json.decode(line)["event"])
     }
 }
 
@@ -22,7 +22,7 @@ file.close()
 
 # Compress before uploading
 var records = [{"id": 1}, {"id": 2}]
-var body = gzip.compress(json.marshal(records))
+var body = gzip.compress(json.encode(records))
 var headers = {"Content-Encoding": "gzip", "Content-Type": "application/json"}
 print(body[0], body[1], gzip.decompress(body).decode())
 

@@ -7,7 +7,7 @@ imported name is the final component of its path.
 import "json"
 import "./modules/greeter"
 
-print(json.marshal({"ok": true}))
+print(json.encode({"ok": true}))
 greeter.greet("world")
 ~~~
 

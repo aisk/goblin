@@ -15,14 +15,14 @@ var credentials = base64.encode("{user}:{password}")
 var headers = {"Authorization": "Basic {credentials}"}
 
 # Binary data inside JSON
-var payload = json.marshal({"name": "logo.png", "data": base64.encode(fs.read_bytes("logo.png"))})
+var payload = json.encode({"name": "logo.png", "data": base64.encode(fs.read_bytes("logo.png"))})
 
 # And back
-var image = base64.decode(json.unmarshal(payload)["data"])
+var image = base64.decode(json.decode(payload)["data"])
 fs.write("logo-copy.png", image)
 
 # The middle part of a JWT: URL alphabet, no padding
-var claims = json.unmarshal(base64.decode(token.split(".")[1], url_safe=true).decode())
+var claims = json.decode(base64.decode(token.split(".")[1], url_safe=true).decode())
 ~~~
 
 `examples/base64.goblin` runs each of these tasks.

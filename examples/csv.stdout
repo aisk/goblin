@@ -1,8 +1,45 @@
-[["name", "score"], ["Goblin", "10"]]
+Ada 37
+Linus 29
+["city", "population"] [["Oslo", "709000"], ["Bergen", "291000"]]
+1 late
+2 
 name,score
-Goblin,10
+Ada,97
+Linus,88.50
 
-[["a", "b"], ["1", "2"]]
-Ada,10,2.5,true,12pt
+age,name
+36,Ada
+28,Linus
 
-write_all() field 1 in record 0 must be String, Int, Float, Bool, or a value implementing Show, got Nil
+upload.csv, line 3: decode() invalid CSV at line 3, column 5: stray quote
+[["a", "b,c"], ["say \"hi\"", "two\nlines"]]
+[] [] []
+[["x", "y"], ["1", "2"]]
+[{"name": "Ada", "age": "36"}]
+3 false
+name,score
+Ada,12pt
+,2.5
+,
+
+a b,"quote ""me""","x,y","two
+lines",true
+
+true a,b
+
+0	0
+1	1
+2	4
+
+2 3 decode() invalid CSV at line 2, column 3: stray quote
+2 3 decode() invalid CSV at line 2, column 3: quoted field never ends
+2 1 decode_dicts() invalid CSV at line 2, column 1: expected 2 fields, got 1
+1 9 decode_dicts() invalid CSV at line 1, column 9: duplicate column "id"
+TypeError encode() row 2 must be List or Dict, got Int
+TypeError encode() row 1 cannot hold a List as a field
+ValueError encode() row 2 has unknown column "b"
+ValueError encode() row 2 is a Dict but the rows before it are Lists; give the columns with columns=
+TypeError encode() row 1 cannot hold a Plain as a field (add 'impl Show' to type Plain)
+decode() argument 'sep' must be one character other than a quote or a line break, got ""
+decode() argument 'sep' must be one character other than a quote or a line break, got ";;"
+decode() argument 'sep' must be one character other than a quote or a line break, got "\""

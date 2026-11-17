@@ -10,6 +10,7 @@ capture() "sh" exited with status 128: fatal: not a git repository
 true nil
 true run() program "goblin-no-such-tool" not found
 ["compiling", "warning", ""]
+["collected\n"]
 true run() "sleep" timed out after 0.1 seconds
 true true nil
 -1 false false

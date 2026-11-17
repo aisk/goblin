@@ -196,7 +196,7 @@ try {
 }
 
 try {
-    json.unmarshal("\{")
+    json.decode("\{")
 } catch e {
     print(e.is(ParseError))
     print(e.is(ValueError))

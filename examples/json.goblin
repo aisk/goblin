@@ -1,46 +1,132 @@
+import "fs"
 import "json"
+import "math"
+import "time"
 
-# marshal a single-key dict (compact form)
-print(json.marshal({"name": "Alice"}))
+var scratch = fs.mkdir_temp(prefix="goblin-json-")
+defer fs.remove(scratch, recursive=true)
+var config_path = scratch.join("config.json")
+fs.write(config_path, `{"name": "goblin", "debug": true, "tags": ["a", "b"]}`)
 
-# round-trip a multi-key object: key order is unspecified, so verify by key
-var obj = {"name": "Alice", "age": 30, "scores": [90, 95]}
-var data = json.unmarshal(json.marshal(obj))
-print(data["name"])
-print(type_of(data["age"]) == Int)
-print(data["scores"][1])
+# Load configuration
+var config = json.decode(fs.read(config_path))
+var port = config.get("port", default=8080)
+print(config, port)
 
-# scalar unmarshal
-print(json.unmarshal("42"))
-print(type_of(json.unmarshal("3.14")) == Float)
-print(json.unmarshal("true"))
-print(json.unmarshal("null"))
+# Save a report, readable by people
+var report = {"name": "build", "steps": [{"step": "test", "ok": true}, {"step": "lint", "ok": false}], "empty": []}
+fs.write(scratch.join("report.json"), json.encode(report, indent=2))
+print(fs.read(scratch.join("report.json")))
 
-# marshal with indent
-print(json.marshal([1, 2, 3], 2))
-
-# nil marshals to null and round-trips back
-print(json.marshal({"y": nil}))
-var s2 = json.marshal({"x": 1, "y": [true, nil]})
-print(json.unmarshal(s2)["y"][1])
-
-# User types opt into marshal with json.ToJSON. An empty impl encodes the
-# fields as an object; to_json can return any other value to encode instead.
-type Point(x, y) {
-    impl json.ToJSON {}
+# One JSON document per line
+var events_path = scratch.join("events.jsonl")
+fs.write(events_path, `{"type": "start", "at": 1}` + "\n" + `{"type": "stop", "at": 2}` + "\n")
+for line in fs.read_lines(events_path) {
+    var event = json.decode(line)
+    print(event["type"])
 }
+
+# Write one JSON document per line
+var events = [{"type": "open"}, {"type": "close"}]
+var log = fs.open(events_path, append=true)
+for event in events {
+    log.write(json.encode(event) + "\n")
+}
+log.close()
+print(fs.read(events_path).split("\n").size)
+
+# Values JSON has no form for: choose the form where you encode
+var started = time.unix(400 * 86400)
+var entry = {"file": String(config_path.name), "at": started.format("2006-01-02"), "size": 3}
+print(json.encode(entry))
+
+# Straight from a stream: anything with read(size), such as an open File
+var file = fs.open(config_path)
+print(json.decode(file)["tags"])
+file.close()
+
+# Your own types
+type Point(x, y) {
+    func to_json(self) {
+        return {"x": self.x, "y": self.y}
+    }
+}
+print(json.encode([Point(1, 2)]))
+
+# Bad input: say where
+fs.write(config_path, "\{\n  \"port\": 80,\n}")
+try {
+    config = json.decode(fs.read(config_path))
+} catch e: ParseError {
+    print("config.json:{e.line}:{e.column}: {e.message}")
+}
+
+# Encoding: compact by default, Dicts in their own order, a whole Float keeps .0
+print(json.encode({"z": 1, "a": [true, nil, 2.0, 0.5, "\"q\""]}))
+print(json.encode([1, [2]], indent=0))
+print(json.encode({}), json.encode([]), json.encode("é\n"))
+
+# to_json() may return anything encodable, which is encoded in turn
 type Celsius(degrees) {
-    impl json.ToJSON {
-        func to_json(self) {
-            return String(self.degrees) + "C"
+    func to_json(self) {
+        return "{self.degrees}C"
+    }
+}
+type Reading(at, value) {
+    func to_json(self) {
+        return [self.at, self.value]
+    }
+}
+print(json.encode({"temp": Reading(1, Celsius(21))}))
+
+# Decoding: numbers without a fraction or exponent are Ints, Objects keep
+# document order, and a repeated key keeps its last value at its first place
+var decoded = json.decode(Bytes(`{"b": 1, "a": 2.5, "n": 1e2, "big": 9223372036854775808, "b": [null, false]}`))
+print(decoded)
+print(type_of(decoded["a"]).name, type_of(decoded["n"]).name, type_of(decoded["big"]).name, type_of(decoded["b"][0]).name)
+print(json.decode(" \"\\u00e9\\n\" ") == "é\n")
+
+# A readable written in Goblin is read to its end
+type Chunks(parts) {
+    func read(self, size) {
+        if self.parts.size == 0 {
+            return Bytes("")
         }
+        return Bytes(self.parts.pop(0))
+    }
+}
+print(json.decode(Chunks(["[1, ", "2, ", "3]"])))
+
+# Errors
+for text in ["", "[1, 2", `{"a": tru}`, "1 2", "[1e999]", `{"é": 1,}`] {
+    try {
+        json.decode(text)
+    } catch e: ParseError {
+        print(e.line, e.column, e.message)
     }
 }
 type Plain(a) {}
-print(json.marshal({"at": Point(1, 2), "temp": Celsius(21)}))
-print(json.ToJSON.to_json(Celsius(5)))
+type Selfish() {
+    func to_json(self) {
+        return self
+    }
+}
+var looped = [1]
+looped.push(looped)
+for value in [Plain(1), Bytes("x"), {1: 2}, math.inf, Selfish(), looped] {
+    try {
+        json.encode(value)
+    } catch e {
+        print(e.cause, e.message)
+    }
+}
 try {
-    json.marshal(Plain(1))
-} catch e {
-    print(e)
+    json.encode([], indent=-1)
+} catch e: ValueError {
+    print(e.message)
+}
+try {
+    json.decode(42)
+} catch e: TypeError {
+    print(e.message)
 }
