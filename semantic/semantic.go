@@ -717,16 +717,20 @@ func isBuiltin(name string) bool {
 
 func (c *checker) checkCallArguments(args []ast.CallArgument) error {
 	seenKeyword := false
+	seenStarred := false
 	seenKeywordNames := make(map[string]struct{})
-	for i, arg := range args {
+	for _, arg := range args {
 		switch arg.Kind {
 		case ast.CallArgumentStarred:
 			if seenKeyword {
 				return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
 			}
-			if i != len(args)-1 {
-				return c.newError(arg.Expr.Position(), "starred argument must be the last argument")
+			// Only keyword arguments and `**` may follow `*xs`, so the
+			// expanded values are always the last positional ones.
+			if seenStarred {
+				return c.newError(arg.Expr.Position(), "starred argument must be the last positional argument")
 			}
+			seenStarred = true
 		case ast.CallArgumentKeyword, ast.CallArgumentKeywordUnpack:
 			seenKeyword = true
 			if arg.Kind == ast.CallArgumentKeyword {
@@ -738,6 +742,9 @@ func (c *checker) checkCallArguments(args []ast.CallArgument) error {
 		case ast.CallArgumentPositional:
 			if seenKeyword {
 				return c.newError(arg.Expr.Position(), "positional argument cannot appear after keyword arguments")
+			}
+			if seenStarred {
+				return c.newError(arg.Expr.Position(), "positional argument cannot appear after a starred argument")
 			}
 		}
 		if err := c.checkExpression(arg.Expr); err != nil {

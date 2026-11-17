@@ -110,6 +110,11 @@ var values = [1, 2, 3]
 print(add3(*values))
 ```
 
+A call may use both, `f(*items, **options)`. The expanded list supplies the
+last positional arguments, so after `*items` only keyword arguments and
+`**options` may follow; a positional argument or a second `*` there is
+reported before the program runs.
+
 A `**`-expanded value must be a dictionary with string keys, and each keyword
 name may only be supplied once per call: naming an argument twice — whether by
 two explicit keywords, two `**` dictionaries that share a key, or one of each —

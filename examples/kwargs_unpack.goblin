@@ -47,3 +47,19 @@ try {
 } catch e {
     print(e.message)
 }
+
+# A call may expand a list and a dict together: `*` supplies the positional
+# arguments, then keywords and `**` follow it.
+func place(x, y, z=0, **style) {
+    return "{x},{y},{z} {style}"
+}
+var point = [1, 2]
+var look = {"color": "red"}
+print(place(*point, **look))
+print(place(*point, z=3, **look))
+print(place(*[1], y=5))
+try {
+    place(*point, x=9)
+} catch e: TypeError {
+    print(e.message)
+}

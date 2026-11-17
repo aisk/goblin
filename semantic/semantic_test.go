@@ -232,10 +232,21 @@ func TestCheckModule(t *testing.T) {
 			errContains: "kwargs parameter must be the last parameter",
 		},
 		{
-			name:        "starred argument must be last",
+			name:        "positional argument after a starred one",
 			source:      "func f(a, b) { return a }\nf(*[1], 2)\n",
 			wantErr:     true,
-			errContains: "starred argument must be the last argument",
+			errContains: "positional argument cannot appear after a starred argument",
+		},
+		{
+			name:        "two starred arguments",
+			source:      "func f(a, b) { return a }\nf(*[1], *[2])\n",
+			wantErr:     true,
+			errContains: "starred argument must be the last positional argument",
+		},
+		{
+			name:    "keywords after a starred argument",
+			source:  "func f(a, b, c=0, **kw) { return a }\nf(*[1, 2], c=3, **{\"d\": 4})\n",
+			wantErr: false,
 		},
 		{
 			name:    "break inside loop",
