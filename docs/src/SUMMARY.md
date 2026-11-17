@@ -43,20 +43,6 @@
 - [url](./module-url.md)
 - [csv](./module-csv.md)
 - [io](./module-io.md)
-- [x/encoding/base64](./module-base64.md)
-- [x/encoding/base32, ascii85, html, and quotedprintable](./module-text-encoding.md)
-- [x/encoding/hex](./module-hex.md)
-- [x/encoding/pem](./module-pem.md)
-- [x/mime](./module-mime.md)
-- [x/crypto/sha256 and sha512](./module-sha2.md)
-- [x/crypto/md5, sha1, and x/hash/crc32, adler32](./module-checksum.md)
-- [x/crypto/hmac and x/hash/crc64, fnv](./module-crypto-hash.md)
-- [x/compress/gzip, zlib, flate, and bzip2](./module-compression.md)
-- [x/compress/lzw](./module-lzw.md)
-- [x/archive/tar and zip](./module-archive.md)
-- [x/net/mail](./module-mail.md)
-- [x/net/netip](./module-netip.md)
-- [x/unicode and x/unicode/utf8](./module-unicode.md)
 
 # Extending Goblin with Go
 

@@ -1,8 +1,0 @@
-# Parsing email addresses with the mail module.
-import "x/net/mail"
-
-var address = mail.parse_address("Goblin <goblin@example.com>")
-print(type_of(address) == mail.Address)
-print(address.name)
-print(address.address)
-print(mail.parse_address_list("a@example.com, b@example.com").size)

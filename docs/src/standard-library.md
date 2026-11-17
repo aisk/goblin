@@ -2,7 +2,7 @@
 
 Goblin's standard library provides modules for common program boundaries:
 files and paths, environment variables, external commands, time, data formats, networking, random
-values, mathematics, and MIME metadata. Import a module at module scope, then
+values, and mathematics. Import a module at module scope, then
 access its members with dot notation.
 
 ~~~goblin
@@ -19,21 +19,7 @@ For example, print(), eprint(), range(), Int(), List(), Dict(), and Chan() are
 available without an import. Import a module only when its capabilities are
 needed.
 
-## Two tiers: core and x/
-
-The standard library has two tiers. Core modules have curated, Goblin-shaped
-APIs and simple names such as "json" and "fs". Modules under the `x/` prefix
-are direct adaptations of Go packages and keep Go's package hierarchy in their
-import path, so `compress/gzip` becomes `x/compress/gzip`. In both tiers the
-imported name is the last path component:
-
-~~~goblin
-import "x/compress/gzip"
-
-var packed = gzip.compress("hello")
-~~~
-
-## Core modules
+## Modules
 
 | Module | Main purpose | Start with |
 | --- | --- | --- |
@@ -51,30 +37,10 @@ var packed = gzip.compress("hello")
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
 | [io](./module-io.md) | Implement readers and writers as traits | Reader, Writer |
 
-## x/ modules
-
-| Module | Main purpose | Start with |
-| --- | --- | --- |
-| [x/encoding/base64](./module-base64.md) | Encode and decode Base64 text | encode(), decode() |
-| [x/encoding/base32, ascii85, html, quotedprintable](./module-text-encoding.md) | Encode text and escape HTML | encode(), escape() |
-| [x/encoding/hex](./module-hex.md) | Encode, decode, and dump hexadecimal data | encode(), decode() |
-| [x/encoding/pem](./module-pem.md) | Encode and decode PEM blocks | Block(), decode() |
-| [x/mime](./module-mime.md) | Look up MIME types and extensions | type_by_extension() |
-| [x/crypto/sha256 and sha512](./module-sha2.md) | Compute fixed-size SHA-2 digests | sum(), hex() |
-| [x/crypto/md5, sha1, x/hash/crc32, adler32](./module-checksum.md) | Compute compatibility digests and checksums | hex(), checksum() |
-| [x/crypto/hmac, x/hash/crc64, fnv](./module-crypto-hash.md) | Compute keyed and non-cryptographic hashes | sum(), hex() |
-| [x/compress/gzip, zlib, flate, bzip2](./module-compression.md) | Compress and decompress complete byte values | compress(), decompress() |
-| [x/compress/lzw](./module-lzw.md) | Compress and decompress LZW data | compress(), decompress() |
-| [x/archive/tar and zip](./module-archive.md) | Read and write complete in-memory archives | read_all(), write_all() |
-| [x/net/mail](./module-mail.md) | Construct and parse email addresses | parse_address() |
-| [x/net/netip](./module-netip.md) | Parse and calculate with IP addresses and prefixes | Addr(), Prefix() |
-| [x/unicode and x/unicode/utf8](./module-unicode.md) | Validate UTF-8 and classify Unicode characters | valid(), is_letter() |
-
 ## Imports and errors
 
-Standard-library module names never start with "./" or "../"; core names are
-plain ("json", "fs") and x/ names carry their Go-style path
-("x/compress/gzip"). Local source modules use a relative import such as
+Standard-library module names are single words ("json", "fs") and never start
+with "./" or "../". Local source modules use a relative import such as
 "./modules/greeter"; those are documented in
 [Modules and imports](./modules.md) because they use the same import syntax.
 

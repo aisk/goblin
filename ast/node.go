@@ -172,8 +172,8 @@ type Import struct {
 
 // IsPathImport reports whether the import names a .goblin file on disk rather
 // than a stdlib module. File imports must be explicitly relative ("./" or
-// "../"); every other path, slashes included, is a stdlib module name (e.g.
-// "x/compress/gzip").
+// "../"); every other path is a stdlib module name (e.g. "json"), so an
+// unknown one such as "lib/util" is reported as an unknown module.
 func (i *Import) IsPathImport() bool {
 	return IsPathImport(i.Path)
 }

@@ -4,9 +4,8 @@ This document defines how the built-in types and the standard library modules un
 
 It describes the target, not the present. The existing code predates it, so names and shapes cited here may not exist yet, and existing modules are never precedent: where code and this document disagree, the code has a bug to fix (raise it for review when the fix is breaking).
 
-Three migrations are decided and in progress; write new code as if they were complete:
+Two migrations are decided and in progress; write new code as if they were complete:
 
-- **The `x/` tier is being removed.** There is one curated library. Do not add modules under `x/`, and do not move code there.
 - **User-declared traits are being removed** from the language, together with trait dependencies, traits as values, `Trait.method(x)` calls and `value.traits()`. `impl` blocks remain, for the closed set of language protocols in §2.
 - **The library defines no traits.** `io.Reader`, `io.Writer` and `json.ToJSON` give way to the method-name protocols in §2.
 

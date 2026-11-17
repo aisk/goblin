@@ -184,9 +184,10 @@ func TestCheckModule(t *testing.T) {
 			errContains: "1:8: semantic error: unknown module: nope",
 		},
 		{
-			name:    "nested stdlib module",
-			source:  "import \"x/compress/gzip\"\nprint(gzip)\n",
-			wantErr: false,
+			name:        "nested module name is not a stdlib module",
+			source:      "import \"x/compress/gzip\"\n",
+			wantErr:     true,
+			errContains: "1:8: semantic error: unknown module: x/compress/gzip",
 		},
 		{
 			name:        "type inside function",

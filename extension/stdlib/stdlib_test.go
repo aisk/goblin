@@ -21,14 +21,15 @@ func TestExecutorsLiveAtTheirModulePath(t *testing.T) {
 	}
 }
 
-// The transpiler spells a module's variable by replacing "/" with "_", which
-// is only one to one while names are lowercase segments without "_".
-var moduleNamePattern = regexp.MustCompile(`^[a-z0-9]+(/[a-z0-9]+)*$`)
+// Stdlib modules have flat names: the name is the imported binding, the Go
+// package directory under extension/ and, with "_module" appended, the
+// generated-code variable, so it must be a plain lowercase word.
+var moduleNamePattern = regexp.MustCompile(`^[a-z0-9]+$`)
 
-func TestModuleNamesAreSimplePaths(t *testing.T) {
+func TestModuleNamesAreFlat(t *testing.T) {
 	for _, name := range Names() {
 		if !moduleNamePattern.MatchString(name) {
-			t.Errorf("module name %q must be lowercase segments of letters and digits", name)
+			t.Errorf("module name %q must be one lowercase word of letters and digits", name)
 		}
 	}
 }

@@ -182,11 +182,10 @@ func moduleExecutorPath(name string) string {
 }
 
 // moduleVarName returns the generated-code variable holding a loaded stdlib
-// module, spelled from its whole name ("x/compress/gzip" ->
-// "x_compress_gzip_module") so two modules ending in the same segment cannot
-// collide. Stdlib names never contain "_", so the mapping is one to one.
+// module ("gzip" -> "gzip_module"). Stdlib names are single lowercase words
+// (a stdlib test enforces it), so the mapping is one to one.
 func moduleVarName(name string) string {
-	return strings.ReplaceAll(name, "/", "_") + "_module"
+	return name + "_module"
 }
 
 // mainBody emits the generated main(): run Execute, print failures, and turn a

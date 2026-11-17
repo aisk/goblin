@@ -1,6 +1,0 @@
-import "x/encoding/hex"
-
-var encoded = hex.encode("Goblin")
-print(encoded)
-print(hex.decode(encoded))
-print(hex.dump("Go").has_prefix("00000000"))
