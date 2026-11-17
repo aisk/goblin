@@ -16,6 +16,7 @@ true
 3000
 3000
 3000
+3000
 nil
 true
 2
@@ -27,3 +28,15 @@ second
 1
 cannot hash List
 greet show type
+{"b": 10, "a": 2, "c": 3} ["b", "a", "c"] [10, 2, 3] [["b", 10], ["a", 2], ["c", 3]]
+{"a": 2, "c": 3} 2
+{"a": 2, "c": 3, "b": 20}
+a 2
+c 3
+b 20
+{"a": 2, "c": 3, "b": 20} {"z": 1, "y": 2} {"a": 0, "c": 3, "b": 20, "d": 4}
+0 {"c": 3, "b": 20, "d": 4}
+{} 0
+true
+get_or_set() missing required argument: 'default'
+{"a": ["a", "a"], "b": ["b"]}

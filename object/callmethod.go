@@ -185,8 +185,11 @@ func (d *Dict) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "get":
 		v, err := d.GetValue(args)
 		return v, true, err
-	case "set_default":
-		v, err := d.SetDefault(args)
+	case "get_or_set":
+		v, err := d.GetOrSet(args)
+		return v, true, err
+	case "remove":
+		v, err := d.Remove(args)
 		return v, true, err
 	case "pop":
 		v, err := d.Pop(args)

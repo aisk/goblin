@@ -12,7 +12,7 @@ operation succeeds only when its value types are compatible.
 | String | "hello" | Immutable Unicode text |
 | Bytes | Bytes("data") | Immutable raw byte sequence |
 | List | [1, "two"] | Ordered, mutable collection |
-| Dict | {"name": "Ada"} | Mutable key/value collection |
+| Dict | {"name": "Ada"} | Mutable key/value collection, in insertion order |
 | Chan | Chan() | Channel for concurrent functions |
 | Goblin | spawn(func() {}) | Handle to a function running concurrently |
 | Function | func() {} | Callable value |
@@ -211,7 +211,7 @@ together.
 | String | String(value), size, contains(), split(), replace() |
 | Bytes | Bytes(value), size, decode(), contains(), split() |
 | List | List(value), size, first, last, push(), pop(), sort(), copy() |
-| Dict | Dict(), get(), set_default(), keys(), items(), update() |
+| Dict | Dict(), get(), get_or_set(), remove(), keys(), items(), update() |
 | Chan | Chan(capacity), send(value), receive(), close(), for value in channel |
 | Goblin | spawn(function, args...), wait(), done, wait_any(goblins) |
 | Function | Function(value), value(...), name |

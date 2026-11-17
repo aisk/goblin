@@ -9,14 +9,26 @@ type DictEntry struct {
 	Value Object
 }
 
+// Dict keeps its entries in insertion order. slots holds them in that order,
+// with a removed entry left behind as a hole (a nil Key) so the positions of
+// the others stay valid; index maps a key hash to the position of the latest
+// slot with that hash, and each slot links to the previous one with the same
+// hash, so distinct keys that collide form a short chain. get, set and remove
+// are O(1) on average; once holes make up half the slots, the next removal
+// compacts them away, which keeps that amortised and iteration O(size).
 type Dict struct {
 	NoReflectedOps
 	NoAssignment
-	// buckets groups entries by key hash; a bucket holds more than one entry
-	// only when distinct keys collide. Iteration order is unspecified,
-	// mirroring Go's map semantics.
-	buckets map[uint64][]DictEntry
-	count   int
+	slots []dictSlot
+	index map[uint64]int32
+	count int
+}
+
+type dictSlot struct {
+	DictEntry
+	hash uint64
+	// next is the position of the previous slot with the same hash, or -1.
+	next int32
 }
 
 // hashKey hashes a key for bucket placement. Only Hashable types can be dict
@@ -107,10 +119,12 @@ func (d *Dict) GetValue(args CallArgs) (Object, error) {
 	return def, nil
 }
 
-func (d *Dict) SetDefault(args CallArgs) (Object, error) {
-	ap := NewArgParser("set_default", args)
+// GetOrSet returns key's value; when there is none it stores def under key
+// first.
+func (d *Dict) GetOrSet(args CallArgs) (Object, error) {
+	ap := NewArgParser("get_or_set", args)
 	key := ap.Any("key")
-	def := ap.AnyOr("default", Nil)
+	def := ap.Any("default")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -147,6 +161,19 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	return nil, NewKeyError("key not found: %s", inspect(key))
 }
 
+// Remove deletes key's entry; without one it does nothing.
+func (d *Dict) Remove(args CallArgs) (Object, error) {
+	ap := NewArgParser("remove", args)
+	key := ap.Any("key")
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	if _, _, err := d.remove(key); err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
 func (d *Dict) Update(args CallArgs) (Object, error) {
 	ap := NewArgParser("update", args)
 	other := ap.Any("other")
@@ -169,8 +196,7 @@ func (d *Dict) Clear(args CallArgs) (Object, error) {
 	if err := RequireNoArgs("clear", args); err != nil {
 		return nil, err
 	}
-	d.buckets = make(map[uint64][]DictEntry)
-	d.count = 0
+	d.slots, d.index, d.count = nil, nil, 0
 	return d, nil
 }
 
@@ -188,93 +214,129 @@ func (d *Dict) Copy(args CallArgs) (Object, error) {
 }
 
 func NewDict() *Dict {
-	return &Dict{
-		buckets: make(map[uint64][]DictEntry),
-	}
+	return &Dict{}
 }
 
 // Len returns the number of entries.
 func (d *Dict) Len() int { return d.count }
 
-// Entries returns the entries as a fresh slice callers may keep or reorder.
-// Iteration order is unspecified, mirroring Go's map semantics.
+// Entries returns the entries in insertion order, as a fresh slice callers
+// may keep or reorder.
 func (d *Dict) Entries() []DictEntry {
 	entries := make([]DictEntry, 0, d.count)
-	for _, bucket := range d.buckets {
-		entries = append(entries, bucket...)
+	for i := range d.slots {
+		if d.slots[i].Key != nil {
+			entries = append(entries, d.slots[i].DictEntry)
+		}
 	}
 	return entries
 }
 
-func (d *Dict) Set(key, value Object) error {
+// lookup returns the position of key's slot, or -1, and key's hash.
+func (d *Dict) lookup(key Object) (int32, uint64, error) {
 	hash, err := hashKey(key)
+	if err != nil {
+		return -1, 0, err
+	}
+	pos, ok := d.index[hash]
+	if !ok {
+		return -1, hash, nil
+	}
+	for ; pos >= 0; pos = d.slots[pos].next {
+		match, err := keysMatch(d.slots[pos].Key, key)
+		if err != nil {
+			return -1, hash, err
+		}
+		if match {
+			return pos, hash, nil
+		}
+	}
+	return -1, hash, nil
+}
+
+// Set stores value under key. A key already present keeps its position, and
+// the first-inserted key object stays: after d[1.0] = x; d[1] = y the dict
+// still shows the key as 1.0.
+func (d *Dict) Set(key, value Object) error {
+	pos, hash, err := d.lookup(key)
 	if err != nil {
 		return err
 	}
-	if d.buckets == nil {
-		d.buckets = make(map[uint64][]DictEntry)
+	if pos >= 0 {
+		d.slots[pos].Value = value
+		return nil
 	}
-	bucket := d.buckets[hash]
-	for i, entry := range bucket {
-		match, err := keysMatch(entry.Key, key)
-		if err != nil {
-			return err
-		}
-		if match {
-			// The first-inserted key stays, only the value changes, so after
-			// d[1.0] = x; d[1] = y the dict still shows the key as 1.0.
-			bucket[i].Value = value
-			return nil
-		}
+	if d.index == nil {
+		d.index = make(map[uint64]int32)
 	}
-	d.buckets[hash] = append(bucket, DictEntry{Key: key, Value: value})
+	next, ok := d.index[hash]
+	if !ok {
+		next = -1
+	}
+	d.index[hash] = int32(len(d.slots))
+	d.slots = append(d.slots, dictSlot{DictEntry: DictEntry{Key: key, Value: value}, hash: hash, next: next})
 	d.count++
 	return nil
 }
 
 func (d *Dict) Get(key Object) (Object, bool, error) {
-	hash, err := hashKey(key)
-	if err != nil {
+	pos, _, err := d.lookup(key)
+	if err != nil || pos < 0 {
 		return nil, false, err
 	}
-	for _, entry := range d.buckets[hash] {
-		match, err := keysMatch(entry.Key, key)
-		if err != nil {
-			return nil, false, err
-		}
-		if match {
-			return entry.Value, true, nil
-		}
-	}
-	return nil, false, nil
+	return d.slots[pos].Value, true, nil
 }
 
 // remove deletes key's entry, reporting whether one existed and its value.
 func (d *Dict) remove(key Object) (Object, bool, error) {
-	hash, err := hashKey(key)
-	if err != nil {
+	pos, hash, err := d.lookup(key)
+	if err != nil || pos < 0 {
 		return nil, false, err
 	}
-	bucket := d.buckets[hash]
-	for i, entry := range bucket {
-		match, err := keysMatch(entry.Key, key)
-		if err != nil {
-			return nil, false, err
+	// Unlink the slot from its hash chain.
+	if head := d.index[hash]; head == pos {
+		if next := d.slots[pos].next; next >= 0 {
+			d.index[hash] = next
+		} else {
+			delete(d.index, hash)
 		}
-		if !match {
+	} else {
+		for p := head; ; p = d.slots[p].next {
+			if d.slots[p].next == pos {
+				d.slots[p].next = d.slots[pos].next
+				break
+			}
+		}
+	}
+	value := d.slots[pos].Value
+	d.slots[pos] = dictSlot{next: -1}
+	d.count--
+	if d.count == 0 {
+		d.slots, d.index = d.slots[:0], nil
+	} else if holes := len(d.slots) - d.count; holes > 8 && holes > d.count {
+		d.compact()
+	}
+	return value, true, nil
+}
+
+// compact drops the holes removals left, rebuilding the hash chains for the
+// new positions. Live slots keep their relative order.
+func (d *Dict) compact() {
+	slots := make([]dictSlot, 0, d.count)
+	index := make(map[uint64]int32, d.count)
+	for _, slot := range d.slots {
+		if slot.Key == nil {
 			continue
 		}
-		last := len(bucket) - 1
-		bucket[i] = bucket[last]
-		if last == 0 {
-			delete(d.buckets, hash)
-		} else {
-			d.buckets[hash] = bucket[:last]
+		next, ok := index[slot.hash]
+		if !ok {
+			next = -1
 		}
-		d.count--
-		return entry.Value, true, nil
+		slot.next = next
+		index[slot.hash] = int32(len(slots))
+		slots = append(slots, slot)
 	}
-	return nil, false, nil
+	d.slots, d.index = slots, index
 }
 
 func (d *Dict) TypeName() string { return "Dict" }
@@ -341,8 +403,10 @@ func (d *Dict) Modulo(other Object) (Object, error) {
 
 func (d *Dict) Iter() ([]Object, error) {
 	keys := make([]Object, 0, d.count)
-	for _, entry := range d.Entries() {
-		keys = append(keys, entry.Key)
+	for i := range d.slots {
+		if d.slots[i].Key != nil {
+			keys = append(keys, d.slots[i].Key)
+		}
 	}
 	return keys, nil
 }
@@ -376,8 +440,8 @@ func (d *Dict) GetAttr(name string) (Object, error) {
 func (d *Dict) Attributes() []string { return dictMethods.attributes("size") }
 
 var dictMethods = newMethodTable(
-	"keys", "values", "items", "contains", "get", "set_default", "pop", "update",
-	"clear", "copy",
+	"keys", "values", "items", "contains", "get", "get_or_set", "pop", "remove",
+	"update", "clear", "copy",
 )
 
 var DictConstructorFn = &Function{Name: "Dict", Fn: DictConstructor}

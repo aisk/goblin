@@ -94,8 +94,14 @@ func TestDictQueryMutationAndDefaults(t *testing.T) {
 	if got := callMethod(t, dict, "get", CallArgs{Keyword: Kwargs{{Name: "key", Value: String("missing")}, {Name: "default", Value: Integer(9)}}}); got != Integer(9) {
 		t.Fatalf("get default = %v, want 9", got)
 	}
-	if got := callMethod(t, dict, "set_default", CallArgs{Positional: Args{String("b"), Integer(2)}}); got != Integer(2) {
-		t.Fatalf("set_default = %v, want 2", got)
+	if got := callMethod(t, dict, "get_or_set", CallArgs{Positional: Args{String("b"), Integer(2)}}); got != Integer(2) {
+		t.Fatalf("get_or_set = %v, want 2", got)
+	}
+	if got := callMethod(t, dict, "get_or_set", CallArgs{Positional: Args{String("b"), Integer(3)}}); got != Integer(2) {
+		t.Fatalf("get_or_set of a present key = %v, want 2", got)
+	}
+	if _, err := Call(mustAttr(t, dict, "get_or_set"), CallArgs{Positional: Args{String("c")}}); err == nil {
+		t.Fatal("get_or_set without a default should fail")
 	}
 	if got := callMethod(t, dict, "pop", CallArgs{Keyword: Kwargs{{Name: "key", Value: String("b")}}}); got != Integer(2) {
 		t.Fatalf("pop = %v, want 2", got)

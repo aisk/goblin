@@ -208,7 +208,7 @@ func goblinDictToJSON(d *object.Dict, buf *bytes.Buffer, indent, level int) erro
 		return nil
 	}
 	// Keys are written in sorted order, as Go's encoding/json does for maps,
-	// so the output does not depend on the dict's unspecified iteration order.
+	// rather than in the dict's insertion order.
 	entries := d.Entries()
 	for _, entry := range entries {
 		if _, ok := entry.Key.(object.String); !ok {

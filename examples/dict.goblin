@@ -17,7 +17,7 @@ print(scores["b"])
 print(scores["c"])
 print(scores.size)
 
-# Dict methods (iteration order is unspecified, so assert on sizes/lookups)
+# Dict methods
 print(d.size)
 print(d.keys().size)
 print(d.values().size)
@@ -36,7 +36,8 @@ print(Dict())
 var options = {"host": "localhost"}
 print(options.contains(key="host"))
 print(options.get("port", default=8080))
-print(options.set_default(key="port", default=3000))
+print(options.get_or_set(key="port", default=3000))
+print(options.get_or_set("port", 4000))
 print(options.get("port"))
 print(options.pop(key="port"))
 print(options.get("port"))
@@ -76,3 +77,35 @@ func greet() {
 }
 var handlers = {greet: "greet", Show: "show", TypeError: "type"}
 print(handlers[greet], handlers[Show], handlers[TypeError])
+
+# A dict remembers insertion order: keys(), values(), items(), copy(), for,
+# printing and update() all follow it. Overwriting keeps a key's place;
+# removing it and writing it again moves it to the end.
+var order = {"b": 1, "a": 2}
+order["c"] = 3
+order["b"] = 10
+print(order, order.keys(), order.values(), order.items())
+print(order.remove("b").remove("missing"), order.size)
+order["b"] = 20
+print(order)
+for key in order {
+    print(key, order[key])
+}
+print(order.copy(), Dict(z=1, y=2), order.update({"a": 0, "d": 4}))
+print(order.pop("a"), order)
+print(order.clear(), order.size)
+
+# Equality ignores order.
+print({"x": 1, "y": 2} == {"y": 2, "x": 1})
+
+# get_or_set needs a default; remove and update return the dict.
+try {
+    order.get_or_set("k")
+} catch e {
+    print(e)
+}
+var counts = {}
+for word in ["a", "b", "a"] {
+    counts.get_or_set(word, []).push(word)
+}
+print(counts)

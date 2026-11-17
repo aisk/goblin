@@ -108,8 +108,8 @@ capture name, name lookup returns the first participating group with that name
 in numeric order; it returns `nil` when groups with that name exist but none
 participated. Numbered lookup remains unambiguous.
 
-`named_groups` is a `Dict`, so its iteration order is unspecified; look names up
-rather than printing it when output must be stable.
+`named_groups` is a `Dict` whose keys come in the order the names first appear
+in the pattern.
 
 Offsets intentionally match Go's regexp indices and Goblin's UTF-8 string
 storage: they are byte offsets, not character counts. Empty matches are kept

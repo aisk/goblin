@@ -170,12 +170,17 @@ TypeError.
 
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
 missing value is expected. Dictionary iteration yields keys; items() yields
-two-element [key, value] lists, which a loop can destructure. Dictionary
-iteration order is unspecified.
+two-element [key, value] lists, which a loop can destructure.
+
+A dictionary remembers insertion order: iteration, keys(), values(), items(),
+copy(), update() and printing all list the keys in the order they were first
+written. Writing to a key that is already present keeps its place; removing a
+key and writing it again moves it to the end. Equality ignores order, so
+`{"a": 1, "b": 2} == {"b": 2, "a": 1}`.
 
 ~~~goblin
 var settings = {}
-settings.set_default("theme", "dark")
+settings.get_or_set("theme", "dark")
 for key, value in settings.items() {
     print(key, value)
 }
@@ -188,18 +193,21 @@ for key, value in settings.items() {
 | size | Number of entries (property) |
 | contains(key) | Test whether a key exists |
 | get(key, default=nil) | Read a key without raising for a missing key |
-| set_default(key, default=nil) | Get an existing value or insert a default |
+| get_or_set(key, default) | Get an existing value, or store `default` and return it |
 | keys() / values() / items() | Return lists of keys, values, or key/value pairs |
-| pop(key) | Remove and return a value |
+| pop(key, default) | Remove and return a value; KeyError without a default |
+| remove(key) | Remove a key if it is present |
 | update(other) | Copy entries from another dictionary |
 | copy() / clear() | Duplicate or empty the dictionary |
+
+remove(), update() and clear() return the dictionary itself, so they chain.
 
 List() and Dict() construct the corresponding collections. See [Control
 flow](./control-flow.md) for iteration.
 
 ### Common dictionary patterns
 
-Use get() to read optional configuration, set_default() to initialize a value
+Use get() to read optional configuration, get_or_set() to initialize a value
 once, and update() to merge a set of overrides into a base dictionary.
 
 ~~~goblin

@@ -110,8 +110,8 @@ for character in "go" {
 }
 ```
 
-Dictionary order is unspecified. If output order matters, do not build it by
-iterating a dictionary directly.
+A dictionary is iterated in insertion order: the order its keys were first
+written in.
 
 When every element is itself a small sequence, name its parts in the loop
 header. Each element is destructured as `var a, b = element` would be, so an
