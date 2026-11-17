@@ -1,15 +1,107 @@
+import "fs"
 import "url"
 
-var parsed = url.parse("https://user@example.com:8443/a/b?q=1#top")
-print(parsed.scheme)
-print(parsed.hostname)
-print(parsed.port)
-print(parsed.path)
-print(parsed.resolve_reference(url.parse("../c")))
-print(url.query_escape("a b"))
-print(url.path_escape("a/b"))
-print(url.join_path("https://example.com/a", ["b", "c"]))
+# Take one apart
+var link = url.parse("https://example.com:8443/docs/intro?lang=en&page=2#install")
+print(link.scheme, link.host, link.port, link.path, link.query, link.fragment)
+var params = url.decode_query(link.query)
+print(params, params.get("page", default="1"))
+print(link, type_of(link) == url.URL)
 
-# URLs are hashable, so equal URLs are one dict key
+# Absent parts
+var bare = url.parse("example.com/a")
+print(bare.scheme == "", bare.host == "", bare.port, bare.path, bare.query == "", bare.fragment == "")
+var relative = url.parse("../a b?x=1")
+print(relative.path, relative.query, relative.host == "")
+print(url.parse("http://[::1]:8080/").host, url.parse("http://[::1]/").port)
+print(url.parse("HTTPS://Example.com/a%20b#sec%201").scheme, url.parse("https://example.com/a%20b#sec%201").path, url.parse("https://example.com/#sec%201").fragment)
+
+# Resolve the links found on a page
+var page = url.parse("https://example.com/docs/intro")
+print(page.join("../img/logo.png"))
+print(page.join(url.parse("guide?x=1")), page.join("https://other.org/x"), page.join("#top"))
+
+# Build one
+var search = "https://example.com/search?" + url.encode_query({"q": "goblin lang", "tag": ["a", "b"]})
+print(search)
+print(url.encode_query({"n": 2, "f": 1.5, "on": true, "skip": nil, "a&b": "c=d"}), url.encode_query({}) == "")
+var name = "report 2026/q1.pdf"
+print("https://example.com/files/{url.path_escape(name)}")
+print(url.query_escape("a b&c=d/é"))
+
+# The same URL with a query parameter changed: the next page
+var listing = url.parse("https://example.com/items?sort=price&page=2#top")
+var query = url.decode_query(listing.query)
+query["page"] = Int(query["page"]) + 1
+print(listing.with_query(query))
+print(listing.with_query({}), listing.with_query({"tag": ["x", "y"]}))
+
+# A link without its tracking parameters
+func clean(link) {
+    var kept = {}
+    for name, value in url.decode_query(link.query).items() {
+        if !name.has_prefix("utm_") {
+            kept[name] = value
+        }
+    }
+    return link.with_query(kept)
+}
+print(clean(url.parse("https://example.com/post?id=7&utm_source=mail&utm_medium=x")))
+
+# Reading a query: in order, a repeated name keeps its last value
+print(url.decode_query("?b=1&a=2&b=3&flag&empty=&sp=a+b%21"), url.decode_query(""))
+
+# The file name a URL ends in
+var download = url.parse("https://example.com/files/report%202026.pdf?dl=1")
+print(fs.Path(download.path).name)
+
+# Values: equal by text, hashable, no order
 var visits = {url.parse("https://example.com/a"): 2}
-print(visits[url.parse("https://example.com/a")])
+print(visits[url.parse("https://example.com/a")], url.parse("https://a.org") == url.parse("https://a.org"), url.parse("https://a.org") == "https://a.org")
+
+# Is it a link we follow
+func is_web(text) {
+    try {
+        var scheme = url.parse(text).scheme
+        return scheme == "http" || scheme == "https"
+    } catch e: ParseError {
+        return false
+    }
+}
+print(is_web("https://example.com"), is_web("mailto:a@b.org"), is_web("ht!tp://x"))
+
+# Errors carry the text that could not be parsed
+for text in ["ht!tp://x", "http://x:port/", "%zz"] {
+    try {
+        url.parse(text)
+    } catch e: ParseError {
+        print(e.message, e.text == text)
+    }
+}
+try {
+    page.join("http://bad host/")
+} catch e: ParseError {
+    print(e.message, e.text)
+}
+try {
+    url.decode_query("a=%zz&b=1")
+} catch e: ParseError {
+    print(e.message, e.text)
+}
+for bad in [{1: "x"}, {"a": {"b": 1}}, {"a": [[1]]}] {
+    try {
+        url.encode_query(bad)
+    } catch e: TypeError {
+        print(e.message)
+    }
+}
+try {
+    page.join(42)
+} catch e: TypeError {
+    print(e.message)
+}
+try {
+    url.URL("https://example.com")
+} catch e: TypeError {
+    print(e.message)
+}

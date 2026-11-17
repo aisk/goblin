@@ -1,93 +1,76 @@
-// Package url adapts Go's net/url package to Goblin.
+// Package url is the url module: take a URL apart, escape its parts and
+// change its query. A URL is a value; it never touches the network.
 package url
 
 import (
 	"net/url"
 
+	"github.com/aisk/goblin/extension/internal/urlvalue"
 	"github.com/aisk/goblin/object"
 )
 
 func Execute() (object.Object, error) {
-	return object.NewModule("url", nil, object.Funcs{
-		"parse":          parse,
-		"join_path":      joinPath,
-		"query_escape":   queryEscape,
-		"query_unescape": queryUnescape,
-		"path_escape":    pathEscape,
-		"path_unescape":  pathUnescape,
+	return object.NewModule("url", map[string]object.Object{
+		"URL": urlvalue.Type.Function,
+	}, object.Funcs{
+		"parse":        parse,
+		"encode_query": encodeQuery,
+		"decode_query": decodeQuery,
+		"query_escape": queryEscape,
+		"path_escape":  pathEscape,
 	}), nil
 }
 
+func textArg(fn string, args object.CallArgs) (string, error) {
+	p := object.NewArgParser(fn, args)
+	text := p.Str("text")
+	if err := p.Finish(); err != nil {
+		return "", err
+	}
+	return string(text), nil
+}
+
 func parse(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("parse", args)
-	raw := p.Str("raw_url")
-	if err := p.Finish(); err != nil {
+	text, err := textArg("parse", args)
+	if err != nil {
 		return nil, err
 	}
-	value, err := url.Parse(string(raw))
-	if err != nil {
-		return nil, object.WrapError(object.ParseError, "parse() invalid URL", err)
-	}
-	return newURL(value), nil
+	return urlvalue.Parse("parse", text)
 }
 
-func joinPath(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("join_path", args)
-	base := p.Str("base")
-	elementsObj := p.Any("elements")
+func encodeQuery(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("encode_query", args)
+	params := p.Dict("params")
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	list, ok := elementsObj.(*object.List)
-	if !ok {
-		return nil, object.NewTypeError("join_path() argument 'elements' must be List, got %s", elementsObj.TypeName())
-	}
-	elements := make([]string, len(list.Elements))
-	for i, item := range list.Elements {
-		value, ok := item.(object.String)
-		if !ok {
-			return nil, object.NewTypeError("join_path() argument 'elements' must be String, got %s at index %d", item.TypeName(), i)
-		}
-		elements[i] = string(value)
-	}
-	value, err := url.JoinPath(string(base), elements...)
+	query, err := urlvalue.EncodeQuery("encode_query", "params", params)
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, "join_path() invalid URL", err)
+		return nil, err
 	}
-	return object.String(value), nil
+	return object.String(query), nil
 }
 
-func transform(name string, args object.CallArgs, fn func(string) string) (object.Object, error) {
-	p := object.NewArgParser(name, args)
-	value := p.Str("s")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	return object.String(fn(string(value))), nil
-}
-
-func unescape(name string, args object.CallArgs, fn func(string) (string, error)) (object.Object, error) {
-	p := object.NewArgParser(name, args)
-	value := p.Str("s")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	result, err := fn(string(value))
+func decodeQuery(args object.CallArgs) (object.Object, error) {
+	text, err := textArg("decode_query", args)
 	if err != nil {
-		return nil, object.WrapError(object.ParseError, name+"() invalid URL", err)
+		return nil, err
 	}
-	return object.String(result), nil
+	return urlvalue.DecodeQuery("decode_query", text)
 }
 
 func queryEscape(args object.CallArgs) (object.Object, error) {
-	return transform("query_escape", args, url.QueryEscape)
+	text, err := textArg("query_escape", args)
+	if err != nil {
+		return nil, err
+	}
+	return object.String(url.QueryEscape(text)), nil
 }
+
 func pathEscape(args object.CallArgs) (object.Object, error) {
-	return transform("path_escape", args, url.PathEscape)
-}
-func queryUnescape(args object.CallArgs) (object.Object, error) {
-	return unescape("query_unescape", args, url.QueryUnescape)
-}
-func pathUnescape(args object.CallArgs) (object.Object, error) {
-	return unescape("path_unescape", args, url.PathUnescape)
+	text, err := textArg("path_escape", args)
+	if err != nil {
+		return nil, err
+	}
+	return object.String(url.PathEscape(text)), nil
 }

@@ -1,9 +1,30 @@
-https
-example.com
-8443
-/a/b
-https://user@example.com:8443/c
-a+b
-a%2Fb
-https://example.com/a/b/c
-2
+https example.com 8443 /docs/intro lang=en&page=2 install
+{"lang": "en", "page": "2"} 2
+https://example.com:8443/docs/intro?lang=en&page=2#install true
+true true nil example.com/a true true
+../a b x=1 true
+::1 nil
+https /a b sec 1
+https://example.com/img/logo.png
+https://example.com/docs/guide?x=1 https://other.org/x https://example.com/docs/intro#top
+https://example.com/search?q=goblin+lang&tag=a&tag=b
+n=2&f=1.5&on=true&a%26b=c%3Dd true
+https://example.com/files/report%202026%2Fq1.pdf
+a+b%26c%3Dd%2F%C3%A9
+https://example.com/items?sort=price&page=3#top
+https://example.com/items#top https://example.com/items?tag=x&tag=y#top
+https://example.com/post?id=7
+{"b": "3", "a": "2", "flag": "", "empty": "", "sp": "a b!"} {}
+report 2026.pdf
+2 true false
+true false false
+parse() invalid URL "ht!tp://x": first path segment in URL cannot contain colon true
+parse() invalid URL "http://x:port/": invalid port ":port" after host true
+parse() invalid URL "%zz": invalid URL escape "%zz" true
+join() invalid URL "http://bad host/": invalid character " " in host name http://bad host/
+decode_query() invalid escape "%zz" a=%zz&b=1
+encode_query() argument 'params' keys must be String, got Int
+encode_query() argument 'params' values must be String, Int, Float, Bool, List or Nil, got Dict
+encode_query() argument 'params' values must be String, Int, Float, Bool, List or Nil, got List
+join() argument 'reference' must be String or URL, got Int
+URL cannot be constructed; use url.parse(text)

@@ -33,7 +33,7 @@ needed.
 | [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
 | [uuid](./module-uuid.md) | Generate and parse UUID values | UUID(), new(), NIL |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
-| [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
+| [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query() |
 | [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode() |
 | [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
 | [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |

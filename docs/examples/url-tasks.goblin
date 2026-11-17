@@ -1,0 +1,74 @@
+# The common tasks of the url chapter, checking their own results.
+import "fs"
+import "url"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+# Take one apart
+var link = url.parse("https://example.com:8443/docs/intro?lang=en&page=2#install")
+expect([link.host, link.port, link.path], ["example.com", 8443, "/docs/intro"])
+var params = url.decode_query(link.query)
+expect(params.get("page", default="1"), "2")
+
+# Resolve the links found on a page
+var page = url.parse("https://example.com/docs/intro")
+expect(String(page.join("../img/logo.png")), "https://example.com/img/logo.png")
+
+# Build one
+var name = "report 2026.pdf"
+var search = "https://example.com/search?" + url.encode_query({"q": "goblin lang", "tag": ["a", "b"]})
+var file_url = "https://example.com/files/{url.path_escape(name)}"
+expect(search, "https://example.com/search?q=goblin+lang&tag=a&tag=b")
+expect(file_url, "https://example.com/files/report%202026.pdf")
+
+# The same URL with a query parameter changed: the next page
+var listing = url.parse("https://example.com/items?sort=price&page=2")
+var query = url.decode_query(listing.query)
+query["page"] = Int(query["page"]) + 1
+expect(String(listing.with_query(query)), "https://example.com/items?sort=price&page=3")
+
+# A link without its tracking parameters
+func clean(link) {
+    var kept = {}
+    for name, value in url.decode_query(link.query).items() {
+        if !name.has_prefix("utm_") {
+            kept[name] = value
+        }
+    }
+    return link.with_query(kept)
+}
+expect(String(clean(url.parse("https://example.com/p?id=7&utm_source=x"))), "https://example.com/p?id=7")
+
+# The file name a URL ends in
+var download = url.parse("https://example.com/files/report%202026.pdf?dl=1")
+expect(fs.Path(download.path).name, "report 2026.pdf")
+
+# Is it a link we follow
+func is_web(text) {
+    try {
+        var scheme = url.parse(text).scheme
+        return scheme == "http" || scheme == "https"
+    } catch e: ParseError {
+        return false
+    }
+}
+expect([is_web("https://a.org"), is_web("ftp://a.org"), is_web("ht!tp://x")], [true, false, false])
+
+# Report the bad ones
+var dir = fs.mkdir_temp(prefix="goblin-url-")
+defer fs.remove(dir, recursive=true)
+fs.write(dir.join("links.txt"), "https://example.com/a\nht!tp://bad\n")
+var hosts = []
+var bad = []
+for line in fs.read_lines(dir.join("links.txt")) {
+    try {
+        hosts.push(url.parse(line).host)
+    } catch e: ParseError {
+        bad.push(e.text)
+    }
+}
+expect([hosts, bad], [["example.com"], ["ht!tp://bad"]])

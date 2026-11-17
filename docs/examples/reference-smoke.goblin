@@ -1,16 +1,9 @@
 # Executable coverage for API names and signatures used by short reference chapters.
-import "url"
 import "csv"
 import "uuid"
 import "hash"
 import "base64"
 import "gzip"
-
-var endpoint = url.parse("https://example.com:8443/api?q=goblin#result")
-endpoint.resolve_reference(url.parse("../status"))
-url.join_path("https://example.com/api", ["v1", "items"])
-url.query_escape("name=Goblin language")
-url.path_escape("folder/item")
 
 var rows = csv.decode("name,score\nAda,10\n")
 csv.encode(rows, sep=";")
