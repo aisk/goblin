@@ -30,7 +30,7 @@ needed.
 | [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
 | [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
-| [http](./module-http.md) | Make HTTP requests | get(), post(), put() |
+| [http](./module-http.md) | HTTP client: requests, sessions, uploads, streamed bodies | get(), post(), Client(), multipart() |
 | [uuid](./module-uuid.md) | Generate and parse UUID values | UUID(), new(), NIL |
 | [regexp](./module-regexp.md) | Search, capture, replace, and split text with RE2 expressions | compile(), escape() |
 | [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query() |

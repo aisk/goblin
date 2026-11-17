@@ -1,0 +1,66 @@
+# What the http module does without a server; the requests themselves run in
+# examples/httpserver/testdata/http_tasks.goblin against a local server.
+import "fs"
+import "http"
+
+# A multipart body is built, not sent: read it back to see the encoding
+var scratch = fs.mkdir_temp(prefix="goblin-http-")
+defer fs.remove(scratch, recursive=true)
+fs.write(scratch.join("note.txt"), "hello")
+var note = fs.open(scratch.join("note.txt"))
+defer note.close()
+var body, content_type = http.multipart(
+    fields={"title": "Me", "tag": ["a", "b"]},
+    files={"note": note, "data": {"name": "d.bin", "data": Bytes([0, 1]), "content_type": "application/x-demo"}},
+)
+var boundary = content_type.cut("boundary=")[1]
+print(content_type.has_prefix("multipart/form-data; boundary="), type_of(body) == fs.File, body.path)
+var encoded = body.read().decode()
+print(encoded.replace(boundary, "BOUNDARY").replace("\r\n", "|").replace(String(Bytes([0, 1]).decode()), "<0001>"))
+print(note.closed, body.closed)
+body.close()
+print(body.closed)
+
+# An empty form is a valid body
+var empty, empty_type = http.multipart()
+print(empty.read().decode().replace(empty_type.cut("boundary=")[1], "BOUNDARY").replace("\r\n", "|"))
+
+# Arguments are checked before anything is sent
+func failure(f) {
+    try {
+        f()
+    } catch e: ValueError {
+        print("ValueError:", e.message)
+    } catch e: TypeError {
+        print("TypeError:", e.message)
+    }
+}
+failure(func() { http.get("users/7") })
+failure(func() { http.get("ftp://example.com/file") })
+failure(func() { http.post("http://example.com", body="a", json={"a": 1}) })
+failure(func() { http.post("http://example.com", headers={"Content-Length": "3"}) })
+failure(func() { http.get("http://example.com", headers={"X-Count": 3}) })
+failure(func() { http.post("http://example.com", body=42) })
+failure(func() { http.request("GE T", "http://example.com") })
+failure(func() { http.get("http://example.com", timeout=-1) })
+failure(func() { http.multipart(files={"avatar": "photo.png"}) })
+failure(func() { http.multipart(files={"avatar": {"data": "x"}}) })
+failure(func() { http.multipart(files={"avatar": {"name": "a"}}) })
+failure(func() { http.multipart(files={"avatar": {"name": "a", "data": "x", "type": "text/plain"}}) })
+failure(func() { http.multipart(files={"avatar": 1}) })
+failure(func() { http.Client(cookies={"session": "abc"}) })
+failure(func() { http.Response() })
+try {
+    http.get("ht!tp://x")
+} catch e: ParseError {
+    print("ParseError:", e.message, e.text)
+}
+
+# Types and the error kind
+var client = http.Client(headers={"Authorization": "Bearer x"}, timeout=5, insecure=false, redirects=false)
+print(client, type_of(client) == http.Client, client.cookies("https://example.com"))
+try {
+    raise http.StatusError("made by hand", status=418)
+} catch e: http.StatusError {
+    print(e.message, e.status, e.is(IOError))
+}

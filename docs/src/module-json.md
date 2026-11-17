@@ -37,7 +37,7 @@ var entry = {"file": String(path), "at": started.format("2006-01-02"), "size": s
 fs.write("entry.json", json.encode(entry))
 
 # Straight from a stream
-var user = json.decode(http.get("https://api.example.com/me").body)
+var user = json.decode(http.get("https://api.example.com/me"))
 
 # Your own types
 type Point(x, y) {
@@ -56,8 +56,11 @@ try {
 }
 ~~~
 
-`examples/json.goblin` runs each of these tasks, with an open File standing in
-for the HTTP response.
+`examples/json.goblin` runs each of these tasks except the request, which
+`examples/httpserver/testdata/http_tasks.goblin` runs against a local server.
+A Response is a readable, so `json.decode` reads it to its end; the
+[http](./module-http.md) chapter's `response.json()` is the same thing as a
+method.
 
 JSON text written inside a Goblin string needs a raw string (`` `{"a": 1}` ``)
 or escaped braces (`"\{\"a\": 1}"`), because `{` starts an interpolation.

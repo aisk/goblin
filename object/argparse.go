@@ -376,8 +376,24 @@ func (p *ArgParser) Float64(name string) float64 {
 // this accessor, so they all accept and reject the same values: an Integer
 // or Float, a negative one raising ValueError and any other type TypeError.
 func (p *ArgParser) Timeout(name string) (time.Duration, bool) {
+	d, limited, _ := p.OptionalTimeout(name)
+	return d, limited
+}
+
+// OptionalTimeout is Timeout for a parameter whose default is not "no
+// limit": given reports whether the caller passed the argument at all, so
+// that leaving it out can mean the default while nil means no limit.
+func (p *ArgParser) OptionalTimeout(name string) (d time.Duration, limited bool, given bool) {
 	v, ok := p.next(name)
-	if !ok || v == Nil {
+	if !ok {
+		return 0, false, false
+	}
+	d, limited = p.timeoutValue(name, v)
+	return d, limited, true
+}
+
+func (p *ArgParser) timeoutValue(name string, v Object) (time.Duration, bool) {
+	if v == Nil {
 		return 0, false
 	}
 	var seconds float64

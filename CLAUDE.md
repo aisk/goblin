@@ -23,6 +23,7 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
 - `go test -v -run TestExamples/hello ./examples` - Run a single example test by name (`TestInterpreterExamples/hello` for the interpreter run)
 - Each `examples/*.goblin` file is tested through **both backends** against the same `.stdout`/`.stderr` files: `TestExamples` builds an executable exactly as `goblin build-exe` does and runs it, `TestInterpreterExamples` interprets
 - A `.stdout` file is required: if it is missing the test fails rather than generating one, so create it from a verified run when adding an example. A missing `.stderr` means "expected to be empty"
+- Programs that need something only a Go test can provide live in a subdirectory of `examples/` with their own test running both backends: `closeprobe/testdata` (a test-only builtin) and `httpserver/testdata/http_tasks.goblin`, the http chapter's tasks against a local `httptest` server whose addresses arrive in `GOBLIN_HTTP_TEST_URL` / `GOBLIN_HTTPS_TEST_URL`
 
 ### Benchmarking
 - `bench/run.sh [repeats]` - Time six compute-only benchmarks across Goblin (both backends), Go, Node, Lua and Python; prints a Markdown table

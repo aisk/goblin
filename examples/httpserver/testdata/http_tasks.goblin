@@ -1,0 +1,214 @@
+# The common tasks of the http chapter, against the local server the example
+# tests start (examples/httpserver). Run by hand with
+#   GOBLIN_HTTP_TEST_URL=http://… GOBLIN_HTTPS_TEST_URL=https://… goblin run http_tasks.goblin
+import "base64"
+import "fs"
+import "gzip"
+import "http"
+import "json"
+import "os"
+import "time"
+import "url"
+
+var base = os.env["GOBLIN_HTTP_TEST_URL"]
+var secure_base = os.env["GOBLIN_HTTPS_TEST_URL"]
+var scratch = fs.mkdir_temp(prefix="goblin-http-")
+defer fs.remove(scratch, recursive=true)
+
+# Fetch JSON. A 404 or 500 raises, so the next line can trust what it got
+var repo = http.get("{base}/repos/aisk/goblin").json()
+print(repo["stargazers_count"])
+
+# The json chapter's "straight from a stream": a Response is a readable
+print(json.decode(http.get("{base}/repos/aisk/goblin")))
+
+# Query parameters
+var found = http.get("{base}/search", params={"q": "goblin", "page": 2})
+for item in found.json()["items"] {
+    print(item["name"])
+}
+
+# Send JSON, send a form
+var created = http.post("{base}/users", json={"name": "Ada"})
+print(created.status, created.headers.get("location"), created.json()["name"])
+print(http.post("{base}/contact", form={"email": "ada@example.com", "message": "hello"}).text())
+
+# Upload a file with two form fields
+var photo_path = scratch.join("photo.png")
+fs.write(photo_path, Bytes([137, 80, 78, 71]) * 1000)
+var photo = fs.open(photo_path)
+defer photo.close()
+var body, content_type = http.multipart(
+    fields={"title": "Me", "album": "2026"},
+    files={"avatar": photo},
+)
+print(content_type.has_prefix("multipart/form-data; boundary="), body)
+print(http.post("{base}/profile", body=body, headers={"Content-Type": content_type}).text().lines())
+print(photo.closed)
+
+# Upload something you made, as a file, saying what it is
+var csv_text = "name,score\nAda,10\n"
+var report = {"name": "report.csv", "data": csv_text, "content_type": "text/csv"}
+var report_body, report_type = http.multipart(files={"report": report})
+print(http.post("{base}/reports", body=report_body, headers={"Content-Type": report_type}).text().lines())
+
+# A multipart body is good for one request
+try {
+    http.post("{base}/reports", body=report_body, headers={"Content-Type": report_type})
+} catch e: ValueError {
+    print(e.message)
+}
+
+# Send a big file as the body, without holding it in memory
+fs.write(scratch.join("backup.tar.gz"), Bytes("x") * 100000)
+var backup = fs.open(scratch.join("backup.tar.gz"))
+defer backup.close()
+print(http.put("{base}/storage/backup.tar.gz", body=backup, timeout=nil).text())
+
+# Download to a file without holding it in memory; an error page is never saved
+var release_url = "{base}/release.tar.gz"
+fs.write(scratch.join("goblin.tar.gz"), http.get(release_url, timeout=nil))
+print(List(gzip.read_lines(scratch.join("goblin.tar.gz"))))
+try {
+    fs.write(scratch.join("missing.tar.gz"), http.get("{base}/no-such-release"))
+} catch e: http.StatusError {
+    print(e.status, fs.exists(scratch.join("missing.tar.gz")))
+}
+
+# Where did a redirect end
+var landed = http.get("{base}/latest")
+print(landed.url.path, landed.text(), type_of(landed.url) == url.URL)
+
+# Try again when the network or the server has a bad moment
+func get_patiently(target, attempts=4) {
+    var pause = 1
+    for attempt in range(attempts - 1) {
+        try {
+            return http.get(target, timeout=10)
+        } catch e: http.StatusError {
+            if ![429, 502, 503, 504].contains(e.status) {
+                raise e
+            }
+            print("attempt {attempt}: {e.status}")
+            var advice = e.response.headers.get("retry-after")
+            if advice != nil {
+                pause = Int(advice)     # seconds; a server that sends a date needs time.parse
+            }
+        } catch e: NetworkError {
+        } catch e: TimeoutError {
+        }
+        time.sleep(pause)
+        pause = pause * 2
+    }
+    return http.get(target, timeout=10)     # the last attempt raises whatever it meets
+}
+var prices = get_patiently("{base}/prices").json()
+print(prices)
+
+# Handle a status you expect
+try {
+    http.delete("{base}/users/7")
+} catch e: http.StatusError {
+    if e.status != 404 {
+        eprint(e.response.text())
+        raise e
+    }
+    print("already gone:", e.message.replace(base, "<base>"), e.response.text().trim())
+}
+
+# A status that is an answer, not a failure: wait until a job is there
+var job_url = "{base}/jobs/1"
+var job = http.get(job_url, check=false)
+while job.status == 404 {
+    print("waiting:", job.success, job.status_text)
+    time.sleep(0.01)
+    job = http.get(job_url, check=false)
+}
+print(job.json()["state"])
+
+# An API you call many times: shared headers in a Client, the address in a variable
+var token = "t0ken"
+var api = "{base}/v1"
+var client = http.Client(headers={"Authorization": "Bearer {token}"}, timeout=10)
+var id = client.get("{api}/me").json()["id"]
+print(client.patch("{api}/users/{id}", json={"active": false}).text())
+print(client.delete("{api}/sessions/current").status)
+
+# User name and password (Basic authentication)
+var user = "ada"
+var password = "pw"
+var credentials = base64.encode("{user}:{password}")
+var inbox = http.get("{base}/inbox", headers={"Authorization": "Basic {credentials}"})
+print(inbox.text())
+
+# Log in, then fetch pages as that user: the Client keeps the session cookie
+var shop = base
+var secret = "secret"
+var site = http.Client()
+site.post("{shop}/login", form={"user": "ada", "password": secret})
+var orders = site.get("{shop}/account/orders").text()
+print(orders.lines())
+
+# A cookie the site wants echoed in a header
+var csrf = site.cookies(shop)["csrftoken"]
+print(site.post("{shop}/account/email", form={"email": "ada@example.com"}, headers={"X-CSRFToken": csrf}).text())
+
+# Keep the session for the next run
+fs.write(scratch.join("session.json"), json.encode(site.cookies(shop)))
+var saved = json.decode(fs.read(scratch.join("session.json")))
+var resumed = http.Client(cookies={shop: saved})
+print(saved, resumed.get("{shop}/account").text())
+try {
+    http.get("{shop}/account")
+} catch e: http.StatusError {
+    print("a module call has no session:", e.status)
+}
+
+# An internal service with a self-signed certificate. This gives up knowing who answers
+var lab = http.Client(insecure=true)
+print(lab.get("{secure_base}/status").json()["state"])
+try {
+    http.get("{secure_base}/status")
+} catch e: NetworkError {
+    print("refused without insecure:", e.message.split(":")[0])
+}
+
+# A stream of events (server-sent events, one JSON document per line): each line as it arrives
+var events = http.get("{base}/events", timeout=nil)
+defer events.close()
+for line in events {
+    if line.has_prefix("data: ") {
+        var event = json.decode(line.trim_prefix("data: "))
+        print(event["type"])
+    }
+}
+print(events.closed)
+
+# Leave a stream early, then release it
+var first = http.get("{base}/events", timeout=nil)
+for line in first {
+    print("first line:", line)
+    break
+}
+print(first.closed)
+first.close()
+print(first.closed)
+
+# A request held as a value: a Dict, expanded at the call
+var ping = {"url": "{base}/ping", "json": {"from": "goblin"}, "timeout": 5}
+print(http.post(**ping).text())
+
+# Every cookie a server set, as it was sent
+for cookie in landed.header_values("set-cookie") {
+    print(cookie.split(";")[0])
+}
+print(landed.headers["content-type"], landed.header_values("x-absent"))
+
+# Where a short link points, without following it
+var peek = http.Client(redirects=false)
+var short = peek.get("{base}/short")
+print(short.status, short.success, short.headers.get("location"))
+
+# What every request sends without being asked
+print(http.get("{base}/headers").text().lines())
+print(http.get("{base}/headers", headers={"User-Agent": "mine/1.0", "X-Tag": ["a", "b"]}).text().lines())

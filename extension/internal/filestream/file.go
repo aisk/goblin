@@ -333,3 +333,50 @@ func (f *File) GetAttr(name string) (object.Object, error) {
 func (f *File) Attributes() []string {
 	return []string{"path", "closed", "read", "read_line", "write", "close"}
 }
+
+// Sized is implemented by a reader that knows how many bytes it has left
+// without reading them (the body http.multipart builds).
+type Sized interface {
+	Remaining() (int64, bool)
+}
+
+// Remaining reports how many bytes reading the File to its end would give,
+// when that is known without reading: for a File over a regular file, its
+// size from the current position (plus what line reading has buffered); for
+// a File over a Sized reader, what that reader says. Anything else, and a
+// closed File, is unknown.
+func (f *File) Remaining() (int64, bool) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if f.closed || f.r == nil {
+		return 0, false
+	}
+	buffered := int64(0)
+	if f.lines != nil {
+		buffered = int64(f.lines.Buffered())
+	}
+	switch r := f.r.(type) {
+	case *os.File:
+		info, err := r.Stat()
+		if err != nil || !info.Mode().IsRegular() {
+			return 0, false
+		}
+		offset, err := r.Seek(0, io.SeekCurrent)
+		if err != nil {
+			return 0, false
+		}
+		if n := info.Size() - offset + buffered; n >= 0 {
+			return n, true
+		}
+	case Sized:
+		if f.lines != nil {
+			return 0, false
+		}
+		return r.Remaining()
+	}
+	return 0, false
+}
+
+// Source is the reader the File reads from, for a module that recognises
+// its own streams (http asks whether a body is one of its multipart bodies).
+func (f *File) Source() io.Reader { return f.r }

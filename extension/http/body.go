@@ -1,122 +1,140 @@
 package http
 
 import (
+	"bytes"
+	"errors"
 	"io"
-	"sync/atomic"
+	"sync"
 
+	stdhttp "net/http"
+
+	"github.com/aisk/goblin/extension/internal/urlvalue"
 	"github.com/aisk/goblin/object"
 )
 
-// Body is the native HTTP body stream. Its Goblin read(size=none) method
-// returns Bytes; omitting size consumes the rest of the stream, while a size
-// reads at most that many bytes. close() releases the underlying HTTP body.
-//
-// Body also implements io.ReadCloser so net/http and Goblin always operate on
-// the same stream and observe the same close state.
-type Body struct {
-	object.OpaqueBase
-	stream io.ReadCloser
-	closed atomic.Bool
+// outgoing is the body of one request: fixed bytes that can be sent again
+// (String, Bytes, json=, form=), a stream read once, or nothing.
+type outgoing struct {
+	data        []byte
+	hasData     bool
+	stream      *recordingReader
+	length      int64
+	known       bool
+	contentType string
 }
 
-func NewBody(stream io.ReadCloser) *Body {
-	return &Body{OpaqueBase: object.MakeOpaqueBase("Body"), stream: stream}
-}
-
-func (b *Body) String() string {
-	if b.closed.Load() {
-		return "<http_body closed>"
+// makeBody turns body=, json= or form= into what the request sends.
+func (r *request) makeBody() (*outgoing, error) {
+	switch {
+	case r.json != object.Nil:
+		data, err := jsonBody(r.fn, r.json)
+		if err != nil {
+			return nil, err
+		}
+		return &outgoing{data: data, hasData: true, contentType: "application/json"}, nil
+	case r.form != nil:
+		query, err := urlvalue.EncodeQuery(r.fn, "form", r.form)
+		if err != nil {
+			return nil, err
+		}
+		return &outgoing{data: []byte(query), hasData: true, contentType: "application/x-www-form-urlencoded"}, nil
+	case r.body == object.Nil:
+		return &outgoing{}, nil
 	}
-	return "<http_body>"
-}
-
-func (b *Body) ToString() (string, error) { return b.String(), nil }
-
-// Read implements io.Reader for net/http.
-func (b *Body) Read(p []byte) (int, error) {
-	if b.closed.Load() {
-		return 0, io.ErrClosedPipe
+	switch v := r.body.(type) {
+	case object.String:
+		return &outgoing{data: []byte(v), hasData: true}, nil
+	case object.Bytes:
+		return &outgoing{data: []byte(v), hasData: true}, nil
 	}
-	return b.stream.Read(p)
+	o := &outgoing{}
+	if f, ok := fileOf(r.body); ok {
+		if mp, ok := f.Source().(*multipartReader); ok && mp.wasStarted() {
+			return nil, object.NewValueError("%s() this multipart body was already sent; build it again", r.fn)
+		}
+		o.length, o.known = f.Remaining()
+	}
+	reader, ok := object.DataReader(r.fn, "body", r.body)
+	if !ok {
+		return nil, object.NewTypeError("%s() argument 'body' must be String, Bytes, Nil or have a read(size) method, got %s", r.fn, r.body.TypeName())
+	}
+	o.stream = &recordingReader{r: reader}
+	return o, nil
 }
 
-// Close implements io.Closer for net/http.
-func (b *Body) Close() error {
-	if !b.closed.CompareAndSwap(false, true) {
+// attach sets the body on req. Fixed bytes can be sent again, so Go follows
+// a 307 or 308 with them; a stream cannot, so Go returns that response.
+func (o *outgoing) attach(req *stdhttp.Request) {
+	switch {
+	case o.hasData:
+		data := o.data
+		req.ContentLength = int64(len(data))
+		if len(data) == 0 {
+			req.Body = stdhttp.NoBody
+			req.GetBody = func() (io.ReadCloser, error) { return stdhttp.NoBody, nil }
+			return
+		}
+		req.Body = io.NopCloser(bytes.NewReader(data))
+		req.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(data)), nil }
+	case o.stream != nil:
+		if o.known && o.length == 0 {
+			req.Body = stdhttp.NoBody
+			return
+		}
+		req.Body = io.NopCloser(o.stream)
+		req.ContentLength = -1
+		if o.known {
+			req.ContentLength = o.length
+		}
+	}
+}
+
+// finish stops the stream from being read any further and returns the
+// Goblin error its read raised, if any.
+func (o *outgoing) finish() error {
+	if o.stream == nil {
 		return nil
 	}
-	return b.stream.Close()
+	return o.stream.finish()
 }
 
-func (b *Body) read(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("read", args)
-	sizeObj := ap.AnyOr("size", object.Nil)
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	if b.closed.Load() {
-		return nil, object.NewValueError("read() called on closed HTTP body")
-	}
+// recordingReader reads a caller's stream for the transport. It keeps the
+// first Goblin error the stream raised, so that a failed request reports
+// it unchanged, and once the request has returned it refuses further reads,
+// so the transport never calls into Goblin code behind the program's back.
+type recordingReader struct {
+	r      io.Reader
+	mu     sync.Mutex
+	done   bool
+	raised error
+}
 
-	if _, ok := sizeObj.(object.Unit); ok {
-		data, err := io.ReadAll(b)
-		if err != nil {
-			return nil, object.WrapNativeError(object.NetworkError, "read() failed to read HTTP body", err)
-		}
-		return object.NewBytes(data), nil
-	}
+var errAbandoned = errors.New("the request has already returned")
 
-	size, ok := sizeObj.(object.Integer)
-	if !ok {
-		return nil, object.NewTypeError("read() argument 'size' must be Int or Nil, got %s", sizeObj.TypeName())
+func (rr *recordingReader) Read(p []byte) (int, error) {
+	rr.mu.Lock()
+	if rr.done {
+		rr.mu.Unlock()
+		return 0, errAbandoned
 	}
-	if size < 0 {
-		return nil, object.NewValueError("read() size must not be negative")
-	}
-	if size == 0 {
-		return object.Bytes{}, nil
-	}
-	maxInt := int64(^uint(0) >> 1)
-	if int64(size) > maxInt {
-		return nil, object.NewValueError("read() size is too large")
-	}
-
-	data := make([]byte, int(size))
-	n, err := b.Read(data)
+	rr.mu.Unlock()
+	n, err := rr.r.Read(p)
 	if err != nil && err != io.EOF {
-		return nil, object.WrapNativeError(object.NetworkError, "read() failed to read HTTP body", err)
+		var goblinErr *object.Error
+		if errors.As(err, &goblinErr) {
+			rr.mu.Lock()
+			if rr.raised == nil {
+				rr.raised = err
+			}
+			rr.mu.Unlock()
+		}
 	}
-	return object.NewBytes(data[:n]), nil
+	return n, err
 }
 
-func (b *Body) close(args object.CallArgs) (object.Object, error) {
-	if err := object.NewArgParser("close", args).Finish(); err != nil {
-		return nil, err
-	}
-	if err := b.Close(); err != nil {
-		return nil, object.WrapNativeError(object.NetworkError, "close() failed to close HTTP body", err)
-	}
-	return object.Nil, nil
+func (rr *recordingReader) finish() error {
+	rr.mu.Lock()
+	defer rr.mu.Unlock()
+	rr.done = true
+	return rr.raised
 }
-
-func (b *Body) GetAttr(name string) (object.Object, error) {
-	switch name {
-	case "read":
-		return &object.Function{Name: "read", Fn: b.read}, nil
-	case "close":
-		return &object.Function{Name: "close", Fn: b.close}, nil
-	case "closed":
-		return object.Bool(b.closed.Load()), nil
-	default:
-		return nil, object.NewAttributeError("Body has no attribute '%s'", name)
-	}
-}
-
-func (b *Body) Attributes() []string {
-	return []string{"read", "close", "closed"}
-}
-
-var (
-	_ object.Object = (*Body)(nil)
-	_ io.ReadCloser = (*Body)(nil)
-)

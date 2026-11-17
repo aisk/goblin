@@ -1,0 +1,23 @@
+true true nil
+--BOUNDARY|Content-Disposition: form-data; name="title"||Me|--BOUNDARY|Content-Disposition: form-data; name="tag"||a|--BOUNDARY|Content-Disposition: form-data; name="tag"||b|--BOUNDARY|Content-Disposition: form-data; name="note"; filename="note.txt"|Content-Type: application/octet-stream||hello|--BOUNDARY|Content-Disposition: form-data; name="data"; filename="d.bin"|Content-Type: application/x-demo||<0001>|--BOUNDARY--|
+false false
+true
+|--BOUNDARY--|
+ValueError: get() needs an absolute URL, got "users/7"
+ValueError: get() URL scheme must be http or https, got "ftp"
+ValueError: post() takes at most one of 'body', 'json' and 'form'
+ValueError: post() argument 'headers' must not set Content-Length; the library frames the body
+TypeError: get() argument 'headers' values must be String or List of String, got Int
+TypeError: post() argument 'body' must be String, Bytes, Nil or have a read(size) method, got Int
+ValueError: request() invalid method "GE T"
+ValueError: get() argument 'timeout' must be non-negative, got -1
+ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
+ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
+ValueError: multipart() file "avatar" needs "data"
+ValueError: multipart() file "avatar" has an unknown key "type"; a part takes "data", "name" and "content_type"
+TypeError: multipart() argument 'files' values must be File, Dict or List, got Int
+TypeError: Client() argument 'cookies' values must be Dict, got String
+TypeError: Response cannot be constructed; use http.get(url)
+ParseError: get() invalid URL "ht!tp://x": first path segment in URL cannot contain colon ht!tp://x
+<Client> true {}
+made by hand 418 false
