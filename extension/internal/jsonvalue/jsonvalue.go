@@ -1,6 +1,5 @@
 // Package jsonvalue converts between JSON text and Goblin values. It is the
-// json module's codec, shared with http (request bodies and Response.json())
-// so neither module imports the other.
+// json module's codec.
 package jsonvalue
 
 import (

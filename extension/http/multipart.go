@@ -96,6 +96,17 @@ func multipartBody(args object.CallArgs) (object.Object, error) {
 	return &object.List{Elements: []object.Object{body, object.String(w.FormDataContentType())}}, nil
 }
 
+func optionalDict(fn, param string, v object.Object) (*object.Dict, error) {
+	if v == object.Nil {
+		return nil, nil
+	}
+	d, ok := v.(*object.Dict)
+	if !ok {
+		return nil, object.NewTypeError("%s() argument '%s' must be Dict or Nil, got %s", fn, param, v.TypeName())
+	}
+	return d, nil
+}
+
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 func escapeQuotes(s string) string { return quoteEscaper.Replace(s) }

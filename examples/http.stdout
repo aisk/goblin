@@ -1,3 +1,18 @@
+Headers({"content-type": "text/html", "set-cookie": ["a=1", "b=2"]})
+text/html a=1, b=2 ["a=1", "b=2"]
+nil none true
+["content-type", "set-cookie", "x-id", "cache-control"] 4 1, 2
+[["content-type", "text/html"], ["set-cookie", "a=1"], ["set-cookie", "b=2"], ["x-id", "1"], ["x-id", "2"], ["cache-control", "no-cache"]]
+name: content-type
+name: set-cookie
+name: cache-control
+true false
+true true
+<Request POST https://api.example.com/users> POST api.example.com Headers({"content-type": "application/json"})
+<File body> {"name":"Ada"} true
+true true
+<Response 201> 201 application/json {"id": 7, "item": "tea"} nil nil
+<Response 405> POST true
 true true nil
 --BOUNDARY|Content-Disposition: form-data; name="title"||Me|--BOUNDARY|Content-Disposition: form-data; name="tag"||a|--BOUNDARY|Content-Disposition: form-data; name="tag"||b|--BOUNDARY|Content-Disposition: form-data; name="note"; filename="note.txt"|Content-Type: application/octet-stream||hello|--BOUNDARY|Content-Disposition: form-data; name="data"; filename="d.bin"|Content-Type: application/x-demo||<0001>|--BOUNDARY--|
 false false
@@ -5,19 +20,26 @@ true
 |--BOUNDARY--|
 ValueError: get() needs an absolute URL, got "users/7"
 ValueError: get() URL scheme must be http or https, got "ftp"
-ValueError: post() takes at most one of 'body', 'json' and 'form'
-ValueError: post() argument 'headers' must not set Content-Length; the library frames the body
+ValueError: get() URL must not contain a user name or password; send an Authorization header
 TypeError: get() argument 'headers' values must be String or List of String, got Int
-TypeError: post() argument 'body' must be String, Bytes, Nil or have a read(size) method, got Int
+ValueError: get() invalid header name "a b"
+TypeError: request() argument 'body' must be String, Bytes, Nil or have a read(size) method, got Int
 ValueError: request() invalid method "GE T"
+ValueError: request() cannot send a CONNECT request
 ValueError: get() argument 'timeout' must be non-negative, got -1
+TypeError: send() argument 'request' must be Request, got Dict
+ValueError: Response() argument 'status' must be from 100 to 999, got 20
+TypeError: Headers() argument 'fields' must be Dict, Headers or Nil, got List
+TypeError: header value must be String or List of String, got Int
+KeyError: key not found: x-missing
 ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
 ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
 ValueError: multipart() file "avatar" needs "data"
 ValueError: multipart() file "avatar" has an unknown key "type"; a part takes "data", "name" and "content_type"
 TypeError: multipart() argument 'files' values must be File, Dict or List, got Int
 TypeError: Client() argument 'cookies' values must be Dict, got String
-TypeError: Response cannot be constructed; use http.get(url)
+ValueError: Client() argument 'redirects' must be non-negative, got -1
+TypeError: Client() argument 'redirects' must be Int, got Bool
 ParseError: get() invalid URL "ht!tp://x": first path segment in URL cannot contain colon ht!tp://x
 <Client> true {}
 made by hand 418 false

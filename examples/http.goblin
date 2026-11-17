@@ -2,6 +2,44 @@
 # examples/httpserver/testdata/http_tasks.goblin against a local server.
 import "fs"
 import "http"
+import "json"
+
+# Headers: names in any case, several values per name
+var headers = http.Headers({"Content-Type": "text/html", "Set-Cookie": ["a=1", "b=2"]})
+print(headers)
+print(headers["content-type"], headers["SET-COOKIE"], headers.get_all("set-cookie"))
+print(headers.get("x-missing"), headers.get("x-missing", default="none"), headers.contains("Content-TYPE"))
+headers.add("X-Id", "1").add("x-id", "2")
+headers["Cache-Control"] = "no-cache"
+print(headers.keys(), headers.size, headers.get("x-id"))
+print(headers.items())
+headers.remove("x-id").remove("never-there")
+for name in headers {
+    print("name:", name)
+}
+print(http.Headers({"a": "1", "b": "2"}) == http.Headers({"B": "2", "A": "1"}), http.Headers() == {})
+print(!http.Headers(), http.Headers(headers) == headers)
+
+# Request and Response are values; building one sends nothing
+var request = http.Request("POST", "https://api.example.com/users",
+    headers={"Content-Type": "application/json"}, body=json.encode({"name": "Ada"}))
+print(request, request.method, request.url.host, request.headers)
+print(request.body, request.text(), request.text() == "")
+print(type_of(request) == http.Request, request.headers == request.headers)
+
+# A handler is a function from a Request to a Response, testable without a network
+func orders(request) {
+    if request.method != "POST" {
+        return http.Response(405, headers={"Allow": "POST"})
+    }
+    var order = json.decode(request.body)
+    var reply = json.encode({"id": 7, "item": order["item"]})
+    return http.Response(201, headers={"Content-Type": "application/json"}, body=reply)
+}
+var made = orders(http.Request("POST", "http://test/orders", body=json.encode({"item": "tea"})))
+print(made, made.status, made.headers["content-type"], json.decode(made.body), made.url, made.version)
+var refused = orders(http.Request("GET", "http://test/orders"))
+print(refused, refused.headers["allow"], refused.text() == "")
 
 # A multipart body is built, not sent: read it back to see the encoding
 var scratch = fs.mkdir_temp(prefix="goblin-http-")
@@ -16,7 +54,7 @@ var body, content_type = http.multipart(
 var boundary = content_type.cut("boundary=")[1]
 print(content_type.has_prefix("multipart/form-data; boundary="), type_of(body) == fs.File, body.path)
 var encoded = body.read().decode()
-print(encoded.replace(boundary, "BOUNDARY").replace("\r\n", "|").replace(String(Bytes([0, 1]).decode()), "<0001>"))
+print(encoded.replace(boundary, "BOUNDARY").replace("\r\n", "|").replace(Bytes([0, 1]).decode(), "<0001>"))
 print(note.closed, body.closed)
 body.close()
 print(body.closed)
@@ -33,23 +71,32 @@ func failure(f) {
         print("ValueError:", e.message)
     } catch e: TypeError {
         print("TypeError:", e.message)
+    } catch e: KeyError {
+        print("KeyError:", e.message)
     }
 }
 failure(func() { http.get("users/7") })
 failure(func() { http.get("ftp://example.com/file") })
-failure(func() { http.post("http://example.com", body="a", json={"a": 1}) })
-failure(func() { http.post("http://example.com", headers={"Content-Length": "3"}) })
+failure(func() { http.get("https://ada:pw@example.com/") })
 failure(func() { http.get("http://example.com", headers={"X-Count": 3}) })
-failure(func() { http.post("http://example.com", body=42) })
+failure(func() { http.get("http://example.com", headers={"a b": "1"}) })
+failure(func() { http.request("POST", "http://example.com", body=42) })
 failure(func() { http.request("GE T", "http://example.com") })
+failure(func() { http.request("CONNECT", "http://example.com") })
 failure(func() { http.get("http://example.com", timeout=-1) })
+failure(func() { http.send({"url": "http://example.com"}) })
+failure(func() { http.Response(20) })
+failure(func() { http.Headers([["a", "1"]]) })
+failure(func() { headers["x"] = 1 })
+failure(func() { print(headers["x-missing"]) })
 failure(func() { http.multipart(files={"avatar": "photo.png"}) })
 failure(func() { http.multipart(files={"avatar": {"data": "x"}}) })
 failure(func() { http.multipart(files={"avatar": {"name": "a"}}) })
 failure(func() { http.multipart(files={"avatar": {"name": "a", "data": "x", "type": "text/plain"}}) })
 failure(func() { http.multipart(files={"avatar": 1}) })
 failure(func() { http.Client(cookies={"session": "abc"}) })
-failure(func() { http.Response() })
+failure(func() { http.Client(redirects=-1) })
+failure(func() { http.Client(redirects=false) })
 try {
     http.get("ht!tp://x")
 } catch e: ParseError {
@@ -57,7 +104,7 @@ try {
 }
 
 # Types and the error kind
-var client = http.Client(headers={"Authorization": "Bearer x"}, timeout=5, insecure=false, redirects=false)
+var client = http.Client(headers={"Authorization": "Bearer x"}, timeout=5, insecure=false, redirects=0)
 print(client, type_of(client) == http.Client, client.cookies("https://example.com"))
 try {
     raise http.StatusError("made by hand", status=418)

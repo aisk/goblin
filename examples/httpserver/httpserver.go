@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -194,22 +195,73 @@ func (s *state) mux() *http.ServeMux {
 	})
 	m.HandleFunc("POST /ping", func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
-		fmt.Fprintf(w, "pong %s", body)
+		fmt.Fprintf(w, "pong %s, signature %d hex digits", body, len(r.Header.Get("X-Signature")))
 	})
 	m.HandleFunc("GET /short", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/releases/v2", http.StatusMovedPermanently)
+		http.Redirect(w, r, "/latest", http.StatusMovedPermanently)
 	})
+	// /headers answers with every header it received, so a program can
+	// show what was sent. A User-Agent of goblin/<version> shows without
+	// the version, which changes between releases.
 	m.HandleFunc("GET /headers", func(w http.ResponseWriter, r *http.Request) {
 		var names []string
 		for name := range r.Header {
-			if name != "Accept-Encoding" {
-				names = append(names, name)
-			}
+			names = append(names, name)
 		}
 		sort.Strings(names)
 		for _, name := range names {
-			fmt.Fprintf(w, "%s: %s\n", name, strings.Join(r.Header.Values(name), " | "))
+			values := r.Header.Values(name)
+			if name == "User-Agent" && len(values) == 1 && strings.HasPrefix(values[0], "goblin/") {
+				values = []string{"goblin/<version>"}
+			}
+			fmt.Fprintf(w, "%s: %s\n", name, strings.Join(values, " | "))
 		}
+	})
+	m.HandleFunc("GET /big.iso", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "1048576")
+		if r.Method == http.MethodGet {
+			w.Write(make([]byte, 1048576))
+		}
+	})
+	m.HandleFunc("GET /feed.xml", func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("If-None-Match") == `"v2"` {
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+		w.Header().Set("ETag", `"v2"`)
+		io.WriteString(w, "<feed>v2</feed>\n")
+	})
+	// /chain/N redirects N times, each hop setting a cookie the next one
+	// needs, then answers with the cookies it got.
+	m.HandleFunc("GET /chain/{n}", func(w http.ResponseWriter, r *http.Request) {
+		n, _ := strconv.Atoi(r.PathValue("n"))
+		if prev := r.URL.Query().Get("from"); prev != "" {
+			if c, err := r.Cookie("hop" + prev); err != nil || c.Value != "yes" {
+				http.Error(w, "missing cookie hop"+prev, http.StatusUnauthorized)
+				return
+			}
+		}
+		if n == 0 {
+			var got []string
+			for _, c := range r.Cookies() {
+				got = append(got, c.Name)
+			}
+			sort.Strings(got)
+			fmt.Fprintf(w, "arrived with %s", strings.Join(got, ","))
+			return
+		}
+		http.SetCookie(w, &http.Cookie{Name: "hop" + strconv.Itoa(n), Value: "yes", Path: "/"})
+		http.Redirect(w, r, fmt.Sprintf("/chain/%d?from=%d", n-1, n), http.StatusFound)
+	})
+	// /export compresses whatever was asked for.
+	m.HandleFunc("GET /export", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Encoding", "gzip")
+		zw := gzip.NewWriter(w)
+		io.WriteString(zw, "id,name\n1,Ada\n")
+		zw.Close()
+	})
+	m.HandleFunc("PUT /up", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/storage/up", http.StatusTemporaryRedirect)
 	})
 	return m
 }

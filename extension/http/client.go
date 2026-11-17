@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http/cookiejar"
+	"time"
 
 	stdhttp "net/http"
 
@@ -9,56 +10,72 @@ import (
 	"github.com/aisk/goblin/object"
 )
 
-// Client holds what several requests share: default headers and timeout, a
-// session of cookies, whether redirects are followed, and the TLS setting.
-// It does not hold a base URL.
+var clientType = object.NewNativeConstructor("Client", newClient)
+
+// Client holds what several requests share: the connection setting
+// (insecure), default headers, the default timeout, a cookie store and the
+// redirect limit. It does not hold a base URL.
 type Client struct {
 	object.OpaqueBase
-	s *session
+	headers   *Headers
+	timeout   time.Duration
+	limited   bool
+	jar       *cookiejar.Jar
+	insecure  bool
+	redirects int
 }
 
 var _ object.Object = (*Client)(nil)
 
+// defaultClient is Client() with every default: what each module function
+// runs on, a new one per call.
+func defaultClient() *Client {
+	jar, _ := cookiejar.New(nil)
+	return &Client{OpaqueBase: object.MakeOpaqueBase("Client"), headers: emptyHeaders(), timeout: defaultTimeout, limited: true, jar: jar, redirects: defaultRedirects}
+}
+
 // newClient is Client(headers=nil, timeout=30, cookies=nil, insecure=false,
-// redirects=true).
+// redirects=10).
 func newClient(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("Client", args)
 	headersObj := p.AnyOr("headers", object.Nil)
 	timeout, limited, given := p.OptionalTimeout("timeout")
 	cookiesObj := p.AnyOr("cookies", object.Nil)
 	insecure := bool(p.BoolOr("insecure", false))
-	redirects := bool(p.BoolOr("redirects", true))
+	redirects := p.IntOr("redirects", defaultRedirects)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	headers, err := headerDict("Client", "headers", headersObj)
+	if redirects < 0 {
+		return nil, object.NewValueError("Client() argument 'redirects' must be non-negative, got %d", int64(redirects))
+	}
+	c := defaultClient()
+	headers, err := headersFrom("Client", "headers", headersObj)
 	if err != nil {
 		return nil, err
 	}
-	if !given {
-		timeout, limited = defaultTimeout, true
+	c.headers = headers
+	if given {
+		c.timeout, c.limited = timeout, limited
 	}
-	jar, _ := cookiejar.New(nil)
-	if err := startCookies(jar, cookiesObj); err != nil {
+	if err := startCookies(c.jar, cookiesObj); err != nil {
 		return nil, err
 	}
-	return &Client{OpaqueBase: object.MakeOpaqueBase("Client"), s: &session{
-		headers:   headers,
-		timeout:   timeout,
-		limited:   limited,
-		jar:       jar,
-		insecure:  insecure,
-		redirects: redirects,
-	}}, nil
+	c.insecure = insecure
+	c.redirects = int(redirects)
+	return c, nil
 }
 
 // startCookies puts Client(cookies={url: {name: value}}) in the jar: each
 // cookie for the host of its URL, every path, only over TLS for https, kept
 // for the life of the Client.
 func startCookies(jar *cookiejar.Jar, v object.Object) error {
-	d, err := optionalDict("Client", "cookies", v)
-	if err != nil || d == nil {
-		return err
+	if v == object.Nil {
+		return nil
+	}
+	d, ok := v.(*object.Dict)
+	if !ok {
+		return object.NewTypeError("Client() argument 'cookies' must be Dict or Nil, got %s", v.TypeName())
 	}
 	for _, entry := range d.Entries() {
 		switch entry.Key.(type) {
@@ -105,32 +122,109 @@ func (c *Client) cookies(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	d := object.NewDict()
-	for _, cookie := range c.s.jar.Cookies(u) {
+	for _, cookie := range c.jar.Cookies(u) {
 		d.Set(object.String(cookie.Name), object.String(cookie.Value))
 	}
 	return d, nil
 }
 
-func (c *Client) method(fn, method string, withBody bool) *object.Function {
-	return &object.Function{Name: fn, Fn: func(args object.CallArgs) (object.Object, error) {
-		return c.s.call(fn, method, withBody, args)
-	}}
+// callTimeout reads timeout= with the client's value as the default; nil
+// means no limit.
+func (c *Client) callTimeout(p *object.ArgParser) (time.Duration, bool) {
+	timeout, limited, given := p.OptionalTimeout("timeout")
+	if !given {
+		return c.timeout, c.limited
+	}
+	return timeout, limited
+}
+
+// exchangeCall is exchange(request, timeout=<client's>).
+func (c *Client) exchangeCall(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("exchange", args)
+	reqObj := p.Any("request")
+	timeout, limited := c.callTimeout(p)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	req, err := asRequest("exchange", reqObj)
+	if err != nil {
+		return nil, err
+	}
+	return c.run("exchange", req, false, timeout, limited, false)
+}
+
+// sendCall is send(request, timeout=<client's>, check=true).
+func (c *Client) sendCall(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("send", args)
+	reqObj := p.Any("request")
+	timeout, limited := c.callTimeout(p)
+	check := bool(p.BoolOr("check", true))
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	req, err := asRequest("send", reqObj)
+	if err != nil {
+		return nil, err
+	}
+	return c.run("send", req, true, timeout, limited, check)
+}
+
+// requestCall is request(method, url, headers=nil, body=nil,
+// timeout=<client's>, check=true): send of the Request the arguments build.
+func (c *Client) requestCall(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("request", args)
+	method := p.Str("method")
+	target := p.Any("url")
+	headers := p.AnyOr("headers", object.Nil)
+	body := p.AnyOr("body", object.Nil)
+	timeout, limited := c.callTimeout(p)
+	check := bool(p.BoolOr("check", true))
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	req, err := buildRequest("request", string(method), target, headers, body)
+	if err != nil {
+		return nil, err
+	}
+	return c.run("request", req, true, timeout, limited, check)
+}
+
+// getCall is get(url, headers=nil, timeout=<client's>, check=true):
+// request("GET", url, ...).
+func (c *Client) getCall(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("get", args)
+	target := p.Any("url")
+	headers := p.AnyOr("headers", object.Nil)
+	timeout, limited := c.callTimeout(p)
+	check := bool(p.BoolOr("check", true))
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	req, err := buildRequest("get", "GET", target, headers, object.Nil)
+	if err != nil {
+		return nil, err
+	}
+	return c.run("get", req, true, timeout, limited, check)
+}
+
+func asRequest(fn string, v object.Object) (*Request, error) {
+	r, ok := v.(*Request)
+	if !ok {
+		return nil, object.NewTypeError("%s() argument 'request' must be Request, got %s", fn, v.TypeName())
+	}
+	return r, nil
 }
 
 func (c *Client) GetAttr(name string) (object.Object, error) {
 	switch name {
-	case "get":
-		return c.method("get", "GET", false), nil
-	case "delete":
-		return c.method("delete", "DELETE", false), nil
-	case "post":
-		return c.method("post", "POST", true), nil
-	case "put":
-		return c.method("put", "PUT", true), nil
-	case "patch":
-		return c.method("patch", "PATCH", true), nil
+	case "exchange":
+		return &object.Function{Name: "exchange", Fn: c.exchangeCall}, nil
+	case "send":
+		return &object.Function{Name: "send", Fn: c.sendCall}, nil
 	case "request":
-		return c.method("request", "", true), nil
+		return &object.Function{Name: "request", Fn: c.requestCall}, nil
+	case "get":
+		return &object.Function{Name: "get", Fn: c.getCall}, nil
 	case "cookies":
 		return &object.Function{Name: "cookies", Fn: c.cookies}, nil
 	}
@@ -138,6 +232,5 @@ func (c *Client) GetAttr(name string) (object.Object, error) {
 }
 
 func (c *Client) Attributes() []string {
-	return []string{"get", "delete", "post", "put", "patch", "request", "cookies"}
+	return []string{"exchange", "send", "request", "get", "cookies"}
 }
-

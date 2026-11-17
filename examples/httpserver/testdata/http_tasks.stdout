@@ -1,27 +1,28 @@
 42
-{"stargazers_count": 42}
-goblin-page-2
+version 2
+goblin lang-page-2
 201 /users/7 Ada
 thanks ada@example.com
 true <File multipart>
-["field album=2026", "field title=Me", "file avatar=photo.png application/octet-stream 4000 bytes"]
-false
+["field album=2026", "field title=Me", "file avatar=photo.png application/octet-stream 4000 bytes"] false
 ["file report=report.csv text/csv 18 bytes"]
-post() this multipart body was already sent; build it again
+request() this multipart body was already sent; build it again
 stored 100000 bytes, declared 100000
+request() <base>/up answered 307 and the body is a stream that cannot be sent again 307
 ["release contents"]
 404 false
-/releases/v2 version 2 true
-attempt 0: 503
-attempt 1: 503
-{"apple": 3}
-already gone: delete() <base>/users/7 returned 404 Not Found no such user
-waiting: false Not Found
-waiting: false Not Found
+<base>/releases/v2 /releases/v2 true 1.1
+200 1048576 true
+changed: "v2"
+unchanged: 304
+already gone: request() <base>/users/7 returned 404 Not Found no such user
+waiting: 404
+waiting: 404
 done
+7 204
 patched {"active":false}
-204
 2 new messages
+get() URL must not contain a user name or password; send an Authorization header
 ["order 1", "order 2"]
 email set to ada@example.com
 {"session": "s-ada", "csrftoken": "c5rf"} hello ada
@@ -31,14 +32,25 @@ refused without insecure: get() cannot reach 127.0.0.1
 start
 progress
 stop
-true
-first line: event: message
 false
+first line: event: message
+data: {"type": "start"} false
 true
-pong {"from":"goblin"}
+pong hello, signature 64 hex digits
+pong hello, signature 64 hex digits
+attempt 0: 503
+attempt 1: 503
+{"apple": 3}
 visited=yes
 theme="dark, wide"
 text/plain; charset=utf-8 []
-301 true /releases/v2
-["User-Agent: goblin"]
-["User-Agent: mine/1.0", "X-Tag: a | b"]
+301 /latest
+301 <base>/latest
+302 <base>/releases/v2
+200 version 2
+200 <base>/chain/0?from=1 arrived with hop1,hop2,hop3 | 200 <base>/chain/0?from=1 arrived with hop1,hop2,hop3
+gzip ["id,name", "1,Ada"]
+["id,name", "1,Ada"]
+["Accept-Encoding: gzip", "User-Agent: goblin/<version>"]
+["Accept-Encoding: gzip", "User-Agent: mine/1.0", "X-Tag: a | b"]
+["X-Tag: only"]

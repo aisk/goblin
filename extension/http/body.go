@@ -8,94 +8,62 @@ import (
 
 	stdhttp "net/http"
 
-	"github.com/aisk/goblin/extension/internal/urlvalue"
 	"github.com/aisk/goblin/object"
 )
 
-// outgoing is the body of one request: fixed bytes that can be sent again
-// (String, Bytes, json=, form=), a stream read once, or nothing.
-type outgoing struct {
-	data        []byte
-	hasData     bool
-	stream      *recordingReader
-	length      int64
-	known       bool
-	contentType string
+// claim checks, before anything is sent, that the request's body can be
+// sent now, and marks a stream body as sent: a stream is good for one
+// exchange.
+func (r *Request) claim(fn string) error {
+	c := r.content
+	if c.fixed {
+		return nil
+	}
+	if c.sent.Load() {
+		return object.NewValueError("%s() the body of this request is a stream that was already sent; build the request again", fn)
+	}
+	if mp, ok := c.body.Source().(*multipartReader); ok && mp.wasStarted() {
+		return object.NewValueError("%s() this multipart body was already sent; build it again", fn)
+	}
+	if c.sent.Swap(true) {
+		return object.NewValueError("%s() the body of this request is a stream that was already sent; build the request again", fn)
+	}
+	return nil
 }
 
-// makeBody turns body=, json= or form= into what the request sends.
-func (r *request) makeBody() (*outgoing, error) {
-	switch {
-	case r.json != object.Nil:
-		data, err := jsonBody(r.fn, r.json)
-		if err != nil {
-			return nil, err
-		}
-		return &outgoing{data: data, hasData: true, contentType: "application/json"}, nil
-	case r.form != nil:
-		query, err := urlvalue.EncodeQuery(r.fn, "form", r.form)
-		if err != nil {
-			return nil, err
-		}
-		return &outgoing{data: []byte(query), hasData: true, contentType: "application/x-www-form-urlencoded"}, nil
-	case r.body == object.Nil:
-		return &outgoing{}, nil
-	}
-	switch v := r.body.(type) {
-	case object.String:
-		return &outgoing{data: []byte(v), hasData: true}, nil
-	case object.Bytes:
-		return &outgoing{data: []byte(v), hasData: true}, nil
-	}
-	o := &outgoing{}
-	if f, ok := fileOf(r.body); ok {
-		if mp, ok := f.Source().(*multipartReader); ok && mp.wasStarted() {
-			return nil, object.NewValueError("%s() this multipart body was already sent; build it again", r.fn)
-		}
-		o.length, o.known = f.Remaining()
-	}
-	reader, ok := object.DataReader(r.fn, "body", r.body)
-	if !ok {
-		return nil, object.NewTypeError("%s() argument 'body' must be String, Bytes, Nil or have a read(size) method, got %s", r.fn, r.body.TypeName())
-	}
-	o.stream = &recordingReader{r: reader}
-	return o, nil
-}
-
-// attach sets the body on req. Fixed bytes can be sent again, so Go follows
-// a 307 or 308 with them; a stream cannot, so Go returns that response.
-func (o *outgoing) attach(req *stdhttp.Request) {
-	switch {
-	case o.hasData:
-		data := o.data
+// attach sets the request's body on req and returns the reader that feeds
+// a stream body, nil for fixed bytes. Fixed bytes can be sent again, so Go
+// follows a 307 or 308 with them; a stream cannot, so Go returns that
+// response.
+func (r *Request) attach(fn string, req *stdhttp.Request) *recordingReader {
+	c := r.content
+	if c.fixed {
+		data := c.data
 		req.ContentLength = int64(len(data))
 		if len(data) == 0 {
 			req.Body = stdhttp.NoBody
 			req.GetBody = func() (io.ReadCloser, error) { return stdhttp.NoBody, nil }
-			return
+			return nil
 		}
 		req.Body = io.NopCloser(bytes.NewReader(data))
 		req.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(data)), nil }
-	case o.stream != nil:
-		if o.known && o.length == 0 {
-			req.Body = stdhttp.NoBody
-			return
-		}
-		req.Body = io.NopCloser(o.stream)
-		req.ContentLength = -1
-		if o.known {
-			req.ContentLength = o.length
-		}
-	}
-}
-
-// finish stops the stream from being read any further and returns the
-// Goblin error its read raised, if any.
-func (o *outgoing) finish() error {
-	if o.stream == nil {
 		return nil
 	}
-	return o.stream.finish()
+	length, known := c.body.Remaining()
+	// The File is read through its read method, as any readable is, so
+	// what line reading has buffered is sent first.
+	reader, _ := object.DataReader(fn, "body", c.body)
+	rr := &recordingReader{r: reader}
+	if known && length == 0 {
+		req.Body = stdhttp.NoBody
+		return rr
+	}
+	req.Body = io.NopCloser(rr)
+	req.ContentLength = -1
+	if known {
+		req.ContentLength = length
+	}
+	return rr
 }
 
 // recordingReader reads a caller's stream for the transport. It keeps the
@@ -132,7 +100,12 @@ func (rr *recordingReader) Read(p []byte) (int, error) {
 	return n, err
 }
 
+// finish stops the stream from being read any further and returns the
+// Goblin error its read raised, if any.
 func (rr *recordingReader) finish() error {
+	if rr == nil {
+		return nil
+	}
 	rr.mu.Lock()
 	defer rr.mu.Unlock()
 	rr.done = true

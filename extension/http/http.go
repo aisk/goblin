@@ -1,336 +1,314 @@
-// Package http is the http module, an HTTP client: one call for a request,
-// keywords for what the request carries, and the Response as the body
-// stream. Anything that is a policy (a base URL, retrying, how a file
-// becomes a form) is left to the caller, who has the pieces for it.
+// Package http is the http module, an HTTP client built on two messages,
+// Request and Response. exchange performs one request and returns one
+// response, adding and interpreting nothing; send is a user agent's request,
+// defined as steps over exchange (default headers, User-Agent, gzip,
+// cookies, redirects, the status check); request and get build the Request
+// and call send.
 package http
 
 import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"io"
-	"net/http/cookiejar"
-	"net/textproto"
 	"net/url"
+	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	stdhttp "net/http"
 
-	"github.com/aisk/goblin/extension/internal/filestream"
-	"github.com/aisk/goblin/extension/internal/jsonvalue"
-	"github.com/aisk/goblin/extension/internal/urlvalue"
 	"github.com/aisk/goblin/object"
 )
 
-// StatusError is raised for a status of 400 or above under check=true.
-// Data: status, response.
+// StatusError is raised by send under check=true for a status of 400 or
+// above, or a redirect that send was told to follow and did not. Data:
+// status, response.
 var StatusError = object.NewErrorKind("StatusError", object.BaseError)
 
-// userAgent is sent unless headers= names one.
-const userAgent = "goblin"
+// userAgent is what send adds when neither the request nor the Client's
+// headers name a User-Agent.
+const userAgent = "goblin/" + object.Version
 
-// defaultTimeout bounds a whole exchange unless timeout= says otherwise.
-const defaultTimeout = 30 * time.Second
-
-var (
-	responseType = object.NewOpaqueConstructor("Response", "http.get(url)")
-	clientType   = object.NewNativeConstructor("Client", newClient)
+const (
+	defaultTimeout   = 30 * time.Second
+	defaultRedirects = 10
 )
 
 func Execute() (object.Object, error) {
 	return object.NewModule("http", map[string]object.Object{
-		"Client":      clientType.Function,
+		"Headers":     headersType.Function,
+		"Request":     requestType.Function,
 		"Response":    responseType.Function,
+		"Client":      clientType.Function,
 		"StatusError": StatusError,
 	}, object.Funcs{
-		"get":       moduleCall("get", "GET", false),
-		"delete":    moduleCall("delete", "DELETE", false),
-		"post":      moduleCall("post", "POST", true),
-		"put":       moduleCall("put", "PUT", true),
-		"patch":     moduleCall("patch", "PATCH", true),
-		"request":   moduleCall("request", "", true),
+		"exchange":  func(args object.CallArgs) (object.Object, error) { return defaultClient().exchangeCall(args) },
+		"send":      func(args object.CallArgs) (object.Object, error) { return defaultClient().sendCall(args) },
+		"request":   func(args object.CallArgs) (object.Object, error) { return defaultClient().requestCall(args) },
+		"get":       func(args object.CallArgs) (object.Object, error) { return defaultClient().getCall(args) },
 		"multipart": multipartBody,
 	}), nil
 }
 
-// The verifying transport is Go's default; the insecure one is a clone of
-// it that accepts any certificate, made on first use. Their connection
-// pools are separate, so a connection opened without verification is never
-// reused by a verifying client.
+// The two shared transports are clones of Go's default one (so they keep
+// HTTP/2, the proxy from the environment and connection reuse) with Go's
+// own gzip handling off: send does its own, and exchange does none. The
+// insecure one accepts any certificate and is made on first use; its pool is
+// separate, so a connection opened without verification is never reused by
+// a verifying Client.
 var (
+	transportOnce     sync.Once
+	secureTransport   *stdhttp.Transport
 	insecureOnce      sync.Once
 	insecureTransport *stdhttp.Transport
 )
 
-func transport(insecure bool) stdhttp.RoundTripper {
+func transport(insecure bool) *stdhttp.Transport {
+	transportOnce.Do(func() {
+		t := stdhttp.DefaultTransport.(*stdhttp.Transport).Clone()
+		t.DisableCompression = true
+		secureTransport = t
+	})
 	if !insecure {
-		return stdhttp.DefaultTransport
+		return secureTransport
 	}
 	insecureOnce.Do(func() {
 		t := stdhttp.DefaultTransport.(*stdhttp.Transport).Clone()
+		t.DisableCompression = true
 		t.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		insecureTransport = t
 	})
 	return insecureTransport
 }
 
-// session is what a request is sent with: the Client's settings, or for a
-// module function the defaults and a jar of its own.
-type session struct {
-	headers   *object.Dict
-	timeout   time.Duration
-	limited   bool
-	jar       stdhttp.CookieJar
-	insecure  bool
-	redirects bool
-}
-
-// moduleCall is a module-level request function: each call keeps the
-// cookies it is given for its own redirect chain and forgets them after.
-func moduleCall(fn, method string, withBody bool) func(object.CallArgs) (object.Object, error) {
-	return func(args object.CallArgs) (object.Object, error) {
-		jar, _ := cookiejar.New(nil)
-		s := &session{timeout: defaultTimeout, limited: true, jar: jar, redirects: true}
-		return s.call(fn, method, withBody, args)
-	}
-}
-
-// request is one parsed call.
-type request struct {
-	fn      string
-	method  string
-	url     *url.URL
-	params  *object.Dict
-	headers *object.Dict
-	body    object.Object
-	json    object.Object
-	form    *object.Dict
-	timeout time.Duration
+// watchdog bounds a call, and after it each wait for body data, by
+// cancelling the exchange's context when the limit passes.
+type watchdog struct {
+	d       time.Duration
 	limited bool
-	check   bool
+	cancel  context.CancelFunc
+
+	mu    sync.Mutex
+	gen   int
+	armed bool
+	timer *time.Timer
+	fired atomic.Bool
 }
 
-// call parses the arguments of fn in their documented order and sends the
-// request. method is "" for request(), which takes it as its first argument.
-func (s *session) call(fn, method string, withBody bool, args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser(fn, args)
-	r := &request{fn: fn, method: method}
-	if method == "" {
-		r.method = string(p.Str("method"))
-	}
-	rawURL := p.Any("url")
-	var bodyGiven, jsonGiven, formGiven bool
-	var formObj object.Object
-	if withBody {
-		r.body, bodyGiven = p.OptionalAny("body")
-		r.json, jsonGiven = p.OptionalAny("json")
-		formObj, formGiven = p.OptionalAny("form")
-	}
-	paramsObj := p.AnyOr("params", object.Nil)
-	headersObj := p.AnyOr("headers", object.Nil)
-	timeout, limited, given := p.OptionalTimeout("timeout")
-	r.check = bool(p.BoolOr("check", true))
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	if given {
-		r.timeout, r.limited = timeout, limited
-	} else {
-		r.timeout, r.limited = s.timeout, s.limited
-	}
-	bodies := 0
-	for _, v := range []struct {
-		given bool
-		value object.Object
-	}{{bodyGiven, r.body}, {jsonGiven, r.json}, {formGiven, formObj}} {
-		if v.given && v.value != object.Nil {
-			bodies++
-		}
-	}
-	if bodies > 1 {
-		return nil, object.NewValueError("%s() takes at most one of 'body', 'json' and 'form'", fn)
-	}
-	if !bodyGiven {
-		r.body = object.Nil
-	}
-	if !jsonGiven {
-		r.json = object.Nil
-	}
-	var err error
-	if r.params, err = optionalDict(fn, "params", paramsObj); err != nil {
-		return nil, err
-	}
-	if r.form, err = optionalDict(fn, "form", formObj); err != nil {
-		return nil, err
-	}
-	if r.headers, err = headerDict(fn, "headers", headersObj); err != nil {
-		return nil, err
-	}
-	if r.url, err = requestURL(fn, rawURL); err != nil {
-		return nil, err
-	}
-	return s.send(r)
-}
-
-func optionalDict(fn, param string, v object.Object) (*object.Dict, error) {
-	if v == nil || v == object.Nil {
-		return nil, nil
-	}
-	d, ok := v.(*object.Dict)
-	if !ok {
-		return nil, object.NewTypeError("%s() argument '%s' must be Dict or Nil, got %s", fn, param, v.TypeName())
-	}
-	return d, nil
-}
-
-// headerDict checks a headers= Dict: String names, String or List of
-// String values, and none of the headers the library frames itself.
-func headerDict(fn, param string, v object.Object) (*object.Dict, error) {
-	d, err := optionalDict(fn, param, v)
-	if err != nil || d == nil {
-		return nil, err
-	}
-	for _, entry := range d.Entries() {
-		name, ok := entry.Key.(object.String)
-		if !ok {
-			return nil, object.NewTypeError("%s() argument '%s' keys must be String, got %s", fn, param, entry.Key.TypeName())
-		}
-		if _, err := headerValues(fn, param, entry.Value); err != nil {
-			return nil, err
-		}
-		switch textproto.CanonicalMIMEHeaderKey(string(name)) {
-		case "Content-Length", "Transfer-Encoding":
-			return nil, object.NewValueError("%s() argument '%s' must not set %s; the library frames the body", fn, param, textproto.CanonicalMIMEHeaderKey(string(name)))
-		}
-	}
-	return d, nil
-}
-
-func headerValues(fn, param string, v object.Object) ([]string, error) {
-	switch value := v.(type) {
-	case object.String:
-		return []string{string(value)}, nil
-	case *object.List:
-		out := make([]string, len(value.Elements))
-		for i, item := range value.Elements {
-			s, ok := item.(object.String)
-			if !ok {
-				return nil, object.NewTypeError("%s() argument '%s' values must be String or List of String, got List containing %s", fn, param, item.TypeName())
-			}
-			out[i] = string(s)
-		}
-		return out, nil
-	}
-	return nil, object.NewTypeError("%s() argument '%s' values must be String or List of String, got %s", fn, param, v.TypeName())
-}
-
-// requestURL is the absolute http or https URL a url argument names.
-func requestURL(fn string, v object.Object) (*url.URL, error) {
-	u, err := urlvalue.FromObject(fn, "url", v)
-	if err != nil {
-		return nil, err
-	}
-	if u.Scheme == "" || u.Host == "" {
-		return nil, object.NewValueError("%s() needs an absolute URL, got %q", fn, u.String())
-	}
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return nil, object.NewValueError("%s() URL scheme must be http or https, got %q", fn, u.Scheme)
-	}
-	return u, nil
-}
-
-// applyHeaders sets each header of d on h, replacing any earlier value of
-// the same name whatever its case; a List value adds the header once per
-// element. Host is the request's host, not a header Go would send.
-func applyHeaders(req *stdhttp.Request, d *object.Dict) {
-	if d == nil {
+func (w *watchdog) arm() {
+	if !w.limited {
 		return
 	}
-	for _, entry := range d.Entries() {
-		name := string(entry.Key.(object.String))
-		values, _ := headerValues("", "", entry.Value)
-		if textproto.CanonicalMIMEHeaderKey(name) == "Host" {
-			if len(values) > 0 {
-				req.Host = values[len(values)-1]
-			}
-			continue
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.gen++
+	gen := w.gen
+	w.armed = true
+	w.timer = time.AfterFunc(w.d, func() {
+		w.mu.Lock()
+		if !w.armed || w.gen != gen {
+			w.mu.Unlock()
+			return
 		}
-		req.Header.Del(name)
-		for _, v := range values {
-			req.Header.Add(name, v)
-		}
-	}
+		w.fired.Store(true)
+		w.mu.Unlock()
+		w.cancel()
+	})
 }
 
-// send builds and sends one request, exactly once.
-func (s *session) send(r *request) (object.Object, error) {
-	u := *r.url
-	if r.params != nil {
-		query, err := urlvalue.EncodeQuery(r.fn, "params", r.params)
-		if err != nil {
-			return nil, err
-		}
-		if query != "" {
-			if u.RawQuery != "" {
-				u.RawQuery += "&" + query
-			} else {
-				u.RawQuery = query
-			}
-		}
+// disarm stops the timer and reports whether the limit has not passed.
+func (w *watchdog) disarm() bool {
+	if !w.limited {
+		return true
 	}
-	body, err := r.makeBody()
-	if err != nil {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.armed = false
+	if w.timer != nil {
+		w.timer.Stop()
+		w.timer = nil
+	}
+	return !w.fired.Load()
+}
+
+// framing names the header fields that describe one connection or one wire
+// format. The library computes them; the request's own are not sent.
+var framing = []string{"Content-Length", "Transfer-Encoding", "Connection", "Keep-Alive", "Proxy-Connection", "Te", "Upgrade"}
+
+// run performs exchange (agent false) or send (agent true) of req, bounded
+// by timeout when limited. fn names the function the user called.
+func (c *Client) run(fn string, req *Request, agent bool, timeout time.Duration, limited bool, check bool) (object.Object, error) {
+	if req.method == "CONNECT" {
+		return nil, object.NewValueError("%s() cannot send a CONNECT request", fn)
+	}
+	if err := req.claim(fn); err != nil {
 		return nil, err
 	}
-	req, err := stdhttp.NewRequest(r.method, u.String(), nil)
-	if err != nil {
-		if strings.Contains(err.Error(), "invalid method") {
-			return nil, object.NewValueError("%s() invalid method %q", r.fn, r.method)
-		}
-		return nil, object.WrapError(object.ValueError, r.fn+"() cannot build the request", err)
-	}
-	req.Header.Set("User-Agent", userAgent)
-	if body.contentType != "" {
-		req.Header.Set("Content-Type", body.contentType)
-	}
-	body.attach(req)
-	applyHeaders(req, s.headers)
-	applyHeaders(req, r.headers)
 
-	client := &stdhttp.Client{Transport: transport(s.insecure), Jar: s.jar}
-	if r.limited {
-		client.Timeout = r.timeout
+	ctx, cancel := context.WithCancel(context.Background())
+	dog := &watchdog{d: timeout, limited: limited, cancel: cancel}
+	target := req.url.String()
+	goReq, err := stdhttp.NewRequestWithContext(ctx, req.method, target, nil)
+	if err != nil {
+		cancel()
+		return nil, object.WrapError(object.ValueError, fn+"() cannot build the request", err)
 	}
-	if !s.redirects {
+	header := req.headers.toGo()
+	for _, name := range framing {
+		delete(header, name)
+	}
+	if host, ok := header["Host"]; ok {
+		if len(host) > 0 {
+			goReq.Host = host[0]
+		}
+		delete(header, "Host")
+	}
+	gzipAsked := false
+	if agent {
+		for _, f := range c.headers.fields {
+			if !req.headers.has(f.name) {
+				key := strings.ToLower(f.name)
+				if key == "host" {
+					if len(f.values) > 0 {
+						goReq.Host = f.values[0]
+					}
+					continue
+				}
+				if isFraming(key) {
+					continue
+				}
+				header[canonical(f.name)] = append([]string(nil), f.values...)
+			}
+		}
+		if _, ok := header["User-Agent"]; !ok {
+			header["User-Agent"] = []string{userAgent}
+		}
+		if _, ok := header["Accept-Encoding"]; !ok && req.method != "HEAD" {
+			if _, ranged := header["Range"]; !ranged {
+				header["Accept-Encoding"] = []string{"gzip"}
+				gzipAsked = true
+			}
+		}
+	} else if _, ok := header["User-Agent"]; !ok {
+		// An empty User-Agent makes Go send none, on HTTP/1.1 and HTTP/2.
+		header["User-Agent"] = []string{""}
+	}
+	goReq.Header = header
+	stream := req.attach(fn, goReq)
+
+	client := &stdhttp.Client{Transport: transport(c.insecure)}
+	limitReached := false
+	if agent {
+		client.Jar = c.jar
+		referer, hadReferer := header["Referer"]
+		client.CheckRedirect = func(next *stdhttp.Request, via []*stdhttp.Request) error {
+			if c.redirects == 0 {
+				return stdhttp.ErrUseLastResponse
+			}
+			if len(via) > c.redirects {
+				limitReached = true
+				return stdhttp.ErrUseLastResponse
+			}
+			// Go adds the previous URL as a Referer; send adds none, and a
+			// caller's own is sent as it was given.
+			if hadReferer {
+				next.Header["Referer"] = referer
+			} else {
+				delete(next.Header, "Referer")
+			}
+			return nil
+		}
+	} else {
 		client.CheckRedirect = func(*stdhttp.Request, []*stdhttp.Request) error { return stdhttp.ErrUseLastResponse }
 	}
-	resp, err := client.Do(req)
+
+	dog.arm()
+	resp, err := client.Do(goReq)
 	// From here on nothing reads the caller's stream: a transport that is
 	// still writing gets an error instead of calling into Goblin code.
-	raised := body.finish()
+	raised := stream.finish()
 	if err != nil {
+		fired := !dog.disarm()
+		cancel()
 		if raised != nil {
 			return nil, raised
 		}
-		return nil, r.exchangeError(&u, err)
+		if fired {
+			return nil, timeoutError(fn, timeout)
+		}
+		return nil, exchangeError(fn, req.url, err)
 	}
-	response := newResponse(resp, r.timeout, r.limited)
-	if r.check && resp.StatusCode >= 400 {
-		return nil, response.statusError(r.fn, u.String())
+
+	gunzip := gzipAsked && strings.EqualFold(resp.Header.Get("Content-Encoding"), "gzip")
+	response, body := receivedResponse(resp, gunzip, dog, cancel)
+
+	if agent && check {
+		unfollowed := c.redirects > 0 && isRedirect(resp.StatusCode) && resp.Header.Get("Location") != ""
+		if resp.StatusCode >= 400 || unfollowed {
+			data := body.readAll()
+			if !dog.disarm() {
+				return nil, timeoutError(fn, timeout)
+			}
+			response.body.Close(object.CallArgs{})
+			buffered, _ := makeContent(fn, object.Bytes(data))
+			response.body = buffered.body
+			var e *object.Error
+			switch {
+			case resp.StatusCode >= 400:
+				e = object.NewKindError(StatusError, "%s() %s returned %s", fn, target, statusPhrase(resp.StatusCode))
+			case limitReached:
+				e = object.NewKindError(StatusError, "%s() %s was redirected more than %d times", fn, target, c.redirects)
+			default:
+				e = object.NewKindError(StatusError, "%s() %s answered %d and the body is a stream that cannot be sent again", fn, target, resp.StatusCode)
+			}
+			return nil, e.With("status", object.Integer(resp.StatusCode)).With("response", response)
+		}
+	}
+	if !dog.disarm() {
+		body.Close()
+		return nil, timeoutError(fn, timeout)
 	}
 	return response, nil
 }
 
+func itoa(n int) string { return strconv.Itoa(n) }
+
+func isFraming(lower string) bool {
+	for _, name := range framing {
+		if strings.EqualFold(name, lower) {
+			return true
+		}
+	}
+	return false
+}
+
+func canonical(name string) string { return stdhttp.CanonicalHeaderKey(name) }
+
+func isRedirect(status int) bool {
+	switch status {
+	case 301, 302, 303, 307, 308:
+		return true
+	}
+	return false
+}
+
+// statusPhrase is the number and the standard phrase for it, or the number
+// alone for a status without one.
+func statusPhrase(status int) string {
+	text := stdhttp.StatusText(status)
+	if text == "" {
+		return itoa(status)
+	}
+	return itoa(status) + " " + text
+}
+
 // exchangeError reports a request that got no response.
-func (r *request) exchangeError(u *url.URL, err error) error {
+func exchangeError(fn string, u *url.URL, err error) error {
 	var goblinErr *object.Error
 	if errors.As(err, &goblinErr) {
 		return err
-	}
-	if isTimeout(err) {
-		return timeoutError(r.fn, r.timeout)
 	}
 	cause := err
 	var ue *url.Error
@@ -340,33 +318,11 @@ func (r *request) exchangeError(u *url.URL, err error) error {
 	// Go reports a body that turned out shorter or longer than the length
 	// measured when the request started only in its message.
 	if strings.Contains(cause.Error(), "ContentLength=") {
-		return object.WrapError(object.NetworkError, r.fn+"() the body changed size while it was sent to "+u.Host, cause)
+		return object.WrapError(object.NetworkError, fn+"() the body changed size while it was sent to "+u.Host, cause)
 	}
-	return object.WrapError(object.NetworkError, r.fn+"() cannot reach "+u.Host, cause)
-}
-
-func isTimeout(err error) bool {
-	if errors.Is(err, context.DeadlineExceeded) {
-		return true
-	}
-	var t interface{ Timeout() bool }
-	return errors.As(err, &t) && t.Timeout()
+	return object.WrapError(object.NetworkError, fn+"() cannot reach "+u.Host, cause)
 }
 
 func timeoutError(fn string, timeout time.Duration) error {
-	return object.NewTimeoutError("%s() timed out after %g seconds", fn, timeout.Seconds())
+	return object.NewTimeoutError("%s() timed out after %s seconds", fn, seconds(timeout))
 }
-
-// jsonBody encodes a json= value.
-func jsonBody(fn string, v object.Object) ([]byte, error) {
-	text, err := jsonvalue.Encode(fn, v, 0, false)
-	return []byte(text), err
-}
-
-// fileOf returns the File a body or part is, if it is one.
-func fileOf(v object.Object) (*filestream.File, bool) {
-	f, ok := v.(*filestream.File)
-	return f, ok
-}
-
-var _ io.Reader = (*recordingReader)(nil)
