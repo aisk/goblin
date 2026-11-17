@@ -1,0 +1,7 @@
+loaded ["A", "B"]
+caught: no entry for missing true true
+Traceback (most recent call last):
+  at load_all [catch_unmatched] (catch_unmatched.goblin:33:13)
+  at load [catch_unmatched] (catch_unmatched.goblin:18:19)
+  at lookup [catch_unmatched] (catch_unmatched.goblin:9:15)
+no entry for missing

@@ -233,13 +233,41 @@ func NewDefer(deferTok, call any) (any, error) {
 	return &Defer{statementMixin: stmtAt(tokenOf(deferTok).Pos), Call: c}, nil
 }
 
-func NewTryCatch(tryTok, tryBody, catchVar, catchBody any) (any, error) {
+// NewTry builds a try statement. A clause after a catch-all one could never
+// run, which is reported at that clause.
+func NewTry(tryTok, tryBody, clauses any) (any, error) {
+	list := clauses.([]*CatchClause)
+	for i, c := range list[:len(list)-1] {
+		if c.Kind == nil {
+			return nil, &SyntaxError{Pos: list[i+1].Pos, Message: "catch after a catch-all clause can never run"}
+		}
+	}
 	return &TryCatch{
 		statementMixin: stmtAt(tokenOf(tryTok).Pos),
 		TryBody:        statements(tryBody),
-		CatchVar:       lit(catchVar),
-		CatchBody:      statements(catchBody),
+		Clauses:        list,
 	}, nil
+}
+
+func NewCatchList(clause any) (any, error) {
+	return []*CatchClause{clause.(*CatchClause)}, nil
+}
+
+func AppendCatchList(list, clause any) (any, error) {
+	return append(list.([]*CatchClause), clause.(*CatchClause)), nil
+}
+
+// NewCatch builds one catch clause; kind is nil for a catch-all clause.
+func NewCatch(catchTok, name, kind, body any) (any, error) {
+	c := &CatchClause{
+		Pos:  tokenOf(catchTok).Pos,
+		Var:  lit(name),
+		Body: statements(body),
+	}
+	if kind != nil {
+		c.Kind = kind.(Expression)
+	}
+	return c, nil
 }
 
 func NewExport(x any) (any, error) {

@@ -25,6 +25,7 @@ func TestEmptyBlocks(t *testing.T) {
 		{name: "while", source: "while false { }\n"},
 		{name: "for", source: "for x in [1] { }\n"},
 		{name: "try catch", source: "try { } catch e { }\n"},
+		{name: "try catch by kind", source: "try { } catch e: ValueError { } catch e { }\n"},
 		{name: "function", source: "func f() { }\n"},
 		{name: "function literal", source: "var f = func() { }\n"},
 		{name: "type", source: "type A(x) { }\n"},

@@ -117,6 +117,9 @@ func Call(obj Object, args CallArgs) (Object, error) {
 	switch v := obj.(type) {
 	case *Function:
 		return v.Call(args)
+	case *Error:
+		// Calling an error makes an error of that kind.
+		return v.New(args)
 	}
 	return nil, NewTypeError("%s is not callable", inspect(obj))
 }

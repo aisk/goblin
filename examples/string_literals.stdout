@@ -11,8 +11,8 @@ a-b-c
 {name} is literal, so is }
 Traceback (most recent call last):
   at describe [string_literals] (string_literals.goblin:57:9)
-  at fail [string_literals] (string_literals.goblin:53:22)
-no value: ValueError
+  at fail [string_literals] (string_literals.goblin:53:11)
+no value
 tab:	end AB😀 true 5
 C:\path\{name}\n
 line one

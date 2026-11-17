@@ -8,12 +8,38 @@ nil true Error
 reading file: not found
 true
 ValueError
-invalid port: abc: ValueError
+invalid port: abc
 true
 false
-missing field 'name': config error: ValueError
+true
+ValueError true
+missing field 'name'
 true
 true
+name
+loading app.conf: missing field 'name' name
+true 5 3
+["message", "traceback", "cause", "wrap", "is", "attempts", "retry"]
+true false
+Error does not support attribute assignment
+Error has no attribute 'code'
+Error() cannot use 'cause' as a data name
+Error() cannot use 'is' as a data name
+Error() takes 1 positional arguments, got 2
+key: key not found: b
+lookup: List index out of range: 3
+other: division by zero
+no error
+caught by config error name
+caught by ValueError name
+fell through to the catch-all
+outer: user 7 true
+nothing raised
+evaluating first
+catch expects an Error to match, got Int true false
+evaluating first
+Error has no attribute 'missing' false true
+outer: from the clause
 true
 true
 true

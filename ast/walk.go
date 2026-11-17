@@ -11,6 +11,7 @@ package ast
 //   - TraitDefine: every method as a FunctionDefine node (a required method
 //     has no body)
 //   - CallExpression: the callee, then the argument expressions
+//   - TryCatch: the try body, then each clause's Kind and Body
 //
 // Parameter and field defaults belong to the scope enclosing the function or
 // type, not to its body, so scope-aware passes usually stop at function
@@ -46,7 +47,12 @@ func Inspect(node Statement, f func(Statement) bool) {
 		InspectList(n.Body, f)
 	case *TryCatch:
 		InspectList(n.TryBody, f)
-		InspectList(n.CatchBody, f)
+		for _, c := range n.Clauses {
+			if c.Kind != nil {
+				Inspect(c.Kind, f)
+			}
+			InspectList(c.Body, f)
+		}
 	case *Return:
 		Inspect(n.Value, f)
 	case *Raise:
@@ -176,7 +182,9 @@ func WalkStatements(stmts []Statement, f func(Statement)) {
 			WalkStatements(s.Body, f)
 		case *TryCatch:
 			WalkStatements(s.TryBody, f)
-			WalkStatements(s.CatchBody, f)
+			for _, c := range s.Clauses {
+				WalkStatements(c.Body, f)
+			}
 		}
 	}
 }

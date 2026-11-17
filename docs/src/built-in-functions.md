@@ -17,7 +17,7 @@ These names are available without an import.
 | `Function(value)` | Validate and return a callable value unchanged |
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
-| `Error(message)` | Create an error value |
+| `Error(message="", **data)` | Create an error value, optionally carrying named data |
 | `type_of(value)` | The constructor of a value's type |
 | `attributes(value)` | List the names of a value's properties and methods |
 | `traits(value)` | List the traits a user type's instance implements |

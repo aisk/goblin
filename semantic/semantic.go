@@ -415,13 +415,25 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 		}); err != nil {
 			return err
 		}
-		return c.withScope(func() error {
-			if err := c.checkReservedName(v.Position(), v.CatchVar); err != nil {
+		// A clause's kind is evaluated in the scope enclosing the try; its
+		// variable and body have a scope of their own.
+		for _, clause := range v.Clauses {
+			if clause.Kind != nil {
+				if err := c.checkExpression(clause.Kind); err != nil {
+					return err
+				}
+			}
+			if err := c.withScope(func() error {
+				if err := c.checkReservedName(clause.Pos, clause.Var); err != nil {
+					return err
+				}
+				c.currentScope.declare(clause.Var)
+				return c.checkStatements(clause.Body, false)
+			}); err != nil {
 				return err
 			}
-			c.currentScope.declare(v.CatchVar)
-			return c.checkStatements(v.CatchBody, false)
-		})
+		}
+		return nil
 	case *ast.Export:
 		if !isModuleScope {
 			return c.newError(v.Position(), "export is only allowed at module scope")

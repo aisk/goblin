@@ -3,7 +3,7 @@
 true
 21
 14
-bad input: ValueError
+bad input
 true
 wait() timed out after 0.05 seconds
 true

@@ -710,16 +710,34 @@ func (c *compiler) destructure(s *ast.Destructure) stmtFn {
 	}
 }
 
+// catchClause is one compiled catch clause. kind is nil for a catch-all
+// clause; own reports whether the clause body runs in a frame of its own.
+type catchClause struct {
+	kind   exprFn
+	own    bool
+	idx    int
+	body   stmtFn
+	nv, nt int
+}
+
 func (c *compiler) tryCatch(s *ast.TryCatch) stmtFn {
 	tryBody := c.block(s.TryBody)
-	// The catch variable and the catch body share one scope.
-	own := needsFrame(s.CatchBody, true)
-	c.push(own)
-	idx := c.declare(s.CatchVar).idx
-	catchBody := c.statements(s.CatchBody)
-	fs := c.scope.fs
-	c.pop()
-	nv, nt := fs.nvars, fs.maxTemp
+	clauses := make([]catchClause, len(s.Clauses))
+	for i, clause := range s.Clauses {
+		cc := &clauses[i]
+		// The kind is evaluated in the scope enclosing the try; the clause
+		// variable and the clause body share one scope of their own.
+		if clause.Kind != nil {
+			cc.kind = c.expr(clause.Kind)
+		}
+		cc.own = needsFrame(clause.Body, true)
+		c.push(cc.own)
+		cc.idx = c.declare(clause.Var).idx
+		cc.body = c.statements(clause.Body)
+		fs := c.scope.fs
+		c.pop()
+		cc.nv, cc.nt = fs.nvars, fs.maxTemp
+	}
 	return func(f *frame) (ctrl, object.Object, error) {
 		ct, v, err := tryBody(f)
 		if err == nil {
@@ -727,15 +745,37 @@ func (c *compiler) tryCatch(s *ast.TryCatch) stmtFn {
 			// genuine errors (raised Errors and runtime errors) are caught.
 			return ct, v, nil
 		}
-		err, _ = takePosition(err, token.Pos{})
-		caught := object.ErrorValue(err)
-		if own {
-			nf := newFrame(f, nv, nt)
-			nf.slots[idx] = caught
-			return catchBody(nf)
+		inner, _ := takePosition(err, token.Pos{})
+		caught := object.ErrorValue(inner)
+		for i := range clauses {
+			cc := &clauses[i]
+			if cc.kind != nil {
+				// An error evaluating the kind, or a kind that is not an
+				// Error, replaces the caught one and is reported at the
+				// try statement.
+				kind, kerr := cc.kind(f)
+				if kerr != nil {
+					return ctrlNone, nil, kerr
+				}
+				matched, kerr := object.ErrorMatches(caught, kind)
+				if kerr != nil {
+					return ctrlNone, nil, kerr
+				}
+				if !matched {
+					continue
+				}
+			}
+			if cc.own {
+				nf := newFrame(f, cc.nv, cc.nt)
+				nf.slots[cc.idx] = caught
+				return cc.body(nf)
+			}
+			f.slots[cc.idx] = caught
+			return cc.body(f)
 		}
-		f.slots[idx] = caught
-		return catchBody(f)
+		// No clause matched: the error continues outward exactly as it
+		// would have without the try, position tag included.
+		return ctrlNone, nil, err
 	}
 }
 

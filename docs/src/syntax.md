@@ -68,7 +68,23 @@ Inside the brackets of a slice, a newline may follow `[` or precede `]`, but
 not follow the colon.
 
 The same rule means `else` must follow the closing brace of its `if` on the
-same line, and two statements cannot share a line.
+same line, each `catch` the closing brace before it, and two statements cannot
+share a line.
+
+A `try` takes one or more `catch` clauses. `catch name: Kind { ... }` handles
+an error for which `name.is(Kind)` holds, where `Kind` is any expression;
+`catch name { ... }` handles any error and must come last. See
+[Errors](./errors.md#catching-by-kind).
+
+~~~goblin
+try {
+    risky()
+} catch e: KeyError {
+    print("missing key")
+} catch e {
+    raise e.wrap("risky failed")
+}
+~~~
 
 ## Names
 

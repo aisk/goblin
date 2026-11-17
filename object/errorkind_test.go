@@ -37,3 +37,118 @@ func TestErrorKindClassifiesNativeErrors(t *testing.T) {
 		}
 	}
 }
+
+// Calling an error makes an error of that kind: the message stands alone,
+// the cause is the kind, and keyword arguments become data.
+func TestCallingAnErrorMakesOneOfItsKind(t *testing.T) {
+	v, err := Call(ValueError, CallArgs{
+		Positional: Args{String("invalid port: abc")},
+		Keyword:    Kwargs{{Name: "port", Value: String("abc")}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := v.(*Error)
+	if e.Value != "invalid port: abc" || e.Cause() != ValueError {
+		t.Fatalf("got %q with cause %v", e.Value, e.Cause())
+	}
+	if ok, _ := ErrorMatches(e, ValueError); !ok {
+		t.Error("an error made from ValueError does not match it")
+	}
+	if ok, _ := ErrorMatches(e, BaseError); !ok {
+		t.Error("an error made from ValueError does not match its parent kind")
+	}
+	if port, ok := e.Field("port"); !ok || port != String("abc") {
+		t.Errorf("port = %v, %v", port, ok)
+	}
+
+	// Without a message the kind's own is used.
+	v, err = Call(KeyError, CallArgs{})
+	if err != nil || v.(*Error).Value != "KeyError" {
+		t.Fatalf("KeyError() = %v, %v", v, err)
+	}
+
+	// The built-in members cannot be data names.
+	for _, name := range []string{"traceback", "cause", "wrap", "is"} {
+		_, err := Call(ValueError, CallArgs{Keyword: Kwargs{{Name: name, Value: Integer(1)}}})
+		want := "Error() cannot use '" + name + "' as a data name"
+		if err == nil || err.Error() != want {
+			t.Errorf("%s: error %v, want %q", name, err, want)
+		}
+		if ok, _ := ErrorMatches(ErrorValue(err), ValueError); !ok {
+			t.Errorf("%s: the error is not a ValueError", name)
+		}
+	}
+	_, err = ErrorConstructor(CallArgs{Keyword: Kwargs{{Name: "cause", Value: Integer(1)}}})
+	if err == nil || err.Error() != "Error() cannot use 'cause' as a data name" {
+		t.Errorf("Error(cause=1): %v", err)
+	}
+}
+
+// Data is read through the stack-frame wrappers a raised error collects,
+// through wraps, from the kind an error was made from, and from a native
+// error's kind; the nearest value wins.
+func TestErrorFieldFollowsTheCauseChain(t *testing.T) {
+	kind := NewErrorKind("Retryable", BaseError).With("retry", True).With("attempts", Integer(3))
+	made, err := kind.New(CallArgs{Positional: Args{String("timed out")}, Keyword: Kwargs{{Name: "attempts", Value: Integer(5)}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raised := WithFrame(WithFrame(made.(*Error), Frame{Function: "inner"}), Frame{Function: "outer"}).(*Error)
+	wrapped := NewWrappedError("loading", raised)
+	native := WrapError(kind, "reading", fmt.Errorf("boom"))
+
+	cases := []struct {
+		e     *Error
+		name  string
+		value Object
+	}{
+		{raised, "attempts", Integer(5)},
+		{raised, "retry", True},
+		{wrapped, "attempts", Integer(5)},
+		{wrapped, "retry", True},
+		{native, "retry", True},
+		{kind, "attempts", Integer(3)},
+	}
+	for _, c := range cases {
+		got, err := c.e.GetAttr(c.name)
+		if err != nil || got != c.value {
+			t.Errorf("%q.%s = %v, %v; want %v", c.e.Value, c.name, got, err, c.value)
+		}
+	}
+	if _, ok := kind.Field("missing"); ok {
+		t.Error("a missing name was found")
+	}
+	if _, err := wrapped.GetAttr("missing"); err == nil || err.Error() != "Error has no attribute 'missing'" {
+		t.Errorf("missing attribute: %v", err)
+	}
+	want := []string{"message", "traceback", "cause", "wrap", "is", "attempts", "retry"}
+	if got := wrapped.Attributes(); fmt.Sprint(got) != fmt.Sprint(want) {
+		t.Errorf("Attributes() = %v, want %v", got, want)
+	}
+}
+
+// ErrorMatches is what `catch e: kind` runs: a kind that is not an Error is
+// a TypeError, and anything caught that is not an Error matches nothing.
+func TestErrorMatches(t *testing.T) {
+	caught := WithFrame(NewKindError(IndexError, "list index out of range"), Frame{Function: "f"}).(*Error)
+	for _, c := range []struct {
+		kind *Error
+		want bool
+	}{{IndexError, true}, {LookupError, true}, {KeyError, false}, {BaseError, true}} {
+		if got, err := ErrorMatches(caught, c.kind); err != nil || got != c.want {
+			t.Errorf("matches %s = %v, %v; want %v", c.kind.Value, got, err, c.want)
+		}
+	}
+	if _, err := ErrorMatches(caught, Integer(1)); err == nil || err.Error() != "catch expects an Error to match, got Int" {
+		t.Errorf("non-Error kind: %v", err)
+	}
+	// The kind is identified through its own stack-frame wrappers too.
+	kind := WithFrame(IndexError, Frame{Function: "g"})
+	if got, _ := ErrorMatches(caught, kind.(*Error)); !got {
+		t.Error("a caught kind does not match")
+	}
+	if got, _ := ErrorMatches(String("x"), IndexError); got {
+		t.Error("a String matched")
+	}
+}

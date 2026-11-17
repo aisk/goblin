@@ -149,11 +149,24 @@ type Defer struct {
 	Call *CallExpression
 }
 
+// TryCatch is `try { ... }` followed by one or more catch clauses, tested
+// top to bottom; the first whose Kind matches handles the error. When none
+// matches the error continues outward unchanged.
 type TryCatch struct {
 	statementMixin
-	TryBody   []Statement
-	CatchVar  string
-	CatchBody []Statement
+	TryBody []Statement
+	Clauses []*CatchClause
+}
+
+// CatchClause is `catch Var: Kind { Body }`, or `catch Var { Body }` with a
+// nil Kind, which handles any error and is always the last clause. Kind is
+// evaluated in the scope enclosing the try, only when an error reaches the
+// clause; Var and Body have a scope of their own.
+type CatchClause struct {
+	Pos  token.Pos
+	Var  string
+	Kind Expression
+	Body []Statement
 }
 
 // Export marks a module-level name as a member of the module value.

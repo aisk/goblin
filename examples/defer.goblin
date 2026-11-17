@@ -62,7 +62,7 @@ print(log)
 # caller.
 func fail(log) {
     defer log.push("cleanup")
-    raise ValueError.wrap("boom")
+    raise ValueError("boom")
 }
 var failures = []
 try {

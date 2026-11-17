@@ -37,7 +37,7 @@ where the normal `try`/`catch` machinery applies:
 
 ~~~goblin
 func fail() {
-    raise ValueError.wrap("bad input")
+    raise ValueError("bad input")
 }
 
 var failing = spawn(fail)

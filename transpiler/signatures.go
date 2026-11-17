@@ -328,7 +328,9 @@ func declaredNames(stmts []ast.Statement) map[string]int {
 		case *ast.For:
 			declared[n.Variable]++
 		case *ast.TryCatch:
-			declared[n.CatchVar]++
+			for _, c := range n.Clauses {
+				declared[c.Var]++
+			}
 		case *ast.Import:
 			declared[n.Name]++
 		case *ast.TypeDefine:
@@ -366,7 +368,9 @@ func bodyRebinds(stmts []ast.Statement, name string) bool {
 		case *ast.For:
 			found = found || n.Variable == name
 		case *ast.TryCatch:
-			found = found || n.CatchVar == name
+			for _, c := range n.Clauses {
+				found = found || c.Var == name
+			}
 		}
 	})
 	return found

@@ -414,6 +414,24 @@ func (p *ArgParser) Rest() Args {
 	return rest
 }
 
+// KeywordRest consumes and returns every keyword argument no accessor has
+// taken, in the order they were supplied. It captures an open-ended set of
+// named values (the data of `Error(message, **data)`) and should be called
+// after the named accessors.
+func (p *ArgParser) KeywordRest() Kwargs {
+	if p.failed {
+		return nil
+	}
+	var rest Kwargs
+	for i := range p.call.Keyword {
+		if !p.isUsed(i) {
+			p.markUsed(i)
+			rest = append(rest, p.call.Keyword[i])
+		}
+	}
+	return rest
+}
+
 // Finish reports the first error encountered, or an error describing any
 // unconsumed positional arguments or unexpected keyword arguments. Callers that
 // accept an open-ended argument list should call Rest before Finish.

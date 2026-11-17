@@ -138,15 +138,23 @@ print(bob.age)      # 20
 # Error handling: raise an Error, recover it with try/catch
 func checked_div(a, b) {
     if b == 0 {
-        raise ZeroDivisionError.wrap("checked_div")
+        raise ZeroDivisionError("checked_div of {a} by zero")
     }
     return a / b
 }
 try {
     checked_div(1, 0)
-} catch e {
-    print(e.message)               # checked_div: ZeroDivisionError
-    print(e.is(ZeroDivisionError)) # true
+} catch e: ZeroDivisionError {
+    print(e.message)               # checked_div of 1 by zero
+}
+
+# Calling an error kind makes an error of that kind; keyword arguments are data
+var ConfigError = ValueError("ConfigError")
+try {
+    raise ConfigError("missing field", field="name")
+} catch e: ConfigError {
+    print(e.message, e.field)      # missing field name
+    print(e.is(ValueError))        # true
 }
 
 # Errors are values built with Error(); wrap adds context, cause/is inspect the chain

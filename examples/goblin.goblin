@@ -32,7 +32,7 @@ print(total)
 
 # An error raised inside the function is re-raised at wait().
 func fail() {
-    raise ValueError.wrap("bad input")
+    raise ValueError("bad input")
 }
 var failing = spawn(fail)
 try {
@@ -70,7 +70,7 @@ try {
 # A goblin that fails while nobody waits for it is reported on stderr when the
 # program ends, so the error is never silently lost.
 var unwatched = spawn(func() {
-    raise ValueError.wrap("nobody waited for this")
+    raise ValueError("nobody waited for this")
 })
 while !unwatched.done {
     time.sleep(0.001)

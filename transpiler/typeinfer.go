@@ -180,7 +180,9 @@ func collectDeclarations(stmts []ast.Statement, types map[string]staticType, ran
 			}
 			types[s.Variable] = tyDynamic
 		case *ast.TryCatch:
-			types[s.CatchVar] = tyDynamic
+			for _, c := range s.Clauses {
+				types[c.Var] = tyDynamic
+			}
 		}
 	})
 }

@@ -1632,20 +1632,60 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Try : "try" Block "catch" id Block	<< ast.NewTryCatch(X[0], X[1], X[3], X[4]) >>`,
+		String: `Try : "try" Block CatchList	<< ast.NewTry(X[0], X[1], X[2]) >>`,
 		Id:         "Try",
 		NTType:     64,
 		Index:      161,
+		NumSymbols: 3,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewTry(X[0], X[1], X[2])
+		},
+	},
+	ProdTabEntry{
+		String: `CatchList : Catch	<< ast.NewCatchList(X[0]) >>`,
+		Id:         "CatchList",
+		NTType:     65,
+		Index:      162,
+		NumSymbols: 1,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewCatchList(X[0])
+		},
+	},
+	ProdTabEntry{
+		String: `CatchList : CatchList Catch	<< ast.AppendCatchList(X[0], X[1]) >>`,
+		Id:         "CatchList",
+		NTType:     65,
+		Index:      163,
+		NumSymbols: 2,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.AppendCatchList(X[0], X[1])
+		},
+	},
+	ProdTabEntry{
+		String: `Catch : "catch" id Block	<< ast.NewCatch(X[0], X[1], nil, X[2]) >>`,
+		Id:         "Catch",
+		NTType:     66,
+		Index:      164,
+		NumSymbols: 3,
+		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
+			return ast.NewCatch(X[0], X[1], nil, X[2])
+		},
+	},
+	ProdTabEntry{
+		String: `Catch : "catch" id ":" Expression Block	<< ast.NewCatch(X[0], X[1], X[3], X[4]) >>`,
+		Id:         "Catch",
+		NTType:     66,
+		Index:      165,
 		NumSymbols: 5,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewTryCatch(X[0], X[1], X[3], X[4])
+			return ast.NewCatch(X[0], X[1], X[3], X[4])
 		},
 	},
 	ProdTabEntry{
 		String: `Export : "export" id	<< ast.NewExport(X[1]) >>`,
 		Id:         "Export",
-		NTType:     65,
-		Index:      162,
+		NTType:     67,
+		Index:      166,
 		NumSymbols: 2,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
 			return ast.NewExport(X[1])

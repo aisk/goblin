@@ -70,6 +70,41 @@ func TestParseLineStructure(t *testing.T) {
 	}
 }
 
+// A try has one or more catch clauses; a catch-all clause must be the last,
+// and one after it is reported at that clause.
+func TestParseCatchClauses(t *testing.T) {
+	mod, err := ParseString("try {\n} catch e: KeyError {\n} catch e: kinds[1] {\n} catch other {\n}\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	try, ok := mod.Body[0].(*ast.TryCatch)
+	if !ok || len(try.Clauses) != 3 {
+		t.Fatalf("body = %#v, want a try with 3 clauses", mod.Body[0])
+	}
+	if id, ok := try.Clauses[0].Kind.(*ast.Identifier); !ok || id.Name != "KeyError" || try.Clauses[0].Var != "e" {
+		t.Errorf("clause 0 = %#v", try.Clauses[0])
+	}
+	if _, ok := try.Clauses[1].Kind.(*ast.IndexExpression); !ok {
+		t.Errorf("clause 1 kind = %#v, want an index expression", try.Clauses[1].Kind)
+	}
+	if c := try.Clauses[2]; c.Kind != nil || c.Var != "other" || c.Pos.Line != 4 || c.Pos.Column != 3 {
+		t.Errorf("clause 2 = %#v, want catch-all `other` at 4:3", c)
+	}
+
+	errs := []struct{ src, want string }{
+		{"try {\n} catch e {\n} catch f: ValueError {\n}\n", "3:3: error: catch after a catch-all clause can never run"},
+		{"try {\n} catch e: KeyError {\n} catch e {\n} catch f {\n}\n", "4:3: error: catch after a catch-all clause can never run"},
+		{"try {\n} catch e: {\n}\n", "error: "},
+		{"try {\n}\n", "error: "},
+	}
+	for _, tt := range errs {
+		_, err := ParseString(tt.src)
+		if err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%q: error %v, want one containing %q", tt.src, err, tt.want)
+		}
+	}
+}
+
 func TestParseReportsFilename(t *testing.T) {
 	path := t.TempDir() + "/glue.goblin"
 	if err := os.WriteFile(path, []byte("var a = 1 var b = 2\n"), 0o644); err != nil {

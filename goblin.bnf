@@ -451,8 +451,21 @@ Defer
     : "defer" PostfixExpression              << ast.NewDefer($0, $1) >>
 ;
 
+// A try has one or more catch clauses, tested in order. `catch e: Kind`
+// handles an error for which e.is(Kind) holds; `catch e` handles any error
+// and must be the last clause.
 Try
-    : "try" Block "catch" id Block           << ast.NewTryCatch($0, $1, $3, $4) >>
+    : "try" Block CatchList                  << ast.NewTry($0, $1, $2) >>
+;
+
+CatchList
+    : Catch                                  << ast.NewCatchList($0) >>
+    | CatchList Catch                        << ast.AppendCatchList($0, $1) >>
+;
+
+Catch
+    : "catch" id Block                       << ast.NewCatch($0, $1, nil, $2) >>
+    | "catch" id ":" Expression Block        << ast.NewCatch($0, $1, $3, $4) >>
 ;
 
 Export

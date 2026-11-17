@@ -443,6 +443,40 @@ func TestCheckModule(t *testing.T) {
 			errContains: "type method must declare 'self' as the first parameter",
 		},
 		{
+			name:        "a catch kind is checked",
+			source:      "try {\n} catch e: Missing {\n}\n",
+			wantErr:     true,
+			errContains: "2:12: semantic error: undefined identifier: Missing",
+		},
+		{
+			name:        "a catch kind does not see the clause variable",
+			source:      "try {\n} catch e: e {\n}\n",
+			wantErr:     true,
+			errContains: "2:12: semantic error: undefined identifier: e",
+		},
+		{
+			name:    "a catch kind sees the enclosing scope",
+			source:  "var e = ValueError\ntry {\n} catch e: e {\n    print(e)\n}\n",
+			wantErr: false,
+		},
+		{
+			name:    "each catch clause has its own variable",
+			source:  "try {\n} catch a: ValueError {\n    print(a)\n} catch b {\n    print(b)\n}\n",
+			wantErr: false,
+		},
+		{
+			name:        "a clause variable is not visible in a later clause",
+			source:      "try {\n} catch a: ValueError {\n} catch b {\n    print(a)\n}\n",
+			wantErr:     true,
+			errContains: "4:11: semantic error: undefined identifier: a",
+		},
+		{
+			name:        "a clause variable is not visible after the try",
+			source:      "try {\n} catch a: ValueError {\n}\nprint(a)\n",
+			wantErr:     true,
+			errContains: "4:7: semantic error: undefined identifier: a",
+		},
+		{
 			name: "method named like a trait method is unrestricted",
 			source: "type V(x) {\n" +
 				"  impl Add { func add(self, other) { return self } }\n" +

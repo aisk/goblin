@@ -151,7 +151,8 @@ The built-in types are the part of the library every program uses, so consistenc
 ## 7. Errors
 
 - Never return raw Go errors and never panic across the boundary. Wrap native errors with `object.WrapNativeError` / `object.WrapError`, attaching the appropriate kind from the hierarchy in `object/error.go` (`IOError`, `ParseError`, `PermissionError`, …).
-- Add a new error kind only when callers realistically need to catch that case distinctly; otherwise use the nearest existing parent.
+- Add a new error kind only when callers realistically need to catch that case distinctly (`catch e: exec.ExitError`); otherwise use the nearest existing parent. A module's kind is made with `object.NewErrorKind(name, parent)` and exported as a module value, not a global; errors of a kind are made with `object.NewKindError(kind, format, ...)`, whose message stands alone, the way Goblin code writes `Kind("message")`.
+- Facts a caller acts on travel as data on the error, not inside the message: `object.NewKindError(...).With("code", status)` or `object.WrapNativeError(object.IOError, msg, err).With("path", p)` on the freshly built error, read in Goblin as `e.code`. Data is seen through every later `wrap`; never attach it to an error that may already have been raised. Data names may not be `traceback`, `cause`, `wrap` or `is`.
 - Messages follow `funcname() <what failed>`. A bare `funcname() failed` says nothing: name the failure (`decode() invalid hex data`, `read() failed to read HTTP body`).
 - A missing language protocol should say how to get it: `cannot compare Deck (add 'impl Ord' to type Deck)`.
 

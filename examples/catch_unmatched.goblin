@@ -1,0 +1,50 @@
+# An error that no catch clause matches passes through the try unchanged:
+# the same error value, with the same traceback it would have had without
+# the try.
+
+var not_found = Error("not found")
+
+func lookup(key) {
+    if key == "missing" {
+        raise not_found("no entry for {key}")
+    }
+    return key.upper()
+}
+
+func load(keys) {
+    var found = []
+    try {
+        for key in keys {
+            found.push(lookup(key))
+        }
+        print("loaded", found)
+    } catch e: TypeError {
+        print("not reached: TypeError")
+    } catch e: ValueError {
+        print("not reached: ValueError")
+    }
+    return found
+}
+
+func load_all() {
+    try {
+        load(["a", "b"])
+        try {
+            load(["c", "missing"])
+        } catch e: IndexError {
+            print("not reached: IndexError")
+        }
+    } catch e: KeyError {
+        print("not reached: KeyError")
+    }
+}
+
+# The error reaches an outer catch-all as the value that was raised, and its
+# traceback points at the statements that failed inside the try bodies, not
+# at the try statements it passed through.
+try {
+    load_all()
+} catch e {
+    print("caught:", e, e.is(not_found), e.cause == not_found)
+    print(e.traceback)
+}

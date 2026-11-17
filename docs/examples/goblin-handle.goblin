@@ -6,7 +6,7 @@ var worker = spawn(square, 6)
 print(worker.wait()) # 36
 
 func fail() {
-    raise ValueError.wrap("bad input")
+    raise ValueError("bad input")
 }
 
 var failing = spawn(fail)

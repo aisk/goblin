@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/token"
 	"github.com/dave/jennifer/jen"
 )
 
@@ -439,47 +440,129 @@ func (g *generator) transpileDefer(d *ast.Defer, onError errHandler) ([]jen.Code
 	), nil
 }
 
-// transpileTryCatch lowers `try { ... } catch e { ... }` using goto/labels so
-// that `return`/`break`/`continue` inside the try body still target the real
-// enclosing function/loop (a closure or defer/recover boundary would capture
-// them). Inside the try body the error handler stores the error and jumps to
-// the catch label; the unconditional post-block check guarantees the label is
-// referenced even when the body has no fallible operation.
+// transpileTryCatch lowers `try { ... } catch e: Kind { ... } ...` using
+// goto/labels so that `return`/`break`/`continue` inside the try body still
+// target the real enclosing function/loop (a closure or defer/recover
+// boundary would capture them). Inside the try body the error handler stores
+// the error and jumps to the catch label; the unconditional post-block check
+// guarantees the label is referenced even when the body has no fallible
+// operation. The clauses are then tested in order, each kind evaluated with
+// the enclosing handler, and the first match runs its body.
+//
+// When no clause matches, the error goes to the enclosing handler as if
+// there were no try. That handler reports the position of the statement it
+// is generated for, while the interpreter reports the statement inside the
+// try body that failed; so each failing site records its index in excAt and
+// the fall-through dispatches on it, generating the enclosing handler once
+// per distinct site position.
 func (g *generator) transpileTryCatch(tc *ast.TryCatch, onError errHandler) ([]jen.Code, error) {
 	excVar := g.localName("exc")
 	catchLabel := g.localName("catch")
 	doneLabel := g.localName("done")
+	catchAll := tc.Clauses[len(tc.Clauses)-1].Kind == nil
+
+	var atVar string
+	var sites []token.Pos
+	siteIndex := map[[2]int]int{}
+	if !catchAll {
+		atVar = g.localName("excAt")
+	}
 
 	tryOnError := func(errVar string) jen.Code {
-		return jen.Block(
-			jen.Id(excVar).Op("=").Id(errVar),
-			jen.Goto().Id(catchLabel),
-		)
+		codes := []jen.Code{jen.Id(excVar).Op("=").Id(errVar)}
+		if !catchAll {
+			pos := g.errorPos
+			key := [2]int{pos.Line, pos.Column}
+			i, seen := siteIndex[key]
+			if !seen {
+				i = len(sites)
+				siteIndex[key] = i
+				sites = append(sites, pos)
+			}
+			codes = append(codes, jen.Id(atVar).Op("=").Lit(i))
+		}
+		return jen.Block(append(codes, jen.Goto().Id(catchLabel))...)
 	}
 
 	tryBody, err := g.transpileStatements(tc.TryBody, tryOnError)
 	if err != nil {
 		return nil, err
 	}
-	// The catch variable lives in its own scope covering the catch body, and
-	// shadows builtins there like any user name (the interpreter defines it in
-	// a child environment).
-	popCatchScope := g.pushUserScope()
-	g.declareUserName(tc.CatchVar)
-	catchBody, err := g.transpileStatements(tc.CatchBody, onError)
-	popCatchScope()
-	if err != nil {
-		return nil, err
-	}
 
+	caughtVar := g.localName("caught")
 	catchBlock := []jen.Code{
-		jen.Id(tc.CatchVar).Op(":=").Qual(pathObject, "ErrorValue").Call(jen.Id(excVar)),
-		jen.Id("_").Op("=").Id(tc.CatchVar),
+		jen.Id(caughtVar).Op(":=").Qual(pathObject, "ErrorValue").Call(jen.Id(excVar)),
+		jen.Id("_").Op("=").Id(caughtVar),
 	}
-	catchBlock = append(catchBlock, catchBody...)
+	for _, clause := range tc.Clauses {
+		// The kind is evaluated in the scope enclosing the try, so it is
+		// generated before the clause variable is declared.
+		var kindPre []jen.Code
+		var kind *jen.Statement
+		if clause.Kind != nil {
+			kindPre, kind, err = g.transpileExpression(clause.Kind, onError)
+			if err != nil {
+				return nil, err
+			}
+		}
+		// The clause variable lives in its own scope covering the clause
+		// body, and shadows builtins there like any user name (the
+		// interpreter defines it in a child scope).
+		popScope := g.pushUserScope()
+		g.declareUserName(clause.Var)
+		body, err := g.transpileStatements(clause.Body, onError)
+		popScope()
+		if err != nil {
+			return nil, err
+		}
+		run := append([]jen.Code{
+			jen.Id(clause.Var).Op(":=").Id(caughtVar),
+			jen.Id("_").Op("=").Id(clause.Var),
+		}, body...)
+		run = append(run, jen.Goto().Id(doneLabel))
+		if kind == nil {
+			catchBlock = append(catchBlock, jen.Block(run...))
+			continue
+		}
+		matchedVar := g.localName("matched")
+		errVar := g.localName("err")
+		test := append(kindPre,
+			jen.List(jen.Id(matchedVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "ErrorMatches").Call(jen.Id(caughtVar), kind),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.If(jen.Id(matchedVar)).Block(run...),
+		)
+		catchBlock = append(catchBlock, jen.Block(test...))
+	}
 
-	return []jen.Code{
-		jen.Var().Id(excVar).Error(),
+	var decls []jen.Code
+	decls = append(decls, jen.Var().Id(excVar).Error())
+	if !catchAll {
+		// No clause matched: hand the original error to the enclosing
+		// handler, positioned at the statement that failed.
+		decls = append(decls, jen.Var().Id(atVar).Int())
+		saved := g.errorPos
+		switch len(sites) {
+		case 0:
+			catchBlock = append(catchBlock, jen.Id("_").Op("=").Id(atVar), onError(excVar))
+		case 1:
+			g.errorPos = sites[0]
+			catchBlock = append(catchBlock, jen.Id("_").Op("=").Id(atVar), onError(excVar))
+		default:
+			var cases []jen.Code
+			for i, pos := range sites {
+				g.errorPos = pos
+				if i == len(sites)-1 {
+					cases = append(cases, jen.Default().Block(onError(excVar)))
+				} else {
+					cases = append(cases, jen.Case(jen.Lit(i)).Block(onError(excVar)))
+				}
+			}
+			catchBlock = append(catchBlock, jen.Switch(jen.Id(atVar)).Block(cases...))
+		}
+		g.errorPos = saved
+	}
+
+	return append(decls,
 		jen.Block(tryBody...),
 		jen.If(jen.Id(excVar).Op("!=").Nil()).Block(jen.Goto().Id(catchLabel)),
 		jen.Goto().Id(doneLabel),
@@ -487,7 +570,7 @@ func (g *generator) transpileTryCatch(tc *ast.TryCatch, onError errHandler) ([]j
 		jen.Block(catchBlock...),
 		jen.Id(doneLabel).Op(":"),
 		jen.Id("_").Op("=").Id(excVar),
-	}, nil
+	), nil
 }
 
 func (g *generator) transpileStatement(stmt ast.Statement, onError errHandler) ([]jen.Code, error) {

@@ -50,7 +50,7 @@ print("\{name} is literal, so is }")
 # An error inside an interpolation is reported at the string literal, not
 # at the start of the statement holding it.
 func fail() {
-    raise ValueError.wrap("no value")
+    raise ValueError("no value")
 }
 func describe() {
     var message = "start " +

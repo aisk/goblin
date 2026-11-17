@@ -1,7 +1,8 @@
 import "fs"
 import "json"
 
-# Errors are values. Error() makes one; wrap, cause and is relate them.
+# Errors are values. Error() makes one; calling a kind makes an error of
+# that kind; wrap, cause and is relate them; catch can pick errors by kind.
 
 # A sentinel error, reused by identity (like a named error constant)
 var not_found = Error("not found")
@@ -44,9 +45,9 @@ try {
     print(e.message)
 }
 
-# ...or give it context with wrap, while staying matchable with is
+# ...or call it to make an error of that kind with a message of its own
 func parse_port(s) {
-    raise ValueError.wrap("invalid port: " + s)
+    raise ValueError("invalid port: {s}")
 }
 try {
     parse_port("abc")
@@ -54,14 +55,130 @@ try {
     print(e.message)
     print(e.is(ValueError))
     print(e.is(TypeError))
+    print(e.cause == ValueError)
 }
 
-# Build your own error on top of a builtin one: a derived error is-a its base
-var config_error = ValueError.wrap("config error")
-var missing_field = config_error.wrap("missing field 'name'")
+# Calling a kind without a message keeps the kind's message
+print(ValueError().message, ValueError().is(ValueError))
+
+# Any error can be a kind: a kind of your own is one you call or test for
+var config_error = ValueError("config error")
+var missing_field = config_error("missing field 'name'", field="name")
 print(missing_field.message)
 print(missing_field.is(config_error))
 print(missing_field.is(ValueError))
+
+# Named data given when the error is made is read as an attribute...
+print(missing_field.field)
+# ...through any wrap on the way out...
+var wrapped = missing_field.wrap("loading app.conf")
+print(wrapped.message, wrapped.field)
+# ...and from the kind itself, for every error made from it
+var retryable = Error("retryable", retry=true, attempts=3)
+var timeout = retryable("timed out", attempts=5)
+print(timeout.retry, timeout.attempts, retryable.attempts)
+print(attributes(timeout))
+print(attributes(timeout).contains("retry"), attributes(Error("plain")).contains("retry"))
+
+# Data is fixed once the error is made, a missing name is an AttributeError,
+# and the built-in members cannot be used as data names
+var data_mistakes = [
+    func() { timeout.retry = false },
+    func() { return timeout.code },
+    func() { return Error("bad", cause=1) },
+    func() { return ValueError("bad", **{"is": 1}) },
+    func() { return ValueError("one", "two") },
+]
+for mistake in data_mistakes {
+    try {
+        mistake()
+    } catch e {
+        print(e.message)
+    }
+}
+
+# catch with a kind handles only errors of that kind; clauses are tested in
+# order and the first match runs
+func classify(action) {
+    try {
+        action()
+    } catch e: KeyError {
+        return "key: {e}"
+    } catch e: LookupError {
+        return "lookup: {e}"
+    } catch other {
+        return "other: {other}"
+    }
+    return "no error"
+}
+print(classify(func() { return {"a": 1}["b"] }))
+print(classify(func() { return [1][3] }))
+print(classify(func() { return 1 / 0 }))
+print(classify(func() { return 1 }))
+
+# Errors of your own kind are caught by it, and by the kind it was made from
+var kinds = [config_error, ValueError, Error("unrelated")]
+for kind in kinds {
+    try {
+        raise missing_field
+    } catch e: kinds[2] {
+        print("not reached")
+    } catch e: kind {
+        print("caught by", kind.message, e.field)
+    } catch e {
+        print("fell through to the catch-all")
+    }
+}
+
+# An error that no clause matches continues outward unchanged
+try {
+    try {
+        raise not_found("user 7")
+    } catch e: ValueError {
+        print("not reached")
+    }
+} catch e {
+    print("outer:", e.message, e.is(not_found))
+}
+
+# The kind is evaluated only when an error reaches its clause, and must be an
+# Error; a kind that fails replaces the error being handled
+func kind_of(label) {
+    print("evaluating", label)
+    return IndexError
+}
+try {
+    print("nothing raised")
+} catch e: kind_of("unused") {
+    print("not reached")
+}
+var bad_kinds = [func() { return 42 }, func() { return Error("unrelated").missing }]
+for bad in bad_kinds {
+    try {
+        try {
+            raise ValueError("original")
+        } catch e: kind_of("first") {
+            print("not reached")
+        } catch e: bad() {
+            print("not reached")
+        }
+    } catch e {
+        print(e.message, e.is(TypeError), e.is(AttributeError))
+    }
+}
+
+# An error raised in a clause body is not offered to the later clauses
+try {
+    try {
+        raise KeyError("first")
+    } catch e: KeyError {
+        raise ValueError("from the clause")
+    } catch e: ValueError {
+        print("not reached")
+    }
+} catch e {
+    print("outer:", e.message)
+}
 
 # The runtime raises these same errors, so its failures are matchable by kind
 try {

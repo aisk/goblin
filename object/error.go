@@ -31,6 +31,16 @@ type Error struct {
 	// constant time: an error raised a hundred thousand calls deep (a
 	// RecursionError) would otherwise copy its whole stack at every level.
 	frames *frameNode
+	// data is the named data the error was made with (`K(msg, code=1)`),
+	// read as attributes; see Field. There are rarely more than a few
+	// entries, so a slice beats a map.
+	data []errorField
+}
+
+// errorField is one named piece of data carried by an error.
+type errorField struct {
+	name  string
+	value Object
 }
 
 // frameNode is one link of an error's stack; next is the frame one call
@@ -46,8 +56,83 @@ func NewError(value string) *Error {
 	return &Error{Value: value}
 }
 
-func NewSentinelError(value string, parent *Error) *Error {
-	return &Error{Value: value, Wrapped: parent}
+// NewErrorKind makes an error kind: an error named name whose cause is
+// parent, so errors of the kind match parent too. A module exports its own
+// kinds as module values (exec.ExitError).
+func NewErrorKind(name string, parent *Error) *Error {
+	return &Error{Value: name, Wrapped: parent}
+}
+
+// NewKindError builds an error of kind with a formatted message: the message
+// stands alone and the cause is kind, so the error matches kind (and its
+// parents) with is() and `catch e: kind`. It is what calling a kind does in
+// Goblin, and how the runtime reports its own failures.
+func NewKindError(kind *Error, format string, a ...any) *Error {
+	return &Error{Value: fmt.Sprintf(format, a...), Wrapped: kind}
+}
+
+// With attaches data to a freshly built error and returns it, for chaining:
+// object.WrapNativeError(object.IOError, msg, err).With("path", p). It must
+// not be used on an error that may already have been raised or shared.
+func (e *Error) With(name string, value Object) *Error {
+	for i := range e.data {
+		if e.data[i].name == name {
+			e.data[i].value = value
+			return e
+		}
+	}
+	e.data = append(e.data, errorField{name: name, value: value})
+	return e
+}
+
+// Field looks name up in the error's data and then down its cause chain:
+// what it wraps, or the kind of a native error. The first hit wins, so data
+// stays readable through a wrap and data given to a kind is seen on every
+// error made from it. The stack-frame wrappers a propagating error collects
+// carry no data and are passed through.
+func (e *Error) Field(name string) (Object, bool) {
+	var next error = e.origin()
+	for next != nil {
+		switch cur := next.(type) {
+		case *Error:
+			for i := range cur.data {
+				if cur.data[i].name == name {
+					return cur.data[i].value, true
+				}
+			}
+			next = cur.Wrapped
+		case typedCause:
+			next = cur.base
+		default:
+			return nil, false
+		}
+	}
+	return nil, false
+}
+
+// fieldNames lists the data names visible through the chain, nearest first,
+// without duplicates.
+func (e *Error) fieldNames() []string {
+	var names []string
+	seen := map[string]bool{}
+	var next error = e.origin()
+	for next != nil {
+		switch cur := next.(type) {
+		case *Error:
+			for _, f := range cur.data {
+				if !seen[f.name] {
+					seen[f.name] = true
+					names = append(names, f.name)
+				}
+			}
+			next = cur.Wrapped
+		case typedCause:
+			next = cur.base
+		default:
+			next = nil
+		}
+	}
+	return names
 }
 
 // NewWrappedError builds an error carrying message that wraps cause, following
@@ -264,11 +349,56 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	case "traceback":
 		return String(e.Traceback()), nil
 	}
+	if v, ok := e.Field(name); ok {
+		return v, nil
+	}
 	return nil, NewAttributeError("Error has no attribute '%s'", name)
 }
 
+// Attributes lists the built-in members, then the data names visible through
+// the cause chain, nearest first.
 func (e *Error) Attributes() []string {
-	return []string{"message", "traceback", "cause", "wrap", "is"}
+	return append([]string{"message", "traceback", "cause", "wrap", "is"}, e.fieldNames()...)
+}
+
+// reservedDataNames are the built-in members a data name would hide.
+// `message` is the constructor's parameter, so it cannot be data.
+func reservedDataName(name string) bool {
+	switch name {
+	case "traceback", "cause", "wrap", "is":
+		return true
+	}
+	return false
+}
+
+// newError builds the error `Error(...)` or `kind(...)` makes: the message,
+// rendered as print renders it, defaulting to def, and every remaining
+// keyword argument as data.
+func newError(kind *Error, def Object, args CallArgs) (*Error, error) {
+	ap := NewArgParser("Error", args)
+	message := ap.AnyOr("message", def)
+	data := ap.KeywordRest()
+	if err := ap.Finish(); err != nil {
+		return nil, err
+	}
+	e := &Error{Value: inspect(message)}
+	if kind != nil {
+		e.Wrapped = kind
+	}
+	for _, kw := range data {
+		if reservedDataName(kw.Name) {
+			return nil, NewValueError("Error() cannot use '%s' as a data name", kw.Name)
+		}
+		e.data = append(e.data, errorField{name: kw.Name, value: kw.Value})
+	}
+	return e, nil
+}
+
+// New is what calling an error does: `K(message=K.message, **data)` makes a
+// new error of kind K, whose message stands alone and whose cause is K.
+func (e *Error) New(args CallArgs) (Object, error) {
+	kind := e.origin()
+	return newError(kind, String(kind.Value), args)
 }
 
 // Wrap returns a new Error that carries message and wraps the receiver as its
@@ -294,11 +424,26 @@ func (e *Error) IsValue(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	t, ok := target.(*Error)
-	if !ok {
+	if _, ok := target.(*Error); !ok {
 		return nil, NewTypeError("is() argument must be an Error, got %s", target.TypeName())
 	}
-	return Bool(errors.Is(e, t.origin())), nil
+	matched, err := ErrorMatches(e, target)
+	return Bool(matched), err
+}
+
+// ErrorMatches reports whether kind appears anywhere in the cause chain of
+// caught, the error a catch clause is offered. It is what `catch e: kind`
+// and e.is(kind) run; a kind that is not an Error is a TypeError.
+func ErrorMatches(caught Object, kind Object) (bool, error) {
+	k, ok := kind.(*Error)
+	if !ok {
+		return false, NewTypeError("catch expects an Error to match, got %s", kind.TypeName())
+	}
+	e, ok := caught.(*Error)
+	if !ok {
+		return false, nil
+	}
+	return errors.Is(e, k.origin()), nil
 }
 
 var _ error = (*Error)(nil)
@@ -308,50 +453,43 @@ var _ error = (*Error)(nil)
 // or used as the base for a derived error.
 var (
 	BaseError       = NewError("Error")
-	TypeError       = NewSentinelError("TypeError", BaseError)
-	ValueError      = NewSentinelError("ValueError", BaseError)
-	LookupError     = NewSentinelError("LookupError", BaseError)
-	ArithmeticError = NewSentinelError("ArithmeticError", BaseError)
-	IOError         = NewSentinelError("IOError", BaseError)
+	TypeError       = NewErrorKind("TypeError", BaseError)
+	ValueError      = NewErrorKind("ValueError", BaseError)
+	LookupError     = NewErrorKind("LookupError", BaseError)
+	ArithmeticError = NewErrorKind("ArithmeticError", BaseError)
+	IOError         = NewErrorKind("IOError", BaseError)
 
-	ParseError        = NewSentinelError("ParseError", ValueError)
-	IndexError        = NewSentinelError("IndexError", LookupError)
-	KeyError          = NewSentinelError("KeyError", LookupError)
-	AttributeError    = NewSentinelError("AttributeError", LookupError)
-	NameError         = NewSentinelError("NameError", LookupError)
-	ImportError       = NewSentinelError("ImportError", LookupError)
-	ZeroDivisionError = NewSentinelError("ZeroDivisionError", ArithmeticError)
-	OverflowError     = NewSentinelError("OverflowError", ArithmeticError)
+	ParseError        = NewErrorKind("ParseError", ValueError)
+	IndexError        = NewErrorKind("IndexError", LookupError)
+	KeyError          = NewErrorKind("KeyError", LookupError)
+	AttributeError    = NewErrorKind("AttributeError", LookupError)
+	NameError         = NewErrorKind("NameError", LookupError)
+	ImportError       = NewErrorKind("ImportError", LookupError)
+	ZeroDivisionError = NewErrorKind("ZeroDivisionError", ArithmeticError)
+	OverflowError     = NewErrorKind("OverflowError", ArithmeticError)
 
-	NotExistError   = NewSentinelError("NotExistError", IOError)
-	ExistError      = NewSentinelError("ExistError", IOError)
-	PermissionError = NewSentinelError("PermissionError", IOError)
-	TimeoutError    = NewSentinelError("TimeoutError", IOError)
-	NetworkError    = NewSentinelError("NetworkError", IOError)
+	NotExistError   = NewErrorKind("NotExistError", IOError)
+	ExistError      = NewErrorKind("ExistError", IOError)
+	PermissionError = NewErrorKind("PermissionError", IOError)
+	TimeoutError    = NewErrorKind("TimeoutError", IOError)
+	NetworkError    = NewErrorKind("NetworkError", IOError)
 
-	NotImplementedError = NewSentinelError("NotImplementedError", BaseError)
-	RecursionError      = NewSentinelError("RecursionError", BaseError)
-	InternalError       = NewSentinelError("InternalError", BaseError)
+	NotImplementedError = NewErrorKind("NotImplementedError", BaseError)
+	RecursionError      = NewErrorKind("RecursionError", BaseError)
+	InternalError       = NewErrorKind("InternalError", BaseError)
 )
 
 // NewInternalError creates an InternalError-tagged error. It marks failures of
 // the runtime itself (recovered Go panics) rather than of the user's program.
 func NewInternalError(format string, a ...any) *Error {
-	return typedError(InternalError, format, a...)
-}
-
-// typedError builds an Error whose message is the formatted string and whose
-// cause is base, so the runtime's own failures are matchable with .is(base)
-// while the rendered message stays exactly what it was.
-func typedError(base *Error, format string, a ...any) *Error {
-	return &Error{Value: fmt.Sprintf(format, a...), Wrapped: base}
+	return NewKindError(InternalError, format, a...)
 }
 
 // NewTypeError, NewValueError, NewIndexError, NewKeyError and
 // NewZeroDivisionError create errors tagged with the matching sentinel. They are
 // used throughout the runtime in place of fmt.Errorf so that raised failures can
 // be caught by kind.
-func NewTypeError(format string, a ...any) *Error { return typedError(TypeError, format, a...) }
+func NewTypeError(format string, a ...any) *Error { return NewKindError(TypeError, format, a...) }
 
 // NewTypeErrorText tags a ready-made message as a TypeError. It skips the
 // fmt pass, which matters on the argument-parsing path: passing a value
@@ -361,35 +499,35 @@ func NewTypeErrorText(message string) *Error {
 	return &Error{Value: message, Wrapped: TypeError}
 }
 func NewValueError(format string, a ...any) *Error {
-	return typedError(ValueError, format, a...)
+	return NewKindError(ValueError, format, a...)
 }
 func NewIndexError(format string, a ...any) *Error {
-	return typedError(IndexError, format, a...)
+	return NewKindError(IndexError, format, a...)
 }
-func NewKeyError(format string, a ...any) *Error { return typedError(KeyError, format, a...) }
+func NewKeyError(format string, a ...any) *Error { return NewKindError(KeyError, format, a...) }
 func NewZeroDivisionError(format string, a ...any) *Error {
-	return typedError(ZeroDivisionError, format, a...)
+	return NewKindError(ZeroDivisionError, format, a...)
 }
 func NewRecursionError(format string, a ...any) *Error {
-	return typedError(RecursionError, format, a...)
+	return NewKindError(RecursionError, format, a...)
 }
 func NewOverflowError(format string, a ...any) *Error {
-	return typedError(OverflowError, format, a...)
+	return NewKindError(OverflowError, format, a...)
 }
 func NewAttributeError(format string, a ...any) *Error {
-	return typedError(AttributeError, format, a...)
+	return NewKindError(AttributeError, format, a...)
 }
 func NewNameError(format string, a ...any) *Error {
-	return typedError(NameError, format, a...)
+	return NewKindError(NameError, format, a...)
 }
 func NewImportError(format string, a ...any) *Error {
-	return typedError(ImportError, format, a...)
+	return NewKindError(ImportError, format, a...)
 }
 func NewParseError(format string, a ...any) *Error {
-	return typedError(ParseError, format, a...)
+	return NewKindError(ParseError, format, a...)
 }
 func NewTimeoutError(format string, a ...any) *Error {
-	return typedError(TimeoutError, format, a...)
+	return NewKindError(TimeoutError, format, a...)
 }
 
 // networkError has the method set of net.Error. Matching it structurally
@@ -430,13 +568,10 @@ func WrapNativeError(fallback *Error, message string, err error) *Error {
 
 var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
 
+// ErrorConstructor is the global `Error(message="", **data)`: a new error
+// with no cause.
 func ErrorConstructor(args CallArgs) (Object, error) {
-	ap := NewArgParser("Error", args)
-	message := ap.AnyOr("message", String(""))
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	return NewError(inspect(message)), nil
+	return newError(nil, String(""), args)
 }
 
 // Raise validates the value thrown by a `raise` statement. Only Error values
