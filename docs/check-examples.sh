@@ -9,11 +9,19 @@ repo_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 run_example() {
     go run "$repo_dir" run "$1" >/dev/null
 }
+# run_with_input feeds stdin and passes arguments to an example that checks
+# its own results.
+run_with_input() {
+    local input=$1 file=$2
+    shift 2
+    printf '%b' "$input" | go run "$repo_dir" run "$file" "$@" >/dev/null
+}
 
 run_example "$repo_dir/docs/examples/collections-callbacks.goblin"
 run_example "$repo_dir/docs/examples/concurrency.goblin"
 run_example "$repo_dir/docs/examples/concurrency-results.goblin"
 run_example "$repo_dir/docs/examples/goblin-handle.goblin"
 run_example "$repo_dir/docs/examples/local-module/main.goblin"
+run_with_input 'y\nINFO up\nERROR disk full\n' "$repo_dir/docs/examples/os-tasks.goblin" in.txt out.txt
 run_example "$repo_dir/docs/examples/reference-smoke.goblin"
 run_example "$repo_dir/docs/examples/traits.goblin"

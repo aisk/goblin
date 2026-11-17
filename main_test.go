@@ -45,7 +45,8 @@ func TestRunCLIForwardsScriptFlags(t *testing.T) {
 	bin := sharedGoblinBin(t)
 	script := filepath.Join(t.TempDir(), "argv.goblin")
 	if err := os.WriteFile(script, []byte(`import "os"
-for a in os.argv() {
+print(os.program)
+for a in os.args {
     print(a)
 }
 `), 0644); err != nil {
@@ -68,9 +69,10 @@ func TestBuiltExecutableForwardsArguments(t *testing.T) {
 	script := filepath.Join(dir, "argv.goblin")
 	executable := filepath.Join(dir, "argv-program")
 	if err := os.WriteFile(script, []byte(`import "os"
-var args = os.argv()
-print(args[1])
-print(args[2])
+var first, second = os.args
+print(first)
+print(second)
+print(os.program.has_suffix("argv-program"))
 `), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +84,7 @@ print(args[2])
 	if err != nil {
 		t.Fatalf("compiled program: %v\n%s", err, out)
 	}
-	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "foo\n--bar\n"; got != want {
+	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "foo\n--bar\ntrue\n"; got != want {
 		t.Fatalf("compiled stdout = %q, want %q", got, want)
 	}
 }

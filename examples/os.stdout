@@ -1,10 +1,15 @@
+[] true true
+true true
+8080
+true environment variable 'GOBLIN_EXAMPLE_TOKEN' is not set
+1 true
+1
+true false
+true invalid environment variable name "BAD=NAME"
 true
+Delete everything? [y/N] 
+1
+<File stdin> <File stdout> nil false
+true true
 true
-fallback
-true
-true
-true
-true
-true
-true
-true
+exit() argument 'code' must be between 0 and 255, got 256

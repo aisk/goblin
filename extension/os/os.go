@@ -1,62 +1,69 @@
+// Package os is the os module: the running process's arguments,
+// environment, standard streams and exit status. Files are fs and other
+// programs are exec.
 package os
 
 import (
 	"os"
-	"strings"
+	"runtime"
 
+	"github.com/aisk/goblin/extension/internal/filestream"
 	"github.com/aisk/goblin/object"
 )
 
-// Execute builds the os module with live process arguments (os.Args).
-// Used by compiled programs from build-exe.
+// The standard streams are shared by every load of the module, so a line
+// buffer on stdin is never split between two values. Each one looks up the
+// process's stream when it is used, as print does, so a program that
+// redirects os.Stdout (a test capturing output) redirects both alike.
+var (
+	stdin  = filestream.NewReader("stdin", stdStream{func() *os.File { return os.Stdin }}, stdStream{func() *os.File { return os.Stdin }})
+	stdout = filestream.NewWriter("stdout", stdStream{func() *os.File { return os.Stdout }}, stdStream{func() *os.File { return os.Stdout }})
+	stderr = filestream.NewWriter("stderr", stdStream{func() *os.File { return os.Stderr }}, stdStream{func() *os.File { return os.Stderr }})
+)
+
+// stdStream is one of the process's standard streams, looked up on use.
+type stdStream struct{ file func() *os.File }
+
+func (s stdStream) Read(p []byte) (int, error)  { return s.file().Read(p) }
+func (s stdStream) Write(p []byte) (int, error) { return s.file().Write(p) }
+func (s stdStream) Close() error                { return s.file().Close() }
+
+// Execute builds the os module from the process's own command line. Used by
+// compiled programs, where os.Args[0] is the executable.
 func Execute() (object.Object, error) {
-	return newOsModule(func() []string { return os.Args }), nil
+	return newModule(os.Args), nil
 }
 
-// ExecuteWithFrozenArgs builds the os module with a fixed Args snapshot.
-// Used by the interpreter so goblin run / the REPL expose script argv without
-// mutating process-global state. The snapshot is closed over by argv(), so
-// concurrent runs and spawned goroutines keep a stable view after the loader
-// returns.
-func ExecuteWithFrozenArgs(args []string) (object.Object, error) {
-	snapshot := append([]string(nil), args...)
-	return newOsModule(func() []string { return snapshot }), nil
+// ExecuteWithFrozenArgs builds the os module from a given command line, the
+// script path followed by its arguments. The interpreter passes the script's
+// argv, the REPL [""], so a run never sees the goblin binary's own arguments.
+func ExecuteWithFrozenArgs(argv []string) (object.Object, error) {
+	return newModule(argv), nil
 }
 
-func newOsModule(argsFn func() []string) object.Object {
-	return object.NewModule("os", map[string]object.Object{
-		"getegid": intGetter("getegid", os.Getegid),
-		"geteuid": intGetter("geteuid", os.Geteuid),
-		"getgid":  intGetter("getgid", os.Getgid),
-		"getpid":  intGetter("getpid", os.Getpid),
-		"getppid": intGetter("getppid", os.Getppid),
-		"getuid":  intGetter("getuid", os.Getuid),
-	}, object.Funcs{
-		"argv":        makeArgv(argsFn),
-		"environ":     environ,
-		"exit":        exit,
-		"getenv":      getenv,
-		"getgroups":   getgroups,
-		"getpagesize": getpagesize,
-		"hostname":    hostname,
-		"setenv":      setenv,
-		"unsetenv":    unsetenv,
-	})
-}
-
-// makeArgv returns argv(), which yields a fresh Goblin list from argsFn each call.
-func makeArgv(argsFn func() []string) func(object.CallArgs) (object.Object, error) {
-	return func(args object.CallArgs) (object.Object, error) {
-		if err := object.RequireNoArgs("argv", args); err != nil {
-			return nil, err
-		}
-		procArgs := argsFn()
-		elems := make([]object.Object, len(procArgs))
-		for i, a := range procArgs {
-			elems[i] = object.String(a)
-		}
-		return &object.List{Elements: elems}, nil
+func newModule(argv []string) object.Object {
+	program := ""
+	var rest []string
+	if len(argv) > 0 {
+		program, rest = argv[0], argv[1:]
 	}
+	args := make([]object.Object, len(rest))
+	for i, a := range rest {
+		args[i] = object.String(a)
+	}
+	return object.NewModule("os", map[string]object.Object{
+		"args":     &object.List{Elements: args},
+		"program":  object.String(program),
+		"env":      theEnv,
+		"Env":      envType.Function,
+		"stdin":    stdin,
+		"stdout":   stdout,
+		"stderr":   stderr,
+		"pid":      object.Integer(os.Getpid()),
+		"platform": object.String(runtime.GOOS),
+	}, object.Funcs{
+		"exit": exit,
+	})
 }
 
 func exit(args object.CallArgs) (object.Object, error) {
@@ -65,104 +72,9 @@ func exit(args object.CallArgs) (object.Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
+	if code < 0 || code > 255 {
+		return nil, object.NewValueError("exit() argument 'code' must be between 0 and 255, got %d", int64(code))
+	}
 	os.Exit(int(code))
 	return nil, nil
-}
-
-func getenv(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("getenv", args)
-	key := p.Str("key")
-	def := p.AnyOr("default", object.Nil)
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	value, ok := os.LookupEnv(string(key))
-	if !ok {
-		return def, nil
-	}
-	return object.String(value), nil
-}
-
-func setenv(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("setenv", args)
-	key, value := p.Str("key"), p.Str("value")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	if err := os.Setenv(string(key), string(value)); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "setenv() failed to set environment variable", err)
-	}
-	return object.Nil, nil
-}
-
-func unsetenv(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("unsetenv", args)
-	key := p.Str("key")
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	if err := os.Unsetenv(string(key)); err != nil {
-		return nil, object.WrapNativeError(object.IOError, "unsetenv() failed to unset environment variable", err)
-	}
-	return object.Nil, nil
-}
-
-func environ(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("environ", args); err != nil {
-		return nil, err
-	}
-	result := object.NewDict()
-	for _, e := range os.Environ() {
-		key, value, found := strings.Cut(e, "=")
-		if !found {
-			continue
-		}
-		if err := result.Set(object.String(key), object.String(value)); err != nil {
-			return nil, err
-		}
-	}
-	return result, nil
-}
-
-// intGetter wraps a nullary os query returning an int as a builtin.
-func intGetter(name string, fn func() int) *object.Function {
-	return &object.Function{Name: name, Fn: func(args object.CallArgs) (object.Object, error) {
-		if err := object.RequireNoArgs(name, args); err != nil {
-			return nil, err
-		}
-		return object.Integer(fn()), nil
-	}}
-}
-
-func hostname(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("hostname", args); err != nil {
-		return nil, err
-	}
-	name, err := os.Hostname()
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "hostname() failed to query hostname", err)
-	}
-	return object.String(name), nil
-}
-
-func getgroups(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getgroups", args); err != nil {
-		return nil, err
-	}
-	gids, err := os.Getgroups()
-	if err != nil {
-		return nil, object.WrapNativeError(object.IOError, "getgroups() failed to query group ids", err)
-	}
-	elems := make([]object.Object, len(gids))
-	for i, g := range gids {
-		elems[i] = object.Integer(g)
-	}
-	return &object.List{Elements: elems}, nil
-}
-
-func getpagesize(args object.CallArgs) (object.Object, error) {
-	if err := object.RequireNoArgs("getpagesize", args); err != nil {
-		return nil, err
-	}
-	return object.Integer(os.Getpagesize()), nil
 }

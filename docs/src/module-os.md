@@ -1,83 +1,104 @@
 # os
 
-The os module provides process and environment information. Use it for
-configuration supplied by the operating system rather than hard-coding secrets
-or deployment settings.
+The os module is the running process: its arguments, environment, standard
+streams and exit status. Files are in [fs](./module-fs.md) and other programs
+in [exec](./module-exec.md).
+
+## Common tasks
 
 ~~~goblin
 import "os"
 
-var port = os.getenv("PORT")
-if port == "" {
-    port = "8080"
+# Positional arguments
+if os.args.size != 2 {
+    eprint("usage: {os.program} <source> <target>")
+    os.exit(2)
 }
-print(port)
-print(os.hostname())
+var source, target = os.args
 
-# argv() is the program command line (index 0 is the invocation name)
-for arg in os.argv() {
-    print(arg)
+# Settings from the environment
+var port = Int(os.env.get("PORT", default="8080"))
+var token = os.env["API_TOKEN"]          # KeyError if it is not set
+os.env["NO_COLOR"] = "1"                 # seen by programs started later
+
+# A filter: stdin to stdout
+for line in os.stdin {
+    if line.contains("ERROR") {
+        print(line)
+    }
 }
-~~~
 
-| Function | Purpose |
-| --- | --- |
-| argv() | Return the program command-line arguments as a list of strings |
-| getenv(key, default=nil) / setenv(key, value) / unsetenv(key) | Read or change environment values |
-| environ() | Return all environment values as a dictionary |
-| hostname() | Machine name |
-| getpid() / getppid() | Process identifiers |
-| exit(code=0) | End the process |
-
-Avoid using exit() inside reusable library code. Environment operations can raise
-IOError. The working directory and temporary directories are in
-[fs](./module-fs.md): `fs.cwd()`, `fs.mkdir_temp()`. argv() does not accept arguments and returns a
-fresh list each call; mutating that list does not change the program arguments.
-
-## Command-line arguments
-
-argv() presents the command line from the Goblin program's point of view. Index
-0 is its invocation name; remaining elements are the arguments passed after it.
-With `goblin run`, the source path is the invocation name — for example `goblin
-run app.goblin foo bar` makes `argv()` return `["app.goblin", "foo", "bar"]`.
-Arguments that look like flags (such as `-v` or `--help`) are forwarded only
-when they appear *after* the source file. Put the source file first. Leading
-flags are rejected.
-For CLI help use `goblin run -h` or `goblin help run` (alone, with no source
-file). Compiled executables from `build-exe` see the real process argv (the
-binary path at index 0). In the REPL, `argv()` is `[""]` so interactive
-sessions do not expose the goblin process arguments. Use argv() when a program
-needs flags or positional inputs from the shell; prefer getenv() for
-configuration that should not be visible on the command line.
-
-~~~goblin
-var args = os.argv()
-if args.size < 2 {
-    print("usage:", args[0], "<file>")
+# Ask a question (write() adds no newline)
+os.stdout.write("Delete everything? [y/N] ")
+var answer = os.stdin.read_line()
+if answer == nil || answer.trim().lower() != "y" {
     os.exit(1)
 }
-print("input:", args[1])
+
+# Platform differences
+var opener = "xdg-open"
+if os.platform == "darwin" {
+    opener = "open"
+}
 ~~~
 
-## Configuration from the environment
+`docs/examples/os-tasks.goblin` runs these tasks with arguments and piped
+input; `examples/os.goblin` covers the rest of the module.
 
-getenv() returns nil for a missing key; pass default= to supply a fallback
-value (for example `os.getenv("PORT", default="8080")`), or use environ() when
-a program needs to inspect the complete environment dictionary.
+## Module members
 
-~~~goblin
-var env = os.environ()
-var mode = env.get("APP_MODE", default="development")
-var debug = mode == "development"
-print(debug)
-~~~
+| Member | Kind | Value |
+| --- | --- | --- |
+| `args` | List of String | The program's arguments, **without** the program name. `goblin run app.goblin a b` and `./app a b` both give `["a", "b"]`; `[]` in the REPL. It is built once: every read gives the same List |
+| `program` | String | What the program was started as: the source path under `goblin run`, the executable path when compiled, `""` in the REPL |
+| `env` | Env | The process environment, live; see [Env](#env) |
+| `stdin` | `fs.File` | Readable: `for line in os.stdin`, `read_line()`, `read()` |
+| `stdout` | `fs.File` | Writable; `write(data)` adds no newline |
+| `stderr` | `fs.File` | Writable |
+| `pid` | Int | The process id |
+| `platform` | String | `"linux"`, `"darwin"`, `"windows"`, … (Go's `runtime.GOOS`) |
+| `exit(code=0)` | function | Ends the process with that status, from 0 to 255 (ValueError otherwise) |
 
-setenv() changes only the environment of the current Goblin process and
-processes it starts. It does not persist after the program exits.
+A fact fixed for the life of the process is a value (`os.args`, `os.pid`),
+the environment is an object, and ending the process is a function.
 
-## Process identity
+`os.exit()` ends the process at once: deferred calls, including those of the
+calling function, do not run. Avoid it in library code; raise an error
+instead and let the program decide.
 
-getpid(), getppid(), getuid(), geteuid(), getgid(), getegid(), and
-getgroups() expose identity information supplied by the host operating
-system; getpagesize() reports the memory page size. Availability and exact
-values can vary by platform.
+The standard streams are ordinary [File](./module-fs.md#file) values whose
+`path` is `nil`; their methods raise IOError when the stream fails. `print`
+writes to the same stdout and neither is buffered, so their output interleaves
+in call order. `close()` on a standard stream is allowed and closes the
+process's stream.
+
+## Env
+
+`os.env` is one object instead of four functions. It is not a Dict, but it uses
+Dict's vocabulary and nothing else. Names and values are Strings; anything else
+is a TypeError. Changes affect this process and the programs it starts
+afterwards.
+
+| Member | Value | When the variable is missing |
+| --- | --- | --- |
+| `env[name]` | The variable's value | KeyError `environment variable 'X' is not set` |
+| `env[name] = value` | Sets it; ValueError for an empty name or one containing `=` or NUL | — |
+| `get(name, default=nil)` | The value, or `default` | `default` |
+| `contains(name)` | Bool; a variable set to `""` is contained | `false` |
+| `remove(name)` | Unsets it and returns the Env | fine |
+| `to_dict()` | A new Dict snapshot of every variable, sorted by name | — |
+
+Env is not iterable and has no `size`, `keys()` or `items()`: use `to_dict()`
+when the whole environment is wanted. The module exports the type name `Env`
+for `type_of(os.env) == os.Env`; it cannot be called.
+
+## Left out
+
+- There is no `input()` built-in, so prompting takes two calls:
+  `os.stdout.write(question)` and `os.stdin.read_line()`.
+- There is no command-line flag parser; `os.args` and destructuring cover
+  positional arguments.
+- The host name and user and group ids are not in the module:
+  `exec.capture(["hostname"]).stdout.trim()` or `exec.capture(["id", "-u"])`.
+- The working directory and temporary directories are in fs: `fs.cwd()`,
+  `fs.mkdir_temp()`.

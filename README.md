@@ -187,8 +187,8 @@ ch.close()
 import "os"
 import "json"
 
-os.getenv("HOME")
-os.getpid()
+print(os.env.get("HOME"))
+print(os.pid)
 print(json.unmarshal("42"))
 
 # Export

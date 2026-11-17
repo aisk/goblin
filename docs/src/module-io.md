@@ -2,7 +2,7 @@
 
 The io module exports the stream shapes as the traits `Reader` and `Writer`.
 Every standard library API that consumes a stream, such as an HTTP request
-body, `exec.Command(stdout=...)`, or the `dest=` keyword of `csv.write_all` and
+body, `exec.run(stdout=...)`, or the `dest=` keyword of `csv.write_all` and
 the compression and archive modules, accepts a value that implements the trait
 as well as one that simply defines the methods.
 

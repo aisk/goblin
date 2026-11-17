@@ -2,167 +2,304 @@ package exec
 
 import (
 	"bytes"
+	"errors"
+	"io"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
+	"time"
 
+	"github.com/aisk/goblin/extension/internal/modtest"
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
+// TestHelperProcess is the program the tests run: the test binary itself,
+// told what to do by the arguments after "--".
 func TestHelperProcess(t *testing.T) {
-	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
-		return
-	}
-	args := os.Args
-	for i, arg := range args {
+	args, helping := []string(nil), false
+	for i, arg := range os.Args {
 		if arg == "--" {
-			args = args[i+1:]
+			args, helping = os.Args[i+1:], true
 			break
 		}
 	}
-	if len(args) > 0 {
-		_, _ = os.Stdout.WriteString(args[0])
+	if os.Getenv("GOBLIN_EXEC_HELPER") != "1" || !helping {
+		return
 	}
-	if len(args) > 1 {
-		_, _ = os.Stderr.WriteString(args[1])
-	}
-	if len(args) > 2 && args[2] == "fail" {
-		os.Exit(7)
+	for _, step := range args {
+		verb, value, _ := strings.Cut(step, "=")
+		switch verb {
+		case "out":
+			os.Stdout.WriteString(value)
+		case "err":
+			os.Stderr.WriteString(value)
+		case "bad-utf8":
+			os.Stdout.Write([]byte("a\xffb"))
+		case "cat":
+			io.Copy(os.Stdout, os.Stdin)
+		case "env":
+			os.Stdout.WriteString(os.Getenv(value) + "|")
+		case "has-env":
+			_, ok := os.LookupEnv(value)
+			os.Stdout.WriteString(strconv.FormatBool(ok) + "|")
+		case "cwd":
+			wd, _ := os.Getwd()
+			os.Stdout.WriteString(wd)
+		case "sleep":
+			d, _ := time.ParseDuration(value)
+			time.Sleep(d)
+		case "exit":
+			code, _ := strconv.Atoi(value)
+			os.Exit(code)
+		}
 	}
 	os.Exit(0)
 }
 
-func helperCommand(t *testing.T, helperArgs ...string) *Cmd {
+// helper is the args List that runs TestHelperProcess with steps.
+func helper(steps ...string) *object.List {
+	elems := []object.Object{object.String(os.Args[0]), object.String("-test.run=^TestHelperProcess$"), object.String("--")}
+	for _, s := range steps {
+		elems = append(elems, object.String(s))
+	}
+	return &object.List{Elements: elems}
+}
+
+func TestMain(m *testing.M) {
+	os.Setenv("GOBLIN_EXEC_HELPER", "1")
+	os.Exit(m.Run())
+}
+
+func kw(name string, v object.Object) object.KwArg { return object.KwArg{Name: name, Value: v} }
+
+func call(t *testing.T, name string, list *object.List, kws ...object.KwArg) object.Object {
 	t.Helper()
-	argObjects := []object.Object{object.String("-test.run=TestHelperProcess"), object.String("--")}
-	for _, arg := range helperArgs {
-		argObjects = append(argObjects, object.String(arg))
+	return modtest.CallModule(t, Execute, name, object.CallArgs{Positional: object.Args{list}, Keyword: kws})
+}
+
+func callErr(name string, list object.Object, kws ...object.KwArg) error {
+	m, _ := Execute()
+	_, err := m.(*object.Module).Members[name].(*object.Function).Call(object.CallArgs{Positional: object.Args{list}, Keyword: kws})
+	return err
+}
+
+func get(t *testing.T, v object.Object, name string) object.Object {
+	t.Helper()
+	got, err := v.GetAttr(name)
+	if err != nil {
+		t.Fatal(err)
 	}
+	return got
+}
+
+func method(t *testing.T, v object.Object, name string, positional ...object.Object) (object.Object, error) {
+	t.Helper()
+	return get(t, v, name).(*object.Function).Call(object.CallArgs{Positional: positional})
+}
+
+func TestCapture(t *testing.T) {
+	r := call(t, "capture", helper("out=hello\n", "err=warn\n"))
+	if get(t, r, "stdout") != object.String("hello\n") || get(t, r, "stderr") != object.String("warn\n") ||
+		get(t, r, "code") != object.Integer(0) || get(t, r, "success") != object.True {
+		t.Fatalf("capture() = %v %v %v", get(t, r, "stdout"), get(t, r, "stderr"), get(t, r, "code"))
+	}
+	if r := call(t, "capture", helper("bad-utf8")); get(t, r, "stdout") != object.String("a�b") {
+		t.Fatalf("invalid UTF-8 = %q", get(t, r, "stdout"))
+	}
+	r = call(t, "capture", helper("cat"), kw("stdin", object.String("fed")))
+	if get(t, r, "stdout") != object.String("fed") {
+		t.Fatalf("stdin= String fed %q", get(t, r, "stdout"))
+	}
+	r = call(t, "capture", helper("cat"), kw("stdin", object.Bytes("raw")))
+	if get(t, r, "stdout") != object.String("raw") {
+		t.Fatalf("stdin= Bytes fed %q", get(t, r, "stdout"))
+	}
+
+	err := callErr("capture", helper("err=first\n", "err=fatal: not a repo\n\n", "exit=128"))
+	if err == nil || !strings.HasSuffix(err.Error(), `exited with status 128: fatal: not a repo`) || !strings.HasPrefix(err.Error(), `capture() "`) {
+		t.Fatalf("capture() failure error = %v", err)
+	}
+	r = call(t, "capture", helper("exit=3"), kw("check", object.False))
+	if get(t, r, "code") != object.Integer(3) || get(t, r, "success") != object.False {
+		t.Fatal("check=false result")
+	}
+}
+
+func TestRun(t *testing.T) {
+	var out, errs bytes.Buffer
+	r := call(t, "run", helper("out=o", "err=e"), kw("stdout", modtest.DestRecorder(&out)), kw("stderr", modtest.DestRecorder(&errs)))
+	if out.String() != "o" || errs.String() != "e" {
+		t.Fatalf("run() wrote %q / %q", out.String(), errs.String())
+	}
+	if get(t, r, "stdout") != object.Nil || get(t, r, "stderr") != object.Nil {
+		t.Fatal("run() result has output")
+	}
+	var both bytes.Buffer
+	shared := modtest.DestRecorder(&both)
+	call(t, "run", helper("out=1", "err=2"), kw("stdout", shared), kw("stderr", shared))
+	if both.Len() != 2 {
+		t.Fatalf("shared writer got %q", both.String())
+	}
+
+	err := callErr("run", helper("exit=2"))
+	var e *object.Error
+	if !errors.As(err, &e) || !strings.HasSuffix(e.Value, "exited with status 2") || errors.Is(err, object.IOError) {
+		t.Fatalf("run() failure error = %v", err)
+	}
+
+	missing := &object.List{Elements: []object.Object{object.String("goblin-no-such-program")}}
+	err = callErr("run", missing)
+	if !errors.Is(err, object.NotExistError) || !strings.HasPrefix(err.Error(), `run() program "goblin-no-such-program" not found`) {
+		t.Fatalf("missing program error = %v", err)
+	}
+
+	start := time.Now()
+	err = callErr("run", helper("sleep=10s"), kw("timeout", object.Float(0.2)))
+	if !errors.Is(err, object.TimeoutError) || !strings.Contains(err.Error(), "timed out after 0.2 seconds") {
+		t.Fatalf("timeout error = %v", err)
+	}
+	if time.Since(start) > 5*time.Second {
+		t.Fatal("the timed-out command was not killed")
+	}
+
+	for _, bad := range []struct {
+		list object.Object
+		kws  []object.KwArg
+		kind *object.Error
+	}{
+		{&object.List{}, nil, object.ValueError},
+		{&object.List{Elements: []object.Object{object.Integer(1)}}, nil, object.TypeError},
+		{helper(), []object.KwArg{kw("stdout", pipe)}, object.TypeError},
+		{helper(), []object.KwArg{kw("stdin", pipe)}, object.TypeError},
+		{helper(), []object.KwArg{kw("stdout", object.Integer(1))}, object.TypeError},
+		{helper(), []object.KwArg{kw("env", &object.List{})}, object.TypeError},
+		{helper(), []object.KwArg{kw("timeout", object.Integer(-1))}, object.ValueError},
+	} {
+		if err := callErr("run", bad.list, bad.kws...); !errors.Is(err, bad.kind) {
+			t.Errorf("run(%v, %v) error = %v, want %s", bad.list, bad.kws, err, bad.kind)
+		}
+	}
+}
+
+func TestEnvAndCwd(t *testing.T) {
+	t.Setenv("GOBLIN_EXEC_INHERITED", "kept")
+	t.Setenv("GOBLIN_EXEC_DROPPED", "x")
 	env := object.NewDict()
-	env.Set(object.String("GO_WANT_HELPER_PROCESS"), object.String("1"))
-	env.Set(object.String("GOCOVERDIR"), object.String(t.TempDir()))
-	obj, err := command(object.CallArgs{
-		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: argObjects}},
-		Keyword: object.Kwargs{
-			{Name: "env", Value: env},
-			{Name: "stdout", Value: capture},
-			{Name: "stderr", Value: capture},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
+	env.Set(object.String("GOBLIN_EXEC_ADDED"), object.String("added"))
+	env.Set(object.String("GOBLIN_EXEC_DROPPED"), object.Nil)
+	r := call(t, "capture", helper("env=GOBLIN_EXEC_INHERITED", "env=GOBLIN_EXEC_ADDED", "has-env=GOBLIN_EXEC_DROPPED"), kw("env", env))
+	if got := get(t, r, "stdout"); got != object.String("kept|added|false|") {
+		t.Fatalf("env = %q", got)
 	}
-	return obj.(*Cmd)
-}
 
-func TestRunCapturesOutputAndExitStatus(t *testing.T) {
-	cmd := helperCommand(t, "out", "err", "fail")
-	obj, err := cmd.run(object.CallArgs{})
-	if err != nil {
-		t.Fatal(err)
+	dir := t.TempDir()
+	r = call(t, "capture", helper("cwd"), kw("cwd", pathvalue.NewPath(dir)))
+	got, _ := filepath.EvalSymlinks(string(get(t, r, "stdout").(object.String)))
+	want, _ := filepath.EvalSymlinks(dir)
+	if got != want {
+		t.Fatalf("cwd = %q, want %q", got, want)
 	}
-	result := obj.(*Result)
-	if result.code != 7 {
-		t.Fatalf("code = %d, want 7", result.code)
-	}
-	if truthy, err := result.ToBool(); err != nil || truthy {
-		t.Fatal("non-zero result is truthy")
-	}
-	if got := string(result.stdout.(object.Bytes)); got != "out" {
-		t.Fatalf("stdout = %q", got)
-	}
-	if got := string(result.stderr.(object.Bytes)); got != "err" {
-		t.Fatalf("stderr = %q", got)
+	if err := callErr("run", helper(), kw("cwd", object.String(filepath.Join(dir, "missing")))); !errors.Is(err, object.NotExistError) {
+		t.Fatalf("missing cwd error = %v", err)
 	}
 }
 
-func TestStartWaitAndRepeatedWait(t *testing.T) {
-	cmd := helperCommand(t, "ok")
-	if _, err := cmd.start(object.CallArgs{}); err != nil {
-		t.Fatal(err)
+func TestStart(t *testing.T) {
+	c := call(t, "start", helper("out=one\nREADY\n", "sleep=10s"), kw("stdout", pipe))
+	if get(t, c, "running") != object.True || get(t, c, "stdin") != object.Nil {
+		t.Fatal("a started command is not running")
 	}
-	first, err := cmd.wait(object.CallArgs{})
+	if pid, ok := get(t, c, "pid").(object.Integer); !ok || pid <= 0 {
+		t.Fatal("pid")
+	}
+	lines, err := object.Iterate(get(t, c, "stdout"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	second, err := cmd.wait(object.CallArgs{})
+	for {
+		line, ok, err := lines.Next()
+		if err != nil || !ok {
+			t.Fatalf("pipe ended before READY: %v", err)
+		}
+		if line == object.String("READY") {
+			break
+		}
+	}
+	lines.Close()
+	if _, err := method(t, c, "wait", object.Float(0.05)); !errors.Is(err, object.TimeoutError) {
+		t.Fatalf("wait(timeout) error = %v", err)
+	}
+	if get(t, c, "running") != object.True {
+		t.Fatal("a wait timeout stopped the process")
+	}
+	if _, err := method(t, c, "kill"); err != nil {
+		t.Fatal(err)
+	}
+	r, err := method(t, c, "wait")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if first != second {
-		t.Fatal("repeated wait did not return cached result")
+	if get(t, r, "code") != object.Integer(-1) || get(t, c, "running") != object.False {
+		t.Fatalf("killed command code = %v", get(t, r, "code"))
 	}
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("repeated start succeeded")
+	if again, _ := method(t, c, "wait"); again != r {
+		t.Fatal("wait() again returned another Result")
+	}
+	if _, err := method(t, c, "kill"); err != nil {
+		t.Fatalf("kill() after exit error = %v", err)
+	}
+	method(t, get(t, c, "stdout"), "close")
+
+	cat := call(t, "start", helper("cat", "err=done"), kw("stdin", pipe), kw("stdout", pipe), kw("stderr", pipe))
+	method(t, get(t, cat, "stdin"), "write", object.String("fed\n"))
+	method(t, get(t, cat, "stdin"), "close")
+	out, _ := method(t, get(t, cat, "stdout"), "read")
+	errOut, _ := method(t, get(t, cat, "stderr"), "read")
+	if !modtest.Equal(out, object.Bytes("fed\n")) || !modtest.Equal(errOut, object.Bytes("done")) {
+		t.Fatalf("pipes carried %v / %v", out, errOut)
+	}
+	r, _ = method(t, cat, "wait")
+	if get(t, r, "success") != object.True || get(t, r, "stdout") != object.Nil {
+		t.Fatal("wait() result")
+	}
+
+	if !strings.HasPrefix(cat.(*Command).String(), `<Command ["`) {
+		t.Fatalf("Show = %s", cat)
+	}
+	if err := callErr("start", helper(), kw("check", object.True)); !errors.Is(err, object.TypeError) {
+		t.Fatal("start() accepted check=")
 	}
 }
 
-func TestWaitBeforeStartFails(t *testing.T) {
-	cmd := helperCommand(t)
-	if _, err := cmd.wait(object.CallArgs{}); err == nil {
-		t.Fatal("wait before start succeeded")
-	}
-}
-
-func TestFailedStartCannotBeRetried(t *testing.T) {
-	obj, err := command(object.CallArgs{Positional: []object.Object{object.String("/definitely/not/a/goblin-command")}})
+func TestFindAndTypes(t *testing.T) {
+	self, err := os.Executable()
 	if err != nil {
 		t.Fatal(err)
 	}
-	cmd := obj.(*Cmd)
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("missing command started")
+	m, _ := Execute()
+	find := m.(*object.Module).Members["find"].(*object.Function)
+	got, err := find.Call(object.CallArgs{Positional: object.Args{object.String(self)}})
+	if err != nil || got.(*pathvalue.Path).FilePath() != filepath.Clean(self) {
+		t.Fatalf("find(self) = %v, %v", got, err)
 	}
-	if _, err := cmd.start(object.CallArgs{}); err == nil {
-		t.Fatal("failed command was started a second time")
+	t.Setenv("PATH", filepath.Dir(self))
+	got, _ = find.Call(object.CallArgs{Positional: object.Args{object.String(filepath.Base(self))}})
+	if got == object.Nil {
+		t.Fatal("find() did not search PATH")
 	}
-}
-
-func TestOutputToDuckWriter(t *testing.T) {
-	var stdout, stderr bytes.Buffer
-	recorder := func(buffer *bytes.Buffer) object.Object {
-		return &object.Module{Name: "recorder", Members: map[string]object.Object{
-			"write": &object.Function{Name: "write", Fn: func(args object.CallArgs) (object.Object, error) {
-				chunk := args.Positional[0].(object.Bytes)
-				buffer.Write(chunk)
-				return object.Integer(len(chunk)), nil
-			}},
-		}}
+	if got, _ := find.Call(object.CallArgs{Positional: object.Args{object.String("goblin-no-such-program")}}); got != object.Nil {
+		t.Fatalf("find(missing) = %v", got)
 	}
-
-	env := object.NewDict()
-	env.Set(object.String("GO_WANT_HELPER_PROCESS"), object.String("1"))
-	env.Set(object.String("GOCOVERDIR"), object.String(t.TempDir()))
-	obj, err := command(object.CallArgs{
-		Positional: []object.Object{object.String(os.Args[0]), &object.List{Elements: []object.Object{
-			object.String("-test.run=TestHelperProcess"), object.String("--"),
-			object.String("duck-out"), object.String("duck-err"),
-		}}},
-		Keyword: object.Kwargs{
-			{Name: "env", Value: env},
-			{Name: "stdout", Value: recorder(&stdout)},
-			{Name: "stderr", Value: recorder(&stderr)},
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
+	for name, hint := range map[string]string{"Command": "exec.start(args)", "Result": "exec.run(args)"} {
+		_, err := m.(*object.Module).Members[name].(*object.Function).Call(object.CallArgs{})
+		if !errors.Is(err, object.TypeError) || !strings.Contains(err.Error(), hint) {
+			t.Errorf("%s() error = %v", name, err)
+		}
 	}
-	if _, err := obj.(*Cmd).run(object.CallArgs{}); err != nil {
-		t.Fatal(err)
-	}
-	if got := stdout.String(); got != "duck-out" {
-		t.Fatalf("stdout writer received %q, want duck-out", got)
-	}
-	if got := stderr.String(); got != "duck-err" {
-		t.Fatalf("stderr writer received %q, want duck-err", got)
-	}
-}
-
-func TestOutputRejectsNonWriter(t *testing.T) {
-	_, err := command(object.CallArgs{
-		Positional: []object.Object{object.String("true")},
-		Keyword:    object.Kwargs{{Name: "stdout", Value: object.Integer(1)}},
-	})
-	if err == nil {
-		t.Fatal("Command(stdout=1) succeeded, want TypeError")
+	if object.TypeOf(pipe) != m.(*object.Module).Members["Pipe"] {
+		t.Fatal("type_of(PIPE) is not exec.Pipe")
 	}
 }

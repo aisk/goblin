@@ -16,20 +16,20 @@ func TestSessionArgv(t *testing.T) {
 	if _, err := s.Eval(`import "os"`); err != nil {
 		t.Fatal(err)
 	}
-	v, err := s.Eval(`os.argv()`)
+	v, err := s.Eval(`os.args`)
 	if err != nil {
 		t.Fatal(err)
 	}
 	list, ok := v.(*object.List)
-	if !ok {
-		t.Fatalf("os.argv() = %T, want *object.List", v)
+	if !ok || len(list.Elements) != 0 {
+		t.Fatalf("os.args = %v, want []", v)
 	}
-	if len(list.Elements) != 1 {
-		t.Fatalf("os.argv() size = %d, want 1", len(list.Elements))
+	v, err = s.Eval(`os.program`)
+	if err != nil {
+		t.Fatal(err)
 	}
-	got, ok := list.Elements[0].(object.String)
-	if !ok || string(got) != replArgv0 {
-		t.Fatalf("os.argv()[0] = %#v, want %q", list.Elements[0], replArgv0)
+	if got, ok := v.(object.String); !ok || string(got) != replArgv0 {
+		t.Fatalf("os.program = %#v, want %q", v, replArgv0)
 	}
 }
 

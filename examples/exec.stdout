@@ -1,5 +1,20 @@
-true
+building
+<Result code=0> 0 true nil
+CI=1 in fs_dir_fixture
 hello from exec
-
-0
-true
+["b", "a", "b", ""]
+["a", "b", ""]
+hello from fs fixture
+working tree is dirty (status 1)
+capture() "sh" exited with status 128: fatal: not a git repository
+true nil
+true run() program "goblin-no-such-tool" not found
+["compiling", "warning", ""]
+true run() "sleep" timed out after 0.1 seconds
+true true nil
+-1 false false
+tail: starting
+tail: READY
+through a pipe true
+true true true
+run() argument 'stdout' does not accept exec.PIPE (use exec.start)

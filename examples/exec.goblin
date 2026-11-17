@@ -1,14 +1,87 @@
 import "exec"
+import "fs"
+import "time"
 
-var cmd = exec.Command(
-    "printf",
-    ["hello from exec\n"],
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-)
+# Run a step; the program stops with an error if it fails.
+var step = exec.run(["sh", "-c", "echo building"])
+print(step, step.code, step.success, step.stdout)
+exec.run(["sh", "-c", "echo CI=$CI in $(basename $(pwd))"], cwd="fs_dir_fixture", env={"CI": "1"})
 
-var result = cmd.run()
-print(type_of(cmd) == exec.Command)
-print(result.stdout.decode())
-print(result.code)
-print(result.success)
+# Get a command's output as text.
+var greeting = exec.capture(["sh", "-c", "echo hello from exec"]).stdout.trim()
+print(greeting)
+var words = exec.capture(["printf", "b\\na\\nb\\n"]).stdout.split("\n")
+print(words)
+
+# Feed it input.
+print(exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout.split("\n"))
+var fixture = fs.open("fs_fixture.txt")
+defer fixture.close()
+print(exec.capture(["cat"], stdin=fixture).stdout.trim())
+
+# A failure you expect: look at the result instead of catching.
+var diff = exec.run(["sh", "-c", "exit 1"], check=false)
+if !diff.success {
+    print("working tree is dirty (status {diff.code})")
+}
+try {
+    exec.capture(["sh", "-c", "echo 'fatal: not a git repository' >&2; exit 128"])
+} catch e {
+    print(e.message)
+}
+
+# Is the tool there at all.
+print(exec.find("sh") != nil, exec.find("goblin-no-such-tool"))
+try {
+    exec.run(["goblin-no-such-tool"])
+} catch e {
+    print(e.is(NotExistError), e.message.split(":")[0])
+}
+
+# Send output to a file.
+var scratch = fs.mkdir_temp(prefix="goblin-exec-")
+defer fs.remove(scratch, recursive=true)
+var log = fs.open(scratch.join("build.log"), write=true)
+exec.run(["sh", "-c", "echo compiling; echo warning >&2"], stdout=log, stderr=log)
+log.close()
+print(fs.read(scratch.join("build.log")).split("\n"))
+
+# Give up after a while.
+try {
+    exec.run(["sleep", "10"], timeout=0.1)
+} catch e {
+    print(e.is(TimeoutError), e.message)
+}
+
+# Start a process, use it, stop it.
+var server = exec.start(["sleep", "10"])
+print(server.running, server.pid > 0, server.stdout)
+server.kill()
+var ended = server.wait()
+print(ended.code, ended.success, server.running)
+
+# Follow a long-running command line by line.
+var tail = exec.start(["sh", "-c", "echo starting; echo READY; sleep 10"], stdout=exec.PIPE)
+for line in tail.stdout {
+    print("tail:", line)
+    if line.contains("READY") {
+        break
+    }
+}
+tail.kill()
+tail.wait()
+tail.stdout.close()
+
+# Talk to a process through pipes.
+var cat = exec.start(["cat"], stdin=exec.PIPE, stdout=exec.PIPE)
+cat.stdin.write("through a pipe\n")
+cat.stdin.close()
+print(cat.stdout.read_line(), cat.wait().success)
+cat.stdout.close()
+
+print(type_of(step) == exec.Result, type_of(cat) == exec.Command, type_of(exec.PIPE) == exec.Pipe)
+try {
+    exec.run(["cat"], stdout=exec.PIPE)
+} catch e {
+    print(e)
+}

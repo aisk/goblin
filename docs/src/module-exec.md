@@ -1,112 +1,142 @@
 # exec
 
-Import `exec` to configure and execute external commands. Commands are invoked
-directly: arguments are never parsed by a shell.
+The exec module runs other programs. Three functions cover three tasks: `run`
+for a command's effect, `capture` for its output, `start` for a process you
+keep control of.
 
-~~~goblin
-import "exec"
+A command is always a **List**: the program followed by its arguments. No
+shell is involved, so there is no quoting and no injection; for a pipeline,
+run `["sh", "-c", "a | b"]` on purpose.
 
-var cmd = exec.Command(
-    "git",
-    ["status", "--short"],
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-)
-
-var result = cmd.run()
-if result.success {
-    print(result.stdout.decode())
-}
-~~~
-
-## Command
-
-~~~text
-Command(name, args=[], cwd=unit, env=unit,
-        stdin=INHERIT, stdout=INHERIT, stderr=INHERIT)
-~~~
-
-`name` and every element of `args` must be strings. `cwd` accepts `unit`, a
-string, or a `Path`. An omitted `env` inherits the current process environment;
-a dictionary replaces it completely, so `env={}` starts the command with an
-empty environment. Environment keys and values must be strings.
-
-The standard-stream policies are:
-
-| Policy | Meaning |
-| --- | --- |
-| `INHERIT` | Use the corresponding Goblin process stream |
-| `DISCARD` | Provide EOF for stdin or discard output |
-| `CAPTURE` | Capture stdout or stderr into the result |
-
-`stdin` also accepts `String` or `Bytes`. `CAPTURE` is valid only for stdout and
-stderr. Captured values are `Bytes`, because command output is not necessarily
-UTF-8; call `decode()` when text is expected.
-
-Besides the policies, `stdout` and `stderr` accept any writer object — an
-object with a `write(data)` method, such as an open `fs` file. The command's
-output streams into it as `Bytes` chunks, so large output never has to be
-captured in memory:
+## Common tasks
 
 ~~~goblin
 import "exec"
 import "fs"
+import "http"
+import "time"
 
+# Run a step; the program stops with an error if it fails
+exec.run(["go", "build", "./..."])
+exec.run(["npm", "install"], cwd="web", env={"CI": "1"})
+
+# Get a command's output
+var head = exec.capture(["git", "rev-parse", "HEAD"]).stdout.trim()
+var tags = exec.capture(["git", "tag"]).stdout.split("\n")
+
+# Feed it input
+var sorted_text = exec.capture(["sort", "-u"], stdin="b\na\nb\n").stdout
+
+# A failure you expect: look at the result instead of catching
+var diff = exec.run(["git", "diff", "--quiet"], check=false)
+if !diff.success {
+    print("working tree is dirty (status {diff.code})")
+}
+
+# Is the tool there at all
+if exec.find("docker") == nil {
+    raise Error("docker is not installed")
+}
+
+# Send output to a file
 var log = fs.open("build.log", write=true)
-exec.Command("make", stdout=log, stderr=log).run()
-log.close()
+defer log.close()
+exec.run(["make"], stdout=log, stderr=log)
+
+# Give up after a minute
+exec.run(["npm", "test"], timeout=60)
+
+# Start a server, use it, stop it
+var server = exec.start(["python3", "-m", "http.server", "8000"])
+defer server.kill()
+time.sleep(1)
+print(http.get("http://localhost:8000/").status)
+
+# Follow a long-running command line by line
+var tail = exec.start(["tail", "-f", "app.log"], stdout=exec.PIPE)
+for line in tail.stdout {
+    if line.contains("READY") {
+        break
+    }
+}
+tail.kill()
 ~~~
 
-`exec` never calls the writer's `close()`; close the target yourself when the
-command finishes. With `start()`, chunks may arrive while your program is doing
-other work, so do not write to the same object from Goblin code until `wait()`
-returns.
+`examples/exec.goblin` runs each of these tasks with small shell commands.
 
-## Executing a command
+## Module members
 
-`cmd.run()` starts, waits for, and reaps a command. Output behavior comes only
-from the stream configuration on `Command`.
+| Member | Returns | Behaviour |
+| --- | --- | --- |
+| `run(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil, check=true, timeout=nil)` | Result | Runs the command to completion; its output goes where this program's goes, or to `stdout=`/`stderr=`. `result.stdout` and `stderr` are `nil` |
+| `capture(args, cwd=nil, env=nil, stdin=nil, check=true, timeout=nil)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal |
+| `start(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil)` | Command | Starts the command and returns at once. `stdin`, `stdout` and `stderr` also accept `exec.PIPE` |
+| `find(name)` | Path or `nil` | Where `name` would be found on `PATH`; `nil` when it is not installed |
+| `PIPE` | constant | For `start` only: connect that stream to this program (`command.stdin`, `command.stdout`, `command.stderr`). Passing it to `run` is a TypeError |
 
-~~~goblin
-var result = exec.Command(
-    "gofmt",
-    stdin="package main\nfunc main()\{}",
-    stdout=exec.CAPTURE,
-    stderr=exec.CAPTURE
-).run()
-~~~
+The parameters they share:
 
-For explicit asynchronous control, use `start()` followed by `wait()`:
+| Parameter | Accepts | Meaning |
+| --- | --- | --- |
+| `args` | non-empty List of String or Path | Program and arguments. A bare name is looked up on `PATH` |
+| `cwd=nil` | String, Path | Working directory for the command; `nil` is this program's |
+| `env=nil` | Dict of String to String or `nil` | **Added to** the inherited environment; a `nil` value removes that variable |
+| `stdin=nil` | `nil`, String, Bytes or a readable | `nil`: the command reads this program's stdin. Data is fed to the command, then its stdin is closed |
+| `stdout=nil`, `stderr=nil` | `nil` or a writable | `nil`: the command writes to this program's stream. A writable (a File, anything with `write(data)`) receives the output and is not closed |
+| `check=true` | Bool | A non-zero exit raises. `false` returns the Result for you to inspect |
+| `timeout=nil` | seconds | When it expires the process is killed and TimeoutError is raised |
 
-~~~goblin
-var cmd = exec.Command("worker", ["--once"])
-cmd.start()
-print(cmd.pid)
-var result = cmd.wait()
-~~~
+The type names `Command`, `Result` and `Pipe` (the type of `PIPE`) are exported
+for `type_of`; calling them raises TypeError pointing at `exec.start` /
+`exec.run`.
 
-A command can be started only once. `wait()` before `start()` and a second
-execution attempt raise `ValueError`. Repeated calls to `wait()` return the
-same cached result. `kill()` terminates a started command; call `wait()`
-afterward to obtain its result. `cmd.pid` is `unit` before startup, and
-`cmd.running()` reports whether the command has not yet been reaped.
+### Errors
+
+| Failure | Raises |
+| --- | --- |
+| The program is not found | NotExistError `run() program "gti" not found` |
+| It cannot be run | PermissionError, IOError |
+| `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` |
+| Non-zero exit with `check=true` | Error `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository` |
+
+Errors carry no data in Goblin, so the exit status and stderr of a failed
+`check=true` command are only in the message. To handle a failure, pass
+`check=false` and look at the Result.
 
 ## Result
 
-| Attribute | Type | Meaning |
+Immutable; all properties.
+
+| Property | Value |
+| --- | --- |
+| `code` | Int exit status; `-1` when the process was killed by a signal |
+| `success` | Bool, `code == 0` |
+| `stdout` | String from `capture`, with invalid UTF-8 replaced by U+FFFD; `nil` from `run` and `Command.wait` |
+| `stderr` | likewise |
+
+## Command
+
+A started process, from `exec.start`. It shows as `<Command ["git", "status"]>`.
+
+| Member | Kind | Value |
 | --- | --- | --- |
-| `code` | `Int` | Exit code; a signal may produce `-1` |
-| `success` | `Bool` | Whether the exit code is zero |
-| `stdout` | `Bytes` or `unit` | Captured stdout, if configured |
-| `stderr` | `Bytes` or `unit` | Captured stderr, if configured |
+| `pid` | property | Int |
+| `running` | property | Bool: started and not yet exited |
+| `stdin` | property | A writable [File](./module-fs.md#file) when started with `stdin=exec.PIPE`, else `nil`. `close()` it to signal the end of input |
+| `stdout`, `stderr` | property | A readable File when started with `exec.PIPE`, else `nil` |
+| `wait(timeout=nil)` | method | Blocks until the process exits and returns its Result (`stdout`/`stderr` are `nil`). It never raises for a non-zero exit, and calling it again returns the same Result. On timeout it raises TimeoutError and the process **keeps running** |
+| `kill()` | method | Stops the process; `nil`. Fine if it already exited. Follow with `wait()` to collect the status |
 
-A non-zero exit code is a normal result, not an exception. Failures to start
-or wait for the command raise an I/O-related error. Inspect `code` or `success`
-and implement any command-specific failure policy in Goblin code.
+A piped `stdout` or `stderr` must be read to its end before `wait()`: a
+process blocked on a full pipe never exits. Close the pipes you asked for once
+you are done with them.
 
-## Shell commands
+When `stdout=` or `stderr=` is a writable, its `write` is called while the
+command runs, also while your program goes on after `start`; do not use the
+same object from Goblin code until `wait()` returns.
 
-`exec` does not interpret pipes, redirects, glob patterns, or shell variables.
-Pass every argument as a separate list element. If shell syntax is explicitly
-required, invoke a platform shell yourself, for example `exec.Command("sh",
-["-c", script])`; do not insert untrusted text into such a script.
+## Left out
+
+Shell command strings, signals other than kill, a clean (not inherited)
+environment, and capturing output as Bytes are not part of the module. A
+command with binary output is sent to a File with `stdout=`.

@@ -108,7 +108,7 @@ A member that takes no arguments is either a property (`p.name`) or a nullary me
 - **A property never raises.** When the value can be absent for this receiver, the property is `nil` (`list.first` on an empty list). If absence needs an explanation rather than `nil`, the member is a method.
 - **Method** when any of the following holds: it takes arguments; it performs I/O (`File.read_line()`, `Response.json()`); it can block or fail; it mutates the receiver or the world; it returns a fresh collection the caller may modify (`dict.keys()`, `list.copy()`); it converts or transforms the value into a new one (`s.upper()`, `Path.with_suffix(".md")`); or it is expensive enough that the reader should see the cost.
 - The same question may be a property in one place and a call in another, and the difference is information: `info.is_dir` reads a snapshot already taken, `fs.is_dir(path)` asks the disk.
-- Module-level members follow the same rule. A fact fixed for the life of the process is a value (`os.pid`, `os.args`), a stateful facility is an object (`os.env`), and anything that can change or fail is a function.
+- Module-level members follow the same rule. A fact fixed for the life of the process is a value (`os.pid`, `os.args`, which holds the arguments without the program name so `var src, dst = os.args` works; the name is `os.program`), a stateful facility is an object (`os.env`), and anything that can change or fail is a function.
 - **A value's member namespace holds its fields and methods and nothing else.** Asking a value for its type or its member names is a global function taking the value, never a member, so no name is taken away from user types and the two backends have no shadowing order to agree on.
 
 ## 5. Naming
@@ -160,7 +160,7 @@ The built-in types are the part of the library every program uses, so consistenc
 
 - Accept and return Goblin runtime types. Go machinery — channels, `context.Context`, config structs, interfaces as extension points — does not leak into a module's API.
 - Where Go has `[]byte` and `string` variants, pick the one natural Goblin type and offer the other only if genuinely needed.
-- APIs whose Go counterpart takes a `context.Context` are wrapped without a context parameter: pass `context.TODO()` internally and do not invent per-call timeout or cancellation arguments. Mirroring a timeout Go exposes as plain configuration is fine (`http.Client(timeout=...)`). Time-bounding belongs to the `Goblin` handle (`wait(timeout=...)`); cancellation, when it arrives, will ride on that handle, and per-call plumbing added today would only have to be unwound.
+- APIs whose Go counterpart takes a `context.Context` are wrapped without a context parameter; a context, if the implementation needs one, stays internal. A blocking operation is time-bounded the way the language bounds every blocking operation: a `timeout=` keyword read through `ArgParser.Timeout` (a number of seconds, `nil` for no limit) that raises TimeoutError (`exec.run(cmd, timeout=60)`, `Chan.receive(timeout=...)`, `Goblin.wait(timeout=...)`). Never expose a context, a deadline object or a cancellation argument.
 
 ## 9. Leave it out
 

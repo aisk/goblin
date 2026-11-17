@@ -57,7 +57,7 @@ var runCmd = &cobra.Command{
 	Long: `Interpret a Goblin source file directly (tree-walking interpreter).
 
 The first argument must be the source file. All arguments after it are
-forwarded to the script as os.argv(), including flag-like values such as
+forwarded to the script as os.args, including flag-like values such as
 -h or --verbose. Leading flags are rejected. CLI help is "goblin run -h"
 or "goblin help run" (alone, with no source file).`,
 	Args:               cobra.MinimumNArgs(1),
@@ -100,7 +100,7 @@ func wantsHelp(args []string) bool {
 }
 
 // requireSourceFirst requires the first argument to be a source path, not a flag.
-// Flag-like values belong after the source file so they reach os.argv().
+// Flag-like values belong after the source file so they reach os.args.
 func requireSourceFirst(args []string) error {
 	if len(args) == 0 {
 		return fmt.Errorf("source file required")

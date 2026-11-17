@@ -1,22 +1,49 @@
 import "os"
 
-# getenv returns a string, or nil / the default= fallback when unset
-print(type_of(os.getenv("HOME")) == String)
-print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST") == nil)
-print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST", default="fallback"))
+# Positional arguments: the program name is not one of them.
+print(os.args, type_of(os.args) == List, os.args == os.args)
+print(type_of(os.program) == String, os.program != "")
+if os.args.size != 0 {
+    eprint("usage: {os.program}")
+    os.exit(2)
+}
 
-# argv is the process command line: a non-empty list of strings
-var args = os.argv()
-print(type_of(args) == List)
-print(args.size > 0)
-print(type_of(args[0]) == String)
+# Settings from the environment.
+var port = Int(os.env.get("GOBLIN_EXAMPLE_PORT", default="8080"))
+print(port)
+try {
+    var token = os.env["GOBLIN_EXAMPLE_TOKEN"]
+} catch e {
+    print(e.is(KeyError), e.message)
+}
+os.env["GOBLIN_EXAMPLE_COLOR"] = "1"
+print(os.env["GOBLIN_EXAMPLE_COLOR"], os.env.contains("GOBLIN_EXAMPLE_COLOR"))
+print(os.env.to_dict()["GOBLIN_EXAMPLE_COLOR"])
+print(os.env.remove("GOBLIN_EXAMPLE_COLOR") == os.env, os.env.contains("GOBLIN_EXAMPLE_COLOR"))
+os.env.remove("GOBLIN_EXAMPLE_COLOR")
+try {
+    os.env["BAD=NAME"] = "x"
+} catch e {
+    print(e.is(ValueError), e.message)
+}
+print(type_of(os.env) == os.Env)
 
-# process and user/group accessors return integers
-print(type_of(os.getpid()) == Int)
-print(type_of(os.getppid()) == Int)
-print(type_of(os.getuid()) == Int)
+# The standard streams are Files; write() adds no newline.
+os.stdout.write("Delete everything? [y/N] ")
+print(os.stdout.write(Bytes("\n")))
+os.stderr.write("to stderr\n")
+print(os.stdin, os.stdout, os.stdout.path, os.stdout.closed)
 
-# A live process always has a positive pid
-print(os.getpid() > 0)
+# Process facts.
+print(os.pid > 0, type_of(os.pid) == Int)
+var opener = "xdg-open"
+if os.platform == "darwin" {
+    opener = "open"
+}
+print(["linux", "darwin", "windows", "freebsd"].contains(os.platform) || os.platform != "")
 
-# Note: os.exit() is tested separately to avoid terminating the test runner
+try {
+    os.exit(256)
+} catch e {
+    print(e)
+}

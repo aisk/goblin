@@ -11,18 +11,21 @@ import (
 
 func TestRunForwardsArgv(t *testing.T) {
 	const src = `import "os"
-var a = os.argv()
-if a.size != 3 {
+var a = os.args
+if a.size != 2 {
     raise Error("bad size")
 }
-if a[0] != "myscript.goblin" {
+if os.program != "myscript.goblin" {
+    raise Error("bad program")
+}
+if a[0] != "foo" {
     raise Error("bad 0")
 }
-if a[1] != "foo" {
+if a[1] != "bar" {
     raise Error("bad 1")
 }
-if a[2] != "bar" {
-    raise Error("bad 2")
+if os.args != a {
+    raise Error("os.args is not one list")
 }
 `
 	mod, err := source.ParseString(src)
@@ -42,8 +45,8 @@ func TestImportedModuleSeesEntryArgv(t *testing.T) {
 	dir := t.TempDir()
 	dep := filepath.Join(dir, "dep.goblin")
 	if err := os.WriteFile(dep, []byte(`import "os"
-var a = os.argv()
-if a.size != 2 || a[1] != "from-entry" {
+var a = os.args
+if a.size != 1 || a[0] != "from-entry" {
     raise Error("dependency saw the wrong argv")
 }
 `), 0644); err != nil {

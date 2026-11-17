@@ -1,170 +1,338 @@
+// Package exec is the exec module: run other programs. A command is a List,
+// the program followed by its arguments; no shell is involved.
 package exec
 
 import (
 	"bytes"
-	"fmt"
+	"context"
+	"errors"
 	"io"
+	stdfs "io/fs"
 	"os"
 	stdexec "os/exec"
+	"strings"
+	"time"
 
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
-type streamPolicy struct {
-	object.OpaqueBase
-	name string
-}
-
-func (p *streamPolicy) String() string            { return "exec." + p.name }
-func (p *streamPolicy) ToString() (string, error) { return p.String(), nil }
-func (p *streamPolicy) GetAttr(name string) (object.Object, error) {
-	return nil, object.NewAttributeError("StreamPolicy has no attribute '%s'", name)
-}
-func (p *streamPolicy) Attributes() []string { return []string{} }
-
 var (
-	inherit     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "INHERIT"}
-	discard     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "DISCARD"}
-	capture     = &streamPolicy{OpaqueBase: object.MakeOpaqueBase("StreamPolicy"), name: "CAPTURE"}
-	commandType = object.NewNativeConstructor("Command", command)
+	commandType = object.NewOpaqueConstructor("Command", "exec.start(args)")
+	resultType  = object.NewOpaqueConstructor("Result", "exec.run(args)")
+	pipeType    = object.NewOpaqueConstructor("Pipe", "exec.PIPE")
 )
 
-func Execute() (object.Object, error) {
-	return &object.Module{Name: "exec", Members: map[string]object.Object{
-		"Command": commandType.Function,
-		"INHERIT": inherit,
-		"DISCARD": discard,
-		"CAPTURE": capture,
-	}}, nil
+// Pipe is the type of exec.PIPE, which asks exec.start to connect a
+// standard stream of the command to this program.
+type Pipe struct{ object.OpaqueBase }
+
+var pipe = &Pipe{OpaqueBase: object.MakeOpaqueBase("Pipe")}
+
+func (p *Pipe) Constructor() *object.Function            { return pipeType.Function }
+func (p *Pipe) String() string                           { return "exec.PIPE" }
+func (p *Pipe) ToString() (string, error)                { return p.String(), nil }
+func (p *Pipe) Equals(other object.Object) (bool, error) { return other == object.Object(p), nil }
+func (p *Pipe) Attributes() []string                     { return nil }
+func (p *Pipe) GetAttr(name string) (object.Object, error) {
+	return nil, object.NewAttributeError("Pipe has no attribute '%s'", name)
 }
 
-func command(args object.CallArgs) (object.Object, error) {
-	ap := object.NewArgParser("Command", args)
-	name := ap.Str("name")
-	argsObj := ap.AnyOr("args", &object.List{})
-	cwdObj := ap.AnyOr("cwd", object.Nil)
-	envObj := ap.AnyOr("env", object.Nil)
-	stdinObj := ap.AnyOr("stdin", inherit)
-	stdoutObj := ap.AnyOr("stdout", inherit)
-	stderrObj := ap.AnyOr("stderr", inherit)
-	if err := ap.Finish(); err != nil {
+func Execute() (object.Object, error) {
+	return object.NewModule("exec", map[string]object.Object{
+		"PIPE":    pipe,
+		"Command": commandType.Function,
+		"Result":  resultType.Function,
+		"Pipe":    pipeType.Function,
+	}, object.Funcs{
+		"run":     run,
+		"capture": capture,
+		"start":   start,
+		"find":    find,
+	}), nil
+}
+
+// spec is the parsed form of the parameters run, capture and start share.
+type spec struct {
+	fn      string
+	argv    []string
+	cwd     string
+	hasCwd  bool
+	env     *object.Dict
+	stdin   object.Object
+	stdout  object.Object
+	stderr  object.Object
+	check   bool
+	timeout time.Duration
+	limited bool
+}
+
+// parse binds the parameters of fn in their documented order; output and
+// check/timeout are only bound for the functions that take them.
+func parse(fn string, args object.CallArgs, output, wait bool) (*spec, error) {
+	p := object.NewArgParser(fn, args)
+	s := &spec{fn: fn}
+	list := p.List("args")
+	s.cwd, s.hasCwd = p.NullablePath("cwd")
+	envObj := p.AnyOr("env", object.Nil)
+	s.stdin = p.AnyOr("stdin", object.Nil)
+	s.stdout, s.stderr = object.Nil, object.Nil
+	if output {
+		s.stdout = p.AnyOr("stdout", object.Nil)
+		s.stderr = p.AnyOr("stderr", object.Nil)
+	}
+	s.check = true
+	if wait {
+		s.check = bool(p.BoolOr("check", true))
+		s.timeout, s.limited = p.Timeout("timeout")
+	}
+	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-
-	list, ok := argsObj.(*object.List)
-	if !ok {
-		return nil, object.NewTypeError("Command() argument 'args' must be List, got %s", argsObj.TypeName())
+	if len(list.Elements) == 0 {
+		return nil, object.NewValueError("%s() argument 'args' must not be empty", fn)
 	}
-	argv := make([]string, len(list.Elements))
+	s.argv = make([]string, len(list.Elements))
 	for i, arg := range list.Elements {
-		s, ok := arg.(object.String)
+		text, ok := object.PathString(arg)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'args' elements must be String, got %s at index %d", arg.TypeName(), i)
+			return nil, object.NewTypeError("%s() argument 'args' must contain String or Path, got %s at index %d", fn, arg.TypeName(), i)
 		}
-		argv[i] = string(s)
+		s.argv[i] = text
 	}
-
-	cmd := stdexec.Command(string(name), argv...)
-	if _, ok := cwdObj.(object.Unit); !ok {
-		cwd, ok := object.PathString(cwdObj)
-		if !ok {
-			return nil, object.NewTypeError("Command() argument 'cwd' must be Nil, String, or Path, got %s", cwdObj.TypeName())
-		}
-		cmd.Dir = cwd
-	}
-	if _, ok := envObj.(object.Unit); !ok {
+	if envObj != object.Nil {
 		dict, ok := envObj.(*object.Dict)
 		if !ok {
-			return nil, object.NewTypeError("Command() argument 'env' must be Nil or Dict, got %s", envObj.TypeName())
+			return nil, object.NewTypeError("%s() argument 'env' must be Dict or Nil, got %s", fn, envObj.TypeName())
 		}
-		cmd.Env = make([]string, 0, dict.Len())
 		for _, entry := range dict.Entries() {
-			key, keyOK := entry.Key.(object.String)
-			value, valueOK := entry.Value.(object.String)
-			if !keyOK || !valueOK {
-				return nil, object.NewTypeError("Command() argument 'env' keys and values must be String")
+			if _, ok := entry.Key.(object.String); !ok {
+				return nil, object.NewTypeError("%s() argument 'env' keys must be String, got %s", fn, entry.Key.TypeName())
 			}
-			cmd.Env = append(cmd.Env, string(key)+"="+string(value))
+			if _, ok := entry.Value.(object.String); !ok && entry.Value != object.Nil {
+				return nil, object.NewTypeError("%s() argument 'env' values must be String or Nil, got %s", fn, entry.Value.TypeName())
+			}
 		}
+		s.env = dict
 	}
-
-	c := &Cmd{OpaqueBase: object.MakeOpaqueBase("Command"), cmd: cmd, state: stateCreated}
-	if err := c.configureStdin(stdinObj); err != nil {
-		return nil, err
-	}
-	if err := c.configureOutput("stdout", stdoutObj); err != nil {
-		return nil, err
-	}
-	if err := c.configureOutput("stderr", stderrObj); err != nil {
-		return nil, err
-	}
-	return c, nil
+	return s, nil
 }
 
-func (c *Cmd) configureStdin(value object.Object) error {
-	switch v := value.(type) {
-	case *streamPolicy:
-		switch v {
-		case inherit:
-			c.cmd.Stdin = os.Stdin
-		case discard:
-			c.cmd.Stdin = nil
-		default:
-			return object.NewTypeError("Command() argument 'stdin' does not accept exec.%s", v.name)
-		}
-	case object.String:
-		c.cmd.Stdin = bytes.NewReader([]byte(v))
-	case object.Bytes:
-		c.cmd.Stdin = bytes.NewReader([]byte(v))
-	default:
-		return object.NewTypeError("Command() argument 'stdin' must be INHERIT, DISCARD, String, or Bytes, got %s", value.TypeName())
+// environ is this process's environment with env applied in insertion
+// order: a String sets a variable, nil removes it.
+func environ(env *object.Dict) []string {
+	vars := os.Environ()
+	if env == nil {
+		return vars
 	}
-	return nil
+	for _, entry := range env.Entries() {
+		name := string(entry.Key.(object.String))
+		kept := vars[:0]
+		for _, v := range vars {
+			if n, _, _ := strings.Cut(v, "="); n != name {
+				kept = append(kept, v)
+			}
+		}
+		vars = kept
+		if value, ok := entry.Value.(object.String); ok {
+			vars = append(vars, name+"="+string(value))
+		}
+	}
+	return vars
 }
 
-func (c *Cmd) configureOutput(name string, value object.Object) error {
-	policy, ok := value.(*streamPolicy)
-	if !ok {
-		// Any object with a write(data) method (e.g. an fs.File) receives the
-		// stream; exec never calls its close().
-		duck, err := object.NewDuckWriter("Command", name, value)
-		if err != nil {
-			return object.NewTypeError("Command() argument '%s' must be INHERIT, DISCARD, CAPTURE, or an object with a write(data) method, got %s", name, value.TypeName())
-		}
-		if name == "stdout" {
-			c.cmd.Stdout = duck
-		} else {
-			c.cmd.Stderr = duck
-		}
-		return nil
-	}
-	var writer io.Writer
-	switch policy {
-	case inherit:
-		if name == "stdout" {
-			writer = os.Stdout
-		} else {
-			writer = os.Stderr
-		}
-	case discard:
-		writer = io.Discard
-	case capture:
-		if name == "stdout" {
-			c.stdout = &bytes.Buffer{}
-			writer = c.stdout
-		} else {
-			c.stderr = &bytes.Buffer{}
-			writer = c.stderr
-		}
-	default:
-		return object.NewTypeError("Command() invalid stream policy %s", policy.String())
-	}
-	if name == "stdout" {
-		c.cmd.Stdout = writer
+// command builds the Go command for s. ctx bounds it when a timeout is set.
+func (s *spec) command(ctx context.Context) (*stdexec.Cmd, error) {
+	var cmd *stdexec.Cmd
+	if ctx != nil {
+		cmd = stdexec.CommandContext(ctx, s.argv[0], s.argv[1:]...)
+		// A killed command's output pipes may be held open by its own
+		// children; stop waiting for them shortly after the kill.
+		cmd.WaitDelay = time.Second
 	} else {
-		c.cmd.Stderr = writer
+		cmd = stdexec.Command(s.argv[0], s.argv[1:]...)
 	}
-	return nil
+	if s.hasCwd {
+		info, err := os.Stat(s.cwd)
+		if err != nil {
+			return nil, object.WrapNativeError(object.IOError, s.fn+`() working directory "`+s.cwd+`"`, unwrapPath(err))
+		}
+		if !info.IsDir() {
+			return nil, &object.Error{Value: s.fn + `() working directory "` + s.cwd + `" is not a directory`, Wrapped: object.NotExistError}
+		}
+		cmd.Dir = s.cwd
+	}
+	cmd.Env = environ(s.env)
+	return cmd, nil
 }
 
-func commandString(cmd *stdexec.Cmd) string { return fmt.Sprintf("%q", cmd.Args) }
+// unwrapPath strips the operation, path or program name Go adds to an
+// error, since the message wrapping it already names them.
+func unwrapPath(err error) error {
+	var pe *stdfs.PathError
+	if errors.As(err, &pe) {
+		return pe.Err
+	}
+	var ee *stdexec.Error
+	if errors.As(err, &ee) {
+		return ee.Err
+	}
+	return err
+}
+
+// stdinReader is the command's stdin for a data value: nil inherits this
+// process's stdin.
+func (s *spec) stdinReader(allowPipe bool) (io.Reader, error) {
+	if s.stdin == object.Nil {
+		return os.Stdin, nil
+	}
+	if s.stdin == object.Object(pipe) && !allowPipe {
+		return nil, object.NewTypeError("%s() argument 'stdin' does not accept exec.PIPE (use exec.start)", s.fn)
+	}
+	r, ok := object.DataReader(s.fn, "stdin", s.stdin)
+	if !ok {
+		want := "String, Bytes, Nil or have a read(size) method"
+		if allowPipe {
+			want = "String, Bytes, Nil, exec.PIPE or have a read(size) method"
+		}
+		return nil, object.NewTypeError("%s() argument 'stdin' must be %s, got %s", s.fn, want, s.stdin.TypeName())
+	}
+	return r, nil
+}
+
+// outputWriter is the destination of a command's stdout or stderr: nil
+// inherits this process's stream; a writable receives the output and is not
+// closed.
+func (s *spec) outputWriter(name string, value object.Object, inherit *os.File, allowPipe bool) (io.Writer, error) {
+	if value == object.Nil {
+		return inherit, nil
+	}
+	if value == object.Object(pipe) && !allowPipe {
+		return nil, object.NewTypeError("%s() argument '%s' does not accept exec.PIPE (use exec.start)", s.fn, name)
+	}
+	w, err := object.NewDuckWriter(s.fn, name, value)
+	if err != nil {
+		want := "Nil or have a write(data) method"
+		if allowPipe {
+			want = "Nil, exec.PIPE or have a write(data) method"
+		}
+		return nil, object.NewTypeError("%s() argument '%s' must be %s, got %s", s.fn, name, want, value.TypeName())
+	}
+	return writeOnly{w}, nil
+}
+
+// writeOnly hides the Close of a DuckWriter: exec never closes a stream it
+// was handed.
+type writeOnly struct{ w io.Writer }
+
+func (w writeOnly) Write(p []byte) (int, error) { return w.w.Write(p) }
+
+// startError reports a command that could not be started.
+func (s *spec) startError(err error) error {
+	var goblinErr *object.Error
+	if errors.As(err, &goblinErr) {
+		return err
+	}
+	cause := unwrapPath(err)
+	if errors.Is(err, stdexec.ErrNotFound) || errors.Is(err, stdfs.ErrNotExist) {
+		return object.WrapError(object.NotExistError, s.fn+`() program "`+s.argv[0]+`" not found`, cause)
+	}
+	return object.WrapNativeError(object.IOError, s.fn+`() cannot run "`+s.argv[0]+`"`, cause)
+}
+
+func run(args object.CallArgs) (object.Object, error) {
+	s, err := parse("run", args, true, true)
+	if err != nil {
+		return nil, err
+	}
+	stdout, err := s.outputWriter("stdout", s.stdout, os.Stdout, false)
+	if err != nil {
+		return nil, err
+	}
+	stderr, err := s.outputWriter("stderr", s.stderr, os.Stderr, false)
+	if err != nil {
+		return nil, err
+	}
+	// One writable passed for both streams is written by one goroutine at
+	// a time, as os/exec does for a shared writer.
+	if s.stdout != object.Nil && s.stdout == s.stderr {
+		stderr = stdout
+	}
+	return s.complete(stdout, stderr, nil, nil)
+}
+
+func capture(args object.CallArgs) (object.Object, error) {
+	s, err := parse("capture", args, false, true)
+	if err != nil {
+		return nil, err
+	}
+	var stdout, stderr bytes.Buffer
+	return s.complete(&stdout, &stderr, &stdout, &stderr)
+}
+
+// complete runs s to completion and builds its Result; captured buffers,
+// when given, become the Result's text.
+func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) (object.Object, error) {
+	stdin, err := s.stdinReader(false)
+	if err != nil {
+		return nil, err
+	}
+	var ctx context.Context
+	if s.limited {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(context.Background(), s.timeout)
+		defer cancel()
+	}
+	cmd, err := s.command(ctx)
+	if err != nil {
+		return nil, err
+	}
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = stdin, stdout, stderr
+	if err := cmd.Start(); err != nil {
+		return nil, s.startError(err)
+	}
+	err = cmd.Wait()
+	if ctx != nil && ctx.Err() != nil {
+		return nil, object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds())
+	}
+	if err != nil {
+		var exitErr *stdexec.ExitError
+		if !errors.As(err, &exitErr) {
+			return nil, s.startError(err)
+		}
+	}
+	result := newResult(cmd.ProcessState.ExitCode(), outBuf, errBuf)
+	if s.check && result.code != 0 {
+		message := s.fn + `() "` + s.argv[0] + `" exited with status ` + itoa(result.code)
+		if errBuf != nil {
+			if line := lastLine(errBuf.String()); line != "" {
+				message += ": " + line
+			}
+		}
+		return nil, &object.Error{Value: message, Wrapped: object.BaseError}
+	}
+	return result, nil
+}
+
+func lastLine(text string) string {
+	lines := strings.Split(text, "\n")
+	for i := len(lines) - 1; i >= 0; i-- {
+		if line := strings.TrimSpace(lines[i]); line != "" {
+			return line
+		}
+	}
+	return ""
+}
+
+func find(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("find", args)
+	name := p.Str("name")
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	path, err := stdexec.LookPath(string(name))
+	if err != nil || name == "" {
+		return object.Nil, nil
+	}
+	return pathvalue.NewPath(path), nil
+}

@@ -1,0 +1,51 @@
+# Run by docs/check-examples.sh as
+#   printf 'y\nINFO up\nERROR disk full\n' | goblin run os-tasks.goblin in.txt out.txt
+# and checks itself: any mismatch raises.
+import "os"
+
+# Positional arguments
+if os.args.size != 2 {
+    eprint("usage: {os.program} <source> <target>")
+    os.exit(2)
+}
+var source, target = os.args
+if source != "in.txt" || target != "out.txt" || !os.program.has_suffix("os-tasks.goblin") {
+    raise Error("unexpected arguments {os.args} for {os.program}")
+}
+
+# Settings from the environment
+var port = Int(os.env.get("GOBLIN_DOCS_PORT", default="8080"))
+try {
+    var token = os.env["GOBLIN_DOCS_API_TOKEN"]
+    raise Error("the token should not be set")
+} catch e {
+    if !e.is(KeyError) {
+        raise e
+    }
+}
+os.env["NO_COLOR"] = "1"
+
+# Ask a question (write() adds no newline)
+os.stdout.write("Delete everything? [y/N] ")
+var answer = os.stdin.read_line()
+if answer == nil || answer.trim().lower() != "y" {
+    os.exit(1)
+}
+
+# A filter: the rest of stdin to stdout
+var kept = []
+for line in os.stdin {
+    if line.contains("ERROR") {
+        print(line)
+        kept.push(line)
+    }
+}
+if kept != ["ERROR disk full"] || os.stdin.read_line() != nil {
+    raise Error("the filter kept {kept}")
+}
+
+# Platform differences
+var opener = "xdg-open"
+if os.platform == "darwin" {
+    opener = "open"
+}
