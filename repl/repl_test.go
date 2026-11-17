@@ -61,7 +61,7 @@ func TestCompletionPathAtCursor(t *testing.T) {
 // keywords.
 var lexicalTokens = map[string]bool{
 	"INVALID": true, "newline": true, "comment": true, "empty": true, "id": true,
-	"int_lit": true, "float_lit": true, "string_lit": true,
+	"int_lit": true, "float_lit": true, "string_lit": true, "raw_string_lit": true,
 }
 
 func TestKeywordsMatchGrammar(t *testing.T) {
@@ -99,6 +99,8 @@ func TestBracketsBalanced(t *testing.T) {
 		"print(\"(\")\n":     true,
 		"var x = [1, # ]\n":  false,
 		"print(\"\\\"{\")\n": true,
+		"var s = `{\n":       false,
+		"var s = `{\n}(`\n":  true,
 	} {
 		if got := bracketsBalanced(src); got != want {
 			t.Errorf("bracketsBalanced(%q) = %v, want %v", src, got, want)

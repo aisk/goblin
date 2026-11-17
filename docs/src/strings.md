@@ -9,6 +9,70 @@ print(message)        # say: "hello"
 print(message.size) # 12
 ~~~
 
+## Interpolation
+
+Inside a double-quoted string, `{expression}` is replaced by the value of the
+expression, as the same text `print` shows for it: a String as it is, a number
+or list as it prints, a custom type through its `Show` impl.
+
+~~~goblin
+var user = "Ada"
+var inbox = ["hi", "re: hi"]
+print("{user} has {inbox.size} messages")  # Ada has 2 messages
+print("first: {inbox[0]}, all: {inbox}")   # first: hi, all: ["hi", "re: hi"]
+print("{user.upper()} {inbox.size * 10}%") # ADA 20%
+~~~
+
+The parts are evaluated left to right when the string is. An error raised
+while evaluating or showing one is reported at the string literal.
+
+- Write `\{` for a literal `{`. A `}` outside an interpolation is an ordinary
+  character, and `\}` also works.
+- The expression ends at the `}` matching its `{`, counting `()`, `[]` and
+  `{}`, so `"{xs[1:2]}"` and `"{f(g(x))}"` work.
+- It cannot contain a `"`, a backslash or a line break: the string would end,
+  or the escape would belong to the string. Assign such a value to a variable
+  first, or use a raw string inside: `` "{names.join(`, `)}" ``.
+- `{}` with nothing inside is an error (write `\{}` for the text `{}`), and
+  so is a `:` outside any bracket, as in `"{x:5}"`: format specifiers are not
+  supported. Format numbers with their methods or a module before
+  interpolating them.
+
+A string without any `{expression}` is a plain constant.
+
+## Escapes
+
+| Escape | Meaning |
+| --- | --- |
+| `\n` `\t` `\r` | Newline, tab, carriage return |
+| `\"` `\\` | Double quote, backslash |
+| `\{` `\}` | Literal braces |
+| `\0` | The NUL character |
+| `\xHH` | The character U+00HH, exactly two hex digits (`"\x1b[31m"` starts red terminal text) |
+| `\u{H...}` | The character with that code point, one to six hex digits (`"\u{1F600}"`) |
+
+`\xHH` is a character, not a raw byte: `"\xe9"` is `"é"`, two bytes in
+UTF-8. Use Bytes for byte values. Any other escape is a syntax error, and so
+is a `\u{...}` that is not a valid Unicode code point.
+
+## Raw strings
+
+A string between backticks is raw: backslashes and braces are ordinary
+characters, and it may span lines. It cannot contain a backtick. Raw strings
+suit regular expressions, Windows paths and embedded JSON.
+
+~~~goblin
+print(`C:\temp\{name}`)       # C:\temp\{name}
+var digits = `\d+(\.\d+)?`
+var config = `{"port": 8080}`
+var text = `first line
+second line`
+print(text.size)               # 22
+~~~
+
+Line breaks in a raw string are always `\n`, even in a file saved with CRLF
+line endings.
+
 size counts Unicode characters, not bytes; it is a property, not a method. Strings iterate by character, but
 they cannot be indexed with `[]`; use index() or last_index() when a character
 position is needed.
@@ -51,12 +115,14 @@ print("ha" * 3)      # hahaha
 print(3 * "ha")      # hahaha
 ~~~
 
-Str(value) converts any value to its display text. This is useful when
-building a string from a float, list, custom type, or nil.
+Str(value) converts any value to its display text, the same text `print`
+shows and interpolation inserts. Interpolation is usually the clearer way to
+build a string from other values.
 
 ~~~goblin
-var label = "port=" + Str(8080)
-print(label)
+var port = 8080
+print("port=" + Str(port)) # port=8080
+print("port={port}")       # port=8080
 ~~~
 
 ## Common string methods

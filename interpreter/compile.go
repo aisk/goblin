@@ -750,6 +750,28 @@ func (c *compiler) expr(expr ast.Expression) exprFn {
 	case *ast.Identifier:
 		return c.lookup(e.Name).load(e.Name)
 
+	case *ast.Interpolation:
+		// An error evaluating or showing a part is reported at the literal,
+		// as the transpiler does by generating the parts' error handlers
+		// with the literal's position.
+		parts := c.exprs(e.Parts)
+		pos := e.Position()
+		return func(f *frame) (object.Object, error) {
+			values := make([]object.Object, len(parts))
+			for i, part := range parts {
+				v, err := part(f)
+				if err != nil {
+					return nil, positionError(err, pos)
+				}
+				values[i] = v
+			}
+			v, err := object.Interpolate(values...)
+			if err != nil {
+				return nil, positionError(err, pos)
+			}
+			return v, nil
+		}
+
 	case *ast.ListLiteral:
 		elems := c.exprs(e.Elements)
 		return func(f *frame) (object.Object, error) {

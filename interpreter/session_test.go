@@ -239,3 +239,19 @@ func TestSessionUserCanOverrideAttributes(t *testing.T) {
 		t.Fatalf("overridden user.attributes() = %q", got)
 	}
 }
+
+// The REPL parses interpolated expressions too, against names earlier lines
+// declared.
+func TestSessionInterpolation(t *testing.T) {
+	s := NewSession(".")
+	if _, err := s.Eval(`var n = 2`); err != nil {
+		t.Fatal(err)
+	}
+	v, err := s.Eval(`"n={n}, twice={n * 2}"`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != object.String("n=2, twice=4") {
+		t.Fatalf("value = %v", v)
+	}
+}

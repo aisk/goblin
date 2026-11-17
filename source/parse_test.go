@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/object"
+	"github.com/aisk/goblin/semantic"
 )
 
 // Newlines terminate statements, so a line can only continue the previous
@@ -114,5 +116,82 @@ func TestParseNumberLiterals(t *testing.T) {
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s: error %v, want one containing %q", src, err, want)
 		}
+	}
+}
+
+// String literals: an interpolated expression is parsed in place, with
+// positions inside the literal, and malformed literals are errors at the
+// offending character.
+func TestParseStringLiterals(t *testing.T) {
+	mod, err := ParseString("var s = \"a{b}c{d.e(1)}\"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	interp, ok := mod.Body[0].(*ast.Declare).Value.(*ast.Interpolation)
+	if !ok || len(interp.Parts) != 4 {
+		t.Fatalf("value = %#v, want an Interpolation of 4 parts", mod.Body[0].(*ast.Declare).Value)
+	}
+	if id, ok := interp.Parts[1].(*ast.Identifier); !ok || id.Name != "b" || id.Position().Line != 1 || id.Position().Column != 12 {
+		t.Errorf("part 1 = %#v, want identifier b at 1:12", interp.Parts[1])
+	}
+	if _, ok := interp.Parts[3].(*ast.CallExpression); !ok {
+		t.Errorf("part 3 = %#v, want a call", interp.Parts[3])
+	}
+	if lit, ok := mod.Body[0].(*ast.Declare).Value.(*ast.Interpolation).Parts[0].(*ast.Literal); !ok || lit.Value != object.String("a") {
+		t.Errorf("part 0 = %#v, want \"a\"", interp.Parts[0])
+	}
+
+	plain, err := ParseString("var s = \"\\{x\\} \\x41\\u{1F600}\\0\"\nvar r = `a\\n{b}\r\nc`\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := plain.Body[0].(*ast.Declare).Value.(*ast.Literal).Value; got != object.String("{x} A\U0001F600\x00") {
+		t.Errorf("escaped literal = %q", got)
+	}
+	if got := plain.Body[1].(*ast.Declare).Value.(*ast.Literal).Value; got != object.String("a\\n{b}\nc") {
+		t.Errorf("raw literal = %q", got)
+	}
+
+	errs := []struct{ src, want string }{
+		{`var s = "ab{}"`, "1:12: error: empty interpolation; write \\{ for a literal brace"},
+		{`var s = "{  }"`, "1:10: error: empty interpolation"},
+		{`var s = "{x:5}"`, "1:10: error: format specifiers are not supported"},
+		{`var s = "{x[1:2]}"`, ""},
+		{`var s = "{x"`, "1:10: error: unterminated interpolation"},
+		{"var s = \"{x\n}\"", "1:10: error: an interpolation cannot span lines"},
+		{`var s = "{x\"}"`, "1:10: error: an interpolation cannot contain a backslash"},
+		{`var s = "a\u{110000}"`, "1:11: error: invalid Unicode escape \\u{110000}"},
+		{`var s = "\u{D800}"`, "invalid Unicode escape \\u{D800}"},
+		{`var s = "\u{0000041}"`, "invalid Unicode escape \\u{0000041}"},
+		{`var s = "\q"`, "1:9: error: "},
+		{`var s = "\x4"`, "1:9: error: "},
+		{`var s = "{1 +}"`, "1:14: error: "},
+		{`var s = "{a = 1}"`, "1:11: error: an interpolation must be a single expression"},
+		{"var t = 1\n\nvar s = \"x\" + \"{b}\" + \"{1 +}\"\n", "3:28: error: "},
+	}
+	for _, tt := range errs {
+		_, err := ParseString(tt.src + "\n")
+		if tt.want == "" {
+			if err != nil {
+				t.Errorf("%s: unexpected error %v", tt.src, err)
+			}
+			continue
+		}
+		if err == nil || !strings.Contains(err.Error(), tt.want) {
+			t.Errorf("%s: error %v, want one containing %q", tt.src, err, tt.want)
+		}
+	}
+}
+
+// An interpolated expression is checked like any other: an undefined name
+// is reported where it stands inside the literal.
+func TestCheckInterpolatedExpression(t *testing.T) {
+	mod, err := ParseString("var a = 1\nprint(\"{a} {missing}\")\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = semantic.CheckModule(mod)
+	if err == nil || !strings.Contains(err.Error(), "2:13: semantic error: undefined identifier: missing") {
+		t.Fatalf("CheckModule error = %v", err)
 	}
 }

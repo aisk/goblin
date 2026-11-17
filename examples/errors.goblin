@@ -77,7 +77,7 @@ try {
 }
 
 try {
-    json.unmarshal("{")
+    json.unmarshal("\{")
 } catch e {
     print(e.is(ParseError))
     print(e.is(ValueError))

@@ -430,41 +430,6 @@ func checkSeparators(text, digits string, base int) error {
 	return nil
 }
 
-func NewStringLiteral(x any) (any, error) {
-	s := lit(x)
-	return &Literal{expressionMixin: exprAt(tokenOf(x).Pos), Value: object.String(unescapeString(s[1 : len(s)-1]))}, nil
-}
-
-// unescapeString interprets backslash escape sequences in a string literal's
-// raw body (quotes already stripped). The lexer only accepts \n, \t, \r, \"
-// and \\ (anything else is a lex error) but keeps the sequences verbatim, so
-// they are resolved here.
-func unescapeString(s string) string {
-	if !strings.Contains(s, "\\") {
-		return s
-	}
-	var b strings.Builder
-	b.Grow(len(s))
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\\' && i+1 < len(s) {
-			i++
-			switch s[i] {
-			case 'n':
-				b.WriteByte('\n')
-			case 't':
-				b.WriteByte('\t')
-			case 'r':
-				b.WriteByte('\r')
-			default: // '"' and '\\'
-				b.WriteByte(s[i])
-			}
-			continue
-		}
-		b.WriteByte(s[i])
-	}
-	return b.String()
-}
-
 func NewTrueLiteral() (any, error)  { return &Literal{Value: object.True}, nil }
 func NewFalseLiteral() (any, error) { return &Literal{Value: object.False}, nil }
 func NewNilLiteral() (any, error)   { return nilLiteral(), nil }

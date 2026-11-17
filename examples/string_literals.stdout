@@ -1,0 +1,20 @@
+Ada has 3 scores
+first: 90, best two: [90, 85], total: 252
+upper: ADA, nested: [90, 2], call: 90
+dict: {"a": 1}, nil: nil, bool: true, float: 1.5
+a raw string inside: 2
+p = (1, 2)
+a-b-c
+["a", "b", "c"]
+1 then 2 then 2
+["#0:0.5:false", "#1:1.5:true", "#2:3.5:true"]
+{name} is literal, so is }
+Traceback (most recent call last):
+  at describe [string_literals] (string_literals.goblin:57:9)
+  at fail [string_literals] (string_literals.goblin:53:22)
+no value: ValueError
+tab:	end AB😀 true 5
+C:\path\{name}\n
+line one
+line "two"
+19

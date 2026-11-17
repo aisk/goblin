@@ -21,7 +21,7 @@ print(assignment.find("missing"))
 
 var words = regexp.compile("[a-z]+")
 print(words.find_all("one two three", count=2).size)
-print(assignment.replace("a=1 b=2", "${key}:$2", count=1))
+print(assignment.replace("a=1 b=2", `${key}:$2`, count=1))
 
 # count means the same thing as it does on the built-in str methods: for split
 # it is the number of pieces, for replace the number of replacements.

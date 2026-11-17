@@ -1,0 +1,74 @@
+# Interpolation: {expression} inside a double-quoted string.
+var name = "Ada"
+var scores = [90, 85, 77]
+print("{name} has {scores.size} scores")
+print("first: {scores[0]}, best two: {scores[0:2]}, total: {scores[0] + scores[1] + scores[2]}")
+print("upper: {name.upper()}, nested: {[scores[0], [1, 2][1]]}, call: {max(*scores)}")
+print("dict: {Dict(a=1)}, nil: {nil}, bool: {scores.size > 2}, float: {1.5}")
+print("a raw string inside: {`{}`.size}")
+
+# A user type is shown through its Show impl, as print shows it.
+type Point(x, y) {
+    impl Show {
+        func show(self) {
+            return "({self.x}, {self.y})"
+        }
+    }
+}
+print("p = {Point(1, 2)}")
+
+# Parts are evaluated left to right, each once.
+var order = []
+func note(text) {
+    order.push(text)
+    return text
+}
+print("{note(`a`)}-{note(`b`)}-{note(`c`)}")
+print(order)
+var counter = 1
+func bump() {
+    counter = counter + 1
+    return counter
+}
+print("{counter} then {bump()} then {counter}")
+
+# Native integer locals in compiled code are interpolated like any value.
+func labels(n) {
+    var parts = []
+    var total = 0.5
+    for i in range(n) {
+        total = total + i
+        parts.push("#{i}:{total}:{i > 0}")
+    }
+    return parts
+}
+print(labels(3))
+
+# Braces are written \{ and \}; a } on its own needs no escape.
+print("\{name} is literal, so is }")
+
+# An error inside an interpolation is reported at the string literal, not
+# at the start of the statement holding it.
+func fail() {
+    raise ValueError.wrap("no value")
+}
+func describe() {
+    var message = "start " +
+        "value: {fail()}"
+    return message
+}
+try {
+    describe()
+} catch err {
+    print(err.traceback)
+}
+
+# Escapes: \0, \xHH (the code point U+00HH), \u{...}.
+print("tab:\x09end", "\x41\u{42}\u{1F600}", "\u{e9}" == "\xe9", "nul:\0".size)
+
+# Raw strings: no escapes, no interpolation, may span lines.
+print(`C:\path\{name}\n`)
+var block = `line one
+line "two"`
+print(block)
+print(block.size)

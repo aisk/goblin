@@ -37,10 +37,27 @@ _unicode_char
     | _unicode_byte
 ;
 
-_escaped_char : '\\' ( 'n' | 't' | 'r' | '"' | '\\' ) ;
+// \xHH is the code point U+00HH; \u{...} takes 1 to 6 hex digits, and
+// ast.NewStringLiteral rejects a value that is not a Unicode scalar value.
+// \{ and \} are literal braces: an unescaped `{` starts an interpolation,
+// which ast.NewStringLiteral splits out of the literal.
+_escaped_char
+    : '\\' ( 'n' | 't' | 'r' | '"' | '\\' | '0' | '{' | '}' )
+    | '\\' 'x' _hex_digit _hex_digit
+    | '\\' 'u' '{' _hex_digit { _hex_digit } '}'
+;
 _char         : _unicode_char | _escaped_char ;
 
 string_lit : '"' { _char } '"' ;
+
+// A raw string runs to the next backtick, across lines, with no escapes and
+// no interpolation.
+_raw_char
+    : '\x01' - '\x5F'
+    | '\x61' - '\uFFFC'
+    | '\uFFFE' - '\U0010FFFF'
+;
+raw_string_lit : '`' { _raw_char } '`' ;
 
 // Newlines are significant: they terminate statements. Carriage returns are
 // plain whitespace so CRLF sources work unchanged.
@@ -213,6 +230,7 @@ FloatLiteral
 
 StringLiteral
     : string_lit                             << ast.NewStringLiteral($0) >>
+    | raw_string_lit                         << ast.NewRawStringLiteral($0) >>
 ;
 
 TrueLiteral

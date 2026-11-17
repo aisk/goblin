@@ -62,7 +62,7 @@ type Point(x, y) {
 type Celsius(degrees) {
     impl json.ToJSON {
         func to_json(self) {
-            return Str(self.degrees) + "C"
+            return "{self.degrees}C"
         }
     }
 }
@@ -78,7 +78,7 @@ program requires.
 
 ~~~goblin
 try {
-    var config = json.unmarshal("{\"port\": 8080}")
+    var config = json.unmarshal(`{"port": 8080}`)
     var port = config.get("port", default=8080)
     print(port)
 } catch err {

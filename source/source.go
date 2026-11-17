@@ -4,15 +4,18 @@
 package source
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/aisk/goblin/ast"
+	parseErrors "github.com/aisk/goblin/errors"
 	"github.com/aisk/goblin/lexer"
 	"github.com/aisk/goblin/parser"
 	"github.com/aisk/goblin/semantic"
+	"github.com/aisk/goblin/token"
 )
 
 // ReadError reports that a source file could not be read, as opposed to
@@ -76,9 +79,30 @@ func newLexer(src []byte) *lexer.Lexer {
 	return lexer.NewLexer(src)
 }
 
+// parse parses a whole module, including the expressions interpolated into
+// its string literals.
 func parse(s parser.Scanner) (*ast.Module, error) {
+	mod, err := parseModule(s)
+	if err != nil {
+		return nil, err
+	}
+	if err := resolveInterpolations(mod); err != nil {
+		return nil, err
+	}
+	return mod, nil
+}
+
+func parseModule(s parser.Scanner) (*ast.Module, error) {
 	st, err := parser.NewParser().Parse(s)
 	if err != nil {
+		// The parser reports a reduce error at the token after the
+		// construct; one that knows its exact position is moved there.
+		var perr *parseErrors.Error
+		var serr *ast.SyntaxError
+		if errors.As(err, &perr) && errors.As(perr.Err, &serr) {
+			pos := serr.Pos
+			perr.ErrorToken = &token.Token{Type: perr.ErrorToken.Type, Lit: perr.ErrorToken.Lit, Pos: pos}
+		}
 		return nil, err
 	}
 	mod, ok := st.(*ast.Module)
@@ -86,4 +110,65 @@ func parse(s parser.Scanner) (*ast.Module, error) {
 		return nil, fmt.Errorf("internal error: unexpected AST type %T", st)
 	}
 	return mod, nil
+}
+
+// resolveInterpolations parses the source of every expression interpolated
+// into a string literal and puts the expression in its place. The source is
+// parsed by the same parser as a module of one expression statement, padded
+// so that it sits at the line and column it has in the file: positions in
+// the expression, and parse errors in it, then point into the literal.
+func resolveInterpolations(mod *ast.Module) error {
+	var err error
+	ast.InspectList(mod.Body, func(n ast.Statement) bool {
+		interp, ok := n.(*ast.Interpolation)
+		if err != nil || !ok {
+			return err == nil
+		}
+		for i, part := range interp.Parts {
+			src, ok := part.(*ast.InterpolationSource)
+			if !ok {
+				continue
+			}
+			if interp.Parts[i], err = parseInterpolated(src); err != nil {
+				return false
+			}
+		}
+		return true
+	})
+	return err
+}
+
+func parseInterpolated(src *ast.InterpolationSource) (ast.Expression, error) {
+	pos := src.Position()
+	padded := strings.Repeat("\n", pos.Line-1) + strings.Repeat(" ", pos.Column-1) + src.Source + "\n"
+	l := lexer.NewLexer([]byte(padded))
+	l.Context = pos.Context
+	mod, err := parseModule(l)
+	if err != nil {
+		// An expression cut short (`{a +}`) fails at the end of the padded
+		// source, past the literal; report it at the closing brace.
+		var perr *parseErrors.Error
+		if errors.As(err, &perr) && perr.ErrorToken.Pos.Line > pos.Line {
+			end := pos
+			for _, r := range src.Source {
+				if r == '\t' {
+					end.Column += 4
+				} else {
+					end.Column++
+				}
+			}
+			end.Offset += len(src.Source)
+			perr.ErrorToken = &token.Token{Type: perr.ErrorToken.Type, Lit: perr.ErrorToken.Lit, Pos: end}
+		}
+		return nil, err
+	}
+	if len(mod.Body) == 1 {
+		if expr, ok := mod.Body[0].(ast.Expression); ok {
+			return expr, nil
+		}
+	}
+	return nil, &parseErrors.Error{
+		Err:        errors.New("an interpolation must be a single expression"),
+		ErrorToken: &token.Token{Pos: pos},
+	}
 }

@@ -715,6 +715,15 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		return nil
 	case *ast.Literal:
 		return nil
+	case *ast.Interpolation:
+		for _, part := range v.Parts {
+			if err := c.checkExpression(part); err != nil {
+				return err
+			}
+		}
+		return nil
+	case *ast.InterpolationSource:
+		return c.newError(v.Position(), "internal error: interpolated expression was not parsed")
 	case *ast.CallExpression:
 		if id, ok := v.Callee.(*ast.Identifier); ok && isBuiltin(id.Name) {
 			return c.checkCallArguments(v.Args)

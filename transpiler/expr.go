@@ -208,6 +208,8 @@ func (g *generator) transpileExpression(expr ast.Expression, onError errHandler)
 		return g.transpileBinaryOperation(v, onError)
 	case *ast.UnaryOperation:
 		return g.transpileUnaryOperation(v, onError)
+	case *ast.Interpolation:
+		return g.transpileInterpolation(v, onError)
 	case *ast.ListLiteral:
 		return g.transpileListLiteral(v, onError)
 	case *ast.DictLiteral:
@@ -441,4 +443,40 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 	}
 	preStmts := append(calleePre, argPreStmts...)
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
+}
+
+// transpileInterpolation evaluates the parts of a string literal with
+// `{expression}` parts left to right and joins them with object.Interpolate.
+// Its code is generated with the literal as the error position, so an error
+// in a part is reported at the literal, as the interpreter does.
+func (g *generator) transpileInterpolation(interp *ast.Interpolation, onError errHandler) ([]jen.Code, *jen.Statement, error) {
+	saved := g.errorPos
+	g.errorPos = interp.Position()
+	defer func() { g.errorPos = saved }()
+	// Each expression's value is taken into a local before the next part
+	// runs, so a later part with side effects cannot change what an earlier
+	// one read: the parts are evaluated strictly left to right.
+	var pre []jen.Code
+	var parts []jen.Code
+	for _, part := range interp.Parts {
+		partPre, value, err := g.transpileExpression(part, onError)
+		if err != nil {
+			return nil, nil, err
+		}
+		pre = append(pre, partPre...)
+		if _, constant := part.(*ast.Literal); constant {
+			parts = append(parts, value)
+			continue
+		}
+		partVar := g.localName("part")
+		pre = append(pre, jen.Id(partVar).Op(":=").Add(value))
+		parts = append(parts, jen.Id(partVar))
+	}
+	tmpVar := g.localName("tmp")
+	errVar := g.localName("err")
+	pre = append(pre,
+		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Interpolate").Call(parts...),
+		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+	)
+	return pre, jen.Id(tmpVar), nil
 }

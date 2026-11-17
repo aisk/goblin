@@ -177,8 +177,8 @@ func evalLine(out io.Writer, session *interpreter.Session, src string) {
 	fmt.Fprintln(out, fmt.Sprint(result))
 }
 
-// bracketsBalanced reports whether all (), [], {} are closed, ignoring those
-// inside string literals and # comments.
+// bracketsBalanced reports whether all (), [], {} and raw strings are closed,
+// ignoring brackets inside string literals and # comments.
 func bracketsBalanced(src string) bool {
 	depth := 0
 	inString := false
@@ -196,6 +196,14 @@ func bracketsBalanced(src string) bool {
 		switch c {
 		case '"':
 			inString = true
+		case '`':
+			// A raw string has no escapes and may span lines; an unclosed
+			// one keeps the input open like an unclosed bracket.
+			end := strings.IndexByte(src[i+1:], '`')
+			if end < 0 {
+				return false
+			}
+			i += end + 1
 		case '#':
 			for i < len(src) && src[i] != '\n' {
 				i++

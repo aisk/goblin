@@ -493,3 +493,23 @@ func StrConstructor(args CallArgs) (Object, error) {
 	}
 	return String(s), nil
 }
+
+// Interpolate builds the value of a string literal with `{expression}` parts
+// from the values of its parts, left to right: a String is taken as it is,
+// any other value as the text print shows for it (ToString, through Show for
+// a user type). Both backends evaluate the parts and call it.
+func Interpolate(parts ...Object) (Object, error) {
+	var b strings.Builder
+	for _, part := range parts {
+		if s, ok := part.(String); ok {
+			b.WriteString(string(s))
+			continue
+		}
+		s, err := part.ToString()
+		if err != nil {
+			return nil, err
+		}
+		b.WriteString(s)
+	}
+	return String(b.String()), nil
+}

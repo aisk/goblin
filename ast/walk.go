@@ -85,6 +85,10 @@ func Inspect(node Statement, f func(Statement) bool) {
 		Inspect(n.High, f)
 	case *MemberExpression:
 		Inspect(n.Object, f)
+	case *Interpolation:
+		for _, part := range n.Parts {
+			Inspect(part, f)
+		}
 	case *ListLiteral:
 		for _, item := range n.Elements {
 			Inspect(item, f)

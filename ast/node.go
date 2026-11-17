@@ -289,6 +289,25 @@ type Literal struct {
 	Value object.Object
 }
 
+// Interpolation is a double-quoted string literal with `{expression}` parts.
+// Parts holds, left to right, String Literals for the text between them and
+// the expressions; the value is their text concatenated, each expression
+// shown the way print shows it (object.Interpolate).
+type Interpolation struct {
+	expressionMixin
+	Parts []Expression
+}
+
+// InterpolationSource is the source of one expression part of an
+// Interpolation as the parser leaves it: ast cannot import the parser to
+// parse it on the spot, so source parses it and puts the expression in its
+// place before the tree reaches the checker or a backend. Pos is where the
+// expression starts.
+type InterpolationSource struct {
+	expressionMixin
+	Source string
+}
+
 type ListLiteral struct {
 	expressionMixin
 	Elements []Expression

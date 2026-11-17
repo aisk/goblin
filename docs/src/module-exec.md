@@ -70,7 +70,7 @@ from the stream configuration on `Command`.
 ~~~goblin
 var result = exec.Command(
     "gofmt",
-    stdin="package main\nfunc main(){}",
+    stdin="package main\nfunc main()\{}",
     stdout=exec.CAPTURE,
     stderr=exec.CAPTURE
 ).run()

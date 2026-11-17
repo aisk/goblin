@@ -9,7 +9,7 @@ var parsed = uuid.UUID("550E8400-E29B-41D4-A716-446655440000")
 print(parsed)
 print(parsed.urn)
 print(uuid.UUID(parsed.bytes) == parsed)
-print(uuid.UUID("{550e8400-e29b-41d4-a716-446655440000}") == parsed)
+print(uuid.UUID("\{550e8400-e29b-41d4-a716-446655440000}") == parsed)
 
 print(uuid.NIL)
 print(uuid.NIL < parsed && parsed < uuid.MAX)
