@@ -523,6 +523,12 @@ func (c *compiler) forLoop(s *ast.For) stmtFn {
 		if err != nil {
 			return ctrlNone, nil, err
 		}
+		// However the loop ends (the pass is over, the iterator fails, a
+		// break, a return whose value the body has already evaluated, an
+		// error leaving the body), the pass is closed once, before control
+		// reaches anything outside the loop, the function's deferred calls
+		// included.
+		defer it.Close()
 		// The iterator is pulled one element per pass of the body, so a
 		// lazy iterable is only read as far as the loop gets. An error the
 		// iterator raises carries no position and is reported at the for

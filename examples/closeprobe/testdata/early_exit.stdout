@@ -1,0 +1,40 @@
+-- exhausted
+item 0
+item 1
+close exhausted
+after
+-- break
+item 0
+close break
+after
+-- return
+item 0
+evaluated
+close return
+deferred
+evaluated
+-- body error
+close body
+caught boom
+-- next error
+item 0
+close next
+caught probe next failed at 1
+-- nested return
+evaluated
+close inner
+close outer
+evaluated
+-- caught inside the body
+caught 0
+caught 1
+close inside
+-- through Iter
+close wrapped
+-- collect
+close collect
+[0, 1]
+close destructure
+0 1
+close collect error
+caught probe collect error failed at 1

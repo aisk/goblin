@@ -83,6 +83,7 @@ Everything a user calls is an ordinary method on a concrete type or a function i
 - **Build with the language's own features.** These, not traits, are what make a Goblin API feel native:
   - *Keyword arguments with defaults* replace function families (below).
   - *`defer`* is the cleanup mechanism. Anything holding a resource has `close()`; the library adds no callback-scoped or `with`-style helpers.
+  - *Iteration owns what it acquired.* One pass of iteration owns what it acquired when it started; what the iterable itself owns is not the iteration's to release. `for line in file` leaves the file open when the loop ends, while a value returned by something like `fs.read_lines(path)` opens the file when a pass starts (in its Go `Iterator`) and closes it in the pass's `Close`, which every consumer calls once however the pass ends (`break`, `return`, an error); iterating it again opens the file again.
   - *Destructuring* is how a function returns several things: `var head, tail = line.cut("=")`. Return a fixed-size list; do not return a status flag alongside a value when an error or `nil` says it better.
   - *First-class functions* are how behaviour is customized (`key=`, a predicate), not subclass-style hooks.
   - *Errors* signal failure (§7); there are no `(value, ok)` or sentinel-return conventions.
@@ -173,7 +174,6 @@ Some domains are too abstraction-heavy to offer simply (server-side HTTP, reflec
 The closed protocol set means these can only be fixed in the language. Until they are, design around them rather than papering over them in a module.
 
 - **User code cannot define a lazy sequence**: `for` pulls one item at a time and built-in sources such as files are lazy, but a user type's `iter` still has to return an existing iterable. A `next` language protocol with an end marker is the candidate fix.
-- **An iterator is not told when a loop exits early**: `break`, `return` and errors leave it as it is, so an iterator must not own a resource that needs releasing. A function that opens something and returns an iterator over it (`fs.read_lines`) cannot be offered; the owner stays visible: `var f = fs.open(p)`, `defer f.close()`, `for line in f`.
 - **No protocol for `size`**, so a user type cannot offer the property every built-in collection has.
 - **No membership syntax**: `contains` is a method everywhere; if an `in` operator is added it needs a protocol.
 

@@ -77,3 +77,74 @@ func TestIterateNotIterable(t *testing.T) {
 		t.Error("Iterate(Integer) succeeded")
 	}
 }
+
+// countingIterable is a lazy iterable over 0 .. n-1 whose passes count how
+// often they are closed. Next fails at failAt when that is not negative.
+type countingIterable struct {
+	List
+	n, failAt int
+	closes    int
+}
+
+func (c *countingIterable) Iterator() (Iterator, error) {
+	i := 0
+	return IteratorWithClose(func() (Object, bool, error) {
+		if i == c.failAt {
+			return nil, false, NewValueError("failed at %d", i)
+		}
+		if i >= c.n {
+			return nil, false, nil
+		}
+		i++
+		return Integer(i - 1), true, nil
+	}, func() { c.closes++ }), nil
+}
+
+func TestCollectClosesThePass(t *testing.T) {
+	ok := &countingIterable{n: 3, failAt: -1}
+	items, err := Collect(ok)
+	if err != nil || len(items) != 3 {
+		t.Fatalf("Collect = %v, %v", items, err)
+	}
+	failing := &countingIterable{n: 3, failAt: 1}
+	if _, err := Collect(failing); err == nil {
+		t.Fatal("Collect of a failing pass succeeded")
+	}
+	if ok.closes != 1 || failing.closes != 1 {
+		t.Errorf("closes = %d, %d; want 1, 1", ok.closes, failing.closes)
+	}
+}
+
+func TestIterationCloseIsIdempotent(t *testing.T) {
+	c := &countingIterable{n: 3, failAt: -1}
+	it, err := Iterate(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := it.Next(); err != nil {
+		t.Fatal(err)
+	}
+	it.Close()
+	it.Close()
+	if c.closes != 1 {
+		t.Errorf("closes = %d, want 1", c.closes)
+	}
+	// A pass over a slice has nothing to close.
+	list, _ := Iterate(&List{Elements: []Object{Integer(1)}})
+	list.Close()
+}
+
+// A user type's Iter.iter result is iterated by delegation; closing the
+// outer pass closes the delegated one.
+func TestDelegatedPassForwardsClose(t *testing.T) {
+	c := &countingIterable{n: 3, failAt: -1}
+	inner, err := Iterate(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outer := IterationOf(&inner)
+	outer.Close()
+	if c.closes != 1 {
+		t.Errorf("closes = %d, want 1", c.closes)
+	}
+}

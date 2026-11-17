@@ -89,6 +89,14 @@ the loop has not reached yet is seen, but `push` and `pop` do not change how
 many elements it visits. A dictionary loop visits the keys it held when the
 loop started.
 
+However a loop ends (it runs out of elements, `break`, a `return` in its body,
+or an error leaving it) the value being walked is told once that the loop is
+done, before anything after the loop runs, the function's deferred calls
+included; a `return` evaluates its value first. A value that acquired
+something for the loop, such as a sequence that opened a file to read it,
+releases it then. A file you opened yourself and loop over stays open: it
+belongs to you, not to the loop.
+
 Strings iterate by character, lists by element, and dictionaries by key:
 
 ```goblin

@@ -118,10 +118,19 @@ starts a pass and returns an object.Iterator. Its Next returns the next value
 and true, false at the end, or an error that the loop raises at the `for`
 statement. Every consumer — `for`, destructuring, `*` arguments, `List(x)` —
 goes through object.Iterate, which prefers Iterable over Iter, so Iter can then
-simply return object.Collect(v). A loop may stop pulling at any time without
-telling the iterator, so an iterator must not hold anything that only an
-explicit stop would release. Go code that walks an arbitrary value calls
+simply return object.Collect(v). Go code that walks an arbitrary value calls
 object.Iterate (or object.Collect for the whole slice) rather than Iter.
+
+A loop may stop pulling before the end (`break`, `return`, an error), so a pass
+is ended explicitly: whoever starts one with object.Iterate calls the
+Iteration's Close exactly once however the pass ends, and never calls Next
+after it. An iterator that holds something for the duration of one pass (a
+file it opened in Iterator, say) also implements object.Closer and releases it
+in Close, and only there; object.IteratorWithClose(next, close) builds one from
+two functions. Close cannot fail, so a source whose release can fail reports
+that from its last Next. A pass owns only what it acquired when it started:
+iterating a file leaves the file open, because the file is the iterable's, not
+the pass's.
 
 ~~~go
 func (c Countdown) Iter() ([]object.Object, error) { return object.Collect(c) }

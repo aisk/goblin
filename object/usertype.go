@@ -354,7 +354,8 @@ func userReflected(v UserValue, op int, left Object) (result Object, handled boo
 
 // userIterator starts a pass over the values `for x in v` visits: Iter.iter
 // returns an iterable, often a List, and the pass delegates to it. A lazy
-// result, such as a file, stays lazy.
+// result, such as a file, stays lazy, and since the returned *Iteration is a
+// Closer, closing this pass closes the delegated one.
 func userIterator(v UserValue) (Iterator, error) {
 	impl := v.UserType().iter
 	if impl == nil {

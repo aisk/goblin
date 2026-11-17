@@ -91,6 +91,10 @@ type bodyState struct {
 	// It is empty until the body's first `defer` is transpiled, which is
 	// what tells wrapDeferred whether the body needs one.
 	defers string
+	// iters names the object.Iteration variables of the for loops enclosing
+	// the statement being generated, outermost first. A return closes each
+	// of them, innermost first, before it leaves the body.
+	iters []string
 }
 
 // selfInfo is what direct self access needs to know about the enclosing

@@ -195,13 +195,6 @@ func (g *generator) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code,
 	if err != nil {
 		return nil, err
 	}
-	popScope := g.pushUserScope()
-	g.declareUserName(for_.Variable)
-	body, err := g.transpileStatements(for_.Body, onError)
-	popScope()
-	if err != nil {
-		return nil, err
-	}
 
 	// The loop pulls one element per pass of the body from an
 	// object.Iteration, so a lazy iterable is read only as far as the loop
@@ -213,6 +206,27 @@ func (g *generator) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code,
 	okVar := g.localName("ok")
 	errVar := g.localName("err")
 
+	// The pass is closed exactly once however the loop ends: the end of the
+	// pass and a break both land after the Go loop, an error leaving the
+	// body or raised by the iterator goes through loopOnError, and a return
+	// closes every enclosing pass itself (see transpileReturn). A try inside
+	// the body has its own handler, so an error it catches leaves the pass
+	// open, as it should.
+	closePass := jen.Id(iterVar).Dot("Close").Call()
+	loopOnError := func(errVar string) jen.Code {
+		return jen.Block(closePass, onError(errVar))
+	}
+
+	popScope := g.pushUserScope()
+	g.declareUserName(for_.Variable)
+	g.body.iters = append(g.body.iters, iterVar)
+	body, err := g.transpileStatements(for_.Body, loopOnError)
+	g.body.iters = g.body.iters[:len(g.body.iters)-1]
+	popScope()
+	if err != nil {
+		return nil, err
+	}
+
 	// Fast is the inlined slice path (a List); Pull covers lazy sources and
 	// the end of the pass.
 	forLoopBody := []jen.Code{
@@ -220,7 +234,7 @@ func (g *generator) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code,
 		jen.If(jen.Op("!").Id(okVar)).Block(
 			jen.Var().Id(errVar).Error(),
 			jen.List(jen.Id(itemVar), jen.Id(okVar), jen.Id(errVar)).Op("=").Id(iterVar).Dot("Pull").Call(),
-			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(loopOnError(errVar)),
 			jen.If(jen.Op("!").Id(okVar)).Block(jen.Break()),
 		),
 		jen.Id(for_.Variable).Op(":=").Id(itemVar),
@@ -232,6 +246,7 @@ func (g *generator) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code,
 		jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Iterate").Call(iterator),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 		jen.For().Block(forLoopBody...),
+		closePass,
 	)
 
 	return []jen.Code{jen.Block(result...)}, nil
@@ -329,7 +344,7 @@ func (g *generator) transpileReturn(return_ *ast.Return, onError errHandler) ([]
 			if err != nil {
 				return nil, err
 			}
-			return append(pre, jen.Return(jen.List(value, jen.Nil()))), nil
+			return append(pre, g.closingReturn(value)...), nil
 		}
 		if isImplicitReturn(return_) {
 			return []jen.Code{jen.Return(jen.List(zeroOf(g.body.ret), jen.Nil()))}, nil
@@ -341,7 +356,23 @@ func (g *generator) transpileReturn(return_ *ast.Return, onError errHandler) ([]
 	if err != nil {
 		return nil, err
 	}
-	return append(preStmts, jen.Return(jen.List(r, jen.Nil()))), nil
+	return append(preStmts, g.closingReturn(r)...), nil
+}
+
+// closingReturn returns value from the body. Inside for loops the value is
+// evaluated first, then every enclosing pass is closed, innermost first, and
+// only then does the body return (and its deferred calls run).
+func (g *generator) closingReturn(value *jen.Statement) []jen.Code {
+	iters := g.body.iters
+	if len(iters) == 0 {
+		return []jen.Code{jen.Return(jen.List(value, jen.Nil()))}
+	}
+	retVar := g.localName("ret")
+	code := []jen.Code{jen.Id(retVar).Op(":=").Add(value)}
+	for i := len(iters) - 1; i >= 0; i-- {
+		code = append(code, jen.Id(iters[i]).Dot("Close").Call())
+	}
+	return append(code, jen.Return(jen.List(jen.Id(retVar), jen.Nil())))
 }
 
 // transpileRaise turns `raise expr` into an error (the raised Error value, or a

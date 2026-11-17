@@ -1,0 +1,90 @@
+func mark(text) {
+    print(text)
+    return text
+}
+
+print("-- exhausted")
+for x in close_probe("exhausted", 2) {
+    print("item", x)
+}
+print("after")
+
+print("-- break")
+for x in close_probe("break", 3) {
+    if x == 1 {
+        break
+    }
+    print("item", x)
+}
+print("after")
+
+print("-- return")
+func returns() {
+    defer print("deferred")
+    for x in close_probe("return", 3) {
+        if x == 1 {
+            return mark("evaluated")
+        }
+        print("item", x)
+    }
+}
+print(returns())
+
+print("-- body error")
+try {
+    for x in close_probe("body", 3) {
+        raise Error("boom")
+    }
+} catch err {
+    print("caught", err.message)
+}
+
+print("-- next error")
+try {
+    for x in close_probe("next", 3, fail_at=1) {
+        print("item", x)
+    }
+} catch err {
+    print("caught", err.message)
+}
+
+print("-- nested return")
+func nested() {
+    for a in close_probe("outer", 2) {
+        for b in close_probe("inner", 2) {
+            return mark("evaluated")
+        }
+    }
+}
+print(nested())
+
+print("-- caught inside the body")
+for x in close_probe("inside", 2) {
+    try {
+        raise Error("boom")
+    } catch err {
+        print("caught", x)
+    }
+}
+
+print("-- through Iter")
+type Wrapper() {
+    impl Iter {
+        func iter(self) {
+            return close_probe("wrapped", 3)
+        }
+    }
+}
+for x in Wrapper() {
+    break
+}
+
+print("-- collect")
+print(List(close_probe("collect", 2)))
+var a, b = close_probe("destructure", 2)
+print(a, b)
+try {
+    var c, d = close_probe("collect error", 2, fail_at=1)
+} catch err {
+    print("caught", err.message)
+}

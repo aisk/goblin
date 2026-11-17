@@ -11,10 +11,16 @@ package object
 // The iterator is pulled rather than pushed (a Go iter.Seq): a for loop in a
 // transpiled program then stays an ordinary Go loop whose locals the body
 // updates in place, instead of a range-over-func closure that captures them.
-// The price is that a consumer may stop pulling at any point (break, return,
-// an error in the body) without telling the iterator, so an iterator must be
-// safe to abandon: it may not hold anything that only an explicit stop would
-// release.
+// A consumer may stop pulling at any point (break, return, an error in the
+// body), so it tells the iterator through Iteration.Close: whoever starts a
+// pass with Iterate calls Close exactly once however the pass ends, and never
+// calls Next after it. An iterator holding something for the duration of one
+// pass implements Closer and releases it there, and only there.
+//
+// Ownership: one pass owns what it acquired when it started; what the
+// iterable itself owns is not the pass's to release. Iterating a file leaves
+// the file open, while an iterable that opens a file in Iterator closes it in
+// Close, so iterating it again opens it again.
 
 // Iterator produces one pass over an iterable value.
 type Iterator interface {
@@ -22,6 +28,13 @@ type Iterator interface {
 	// A non-nil error ends the pass and is raised at the consumer; Next is
 	// not called again after it, nor after it reported false.
 	Next() (Object, bool, error)
+}
+
+// Closer is optionally implemented by an Iterator that holds something for
+// the duration of one pass. Close cannot fail: a source whose release can
+// fail reports that from its last Next.
+type Closer interface {
+	Close()
 }
 
 // Iterable is implemented by values that iterate lazily. Iterator starts a
@@ -95,6 +108,23 @@ func (it *Iteration) Pull() (Object, bool, error) {
 	return it.src.Next()
 }
 
+// Close ends the pass, closing its lazy source when that implements Closer.
+// It is idempotent, and a no-op for a pass over a slice; the split keeps it
+// small enough to inline into every for loop.
+func (it *Iteration) Close() {
+	if it.src != nil {
+		it.closeSrc()
+	}
+}
+
+func (it *Iteration) closeSrc() {
+	src := it.src
+	it.src = nil
+	if c, ok := src.(Closer); ok {
+		c.Close()
+	}
+}
+
 // IterationOf wraps a lazy iterator in an Iteration, for consumers that
 // start a pass themselves rather than through Iterate.
 func IterationOf(src Iterator) Iteration { return Iteration{src: src} }
@@ -111,6 +141,7 @@ func Collect(v Object) ([]Object, error) {
 	if it.src == nil {
 		return it.items, nil
 	}
+	defer it.Close()
 	items := []Object{}
 	for {
 		item, ok, err := it.src.Next()
@@ -128,3 +159,18 @@ func Collect(v Object) ([]Object, error) {
 type IteratorFunc func() (Object, bool, error)
 
 func (f IteratorFunc) Next() (Object, bool, error) { return f() }
+
+// IteratorWithClose adapts a pair of Go functions to an Iterator that is
+// also a Closer: next produces the values, close releases what the pass
+// holds.
+func IteratorWithClose(next func() (Object, bool, error), close func()) Iterator {
+	return &closingIterator{next: next, close: close}
+}
+
+type closingIterator struct {
+	next  func() (Object, bool, error)
+	close func()
+}
+
+func (it *closingIterator) Next() (Object, bool, error) { return it.next() }
+func (it *closingIterator) Close()                      { it.close() }
