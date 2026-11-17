@@ -38,6 +38,8 @@ func TestHelperProcess(t *testing.T) {
 			os.Stderr.WriteString(value)
 		case "bad-utf8":
 			os.Stdout.Write([]byte("a\xffb"))
+		case "bad-utf8-err":
+			os.Stderr.Write([]byte("a\xffb"))
 		case "cat":
 			io.Copy(os.Stdout, os.Stdin)
 		case "env":
@@ -106,8 +108,27 @@ func TestCapture(t *testing.T) {
 		get(t, r, "code") != object.Integer(0) || get(t, r, "success") != object.True {
 		t.Fatalf("capture() = %v %v %v", get(t, r, "stdout"), get(t, r, "stderr"), get(t, r, "code"))
 	}
-	if r := call(t, "capture", helper("bad-utf8")); get(t, r, "stdout") != object.String("a�b") {
-		t.Fatalf("invalid UTF-8 = %q", get(t, r, "stdout"))
+	// Output that is not text is refused rather than altered, after the
+	// exit status has been checked; the ExitError's copy is diagnostic and
+	// keeps a replacement character instead.
+	for _, stream := range []string{"stdout", "stderr"} {
+		step := "bad-utf8"
+		if stream == "stderr" {
+			step = "bad-utf8-err"
+		}
+		err := callErr("capture", helper(step), kw("check", object.False))
+		want := `" wrote ` + stream + ` that is not valid UTF-8 (use exec.start with ` + stream + `=exec.PIPE for bytes)`
+		if !errors.Is(err, object.ValueError) || !strings.HasSuffix(err.Error(), want) {
+			t.Fatalf("invalid UTF-8 on %s = %v", stream, err)
+		}
+	}
+	err := callErr("capture", helper("bad-utf8", "exit=2"))
+	var exitErr *object.Error
+	if !errors.As(err, &exitErr) || !errors.Is(err, ExitError) {
+		t.Fatalf("invalid UTF-8 with a failing exit = %v", err)
+	}
+	if out, _ := exitErr.Field("stdout"); out != object.String("a\uFFFDb") {
+		t.Fatalf("ExitError stdout = %q", out)
 	}
 	r = call(t, "capture", helper("cat"), kw("stdin", object.String("fed")))
 	if get(t, r, "stdout") != object.String("fed") {
@@ -118,7 +139,7 @@ func TestCapture(t *testing.T) {
 		t.Fatalf("stdin= Bytes fed %q", get(t, r, "stdout"))
 	}
 
-	err := callErr("capture", helper("err=first\n", "err=fatal: not a repo\n\n", "exit=128"))
+	err = callErr("capture", helper("err=first\n", "err=fatal: not a repo\n\n", "exit=128"))
 	if err == nil || !strings.HasSuffix(err.Error(), `exited with status 128: fatal: not a repo`) || !strings.HasPrefix(err.Error(), `capture() "`) {
 		t.Fatalf("capture() failure error = %v", err)
 	}
@@ -238,15 +259,31 @@ func TestStart(t *testing.T) {
 	if _, err := method(t, c, "kill"); err != nil {
 		t.Fatal(err)
 	}
-	r, err := method(t, c, "wait")
+	// A killed process has status -1, which wait() raises as a failure;
+	// check=false returns the Result, the same one every time.
+	_, err = method(t, c, "wait")
+	var exitErr *object.Error
+	if !errors.As(err, &exitErr) || !errors.Is(err, ExitError) || !strings.HasPrefix(err.Error(), `wait() "`) || !strings.HasSuffix(err.Error(), `exited with status -1`) {
+		t.Fatalf("wait() after kill = %v", err)
+	}
+	if code, _ := exitErr.Field("code"); code != object.Integer(-1) {
+		t.Fatalf("ExitError code = %v", code)
+	}
+	if out, _ := exitErr.Field("stdout"); out != object.Nil {
+		t.Fatalf("ExitError stdout = %v", out)
+	}
+	if _, again := method(t, c, "wait"); again == nil || again.Error() != err.Error() {
+		t.Fatalf("wait() again = %v", again)
+	}
+	r, err := get(t, c, "wait").(*object.Function).Call(object.CallArgs{Keyword: object.Kwargs{kw("check", object.False)}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if get(t, r, "code") != object.Integer(-1) || get(t, c, "running") != object.False {
 		t.Fatalf("killed command code = %v", get(t, r, "code"))
 	}
-	if again, _ := method(t, c, "wait"); again != r {
-		t.Fatal("wait() again returned another Result")
+	if again, _ := get(t, c, "wait").(*object.Function).Call(object.CallArgs{Keyword: object.Kwargs{kw("check", object.False)}}); again != r {
+		t.Fatal("wait(check=false) again returned another Result")
 	}
 	if _, err := method(t, c, "kill"); err != nil {
 		t.Fatalf("kill() after exit error = %v", err)

@@ -97,7 +97,7 @@ try {
 var server = exec.start(["sleep", "10"])
 print(server.running, server.pid > 0, server.stdout)
 server.kill()
-var ended = server.wait()
+var ended = server.wait(check=false)
 print(ended.code, ended.success, server.running)
 
 # Follow a long-running command line by line.
@@ -109,8 +109,41 @@ for line in tail.stdout {
     }
 }
 tail.kill()
-tail.wait()
+tail.wait(check=false)
 tail.stdout.close()
+
+# A started command that fails raises from wait(), as run() does; waiting
+# again gives the same outcome, and check=false hands back the Result.
+var build = exec.start(["sh", "-c", "echo line1; exit 7"], stdout=exec.PIPE)
+for line in build.stdout {
+    print("build:", line)
+}
+build.stdout.close()
+for attempt in range(2) {
+    try {
+        build.wait()
+        print("never reached")
+    } catch e: exec.ExitError {
+        print(e.message, e.code, e.stdout, e.stderr)
+    }
+}
+print(build.wait(check=false).code)
+
+# capture() returns text; output that is not UTF-8 is read as Bytes from a
+# pipe instead.
+try {
+    exec.capture(["printf", "a\\377b"])
+} catch e: ValueError {
+    print(e.message)
+}
+var binary = exec.start(["printf", "a\\377b"], stdout=exec.PIPE)
+print(binary.stdout.read(), binary.wait().success)
+binary.stdout.close()
+try {
+    exec.capture(["sh", "-c", "printf 'a\\377b'; exit 2"])
+} catch e: exec.ExitError {
+    print(e.code, e.stdout)
+}
 
 # Talk to a process through pipes.
 var cat = exec.start(["cat"], stdin=exec.PIPE, stdout=exec.PIPE)

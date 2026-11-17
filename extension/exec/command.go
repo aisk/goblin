@@ -146,9 +146,13 @@ func (c *Command) running() bool {
 	}
 }
 
+// wait waits for the process to end. Under check=true, the default, a
+// non-zero exit raises ExitError as run does; check=false returns the
+// Result. Waiting again gives the same outcome.
 func (c *Command) wait(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("wait", args)
 	timeout, limited := p.Timeout("timeout")
+	check := bool(p.BoolOr("check", true))
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -167,6 +171,9 @@ func (c *Command) wait(args object.CallArgs) (object.Object, error) {
 	defer c.mu.Unlock()
 	if c.waitErr != nil {
 		return nil, c.waitErr
+	}
+	if check && c.result.code != 0 {
+		return nil, exitError("wait", c.argv[0], c.result, "")
 	}
 	return c.result, nil
 }

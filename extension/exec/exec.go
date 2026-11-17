@@ -12,6 +12,7 @@ import (
 	stdexec "os/exec"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
@@ -38,8 +39,8 @@ func (p *Pipe) GetAttr(name string) (object.Object, error) {
 	return nil, object.NewAttributeError("Pipe has no attribute '%s'", name)
 }
 
-// ExitError is raised by run and capture when a command exits with a
-// non-zero status under check=true. Data: code, stdout, stderr.
+// ExitError is raised by run, capture and Command.wait when a command exits
+// with a non-zero status under check=true. Data: code, stdout, stderr.
 var ExitError = object.NewErrorKind("ExitError", object.BaseError)
 
 func Execute() (object.Object, error) {
@@ -312,18 +313,36 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 	}
 	result := newResult(cmd.ProcessState.ExitCode(), outBuf, errBuf)
 	if s.check && result.code != 0 {
-		message := s.fn + `() "` + s.argv[0] + `" exited with status ` + itoa(result.code)
+		var detail string
 		if errBuf != nil {
-			if line := lastLine(errBuf.String()); line != "" {
-				message += ": " + line
-			}
+			detail = lastLine(errBuf.String())
 		}
-		return nil, object.NewKindError(ExitError, "%s", message).
-			With("code", object.Integer(result.code)).
-			With("stdout", result.stdout).
-			With("stderr", result.stderr)
+		return nil, exitError(s.fn, s.argv[0], result, detail)
+	}
+	// Captured output becomes Strings; output that is not text is read
+	// through exec.start with exec.PIPE instead of being altered here.
+	for _, stream := range []struct {
+		name string
+		buf  *bytes.Buffer
+	}{{"stdout", outBuf}, {"stderr", errBuf}} {
+		if stream.buf != nil && !utf8.Valid(stream.buf.Bytes()) {
+			return nil, object.NewValueError(`%s() "%s" wrote %s that is not valid UTF-8 (use exec.start with %s=exec.PIPE for bytes)`, s.fn, s.argv[0], stream.name, stream.name)
+		}
 	}
 	return result, nil
+}
+
+// exitError is the ExitError of a command that ended with a non-zero status
+// under check=true; detail, when not empty, is added to the message.
+func exitError(fn, program string, result *Result, detail string) error {
+	message := fn + `() "` + program + `" exited with status ` + itoa(result.code)
+	if detail != "" {
+		message += ": " + detail
+	}
+	return object.NewKindError(ExitError, "%s", message).
+		With("code", object.Integer(result.code)).
+		With("stdout", result.stdout).
+		With("stderr", result.stderr)
 }
 
 func lastLine(text string) string {

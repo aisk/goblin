@@ -18,8 +18,11 @@ type Result struct {
 
 func itoa(n int) string { return strconv.Itoa(n) }
 
-// text is captured output as a String, invalid UTF-8 replaced by U+FFFD;
-// nil when the output was not captured.
+// text is captured output as a String; nil when the output was not
+// captured. capture checks that its output is valid UTF-8 before it returns
+// a Result; the output an ExitError or TimeoutError carries is diagnostic
+// and has invalid UTF-8 replaced by U+FFFD, since raising a second error
+// while building the first would hide it.
 func text(buf *bytes.Buffer) object.Object {
 	if buf == nil {
 		return object.Nil

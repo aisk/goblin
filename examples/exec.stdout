@@ -21,6 +21,13 @@ true true nil
 -1 false false
 tail: starting
 tail: READY
+build: line1
+wait() "sh" exited with status 7 7 nil nil
+wait() "sh" exited with status 7 7 nil nil
+7
+capture() "printf" wrote stdout that is not valid UTF-8 (use exec.start with stdout=exec.PIPE for bytes)
+b"a\xffb" true
+2 a�b
 through a pipe true
 true true true
 run() argument 'stdout' does not accept exec.PIPE (use exec.start)

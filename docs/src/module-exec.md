@@ -70,6 +70,18 @@ for line in tail.stdout {
     }
 }
 tail.kill()
+
+# Show a build's output as it comes, and stop if it fails
+var build = exec.start(["make"], stdout=exec.PIPE)
+for line in build.stdout {
+    print("make: {line}")
+}
+build.wait()                 # raises exec.ExitError for a non-zero exit
+
+# Read binary output as Bytes
+var archive = exec.start(["tar", "-cz", "src"], stdout=exec.PIPE)
+var data = archive.stdout.read()
+archive.wait()
 ~~~
 
 `examples/exec.goblin` runs each of these tasks with small shell commands.
@@ -79,10 +91,10 @@ tail.kill()
 | Member | Returns | Behaviour |
 | --- | --- | --- |
 | `run(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil, check=true, timeout=nil)` | Result | Runs the command to completion; its output goes where this program's goes, or to `stdout=`/`stderr=`. `result.stdout` and `stderr` are `nil` |
-| `capture(args, cwd=nil, env=nil, stdin=nil, check=true, timeout=nil)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal |
+| `capture(args, cwd=nil, env=nil, stdin=nil, check=true, timeout=nil)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal. Output that is not valid UTF-8 raises ValueError: read binary output through `start` with `stdout=exec.PIPE` |
 | `start(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil)` | Command | Starts the command and returns at once. `stdin`, `stdout` and `stderr` also accept `exec.PIPE` |
 | `find(name)` | Path or `nil` | Where `name` would be found on `PATH`; `nil` when it is not installed |
-| `ExitError` | error kind | Raised by `run` and `capture` for a non-zero exit under `check=true` |
+| `ExitError` | error kind | Raised by `run`, `capture` and `Command.wait` for a non-zero exit under `check=true` |
 | `PIPE` | constant | For `start` only: connect that stream to this program (`command.stdin`, `command.stdout`, `command.stderr`). Passing it to `run` is a TypeError |
 
 The parameters they share:
@@ -109,13 +121,16 @@ for `type_of`; calling them raises TypeError pointing at `exec.start` /
 | `cwd` is missing or not a directory | NotExistError, IOError | `path`: the `cwd` given, a Path |
 | It cannot be run | PermissionError, IOError | — |
 | `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` | `stdout`, `stderr`: what `capture` had collected when the process was killed; `nil` from `run` |
-| Non-zero exit with `check=true` | `exec.ExitError` `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository` | `code`, `stdout`, `stderr` |
+| Non-zero exit with `check=true` | `exec.ExitError` `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository`; `Command.wait` says `wait() "make" exited with status 2` | `code`, `stdout`, `stderr` |
+| `capture` collected output that is not valid UTF-8 | ValueError `capture() "cat" wrote stdout that is not valid UTF-8 (use exec.start with stdout=exec.PIPE for bytes)`, after the timeout and exit checks | — |
 
 The data of an `exec.ExitError` is what the Result would have shown under
 `check=false`: `code` is the exit status (`-1` when the process was killed by
 a signal, never `0`), `stdout` and `stderr` are the captured text from
-`capture` and `nil` from `run`. It is not an IOError: the command ran, and its
-answer was "failed".
+`capture` and `nil` from `run` and `Command.wait`. It is not an IOError: the
+command ran, and its answer was "failed". The output an ExitError or a
+TimeoutError carries is for diagnosis, so invalid UTF-8 in it is replaced by
+U+FFFD rather than raising a second error.
 
 Pass `check=false` when a non-zero status is an answer rather than a failure;
 catch `exec.ExitError` when it is a failure you want to handle.
@@ -128,7 +143,7 @@ Immutable; all properties.
 | --- | --- |
 | `code` | Int exit status; `-1` when the process was killed by a signal |
 | `success` | Bool, `code == 0` |
-| `stdout` | String from `capture`, with invalid UTF-8 replaced by U+FFFD; `nil` from `run` and `Command.wait` |
+| `stdout` | String from `capture`, always valid UTF-8; `nil` from `run` and `Command.wait` |
 | `stderr` | likewise |
 
 ## Command
@@ -141,8 +156,8 @@ A started process, from `exec.start`. It shows as `<Command ["git", "status"]>`.
 | `running` | property | Bool: started and not yet exited |
 | `stdin` | property | A writable [File](./module-fs.md#file) when started with `stdin=exec.PIPE`, else `nil`. `close()` it to signal the end of input |
 | `stdout`, `stderr` | property | A readable File when started with `exec.PIPE`, else `nil` |
-| `wait(timeout=nil)` | method | Blocks until the process exits and returns its Result (`stdout`/`stderr` are `nil`). It never raises for a non-zero exit, and calling it again returns the same Result. On timeout it raises TimeoutError and the process **keeps running** |
-| `kill()` | method | Stops the process; `nil`. Fine if it already exited. Follow with `wait()` to collect the status |
+| `wait(timeout=nil, check=true)` | method | Blocks until the process exits and returns its Result (`stdout`/`stderr` are `nil`). A non-zero exit raises `exec.ExitError` as `run` does; `check=false` returns the Result instead. Calling it again gives the same outcome. On timeout it raises TimeoutError and the process **keeps running** |
+| `kill()` | method | Stops the process; `nil`. Fine if it already exited. A killed process has status `-1`, so collect it with `wait(check=false)` |
 
 A piped `stdout` or `stderr` must be read to its end before `wait()`: a
 process blocked on a full pipe never exits. Close the pipes you asked for once
@@ -155,5 +170,6 @@ same object from Goblin code until `wait()` returns.
 ## Left out
 
 Shell command strings, signals other than kill, a clean (not inherited)
-environment, and capturing output as Bytes are not part of the module. A
-command with binary output is sent to a File with `stdout=`.
+environment, and capturing output as Bytes in one call are not part of the
+module. Binary output is read from `exec.start(args, stdout=exec.PIPE)` with
+`command.stdout.read()`, or sent to a File with `stdout=`.
