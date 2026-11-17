@@ -419,10 +419,18 @@ func TestIndexIntMatchesBoxedIndexing(t *testing.T) {
 	if fast == nil || fast.Error() != slow.Error() {
 		t.Fatalf("out-of-range mismatch: %v vs %v", fast, slow)
 	}
-	fast = SetIndexInt(list, -1, Nil)
-	_, slow = list.SetIndex(Integer(-1), Nil)
+	fast = SetIndexInt(list, -3, Nil)
+	_, slow = list.SetIndex(Integer(-3), Nil)
 	if fast == nil || fast.Error() != slow.Error() {
 		t.Fatalf("out-of-range set mismatch: %v vs %v", fast, slow)
+	}
+	// A negative index leaves the fast path but still counts from the end.
+	got, err = IndexInt(list, -1)
+	if err != nil || got != Integer(20) {
+		t.Fatalf("IndexInt(list, -1) = %v, %v", got, err)
+	}
+	if err := SetIndexInt(list, -2, String("y")); err != nil || list.Elements[0] != String("y") {
+		t.Fatalf("SetIndexInt(list, -2) did not store: %v, %v", list.Elements[0], err)
 	}
 	dict := NewDict()
 	dict.Set(Integer(1), String("one"))

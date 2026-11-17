@@ -73,9 +73,11 @@ print(text.size)               # 22
 Line breaks in a raw string are always `\n`, even in a file saved with CRLF
 line endings.
 
-size counts Unicode characters, not bytes; it is a property, not a method. Strings iterate by character, but
-they cannot be indexed with `[]`; use index() or last_index() when a character
-position is needed.
+size counts Unicode characters, not bytes; it is a property, not a method.
+Strings iterate by character, and `text[i]` is the character at position `i`
+as a one-character string. A negative position counts from the end, and one
+outside the string raises IndexError. Strings are immutable, so `text[i] = c`
+is a TypeError.
 
 ~~~goblin
 var language = "Goblin"
@@ -83,6 +85,7 @@ var language = "Goblin"
 for character in language {
     print(character)
 }
+print(language[0], language[-1]) # G n
 ~~~
 
 ## Slicing
@@ -98,9 +101,9 @@ print(text[7:])  # wörld
 print(text[1:2]) # é
 ~~~
 
-A one-character slice such as `text[i:i + 1]` takes the place of an index.
-Bounds must be integers with `0 <= low <= high <= size`; anything else raises
-IndexError, exactly as for a [list slice](./collections.md#slicing).
+Bounds are positions between characters, from `-size` to `size`, a negative
+one counting from the end (`text[:-1]` drops the last character); anything
+else raises IndexError, exactly as for a [list slice](./collections.md#slicing).
 
 ## Combining and converting text
 

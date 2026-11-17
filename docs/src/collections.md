@@ -5,18 +5,18 @@ runtime types. Empty collections are false in conditions.
 
 ## Lists
 
-Create a list with square brackets. Direct list indexes begin at zero and must
-be non-negative.
+Create a list with square brackets. Indexes begin at zero, and a negative
+index counts from the end: `-1` is the last element and `-size` the first.
 
 ~~~goblin
 var tasks = ["write", "test"]
 print(tasks[0])
-tasks[1] = "review"
+tasks[-1] = "review"
 tasks.push("ship")
 print(tasks.pop())
 ~~~
 
-An index outside the list raises IndexError. The + operator makes a new
+An index outside `-size <= i < size` raises IndexError. The + operator makes a new
 concatenated list; push(), reverse(), sort(), and clear() change the current
 list.
 
@@ -40,12 +40,17 @@ print(numbers[3:])  # [40, 50]
 print(numbers[:])   # a copy of the whole list
 ~~~
 
-A slice is a copy, so changing it never changes the list it came from. Bounds
-follow the rules of a direct index: they must be integers with
-`0 <= low <= high <= size`. A bound outside that range raises IndexError; it is
-neither clamped nor counted from the end, so write `numbers[:numbers.size - 1]`
-to drop the last element. Strings and Bytes are sliced the same way. A slice
-cannot be assigned to.
+A slice is a copy, so changing it never changes the list it came from. A bound
+names a position between elements, so it may also equal the size; like an
+index, a negative bound counts from the end, so `numbers[:-1]` drops the last
+element and `numbers[-2:]` keeps the last two. A bound outside
+`-size <= bound <= size`, or a `low` that ends up past `high`, raises
+IndexError; bounds are never clamped. Strings and Bytes are sliced the same
+way. A slice cannot be assigned to.
+
+The same two kinds of position appear in methods: pop() takes an element
+index, while insert() and the `start` of index() take a bound, so
+`list.insert(list.size, value)` appends.
 
 ### List method guide
 
@@ -55,7 +60,7 @@ cannot be assigned to.
 | push(value, ...) | Append one or more values |
 | pop(index=-1) | Remove and return an element; defaults to the last |
 | first / last | Read the first or last element without removing it (properties) |
-| insert(index, value) | Insert before an index |
+| insert(index, value) | Insert before a position; `size` appends |
 | remove(value) | Remove the first matching value |
 | contains(value) / count(value) | Test for or count a value |
 | index(value, start=0) | Find a value from an offset |

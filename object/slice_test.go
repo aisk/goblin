@@ -66,7 +66,7 @@ func TestSliceErrors(t *testing.T) {
 		kind      *Error
 	}{
 		{"high past the end", list, nil, Integer(4), IndexError},
-		{"negative low", list, Integer(-1), nil, IndexError},
+		{"low before the start", list, Integer(-4), nil, IndexError},
 		{"low above high", list, Integer(2), Integer(1), IndexError},
 		{"string past the end", String("日本"), nil, Integer(3), IndexError},
 		{"non-integer bound", list, String("a"), nil, TypeError},
@@ -92,5 +92,21 @@ func TestUnpack(t *testing.T) {
 	}
 	if _, err := Unpack(Integer(1), 2); !errors.Is(err, TypeError) {
 		t.Errorf("not iterable: got %v, want a TypeError", err)
+	}
+}
+
+func TestSliceNegativeBounds(t *testing.T) {
+	list := &List{Elements: []Object{Integer(1), Integer(2), Integer(3)}}
+	got, err := Slice(list, Integer(-2), nil)
+	if err != nil || inspect(got) != "[2, 3]" {
+		t.Errorf("list[-2:] = %v, %v", got, err)
+	}
+	got, err = Slice(String("héllo"), Integer(1), Integer(-1))
+	if err != nil || got != String("éll") {
+		t.Errorf(`"héllo"[1:-1] = %v, %v`, got, err)
+	}
+	_, err = Slice(list, Integer(-1), Integer(-2))
+	if err == nil || err.Error() != "List slice bounds out of range: [-1:-2] with size 3" {
+		t.Errorf("list[-1:-2] error = %v", err)
 	}
 }

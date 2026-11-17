@@ -450,8 +450,21 @@ func (s String) Iterator() (Iterator, error) {
 	}), nil
 }
 
+// Index returns the character at a position, as a one-character String.
+// Positions count characters, as size and iteration do.
 func (s String) Index(index Object) (Object, error) {
-	return nil, Unsupported("String", ErrFmtNotIndexable)
+	idx, err := indexArg("String", index)
+	if err != nil {
+		return nil, err
+	}
+	str := string(s)
+	i, err := ResolveIndex("String", idx, utf8.RuneCountInString(str))
+	if err != nil {
+		return nil, err
+	}
+	// Like iteration, an invalid byte reads as U+FFFD.
+	r, _ := utf8.DecodeRuneInString(str[runeOffset(str, i):])
+	return String(string(r)), nil
 }
 
 func (s String) GetAttr(name string) (Object, error) {

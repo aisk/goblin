@@ -48,8 +48,28 @@ func (b Bytes) Add(other Object) (Object, error) {
 func (b Bytes) Minus(Object) (Object, error) {
 	return nil, Unsupported("Bytes", ErrFmtCannotSubtract)
 }
-func (b Bytes) Multiply(Object) (Object, error) {
-	return nil, Unsupported("Bytes", ErrFmtCannotMultiply)
+func (b Bytes) Multiply(other Object) (Object, error) {
+	n, ok := other.(Integer)
+	if !ok {
+		return nil, NewOperandError(OpMultiply, "Bytes", other)
+	}
+	if n < 0 {
+		return nil, NewValueError("cannot multiply Bytes by negative number")
+	}
+	if err := checkRepeat(len(b), n); err != nil {
+		return nil, err
+	}
+	return Bytes(bytes.Repeat(b, int(n))), nil
+}
+
+// RMultiply repeats the bytes when they are the right operand, so `3 * b`
+// reads the same as `b * 3`.
+func (b Bytes) RMultiply(left Object) (Object, bool, error) {
+	if _, ok := left.(Integer); !ok {
+		return nil, false, nil
+	}
+	result, err := b.Multiply(left)
+	return result, true, err
 }
 func (b Bytes) Divide(Object) (Object, error) {
 	return nil, Unsupported("Bytes", ErrFmtCannotDivide)
@@ -59,14 +79,14 @@ func (b Bytes) Modulo(Object) (Object, error) {
 }
 
 // A named slice type cannot embed NoAssignment and NoReflectedOps, so Bytes
-// declines assignment and the reflected operators itself.
-func (b Bytes) SetIndex(Object, Object) (bool, error)  { return false, nil }
-func (b Bytes) SetAttr(string, Object) (bool, error)   { return false, nil }
-func (b Bytes) RAdd(Object) (Object, bool, error)      { return nil, false, nil }
-func (b Bytes) RMinus(Object) (Object, bool, error)    { return nil, false, nil }
-func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil }
-func (b Bytes) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
-func (b Bytes) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
+// declines assignment and the reflected operators other than repetition
+// itself.
+func (b Bytes) SetIndex(Object, Object) (bool, error) { return false, nil }
+func (b Bytes) SetAttr(string, Object) (bool, error)  { return false, nil }
+func (b Bytes) RAdd(Object) (Object, bool, error)     { return nil, false, nil }
+func (b Bytes) RMinus(Object) (Object, bool, error)   { return nil, false, nil }
+func (b Bytes) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
+func (b Bytes) RModulo(Object) (Object, bool, error)  { return nil, false, nil }
 
 // Iter returns the bytes of b as Integers.
 func (b Bytes) Iter() ([]Object, error) { return Collect(b) }
@@ -86,12 +106,13 @@ func (b Bytes) Iterator() (Iterator, error) {
 }
 
 func (b Bytes) Index(index Object) (Object, error) {
-	i, ok := index.(Integer)
-	if !ok {
-		return nil, NewTypeError("Bytes index must be Int, got %s", index.TypeName())
+	idx, err := indexArg("Bytes", index)
+	if err != nil {
+		return nil, err
 	}
-	if i < 0 || int(i) >= len(b) {
-		return nil, NewIndexError("Bytes index out of range: %d", int64(i))
+	i, err := ResolveIndex("Bytes", idx, len(b))
+	if err != nil {
+		return nil, err
 	}
 	return Integer(b[i]), nil
 }

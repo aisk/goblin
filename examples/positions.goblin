@@ -1,0 +1,67 @@
+# Positions: an element index names an element, a negative one counting
+# from the end; a bound names a gap between elements, both ends included.
+func attempt(action) {
+    try {
+        print(action())
+    } catch err {
+        print(err.is(IndexError), err.is(TypeError), err.message)
+    }
+}
+
+# Element indexes on a List, read and write.
+var xs = [10, 20, 30]
+print(xs[0], xs[2], xs[-1], xs[-3])
+xs[-1] = 99
+print(xs)
+var i = -2
+xs[i] = 77
+print(xs[i], xs)
+attempt(func() { return xs[3] })
+attempt(func() { return xs[-4] })
+attempt(func() { xs[5] = 0 })
+attempt(func() { return xs["0"] })
+
+# Strings index characters; the result is a one-character String.
+var word = "héllo"
+print(word[0], word[1], word[-1], word[-5])
+attempt(func() { return word[5] })
+attempt(func() { return word[-6] })
+attempt(func() { return word[1.0] })
+attempt(func() { word[0] = "j" })
+
+# Bytes index bytes; the result is an Int.
+var raw = Bytes("abc")
+print(raw[0], raw[-1])
+attempt(func() { return raw[3] })
+attempt(func() { return raw[-4] })
+attempt(func() { raw[0] = 1 })
+
+# pop takes an element index.
+var ys = [1, 2, 3, 4]
+print(ys.pop(-2), ys.pop(0), ys)
+attempt(func() { return ys.pop(2) })
+attempt(func() { return [].pop() })
+
+# insert takes a bound: size appends, -size prepends, beyond is an error.
+var zs = [1, 2]
+print(zs.insert(2, "end"))
+print(zs.insert(-3, "start"))
+print(zs.insert(-1, "mid"))
+attempt(func() { return zs.insert(6, "x") })
+attempt(func() { return zs.insert(-6, "x") })
+
+# index(start=) takes a bound as well.
+var ws = ["a", "b", "a", "b"]
+print(ws.index("a", start=1), ws.index("b", start=-1), ws.index("a", start=4))
+attempt(func() { return ws.index("a", start=5) })
+attempt(func() { return ws.index("a", start=-5) })
+
+# Slice ends are bounds.
+print(xs[-2:], word[1:-1], raw[-2:], xs[:-3])
+attempt(func() { return xs[-4:] })
+attempt(func() { return xs[2:-2] })
+
+# Bytes repeat like Strings and Lists.
+print(raw * 2, 2 * raw, raw * 0)
+attempt(func() { return raw * -1 })
+attempt(func() { return raw * "2" })

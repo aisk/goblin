@@ -6,9 +6,10 @@ import "unicode/utf8"
 // then defaults to zero and high to the size. Lists, strings and Bytes can be
 // sliced; the result is always a new value that shares nothing with obj.
 //
-// Bounds follow the rules of a direct index: they must be Integers within
-// 0 <= low <= high <= size, and anything else raises IndexError rather than
-// being clamped or counted from the end.
+// Both ends are bounds (see ResolveBound): Ints within -size <= i <= size,
+// a negative one counting from the end. A bound outside that range, or a low
+// end past the high one once both are resolved, raises IndexError rather
+// than being clamped.
 func Slice(obj, low, high Object) (Object, error) {
 	switch v := obj.(type) {
 	case *List:
@@ -36,31 +37,34 @@ func Slice(obj, low, high Object) (Object, error) {
 	return nil, NewTypeError("%s cannot be sliced", obj.TypeName())
 }
 
-// sliceBounds resolves the bounds of a slice of obj, whose size is given.
+// sliceBounds resolves the bounds of a slice of obj, whose size is given. The
+// error shows the bounds as written, an omitted one as its default.
 func sliceBounds(obj Object, low, high Object, size int) (lo, hi int, err error) {
-	lo, hi = 0, size
+	rawLo, rawHi := Integer(0), Integer(size)
 	if low != nil {
-		if lo, err = sliceBound(obj, low); err != nil {
+		if rawLo, err = sliceBound(obj, low); err != nil {
 			return 0, 0, err
 		}
 	}
 	if high != nil {
-		if hi, err = sliceBound(obj, high); err != nil {
+		if rawHi, err = sliceBound(obj, high); err != nil {
 			return 0, 0, err
 		}
 	}
-	if lo < 0 || hi > size || lo > hi {
-		return 0, 0, NewIndexError("%s slice bounds out of range: [%d:%d] with size %d", obj.TypeName(), lo, hi, size)
+	lo, okLo := resolvePosition(rawLo, size, size)
+	hi, okHi := resolvePosition(rawHi, size, size)
+	if !okLo || !okHi || lo > hi {
+		return 0, 0, NewIndexError("%s slice bounds out of range: [%d:%d] with size %d", obj.TypeName(), int64(rawLo), int64(rawHi), size)
 	}
 	return lo, hi, nil
 }
 
-func sliceBound(obj, bound Object) (int, error) {
+func sliceBound(obj, bound Object) (Integer, error) {
 	i, ok := bound.(Integer)
 	if !ok {
 		return 0, NewTypeError("%s slice bound must be Int, got %s", obj.TypeName(), bound.TypeName())
 	}
-	return int(i), nil
+	return i, nil
 }
 
 // runeOffset returns the byte offset of the n-th character of s, or len(s)

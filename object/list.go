@@ -35,9 +35,9 @@ func (l *List) Pop(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if len(l.Elements) == 0 {
-		return nil, NewIndexError("pop from empty list")
+		return nil, NewIndexError("pop() from empty list")
 	}
-	i, err := listIndex("pop", index, len(l.Elements))
+	i, err := ResolveIndex("List", index, len(l.Elements))
 	if err != nil {
 		return nil, err
 	}
@@ -65,17 +65,6 @@ func (l *List) Last() (Object, error) {
 	return l.Elements[len(l.Elements)-1], nil
 }
 
-func listIndex(fn string, index Integer, size int) (int, error) {
-	i := int(index)
-	if i < 0 {
-		i += size
-	}
-	if i < 0 || i >= size {
-		return 0, NewIndexError("%s() index out of range: %d", fn, int64(index))
-	}
-	return i, nil
-}
-
 func (l *List) Join(args CallArgs) (Object, error) {
 	ap := NewArgParser("join", args)
 	sep := ap.Str("sep")
@@ -99,15 +88,9 @@ func (l *List) Insert(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	i := int(index)
-	if i < 0 {
-		i += len(l.Elements)
-	}
-	if i < 0 {
-		i = 0
-	}
-	if i > len(l.Elements) {
-		i = len(l.Elements)
+	i, err := ResolveBound("List", index, len(l.Elements))
+	if err != nil {
+		return nil, err
 	}
 	l.Elements = append(l.Elements, nil)
 	copy(l.Elements[i+1:], l.Elements[i:])
@@ -159,12 +142,9 @@ func (l *List) IndexOf(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	i := int(start)
-	if i < 0 {
-		i += len(l.Elements)
-	}
-	if i < 0 {
-		i = 0
+	i, err := ResolveBound("List", start, len(l.Elements))
+	if err != nil {
+		return nil, err
 	}
 	for ; i < len(l.Elements); i++ {
 		eq, err := Equals(l.Elements[i], value)
@@ -335,25 +315,25 @@ func (l *List) Iter() ([]Object, error) {
 }
 
 func (l *List) Index(index Object) (Object, error) {
-	idx, ok := index.(Integer)
-	if !ok {
-		return nil, NewTypeError("List index must be Int, got %s", index.TypeName())
+	idx, err := indexArg("List", index)
+	if err != nil {
+		return nil, err
 	}
-	i := int(idx)
-	if i < 0 || i >= len(l.Elements) {
-		return nil, NewIndexError("List index out of range: %d", i)
+	i, err := ResolveIndex("List", idx, len(l.Elements))
+	if err != nil {
+		return nil, err
 	}
 	return l.Elements[i], nil
 }
 
 func (l *List) SetIndex(index Object, value Object) (bool, error) {
-	idx, ok := index.(Integer)
-	if !ok {
-		return true, NewTypeError("List index must be Int, got %s", index.TypeName())
+	idx, err := indexArg("List", index)
+	if err != nil {
+		return true, err
 	}
-	i := int(idx)
-	if i < 0 || i >= len(l.Elements) {
-		return true, NewIndexError("List index out of range: %d", i)
+	i, err := ResolveIndex("List", idx, len(l.Elements))
+	if err != nil {
+		return true, err
 	}
 	l.Elements[i] = value
 	return true, nil

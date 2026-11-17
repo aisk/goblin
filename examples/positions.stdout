@@ -1,0 +1,33 @@
+10 30 30 10
+[10, 20, 99]
+77 [10, 77, 99]
+true false List index out of range: 3
+true false List index out of range: -4
+true false List index out of range: 5
+false true List index must be Int, got String
+h é o h
+true false String index out of range: 5
+true false String index out of range: -6
+false true String index must be Int, got Float
+false true String does not support index assignment
+97 99
+true false Bytes index out of range: 3
+true false Bytes index out of range: -4
+false true Bytes does not support index assignment
+3 1 [2, 4]
+true false List index out of range: 2
+true false pop() from empty list
+[1, 2, "end"]
+["start", 1, 2, "end"]
+["start", 1, 2, "mid", "end"]
+true false List index out of range: 6
+true false List index out of range: -6
+2 3 -1
+true false List index out of range: 5
+true false List index out of range: -5
+[77, 99] éll b"bc" []
+true false List slice bounds out of range: [-4:3] with size 3
+true false List slice bounds out of range: [2:-2] with size 3
+b"abcabc" b"abcabc" b""
+false false cannot multiply Bytes by negative number
+false true cannot multiply Bytes and String
