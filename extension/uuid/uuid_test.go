@@ -5,7 +5,7 @@ import (
 	"testing"
 	stduuid "uuid"
 
-	goblintime "github.com/aisk/goblin/extension/time"
+	"github.com/aisk/goblin/extension/internal/timevalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -135,7 +135,7 @@ func TestUUIDTimeV7(t *testing.T) {
 	if err != nil {
 		t.Fatalf("UUID.time error = %v", err)
 	}
-	if ms := got.(*goblintime.Time).Value.UnixMilli(); ms != 0x017f22e279b0 {
+	if ms := got.(*timevalue.Time).Value.UnixMilli(); ms != 0x017f22e279b0 {
 		t.Fatalf("UUID.time = %d ms, want %d", ms, int64(0x017f22e279b0))
 	}
 }

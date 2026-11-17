@@ -1,4 +1,4 @@
-package path
+package pathvalue
 
 import (
 	"testing"

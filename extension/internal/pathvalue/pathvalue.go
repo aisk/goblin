@@ -1,4 +1,6 @@
-package path
+// Package pathvalue holds the Path value type and the path argument helper
+// shared by the modules that name files (fs, os, exec).
+package pathvalue
 
 import (
 	"errors"
@@ -28,20 +30,11 @@ func NewPath(s string) *Path {
 	return &Path{raw: filepath.Clean(s)}
 }
 
-// PathString extracts a filesystem path string from a String or Path,
-// mirroring Python's os.fspath(). Library functions use it as the single point
-// where a "path-like" argument is accepted, so a Path can be passed anywhere a
-// path string is expected.
-func PathString(obj object.Object) (string, bool) {
-	switch v := obj.(type) {
-	case object.String:
-		return string(v), true
-	case *Path:
-		return v.raw, true
-	default:
-		return "", false
-	}
-}
+// PathString extracts a filesystem path string from a String or Path.
+func PathString(obj object.Object) (string, bool) { return object.PathString(obj) }
+
+// FilePath satisfies object.PathValue, so ArgParser.Path accepts a Path.
+func (p *Path) FilePath() string { return p.raw }
 
 func (p *Path) TypeName() string { return "Path" }
 

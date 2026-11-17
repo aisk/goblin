@@ -44,6 +44,9 @@ type ArgParser struct {
 	// valueErr makes the pending failure a ValueError rather than the
 	// TypeError every other failure is.
 	valueErr bool
+	// dataErr is the error reading a stream passed as data (DataBytes),
+	// which Finish returns as it is.
+	dataErr error
 }
 
 // NewArgParser creates an ArgParser for the given function name and call arguments.
@@ -416,6 +419,9 @@ func (p *ArgParser) Rest() Args {
 // accept an open-ended argument list should call Rest before Finish.
 func (p *ArgParser) Finish() error {
 	if p.failed {
+		if p.dataErr != nil {
+			return p.dataErr
+		}
 		if p.valueErr {
 			return &Error{Value: p.funcName + p.errMsg, Wrapped: ValueError}
 		}

@@ -4,7 +4,8 @@ import (
 	"io"
 	"os"
 
-	pathext "github.com/aisk/goblin/extension/path"
+	"github.com/aisk/goblin/extension/internal/filestream"
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -29,7 +30,7 @@ func bindPathArg(funcName string, args object.CallArgs) (string, error) {
 	if err := ap.Finish(); err != nil {
 		return "", err
 	}
-	path, err := pathext.PathArg(funcName, "path", pathArg)
+	path, err := pathvalue.PathArg(funcName, "path", pathArg)
 	if err != nil {
 		return "", err
 	}
@@ -47,7 +48,7 @@ func openFile(args object.CallArgs) (object.Object, error) {
 		return nil, object.WrapNativeError(object.IOError, "open() failed to open file", err)
 	}
 
-	return NewFile(path, file), nil
+	return filestream.NewFile(path, file), nil
 }
 
 func createFile(args object.CallArgs) (object.Object, error) {
@@ -60,7 +61,7 @@ func createFile(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "create() failed to create file", err)
 	}
-	return NewFile(path, file), nil
+	return filestream.NewFile(path, file), nil
 }
 
 func readFile(args object.CallArgs) (object.Object, error) {
@@ -89,7 +90,7 @@ func bindPathContentArgs(funcName string, args object.CallArgs) (string, string,
 	if err := ap.Finish(); err != nil {
 		return "", "", err
 	}
-	path, err := pathext.PathArg(funcName, "path", pathArg)
+	path, err := pathvalue.PathArg(funcName, "path", pathArg)
 	if err != nil {
 		return "", "", err
 	}
@@ -157,7 +158,7 @@ func stat(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "stat() failed to stat path", err)
 	}
-	return NewFileInfo(info), nil
+	return filestream.NewFileInfo(info), nil
 }
 
 func readDir(args object.CallArgs) (object.Object, error) {
@@ -177,7 +178,7 @@ func readDir(args object.CallArgs) (object.Object, error) {
 		if err != nil {
 			return nil, object.WrapNativeError(object.IOError, "read_dir() failed to read directory", err)
 		}
-		items[i] = NewFileInfo(info)
+		items[i] = filestream.NewFileInfo(info)
 	}
 	return &object.List{Elements: items}, nil
 }

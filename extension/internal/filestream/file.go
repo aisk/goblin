@@ -1,4 +1,6 @@
-package fs
+// Package filestream holds the File stream type shared by the modules that
+// hand out open files and pipes (fs, os, exec).
+package filestream
 
 import (
 	"bufio"

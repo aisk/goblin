@@ -4,6 +4,7 @@ import (
 	"testing"
 	stdtime "time"
 
+	"github.com/aisk/goblin/extension/internal/timevalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -12,7 +13,7 @@ func TestNow(t *testing.T) {
 	if err != nil {
 		t.Fatalf("now() returned error: %v", err)
 	}
-	tm, ok := result.(*Time)
+	tm, ok := result.(*timevalue.Time)
 	if !ok {
 		t.Fatalf("now() did not return *Time, got %T", result)
 	}
@@ -31,7 +32,7 @@ func TestParseAndFormat(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse() returned error: %v", err)
 	}
-	tm, ok := result.(*Time)
+	tm, ok := result.(*timevalue.Time)
 	if !ok {
 		t.Fatalf("parse() did not return *Time, got %T", result)
 	}
@@ -73,7 +74,7 @@ func TestUnix(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unix() returned error: %v", err)
 	}
-	tm, ok := result.(*Time)
+	tm, ok := result.(*timevalue.Time)
 	if !ok {
 		t.Fatalf("unix() did not return *Time, got %T", result)
 	}
@@ -84,7 +85,7 @@ func TestUnix(t *testing.T) {
 }
 
 func TestElapsed(t *testing.T) {
-	start := NewTime(parseTimeHelper(t))
+	start := timevalue.NewTime(parseTimeHelper(t))
 	fnObj, err := start.GetAttr("elapsed")
 	if err != nil {
 		t.Fatalf("GetAttr(elapsed) returned error: %v", err)
@@ -103,8 +104,8 @@ func TestElapsed(t *testing.T) {
 }
 
 func TestTimeCompare(t *testing.T) {
-	t1 := NewTime(parseStrHelper(t, "2025-01-01"))
-	t2 := NewTime(parseStrHelper(t, "2026-01-01"))
+	t1 := timevalue.NewTime(parseStrHelper(t, "2025-01-01"))
+	t2 := timevalue.NewTime(parseStrHelper(t, "2026-01-01"))
 
 	cmp, err := t1.Compare(t2)
 	if err != nil {

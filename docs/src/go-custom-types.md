@@ -249,6 +249,10 @@ var counter = module.Counter(start=10)
 print(type_of(counter) == module.Counter) # true
 ~~~
 
+A type that a module exports only for `type_of` comparisons, with no way to
+build it from arguments, uses `object.NewOpaqueConstructor("File", "fs.open(path)")`:
+calling it raises `TypeError: File cannot be constructed; use fs.open(path)`.
+
 A value without a `Constructor` method still has a type: `type_of` answers a
 stand-in function named after its `TypeName`, which cannot be called.
 

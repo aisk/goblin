@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	pathext "github.com/aisk/goblin/extension/path"
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -194,7 +194,7 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, err := pathext.PathArg("tempdir", "dir", dirObj)
+		d, err := pathvalue.PathArg("tempdir", "dir", dirObj)
 		if err != nil {
 			return nil, err
 		}
@@ -219,7 +219,7 @@ func tempFile(args object.CallArgs) (object.Object, error) {
 	}
 	dir := ""
 	if hasDir {
-		d, err := pathext.PathArg("tempfile", "dir", dirObj)
+		d, err := pathvalue.PathArg("tempfile", "dir", dirObj)
 		if err != nil {
 			return nil, err
 		}

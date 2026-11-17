@@ -1,4 +1,6 @@
-package time
+// Package timevalue holds the Time value type shared by the modules that
+// report instants (time, fs, uuid), so none of them imports another.
+package timevalue
 
 import (
 	"hash/maphash"
@@ -123,7 +125,7 @@ func errTimeRange() error {
 
 // Constructor satisfies object.Constructed, so type_of answers the
 // constructor the module exports.
-func (t *Time) Constructor() *object.Function { return timeType.Function }
+func (t *Time) Constructor() *object.Function { return Type.Function }
 
 func (t *Time) GetAttr(name string) (object.Object, error) {
 	switch name {
@@ -188,3 +190,23 @@ func (t *Time) Attributes() []string {
 }
 
 var _ object.Object = (*Time)(nil)
+
+// Type is the one constructor identity of Time, exported by the time module.
+var Type = object.NewNativeConstructor("Time", construct)
+
+// construct builds a Time from calendar components in local time.
+func construct(args object.CallArgs) (object.Object, error) {
+	p := object.NewArgParser("Time", args)
+	year := p.Int("year")
+	month := p.Int("month")
+	day := p.Int("day")
+	hour := p.IntOr("hour", 0)
+	minute := p.IntOr("minute", 0)
+	second := p.IntOr("second", 0)
+	nanosecond := p.IntOr("nanosecond", 0)
+	if err := p.Finish(); err != nil {
+		return nil, err
+	}
+	t := stdtime.Date(int(year), stdtime.Month(month), int(day), int(hour), int(minute), int(second), int(nanosecond), stdtime.Local)
+	return NewTime(t), nil
+}

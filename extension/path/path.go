@@ -3,6 +3,7 @@ package path
 import (
 	"os"
 
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -12,7 +13,7 @@ import (
 // call an instance method on.
 func Execute() (object.Object, error) {
 	return object.NewModule("path", map[string]object.Object{
-		"Path": PathConstructorFn,
+		"Path": pathvalue.PathConstructorFn,
 	}, object.Funcs{
 		"cwd":  cwd,
 		"home": home,
@@ -27,7 +28,7 @@ func cwd(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "cwd() failed to get working directory", err)
 	}
-	return NewPath(dir), nil
+	return pathvalue.NewPath(dir), nil
 }
 
 func home(args object.CallArgs) (object.Object, error) {
@@ -38,5 +39,5 @@ func home(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapNativeError(object.IOError, "home() failed to resolve home directory", err)
 	}
-	return NewPath(dir), nil
+	return pathvalue.NewPath(dir), nil
 }

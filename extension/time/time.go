@@ -3,14 +3,13 @@ package time
 import (
 	stdtime "time"
 
+	"github.com/aisk/goblin/extension/internal/timevalue"
 	"github.com/aisk/goblin/object"
 )
 
-var timeType = object.NewNativeConstructor("Time", timeConstructor)
-
 func Execute() (object.Object, error) {
 	return object.NewModule("time", map[string]object.Object{
-		"Time": timeType.Function,
+		"Time": timevalue.Type.Function,
 	}, object.Funcs{
 		"now":   now,
 		"sleep": sleep,
@@ -19,29 +18,12 @@ func Execute() (object.Object, error) {
 	}), nil
 }
 
-// timeConstructor builds a Time from calendar components in local time.
-func timeConstructor(args object.CallArgs) (object.Object, error) {
-	p := object.NewArgParser("Time", args)
-	year := p.Int("year")
-	month := p.Int("month")
-	day := p.Int("day")
-	hour := p.IntOr("hour", 0)
-	minute := p.IntOr("minute", 0)
-	second := p.IntOr("second", 0)
-	nanosecond := p.IntOr("nanosecond", 0)
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
-	t := stdtime.Date(int(year), stdtime.Month(month), int(day), int(hour), int(minute), int(second), int(nanosecond), stdtime.Local)
-	return NewTime(t), nil
-}
-
 // now returns the current local time.
 func now(args object.CallArgs) (object.Object, error) {
 	if err := object.NewArgParser("now", args).Finish(); err != nil {
 		return nil, err
 	}
-	return NewTime(stdtime.Now()), nil
+	return timevalue.NewTime(stdtime.Now()), nil
 }
 
 // sleep pauses execution for the given number of seconds (float).
@@ -67,7 +49,7 @@ func parse(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, object.WrapError(object.ParseError, "parse() invalid time string", err)
 	}
-	return NewTime(t), nil
+	return timevalue.NewTime(t), nil
 }
 
 // unix returns the local time corresponding to the given Unix time.
@@ -78,5 +60,5 @@ func unix(args object.CallArgs) (object.Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	return NewTime(stdtime.Unix(int64(sec), int64(nsec))), nil
+	return timevalue.NewTime(stdtime.Unix(int64(sec), int64(nsec))), nil
 }

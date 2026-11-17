@@ -41,6 +41,10 @@ all of its inputs before checking once at Finish.
 | Number / NumberOr | Int or Float |
 | Float64 | Numeric value converted to Go float64 |
 | Func | A Goblin function |
+| Path / NullablePath | A file name: a String or a value implementing object.PathValue (`fs.Path`), as Go text |
+| Data | A `data` argument as an io.Reader: a String, Bytes, or anything with a `read(size)` method (read, never closed) |
+| DataBytes | Data read to the end as `[]byte`; a failure to read the stream is what Finish reports |
+| Timeout | A `timeout=` number of seconds as a time.Duration |
 | OptionalAny | Value plus whether it was supplied |
 | Rest | All remaining positional values |
 

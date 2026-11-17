@@ -8,7 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	pathext "github.com/aisk/goblin/extension/path"
+	"github.com/aisk/goblin/extension/internal/filestream"
+	"github.com/aisk/goblin/extension/internal/pathvalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -67,7 +68,7 @@ func TestFsOpenReadClose(t *testing.T) {
 		t.Fatalf("open() error = %v", err)
 	}
 
-	file, ok := fileObj.(*File)
+	file, ok := fileObj.(*filestream.File)
 	if !ok {
 		t.Fatalf("open() returned %T", fileObj)
 	}
@@ -100,7 +101,7 @@ func TestFsAcceptsPath(t *testing.T) {
 	// A Path argument must be accepted anywhere a path string is, so fs and the
 	// path module's Path type interoperate without manual string conversion.
 	readObj, err := fsFunction(t, "read").Call(object.CallArgs{
-		Positional: object.Args{pathext.NewPath(filePath)},
+		Positional: object.Args{pathvalue.NewPath(filePath)},
 	})
 	if err != nil {
 		t.Fatalf("read(Path) error = %v", err)
@@ -110,7 +111,7 @@ func TestFsAcceptsPath(t *testing.T) {
 	}
 
 	existsObj, err := fsFunction(t, "exists").Call(object.CallArgs{
-		Positional: object.Args{pathext.NewPath(filePath)},
+		Positional: object.Args{pathvalue.NewPath(filePath)},
 	})
 	if err != nil {
 		t.Fatalf("exists(Path) error = %v", err)
@@ -183,7 +184,7 @@ func TestFsHelpers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("stat() error = %v", err)
 	}
-	statInfo, ok := statObj.(*FileInfo)
+	statInfo, ok := statObj.(*filestream.FileInfo)
 	if !ok {
 		t.Fatalf("stat() returned %T", statObj)
 	}
@@ -208,11 +209,11 @@ func TestFsHelpers(t *testing.T) {
 		t.Fatalf("read_dir() length = %d, want 2", len(list.Elements))
 	}
 
-	first, ok := list.Elements[0].(*FileInfo)
+	first, ok := list.Elements[0].(*filestream.FileInfo)
 	if !ok {
 		t.Fatalf("read_dir()[0] is %T", list.Elements[0])
 	}
-	second, ok := list.Elements[1].(*FileInfo)
+	second, ok := list.Elements[1].(*filestream.FileInfo)
 	if !ok {
 		t.Fatalf("read_dir()[1] is %T", list.Elements[1])
 	}
@@ -243,7 +244,7 @@ func TestFsWriteCreateAppendMkdirRemove(t *testing.T) {
 	if err != nil {
 		t.Fatalf("create() error = %v", err)
 	}
-	file, ok := fileObj.(*File)
+	file, ok := fileObj.(*filestream.File)
 	if !ok {
 		t.Fatalf("create() returned %T", fileObj)
 	}
@@ -317,7 +318,7 @@ func TestFileWriteAcceptsBytes(t *testing.T) {
 	if err != nil {
 		t.Fatalf("os.Create() error = %v", err)
 	}
-	file := NewFile("bytes.bin", native)
+	file := filestream.NewFile("bytes.bin", native)
 	n, err := file.Write(object.CallArgs{Positional: object.Args{object.NewBytes([]byte{0x01, 0x02, 0xff})}})
 	if err != nil {
 		t.Fatalf("file.write(Bytes) error = %v", err)
@@ -358,7 +359,7 @@ func TestFileIterLines(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		file := NewFile(path, handle)
+		file := filestream.NewFile(path, handle)
 		items, err := file.Iter()
 		if err != nil {
 			t.Fatalf("Iter(%q) error = %v", tc.content, err)
@@ -382,7 +383,7 @@ func TestFileIterLines(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer handle.Close()
-	if _, err := NewFile(path, handle).Iter(); err == nil || !strings.Contains(err.Error(), "line 2") {
+	if _, err := filestream.NewFile(path, handle).Iter(); err == nil || !strings.Contains(err.Error(), "line 2") {
 		t.Errorf("invalid UTF-8 error = %v, want one naming line 2", err)
 	}
 }
@@ -399,7 +400,7 @@ func TestFileIteratorIsLazy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	file := NewFile(path, handle)
+	file := filestream.NewFile(path, handle)
 	defer file.Close(object.CallArgs{})
 
 	it, err := object.Iterate(file)

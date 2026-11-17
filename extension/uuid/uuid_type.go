@@ -6,7 +6,7 @@ import (
 	stdtime "time"
 	stduuid "uuid"
 
-	goblintime "github.com/aisk/goblin/extension/time"
+	"github.com/aisk/goblin/extension/internal/timevalue"
 	"github.com/aisk/goblin/object"
 )
 
@@ -64,7 +64,7 @@ func (u *UUID) GetAttr(name string) (object.Object, error) {
 		// RFC 9562 §5.7: the top 48 bits are milliseconds since the Unix epoch.
 		var ms [8]byte
 		copy(ms[2:], u.Value[:6])
-		return goblintime.NewTime(stdtime.UnixMilli(int64(binary.BigEndian.Uint64(ms[:])))), nil
+		return timevalue.NewTime(stdtime.UnixMilli(int64(binary.BigEndian.Uint64(ms[:])))), nil
 	default:
 		return nil, object.NewAttributeError("UUID has no attribute '%s'", name)
 	}
