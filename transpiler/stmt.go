@@ -203,20 +203,35 @@ func (g *generator) transpileFor(for_ *ast.For, onError errHandler) ([]jen.Code,
 		return nil, err
 	}
 
+	// The loop pulls one element per pass of the body from an
+	// object.Iteration, so a lazy iterable is read only as far as the loop
+	// gets, and an error the iterator raises is reported at the for
+	// statement. It is a plain Go loop rather than a range over an
+	// iter.Seq so the body keeps updating the function's locals in place.
 	iterVar := g.localName("iter")
-	elementsVar := g.localName("elements")
+	itemVar := g.localName("item")
+	okVar := g.localName("ok")
 	errVar := g.localName("err")
 
+	// Fast is the inlined slice path (a List); Pull covers lazy sources and
+	// the end of the pass.
 	forLoopBody := []jen.Code{
-		jen.Id(for_.Variable).Op(":=").Id(iterVar),
+		jen.List(jen.Id(itemVar), jen.Id(okVar)).Op(":=").Id(iterVar).Dot("Fast").Call(),
+		jen.If(jen.Op("!").Id(okVar)).Block(
+			jen.Var().Id(errVar).Error(),
+			jen.List(jen.Id(itemVar), jen.Id(okVar), jen.Id(errVar)).Op("=").Id(iterVar).Dot("Pull").Call(),
+			jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
+			jen.If(jen.Op("!").Id(okVar)).Block(jen.Break()),
+		),
+		jen.Id(for_.Variable).Op(":=").Id(itemVar),
 		jen.Id("_").Op("=").Id(for_.Variable),
 	}
 	forLoopBody = append(forLoopBody, body...)
 
 	result := append(iterPreStmts,
-		jen.List(jen.Id(elementsVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(iterator)).Dot("Iter").Call(),
+		jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Iterate").Call(iterator),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
-		jen.For(jen.List(jen.Id("_"), jen.Id(iterVar)).Op(":=").Op("range").Id(elementsVar)).Block(forLoopBody...),
+		jen.For().Block(forLoopBody...),
 	)
 
 	return []jen.Code{jen.Block(result...)}, nil

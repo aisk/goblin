@@ -432,13 +432,22 @@ func (s String) RMinus(Object) (Object, bool, error)   { return nil, false, nil 
 func (s String) RDivide(Object) (Object, bool, error)  { return nil, false, nil }
 func (s String) RModulo(Object) (Object, bool, error)  { return nil, false, nil }
 
-func (s String) Iter() ([]Object, error) {
-	// String can be iterated character by character
-	var result []Object
-	for _, char := range string(s) {
-		result = append(result, String(string(char)))
-	}
-	return result, nil
+// Iter returns the characters of s, as one-character Strings.
+func (s String) Iter() ([]Object, error) { return Collect(s) }
+
+// Iterator walks s character by character. A string is immutable, so the
+// pass can read it lazily without changing what it visits.
+func (s String) Iterator() (Iterator, error) {
+	rest := string(s)
+	return IteratorFunc(func() (Object, bool, error) {
+		if rest == "" {
+			return nil, false, nil
+		}
+		// Like a Go range over a string, an invalid byte reads as U+FFFD.
+		r, size := utf8.DecodeRuneInString(rest)
+		rest = rest[size:]
+		return String(string(r)), true, nil
+	}), nil
 }
 
 func (s String) Index(index Object) (Object, error) {

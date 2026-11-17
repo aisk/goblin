@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/extension"
 	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/token"
 )
@@ -491,7 +492,7 @@ func (c *compiler) statement(stmt ast.Statement) stmtFn {
 }
 
 func (c *compiler) forLoop(s *ast.For) stmtFn {
-	iterFn := c.expr(s.Iterator)
+	start := c.iteration(s.Iterator)
 	// Like a Go range clause, the iteration binding belongs to the loop,
 	// not the surrounding block. When a closure in the body may capture it,
 	// each iteration gets its own binding so closures do not all see the
@@ -503,21 +504,6 @@ func (c *compiler) forLoop(s *ast.For) stmtFn {
 	fs := c.scope.fs
 	c.pop()
 
-	loop := func(f *frame, items []object.Object, bind func(*frame, object.Object) *frame) (ctrl, object.Object, error) {
-		for _, item := range items {
-			ct, rv, err := body(bind(f, item))
-			if err != nil {
-				return ctrlNone, nil, err
-			}
-			switch ct {
-			case ctrlBreak:
-				return ctrlNone, nil, nil
-			case ctrlReturn:
-				return ct, rv, nil
-			}
-		}
-		return ctrlNone, nil, nil
-	}
 	var bind func(*frame, object.Object) *frame
 	if own {
 		nv, nt := fs.nvars, fs.maxTemp
@@ -533,15 +519,112 @@ func (c *compiler) forLoop(s *ast.For) stmtFn {
 		}
 	}
 	return func(f *frame) (ctrl, object.Object, error) {
-		iter, err := iterFn(f)
+		it, err := start(f)
 		if err != nil {
 			return ctrlNone, nil, err
 		}
-		items, err := iter.Iter()
-		if err != nil {
-			return ctrlNone, nil, err
+		// The iterator is pulled one element per pass of the body, so a
+		// lazy iterable is only read as far as the loop gets. An error the
+		// iterator raises carries no position and is reported at the for
+		// statement, like one from starting the pass.
+		for {
+			item, ok := it.Fast()
+			if !ok {
+				var err error
+				if item, ok, err = it.Pull(); err != nil {
+					return ctrlNone, nil, err
+				}
+				if !ok {
+					return ctrlNone, nil, nil
+				}
+			}
+			ct, rv, err := body(bind(f, item))
+			if err != nil {
+				return ctrlNone, nil, err
+			}
+			switch ct {
+			case ctrlBreak:
+				return ctrlNone, nil, nil
+			case ctrlReturn:
+				return ct, rv, nil
+			}
 		}
-		return loop(f, items, bind)
+	}
+}
+
+// builtinRange is the range builtin, recognised by identity so a program
+// that rebinds the name gets its own function called.
+var builtinRange = extension.BuiltinsModule.Members["range"]
+
+// iteration compiles the iterable of a for loop into a function starting a
+// pass over it. `range(n)` and `range(a, b)` called through the builtin count
+// instead of building the list range() returns, the way the transpiler's
+// native range loops do; any other value goes through object.Iterate.
+func (c *compiler) iteration(e ast.Expression) func(*frame) (object.Iteration, error) {
+	if call, ok := e.(*ast.CallExpression); ok {
+		if name, ok := call.CalleeName(); ok && name == "range" && (len(call.Args) == 1 || len(call.Args) == 2) {
+			positional := true
+			for _, a := range call.Args {
+				positional = positional && a.Kind == ast.CallArgumentPositional
+			}
+			if positional {
+				return c.rangeIteration(call)
+			}
+		}
+	}
+	value := c.expr(e)
+	return func(f *frame) (object.Iteration, error) {
+		v, err := value(f)
+		if err != nil {
+			return object.Iteration{}, err
+		}
+		return object.Iterate(v)
+	}
+}
+
+// rangeIteration compiles a for loop over a positional range(...) call. The
+// callee and the arguments are evaluated as the call would evaluate them;
+// only when the callee is the builtin is the call replaced by a counter, and
+// extension.RangeBounds then reports exactly the errors range() would.
+func (c *compiler) rangeIteration(call *ast.CallExpression) func(*frame) (object.Iteration, error) {
+	callee := c.expr(call.Callee)
+	args := c.exprs([]ast.Expression{call.Args[0].Expr})
+	if len(call.Args) == 2 {
+		args = append(args, c.expr(call.Args[1].Expr))
+	}
+	return func(f *frame) (object.Iteration, error) {
+		fn, err := callee(f)
+		if err != nil {
+			return object.Iteration{}, err
+		}
+		values := make(object.Args, len(args))
+		for i, arg := range args {
+			if values[i], err = arg(f); err != nil {
+				return object.Iteration{}, err
+			}
+		}
+		if fn != builtinRange {
+			v, err := object.Call(fn, object.CallArgs{Positional: values})
+			if err != nil {
+				return object.Iteration{}, err
+			}
+			return object.Iterate(v)
+		}
+		if len(values) == 1 {
+			values = object.Args{object.Integer(0), values[0]}
+		}
+		i, end, err := extension.RangeBounds(values[0], values[1])
+		if err != nil {
+			return object.Iteration{}, err
+		}
+		return object.IterationOf(object.IteratorFunc(func() (object.Object, bool, error) {
+			if i >= end {
+				return nil, false, nil
+			}
+			v := object.Integer(i)
+			i++
+			return v, true, nil
+		})), nil
 	}
 }
 
@@ -887,7 +970,7 @@ func (c *compiler) args(args []ast.CallArgument) argsFn {
 			case ast.CallArgumentPositional:
 				call.Positional = append(call.Positional, v)
 			case ast.CallArgumentStarred:
-				items, err := v.Iter()
+				items, err := object.Collect(v)
 				if err != nil {
 					return call, err
 				}

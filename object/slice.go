@@ -77,7 +77,7 @@ func runeOffset(s string, n int) int {
 // Unpack iterates value for a destructuring statement with count targets
 // and returns its elements, which must number exactly count.
 func Unpack(value Object, count int) ([]Object, error) {
-	items, err := value.Iter()
+	items, err := Collect(value)
 	if err != nil {
 		return nil, err
 	}

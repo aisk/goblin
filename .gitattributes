@@ -1,1 +1,2 @@
 * text=auto eol=lf
+examples/lazy_iteration_fixture.txt -text

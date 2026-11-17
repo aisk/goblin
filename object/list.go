@@ -673,7 +673,7 @@ func ListConstructor(args CallArgs) (Object, error) {
 	if !supplied {
 		return &List{Elements: []Object{}}, nil
 	}
-	elements, err := iterable.Iter()
+	elements, err := Collect(iterable)
 	if err != nil {
 		return nil, NewTypeError("List() argument is not iterable: %s", err)
 	}

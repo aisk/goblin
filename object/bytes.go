@@ -68,12 +68,21 @@ func (b Bytes) RMultiply(Object) (Object, bool, error) { return nil, false, nil 
 func (b Bytes) RDivide(Object) (Object, bool, error)   { return nil, false, nil }
 func (b Bytes) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
-func (b Bytes) Iter() ([]Object, error) {
-	result := make([]Object, len(b))
-	for i, value := range b {
-		result[i] = Integer(value)
-	}
-	return result, nil
+// Iter returns the bytes of b as Integers.
+func (b Bytes) Iter() ([]Object, error) { return Collect(b) }
+
+// Iterator walks b byte by byte. Bytes are immutable, so the pass reads them
+// lazily without changing what it visits.
+func (b Bytes) Iterator() (Iterator, error) {
+	i := 0
+	return IteratorFunc(func() (Object, bool, error) {
+		if i >= len(b) {
+			return nil, false, nil
+		}
+		v := Integer(b[i])
+		i++
+		return v, true, nil
+	}), nil
 }
 
 func (b Bytes) Index(index Object) (Object, error) {

@@ -1,0 +1,64 @@
+# Iteration is lazy: a for loop takes one element at a time from the value it
+# walks, so it only reads as far as it gets.
+import "fs"
+
+# A file yields its lines as the loop asks for them. Stopping early leaves the
+# rest of the file unread, and read() picks up right after the last line the
+# loop took.
+var file = fs.open("lazy_iteration_fixture.txt")
+for line in file {
+    print("line:", line)
+    if line == "beta" {
+        break
+    }
+}
+print("next line:", file.read(5).decode())
+file.close()
+
+# A line that is not valid UTF-8 is only an error once the loop reaches it, so
+# the lines before it have already been handled.
+var damaged = fs.open("lazy_iteration_fixture.txt")
+try {
+    for line in damaged {
+        print("checked:", line)
+    }
+} catch e {
+    print("stopped:", e)
+}
+damaged.close()
+
+# range() in a for loop counts instead of building its list, so a huge range
+# costs nothing beyond the iterations that actually run.
+var total = 0
+for i in range(1000000000000000) {
+    if i == 4 {
+        break
+    }
+    total = total + i
+}
+print("total:", total)
+
+# An Iter impl may return any iterable, and a lazy one stays lazy.
+type Lines(path) {
+    impl Iter {
+        func iter(self) {
+            return fs.open(self.path)
+        }
+    }
+}
+for line in Lines("lazy_iteration_fixture.txt") {
+    print("first:", line)
+    break
+}
+
+type Word(text) {
+    impl Iter {
+        func iter(self) {
+            return self.text
+        }
+    }
+}
+print(List(Word("lazy")))
+for a, b in [Word("ab"), Word("cd")] {
+    print(a + b)
+}

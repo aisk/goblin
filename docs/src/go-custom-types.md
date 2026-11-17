@@ -112,6 +112,32 @@ Compare returns a negative value, zero, or a positive value. Iter returns a
 slice of object.Object values. Index must verify that its index is an
 object.Integer and return IndexError for an invalid position.
 
+A type whose elements are produced one at a time (lines of a stream, a large
+or unbounded sequence) also implements object.Iterable, whose Iterator method
+starts a pass and returns an object.Iterator. Its Next returns the next value
+and true, false at the end, or an error that the loop raises at the `for`
+statement. Every consumer — `for`, destructuring, `*` arguments, `List(x)` —
+goes through object.Iterate, which prefers Iterable over Iter, so Iter can then
+simply return object.Collect(v). A loop may stop pulling at any time without
+telling the iterator, so an iterator must not hold anything that only an
+explicit stop would release. Go code that walks an arbitrary value calls
+object.Iterate (or object.Collect for the whole slice) rather than Iter.
+
+~~~go
+func (c Countdown) Iter() ([]object.Object, error) { return object.Collect(c) }
+
+func (c Countdown) Iterator() (object.Iterator, error) {
+    n := c.From
+    return object.IteratorFunc(func() (object.Object, bool, error) {
+        if n <= 0 {
+            return nil, false, nil
+        }
+        n--
+        return object.Integer(n + 1), true, nil
+    }), nil
+}
+~~~
+
 ## Name types in messages with TypeName
 
 Use value.TypeName(), not %T, when an error mentions the type of a value. A Go

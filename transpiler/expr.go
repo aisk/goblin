@@ -317,7 +317,7 @@ func (g *generator) transpileCallArguments(args []ast.CallArgument, onError errH
 			iterVar := g.localName("iter")
 			errVar := g.localName("err")
 			allPreStmts = append(allPreStmts,
-				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Parens(jen.Add(argExpr)).Dot("Iter").Call(),
+				jen.List(jen.Id(iterVar), jen.Id(errVar)).Op(":=").Qual(pathObject, "Collect").Call(argExpr),
 				jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 				jen.Id(callArgsVar).Dot("Positional").Op("=").Append(jen.Id(callArgsVar).Dot("Positional"), jen.Id(iterVar).Op("...")),
 			)

@@ -1,0 +1,13 @@
+line: alpha
+line: beta
+next line: gamma
+checked: alpha
+checked: beta
+checked: gamma
+checked: delta
+stopped: line 5 of lazy_iteration_fixture.txt is not valid UTF-8
+total: 6
+first: alpha
+["l", "a", "z", "y"]
+ab
+cd

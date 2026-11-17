@@ -243,7 +243,10 @@ Built-in sequences follow the same rule, so `3 * "ab"` works like `"ab" * 3`.
 ### Truth, Iter and Index
 
 `Truth.truth` decides every condition and `Bool(value)`; `!value` is always its
-negation. `Iter.iter` returns a List that `for` visits. `Index.get` backs
+negation. `Iter.iter` returns any iterable value — a List, a String, a
+file, another value with an Iter impl — and `for` visits what iterating that
+value visits. A lazy value stays lazy: a type whose `iter` returns an open file
+reads it line by line. `Index.get` backs
 `value[i]`; an impl without `set` is read-only, and assigning raises
 `TypeError: Grid does not support index assignment`.
 

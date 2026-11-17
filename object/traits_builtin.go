@@ -113,7 +113,7 @@ func init() {
 	initArith()
 	IterTrait.init(nil, []TraitMethod{{Name: "iter", Arity: 1, Required: true}})
 	IterTrait.route = []func([]Object) (Object, error){func(args []Object) (Object, error) {
-		items, err := args[0].Iter()
+		items, err := Collect(args[0])
 		if err != nil {
 			return nil, err
 		}

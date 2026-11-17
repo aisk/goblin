@@ -76,7 +76,18 @@ for i in range(1, 4) {
 
 `range(end)` creates the integers from zero up to, but excluding, `end`, and
 `range(start, end)` those from `start`. It also accepts named arguments, such
-as `range(start=0, end=3)`.
+as `range(start=0, end=3)`. Called directly in a loop header, `range` counts
+instead of building its list, so `for i in range(1000000000000)` with an early
+`break` costs only the iterations that run.
+
+A loop takes one element at a time from the value it walks. For a file that
+means one line at a time (see [fs](module-fs.md)): the loop reads only as far
+as it gets, and an error such as an invalid line is raised when the loop
+reaches it, after the earlier elements have run through the body. A list is
+walked over the elements it held when the loop started: assigning an element
+the loop has not reached yet is seen, but `push` and `pop` do not change how
+many elements it visits. A dictionary loop visits the keys it held when the
+loop started.
 
 Strings iterate by character, lists by element, and dictionaries by key:
 

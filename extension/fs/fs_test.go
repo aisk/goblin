@@ -386,3 +386,50 @@ func TestFileIterLines(t *testing.T) {
 		t.Errorf("invalid UTF-8 error = %v, want one naming line 2", err)
 	}
 }
+
+// A pass over a file reads lines only as they are asked for: a loop that
+// stops early leaves the rest for read(), and a write goes after the last
+// line taken, not after what the line buffer read ahead.
+func TestFileIteratorIsLazy(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "lines.txt")
+	if err := os.WriteFile(path, []byte("one\ntwo\nthree\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	handle, err := os.OpenFile(path, os.O_RDWR, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	file := NewFile(path, handle)
+	defer file.Close(object.CallArgs{})
+
+	it, err := object.Iterate(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, ok, err := it.Next()
+	if err != nil || !ok || first != object.String("one") {
+		t.Fatalf("first Next() = %v, %v, %v", first, ok, err)
+	}
+	rest, err := file.Read(object.CallArgs{Positional: object.Args{object.Integer(4)}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(rest.(object.Bytes)) != "two\n" {
+		t.Fatalf("read(4) after one line = %q, want %q", rest, "two\n")
+	}
+	if _, err := file.Write(object.CallArgs{Positional: object.Args{object.String("THREE")}}); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "one\ntwo\nTHREE\n" {
+		t.Errorf("file after write = %q", data)
+	}
+
+	file.Close(object.CallArgs{})
+	if _, _, err := it.Next(); err == nil || !strings.Contains(err.Error(), "closed") {
+		t.Errorf("Next() after close error = %v, want a closed-file error", err)
+	}
+}

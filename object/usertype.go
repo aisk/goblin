@@ -352,6 +352,25 @@ func userReflected(v UserValue, op int, left Object) (result Object, handled boo
 	return result, true, err
 }
 
+// userIterator starts a pass over the values `for x in v` visits: Iter.iter
+// returns an iterable, often a List, and the pass delegates to it. A lazy
+// result, such as a file, stays lazy.
+func userIterator(v UserValue) (Iterator, error) {
+	impl := v.UserType().iter
+	if impl == nil {
+		return nil, NewTypeError(ErrFmtNotIterable, v.TypeName())
+	}
+	r, err := impl.call(v, IterIter, []Object{v})
+	if err != nil {
+		return nil, err
+	}
+	it, err := Iterate(r)
+	if err != nil {
+		return nil, err
+	}
+	return &it, nil
+}
+
 // userIter lists the values `for x in v` visits, through Iter.iter.
 func userIter(v UserValue) ([]Object, error) {
 	impl := v.UserType().iter
@@ -362,7 +381,7 @@ func userIter(v UserValue) ([]Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	return r.Iter()
+	return Collect(r)
 }
 
 // userIndex performs v[index] through Index.get.

@@ -40,9 +40,13 @@ or Bytes and returns the number of bytes written.
 
 Iterating a file with `for line in file` reads the rest of it as text lines.
 Each line is a str without its `\n` or `\r\n` terminator, and a final line
-without a terminator is still included. Invalid UTF-8 raises ValueError. The
-lines are all read before the loop body runs, so use read(size) for a file too
-large to hold in memory.
+without a terminator is still included. Lines are read one at a time, as the
+loop asks for them, so a file of any size takes the memory of one line, and a
+loop that stops early with `break` or `return` leaves the rest of the file
+unread: a later read() or loop continues right after the last line taken. A
+line that is not valid UTF-8 raises ValueError when the loop reaches it, after
+the lines before it have run through the body. Closing the file inside the loop
+raises ValueError at the next line.
 
 Because a File has a `write(data)` method, it already satisfies the writer
 stream shape: it can be passed wherever the standard library accepts a writer

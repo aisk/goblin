@@ -66,6 +66,7 @@ func (b *UserBase) RModulo(left Object) (Object, bool, error) {
 }
 
 func (b *UserBase) Iter() ([]Object, error)            { return userIter(b.self) }
+func (b *UserBase) Iterator() (Iterator, error)        { return userIterator(b.self) }
 func (b *UserBase) Index(index Object) (Object, error) { return userIndex(b.self, index) }
 func (b *UserBase) SetIndex(index, value Object) (bool, error) {
 	return userSetIndex(b.self, index, value)
