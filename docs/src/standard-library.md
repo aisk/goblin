@@ -31,7 +31,7 @@ needed.
 | [time](./module-time.md) | Instants, the clock, time zones, sleeping | now(), parse(), Time(), sleep() |
 | [rand](./module-rand.md) | Random choices, secure bytes and ids, reproducible on request | choice(), int(), bytes(), uuid(), Rand() |
 | [math](./module-math.md) | Float functions, constants and basic statistics | PI, sqrt(), round(), mean() |
-| [http](./module-http.md) | HTTP client: requests, sessions, uploads, streamed bodies | get(), post(), Client(), multipart() |
+| [http](./module-http.md) | HTTP client: messages, requests, sessions, uploads, streamed bodies | get(), request(), send(), Request(), Client() |
 | [regex](./module-regex.md) | Search and rewrite text by pattern | find(), find_all(), replace(), split() |
 | [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query(), query_values() |
 | [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode(), read_rows() |

@@ -37,7 +37,7 @@ var entry = {"file": String(path), "at": started.format("%Y-%m-%d"), "size": siz
 fs.write("entry.json", json.encode(entry))
 
 # Straight from a stream
-var user = json.decode(http.get("https://api.example.com/me"))
+var user = json.decode(http.get("https://api.example.com/me").body)
 
 # Your own types
 type Point(x, y) {
@@ -58,9 +58,8 @@ try {
 
 `examples/json.goblin` runs each of these tasks except the request, which
 `examples/httpserver/testdata/http_tasks.goblin` runs against a local server.
-A Response is a readable, so `json.decode` reads it to its end; the
-[http](./module-http.md) chapter's `response.json()` is the same thing as a
-method.
+A response's `body` is a File, so `json.decode` reads it to its end as it
+arrives.
 
 JSON text written inside a Goblin string needs a raw string (`` `{"a": 1}` ``)
 or escaped braces (`"\{\"a\": 1}"`), because `{` starts an interpolation.

@@ -53,14 +53,14 @@ defer dump.close()
 exec.run(["pg_dump", "shop"], stdout=dump)
 
 # Download a big compressed export, then go through it
-fs.write("export.jsonl.gz", http.get(export_url, timeout=nil))
+fs.write("export.jsonl.gz", http.get(export_url).body)
 for line in gzip.read_lines("export.jsonl.gz") {
     print(json.decode(line)["id"])
 }
 
 # Compress before uploading
 var body = gzip.compress(json.encode(records))
-http.post(upload_url, body=body, headers={"Content-Encoding": "gzip", "Content-Type": "application/json"})
+http.request("POST", upload_url, headers={"Content-Encoding": "gzip", "Content-Type": "application/json"}, body=body)
 ~~~
 
 `examples/gzip.goblin` runs the tasks that need no network or database.
@@ -101,8 +101,9 @@ A reading File is a readable, so it can be passed as the `data` of
 of `exec.run`.
 
 A response sent with `Content-Encoding: gzip` is already decompressed by
-[http](./module-http.md); a downloaded `.gz` **file** goes to disk first with
-`fs.write(path, http.get(url))`, then through `gzip.read_lines(path)`.
+[http](./module-http.md)'s `get`, `request` and `send`; a downloaded `.gz`
+**file** goes to disk first with `fs.write(path, http.get(url).body)`, then
+through `gzip.read_lines(path)`.
 
 ### Errors
 
@@ -126,7 +127,7 @@ carries `e.line`, as in [fs](./module-fs.md#errors).
 ## Left out
 
 Wrapping a readable or writable that is not a file (`open` takes a path, like
-every `open`: decompress a Response or a pipe in memory with
+every `open`: decompress a response body or a pipe in memory with
 `gzip.decompress(readable)`, or through a file); appending to an existing
 `.gz`; gzip header fields such as the stored file name; and every other
 format: zlib, raw DEFLATE, bzip2 and LZW. For zip and tar archives run the

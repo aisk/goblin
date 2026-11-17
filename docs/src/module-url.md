@@ -117,7 +117,7 @@ headers:
 | | Writing | Reading |
 | --- | --- | --- |
 | Query (`url`) | `encode_query`, `with_query`: a List value repeats the name | `decode_query`: one String per name; a repeated name keeps its **last** value. `query_values(text, name)` for each |
-| Headers ([http](./module-http.md)) | `headers=`: a List value repeats the header | `Response.headers`: one String per name, repeats **joined** with `", "`; `header_values(name)` for each |
+| Headers ([http](./module-http.md)) | `headers=`: a List value repeats the header | An `http.Headers`: `headers[name]` and `get(name)` give one String per name, repeats **joined** with `", "`; `get_all(name)` for each |
 
 Reading returns one shape whatever the data: a value is never "a String, or a
 List when the name repeats". The two differ in what they do with repeats
