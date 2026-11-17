@@ -94,6 +94,11 @@ var nickname = supplied || "anonymous"
 connected` evaluates as `ready || (retry && connected)`, and
 `true || false && false` produces `true`.
 
+Operands are evaluated left to right, in both backends: in `x + f()`,
+`[x, f()]` and `g(x, f())` the value of `x` is read before `f` runs, even when
+`f` assigns to `x`. A call's callee or receiver comes before its arguments, and
+an assignment `xs[i] = value` evaluates `xs`, then `i`, then `value`.
+
 Conditions use truthiness. `false`, `nil`, numeric zero, and empty strings or
 collections are false. Continue
 with [Built-in types](./built-in-types.md) for the values that Goblin provides.

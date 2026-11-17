@@ -103,7 +103,11 @@ func (g *generator) emitNative(expr ast.Expression, onError errHandler) ([]jen.C
 		if err != nil {
 			return nil, nil, err
 		}
-		pre := append(lhsPre, rhsPre...)
+		pre, codes := g.sequence([]operand{
+			{expr: e.LHS, pre: lhsPre, code: lhs, native: g.nativeTypeOf(e.LHS)},
+			{expr: e.RHS, pre: rhsPre, code: rhs},
+		})
+		lhs = codes[0]
 
 		// Go has no implicit numeric conversion, so a mixed int/float operand
 		// pair — which Goblin widens to float — needs the int side converted

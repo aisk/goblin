@@ -96,8 +96,12 @@ func (g *generator) transpileSetIndex(s *ast.SetIndex, onError errHandler) ([]je
 		setter = "SetIndexInt"
 	}
 	errVar := g.localName("err")
-	stmts := append(objPre, idxPre...)
-	stmts = append(stmts, valPre...)
+	stmts, codes := g.sequence([]operand{
+		{expr: s.Object, pre: objPre, code: obj, native: tyDynamic},
+		{expr: s.Index, pre: idxPre, code: idx, native: nativeIf(native, tyInt)},
+		{expr: s.Value, pre: valPre, code: val, native: tyDynamic},
+	})
+	obj, idx, val = codes[0], codes[1], codes[2]
 	stmts = append(stmts,
 		jen.Id(errVar).Op(":=").Qual(pathObject, setter).Call(obj, idx, val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -125,7 +129,11 @@ func (g *generator) transpileSetAttr(s *ast.SetAttr, onError errHandler) ([]jen.
 	}
 
 	errVar := g.localName("err")
-	stmts := append(objPre, valPre...)
+	stmts, codes := g.sequence([]operand{
+		{expr: s.Object, pre: objPre, code: obj, native: tyDynamic},
+		{expr: s.Value, pre: valPre, code: val, native: tyDynamic},
+	})
+	obj, val = codes[0], codes[1]
 	stmts = append(stmts,
 		jen.Id(errVar).Op(":=").Qual(pathObject, "SetAttr").Call(obj, jen.Lit(s.Property), val),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -407,6 +415,9 @@ func (g *generator) transpileDefer(d *ast.Defer, onError errHandler) ([]jen.Code
 	argsPre, args, err := g.transpileCallArguments(d.Call.Args, onError)
 	if err != nil {
 		return nil, err
+	}
+	if g.argsMayHaveEffects(d.Call.Args) && !g.stableCode(d.Call.Callee) {
+		calleePre, callee = g.captureValue(calleePre, callee, tyDynamic)
 	}
 	if g.body.defers == "" {
 		g.body.defers = g.localName("defers")

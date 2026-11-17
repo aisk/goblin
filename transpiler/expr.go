@@ -51,10 +51,14 @@ func (g *generator) transpileIndexExpression(expr *ast.IndexExpression, onError 
 	if err != nil {
 		return nil, nil, err
 	}
+	preStmts, codes := g.sequence([]operand{
+		{expr: expr.Object, pre: objPre, code: obj, native: tyDynamic},
+		{expr: expr.Index, pre: idxPre, code: idx, native: nativeIf(native, tyInt)},
+	})
+	obj, idx = codes[0], codes[1]
 
 	tmpVar := g.localName("tmp")
 	errVar := g.localName("err")
-	preStmts := append(objPre, idxPre...)
 	var call *jen.Statement
 	if native {
 		call = jen.Qual(pathObject, "IndexInt").Call(obj, idx)
@@ -71,23 +75,24 @@ func (g *generator) transpileIndexExpression(expr *ast.IndexExpression, onError 
 // transpileSliceExpression renders `obj[low:high]` as a call to object.Slice,
 // which takes a nil bound for one the source omitted.
 func (g *generator) transpileSliceExpression(expr *ast.SliceExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
-	preStmts, obj, err := g.transpileExpression(expr.Object, onError)
+	objPre, obj, err := g.transpileExpression(expr.Object, onError)
 	if err != nil {
 		return nil, nil, err
 	}
-	bounds := make([]jen.Code, 0, 2)
+	ops := []operand{{expr: expr.Object, pre: objPre, code: obj, native: tyDynamic}}
 	for _, bound := range []ast.Expression{expr.Low, expr.High} {
 		if bound == nil {
-			bounds = append(bounds, jen.Nil())
+			ops = append(ops, operand{code: jen.Nil(), native: tyDynamic})
 			continue
 		}
 		pre, code, err := g.transpileExpression(bound, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		preStmts = append(preStmts, pre...)
-		bounds = append(bounds, code)
+		ops = append(ops, operand{expr: bound, pre: pre, code: code, native: tyDynamic})
 	}
+	preStmts, codes := g.sequence(ops)
+	obj, bounds := codes[0], codes[1:]
 
 	tmpVar := g.localName("tmp")
 	errVar := g.localName("err")
@@ -129,8 +134,12 @@ func (g *generator) transpileDictLiteral(dict *ast.DictLiteral, onError errHandl
 		if err != nil {
 			return nil, nil, err
 		}
-		preStmts = append(preStmts, keyPre...)
-		preStmts = append(preStmts, valuePre...)
+		pre, codes := g.sequence([]operand{
+			{expr: elem.Key, pre: keyPre, code: key, native: tyDynamic},
+			{expr: elem.Value, pre: valuePre, code: value, native: tyDynamic},
+		})
+		key, value = codes[0], codes[1]
+		preStmts = append(preStmts, pre...)
 		errVar := g.localName("err")
 		preStmts = append(preStmts,
 			jen.If(
@@ -229,17 +238,16 @@ func (g *generator) transpileExpression(expr ast.Expression, onError errHandler)
 }
 
 func (g *generator) transpileExpressions(exprs []ast.Expression, onError errHandler) ([]jen.Code, []jen.Code, error) {
-	var allPreStmts []jen.Code
-	var results []jen.Code
-	for _, expr := range exprs {
-		pre, r, err := g.transpileExpression(expr, onError)
+	ops := make([]operand, len(exprs))
+	for i, expr := range exprs {
+		pre, code, err := g.transpileExpression(expr, onError)
 		if err != nil {
 			return nil, nil, err
 		}
-		allPreStmts = append(allPreStmts, pre...)
-		results = append(results, r)
+		ops[i] = operand{expr: expr, pre: pre, code: code, native: tyDynamic}
 	}
-	return allPreStmts, results, nil
+	pre, codes := g.sequence(ops)
+	return pre, codesOf(codes), nil
 }
 
 func (g *generator) transpileCallArguments(args []ast.CallArgument, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -270,15 +278,19 @@ func (g *generator) transpileCallArguments(args []ast.CallArgument, onError errH
 		}
 	}
 	if staticShape {
-		var preStmts []jen.Code
-		positional := make([]jen.Code, 0, len(args))
-		keyword := make([]jen.Code, 0, len(args))
-		for _, arg := range args {
+		ops := make([]operand, len(args))
+		for i, arg := range args {
 			argPreStmts, argExpr, err := g.transpileExpression(arg.Expr, onError)
 			if err != nil {
 				return nil, nil, err
 			}
-			preStmts = append(preStmts, argPreStmts...)
+			ops[i] = operand{expr: arg.Expr, pre: argPreStmts, code: argExpr, native: tyDynamic}
+		}
+		preStmts, codes := g.sequence(ops)
+		positional := make([]jen.Code, 0, len(args))
+		keyword := make([]jen.Code, 0, len(args))
+		for i, arg := range args {
+			argExpr := codes[i]
 			if arg.Kind == ast.CallArgumentKeyword {
 				keyword = append(keyword, jen.Values(
 					jen.Id("Name").Op(":").Lit(arg.Name),
@@ -419,7 +431,12 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 		} else {
 			callee = jen.Id(ident.Name)
 		}
-		return argPreStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil
+		// The callee is read before the arguments are evaluated.
+		var pre []jen.Code
+		if g.argsMayHaveEffects(call.Args) {
+			pre, callee = g.captureValue(nil, callee, tyDynamic)
+		}
+		return append(pre, argPreStmts...), jen.Qual(pathObject, "Call").Call(callee, args), nil
 	}
 
 	if member, ok := call.Callee.(*ast.MemberExpression); ok {
@@ -439,6 +456,10 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 		// function that GetAttr would have to allocate. It falls back to
 		// GetAttr itself for anything that is not a method, so a field
 		// holding a function still works and error messages are unchanged.
+		// The receiver is read before the arguments are evaluated.
+		if g.argsMayHaveEffects(call.Args) && !g.stableCode(member.Object) {
+			objPre, obj = g.captureValue(objPre, obj, tyDynamic)
+		}
 		preStmts := append(objPre, argPreStmts...)
 		return preStmts, jen.Qual(pathObject, "CallMethod").Call(obj, jen.Lit(member.Property), args), nil
 	}
@@ -446,6 +467,9 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 	calleePre, callee, err := g.transpileExpression(call.Callee, onError)
 	if err != nil {
 		return nil, nil, err
+	}
+	if g.argsMayHaveEffects(call.Args) && !g.stableCode(call.Callee) {
+		calleePre, callee = g.captureValue(calleePre, callee, tyDynamic)
 	}
 	preStmts := append(calleePre, argPreStmts...)
 	return preStmts, jen.Qual(pathObject, "Call").Call(callee, args), nil

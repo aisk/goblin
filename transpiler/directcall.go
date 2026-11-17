@@ -145,11 +145,14 @@ func (g *generator) tryDirectCall(name string, args []ast.CallArgument, onError 
 		}
 		argExprs = append(argExprs, depth)
 	}
+	ops := make([]operand, len(args))
 	for i, arg := range args {
 		var argPre []jen.Code
 		var argExpr *jen.Statement
 		var err error
+		ops[i] = operand{expr: arg.Expr, native: tyDynamic}
 		if sig != nil && sig.params[i].native() {
+			ops[i].native = sig.params[i]
 			if got := g.nativeTypeOf(arg.Expr); got != sig.params[i] {
 				return nil, nil, false, fmt.Errorf("%s: internal error: argument %d of %s inferred as %s but the parameter is %s", arg.Expr.Position(), i, name, goTypeOf(got), goTypeOf(sig.params[i]))
 			}
@@ -160,8 +163,11 @@ func (g *generator) tryDirectCall(name string, args []ast.CallArgument, onError 
 		if err != nil {
 			return nil, nil, false, err
 		}
-		pre = append(pre, argPre...)
-		argExprs = append(argExprs, argExpr)
+		ops[i].pre, ops[i].code = argPre, argExpr
+	}
+	pre, codes := g.sequence(ops)
+	for _, code := range codes {
+		argExprs = append(argExprs, code)
 	}
 	return pre, jen.Id(info.goName).Call(argExprs...), true, nil
 }

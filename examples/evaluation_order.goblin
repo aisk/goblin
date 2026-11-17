@@ -1,0 +1,85 @@
+# Operands are evaluated strictly left to right, so a variable read before a
+# call sees the value it had before the call ran.
+
+var x = 1
+func bump() {
+    x = x + 10
+    return x
+}
+
+print([x, bump()])
+print({"a": x, x: bump()})
+print(x + bump(), x - bump())
+print(x < bump(), x == bump())
+print(String(x) + String(bump()))
+print(max(x, bump()), [x, bump()].size)
+
+func pair(a, b) {
+    return [a, b]
+}
+print(pair(x, bump()), pair(a=x, b=bump()))
+
+# Native integer arithmetic around a call that changes a global
+var n = 1
+func step() {
+    n = n * 2
+    return n
+}
+print(n + step(), n * step() - n, n < step())
+
+# Indexing and slicing read their object before the index
+var xs = [1, 2, 3]
+func swap() {
+    xs = [10, 20, 30]
+    return 0
+}
+print(xs[swap()])
+xs = [1, 2, 3]
+print(xs[swap():2])
+
+# A receiver is read before the arguments, and so is a callee
+var s = "abc"
+func other() {
+    s = "xyz"
+    return "b"
+}
+print(s.index(other()))
+var f = pair
+func refn() {
+    f = func(a, b) { return "replaced" }
+    return 1
+}
+print(f(refn(), 2))
+
+# Assigning through an index or attribute evaluates the target first
+var ys = [0, 0]
+func redirect() {
+    ys = [7, 7]
+    return 5
+}
+ys[0] = redirect()
+print(ys)
+
+type Box(value) {}
+var box = Box(0)
+func rebox() {
+    box = Box(1)
+    return 9
+}
+box.value = rebox()
+print(box.value)
+
+# Variables captured by a closure follow the same rule
+func outer() {
+    var y = 1
+    func h() {
+        y = y + 1
+        return y
+    }
+    print([y, h()], y + h(), pair(y, h()))
+}
+outer()
+
+# Interpolation already did
+x = 1
+print("{x} {bump()}")

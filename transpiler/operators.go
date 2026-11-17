@@ -38,7 +38,7 @@ func (g *generator) transpileComparisonBool(operation *ast.BinaryOperation, onEr
 	if err != nil {
 		return nil, nil, err
 	}
-	preStmts := append(lhsPre, rhsPre...)
+	preStmts, lhs := g.sequenceBinary(operation, lhsPre, lhs, rhsPre)
 
 	// Equality is total for the built-in types, but a user type's eq may fail;
 	// like ordering, that error propagates.
@@ -128,7 +128,7 @@ func (g *generator) transpileBinaryOperation(operation *ast.BinaryOperation, onE
 
 	tmpVar := g.localName("tmp")
 	errVar := g.localName("err")
-	preStmts := append(lhsPre, rhsPre...)
+	preStmts, lhs := g.sequenceBinary(operation, lhsPre, lhs, rhsPre)
 	preStmts = append(preStmts,
 		jen.List(jen.Id(tmpVar), jen.Id(errVar)).Op(":=").Qual(pathObject, nativeRHS(methodName)).Call(lhs, rhs),
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
@@ -202,4 +202,16 @@ func (g *generator) transpileUnaryOperation(operation *ast.UnaryOperation, onErr
 		jen.If(jen.Id(errVar).Op("!=").Nil()).Block(onError(errVar)),
 	)
 	return preStmts, jen.Id(tmpVar), nil
+}
+
+// sequenceBinary joins the statements of a boxed binary operator's operands,
+// capturing the left operand's value when the right one could change it. The
+// right operand's code is used right after its own statements, so it never
+// needs capturing.
+func (g *generator) sequenceBinary(operation *ast.BinaryOperation, lhsPre []jen.Code, lhs *jen.Statement, rhsPre []jen.Code) ([]jen.Code, *jen.Statement) {
+	pre, codes := g.sequence([]operand{
+		{expr: operation.LHS, pre: lhsPre, code: lhs, native: tyDynamic},
+		{expr: operation.RHS, pre: rhsPre},
+	})
+	return pre, codes[0]
 }
