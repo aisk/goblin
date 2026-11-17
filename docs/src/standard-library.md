@@ -1,8 +1,8 @@
 # Standard library
 
 Goblin's standard library provides modules for common program boundaries:
-files and paths, environment variables, external commands, time, data formats, networking, random
-values, and mathematics. Import a module at module scope, then
+files and paths, environment variables, external commands, time, data formats,
+digests and compression, networking, random values, and mathematics. Import a module at module scope, then
 access its members with dot notation.
 
 ~~~goblin
@@ -36,6 +36,9 @@ needed.
 | [url](./module-url.md) | Parse, resolve, join, and escape URLs | parse(), query_escape() |
 | [csv](./module-csv.md) | Read and write comma-separated records | read_all(), write_all() |
 | [io](./module-io.md) | Implement readers and writers as traits | Reader, Writer |
+| [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
+| [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |
+| [gzip](./module-gzip.md) | Compress and decompress gzip data | compress(), decompress() |
 
 ## Imports and errors
 

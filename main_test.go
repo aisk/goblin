@@ -129,10 +129,10 @@ export greeting
 	}
 	script := filepath.Join(dir, "main.goblin")
 	if err := os.WriteFile(script, []byte(`import "./helper"
-import "uuid"
+import "base64"
 print(helper.double(-21))
 print(helper.greeting)
-print(uuid.NIL)
+print(base64.encode("a"))
 `), 0644); err != nil {
 		t.Fatal(err)
 	}
@@ -145,7 +145,7 @@ print(uuid.NIL)
 	if err != nil {
 		t.Fatalf("compiled program: %v\n%s", err, out)
 	}
-	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "42\nhi\n00000000-0000-0000-0000-000000000000\n"; got != want {
+	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "42\nhi\nYQ==\n"; got != want {
 		t.Fatalf("compiled stdout = %q, want %q", got, want)
 	}
 }

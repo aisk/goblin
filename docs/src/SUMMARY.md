@@ -43,6 +43,9 @@
 - [url](./module-url.md)
 - [csv](./module-csv.md)
 - [io](./module-io.md)
+- [hash](./module-hash.md)
+- [base64](./module-base64.md)
+- [gzip](./module-gzip.md)
 
 # Extending Goblin with Go
 

@@ -1,0 +1,16 @@
+Basic YWxhZGRpbjpvcGVuc2VzYW1l
+{"data":"iVBORw0KGgoA/w==","name":"logo.png"}
+true
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.c2ln
+John Doe true
++/8= -_8=
+-_8
+b"\xfb\xff" b"\xfb\xff" b"\xfb\xff"
+hello, Goblin
+ b"" true
+iVBORw0KGgoA/w==
+true decode() invalid Base64 at position 4
+true decode() invalid Base64 at position 3
+true decode() invalid Base64 at position 0
+true decode() invalid Base64 at position 1
+true decode() argument 'text' must be String, got Bytes

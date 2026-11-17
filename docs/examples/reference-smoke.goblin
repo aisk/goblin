@@ -2,6 +2,9 @@
 import "url"
 import "csv"
 import "uuid"
+import "hash"
+import "base64"
+import "gzip"
 
 var endpoint = url.parse("https://example.com:8443/api?q=goblin#result")
 endpoint.resolve_reference(url.parse("../status"))
@@ -13,6 +16,12 @@ var rows = csv.read_all("name,score\nAda,10\n")
 csv.write_all(rows)
 
 uuid.UUID("550e8400-e29b-41d4-a716-446655440000").version
+
+var source = "Goblin Goblin Goblin"
+gzip.decompress(gzip.compress(source, level=1))
+hash.hmac("key", source, algorithm=hash.sha512).to_hex()
+hash.md5(Bytes(source)).to_hex()
+base64.decode(base64.encode(source, url_safe=true, padding=false), url_safe=true)
 
 func identity(value) {
     return value

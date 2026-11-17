@@ -1,0 +1,66 @@
+import "hash"
+import "fs"
+
+# Checksum of a string; a digest is Bytes, to_hex() is its usual text form
+print(hash.sha256("hello").to_hex())
+print(hash.sha256("").to_hex())
+print(hash.sha512("abc").to_hex())
+print(hash.sha1("abc").to_hex(), hash.md5("abc").to_hex())
+print(hash.sha256(Bytes([0, 1, 2])).size, hash.md5("").size)
+
+# Verify a download without loading it into memory: a readable is hashed in chunks
+var scratch = fs.mkdir_temp(prefix="goblin-hash-")
+defer fs.remove(scratch, recursive=true)
+var download = scratch.join("goblin.tar.gz")
+fs.write(download, "pretend archive\n" * 5000)
+var expected = "abfa8b11493dd3fcae25269b996c7c75c2259a9a2414a4e558fd8c3e72e7694a"
+var file = fs.open(download)
+var actual = hash.sha256(file).to_hex()
+file.close()
+print(actual == hash.sha256(fs.read_bytes(download)).to_hex())
+if actual != expected {
+    raise Error("checksum mismatch: {actual}")
+}
+print("checksum ok")
+
+# Sign a request (HMAC-SHA256 by default)
+var secret = "key"
+var body = "The quick brown fox jumps over the lazy dog"
+var signature = hash.hmac(secret, body).to_hex()
+print(signature)
+var headers = {"X-Signature": signature}
+print(headers["X-Signature"] == hash.hmac(Bytes(secret), Bytes(body), algorithm=hash.sha256).to_hex())
+
+# An older scheme that still uses SHA-1 (or MD5, SHA-512)
+print(hash.hmac(secret, body, algorithm=hash.sha1).to_hex())
+print(hash.hmac(secret, body, algorithm=hash.md5).to_hex())
+print(hash.hmac(secret, body, algorithm=hash.sha512).size)
+
+# Any value with a read(size) method is a readable
+type Chunks(parts) {
+    func read(self, size) {
+        if self.parts.size == 0 {
+            return Bytes("")
+        }
+        return Bytes(self.parts.pop())
+    }
+}
+print(hash.sha256(Chunks(["lo", "hel"])).to_hex() == hash.sha256("hello").to_hex())
+
+# Errors
+try {
+    hash.hmac(secret, body, algorithm="sha256")
+} catch e {
+    print(e.is(ValueError), e)
+}
+try {
+    hash.hmac(42, body)
+} catch e {
+    print(e.is(TypeError), e)
+}
+try {
+    hash.sha256(42)
+} catch e {
+    print(e.is(TypeError), e)
+}
+print(type_of(hash.sha256), hash.sha256)

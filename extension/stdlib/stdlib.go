@@ -9,9 +9,12 @@ package stdlib
 import (
 	"sort"
 
+	base64Ext "github.com/aisk/goblin/extension/base64"
 	csvExt "github.com/aisk/goblin/extension/csv"
 	execExt "github.com/aisk/goblin/extension/exec"
 	"github.com/aisk/goblin/extension/fs"
+	gzipExt "github.com/aisk/goblin/extension/gzip"
+	hashExt "github.com/aisk/goblin/extension/hash"
 	httpExt "github.com/aisk/goblin/extension/http"
 	ioExt "github.com/aisk/goblin/extension/io"
 	jsonExt "github.com/aisk/goblin/extension/json"
@@ -26,9 +29,12 @@ import (
 )
 
 var modules = map[string]object.ModuleExecutor{
+	"base64": base64Ext.Execute,
 	"csv":    csvExt.Execute,
 	"exec":   execExt.Execute,
 	"fs":     fs.Execute,
+	"gzip":   gzipExt.Execute,
+	"hash":   hashExt.Execute,
 	"http":   httpExt.Execute,
 	"io":     ioExt.Execute,
 	"json":   jsonExt.Execute,

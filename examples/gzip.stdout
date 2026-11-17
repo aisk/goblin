@@ -1,0 +1,16 @@
+start
+stop
+37
+31 139 [{"id":1},{"id":2}]
+20000 true
+true
+true
+true
+one two
+b""
+true compress() argument 'level' must be from 1 to 9, got 0
+true compress() argument 'level' must be from 1 to 9, got 10
+true decompress() not gzip data
+true decompress() not gzip data
+true decompress() corrupt gzip data
+true decompress() argument 'data' must be Bytes or have a read(size) method, got String

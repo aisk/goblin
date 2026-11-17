@@ -1,0 +1,17 @@
+2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f
+a9993e364706816aba3e25717850c26c9cd0d89d 900150983cd24fb0d6963f7d28e17f72
+32 16
+true
+checksum ok
+f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8
+true
+de7c9b85b8b78aa6bc8a7a36f70a90701c9db4d9
+80070713463e7749b90c2dc24911e275
+64
+true
+true hmac() argument 'algorithm' must be hash.md5, hash.sha1, hash.sha256 or hash.sha512
+true hmac() argument 'key' must be String or Bytes, got Int
+true sha256() argument 'data' must be String, Bytes or have a read(size) method, got Int
+<function Function> <function sha256>

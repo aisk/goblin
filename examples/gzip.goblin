@@ -1,0 +1,65 @@
+import "gzip"
+import "fs"
+import "json"
+
+var scratch = fs.mkdir_temp(prefix="goblin-gzip-")
+defer fs.remove(scratch, recursive=true)
+
+# Read a compressed export
+var events_file = scratch.join("events.json.gz")
+fs.write(events_file, gzip.compress(`{"event": "start"}` + "\n" + `{"event": "stop"}` + "\n"))
+var text = gzip.decompress(fs.read_bytes(events_file)).decode()
+for line in text.split("\n") {
+    if line != "" {
+        print(json.unmarshal(line)["event"])
+    }
+}
+
+# A compressed file can also be read straight from the open file
+var file = fs.open(events_file)
+print(gzip.decompress(file).size)
+file.close()
+
+# Compress before uploading
+var records = [{"id": 1}, {"id": 2}]
+var body = gzip.compress(json.marshal(records))
+var headers = {"Content-Encoding": "gzip", "Content-Type": "application/json"}
+print(body[0], body[1], gzip.decompress(body).decode())
+
+# Compress a file
+var log = scratch.join("app.log")
+fs.write(log, "GET /index.html 200\n" * 1000)
+fs.write(scratch.join("app.log.gz"), gzip.compress(fs.read_bytes(log), level=9))
+print(fs.stat(log).size, fs.stat(scratch.join("app.log.gz")).size < 200)
+print(gzip.decompress(fs.read_bytes(scratch.join("app.log.gz"))) == fs.read_bytes(log))
+
+# Levels 1 (fastest) to 9 (smallest); nil is the usual balance
+var data = "goblin " * 500
+print(gzip.decompress(gzip.compress(data, level=1)).decode() == data)
+print(gzip.decompress(gzip.compress(data, level=nil)).decode() == data)
+
+# Several members one after another decompress as one; empty data round-trips
+print(gzip.decompress(gzip.compress("one ") + gzip.compress("two")).decode())
+print(gzip.decompress(gzip.compress("")))
+
+# Errors
+for level in [0, 10] {
+    try {
+        gzip.compress("x", level=level)
+    } catch e {
+        print(e.is(ValueError), e)
+    }
+}
+var packed = gzip.compress("hello, Goblin")
+for bad in [Bytes(""), Bytes("plain text"), packed[:packed.size - 4]] {
+    try {
+        gzip.decompress(bad)
+    } catch e {
+        print(e.is(ParseError), e)
+    }
+}
+try {
+    gzip.decompress("text is not gzip data")
+} catch e {
+    print(e.is(TypeError), e)
+}
