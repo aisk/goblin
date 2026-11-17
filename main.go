@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aisk/goblin/interpreter"
+	"github.com/aisk/goblin/object"
 	"github.com/aisk/goblin/repl"
 	"github.com/aisk/goblin/source"
 	"github.com/aisk/goblin/transpiler"
@@ -17,6 +18,7 @@ var rootCmd = &cobra.Command{
 	Short:         "Goblin is a programming language that transpiles to Go",
 	Long:          "Goblin is a programming language that transpiles to Go.",
 	SilenceErrors: true,
+	Version:       object.Version,
 }
 
 var buildExeCmd = &cobra.Command{

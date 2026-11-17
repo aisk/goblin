@@ -29,7 +29,8 @@ export PATH="$PATH:$(go env GOPATH)/bin"
 $ goblin --help
 ```
 
-If help text is printed, the installation is ready to use.
+If help text is printed, the installation is ready to use. `goblin --version`
+prints the version.
 
 The CLI provides three subcommands:
 

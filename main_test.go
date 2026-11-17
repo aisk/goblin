@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/aisk/goblin/object"
 )
 
 func TestWantsHelp(t *testing.T) {
@@ -147,6 +149,17 @@ print(base64.encode("a"))
 	}
 	if got, want := strings.ReplaceAll(string(out), "\r\n", "\n"), "42\nhi\nYQ==\n"; got != want {
 		t.Fatalf("compiled stdout = %q, want %q", got, want)
+	}
+}
+
+func TestVersionFlag(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	out, err := exec.Command(bin, "--version").CombinedOutput()
+	if err != nil {
+		t.Fatalf("goblin --version: %v\n%s", err, out)
+	}
+	if want := "goblin version " + object.Version + "\n"; string(out) != want {
+		t.Fatalf("goblin --version = %q, want %q", out, want)
 	}
 }
 

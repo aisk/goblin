@@ -14,6 +14,7 @@ Goblin is a toy programming language that transpiles to Go code. Source files (`
   - `goblin run <file.goblin>` - Interpret a source file directly via the tree-walking interpreter
   - `goblin build-exe <file.goblin>` - Transpile to Go and compile a native executable (`-o` sets output path)
   - `goblin repl` - Start an interactive REPL (history persisted to `~/.goblin_history`)
+  - `goblin --version` - Print `object.Version` (`object/version.go`), which is also the http module's `User-Agent: goblin/<version>`
 
 ### Grammar Generation
 - `gocc -a goblin.bnf` - Regenerate lexer, parser, token, errors, and util packages from BNF grammar
