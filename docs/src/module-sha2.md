@@ -1,7 +1,7 @@
 # sha256 and sha512
 
 The `sha256` and `sha512` modules expose Go's fixed-size SHA-2 functions. Every
-function accepts `Bytes` or `Str`. `sum` functions return raw digest `Bytes`;
+function accepts `Bytes` or `String`. `sum` functions return raw digest `Bytes`;
 the corresponding `hex` functions return lowercase hexadecimal text.
 
 | Goblin function | Go equivalent |

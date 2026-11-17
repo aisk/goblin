@@ -9,7 +9,7 @@ print(csv.read_all("a;b\n1;2\n", comma=";"))
 type Score(points) {
     impl Show {
         func show(self) {
-            return Str(self.points) + "pt"
+            return String(self.points) + "pt"
         }
     }
 }

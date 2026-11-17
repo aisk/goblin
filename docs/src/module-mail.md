@@ -22,7 +22,7 @@ import "x/net/mail"
 var recipient = mail.parse_address("Goblin <goblin@example.com>")
 print(recipient.name)
 print(recipient.address)
-print(Str(recipient)) # Goblin <goblin@example.com>
+print(String(recipient)) # Goblin <goblin@example.com>
 ~~~
 
 `Address(name, address)` does not send mail or validate that the destination

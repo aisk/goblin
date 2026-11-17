@@ -128,7 +128,7 @@ func csvObjectRecords(value object.Object) ([][]string, error) {
 				return nil, err
 			}
 			if !ok {
-				return nil, object.NewTypeError("write_all() field %d in record %d must be String, Integer, Float, Bool, or a value implementing Show, got %s", j, i, fieldObj.TypeName())
+				return nil, object.NewTypeError("write_all() field %d in record %d must be String, Int, Float, Bool, or a value implementing Show, got %s", j, i, fieldObj.TypeName())
 			}
 			records[i][j] = field
 		}

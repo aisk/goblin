@@ -167,7 +167,7 @@ func initOrd() {
 		})}
 	}
 	OrdTrait.init([]*Trait{EqTrait}, []TraitMethod{
-		{Name: "compare", Arity: 2, Required: true, Returns: "Integer"},
+		{Name: "compare", Arity: 2, Required: true, Returns: "Int"},
 		test("lt", opLt), test("le", opLe), test("gt", opGt), test("ge", opGe),
 		pick("max", true), pick("min", false),
 	})
@@ -182,7 +182,7 @@ func initOrd() {
 
 func initHashable() {
 	HashableTrait.init([]*Trait{EqTrait}, []TraitMethod{
-		{Name: "hash", Arity: 1, Required: true, Returns: "Integer"},
+		{Name: "hash", Arity: 1, Required: true, Returns: "Int"},
 	})
 	HashableTrait.route = []func([]Object) (Object, error){func(args []Object) (Object, error) {
 		h, ok := args[0].(Hashable)

@@ -30,12 +30,12 @@ print("[" + "  hello  ".trim_left() + "]")
 print("hello".contains("ell"))
 print("hello".contains("world"))
 
-# Str constructor
-print(Str(42))
-print(Str(3.14))
-print(Str(true))
-print(Str())
-print(Str(nil))
+# String constructor
+print(String(42))
+print(String(3.14))
+print(String(true))
+print(String())
+print(String(nil))
 
 # Go strings-style search and comparison
 print("banana".count("an"))

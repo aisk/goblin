@@ -170,7 +170,7 @@ try {
 print(max(1, 2, 3))  # 3
 print(min(1, 2.5))   # 1
 print(Int("42"))     # 42
-print(Str(nil))      # nil
+print(String(nil))      # nil
 
 # Concurrency uses Chan plus spawn()
 var ch = Chan()

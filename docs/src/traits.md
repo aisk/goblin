@@ -8,7 +8,7 @@ operators and conversions are traits too: a type supports `+` by implementing
 trait Shape {
     func area(self)                     # required: no body
     func describe(self) {               # default: has a body
-        return "area " + Str(Shape.area(self))
+        return "area " + String(Shape.area(self))
     }
 }
 
@@ -65,7 +65,7 @@ A trait with no required methods, a mixin, accepts an empty impl:
 ~~~goblin
 trait Loud {
     func shout(self) {
-        return Str(self).upper() + "!"
+        return String(self).upper() + "!"
     }
 }
 
@@ -98,7 +98,7 @@ print(Ord.max(3, 7))                    # built-in traits work on built-in value
 
 The call runs the receiver's implementation, or the trait's default when the
 impl does not override it. A value without an impl raises
-`TypeError: Integer does not implement Shape`, and a wrong argument count
+`TypeError: Int does not implement Shape`, and a wrong argument count
 raises TypeError too. Built-in values answer the same way for a built-in trait
 their type lacks: `Neg.neg("a")` raises `String does not implement Neg`. A type
 that implements the trait but cannot combine with this particular operand keeps
@@ -116,7 +116,7 @@ order, so `r.traits().contains(Shape)` answers whether `r` is a Shape.
 | `Eq` | `eq(self, other)` | `ne` (derived) | `==`, `!=` | structural |
 | `Ord` (needs `Eq`) | `compare(self, other)` | `lt le gt ge max min` (derived) | `<`, `<=`, `>`, `>=`, `sort`, `max`, `min` | structural |
 | `Hashable` (needs `Eq`) | `hash(self)` | | dict keys | structural |
-| `Show` | `show(self)` | | `print`, `Str`, string rendering | structural |
+| `Show` | `show(self)` | | `print`, `String`, string rendering | structural |
 | `Truth` | `truth(self)` | | `if`, `while`, `&&`, `\|\|`, `!`, `Bool` | not allowed |
 | `Add` `Sub` `Mul` `Div` `Mod` | `add` `sub` `mul` `div` `mod` `(self, other)` | `radd` `rsub` `rmul` `rdiv` `rmod` | `+ - * / %` | not allowed |
 | `Neg` | `neg(self)` | | unary `-` | not allowed |
@@ -128,10 +128,10 @@ so `<`, `sort` and `max` can never disagree about an order. Defining one in an
 impl is an error: `impl Ord for Point: method 'lt' derives from the required
 methods and cannot be overridden`.
 
-`compare` returns a negative Integer, zero, or a positive Integer. `compare` and
-`hash` must return an Integer, `show` a String, and `eq`, `ne`, `truth` and the
+`compare` returns a negative Int, zero, or a positive Int. `compare` and
+`hash` must return an Int, `show` a String, and `eq`, `ne`, `truth` and the
 ordering methods a Bool; anything else raises
-`TypeError: Point.show must return String, got Integer`.
+`TypeError: Point.show must return String, got Int`.
 
 Without an impl, the defaults are: `==` is identity, printing shows
 `<Point@0x...>`, a value is truthy, and ordering, arithmetic, iteration,

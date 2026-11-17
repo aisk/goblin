@@ -5,7 +5,7 @@ to complete in-memory archives.
 
 Both modules provide `write_all(files)` and `read_all(data)`. `files` is a
 dictionary whose string keys are archive paths and whose values are `Bytes` or
-`Str`. `write_all` returns archive `Bytes`; `read_all` returns a dictionary of
+`String`. `write_all` returns archive `Bytes`; `read_all` returns a dictionary of
 file names to `Bytes`. Directory and other non-regular entries are skipped when
 reading.
 

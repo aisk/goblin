@@ -39,7 +39,7 @@ print(total)
 # Each iteration binds fresh names, so closures keep their own.
 var getters = []
 for key, value in [["a", 1], ["b", 2]] {
-    getters.push(func() { return key + Str(value) })
+    getters.push(func() { return key + String(value) })
 }
 print(getters[0](), getters[1]())
 

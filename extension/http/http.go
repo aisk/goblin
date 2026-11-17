@@ -237,6 +237,6 @@ func durationFromObject(fn string, obj object.Object) (time.Duration, error) {
 	case object.Integer:
 		return time.Duration(int64(v)) * time.Second, nil
 	default:
-		return 0, object.NewTypeError("%s() argument 'timeout' must be Integer or Float, got %s", fn, obj.TypeName())
+		return 0, object.NewTypeError("%s() argument 'timeout' must be Int or Float, got %s", fn, obj.TypeName())
 	}
 }

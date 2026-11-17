@@ -74,7 +74,7 @@ func TestCollectEmptyIsNotNil(t *testing.T) {
 
 func TestIterateNotIterable(t *testing.T) {
 	if _, err := Iterate(Integer(1)); err == nil {
-		t.Error("Iterate(Integer) succeeded")
+		t.Error("Iterate(Int) succeeded")
 	}
 }
 

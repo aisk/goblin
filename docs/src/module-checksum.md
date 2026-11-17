@@ -1,7 +1,7 @@
 # md5, sha1, crc32, and adler32
 
 These modules calculate complete, in-memory digests and checksums. Every
-function accepts either `Bytes` or `Str`.
+function accepts either `Bytes` or `String`.
 
 ## MD5 and SHA-1
 

@@ -8,7 +8,7 @@ The `hex` module follows Go's `encoding/hex` package.
 | `decode(s)` | `hex.DecodeString` |
 | `dump(data)` | `hex.Dump` |
 
-Encoding accepts `Bytes` or `Str` and returns lowercase hexadecimal text.
+Encoding accepts `Bytes` or `String` and returns lowercase hexadecimal text.
 Decoding returns `Bytes` and raises `ParseError` for malformed input.
 
 ~~~goblin

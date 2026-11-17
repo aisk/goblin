@@ -26,7 +26,7 @@ print(endpoint.path)     # /api
 print(endpoint.raw_query)
 
 var next = endpoint.resolve_reference(url.parse("../status"))
-print(Str(next))
+print(String(next))
 ~~~
 
 `join_path(base, elements)` accepts a base URL and a list of path elements. It

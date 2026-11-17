@@ -115,13 +115,13 @@ print("ha" * 3)      # hahaha
 print(3 * "ha")      # hahaha
 ~~~
 
-Str(value) converts any value to its display text, the same text `print`
+String(value) converts any value to its display text, the same text `print`
 shows and interpolation inserts. Interpolation is usually the clearer way to
 build a string from other values.
 
 ~~~goblin
 var port = 8080
-print("port=" + Str(port)) # port=8080
+print("port=" + String(port)) # port=8080
 print("port={port}")       # port=8080
 ~~~
 

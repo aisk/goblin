@@ -145,7 +145,7 @@ func TestStrictReturnTypes(t *testing.T) {
 	)
 	v := &fakeValue{typ: liar}
 	_, err := Equals(v, Integer(1))
-	if err == nil || err.Error() != "Liar.eq must return Bool, got Integer" || !errors.Is(err, TypeError) {
+	if err == nil || err.Error() != "Liar.eq must return Bool, got Int" || !errors.Is(err, TypeError) {
 		t.Fatalf("a wrong eq result must not read as unequal, got %v", err)
 	}
 	if _, err := userToString(v); err == nil || err.Error() != "Liar.show must return String, got Nil" {
@@ -189,7 +189,7 @@ func TestArithDispatch(t *testing.T) {
 	if _, err := Divide(v(1), Integer(2)); err == nil || err.Error() != "cannot divide Vec" {
 		t.Fatalf("missing div = %v", err)
 	}
-	if _, err := Add(Integer(1), v(1)); err == nil || err.Error() != "cannot add Integer and Vec" {
+	if _, err := Add(Integer(1), v(1)); err == nil || err.Error() != "cannot add Int and Vec" {
 		t.Fatalf("missing radd must keep the left error, got %v", err)
 	}
 	if n, err := Negate(v(4)); err != nil || n.(UserValue).FieldValues()[0] != Integer(-4) {
@@ -230,7 +230,7 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 			t.Errorf("%s.%s(%v) = %v, %v; want %s", tc.trait.Name, tc.name, tc.args, got, err, tc.want)
 		}
 	}
-	if h, err := call(HashableTrait, "hash", Integer(1)); err != nil || h.TypeName() != "Integer" {
+	if h, err := call(HashableTrait, "hash", Integer(1)); err != nil || h.TypeName() != "Int" {
 		t.Errorf("Hashable.hash(1) = %v, %v", h, err)
 	}
 	if _, err := call(HashableTrait, "hash", &List{}); err == nil || err.Error() != "List does not implement Hashable" {
@@ -240,7 +240,7 @@ func TestTraitObjectOnBuiltinValues(t *testing.T) {
 		t.Errorf("arity error = %v", err)
 	}
 	user := NewTrait("Shape", nil, []TraitMethod{{Name: "area", Arity: 1, Required: true}})
-	if _, err := call(user, "area", Integer(1)); err == nil || err.Error() != "Integer does not implement Shape" {
+	if _, err := call(user, "area", Integer(1)); err == nil || err.Error() != "Int does not implement Shape" {
 		t.Errorf("user trait on a built-in = %v", err)
 	}
 }

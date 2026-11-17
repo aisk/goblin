@@ -380,7 +380,7 @@ var directBuiltins = map[string]directBuiltin{
 	"Error":    {pathObject, "ErrorConstructor", object.ErrorConstructor},
 	"Int":      {pathObject, "IntConstructor", object.IntConstructor},
 	"Float":    {pathObject, "FloatConstructor", object.FloatConstructor},
-	"Str":      {pathObject, "StrConstructor", object.StrConstructor},
+	"String":   {pathObject, "StringConstructor", object.StringConstructor},
 	"Bytes":    {pathObject, "BytesConstructor", object.BytesConstructor},
 	"Bool":     {pathObject, "BoolConstructor", object.BoolConstructor},
 	"List":     {pathObject, "ListConstructor", object.ListConstructor},

@@ -26,6 +26,6 @@ func TestFunctionCompare_AlwaysErrors(t *testing.T) {
 		t.Fatal("functions have no ordering; Compare should error")
 	}
 	if _, err := f.Compare(Integer(0)); err == nil {
-		t.Fatal("comparing Function and Integer should error")
+		t.Fatal("comparing Function and Int should error")
 	}
 }

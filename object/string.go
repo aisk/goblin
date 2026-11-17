@@ -461,7 +461,7 @@ func (s String) GetAttr(name string) (Object, error) {
 	case "size":
 		return s.Size(), nil
 	case "constructor":
-		return StrConstructorFn, nil
+		return StringConstructorFn, nil
 	}
 	if fn, ok := stringMethods.bind(s, name); ok {
 		return fn, nil
@@ -479,10 +479,10 @@ var stringMethods = newMethodTable(
 	"trim_prefix", "trim_suffix", "cut", "cut_prefix", "cut_suffix", "encode",
 )
 
-var StrConstructorFn = &Function{Name: "Str", Fn: StrConstructor}
+var StringConstructorFn = &Function{Name: "String", Fn: StringConstructor}
 
-func StrConstructor(args CallArgs) (Object, error) {
-	ap := NewArgParser("Str", args)
+func StringConstructor(args CallArgs) (Object, error) {
+	ap := NewArgParser("String", args)
 	value := ap.AnyOr("value", String(""))
 	if err := ap.Finish(); err != nil {
 		return nil, err

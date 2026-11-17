@@ -88,7 +88,7 @@ func (b Bytes) Iterator() (Iterator, error) {
 func (b Bytes) Index(index Object) (Object, error) {
 	i, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("Bytes index must be Integer, got %s", index.TypeName())
+		return nil, NewTypeError("Bytes index must be Int, got %s", index.TypeName())
 	}
 	if i < 0 || int(i) >= len(b) {
 		return nil, NewIndexError("Bytes index out of range: %d", int64(i))

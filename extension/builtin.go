@@ -32,7 +32,7 @@ var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
 	"RecursionError":      object.RecursionError,
 	"Int":                 object.IntConstructorFn,
 	"Float":               object.FloatConstructorFn,
-	"Str":                 object.StrConstructorFn,
+	"String":              object.StringConstructorFn,
 	"Bytes":               object.BytesConstructorFn,
 	"Bool":                object.BoolConstructorFn,
 	"List":                object.ListConstructorFn,

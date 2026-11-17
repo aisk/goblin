@@ -108,7 +108,7 @@ func TestParseNumberLiterals(t *testing.T) {
 		"1_.5":                "'_' must separate two digits",
 		"0o8":                 "invalid digit in octal literal 0o8",
 		"0b102":               "invalid digit in binary literal 0b102",
-		"9223372036854775808": "out of range for Integer",
+		"9223372036854775808": "out of range for Int",
 		"1e400":               "out of range for Float",
 	}
 	for src, want := range errs {

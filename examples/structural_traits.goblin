@@ -34,7 +34,7 @@ print(Line(a, Point(3, 4)))
 type Empty() {
     impl Show {}
 }
-print(Empty(), Str(Empty()))
+print(Empty(), String(Empty()))
 
 # A field that cannot be hashed or ordered raises when it is needed.
 type Bag(items) {

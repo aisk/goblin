@@ -12,7 +12,7 @@ var _ Object = Integer(0)
 
 func (i Integer) ToBool() (bool, error) { return i != 0, nil }
 
-func (i Integer) TypeName() string { return "Integer" }
+func (i Integer) TypeName() string { return "Int" }
 
 func (i Integer) String() string {
 	return strconv.FormatInt(int64(i), 10)
@@ -29,42 +29,42 @@ func (i Integer) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(i, other); ok {
 		return c, nil
 	}
-	return 0, NewOperandError(OpCompare, "Integer", other)
+	return 0, NewOperandError(OpCompare, "Int", other)
 }
 
 func (i Integer) Add(other Object) (Object, error) {
 	if result, ok, err := numericAdd(i, other); ok {
 		return result, err
 	}
-	return nil, NewOperandError(OpAdd, "Integer", other)
+	return nil, NewOperandError(OpAdd, "Int", other)
 }
 
 func (i Integer) Minus(other Object) (Object, error) {
 	if result, ok, err := numericMinus(i, other); ok {
 		return result, err
 	}
-	return nil, NewOperandError(OpSubtract, "Integer", other)
+	return nil, NewOperandError(OpSubtract, "Int", other)
 }
 
 func (i Integer) Multiply(other Object) (Object, error) {
 	if result, ok, err := numericMultiply(i, other); ok {
 		return result, err
 	}
-	return nil, NewOperandError(OpMultiply, "Integer", other)
+	return nil, NewOperandError(OpMultiply, "Int", other)
 }
 
 func (i Integer) Divide(other Object) (Object, error) {
 	if result, ok, err := numericDivide(i, other); ok {
 		return result, err
 	}
-	return nil, NewOperandError(OpDivide, "Integer", other)
+	return nil, NewOperandError(OpDivide, "Int", other)
 }
 
 func (i Integer) Modulo(other Object) (Object, error) {
 	if result, ok, err := numericModulo(i, other); ok {
 		return result, err
 	}
-	return nil, NewOperandError(OpModulo, "Integer", other)
+	return nil, NewOperandError(OpModulo, "Int", other)
 }
 
 // A named int64 type cannot embed NoAssignment and NoReflectedOps, so Integer
@@ -78,11 +78,11 @@ func (i Integer) RDivide(Object) (Object, bool, error)   { return nil, false, ni
 func (i Integer) RModulo(Object) (Object, bool, error)   { return nil, false, nil }
 
 func (i Integer) Iter() ([]Object, error) {
-	return nil, Unsupported("Integer", ErrFmtNotIterable)
+	return nil, Unsupported("Int", ErrFmtNotIterable)
 }
 
 func (i Integer) Index(index Object) (Object, error) {
-	return nil, Unsupported("Integer", ErrFmtNotIndexable)
+	return nil, Unsupported("Int", ErrFmtNotIndexable)
 }
 
 func (i Integer) GetAttr(name string) (Object, error) {
@@ -92,7 +92,7 @@ func (i Integer) GetAttr(name string) (Object, error) {
 	case "constructor":
 		return IntConstructorFn, nil
 	default:
-		return nil, NewAttributeError("Integer has no attribute '%s'", name)
+		return nil, NewAttributeError("Int has no attribute '%s'", name)
 	}
 }
 
@@ -135,6 +135,6 @@ func IntConstructor(args CallArgs) (Object, error) {
 		}
 		return Integer(0), nil
 	default:
-		return nil, NewTypeError("Int() argument 'value' must be String, Integer or Float, got %s", value.TypeName())
+		return nil, NewTypeError("Int() argument 'value' must be String, Int, Float or Bool, got %s", value.TypeName())
 	}
 }

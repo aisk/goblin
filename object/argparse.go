@@ -203,16 +203,16 @@ func optionalArgValue[T Object](p *ArgParser, name, want string) (T, bool) {
 }
 
 // Int returns a required Integer argument.
-func (p *ArgParser) Int(name string) Integer { return argValue[Integer](p, name, "Integer") }
+func (p *ArgParser) Int(name string) Integer { return argValue[Integer](p, name, "Int") }
 
 // IntOr returns an optional Integer argument, or def when absent.
 func (p *ArgParser) IntOr(name string, def Integer) Integer {
-	return argValueOr(p, name, "Integer", def)
+	return argValueOr(p, name, "Int", def)
 }
 
 // OptionalInt returns an optional Integer and whether it was supplied.
 func (p *ArgParser) OptionalInt(name string) (Integer, bool) {
-	return optionalArgValue[Integer](p, name, "Integer")
+	return optionalArgValue[Integer](p, name, "Int")
 }
 
 // Float returns a required Float argument.
@@ -299,7 +299,7 @@ func (p *ArgParser) Number(name string) Object {
 	case Integer, Float:
 		return v
 	default:
-		p.typeErr(name, "Integer or Float", v)
+		p.typeErr(name, "Int or Float", v)
 		return nil
 	}
 }
@@ -314,7 +314,7 @@ func (p *ArgParser) NumberOr(name string, def Object) Object {
 	case Integer, Float:
 		return v
 	default:
-		p.typeErr(name, "Integer or Float", v)
+		p.typeErr(name, "Int or Float", v)
 		return def
 	}
 }
@@ -351,7 +351,7 @@ func (p *ArgParser) Timeout(name string) (time.Duration, bool) {
 	case Float:
 		seconds = float64(n)
 	default:
-		p.typeErr(name, "Integer, Float or Nil", v)
+		p.typeErr(name, "Int, Float or Nil", v)
 		return 0, false
 	}
 	if seconds < 0 || math.IsNaN(seconds) {

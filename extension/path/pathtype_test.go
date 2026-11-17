@@ -29,6 +29,6 @@ func TestPathString(t *testing.T) {
 		t.Errorf("PathString(*Path) = %q, %v; want %q, true", got, ok, "/tmp/x")
 	}
 	if _, ok := PathString(object.Integer(1)); ok {
-		t.Error("PathString(Integer) accepted a non-path value")
+		t.Error("PathString(Int) accepted a non-path value")
 	}
 }

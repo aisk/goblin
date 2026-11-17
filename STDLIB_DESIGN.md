@@ -57,9 +57,9 @@ When a library function needs something from the object it is given, it asks for
 | JSON-encodable | `to_json()` |
 
 - This table is the complete list. Adding a row is an API decision that needs review, because the name becomes reserved in practice for every user type.
-- A function that accepts one of these says so in its error: `csv.write_all() argument 'dest' must have a write(data) method, got Integer`.
+- A function that accepts one of these says so in its error: `csv.write_all() argument 'dest' must have a write(data) method, got Int`.
 - Functions accept the widest sensible input rather than making the caller adapt it: `json.decode` takes a String, Bytes, or anything readable.
-- **Reader shape.** `read(size)` with a non-negative Integer returns a chunk as Bytes (consumers also tolerate String). End of stream is an empty chunk or `nil`: consumers accept both, producers return empty Bytes. A producer may also allow `read()` with no argument to mean "everything".
+- **Reader shape.** `read(size)` with a non-negative Int returns a chunk as Bytes (consumers also tolerate String). End of stream is an empty chunk or `nil`: consumers accept both, producers return empty Bytes. A producer may also allow `read()` with no argument to mean "everything".
 - **Writer shape.** `write(data)` takes a chunk (consumers pass Bytes; producers also accept String) and returns the number of bytes written; `nil` counts as the whole chunk, and consumers accept both.
 - **Closing.** `close()` is optional on a stream, and a consumer never calls it: whoever opened the stream decides when it ends, normally with `defer`.
 - Go-side code adapts these objects through `object.NewDuckReader` / `object.NewDuckWriter` rather than re-implementing the shapes. A new stream-shaped API follows these shapes exactly and documents the expected shape in the Goblin Book.
@@ -136,7 +136,7 @@ A member that takes no arguments is either a property (`p.name`) or a nullary me
 - **Booleans**: an adjective or participle stands alone (`closed`, `done`, `running`, `success`); a noun takes `is_` or `has_` (`is_dir`, `has_prefix`).
 - **Mutation, on mutable types.** A method that changes the receiver is an imperative verb and returns the receiver (`push`, `sort`, `reverse`, `clear`); where a non-mutating counterpart exists it is the past participle (`sorted`, `reversed`). This rule does not apply to immutable types, whose methods always return new values under plain verbs (`upper`, `trim`, `replace`), nor to the established functional names (`map`, `filter`).
 - **Index arguments mean one thing per type.** Whatever `x[i]` accepts (negative indices, bounds behaviour), slices and every method taking a position accept the same.
-- **Name the meaning, not the implementation**: `Response.status` (Integer) and `status_text`; `headers` for a collection; `URL.query`, not `raw_query`.
+- **Name the meaning, not the implementation**: `Response.status` (Int) and `status_text`; `headers` for a collection; `URL.query`, not `raw_query`.
 - **A facility with get/set/remove/list is an object, not four functions.** `os.env` behaves like a Dict (`os.env["HOME"]`, `os.env.get("HOME", "")`, `os.env.remove("X")`), reusing vocabulary the user already has.
 
 ## 6. Built-in types

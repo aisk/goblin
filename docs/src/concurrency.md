@@ -85,7 +85,7 @@ until they return or the program ends.
 ## Time limits
 
 `wait`, `send`, `receive` and `wait_any` all take an optional `timeout` in
-seconds, an Integer or a Float. When it expires the operation raises
+seconds, an Int or a Float. When it expires the operation raises
 TimeoutError (`receive() timed out after 2 seconds`). `nil`, the default,
 waits forever; a negative timeout raises ValueError and any other type
 TypeError. An operation that can complete immediately always does, even with

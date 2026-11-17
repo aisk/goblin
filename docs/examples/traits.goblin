@@ -2,7 +2,7 @@
 trait Shape {
     func area(self)
     func describe(self) {
-        return "area " + Str(Shape.area(self))
+        return "area " + String(Shape.area(self))
     }
 }
 
@@ -34,7 +34,7 @@ trait Titled: Named, Show {
 
 trait Loud {
     func shout(self) {
-        return Str(self).upper() + "!"
+        return String(self).upper() + "!"
     }
 }
 

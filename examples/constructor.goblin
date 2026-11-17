@@ -29,7 +29,7 @@ var xs = [1, 2, 3]
 print(xs.constructor == List)
 
 var name = "hi"
-print(name.constructor == Str)
+print(name.constructor == String)
 
 var n = 42
 print(n.constructor == Int)
@@ -40,12 +40,12 @@ print(flag.constructor == Bool)
 var d = {"a": 1}
 print(d.constructor == Dict)
 
-print(xs.constructor == Str)
+print(xs.constructor == String)
 
 # Type objects are themselves callables, so their constructor is Function.
 print(Int.constructor == Function)
-print(Str.constructor == Function)
-print(Int.constructor == Str.constructor)
+print(String.constructor == Function)
+print(Int.constructor == String.constructor)
 print(Point.constructor == Function)
 print(Function.constructor == Function)
 

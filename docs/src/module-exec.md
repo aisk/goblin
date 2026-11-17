@@ -39,7 +39,7 @@ The standard-stream policies are:
 | `DISCARD` | Provide EOF for stdin or discard output |
 | `CAPTURE` | Capture stdout or stderr into the result |
 
-`stdin` also accepts `Str` or `Bytes`. `CAPTURE` is valid only for stdout and
+`stdin` also accepts `String` or `Bytes`. `CAPTURE` is valid only for stdout and
 stderr. Captured values are `Bytes`, because command output is not necessarily
 UTF-8; call `decode()` when text is expected.
 

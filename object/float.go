@@ -138,6 +138,6 @@ func FloatConstructor(args CallArgs) (Object, error) {
 		}
 		return Float(0), nil
 	default:
-		return nil, NewTypeError("Float() argument 'value' must be String, Integer or Float, got %s", value.TypeName())
+		return nil, NewTypeError("Float() argument 'value' must be String, Int, Float or Bool, got %s", value.TypeName())
 	}
 }

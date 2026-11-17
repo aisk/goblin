@@ -58,7 +58,7 @@ func sliceBounds(obj Object, low, high Object, size int) (lo, hi int, err error)
 func sliceBound(obj, bound Object) (int, error) {
 	i, ok := bound.(Integer)
 	if !ok {
-		return 0, NewTypeError("%s slice bound must be Integer, got %s", obj.TypeName(), bound.TypeName())
+		return 0, NewTypeError("%s slice bound must be Int, got %s", obj.TypeName(), bound.TypeName())
 	}
 	return int(i), nil
 }

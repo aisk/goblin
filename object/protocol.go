@@ -12,7 +12,7 @@ import (
 // The ErrFmtCannot* and ErrFmtNot* formats say that a type has no form of an
 // operation at all and take the type name; raise them with
 // NewUnsupportedError (or Unsupported). An operation the type has but not for
-// the given operand reads "cannot add Integer and String" instead; raise it
+// the given operand reads "cannot add Int and String" instead; raise it
 // with NewOperandError.
 const (
 	ErrFmtCannotAdd      = "cannot add %s"
@@ -70,7 +70,7 @@ const (
 )
 
 // NewOperandError is the TypeError for an operation the left operand's type
-// supports, but not with this right operand: "cannot add Integer and String".
+// supports, but not with this right operand: "cannot add Int and String".
 func NewOperandError(op, leftType string, right Object) *Error {
 	return NewTypeError("cannot %s %s and %s", op, leftType, right.TypeName())
 }

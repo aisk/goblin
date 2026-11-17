@@ -14,7 +14,7 @@ print(match.group("key"))
 print(match.group(2))
 ~~~
 
-Only `Str` patterns, input, and replacements are accepted. `Bytes` is not
+Only `String` patterns, input, and replacements are accepted. `Bytes` is not
 implicitly decoded or mixed with text. Compile errors are raised as
 `ParseError`, with the Go engine's diagnostic wrapped as context.
 

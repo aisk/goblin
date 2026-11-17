@@ -67,11 +67,11 @@ try {
 # A local shadowing the type name refers to the local, not the constructor.
 type Box(v) {
     func label(self) {
-        return "box " + Str(self.v)
+        return "box " + String(self.v)
     }
 }
 func make_other(v) {
-    var Box = func(v) { return "not a box " + Str(v) }
+    var Box = func(v) { return "not a box " + String(v) }
     return Box(v)
 }
 print(Box(1).label())

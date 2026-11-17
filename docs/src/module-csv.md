@@ -15,7 +15,7 @@ corresponding Go Reader fields: `comma=","`, `comment=""`,
 
 `write_all` accepts a list of records, each a list of fields. A string field is
 written as it is; an integer, float, bool, or a user value implementing `Show`
-is written as its `Show` text, the same as `Str()` gives. Any other field, such
+is written as its `Show` text, the same as `String()` gives. Any other field, such
 as nil, a list, or a user value without `Show`, raises TypeError. It supports `comma=","` and `use_crlf=false`,
 corresponding to Go's Writer fields. Parsing errors raise `ParseError`.
 

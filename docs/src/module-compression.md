@@ -4,7 +4,7 @@ The `gzip`, `zlib`, and `flate` modules adapt Go's corresponding `compress`
 packages to whole Goblin values.
 
 All three modules expose `compress(data, level=DEFAULT_COMPRESSION, dest=unit)`
-and `decompress(data)`. Input may be `Bytes` or `Str`; output is always
+and `decompress(data)`. Input may be `Bytes` or `String`; output is always
 `Bytes`. Malformed compressed input raises `ParseError`.
 
 Compression-level constants mirror `compress/flate`:

@@ -2,7 +2,7 @@
 trait Shape: Show {
     func area(self)
     func describe(self) {
-        return Show.show(self) + " has area " + Str(Shape.area(self))
+        return Show.show(self) + " has area " + String(Shape.area(self))
     }
 }
 

@@ -65,7 +65,7 @@ func TestJsonUnmarshalNumberTypes(t *testing.T) {
 	d := got.(*object.Dict)
 	iv, _, _ := d.Get(object.String("i"))
 	if _, ok := iv.(object.Integer); !ok {
-		t.Errorf("i want Integer, got %T", iv)
+		t.Errorf("i want Int, got %T", iv)
 	}
 	fv, _, _ := d.Get(object.String("f"))
 	if _, ok := fv.(object.Float); !ok {

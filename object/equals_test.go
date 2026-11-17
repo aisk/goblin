@@ -126,7 +126,7 @@ func (c *typeErrorCmp) TypeName() string { return "typeErrorCmp" }
 
 func (c *typeErrorCmp) Equals(other Object) (bool, error) {
 	if _, ok := other.(Integer); !ok {
-		return false, NewTypeError("cannot subtract Integer and %s", other.TypeName())
+		return false, NewTypeError("cannot subtract Int and %s", other.TypeName())
 	}
 	return true, nil
 }

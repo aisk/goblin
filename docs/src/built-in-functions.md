@@ -8,7 +8,7 @@ These names are available without an import.
 | `eprint(values...)` | Same as `print`, but write to stderr |
 | `range(end)` / `range(start, end)` | Create integer values from start (zero when omitted) through end-exclusive |
 | `min(values...)` / `max(values...)` | Choose the smallest or largest value |
-| `Int(value)` / `Float(value)` / `Str(value)` / `Bool(value)` | Convert a value |
+| `Int(value)` / `Float(value)` / `String(value)` / `Bool(value)` | Convert a value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
 | `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
 | `Function(value)` | Validate and return a callable value unchanged |

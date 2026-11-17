@@ -7,5 +7,5 @@ closed
 [b"z\n", b"!"]
 b"hello"
 true
-Integer does not implement Reader
-write_all() argument 'dest' must implement io.Writer or have a write(data) method, got Integer
+Int does not implement Reader
+write_all() argument 'dest' must implement io.Writer or have a write(data) method, got Int

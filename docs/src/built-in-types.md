@@ -5,7 +5,7 @@ operation succeeds only when its value types are compatible.
 
 | Type | Examples | Notes |
 | --- | --- | --- |
-| Integer | 0, -42 | Signed 64-bit whole number |
+| Int | 0, -42 | Signed 64-bit whole number |
 | Float | 3.14, -0.5 | 64-bit floating-point number |
 | Bool | true, false | Logical value |
 | Nil | nil | Absence of a value; it prints as nil |
@@ -206,9 +206,9 @@ together.
 
 | Type | Common constructors and operations |
 | --- | --- |
-| Integer / Float | Int(value), Float(value), max(...), min(...) |
+| Int / Float | Int(value), Float(value), max(...), min(...) |
 | Bool / Nil | Bool(value), !value, value && other, value \|\| other |
-| String | Str(value), size, contains(), split(), replace() |
+| String | String(value), size, contains(), split(), replace() |
 | Bytes | Bytes(value), size, decode(), contains(), split() |
 | List | List(value), size, first, last, push(), pop(), sort(), copy() |
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |

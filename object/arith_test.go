@@ -108,7 +108,7 @@ func TestArithReflected(t *testing.T) {
 
 	// No RMinus at all: the left operand's error stands.
 	_, err := Minus(Integer(1), right)
-	if want := "cannot subtract Integer and rightObj"; err == nil || err.Error() != want {
+	if want := "cannot subtract Int and rightObj"; err == nil || err.Error() != want {
 		t.Errorf("Minus error = %v, want %q", err, want)
 	}
 

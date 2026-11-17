@@ -382,7 +382,7 @@ func NewIntegerLiteral(x any) (any, error) {
 	d, err := strconv.ParseInt(digits, base, 64)
 	if err != nil {
 		if errors.Is(err, strconv.ErrRange) {
-			return nil, fmt.Errorf("integer literal %s is out of range for Integer", text)
+			return nil, fmt.Errorf("integer literal %s is out of range for Int", text)
 		}
 		return nil, fmt.Errorf("invalid digit in %s literal %s", kind, text)
 	}

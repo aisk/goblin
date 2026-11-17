@@ -13,7 +13,7 @@ type Point(x, y=0) {
     }
 
     func text(self) {
-        return "(" + Str(self.x) + ", " + Str(self.y) + ")"
+        return "(" + String(self.x) + ", " + String(self.y) + ")"
     }
 }
 
@@ -129,7 +129,7 @@ print(describe(2.5))          # a number
 print(describe(nil))          # nothing
 ```
 
-Built-in values answer with the conversion functions: `Int`, `Float`, `Str`,
+Built-in values answer with the conversion functions: `Int`, `Float`, `String`,
 `Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error`, `Chan` and `Goblin`.
 For behaviour rather than identity, check traits instead:
 `value.traits().contains(Show)` on an instance of a user type.

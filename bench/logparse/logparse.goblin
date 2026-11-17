@@ -3,7 +3,7 @@
 var lines = []
 var i = 0
 while i < 4000 {
-    lines.push("  level=info user=u" + Str(i % 97) + " ms=" + Str(i % 31) + "  ")
+    lines.push("  level=info user=u" + String(i % 97) + " ms=" + String(i % 31) + "  ")
     i = i + 1
 }
 

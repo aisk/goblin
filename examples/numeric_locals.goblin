@@ -101,7 +101,7 @@ var xs = [k, k * 2, k / 2]
 print(xs)
 var d = {"k": k}
 print(d["k"])
-print("k is " + Str(k))
+print("k is " + String(k))
 
 # Accumulating in a loop, the shape hot code actually has.
 var total = 0

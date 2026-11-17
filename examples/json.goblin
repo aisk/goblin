@@ -32,7 +32,7 @@ type Point(x, y) {
 type Celsius(degrees) {
     impl json.ToJSON {
         func to_json(self) {
-            return Str(self.degrees) + "C"
+            return String(self.degrees) + "C"
         }
     }
 }

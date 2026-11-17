@@ -13,7 +13,7 @@ func TestTypeName(t *testing.T) {
 		obj  Object
 		want string
 	}{
-		{Integer(1), "Integer"},
+		{Integer(1), "Int"},
 		{Float(1.5), "Float"},
 		{String("x"), "String"},
 		{True, "Bool"},

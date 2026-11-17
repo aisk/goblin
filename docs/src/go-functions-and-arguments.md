@@ -36,9 +36,9 @@ all of its inputs before checking once at Finish.
 | Accessor | Meaning |
 | --- | --- |
 | Any(name) / AnyOr(name, default) | Required or optional arbitrary Object |
-| Int, Float, Str, Bool | Required typed value |
+| Int, Float, String, Bool | Required typed value |
 | IntOr, FloatOr, StrOr, BoolOr | Optional typed value with a default |
-| Number / NumberOr | Integer or Float |
+| Number / NumberOr | Int or Float |
 | Float64 | Numeric value converted to Go float64 |
 | Func | A Goblin function |
 | OptionalAny | Value plus whether it was supplied |
@@ -58,7 +58,7 @@ func sum(args object.CallArgs) (object.Object, error) {
     for _, value := range values {
         n, ok := value.(object.Integer)
         if !ok {
-            return nil, object.NewTypeError("sum() values must be Integer")
+            return nil, object.NewTypeError("sum() values must be Int")
         }
         total += int64(n)
     }

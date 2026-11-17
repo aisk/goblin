@@ -32,7 +32,7 @@ func origin() {
 type Point(x, y) {
     impl Show {
         func show(self) {
-            return "Point(" + Str(self.x) + ", " + Str(self.y) + ")"
+            return "Point(" + String(self.x) + ", " + String(self.y) + ")"
         }
     }
 }

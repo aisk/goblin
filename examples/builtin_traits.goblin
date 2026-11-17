@@ -31,7 +31,7 @@ type Vector(x, y) {
     }
     impl Show {
         func show(self) {
-            return "Vector(" + Str(self.x) + ", " + Str(self.y) + ")"
+            return "Vector(" + String(self.x) + ", " + String(self.y) + ")"
         }
     }
     # Ordering by length. compare is the one required method; lt, le, gt,
@@ -74,7 +74,7 @@ type Version(major, minor) {
     }
     impl Show {
         func show(self) {
-            return Str(self.major) + "." + Str(self.minor)
+            return String(self.major) + "." + String(self.minor)
         }
     }
 }

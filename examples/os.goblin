@@ -1,7 +1,7 @@
 import "os"
 
 # getenv returns a string, or nil / the default= fallback when unset
-print(os.getenv("HOME").constructor == Str)
+print(os.getenv("HOME").constructor == String)
 print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST") == nil)
 print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST", default="fallback"))
 
@@ -9,7 +9,7 @@ print(os.getenv("GOBLIN_UNSET_VAR_FOR_TEST", default="fallback"))
 var args = os.argv()
 print(args.constructor == List)
 print(args.size > 0)
-print(args[0].constructor == Str)
+print(args[0].constructor == String)
 
 # process and user/group accessors return integers
 print(os.getpid().constructor == Int)

@@ -46,7 +46,7 @@ func TestArgParserTypeMismatch(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{String("x")}})
 	p.Int("a")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'a' must be Integer") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'a' must be Int") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -115,7 +115,7 @@ func TestArgParserOptionalInt(t *testing.T) {
 
 	p = NewArgParser("f", CallArgs{Positional: Args{String("bad")}})
 	p.OptionalInt("value")
-	if err := p.Finish(); err == nil || !strings.Contains(err.Error(), "argument 'value' must be Integer") {
+	if err := p.Finish(); err == nil || !strings.Contains(err.Error(), "argument 'value' must be Int") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -249,7 +249,7 @@ func TestArgParserNumberAcceptsIntAndFloat(t *testing.T) {
 		t.Fatalf("expected nil error, got %v", err)
 	}
 	if i, ok := v.(Integer); !ok || i != 7 {
-		t.Fatalf("expected Integer(7), got %#v", v)
+		t.Fatalf("expected Int(7), got %#v", v)
 	}
 
 	// Float works too.
@@ -267,7 +267,7 @@ func TestArgParserNumberRejectsNonNumeric(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{String("x")}})
 	p.Number("n")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'n' must be Integer or Float") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'n' must be Int or Float") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -321,7 +321,7 @@ func TestArgParserTimeout(t *testing.T) {
 	if _, _, err := parse(Float(-1)); !errors.Is(err, ValueError) || err.Error() != "f() argument 'timeout' must be non-negative, got -1" {
 		t.Errorf("negative timeout: %v", err)
 	}
-	if _, _, err := parse(String("1")); !errors.Is(err, TypeError) || err.Error() != "f() argument 'timeout' must be Integer, Float or Nil, got String" {
+	if _, _, err := parse(String("1")); !errors.Is(err, TypeError) || err.Error() != "f() argument 'timeout' must be Int, Float or Nil, got String" {
 		t.Errorf("String timeout: %v", err)
 	}
 	if d, ok, err := parse(Float(1e300)); err != nil || !ok || d <= 0 {

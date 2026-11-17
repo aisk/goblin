@@ -337,7 +337,7 @@ func (l *List) Iter() ([]Object, error) {
 func (l *List) Index(index Object) (Object, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return nil, NewTypeError("List index must be Integer, got %s", index.TypeName())
+		return nil, NewTypeError("List index must be Int, got %s", index.TypeName())
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {
@@ -349,7 +349,7 @@ func (l *List) Index(index Object) (Object, error) {
 func (l *List) SetIndex(index Object, value Object) (bool, error) {
 	idx, ok := index.(Integer)
 	if !ok {
-		return true, NewTypeError("List index must be Integer, got %s", index.TypeName())
+		return true, NewTypeError("List index must be Int, got %s", index.TypeName())
 	}
 	i := int(idx)
 	if i < 0 || i >= len(l.Elements) {

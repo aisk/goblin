@@ -162,7 +162,7 @@ func returnsType(want string, result Object) bool {
 		return true
 	case "Bool":
 		_, ok = result.(Bool)
-	case "Integer":
+	case "Int":
 		_, ok = result.(Integer)
 	case "String":
 		_, ok = result.(String)

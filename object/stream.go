@@ -218,7 +218,7 @@ func (w *DuckWriter) Write(p []byte) (int, error) {
 			}
 			written += int(v)
 		default:
-			return written, NewTypeError("%s() argument '%s' write(data) must return Integer or Nil, got %s", w.fn, w.param, value.TypeName())
+			return written, NewTypeError("%s() argument '%s' write(data) must return Int or Nil, got %s", w.fn, w.param, value.TypeName())
 		}
 	}
 	return len(p), nil
