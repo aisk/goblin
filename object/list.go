@@ -1,6 +1,7 @@
 package object
 
 import (
+	"bytes"
 	"cmp"
 	"sort"
 	"strings"
@@ -43,45 +44,64 @@ func (l *List) Pop(args CallArgs) (Object, error) {
 	}
 	value := l.Elements[i]
 	copy(l.Elements[i:], l.Elements[i+1:])
+	l.Elements[len(l.Elements)-1] = nil
 	l.Elements = l.Elements[:len(l.Elements)-1]
 	return value, nil
 }
 
-// First returns the first element, exposed to Goblin as the read-only
-// property list.first.
-func (l *List) First() (Object, error) {
+// First returns the first element, or nil for an empty list, exposed to
+// Goblin as the read-only property list.first.
+func (l *List) First() Object {
 	if len(l.Elements) == 0 {
-		return nil, NewIndexError("first of empty list")
+		return Nil
 	}
-	return l.Elements[0], nil
+	return l.Elements[0]
 }
 
-// Last returns the last element, exposed to Goblin as the read-only
-// property list.last.
-func (l *List) Last() (Object, error) {
+// Last returns the last element, or nil for an empty list, exposed to Goblin
+// as the read-only property list.last.
+func (l *List) Last() Object {
 	if len(l.Elements) == 0 {
-		return nil, NewIndexError("last of empty list")
+		return Nil
 	}
-	return l.Elements[len(l.Elements)-1], nil
+	return l.Elements[len(l.Elements)-1]
 }
 
+// Join concatenates the elements with sep between them. A String separator
+// joins the elements' text, converting each as print would; a Bytes
+// separator joins elements that must all be Bytes.
 func (l *List) Join(args CallArgs) (Object, error) {
 	ap := NewArgParser("join", args)
-	sep := ap.Str("sep")
+	sepObj := ap.AnyOr("sep", String(""))
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	elements := make([]string, len(l.Elements))
-	for i, elem := range l.Elements {
-		s, err := elem.ToString()
-		if err != nil {
-			return nil, err
+	switch sep := sepObj.(type) {
+	case String:
+		elements := make([]string, len(l.Elements))
+		for i, elem := range l.Elements {
+			s, err := elem.ToString()
+			if err != nil {
+				return nil, err
+			}
+			elements[i] = s
 		}
-		elements[i] = s
+		return String(strings.Join(elements, string(sep))), nil
+	case Bytes:
+		parts := make([][]byte, len(l.Elements))
+		for i, elem := range l.Elements {
+			part, ok := elem.(Bytes)
+			if !ok {
+				return nil, NewTypeError("join() element %d must be Bytes, got %s", i, elem.TypeName())
+			}
+			parts[i] = part
+		}
+		return Bytes(bytes.Join(parts, sep)), nil
 	}
-	return String(strings.Join(elements, string(sep))), nil
+	return nil, NewTypeError("join() argument 'sep' must be String or Bytes, got %s", sepObj.TypeName())
 }
 
+// Insert puts value before the element at a bound, so index == size appends.
 func (l *List) Insert(args CallArgs) (Object, error) {
 	ap := NewArgParser("insert", args)
 	index, value := ap.Int("index"), ap.Any("value")
@@ -104,16 +124,26 @@ func (l *List) Contains(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	for _, elem := range l.Elements {
-		eq, err := Equals(elem, value)
+	i, err := l.find(value, 0)
+	if err != nil {
+		return nil, err
+	}
+	return Bool(i >= 0), nil
+}
+
+// find returns the position of the first element from start on that equals
+// value, or -1.
+func (l *List) find(value Object, start int) (int, error) {
+	for i := start; i < len(l.Elements); i++ {
+		eq, err := Equals(l.Elements[i], value)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 		if eq {
-			return True, nil
+			return i, nil
 		}
 	}
-	return False, nil
+	return -1, nil
 }
 
 func (l *List) Count(args CallArgs) (Object, error) {
@@ -135,6 +165,8 @@ func (l *List) Count(args CallArgs) (Object, error) {
 	return Integer(count), nil
 }
 
+// IndexOf returns the position of the first element equal to value at or
+// after the bound start, or nil when there is none.
 func (l *List) IndexOf(args CallArgs) (Object, error) {
 	ap := NewArgParser("index", args)
 	value := ap.Any("value")
@@ -142,40 +174,35 @@ func (l *List) IndexOf(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	i, err := ResolveBound("List", start, len(l.Elements))
+	from, err := ResolveBound("List", start, len(l.Elements))
 	if err != nil {
 		return nil, err
 	}
-	for ; i < len(l.Elements); i++ {
-		eq, err := Equals(l.Elements[i], value)
-		if err != nil {
-			return nil, err
-		}
-		if eq {
-			return Integer(i), nil
-		}
+	i, err := l.find(value, from)
+	if err != nil || i < 0 {
+		return Nil, err
 	}
-	return Integer(-1), nil
+	return Integer(i), nil
 }
 
+// Remove deletes the first element equal to value; without one it does
+// nothing.
 func (l *List) Remove(args CallArgs) (Object, error) {
 	ap := NewArgParser("remove", args)
 	value := ap.Any("value")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	for i, elem := range l.Elements {
-		eq, err := Equals(elem, value)
-		if err != nil {
-			return nil, err
-		}
-		if eq {
-			copy(l.Elements[i:], l.Elements[i+1:])
-			l.Elements = l.Elements[:len(l.Elements)-1]
-			return True, nil
-		}
+	i, err := l.find(value, 0)
+	if err != nil {
+		return nil, err
 	}
-	return False, nil
+	if i >= 0 {
+		copy(l.Elements[i:], l.Elements[i+1:])
+		l.Elements[len(l.Elements)-1] = nil
+		l.Elements = l.Elements[:len(l.Elements)-1]
+	}
+	return l, nil
 }
 
 func (l *List) Reverse(args CallArgs) (Object, error) {
@@ -344,9 +371,9 @@ func (l *List) GetAttr(name string) (Object, error) {
 	case "size":
 		return l.Size(), nil
 	case "first":
-		return l.First()
+		return l.First(), nil
 	case "last":
-		return l.Last()
+		return l.Last(), nil
 	}
 	if fn, ok := listMethods.bind(l, name); ok {
 		return fn, nil
@@ -354,28 +381,12 @@ func (l *List) GetAttr(name string) (Object, error) {
 	return nil, NewAttributeError("List has no attribute '%s'", name)
 }
 
+// sortMethod sorts the list in place, stably: elements that order equal,
+// or whose keys do, keep their relative order, descending included.
 func (l *List) sortMethod(args CallArgs) (Object, error) {
 	p := NewArgParser("sort", args)
-	key, supplied := p.OptionalAny("key")
-	if !supplied {
-		key = Nil
-	}
-	reverseObj, supplied := p.OptionalAny("reverse")
-	reverse := false
-	if supplied {
-		var err error
-		if reverse, err = reverseObj.ToBool(); err != nil {
-			return nil, err
-		}
-	}
-	stableObj, supplied := p.OptionalAny("stable")
-	stable := false
-	if supplied {
-		var err error
-		if stable, err = stableObj.ToBool(); err != nil {
-			return nil, err
-		}
-	}
+	key, hasKey := p.NullableFunc("key")
+	descending := p.BoolOr("descending", false)
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
@@ -386,48 +397,47 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 		if sortErr != nil {
 			return false
 		}
-		var a, b Object
-		if key != Nil {
-			argv[0] = l.Elements[i]
-			a, sortErr = Call(key, CallArgs{Positional: argv})
-			if sortErr != nil {
+		a, b := l.Elements[i], l.Elements[j]
+		if hasKey {
+			argv[0] = a
+			if a, sortErr = key.Call(CallArgs{Positional: argv}); sortErr != nil {
 				return false
 			}
-			argv[0] = l.Elements[j]
-			b, sortErr = Call(key, CallArgs{Positional: argv})
-			if sortErr != nil {
+			argv[0] = b
+			if b, sortErr = key.Call(CallArgs{Positional: argv}); sortErr != nil {
 				return false
 			}
-		} else {
-			a, b = l.Elements[i], l.Elements[j]
 		}
-
 		res, err := Compare(a, b)
 		if err != nil {
 			sortErr = err
 			return false
 		}
-		if reverse {
+		if descending {
 			return res > 0
 		}
 		return res < 0
 	}
-
-	if stable {
-		sort.SliceStable(l.Elements, less)
-	} else {
-		sort.Slice(l.Elements, less)
-	}
-
+	sort.SliceStable(l.Elements, less)
 	if sortErr != nil {
 		return nil, sortErr
 	}
-	return Nil, nil
+	return l, nil
+}
+
+// callTruth calls fn on one element and reports the truth of its result.
+func callTruth(fn *Function, argv Args, e Object) (bool, error) {
+	argv[0] = e
+	res, err := fn.Call(CallArgs{Positional: argv})
+	if err != nil {
+		return false, err
+	}
+	return res.ToBool()
 }
 
 func (l *List) mapMethod(args CallArgs) (Object, error) {
 	ap := NewArgParser("map", args)
-	fn := ap.Any("fn")
+	fn := ap.Func("fn")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
@@ -435,7 +445,7 @@ func (l *List) mapMethod(args CallArgs) (Object, error) {
 	argv := make(Args, 1)
 	for i, e := range l.Elements {
 		argv[0] = e
-		res, err := Call(fn, CallArgs{Positional: argv})
+		res, err := fn.Call(CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -446,23 +456,18 @@ func (l *List) mapMethod(args CallArgs) (Object, error) {
 
 func (l *List) filterMethod(args CallArgs) (Object, error) {
 	ap := NewArgParser("filter", args)
-	fn := ap.Any("fn")
+	fn := ap.Func("fn")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 	newElems := []Object{}
 	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		argv[0] = e
-		res, err := Call(fn, CallArgs{Positional: argv})
+		keep, err := callTruth(fn, argv, e)
 		if err != nil {
 			return nil, err
 		}
-		b, err := res.ToBool()
-		if err != nil {
-			return nil, err
-		}
-		if b {
+		if keep {
 			newElems = append(newElems, e)
 		}
 	}
@@ -471,7 +476,7 @@ func (l *List) filterMethod(args CallArgs) (Object, error) {
 
 func (l *List) reduceMethod(args CallArgs) (Object, error) {
 	p := NewArgParser("reduce", args)
-	fn := p.Any("fn")
+	fn := p.Func("fn")
 	initial, supplied := p.OptionalAny("initial")
 	if err := p.Finish(); err != nil {
 		return nil, err
@@ -481,7 +486,7 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 	start := 0
 	if !supplied {
 		if len(l.Elements) == 0 {
-			return nil, NewTypeError("reduce() of empty list with no initial value")
+			return nil, NewValueError("reduce() of empty list with no initial value")
 		}
 		acc = l.Elements[0]
 		start = 1
@@ -490,7 +495,7 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 	for i := start; i < len(l.Elements); i++ {
 		var err error
 		argv[0], argv[1] = acc, l.Elements[i]
-		acc, err = Call(fn, CallArgs{Positional: argv})
+		acc, err = fn.Call(CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
@@ -498,128 +503,62 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 	return acc, nil
 }
 
-func (l *List) eachMethod(args CallArgs) (Object, error) {
-	ap := NewArgParser("each", args)
-	fn := ap.Any("fn")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
-	argv := make(Args, 1)
-	for _, e := range l.Elements {
-		argv[0] = e
-		_, err := Call(fn, CallArgs{Positional: argv})
-		if err != nil {
-			return nil, err
-		}
-	}
-	return Nil, nil
-}
-
 func (l *List) findMethod(args CallArgs) (Object, error) {
 	ap := NewArgParser("find", args)
-	fn := ap.Any("fn")
+	fn := ap.Func("fn")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
 	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		argv[0] = e
-		res, err := Call(fn, CallArgs{Positional: argv})
+		found, err := callTruth(fn, argv, e)
 		if err != nil {
 			return nil, err
 		}
-		b, err := res.ToBool()
-		if err != nil {
-			return nil, err
-		}
-		if b {
+		if found {
 			return e, nil
 		}
 	}
 	return Nil, nil
 }
 
-func (l *List) anyMethod(args CallArgs) (Object, error) {
-	ap := NewArgParser("any", args)
-	fn, supplied := ap.OptionalAny("fn")
+// anyAll answers any() (want true) or all() (want false): whether some
+// element's truth, or that of fn's result for it, is want. Without fn the
+// element itself is tested.
+func (l *List) anyAll(name string, args CallArgs, want bool) (Object, error) {
+	ap := NewArgParser(name, args)
+	fn, hasFn := ap.NullableFunc("fn")
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-
-	if !supplied {
-		for _, e := range l.Elements {
-			b, err := e.ToBool()
-			if err != nil {
-				return nil, err
-			}
-			if b {
-				return True, nil
-			}
-		}
-		return False, nil
-	}
-
 	argv := make(Args, 1)
 	for _, e := range l.Elements {
-		argv[0] = e
-		res, err := Call(fn, CallArgs{Positional: argv})
+		var b bool
+		var err error
+		if hasFn {
+			b, err = callTruth(fn, argv, e)
+		} else {
+			b, err = e.ToBool()
+		}
 		if err != nil {
 			return nil, err
 		}
-		b, err := res.ToBool()
-		if err != nil {
-			return nil, err
-		}
-		if b {
-			return True, nil
+		if b == want {
+			return Bool(want), nil
 		}
 	}
-	return False, nil
+	return Bool(!want), nil
 }
 
-func (l *List) allMethod(args CallArgs) (Object, error) {
-	ap := NewArgParser("all", args)
-	fn, supplied := ap.OptionalAny("fn")
-	if err := ap.Finish(); err != nil {
-		return nil, err
-	}
+func (l *List) anyMethod(args CallArgs) (Object, error) { return l.anyAll("any", args, true) }
 
-	if !supplied {
-		for _, e := range l.Elements {
-			b, err := e.ToBool()
-			if err != nil {
-				return nil, err
-			}
-			if !b {
-				return False, nil
-			}
-		}
-		return True, nil
-	}
-
-	argv := make(Args, 1)
-	for _, e := range l.Elements {
-		argv[0] = e
-		res, err := Call(fn, CallArgs{Positional: argv})
-		if err != nil {
-			return nil, err
-		}
-		b, err := res.ToBool()
-		if err != nil {
-			return nil, err
-		}
-		if !b {
-			return False, nil
-		}
-	}
-	return True, nil
-}
+func (l *List) allMethod(args CallArgs) (Object, error) { return l.anyAll("all", args, false) }
 
 func (l *List) Attributes() []string { return listMethods.attributes("size", "first", "last") }
 
 var listMethods = newMethodTable(
-	"push", "pop", "join", "insert", "contains", "count", "index", "remove",
-	"reverse", "clear", "copy", "sort", "map", "filter", "reduce", "each", "find",
+	"push", "pop", "insert", "remove", "clear", "reverse", "sort", "copy",
+	"contains", "count", "index", "find", "join", "map", "filter", "reduce",
 	"any", "all",
 )
 

@@ -60,9 +60,6 @@ func (l *List) CallMethod(name string, args CallArgs) (Object, bool, error) {
 	case "reduce":
 		v, err := l.reduceMethod(args)
 		return v, true, err
-	case "each":
-		v, err := l.eachMethod(args)
-		return v, true, err
 	case "find":
 		v, err := l.findMethod(args)
 		return v, true, err

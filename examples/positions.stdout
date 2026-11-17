@@ -22,7 +22,7 @@ true false pop() from empty list
 ["start", 1, 2, "mid", "end"]
 true false List index out of range: 6
 true false List index out of range: -6
-2 3 -1
+2 3 nil
 true false List index out of range: 5
 true false List index out of range: -5
 [77, 99] éll b"bc" []

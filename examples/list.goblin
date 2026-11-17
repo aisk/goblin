@@ -72,3 +72,60 @@ print(values)
 var copied = values.copy()
 copied.clear()
 print(copied)
+
+func attempt(action) {
+    try {
+        print(action())
+    } catch e {
+        print(e.is(TypeError), e.is(ValueError), e.is(IndexError), e.message)
+    }
+}
+
+# first and last are nil on an empty list.
+print([].first, [].last)
+
+# Mutating methods return the list itself, so they chain; pop returns the
+# element it removes.
+var xs = [3, 1, 2]
+print(xs.push(5, 4).sort().reverse().remove(9).remove(5))
+print(xs.insert(0, 0).clear().push(1) == xs, xs)
+attempt(func() { return [].pop() })
+
+# index is nil when the value is absent; position 0 is false, so test with
+# != nil or use contains.
+var letters = ["a", "b", "a"]
+print(letters.index("a"), letters.index("z"), letters.index("a", start=1), letters.index("a") != nil)
+
+# sort is always stable, descending included; the key orders, the elements move.
+var people = [["Bo", 30], ["Al", 25], ["Cy", 30], ["Di", 25]]
+print(people.copy().sort(key=func(p) { return p[1] }))
+print(people.copy().sort(key=func(p) { return p[1] }, descending=true))
+print([2, 3, 1].sort(descending=true), [2, 3, 1].sort(key=nil))
+attempt(func() { return [2, 1].sort(descending=1) })
+attempt(func() { return [2, 1].sort(reverse=true) })
+attempt(func() { return [2, 1].sort(key=1) })
+attempt(func() { return [2, "a"].sort() })
+
+# Function arguments are checked on entry.
+attempt(func() { return [1].map(1) })
+attempt(func() { return [].filter("x") })
+attempt(func() { return [].find(nil) })
+attempt(func() { return [].reduce(2, initial=0) })
+attempt(func() { return [1].any(fn=3) })
+print([0, 1].any(), [0, 1].all(), [0, 1].any(nil), [].all(), [].any())
+print([1, 2].any(func(x) { return x > 1 }), [1, 2].all(fn=func(x) { return x > 1 }))
+print([1, 2, 3].find(func(x) { return x > 1 }), [1].find(func(x) { return false }))
+
+# reduce without an initial value needs an element.
+print([1, 2, 3].reduce(func(a, b) { return a + b }), [].reduce(func(a, b) { return a + b }, initial=0))
+attempt(func() { return [].reduce(func(a, b) { return a + b }) })
+
+# join's separator defaults to ""; a Bytes separator joins Bytes.
+print([1, 2, 3].join(), ["a", "b"].join(sep=", "))
+print([Bytes("a"), Bytes("b")].join(Bytes("-")), [].join(Bytes("-")))
+attempt(func() { return [Bytes("a"), "b", 3].join(Bytes(",")) })
+attempt(func() { return ["a"].join(1) })
+
+# Loops replace each(); sum, max and min are global functions.
+attempt(func() { return [1].each(print) })
+attempt(func() { return [1].sum() })

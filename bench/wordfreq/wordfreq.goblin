@@ -27,7 +27,7 @@ while round < 150000 {
 }
 
 var items = counts.items()
-items.sort(key=func(item) { return item[1] }, reverse=true)
+items.sort(key=func(item) { return item[1] }, descending=true)
 var j = 0
 while j < items.size {
     print(items[j][0], items[j][1])

@@ -74,8 +74,11 @@ func TestListMutationMethods(t *testing.T) {
 	if list.String() != "[1, 2, 3]" {
 		t.Fatalf("insert result = %s", list)
 	}
-	if got := callMethod(t, list, "remove", CallArgs{Positional: Args{Integer(2)}}); got != True {
-		t.Fatalf("remove = %v, want true", got)
+	if got := callMethod(t, list, "remove", CallArgs{Positional: Args{Integer(2)}}); got != list {
+		t.Fatalf("remove = %v, want the list", got)
+	}
+	if got := callMethod(t, list, "remove", CallArgs{Positional: Args{Integer(9)}}); got != list || len(list.Elements) != 2 {
+		t.Fatalf("remove of a missing value = %v", got)
 	}
 	copyObj := callMethod(t, list, "copy", CallArgs{}).(*List)
 	callMethod(t, copyObj, "clear", CallArgs{})
@@ -248,10 +251,31 @@ func TestListSort(t *testing.T) {
 		t.Fatalf("sort result = %s", list)
 	}
 
-	// reverse sort
-	callMethod(t, list, "sort", CallArgs{Keyword: Kwargs{{Name: "reverse", Value: True}}})
+	// descending sort returns the list itself
+	if got := callMethod(t, list, "sort", CallArgs{Keyword: Kwargs{{Name: "descending", Value: True}}}); got != list {
+		t.Fatalf("sort() = %v, want the list", got)
+	}
 	if list.String() != "[4, 3, 2, 1]" {
-		t.Fatalf("reverse sort result = %s", list)
+		t.Fatalf("descending sort result = %s", list)
+	}
+
+	// descending keeps equal elements in their original order
+	pairs := &List{Elements: []Object{
+		&List{Elements: []Object{Integer(1), String("a")}},
+		&List{Elements: []Object{Integer(2), String("b")}},
+		&List{Elements: []Object{Integer(1), String("c")}},
+	}}
+	callMethod(t, pairs, "sort", CallArgs{Keyword: Kwargs{
+		{Name: "key", Value: &Function{Fn: func(args CallArgs) (Object, error) {
+			return args.Positional[0].(*List).Elements[0], nil
+		}}},
+		{Name: "descending", Value: True},
+	}})
+	if pairs.String() != `[[2, "b"], [1, "a"], [1, "c"]]` {
+		t.Fatalf("stable descending sort result = %s", pairs)
+	}
+	if _, err := Call(mustAttr(t, list, "sort"), CallArgs{Keyword: Kwargs{{Name: "descending", Value: Integer(1)}}}); err == nil || err.Error() != "sort() argument 'descending' must be Bool, got Int" {
+		t.Fatalf("sort(descending=1) error = %v", err)
 	}
 
 	// sort with key
@@ -389,10 +413,10 @@ func TestConversionErrorsPropagate(t *testing.T) {
 		t.Fatal("join() should propagate a failing ToString")
 	}
 
-	sortable := &List{Elements: []Object{Integer(3), Integer(1)}}
-	args := CallArgs{Keyword: Kwargs{{Name: "reverse", Value: obj}}}
-	if _, err := sortable.sortMethod(args); err == nil {
-		t.Fatal("sort() should propagate a failing ToBool for reverse")
+	filterable := &List{Elements: []Object{Integer(3)}}
+	fn := &Function{Fn: func(CallArgs) (Object, error) { return obj, nil }}
+	if _, err := filterable.filterMethod(CallArgs{Positional: Args{fn}}); err == nil {
+		t.Fatal("filter() should propagate a failing ToBool")
 	}
 }
 

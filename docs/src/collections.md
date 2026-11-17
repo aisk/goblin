@@ -57,21 +57,38 @@ index, while insert() and the `start` of index() take a bound, so
 | Method | Purpose |
 | --- | --- |
 | size | Number of elements (property) |
+| first / last | The first or last element, or nil for an empty list (properties) |
 | push(value, ...) | Append one or more values |
 | pop(index=-1) | Remove and return an element; defaults to the last |
-| first / last | Read the first or last element without removing it (properties) |
 | insert(index, value) | Insert before a position; `size` appends |
-| remove(value) | Remove the first matching value |
+| remove(value) | Remove the first matching value, if there is one |
+| clear() | Remove every element |
+| reverse() | Reverse the order in place |
+| sort(key=nil, descending=false) | Sort in place, stably |
+| copy() | A new list with the same elements |
 | contains(value) / count(value) | Test for or count a value |
-| index(value, start=0) | Find a value from an offset |
-| join(separator) | Convert elements to text with a separator |
-| reverse() / sort() | Reorder the list in place |
-| copy() / clear() | Duplicate or empty the list |
+| index(value, start=0) | Position of the first matching value, or nil |
+| find(fn) | The first element `fn` is true for, or nil |
+| join(sep="") | Join the elements' text, or Bytes with a Bytes separator |
+| map(fn) / filter(fn) / reduce(fn, initial) | Transform, select or combine elements |
+| any(fn=nil) / all(fn=nil) | Whether some or every element (or `fn` of it) is true |
 
-pop(), first, and last raise IndexError when the requested element is
-unavailable. pop() accepts a negative index, so its default `-1` removes the
-last element. index() returns `-1` when a value is absent, and remove() returns
-true when it removed a value or false when it did not.
+Every method that changes the list (push, insert, remove, clear, reverse and
+sort) returns the list itself, so calls chain:
+`names.push("Cy").sort().reverse()`. pop() is the exception: it returns the
+element it removed, and raises IndexError for an empty list. pop() accepts a
+negative index, so its default `-1` removes the last element. first and last
+are nil for an empty list, and remove() of a value that is not there does
+nothing.
+
+index() returns nil when a value is absent. Position `0` is false in a
+condition, so test the result with `!= nil`, or use contains() when the
+position does not matter.
+
+sort() is always stable: elements that compare equal (or whose keys do) keep
+their order, with `descending=true` as well. `descending` must be a Bool.
+Arguments that are functions (`fn`, `key`) are checked when the method is
+called, so `xs.map(1)` raises TypeError before doing anything.
 
 ### Common list patterns
 
@@ -87,8 +104,7 @@ for name in names {
 print(greetings.join(" | "))
 
 var original = [3, 1, 2]
-var ordered = original.copy()
-ordered.sort()
+var ordered = original.copy().sort()
 print(original) # [3, 1, 2]
 print(ordered)  # [1, 2, 3]
 ~~~
@@ -110,8 +126,8 @@ print(people) # [["Cy", 25], ["Al", 30], ["Bo", 30]]
 
 Lists also provide callback-based helpers. map() returns transformed values,
 filter() keeps values whose callback is truthy, and reduce() combines values
-from left to right. each() runs a callback for its side effect; find() returns
-the first matching value or nil.
+from left to right. find() returns the first matching value or nil. To run a
+callback for its side effect, write a `for` loop.
 
 ~~~goblin
 var values = [1, 2, 3, 4]
@@ -126,7 +142,7 @@ print(total)   # 10
 
 Callbacks receive one list element, except reduce(), whose callback receives
 the accumulator followed by the element. Without an initial value, reduce()
-uses the first list element and raises TypeError for an empty list. any() and
+uses the first list element and raises ValueError for an empty list. any() and
 all() accept an optional callback; with none, they test each element's
 truthiness. To add up the elements, use the global `sum(values)`; `max` and
 `min` likewise take a list (see [Built-in functions](./built-in-functions.md)).

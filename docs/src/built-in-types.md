@@ -214,7 +214,7 @@ together.
 | Dict | Dict(), get(), set_default(), keys(), items(), update() |
 | Chan | Chan(capacity), send(value), receive(), close(), for value in channel |
 | Goblin | spawn(function, args...), wait(), done, wait_any(goblins) |
-| Function | Function(value), value(...) |
+| Function | Function(value), value(...), name |
 
 Use `attributes(value)` in the REPL to inspect all operations provided by a
 runtime value, and `type_of(value)` for its type; see
