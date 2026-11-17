@@ -1,0 +1,53 @@
+# The common tasks of the math chapter, checking their own results.
+import "math"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+# Geometry
+var radius = 2
+var x1 = 0
+var y1 = 0
+var x2 = 3000
+var y2 = 4000
+var dx = 1
+var dy = 1
+var area = math.PI * math.pow(radius, 2)
+var distance = math.sqrt(math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2))
+var heading = math.atan2(dy, dx) * 180 / math.PI
+expect("heading {heading:.1f} degrees, {distance:,.0f} m away", "heading 45.0 degrees, 5,000 m away")
+expect("{area:.4f}", "12.5664")
+
+# Whole numbers from measurements
+var items = List(range(41))
+var done = 2
+var total = 3
+var pages = math.ceil(items.size / 20.0)
+var percent = math.round(100.0 * done / total)
+expect([pages, percent], [3, 67])
+expect(type_of(pages), Int)
+
+# Two decimal places: in the value, or only in the text
+total = 19.987
+var price = math.round(total * 100) / 100.0
+expect(price, 19.99)
+expect("total: {total:.2f}", "total: 19.99")
+
+# Statistics of a set of measurements
+var timings = [0.82, 0.79, 1.31, 0.80, 0.85]
+expect("mean {math.mean(timings):.2f} s, median {math.median(timings):.2f} s", "mean 0.91 s, median 0.82 s")
+expect("spread {math.stdev(timings):.2f} s, 95th percentile {math.percentile(timings, 95):.2f} s", "spread 0.22 s, 95th percentile 1.22 s")
+expect("total {sum(timings):.1f} s, slowest {max(timings):.2f} s", "total 4.6 s, slowest 1.31 s")
+var people = [{"age": 31}, {"age": 45}, {"age": 28}, {"age": 52}]
+var ages = people.map(func(p) { return p["age"] })
+var typical_age = math.round(math.median(ages))
+expect(typical_age, 38)
+
+# Orders of magnitude
+var n = 12345
+var digits = math.floor(math.log(n, base=10)) + 1
+expect(digits, 5)
+expect(math.floor(math.log(1000, base=10)) + 1, 4)

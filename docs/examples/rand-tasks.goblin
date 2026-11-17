@@ -1,0 +1,78 @@
+# The common tasks of the rand chapter, checking their own results.
+# Unseeded results are checked for their properties only.
+import "base64"
+import "fs"
+import "json"
+import "rand"
+import "regex"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+var dir = fs.mkdir_temp(prefix="goblin-rand-")
+defer fs.remove(dir, recursive=true)
+
+# Pick one, pick a few
+var entrants = ["ada", "bob", "cy", "dee", "eve"]
+var winner = rand.choice(entrants)
+var panel = rand.sample(entrants, 3)
+expect(entrants.contains(winner), true)
+expect(panel.size, 3)
+expect(panel.filter(func(p) { return entrants.contains(p) }).size, 3)
+
+# Pick one where some are likelier than others
+var drop = rand.choice(["common", "rare", "epic"], weights=[90, 9, 1])
+expect(["common", "rare", "epic"].contains(drop), true)
+
+# Numbers
+var items = ["a", "b", "c"]
+var die = rand.int(1, 7)
+var index = rand.int(items.size)
+expect(die >= 1 && die <= 6, true)
+expect(index >= 0 && index < 3, true)
+var f = rand.float()
+expect(f >= 0.0 && f < 1.0, true)
+
+# Shuffle a deck
+var deck = rand.shuffle(List(range(52)))
+expect([deck.size, sum(deck)], [52, 1326])
+
+# A token that is safe to use as a secret
+var token = rand.bytes(16).to_hex()
+expect(token.size, 32)
+
+# A shorter secret that is safe in a URL or a file name: 24 characters
+var invite = base64.encode(rand.bytes(18), url_safe=true)
+expect(invite.size, 24)
+expect(regex.find(`[A-Za-z0-9_-]+`, invite, full=true) != nil, true)
+
+# An id for a record, a file, a request
+fs.mkdir(dir.join("jobs"))
+var id = rand.uuid()
+fs.write(dir.join("jobs/{id}.json"), json.encode({"id": id, "state": "queued"}))
+expect(json.decode(fs.read(dir.join("jobs/{id}.json")))["id"], id)
+
+# Ids that sort in the order they were made (a millisecond apart: two made
+# in the same millisecond are not ordered)
+var first = rand.uuid(version=7)
+while rand.uuid(version=7)[:13] == first[:13] {
+}
+var second = rand.uuid(version=7)
+expect(first < second, true)
+
+# Is this text a UUID
+func is_uuid(text) {
+    return regex.find(`[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}`, text.lower(), full=true) != nil
+}
+expect([is_uuid(id), is_uuid(second.upper()), is_uuid("not-a-uuid")], [true, true, false])
+
+# The same "random" data in every test run
+var users = List(range(100)).map(func(i) { return "user{i}" })
+var fixed = rand.Rand(42)
+var sample_users = fixed.sample(users, 5)
+var again = rand.Rand(42)
+expect(again.sample(users, 5), sample_users)
+expect(fixed.int(100), again.int(100))

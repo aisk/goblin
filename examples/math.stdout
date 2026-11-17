@@ -1,0 +1,37 @@
+3.141592653589793 2.718281828459045 +Inf -Inf
+false true false
+true true
+9.0 1.4142135623730951 true
+1024.0 3.0
+1.0 true
+1.0 3.0 3.0 4.000000000000001
+0.0 -Inf true true
+1.0 1.0 0.0
+true 0.0 true true
+true true true
+3 2.5 0
+3 -4 4 -3
+3 -3 2 7
+true true
+-3 1234.57
+ValueError floor() cannot convert NaN
+ValueError floor() cannot convert +Inf
+OverflowError floor() value out of range: 1e+19
+integer overflow
+0.9139999999999999 0.82
+0.2226 1.218
+0.79 1.31 true
+2.0 2.5 2.0
+15.0 1.75
+true
+[3, 1, 2]
+mean() argument 'values' is empty
+median() argument 'values' is empty
+stdev() needs at least two values, got 1
+percentile() argument 'p' must be between 0 and 100, got 101
+mean() argument 'values' must contain only Int or Float, got String
+mean() argument 'values' must contain only Int or Float, got Bool
+sqrt() argument 'x' must be Int or Float, got String
+log() argument 'base' must be positive and not 1, got 1
+log() argument 'base' must be positive and not 1, got 0
+log() argument 'base' must be positive and not 1, got -2

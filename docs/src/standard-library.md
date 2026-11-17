@@ -28,10 +28,9 @@ needed.
 | [os](./module-os.md) | Arguments, environment, standard streams, exit | args, env, stdin, exit() |
 | [exec](./module-exec.md) | Run other programs | run(), capture(), start() |
 | [time](./module-time.md) | Instants, the clock, time zones, sleeping | now(), parse(), Time(), sleep() |
-| [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
-| [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
+| [rand](./module-rand.md) | Random choices, secure bytes and ids, reproducible on request | choice(), int(), bytes(), uuid(), Rand() |
+| [math](./module-math.md) | Float functions, constants and basic statistics | PI, sqrt(), round(), mean() |
 | [http](./module-http.md) | HTTP client: requests, sessions, uploads, streamed bodies | get(), post(), Client(), multipart() |
-| [uuid](./module-uuid.md) | Generate and parse UUID values | UUID(), new(), NIL |
 | [regex](./module-regex.md) | Search and rewrite text by pattern | find(), find_all(), replace(), split() |
 | [url](./module-url.md) | Take a URL apart, escape its parts, change its query | parse(), encode_query(), decode_query() |
 | [csv](./module-csv.md) | CSV text to rows and back | decode(), decode_dicts(), encode() |

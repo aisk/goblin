@@ -113,7 +113,7 @@ type Selfish() {
 }
 var looped = [1]
 looped.push(looped)
-for value in [Plain(1), Bytes("x"), {1: 2}, math.inf, Selfish(), looped] {
+for value in [Plain(1), Bytes("x"), {1: 2}, math.INF, Selfish(), looped] {
     try {
         json.encode(value)
     } catch e {

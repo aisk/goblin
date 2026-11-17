@@ -155,11 +155,8 @@ func writeLine(name string, w io.Writer, args object.CallArgs) (object.Object, e
 // single positional argument is the end and the range starts at zero, as
 // does one given only `end=`.
 func Range(args object.CallArgs) (object.Object, error) {
-	if len(args.Positional) == 1 && len(args.Keyword) == 0 {
-		args.Positional = object.Args{object.Integer(0), args.Positional[0]}
-	}
 	p := object.NewArgParser("range", args)
-	start, end := p.IntOr("start", 0), p.Int("end")
+	start, end := p.StartEnd()
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}

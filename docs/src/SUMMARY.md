@@ -38,7 +38,6 @@
 - [rand](./module-rand.md)
 - [math](./module-math.md)
 - [http](./module-http.md)
-- [uuid](./module-uuid.md)
 - [regex](./module-regex.md)
 - [url](./module-url.md)
 - [csv](./module-csv.md)

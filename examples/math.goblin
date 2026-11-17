@@ -1,0 +1,82 @@
+import "math"
+
+# Constants
+print(math.PI, math.E, math.INF, -math.INF)
+print(math.NAN == math.NAN, math.is_nan(math.NAN), math.is_nan(1.0))
+print(math.INF == math.INF, 1e308 * 10 == math.INF)
+
+# Float functions take Ints and Floats and return a Float
+print(math.sqrt(81), math.sqrt(2), math.is_nan(math.sqrt(-1)))
+print(math.pow(2, 10), math.pow(x=9, y=0.5))
+print(math.exp(0), math.exp(1) == math.E)
+print(math.log(math.E), math.log(8, base=2), math.log(1000, base=10), math.log(81, base=3))
+print(math.log(1), math.log(0), math.is_nan(math.log(-1)), math.log(5, base=nil) == math.log(5))
+print(math.sin(math.PI / 2), math.cos(0), math.tan(0))
+print(math.asin(1) == math.PI / 2, math.acos(1), math.atan(1) == math.PI / 4, math.is_nan(math.asin(2)))
+print(math.atan2(1, 1) == math.PI / 4, math.atan2(0, -1) == math.PI, math.atan2(-1, 0) == -math.PI / 2)
+
+# abs keeps the kind of number
+print(math.abs(-3), math.abs(-2.5), math.abs(0))
+
+# floor, ceil and round give an Int
+print(math.floor(3.8), math.floor(-3.2), math.ceil(3.2), math.ceil(-3.8))
+print(math.round(2.5), math.round(-2.5), math.round(2.4), math.round(7))
+print(type_of(math.floor(3.8)) == Int, type_of(math.round(7.0)) == Int)
+print(Int(-3.8), math.round(1234.5678 * 100) / 100.0)
+for value in [math.NAN, math.INF, 1e19] {
+    try {
+        math.floor(value)
+    } catch e: ValueError {
+        print("ValueError", e.message)
+    } catch e: OverflowError {
+        print("OverflowError", e.message)
+    }
+}
+try {
+    math.abs(-9223372036854775807 - 1)
+} catch e: OverflowError {
+    print(e.message)
+}
+
+# Statistics
+var timings = [0.82, 0.79, 1.31, 0.80, 0.85]
+print(math.mean(timings), math.median(timings))
+print("{math.stdev(timings):.4f} {math.percentile(timings, 95):.3f}")
+print(math.percentile(timings, 0), math.percentile(timings, 100), math.percentile(timings, 50) == math.median(timings))
+print(math.mean([1, 2, 3]), math.median([4, 1, 3, 2]), math.median(range(5)))
+print(math.mean({"a": 10, "b": 20}.values()), math.percentile([1, 2, 3, 4], 25))
+print(math.is_nan(math.median([1, math.NAN, 3])))
+var unchanged = [3, 1, 2]
+math.median(unchanged)
+print(unchanged)
+for call in [func() { return math.mean([]) }, func() { return math.median([]) }, func() { return math.stdev([1]) }, func() { return math.percentile([1], 101) }] {
+    try {
+        call()
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+try {
+    math.mean([1, "2"])
+} catch e: TypeError {
+    print(e.message)
+}
+try {
+    math.mean([true])
+} catch e: TypeError {
+    print(e.message)
+}
+
+# Argument errors
+try {
+    math.sqrt("4")
+} catch e: TypeError {
+    print(e.message)
+}
+for base in [1, 0, -2] {
+    try {
+        math.log(8, base=base)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}

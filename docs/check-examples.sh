@@ -23,7 +23,9 @@ run_example "$repo_dir/docs/examples/concurrency-results.goblin"
 run_example "$repo_dir/docs/examples/goblin-handle.goblin"
 run_with_input 'Ada\n1\r\n2\n3' "$repo_dir/docs/examples/input.goblin"
 run_example "$repo_dir/docs/examples/local-module/main.goblin"
+run_example "$repo_dir/docs/examples/math-tasks.goblin"
 run_with_input 'y\nINFO up\nERROR disk full\n' "$repo_dir/docs/examples/os-tasks.goblin" in.txt out.txt
+run_example "$repo_dir/docs/examples/rand-tasks.goblin"
 run_example "$repo_dir/docs/examples/reference-smoke.goblin"
 run_with_input "ok\nerror: disk full\nfine\nerror again\n" "$repo_dir/docs/examples/regex-tasks.goblin" err
 run_example "$repo_dir/docs/examples/time-tasks.goblin"

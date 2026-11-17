@@ -1,6 +1,5 @@
 # Executable coverage for API names and signatures used by short reference chapters.
 import "csv"
-import "uuid"
 import "hash"
 import "base64"
 import "gzip"
@@ -8,8 +7,6 @@ import "gzip"
 var rows = csv.decode("name,score\nAda,10\n")
 csv.encode(rows, sep=";")
 csv.encode(csv.decode_dicts("name,score\nAda,10\n"), columns=["score", "name"])
-
-uuid.UUID("550e8400-e29b-41d4-a716-446655440000").version
 
 var source = "Goblin Goblin Goblin"
 gzip.decompress(gzip.compress(source, level=1))

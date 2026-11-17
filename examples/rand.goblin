@@ -1,25 +1,105 @@
 import "rand"
+import "regex"
 
-print(type_of(rand.int()) == Int)
-print(type_of(rand.int(100)) == Int)
-print(type_of(rand.float()) == Float)
-print(rand.int(1))
+# Unseeded results are checked only for their properties.
+var die = rand.int(1, 7)
+print(type_of(die) == Int, die >= 1 && die < 7)
+var below = rand.int(10)
+print(below >= 0 && below < 10, rand.int(1), rand.int(-3, -2), rand.int(end=1))
+var f = rand.float()
+print(type_of(f) == Float, f >= 0.0 && f < 1.0)
+try {
+    rand.int(5, 5)
+} catch e: ValueError {
+    print(e.message)
+}
 
-var first = rand.Rand(seed=42)
-var second = rand.Rand(seed=42)
-print(type_of(first) == rand.Rand)
-print(first.int(1000) == second.int(1000))
+# choice: one element of any iterable
+print(["a", "b", "c"].contains(rand.choice(["a", "b", "c"])), "xyz".contains(rand.choice("xyz")))
+print(rand.choice([42]), rand.choice(["never", "always"], weights=[0, 3]))
+var drops = {"common": 0, "rare": 0, "epic": 0}
+for i in range(1000) {
+    var drop = rand.choice(["common", "rare", "epic"], weights=[90, 9.5, 0.5])
+    drops[drop] = drops[drop] + 1
+}
+print(drops["common"] > drops["rare"], drops["rare"] > 0)
+for weights in [[1], [1, -1], [0, 0.0]] {
+    try {
+        rand.choice(["a", "b"], weights=weights)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+try {
+    rand.choice([])
+} catch e: ValueError {
+    print(e.message)
+}
 
-var value = first.float()
-print(value >= 0.0)
-print(value < 1.0)
+# sample: count different elements, by position
+var panel = rand.sample(["ada", "bob", "cy", "dee"], 3)
+var distinct = {}
+for person in panel {
+    distinct[person] = true
+}
+print(panel.size, distinct.size)
+var picked = rand.sample(["a", "a", "b"], 3)
+picked.sort()
+print(picked, rand.sample([1, 2], 0))
+for count in [-1, 3] {
+    try {
+        rand.sample([1, 2], count)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
 
-var values = [1, 2, 3]
-first.shuffle(values)
-print(values.size)
-var indexes = first.perm(4)
-indexes.sort()
-print(indexes)
+# shuffle: in place, and returns the List
+var deck = List(range(52))
+var same = rand.shuffle(deck)
+print(same == deck, deck.size, sum(deck))
+try {
+    rand.shuffle("abc")
+} catch e: TypeError {
+    print(e.message)
+}
 
-print(type_of(first.norm_float()) == Float)
-print(first.exp_float() >= 0.0)
+# Secure bytes and ids
+var token = rand.bytes(16)
+print(type_of(token) == Bytes, token.size, token.to_hex().size, rand.bytes(16) != token, rand.bytes(0).size)
+var id = rand.uuid()
+var shape = `[0-9a-f]{8}-[0-9a-f]{4}-[47][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}`
+print(type_of(id) == String, id.size, id[14], regex.find(shape, id, full=true) != nil, rand.uuid() != id)
+var first = rand.uuid(version=7)
+# wait for the next millisecond: ids made in the same one are not ordered
+while rand.uuid(version=7)[:13] == first[:13] {
+}
+var second = rand.uuid(version=7)
+print(first[14], second[14], first < second, regex.find(shape, second, full=true) != nil)
+for version in [1, 5] {
+    try {
+        rand.uuid(version=version)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+try {
+    rand.bytes(-1)
+} catch e: ValueError {
+    print(e.message)
+}
+
+# A seeded generator repeats its sequence
+var fixed = rand.Rand(42)
+print(fixed, type_of(fixed) == rand.Rand)
+print(fixed.int(100), fixed.int(1, 7), fixed.float())
+print(fixed.choice(List(range(10))), fixed.choice([0, 1, 2], weights=[90, 9, 1]))
+print(fixed.sample(List(range(10)), 3), fixed.shuffle(List(range(6))))
+var again = rand.Rand(42)
+print(again.int(100), again == fixed, rand.Rand(42) == rand.Rand(42))
+print(attributes(fixed))
+try {
+    rand.Rand()
+} catch e: TypeError {
+    print(e.message)
+}

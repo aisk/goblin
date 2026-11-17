@@ -21,7 +21,7 @@ exits.
 [1, 2, 3, 4]
 >>> import "math"
 >>> math.sqrt(81)
-9
+9.0
 ~~~
 
 Relative imports are resolved from the directory where the REPL starts, so

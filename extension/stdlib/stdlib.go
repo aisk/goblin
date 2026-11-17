@@ -23,7 +23,6 @@ import (
 	regexExt "github.com/aisk/goblin/extension/regex"
 	timeExt "github.com/aisk/goblin/extension/time"
 	urlExt "github.com/aisk/goblin/extension/url"
-	uuidExt "github.com/aisk/goblin/extension/uuid"
 	"github.com/aisk/goblin/object"
 )
 
@@ -42,7 +41,6 @@ var modules = map[string]object.ModuleExecutor{
 	"regex":  regexExt.Execute,
 	"time":   timeExt.Execute,
 	"url":    urlExt.Execute,
-	"uuid":   uuidExt.Execute,
 }
 
 // Lookup returns the executor of a stdlib module.

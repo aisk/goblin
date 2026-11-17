@@ -213,6 +213,16 @@ func (p *ArgParser) IntOr(name string, def Integer) Integer {
 	return argValueOr(p, name, "Int", def)
 }
 
+// StartEnd reads the (start, end) pair of range() and every function shaped
+// like it (rand.int): start defaults to 0, and a single positional argument
+// with no keywords is end, not start.
+func (p *ArgParser) StartEnd() (start, end Integer) {
+	if len(p.call.Positional)-p.pos == 1 && len(p.call.Keyword) == 0 {
+		return 0, p.Int("end")
+	}
+	return p.IntOr("start", 0), p.Int("end")
+}
+
 // OptionalInt returns an optional Integer and whether it was supplied.
 func (p *ArgParser) OptionalInt(name string) (Integer, bool) {
 	return optionalArgValue[Integer](p, name, "Int")
@@ -314,6 +324,11 @@ func (p *ArgParser) NullableInt(name string) (Integer, bool) {
 // NullableStr returns an optional String argument; see NullableInt.
 func (p *ArgParser) NullableStr(name string) (String, bool) {
 	return nullableArgValue[String](p, name, "String")
+}
+
+// NullableList returns an optional List argument; see NullableInt.
+func (p *ArgParser) NullableList(name string) (*List, bool) {
+	return nullableArgValue[*List](p, name, "List")
 }
 
 // NullableFunc returns an optional Function argument; see NullableInt.

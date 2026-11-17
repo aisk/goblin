@@ -40,7 +40,7 @@ A closed, built-in set. Each one connects a value to a piece of syntax or a buil
 - The properties that make this the right mechanism for syntax are the ones to preserve: one required method derives a whole family that cannot disagree (`compare` gives every ordering operator and `sort`); dependencies are checked (`Ord` needs `Eq`); an empty `impl` of `Eq`/`Ord`/`Hashable`/`Show` is structural; protocol methods never enter the instance namespace, so a user method may be called `add` or `get` without changing what `+` or `[]` does; and a broken `impl` is reported when the type is defined.
 - The set grows only with the language: a new protocol exists because new syntax needs it. The library cannot add one, and neither can user code.
 - A protocol method is reached through its syntax. The two that have none are the global functions `compare(a, b)` and `hash(x)`.
-- **Library value types implement the protocols that make sense for them**, and this is where "learn one type, guess the next" comes from: a time is comparable and subtractable, a path or a UUID is equal-comparable, hashable and printable. Prefer an operator the user already knows to a method they have to look up (`a < b`, not `a.before(b)`), but only where the meaning is the obvious one.
+- **Library value types implement the protocols that make sense for them**, and this is where "learn one type, guess the next" comes from: a time is comparable and subtractable, a path or a URL is equal-comparable, hashable and printable. Prefer an operator the user already knows to a method they have to look up (`a < b`, not `a.before(b)`), but only where the meaning is the obvious one.
 
 ### Library protocols: a method with an agreed name
 
