@@ -83,7 +83,9 @@ mutable default like `[]` produces a fresh value every time.
 
 A `*` parameter collects extra positional arguments, while a `**` parameter
 collects extra named arguments. They receive a list and a dictionary,
-respectively.
+respectively. The dictionary holds the named arguments in the order the call
+gives them, left to right, with a `**`-expanded dictionary contributing its
+entries in its own order.
 
 ```goblin
 func show(first, *rest, **options) {

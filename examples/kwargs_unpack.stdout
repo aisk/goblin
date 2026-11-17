@@ -1,4 +1,9 @@
 red 3 10
+{"zeta": 1, "alpha": 2, "mid": 3}
+{"z": 1, "a": 2, "m": 3, "b": 4}
+["zeta", "alpha"]
+["y", "x"]
+b {"y": 1, "x": 2}
 true
 got multiple values for argument 'color'
 got multiple values for argument 'size'

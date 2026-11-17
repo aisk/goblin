@@ -2,13 +2,29 @@
 # strings, and a name that was already supplied is rejected — the same
 # TypeError in both backends, catchable like any other error.
 func show(**kwargs) {
-    # Print individual keys: dict iteration order is deliberately
-    # nondeterministic, so printing the whole dict would be flaky.
     print(kwargs["color"], kwargs["size"], kwargs["weight"])
 }
 
 var defaults = {"color": "red", "size": 3}
 show(**defaults, weight = 10)
+
+# A ** parameter receives the keywords in the order the call gives them: a
+# Dict's entries in its own order, explicit keywords where they are written,
+# left to right. Parameters named by a keyword are bound, not collected.
+func collect(first, **rest) {
+    return rest
+}
+print(collect(1, zeta = 1, alpha = 2, mid = 3))
+print(collect(1, **{"z": 1, "a": 2}, m = 3, **{"b": 4}))
+print(collect(zeta = 1, first = 0, alpha = 2).keys())
+var method_like = func(self, **opts) { return opts.keys() }
+print(method_like(nil, y = 1, x = 2))
+type Builder(name) {
+    func with(self, **opts) {
+        return "{self.name} {opts}"
+    }
+}
+print(Builder("b").with(y = 1, x = 2))
 
 # Explicit keyword first, then ** supplies the same name again.
 try {

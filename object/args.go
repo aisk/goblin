@@ -1,9 +1,5 @@
 package object
 
-import (
-	"sort"
-)
-
 type Args []Object
 
 // KwArg is one keyword argument, paired with the name it was supplied under.
@@ -182,7 +178,6 @@ func BindArguments(funcName string, params []string, defaults []ParamDefault, va
 	}
 
 	if kwArgsParam != "" {
-		sort.Slice(kwExtras, func(i, j int) bool { return kwExtras[i].Name < kwExtras[j].Name })
 		d := NewDict()
 		for _, kw := range kwExtras {
 			if err := d.Set(String(kw.Name), kw.Value); err != nil {
