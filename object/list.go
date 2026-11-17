@@ -342,6 +342,15 @@ func (l *List) Iter() ([]Object, error) {
 }
 
 func (l *List) Index(index Object) (Object, error) {
+	// A non-negative in-range Int, the common case, skips the general
+	// resolution, which keeps this small enough to inline into callers.
+	if i, ok := index.(Integer); ok && i >= 0 && int64(i) < int64(len(l.Elements)) {
+		return l.Elements[i], nil
+	}
+	return l.index(index)
+}
+
+func (l *List) index(index Object) (Object, error) {
 	idx, err := indexArg("List", index)
 	if err != nil {
 		return nil, err
@@ -354,6 +363,14 @@ func (l *List) Index(index Object) (Object, error) {
 }
 
 func (l *List) SetIndex(index Object, value Object) (bool, error) {
+	if i, ok := index.(Integer); ok && i >= 0 && int64(i) < int64(len(l.Elements)) {
+		l.Elements[i] = value
+		return true, nil
+	}
+	return l.setIndex(index, value)
+}
+
+func (l *List) setIndex(index Object, value Object) (bool, error) {
 	idx, err := indexArg("List", index)
 	if err != nil {
 		return true, err
