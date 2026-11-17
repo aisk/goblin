@@ -95,7 +95,7 @@ scratch directory.
 | `mkdir(path)` | `nil` | Creates the directory and any missing parents (mode `0o755`). An existing directory is fine |
 | `mkdir_temp(prefix="")` | Path | A new, uniquely named directory under `temp_dir()`; the caller removes it |
 | `remove(path, recursive=false)` | `nil` | Removes a file, a symlink (not its target) or an empty directory; a non-empty directory needs `recursive=true`. Removing what is already absent succeeds |
-| `copy(src, dst)` | `nil` | `dst` is the new path itself. A file is copied with its permission bits, replacing an existing file; a directory is copied as a tree and `dst` must not exist |
+| `copy(src, dst)` | `nil` | `dst` is the new path itself. A file is copied with its permission bits, replacing an existing file; a directory is copied as a tree, `dst` must not exist and must not be inside `src` |
 | `move(src, dst)` | `nil` | Renames; `dst` is the new path itself and an existing file there is replaced. Across file systems it copies, then removes |
 | `chmod(path, mode)` | `nil` | Sets permission bits, an Int from `0` to `0o777` such as `0o755` |
 | `resolve(path)` | Path | The absolute form: joined onto `cwd()`, cleaned, symlinks resolved. A path that does not exist is still made absolute |
@@ -165,7 +165,10 @@ try {
 `remove() directory "dir" is not empty (pass recursive=true)`; `mkdir` raises
 ExistError when a file that is not a directory is in the way; `copy` and `move`
 raise ExistError when `dst` is a directory (or, when copying a directory, when
-`dst` exists at all).
+`dst` exists at all). Copying a directory to a path inside itself, such as
+`fs.copy(".", "dist/pkg")`, raises IOError
+`copy() cannot copy "." into itself ("dist/pkg")` with `e.path` set to `dst`,
+before anything is written.
 
 ## Path
 

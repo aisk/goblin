@@ -1,6 +1,7 @@
 package object
 
 import (
+	"errors"
 	"math"
 	"testing"
 )
@@ -163,10 +164,12 @@ func TestListConstructorDistinguishesOmittedAndExplicitNil(t *testing.T) {
 	if _, err := ListConstructor(CallArgs{}); err != nil {
 		t.Fatalf("List() failed: %v", err)
 	}
-	if _, err := ListConstructor(CallArgs{Positional: Args{Nil}}); err == nil {
-		t.Fatal("List(nil) should reject a non-iterable argument")
+	_, err := ListConstructor(CallArgs{Positional: Args{Nil}})
+	if err == nil || !errors.Is(err, TypeError) || err.Error() != "List() argument 'iterable' must be iterable, got Nil" {
+		t.Fatalf("List(nil) = %v, want the not-iterable TypeError", err)
 	}
 }
+
 
 func TestListFunctionalMethods(t *testing.T) {
 	list := &List{Elements: []Object{Integer(1), Integer(2), Integer(3), Integer(4)}}

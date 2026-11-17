@@ -110,6 +110,9 @@ func failure(f) {
 failure(func() { fs.read("missing.txt") })
 failure(func() { fs.remove(scratch.join("docs")) })
 failure(func() { fs.copy(scratch.join("docs"), scratch.join("docs-backup")) })
+fs.mkdir(scratch.join("site/build"))
+failure(func() { fs.copy(scratch.join("site"), scratch.join("site/build/out")) })
+print(fs.exists(scratch.join("site/build/out")))
 failure(func() { fs.Path("a").with_suffix("txt") })
 failure(func() { fs.File() })
 try {
@@ -138,4 +141,10 @@ try {
     }
 } catch e: ValueError {
     print(e.path.name, e.line)
+}
+# Collecting a lazy value into a List raises what the iteration raised.
+try {
+    List(fs.read_lines(scratch.join("nope.txt")))
+} catch e: NotExistError {
+    print(e.path.name, e.is(TypeError))
 }

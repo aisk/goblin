@@ -590,9 +590,9 @@ func ListConstructor(args CallArgs) (Object, error) {
 	if !supplied {
 		return &List{Elements: []Object{}}, nil
 	}
-	elements, err := Collect(iterable)
+	elements, err := CollectArg("List", "iterable", iterable)
 	if err != nil {
-		return nil, NewTypeError("List() argument is not iterable: %s", err)
+		return nil, err
 	}
 	return &List{Elements: elements}, nil
 }

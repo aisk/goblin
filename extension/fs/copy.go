@@ -6,6 +6,7 @@ import (
 	stdfs "io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/aisk/goblin/object"
@@ -48,6 +49,9 @@ func copyAny(fn, src, dst string) error {
 		if dstErr == nil {
 			return kindError(object.ExistError, fn, "already exists", dst)
 		}
+		if within(src, dst) {
+			return pathError(object.IOError, dst, "%s() cannot copy %s into itself (%s)", fn, quote(src), quote(dst))
+		}
 		return copyTree(fn, src, dst, info)
 	}
 	if dstErr == nil {
@@ -84,9 +88,39 @@ func copyFile(fn, src, dst string, perm os.FileMode) error {
 	return nil
 }
 
-// copyTree copies the directory src to the new path dst. Its entries are
-// listed before dst is created, so copying a directory into itself stops.
-// Symbolic links are copied as links.
+// within reports whether the not yet existing path dst is the directory src
+// or lies below it, once both are made absolute and their symbolic links
+// resolved. A copy there would descend into what it is writing.
+func within(src, dst string) bool {
+	from, err := realPath(src)
+	if err != nil {
+		return false
+	}
+	absDst, err := filepath.Abs(dst)
+	if err != nil {
+		return false
+	}
+	parent, err := realPath(filepath.Dir(absDst))
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(from, filepath.Join(parent, filepath.Base(absDst)))
+	if err != nil {
+		return false
+	}
+	return rel == "." || (rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)))
+}
+
+func realPath(path string) (string, error) {
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", err
+	}
+	return filepath.EvalSymlinks(abs)
+}
+
+// copyTree copies the directory src to the new path dst. Symbolic links are
+// copied as links.
 func copyTree(fn, src, dst string, info stdfs.FileInfo) error {
 	entries, err := os.ReadDir(src)
 	if err != nil {

@@ -436,11 +436,23 @@ func TestCopyMoveChmod(t *testing.T) {
 		t.Fatal("directory copy is missing a nested file")
 	}
 	callErr(t, object.ExistError, "already exists", "copy", []object.Object{str(filepath.Join(dir, "a")), str(filepath.Join(dir, "a2"))})
-	// Copying a directory into itself stops at what was there.
-	call(t, "copy", str(filepath.Join(dir, "a")), str(filepath.Join(dir, "a", "inner")))
-	if _, err := os.Stat(filepath.Join(dir, "a", "inner", "inner")); !os.IsNotExist(err) {
-		t.Fatal("copying a directory into itself recursed")
+	// Copying a directory into its own tree, at any depth, is refused
+	// before anything is written.
+	for _, into := range []string{
+		filepath.Join(dir, "a", "inner"),
+		filepath.Join(dir, "a", "deep", "out"),
+		filepath.Join(dir, "a", "deep", "..", "deep", "out"),
+	} {
+		callErr(t, object.IOError, "into itself", "copy", []object.Object{str(filepath.Join(dir, "a")), str(into)})
+		if _, err := os.Stat(into); !os.IsNotExist(err) {
+			t.Fatalf("refused copy into itself still created %s", into)
+		}
 	}
+	if path := errorPath(t, "copy", str(filepath.Join(dir, "a")), str(filepath.Join(dir, "a", "inner"))); path != filepath.Join(dir, "a", "inner") {
+		t.Fatalf("copy into itself carries path %q", path)
+	}
+	// A sibling whose name starts with the source's is not inside it.
+	call(t, "copy", str(filepath.Join(dir, "a")), str(filepath.Join(dir, "ab")))
 
 	moved := filepath.Join(dir, "a2", "moved.txt")
 	call(t, "move", str(copied), str(moved))
