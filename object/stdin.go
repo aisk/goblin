@@ -31,7 +31,10 @@ func ReadLine(r *bufio.Reader) (line string, ok bool, err error) {
 	if err == io.EOF && text == "" {
 		return "", false, nil
 	}
-	text = strings.TrimSuffix(text, "\n")
-	text = strings.TrimSuffix(text, "\r")
+	// Only "\n" and "\r\n" end a line, as String.lines() has it: a lone
+	// "\r" at the end of the stream is part of the last line.
+	if strings.HasSuffix(text, "\n") {
+		text = strings.TrimSuffix(text[:len(text)-1], "\r")
+	}
 	return text, true, nil
 }
