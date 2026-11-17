@@ -14,6 +14,7 @@ Two migrations are decided and in progress; write new code as if they were compl
 The standard library is small, high quality and built for the person writing the script.
 
 - **Designed from tasks, not from packages.** Start from the programs people actually write (read a file, parse JSON, make a request, run a command, walk a directory, handle a time, match a pattern, read arguments), write the code you would want to write, and derive the API from that code. A member that appears in no realistic program is not added.
+- **The task list is the design input, and a timid one makes a dry library.** Each module's design starts with the list of everyday scripts it serves, and that list is reviewed before any member is. Few members is fine: `json` is two functions because its task is two directions. A task that cannot be finished is a bug in the design: logging in and then fetching a page, reading a `.gz` log larger than memory, showing a time in another zone. Ask of every module "which ordinary script can a user not complete with this?", and widen the task list rather than adding members for their own sake.
 - **Documentation first.** Write the Goblin Book chapter before the implementation. Whatever reads awkwardly there is an API problem, and that is the cheapest moment to fix it.
 - **A budget, not a backlog.** Smallness comes from refusing, not from pruning later. A new member has to say what it does better than a combination of existing ones; a new module has to say which task it makes possible.
 - **Go is the substrate, not the model.** Modules are implemented on the Go standard library (or near-standard packages: `golang.org/x/*`, or de-facto standards with a stable API; anything else needs review). Take Go's *semantics* for edge cases — Unicode case mapping, path cleaning, URL escaping, number precision — because they are settled and the implementation sits on them anyway. Do not take Go's *names or shapes*: those were formed by constraints Goblin does not have (no default arguments, no exceptions, static types, `string`/`[]byte` twins, flag bitmasks). Familiarity from Go, POSIX or Python is not a reason to keep a name.
@@ -74,10 +75,16 @@ Everything a user calls is an ordinary method on a concrete type or a function i
   - `fs` is the one module for files and paths: `Path` lives in it, there is no separate `path` module, and file-system locations (`cwd`, `home`, `temp_dir`) are `fs` functions rather than `os` ones.
   - A value type must not grow methods named like a library protocol of §2 unless it is that thing: a `Path` with a `write` method would be accepted wherever a writable stream is.
   - A parameter that already means data does not also accept a path. `json.decode(data)` and `csv.decode(data)` take data or a readable object; reading the file is the caller's `fs.read(path)`.
+- **Building blocks before conveniences.** When unsure, ship the lower-level piece and let the user compose it. A convenience is left out when it does work the caller cannot see (opening and closing a file named by a String inside an upload), decides a policy for them (whether and which requests to retry), or carries a rule that has to be memorized (resolving a request path against a base URL). The explicit form is a few more lines the reader can follow: `fs.open` plus `defer`, a retry loop with `catch` and `time.sleep`, an interpolated URL. A convenience can be added later without breaking anything; a policy that shipped cannot be taken back.
+  - This is not a licence to leave tasks unfinishable. State the library must keep for a task to work at all is part of the object, not a convenience: a `Client` remembers cookies, because otherwise "log in, then request" means parsing and replaying headers by hand.
+  - The one-call functions of the first rule are the deliberate exception, and their names say what they do: `fs.read(path)` opens, reads and closes.
+- **No type that is only a bag of arguments.** A type earns its place by having an algebra (a path, a URL), or state and a lifetime (a file, a client, a response). A set of options for one call is keyword arguments, and when it has to travel as a value it is a Dict expanded with `**`: `http.request(**options)`. A client-side `Request` object would only give that Dict a second spelling.
 - **An object when the task needs control.** The object-level API of a module is the thing that has state and a lifetime (`File`, `Command`, `Client`, `Response`), obtained from a module function and released with `close()` where it holds a resource.
 - **Value-shaped domains stay as plain functions** (`math`, `base64`).
 - **One home per operation.** The same operation is not offered as a global, a module function and a method at once. Pick the place a user would look first and delete the others. An operation that has syntax or a constructor has no method twin (`s * n`, not also `s.repeat(n)`; `a < b`, not also `a.compare(b)`); when an operator and a method would do the same job, keep one.
 - **Lenient when harmless, explicit when destructive.** A non-destructive operation defaults to the forgiving behaviour (`fs.mkdir` creates missing parents and accepts an existing directory); a destructive one requires the dangerous part to be written out (`fs.remove(path, recursive=true)`).
+- **Raise by default where the alternative is a silently wrong result.** When an operation completes but its outcome says the task failed (a command exits non-zero, a server answers 404), the default is to raise an error carrying the facts (§7), and the same keyword everywhere, `check=false`, hands the outcome back for the caller to inspect. Without it `http.get(url).json()` parses an error page and `fs.write(path, http.get(url))` saves one as the download.
+- **Names that may repeat: a plain lookup for the common case, a method for all of them.** Where a name usually has one value but may have several (HTTP headers), the collection is an ordinary Dict with one value per name, and a method returns every value as a List (`response.header_values("set-cookie")`). On the sending side a List value sends the name once per element.
 - **The return type never depends on a boolean keyword.** Text and bytes are separate functions (`fs.read` returns a String, `fs.read_bytes` Bytes); where the input already carries the distinction, one function is enough (`fs.write` takes either, or a readable stream, which is what makes "download to a file" one call).
 - **Build with the language's own features.** These, not traits, are what make a Goblin API feel native:
   - *Keyword arguments with defaults* replace function families (below).
@@ -91,7 +98,7 @@ Everything a user calls is an ordinary method on a concrete type or a function i
 ### One function, not a family
 
 - The common case works with required positional arguments alone: `s.split(sep)`.
-- Variations are optional keyword arguments whose defaults give the plain behaviour: `s.split(sep, count=nil)`, `gzip.compress(data, level=gzip.DEFAULT_COMPRESSION)`.
+- Variations are optional keyword arguments whose defaults give the plain behaviour: `s.split(sep, count=nil)`, `gzip.compress(data, level=nil)`.
 - An absent limit is `nil`, never a sentinel such as `-1`: `count=nil` means "no limit", and a negative `count` raises ValueError.
 - Never expose `foo` and `foo_with_bar` side by side when a keyword argument can express the difference.
 - Collapse configuration, not concepts. When two functions differ in *what* they do rather than in a knob, they stay separate: `url.query_escape` and `url.path_escape` apply different rules to different parts of a URL, and `escape(s, mode=...)` would trade two self-describing names for a stringly-typed enum.
@@ -115,6 +122,7 @@ A member that takes no arguments is either a property (`p.name`) or a nullary me
 - **Case.** Functions, methods, properties and keywords are `snake_case`; types are `Capitalized`; module-level constants are `UPPER_CASE` with no exceptions for tradition (`math.PI`).
 - **Underscores mark every word boundary**: `get_env`, `read_dir`, `temp_dir`, never `getenv`, `iterdir`, `tempdir`. The failure this prevents is unpredictability: beside `read_dir` and `has_prefix`, a run-together name has to be memorized on its own.
 - **Abbreviations are fine when they are the word programmers actually use** (`env`, `dir`, `temp`, `pid`, `cwd`, `stat`, `args`); spelling them out helps nobody. Ones that are not self-evident get spelled out (`is_ipv4`, not `is4`; `modified_at`, not `mod_time`).
+- **A module name is one lower-case word that does not get in the user's way.** It must not be the name users naturally give a variable next to it (`cli`, not `args`: `var args = …` would collide with the import), and should not hide a global function (`import "hash"` hides `hash(x)` in that file; a known wart to fix by renaming the module).
 - **One spelling per concept**, across the whole library: `dir` and never `directory`, `temp` and never `tmp`, `remove` and never `del`. This includes type names: a type has one name, used by its constructor, by error messages and by the documentation.
 - **One verb per concept, on every type.**
 
@@ -168,6 +176,7 @@ Some domains are too abstraction-heavy to offer simply (server-side HTTP, reflec
 
 - Offer the simple, useful part and skip the rest, rather than shipping a distorted or half-faithful abstraction.
 - Call out every deliberate omission in the PR description and, when a user would notice, in the module's Goblin Book chapter.
+- **Leaving something out must not close the door on it.** Check that today's names and shapes leave room for the omitted part: the HTTP client keeps the name `Request` free and its header, query and body conventions symmetrical, so that a server can later share one `Request` type with it instead of forcing a redesign.
 - A wrong abstraction shipped is worse than a missing one. With no second tier to fall back on, "not in the library" is the default answer.
 
 ## 10. Open language gaps
@@ -189,7 +198,7 @@ Closed by the language, so no module should offer its own version:
 
 1. Write the programs it is for, then the Goblin Book chapter, before any Go (§1).
 2. Justify the module and each member against the budget (§1).
-3. Decide the shape: a one-call path for the common task, plain functions or a central type (§3).
+3. Decide the shape: a one-call path for the common task, plain functions or a central type (§3). Re-read the task list and ask which ordinary script still cannot be completed (§1); then strike every convenience that hides work or decides a policy (§3).
 4. Give its value types the language protocols that fit, and accept the library protocols of §2 instead of concrete types where a stream or resource is expected.
 5. Decide property versus method for every argument-free member (§4).
 6. Check every name and keyword against §5, and collapse families into keyword arguments (§3).
