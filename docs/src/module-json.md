@@ -33,7 +33,7 @@ for event in events {
 }
 
 # Values JSON has no form for: choose the form where you encode
-var entry = {"file": String(path), "at": started.format("2006-01-02"), "size": size}
+var entry = {"file": String(path), "at": started.format("%Y-%m-%d"), "size": size}
 fs.write("entry.json", json.encode(entry))
 
 # Straight from a stream

@@ -1,41 +1,162 @@
 import "time"
 
-# Parse a date from a string
-var t = time.parse("2006-01-02", "2026-07-02")
-print(t.year)
-print(t.month)
-print(t.day)
-print(t.weekday)
+# Every value printed here is in a named zone or UTC, so the output does not
+# depend on the machine's zone.
 
-# Format a time
-print(t.format("2006/01/02"))
+# Build a wall-clock time in a zone, and read it back
+var meeting = time.Time(2026, 7, 19, hour=9, minute=30, zone="America/New_York")
+print(meeting)
+print(meeting.year, meeting.month, meeting.day, meeting.hour, meeting.minute, meeting.second)
+print(meeting.weekday, meeting.format("%A"))
+print(meeting.zone, meeting.offset, meeting.offset / time.HOUR)
+print(meeting.unix, meeting.nanosecond)
+print(type_of(meeting) == time.Time)
 
-# Create time from Unix timestamp (epoch)
-var epoch = time.unix(0)
-print(epoch.year)
+# The same instant in other zones
+print(meeting.to_zone("Asia/Shanghai"))
+print(meeting.to_zone("Europe/Paris").format("%H:%M %Z"))
+print(meeting.to_utc(), meeting.to_utc().zone)
+print(meeting.to_utc() == meeting.to_zone("UTC"))
+print(meeting.to_zone("+05:30").zone, meeting.to_zone("+05:30"))
+print(meeting.to_zone("local").zone)
 
-# Compare two times
-var t1 = time.parse("2006-01-02", "2025-01-01")
-var t2 = time.parse("2006-01-02", "2026-01-01")
-print(t1 < t2)
+# Equality, ordering and hashing compare instants, whatever the zones
+var shanghai = meeting.to_zone("Asia/Shanghai")
+print(shanghai == meeting, shanghai < meeting + 1)
+var seen = {meeting: "meeting"}
+print(seen[shanghai])
 
-# Construct a time from calendar components
-var built = time.Time(2026, 7, 19, hour=9, minute=30)
-print(built.format("2006-01-02 15:04"))
-print(type_of(built) == time.Time)
+# Layouts are strftime directives; everything else is literal text
+var t = time.Time(2026, 7, 5, hour=15, minute=4, second=5, zone="+08:00")
+print(t.format("%Y-%m-%d %H:%M:%S"))
+print(t.format("%y|%e|%I %p|%j|%a %b|%B"))
+print(t.format("%z %Z"))
+print(t.format("%G-W%V"), time.Time(2027, 1, 1, zone="UTC").format("%G-W%V"))
+print(t.format("2006 Jan: 100%% on %d.%m."))
+print((t + 0.25).format("%S.%f"), (t + 0.25).format())
+print(t.format(), t.format(nil))
+print("{t:>30}|")
+print("[{t.format(`%H:%M`):>8}]")
 
-# Times are hashable, so equal instants are one dict key
-var events = {time.Time(2026, 7, 19): "launch"}
-print(events[time.Time(2026, 7, 19)])
+# Parsing: ISO 8601 by default, a layout otherwise, zone= for text without an offset
+print(time.parse("2026-07-19", zone="UTC"))
+print(time.parse("2026-07-19T09:30", zone="Asia/Tokyo"))
+print(time.parse("2026-07-19 09:30:15.250", zone="UTC"))
+print(time.parse("2026-07-19T13:30:00Z").zone)
+var offset = time.parse("2026-07-19T09:30:00+08:00", zone="UTC")
+print(offset, offset.zone)
+print(time.parse("19/07/2026 14:05", layout="%d/%m/%Y %H:%M", zone="Europe/Paris"))
+print(time.parse("Sun, 19 Jul 2026 13:30:00 GMT", layout="%a, %d %b %Y %H:%M:%S GMT", zone="UTC"))
+print(time.parse("3:15 pm", layout="%I:%M %p", zone="UTC"))
+print(time.parse("2026-07-19 -0330", layout="%Y-%m-%d %z").zone)
 
-# Arithmetic counts in seconds: shifting gives a Time, and the difference of
-# two times is a Float number of seconds
-var start = time.Time(2026, 7, 19, hour=9, minute=30)
-print((start + 90).format("15:04:05"), (1.5 + start).format("15:04:05.000"))
-print((start - 3600).hour)
-print(start + 7200 - start)
+# Bad data is a ParseError carrying the text and the layout
+for text in ["19/07", "31/06/2026"] {
+    try {
+        time.parse(text, layout="%d/%m/%Y")
+    } catch e: ParseError {
+        print(e.message, "|", e.text, "|", e.layout)
+    }
+}
+try {
+    time.parse("July 19")
+} catch e: ParseError {
+    print(e.message, "|", e.text, "|", e.layout)
+}
+
+# A mistake in a layout or a zone is a ValueError
+for layout in ["%Y %Q", "%Y %Z", "%G", "50%"] {
+    try {
+        time.parse("2026", layout=layout)
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+try {
+    t.format("%Q")
+} catch e: ValueError {
+    print(e.message)
+}
+try {
+    t.to_zone("Asia/Shangai")
+} catch e: ValueError {
+    print(e.message)
+}
+try {
+    time.Time(2026, 1, 1, zone="Local")
+} catch e: ValueError {
+    print(e.message)
+}
+try {
+    time.parse("2026-01-01", zone="")
+} catch e: ValueError {
+    print(e.message)
+}
+
+# The constructor rolls over: calendar steps
+var launch = time.Time(2026, 12, 31, hour=9, zone="UTC")
+print(time.Time(launch.year, launch.month + 1, 1, zone="UTC"))
+print(time.Time(2026, 3, 0, zone="UTC").day)
+print(time.Time(launch.year, launch.month, launch.day + 7, hour=launch.hour, zone=launch.zone))
+
+# Arithmetic in seconds: shifting keeps the zone; the difference is a Float
+var start = time.Time(2026, 7, 19, hour=9, minute=30, zone="Europe/Paris")
+print(start + 90, 1.5 + start, start - time.HOUR)
+print(start + 2 * time.HOUR - start, time.MINUTE, time.DAY)
 try {
     print(start + "soon")
-} catch e {
-    print(e)
+} catch e: TypeError {
+    print(e.message)
 }
+
+# Daylight saving in New York: forward on 2026-03-08, back on 2026-11-01
+var before = time.Time(2026, 3, 8, hour=1, minute=59, second=59, zone="America/New_York")
+print(before, before.format("%Z"), before + 1, (before + 1).format("%Z"))
+var noon = time.Time(2026, 3, 8, hour=12, zone="America/New_York")
+print(noon - time.Time(2026, 3, 7, hour=12, zone="America/New_York"))
+print(noon.start_of_day(), (noon - time.DAY) + time.DAY == noon)
+print(time.Time(2026, 3, 7, hour=12, zone="America/New_York") + time.DAY)
+var first = time.parse("2026-11-01T01:30:00-04:00").to_zone("America/New_York")
+print(first, first + time.HOUR, first.format("%Z"), (first + time.HOUR).format("%Z"))
+var autumn = time.Time(2026, 11, 1, hour=12, zone="America/New_York")
+print((autumn - autumn.start_of_day()) / time.HOUR)
+
+# Whole days between two dates, whatever the hours
+var checkin = time.Time(2026, 7, 19, hour=15, zone="Asia/Shanghai")
+var checkout = time.Time(2026, 7, 23, hour=11, zone="Asia/Shanghai")
+print((checkout.start_of_day() - checkin.start_of_day()) / time.DAY)
+
+# Group by day
+var per_day = {}
+for at in [1784424615, 1784428215, 1784520000] {
+    var day = time.unix(at).to_utc().start_of_day()
+    per_day[day] = per_day.get(day, default=0) + 1
+}
+for day, count in per_day.items() {
+    print(day.format("%Y-%m-%d"), count)
+}
+
+# Unix timestamps
+print(time.unix(0).to_utc(), time.unix(1.5).to_utc(), time.unix(0).zone)
+print(time.unix(-0.25).to_utc(), time.unix(-0.25).unix)
+try {
+    time.unix(1e300)
+} catch e: ValueError {
+    print(e.message)
+}
+
+# The clock
+var clock_start = time.now()
+time.sleep(0)
+print(time.now() - clock_start >= 0, time.now().zone)
+try {
+    time.sleep(-1)
+} catch e: ValueError {
+    print(e.message)
+}
+
+# A Time is always truthy and has no text of its own after ':'
+if time.unix(0) {
+    print("truthy")
+}
+print(attributes(t))

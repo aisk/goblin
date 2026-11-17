@@ -1,0 +1,161 @@
+# The common tasks of the time chapter, checking their own results. Values
+# that depend on the clock are checked by shape; everything else uses fixed
+# instants in named zones, so this passes in any zone.
+import "fs"
+import "math"
+import "time"
+
+func expect(got, want) {
+    if got != want {
+        raise Error("got {got}, want {want}")
+    }
+}
+
+func expect_true(cond, what) {
+    if !cond {
+        raise Error("not true: {what}")
+    }
+}
+
+var dir = fs.mkdir_temp(prefix="goblin-time-")
+defer fs.remove(dir, recursive=true)
+
+# Timestamps
+expect(time.now().zone, "local")
+expect(time.now().format("%Y-%m-%d %H:%M").size, 16)
+var stamp = time.now().format("%Y%m%d")
+var name = "backup-{stamp}.tar"
+expect(name.size, 19)
+var line = "[{time.now().format(`%H:%M:%S`)}] started"
+expect(line.size, 18)
+expect(time.now().to_utc().zone, "UTC")
+expect(String(time.now().to_utc()).has_suffix("Z"), true)
+
+# How long did it take
+func build() {
+    time.sleep(0.01)
+}
+var started = time.now()
+build()
+var took = time.now() - started
+expect_true(took >= 0.01 && took < 5, "build took {took:.1f} seconds")
+
+# Dates from data
+var due = time.parse("2026-08-01", zone="UTC")
+var posted = time.parse("19/07/2026 14:05", layout="%d/%m/%Y %H:%M", zone="UTC")
+expect(String(posted), "2026-07-19T14:05:00Z")
+var as_of = time.Time(2026, 8, 4, hour=12, zone="UTC")
+expect("overdue by {(as_of - due) / time.DAY:.0f} days", "overdue by 4 days")
+
+# A column of dates, some of them wrong
+var not_dates = []
+func read_date(text) {
+    try {
+        return time.parse(text, layout="%d/%m/%Y", zone="UTC")
+    } catch e: ParseError {
+        not_dates.push(e.text)
+        return nil
+    }
+}
+expect(["19/07/2026", "07/19/2026", "soon"].map(read_date), [time.Time(2026, 7, 19, zone="UTC"), nil, nil])
+expect(not_dates, ["07/19/2026", "soon"])
+
+# Relative times
+fs.write(dir.join("cache.json"), `{}`)
+var last_week = time.now() - 7 * time.DAY
+var stale = fs.stat(dir.join("cache.json")).modified_at < last_week
+expect(stale, false)
+
+# What time is that for someone else
+var meeting = time.Time(2026, 7, 19, hour=9, minute=30, zone="America/New_York")
+expect(String(meeting.to_zone("Asia/Shanghai")), "2026-07-19T21:30:00+08:00")
+expect(meeting.to_zone("Europe/Paris").format("%H:%M %Z"), "15:30 CEST")
+expect([meeting.zone, meeting.offset / time.HOUR], ["America/New_York", -4])
+var record_at = meeting.to_utc().format("%Y-%m-%dT%H:%M:%SZ")
+expect(record_at, "2026-07-19T13:30:00Z")
+
+# A time an API gave in UTC, shown to the person at this computer
+var shown = time.parse("2026-07-19T13:30:00Z").to_zone("local")
+expect(shown.zone, "local")
+expect(shown, time.parse("2026-07-19T13:30:00Z"))
+
+# Times in data that do not say their zone
+var record = {"created": "2026-07-19T08:00:00"}
+var last_modified = "Sun, 19 Jul 2026 13:30:00 GMT"
+var opened = time.parse("2026-07-19 09:00", zone="Europe/Paris")
+var logged = time.parse(record["created"], zone="UTC")
+var changed = time.parse(last_modified, layout="%a, %d %b %Y %H:%M:%S GMT", zone="UTC")
+expect([String(opened), String(logged), String(changed)], ["2026-07-19T09:00:00+02:00", "2026-07-19T08:00:00Z", "2026-07-19T13:30:00Z"])
+
+# A zone from settings, which may be misspelt
+var zone_errors = []
+func show(t, zone) {
+    try {
+        return t.to_zone(zone).format("%Y-%m-%d %H:%M")
+    } catch e: ValueError {
+        zone_errors.push(e.message)
+        return t.format("%Y-%m-%d %H:%M")
+    }
+}
+expect(show(meeting, "Asia/Shanghai"), "2026-07-19 21:30")
+expect(show(meeting, "Asia/Shangai"), "2026-07-19 09:30")
+expect(zone_errors, [`to_zone() unknown time zone "Asia/Shangai"`])
+
+# Today, and what happened on which day
+var today = time.now().start_of_day()
+fs.write(dir.join("report.html"), "<p>")
+var fresh = fs.stat(dir.join("report.html")).modified_at >= today
+expect(fresh, true)
+var events = [{"at": 1784424615}, {"at": 1784428215}, {"at": 1784520000}]
+var per_day = {}
+for event in events {
+    var day = time.unix(event["at"]).to_zone("UTC").start_of_day()
+    per_day[day] = per_day.get(day, default=0) + 1
+}
+expect(per_day.values(), [2, 1])
+expect(String(per_day.keys()[0]), "2026-07-19T00:00:00Z")
+
+# Whole days between two dates, whatever the hours
+var checkin = time.Time(2026, 7, 19, hour=15, zone="Europe/Paris")
+var checkout = time.Time(2026, 7, 23, hour=11, zone="Europe/Paris")
+var nights = math.round((checkout.start_of_day() - checkin.start_of_day()) / time.DAY)
+expect(nights, 4)
+
+# Calendar values and calendar steps: the constructor rolls over
+var launch = time.Time(2026, 7, 19, hour=9, minute=30, zone="Asia/Tokyo")
+expect(launch.weekday >= 6, true)
+var next_month = time.Time(launch.year, launch.month + 1, 1, zone="UTC")
+var month_end = time.Time(launch.year, launch.month + 1, 0, zone="UTC")
+var same_time_next_week = time.Time(launch.year, launch.month, launch.day + 7, hour=launch.hour, minute=launch.minute, zone=launch.zone)
+expect([String(next_month), month_end.day, String(same_time_next_week)], ["2026-08-01T00:00:00Z", 31, "2026-07-26T09:30:00+09:00"])
+
+# Which week is it
+expect(launch.format("%G-W%V"), "2026-W29")
+
+# Unix timestamps from and for an API
+var payload = {"created": 1784424615}
+var created = time.unix(payload["created"])
+expect(String(created.to_utc()), "2026-07-19T01:30:15Z")
+var expires = (time.now() + time.HOUR).unix
+expect_true(expires - time.now().unix >= 3599, "expires in an hour")
+
+# Retry with a pause
+var calls = 0
+func fetch() {
+    calls = calls + 1
+    if calls < 3 {
+        raise IOError("not yet")
+    }
+    return "data"
+}
+func fetch_with_retry() {
+    for attempt in range(3) {
+        try {
+            return fetch()
+        } catch e: IOError {
+            time.sleep(0.01)
+        }
+    }
+    raise Error("gave up after 3 attempts")
+}
+expect(fetch_with_retry(), "data")

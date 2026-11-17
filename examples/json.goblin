@@ -37,7 +37,7 @@ print(fs.read(events_path).lines().size)
 
 # Values JSON has no form for: choose the form where you encode
 var started = time.unix(400 * 86400)
-var entry = {"file": String(config_path.name), "at": started.format("2006-01-02"), "size": 3}
+var entry = {"file": String(config_path.name), "at": started.to_utc().format("%Y-%m-%d"), "size": 3}
 print(json.encode(entry))
 
 # Straight from a stream: anything with read(size), such as an open File

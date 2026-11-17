@@ -27,7 +27,7 @@ needed.
 | [fs](./module-fs.md) | Files, directories and path names | read(), write(), Path() |
 | [os](./module-os.md) | Arguments, environment, standard streams, exit | args, env, stdin, exit() |
 | [exec](./module-exec.md) | Run other programs | run(), capture(), start() |
-| [time](./module-time.md) | Work with time and durations | now(), sleep(), parse() |
+| [time](./module-time.md) | Instants, the clock, time zones, sleeping | now(), parse(), Time(), sleep() |
 | [rand](./module-rand.md) | Generate reproducible random values and permutations | Rand(), int(), shuffle() |
 | [math](./module-math.md) | Numeric constants and functions | pi, sqrt(), pow(), abs() |
 | [http](./module-http.md) | HTTP client: requests, sessions, uploads, streamed bodies | get(), post(), Client(), multipart() |
