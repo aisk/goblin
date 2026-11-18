@@ -1,0 +1,42 @@
+import "os"
+
+# os.exit runs the deferred calls of every function on the way out, then
+# those of the file, and no catch clause sees it.
+func note(text) {
+    print(text)
+}
+
+defer note("module: first deferred, runs last")
+defer note("module: second deferred")
+
+func inner() {
+    defer note("inner: deferred")
+    try {
+        defer note("inner: deferred inside try")
+        os.exit(3)
+    } catch e: ValueError {
+        note("unreachable: typed catch")
+    } catch e {
+        note("unreachable: bare catch")
+    }
+    note("unreachable: after try")
+}
+
+func outer() {
+    for i in range(0, 2) {
+        defer note("outer: deferred {i}")
+    }
+    try {
+        inner()
+    } catch e {
+        note("unreachable: outer catch")
+    }
+    note("unreachable: after inner")
+}
+
+try {
+    outer()
+} catch e {
+    note("unreachable: module catch")
+}
+note("unreachable: end of file")

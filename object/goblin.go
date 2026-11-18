@@ -109,7 +109,9 @@ var SpawnFn = &Function{Name: "spawn", Fn: Spawn}
 // reaches fn. A Go-level panic inside the function is contained and surfaces
 // as an InternalError from wait(), matching how the top-level runtime reports
 // panics, instead of killing the process. An error nobody waits for is
-// reported by ReportUnwaitedErrors.
+// reported by ReportUnwaitedErrors. A goblin that calls os.exit unwinds its
+// own deferred calls and then ends the process from its goroutine; the
+// other goblins, the main one included, are stopped where they are.
 func Spawn(args CallArgs) (Object, error) {
 	p := NewArgParser("spawn", CallArgs{Positional: args.Positional})
 	fn := p.Func("fn")
@@ -134,6 +136,12 @@ func Spawn(args CallArgs) (Object, error) {
 			}
 		}()
 		g.result, g.err = fn.Call(call)
+		// A goblin that called os.exit has run its deferred calls; the
+		// process ends here, before the request could be stored as a
+		// failure, reported or delivered by wait().
+		if g.err != nil {
+			ExitNow(g.err)
+		}
 	}()
 	return g, nil
 }

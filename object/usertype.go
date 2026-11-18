@@ -221,12 +221,17 @@ func defaultRepr(v UserValue) string {
 }
 
 // userString is the infallible String of a user value: its Show, or the
-// default representation when there is none or it fails.
+// default representation when there is none or it fails. A show that calls
+// os.exit ends the process here, with the code and without unwinding: there
+// is no error result to carry the request, and dropping it would keep
+// running a program that asked to stop.
 func userString(v UserValue) string {
 	if impl := v.UserType().impls[showID]; impl != nil {
-		if r, err := impl.call(v, ShowShow, []Object{v}); err == nil {
+		r, err := impl.call(v, ShowShow, []Object{v})
+		if err == nil {
 			return string(r.(String))
 		}
+		ExitNow(err)
 	}
 	return defaultRepr(v)
 }

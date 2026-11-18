@@ -1,0 +1,12 @@
+import "os"
+
+# A deferred call that calls os.exit replaces the status; the last one wins.
+func work() {
+    defer print("work: still runs")
+    defer os.exit(6)
+    defer print("work: runs first")
+    os.exit(5)
+}
+defer os.exit(7)
+defer print("module: deferred")
+work()

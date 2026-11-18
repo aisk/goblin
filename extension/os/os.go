@@ -64,6 +64,9 @@ func newModule(argv []string) object.Object {
 	})
 }
 
+// exit implements os.exit(code=0): it ends the program with code after the
+// calling goblin has run its pending deferred calls. No catch clause
+// receives it.
 func exit(args object.CallArgs) (object.Object, error) {
 	p := object.NewArgParser("exit", args)
 	code := p.IntOr("code", 0)
@@ -73,6 +76,8 @@ func exit(args object.CallArgs) (object.Object, error) {
 	if code < 0 || code > 255 {
 		return nil, object.NewValueError("exit() argument 'code' must be between 0 and 255, got %d", int64(code))
 	}
-	os.Exit(int(code))
-	return nil, nil
+	// The request unwinds the calling goblin like an error, running its
+	// pending deferred calls, and the process ends at the top of the goblin
+	// (object.NewExit).
+	return nil, object.NewExit(int(code))
 }

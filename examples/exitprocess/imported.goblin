@@ -1,0 +1,11 @@
+import "./modules/quitter"
+
+# A function of an imported module calls os.exit: its own deferred calls
+# run, then the callers'. What the module deferred at its top level ran when
+# the import finished.
+defer print("main: module deferred")
+func call() {
+    defer print("main.call: deferred")
+    quitter.quit(12)
+}
+call()

@@ -1,0 +1,6 @@
+import "./modules/quitter"
+import "./modules/exits_on_import"
+
+# The importing file has not started, so it has deferred nothing.
+defer print("unreachable: main deferred")
+print("unreachable: main body")

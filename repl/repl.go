@@ -27,7 +27,9 @@ func HistoryPath() string {
 // Run drives a read-eval-print loop on the terminal, accumulating lines until
 // brackets are balanced so multi-line constructs (functions, types, blocks)
 // can be entered. It uses readline for line editing, history (kept in
-// historyFile unless it is empty), and Ctrl-C/Ctrl-D handling.
+// historyFile unless it is empty), and Ctrl-C/Ctrl-D handling. An input
+// that calls os.exit ends the loop: Run returns its exit request
+// (object.IsExit) for the caller to end the process with.
 func Run(historyFile string) error {
 	session := interpreter.NewSession(".")
 
@@ -63,7 +65,9 @@ func Run(historyFile string) error {
 		}
 		if err == io.EOF {
 			if buf.Len() > 0 {
-				evalLine(out, session, buf.String())
+				if err := evalLine(out, session, buf.String()); err != nil {
+					return err
+				}
 			}
 			fmt.Fprintln(out)
 			return nil
@@ -85,7 +89,9 @@ func Run(historyFile string) error {
 		if strings.TrimSpace(src) == "" {
 			continue
 		}
-		evalLine(out, session, src)
+		if err := evalLine(out, session, src); err != nil {
+			return err
+		}
 	}
 }
 
@@ -157,24 +163,31 @@ func isIdentifierStart(r rune) bool {
 	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' || r == '_'
 }
 
-func evalLine(out io.Writer, session *interpreter.Session, src string) {
+// evalLine evaluates one input and prints its error or value. It returns
+// only the exit request of an input that called os.exit, which ends the
+// REPL with that status; every other error is printed here.
+func evalLine(out io.Writer, session *interpreter.Session, src string) error {
+	result, err := session.Eval(src)
+	if object.IsExit(err) {
+		return err
+	}
 	// Goblins failing in the background, during this evaluation or since the
 	// previous one, are reported after it like its own error would be.
 	defer object.ReportUnwaitedErrors(out)
-	result, err := session.Eval(src)
 	if err != nil {
 		fmt.Fprintf(out, "%+v\n", err)
-		return
+		return nil
 	}
 	// Display the value of an expression, but stay quiet for statements and
 	// for `none` (e.g. the result of print()).
 	if result == nil {
-		return
+		return nil
 	}
 	if _, isUnit := result.(object.Unit); isUnit {
-		return
+		return nil
 	}
 	fmt.Fprintln(out, fmt.Sprint(result))
+	return nil
 }
 
 // bracketsBalanced reports whether all (), [], {} and raw strings are closed,

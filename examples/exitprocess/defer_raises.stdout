@@ -1,0 +1,4 @@
+work: runs first
+work: runs after the failing one
+tidy: caught handled inside
+module: deferred

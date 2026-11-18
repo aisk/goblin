@@ -124,6 +124,9 @@ func init() {
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
+		// A program that called os.exit has run its deferred calls and
+		// ends here with the status it asked for, printing nothing.
+		object.ExitNow(err)
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}

@@ -1,0 +1,4 @@
+quitter: body
+quitter: module deferred, runs when the import finishes
+exits_on_import: body
+exits_on_import: module deferred

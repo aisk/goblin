@@ -313,49 +313,60 @@ func TestArgs(t *testing.T) {
 	}
 }
 
-// processMode replaces exit and the streams for one test.
-func processMode(t *testing.T) (out, errOut *bytes.Buffer, status *int) {
+// processMode replaces the streams for one test.
+func processMode(t *testing.T) (out, errOut *bytes.Buffer) {
 	t.Helper()
-	out, errOut, status = &bytes.Buffer{}, &bytes.Buffer{}, new(int)
-	*status = -1
-	oldExit, oldOut, oldErr := exit, stdout, stderr
-	exit = func(code int) { *status = code }
+	out, errOut = &bytes.Buffer{}, &bytes.Buffer{}
+	oldOut, oldErr := stdout, stderr
 	stdout = func() io.Writer { return out }
 	stderr = func() io.Writer { return errOut }
-	t.Cleanup(func() { exit, stdout, stderr = oldExit, oldOut, oldErr })
-	return out, errOut, status
+	t.Cleanup(func() { stdout, stderr = oldOut, oldErr })
+	return out, errOut
+}
+
+// processParse calls parse of the module built over argv. In process mode
+// help and usage errors end the program through an exit request, so the
+// status is read from the error: -1 means parse returned without one.
+func processParse(t *testing.T, argv []string, call object.CallArgs) (object.Object, int) {
+	t.Helper()
+	v, err := module(t, argv...).Members["parse"].(*object.Function).Call(call)
+	if err == nil {
+		return v, -1
+	}
+	code, ok := object.ExitCode(err)
+	if !ok {
+		t.Fatalf("parse() error = %v", err)
+	}
+	if v != nil {
+		t.Fatalf("parse() returned %v with an exit request", v)
+	}
+	return v, code
 }
 
 func TestProcessMode(t *testing.T) {
 	call := object.CallArgs{Positional: object.Args{str("source"), str("target")}, Keyword: object.Kwargs{kw("help", str("Copy."))}}
 
-	out, errOut, status := processMode(t)
-	v := modtest.CallModule(t, func() (object.Object, error) {
-		return ExecuteWithFrozenArgs([]string{"/bin/copy", "a", "b"})
-	}, "parse", call)
-	if v.(*Args).String() != `Args(source="a", target="b")` || *status != -1 || out.Len()+errOut.Len() != 0 {
-		t.Fatalf("good line: %v %d %q %q", v, *status, out, errOut)
+	out, errOut := processMode(t)
+	v, status := processParse(t, []string{"/bin/copy", "a", "b"}, call)
+	if status != -1 || v.(*Args).String() != `Args(source="a", target="b")` || out.Len()+errOut.Len() != 0 {
+		t.Fatalf("good line: %v %d %q %q", v, status, out, errOut)
 	}
 
-	out, errOut, status = processMode(t)
-	modtest.CallModule(t, func() (object.Object, error) {
-		return ExecuteWithFrozenArgs([]string{"scripts/copy.goblin", "a"})
-	}, "parse", call)
+	out, errOut = processMode(t)
+	_, status = processParse(t, []string{"scripts/copy.goblin", "a"}, call)
 	wantErr := "error: missing argument <target>\nusage: copy.goblin [options] <source> <target>\nRun 'copy.goblin --help' for details.\n"
-	if *status != 2 || out.Len() != 0 || errOut.String() != wantErr {
-		t.Fatalf("usage error: %d %q %q", *status, out, errOut)
+	if status != 2 || out.Len() != 0 || errOut.String() != wantErr {
+		t.Fatalf("usage error: %d %q %q", status, out, errOut)
 	}
 
-	out, errOut, status = processMode(t)
-	modtest.CallModule(t, func() (object.Object, error) { return ExecuteWithFrozenArgs(nil) }, "parse", object.CallArgs{
-		Keyword: object.Kwargs{kw("argv", object.Nil)}})
-	if *status != -1 {
-		t.Fatalf("empty line exited %d", *status)
+	out, errOut = processMode(t)
+	if _, status = processParse(t, nil, object.CallArgs{Keyword: object.Kwargs{kw("argv", object.Nil)}}); status != -1 {
+		t.Fatalf("empty line exited %d", status)
 	}
-	modtest.CallModule(t, func() (object.Object, error) { return ExecuteWithFrozenArgs([]string{"", "-h"}) }, "parse", object.CallArgs{})
+	_, status = processParse(t, []string{"", "-h"}, object.CallArgs{})
 	wantHelp := "usage: program [options]\n\noptions:\n  -h, --help  show this help and exit\n"
-	if *status != 0 || errOut.Len() != 0 || out.String() != wantHelp {
-		t.Fatalf("help: %d %q %q", *status, out, errOut)
+	if status != 0 || errOut.Len() != 0 || out.String() != wantHelp {
+		t.Fatalf("help: %d %q %q", status, out, errOut)
 	}
 }
 

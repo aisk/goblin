@@ -30,9 +30,9 @@ var (
 )
 
 // Process mode writes to the streams of the moment, as print does, and
-// exits through exit, which tests replace.
+// exits as os.exit does, through an exit request (object.NewExit), so the
+// program's pending deferred calls run first.
 var (
-	exit   = os.Exit
 	stdout = func() io.Writer { return os.Stdout }
 	stderr = func() io.Writer { return os.Stderr }
 )
@@ -122,12 +122,10 @@ func parseCall(program string, process *object.List, call object.CallArgs) (obje
 	}
 	if stop.help {
 		io.WriteString(stdout(), stop.text+"\n")
-		exit(0)
-		return object.Nil, nil
+		return nil, object.NewExit(0)
 	}
 	io.WriteString(stderr(), "error: "+stop.text+"\n"+stop.usage+"\n"+"Run '"+stop.helpCommand+"' for details.\n")
-	exit(2)
-	return object.Nil, nil
+	return nil, object.NewExit(2)
 }
 
 func strings_(list *object.List) ([]string, error) {

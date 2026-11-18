@@ -400,3 +400,59 @@ func TestExitErrorData(t *testing.T) {
 		}
 	}
 }
+
+// exiter is a stream whose read and write raise the exit request os.exit
+// raises.
+func exiter(code int) object.Object {
+	fail := func(object.CallArgs) (object.Object, error) { return nil, object.NewExit(code) }
+	return &object.Module{Name: "exiter", Members: map[string]object.Object{
+		"write": &object.Function{Name: "write", Fn: fail},
+		"read":  &object.Function{Name: "read", Fn: fail},
+	}}
+}
+
+// An exit request a stream raises is returned ahead of what the process
+// did: os/exec drops a stream's error when the child fails or times out.
+func TestStreamExit(t *testing.T) {
+	wantExit := func(what string, err error) {
+		t.Helper()
+		if code, ok := object.ExitCode(err); !ok || code != 3 {
+			t.Errorf("%s error = %v, want exit 3", what, err)
+		}
+	}
+	wantExit("run(stdout=) of a failing child", callErr("run", helper("out=hi", "exit=1"), kw("stdout", exiter(3))))
+	wantExit("run(stderr=) of a failing child", callErr("run", helper("err=hi", "exit=1"), kw("stderr", exiter(3))))
+	wantExit("run(stdout=) under a timeout", callErr("run", helper("out=hi", "sleep=10s"), kw("stdout", exiter(3)), kw("timeout", object.Float(0.2))))
+	wantExit("run(stdin=) of a failing child", callErr("run", helper("cat", "exit=1"), kw("stdin", exiter(3))))
+	wantExit("capture(stdin=) of a failing child", callErr("capture", helper("cat", "exit=1"), kw("stdin", exiter(3))))
+
+	for _, stream := range []string{"stdout", "stdin"} {
+		steps := []string{"out=hi", "exit=1"}
+		if stream == "stdin" {
+			steps = []string{"cat", "exit=1"}
+		}
+		m, _ := Execute()
+		c, err := m.(*object.Module).Members["start"].(*object.Function).Call(object.CallArgs{
+			Positional: object.Args{helper(steps...)},
+			Keyword:    object.Kwargs{kw(stream, exiter(3))},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		_, err = method(t, c, "wait")
+		wantExit("start("+stream+"=).wait()", err)
+		// Waiting again gives the same outcome.
+		_, err = method(t, c, "wait")
+		wantExit("start("+stream+"=).wait() again", err)
+	}
+
+	// An ordinary error from a stream is left to os/exec as before.
+	plain := &object.Module{Name: "plain", Members: map[string]object.Object{
+		"write": &object.Function{Name: "write", Fn: func(object.CallArgs) (object.Object, error) {
+			return nil, object.NewValueError("cannot write")
+		}},
+	}}
+	if err := callErr("run", helper("out=hi", "exit=1"), kw("stdout", plain)); object.IsExit(err) || !strings.Contains(err.Error(), "exited with status 1") {
+		t.Errorf("run() with a failing writer error = %v", err)
+	}
+}

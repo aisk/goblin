@@ -1,0 +1,5 @@
+import "os"
+
+defer print("exits_on_import: module deferred")
+print("exits_on_import: body")
+os.exit(13)

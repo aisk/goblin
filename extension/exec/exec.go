@@ -11,6 +11,7 @@ import (
 	"os"
 	stdexec "os/exec"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -71,6 +72,36 @@ type spec struct {
 	check   bool
 	timeout time.Duration
 	limited bool
+	// exit is the exit request (os.exit) a read or write method handed as
+	// a stream raised; see exitLatch.
+	exit exitLatch
+}
+
+// exitLatch keeps the first exit request a stream handed to a command
+// raised. os/exec calls those streams on goroutines of its own and drops
+// their error when the process also failed or the timeout fired, so the
+// request is kept here and returned ahead of every other outcome. Ordinary
+// errors are left to os/exec as before.
+type exitLatch struct {
+	mu  sync.Mutex
+	err error
+}
+
+func (l *exitLatch) note(err error) {
+	if !object.IsExit(err) {
+		return
+	}
+	l.mu.Lock()
+	if l.err == nil {
+		l.err = err
+	}
+	l.mu.Unlock()
+}
+
+func (l *exitLatch) get() error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	return l.err
 }
 
 // parse binds the parameters of fn in their documented order; output and
@@ -205,7 +236,26 @@ func (s *spec) stdinReader(allowPipe bool) (io.Reader, error) {
 		}
 		return nil, object.NewTypeError("%s() argument 'stdin' must be %s, got %s", s.fn, want, s.stdin.TypeName())
 	}
-	return r, nil
+	switch s.stdin.(type) {
+	case object.String, object.Bytes:
+		return r, nil
+	}
+	return latchedReader{r, &s.exit}, nil
+}
+
+// latchedReader passes the exit request a read method raises to the
+// command's exitLatch.
+type latchedReader struct {
+	r    io.Reader
+	exit *exitLatch
+}
+
+func (r latchedReader) Read(p []byte) (int, error) {
+	n, err := r.r.Read(p)
+	if err != nil && err != io.EOF {
+		r.exit.note(err)
+	}
+	return n, err
 }
 
 // outputWriter is the destination of a command's stdout or stderr: nil
@@ -226,14 +276,24 @@ func (s *spec) outputWriter(name string, value object.Object, inherit *os.File, 
 		}
 		return nil, object.NewTypeError("%s() argument '%s' must be %s, got %s", s.fn, name, want, value.TypeName())
 	}
-	return writeOnly{w}, nil
+	return writeOnly{w, &s.exit}, nil
 }
 
 // writeOnly hides the Close of a DuckWriter: exec never closes a stream it
-// was handed.
-type writeOnly struct{ w io.Writer }
+// was handed. It passes the exit request a write method raises to the
+// command's exitLatch.
+type writeOnly struct {
+	w    io.Writer
+	exit *exitLatch
+}
 
-func (w writeOnly) Write(p []byte) (int, error) { return w.w.Write(p) }
+func (w writeOnly) Write(p []byte) (int, error) {
+	n, err := w.w.Write(p)
+	if err != nil {
+		w.exit.note(err)
+	}
+	return n, err
+}
 
 // startError reports a command that could not be started.
 func (s *spec) startError(err error) error {
@@ -300,6 +360,9 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 		return nil, s.startError(err)
 	}
 	err = cmd.Wait()
+	if exit := s.exit.get(); exit != nil {
+		return nil, exit
+	}
 	if ctx != nil && ctx.Err() != nil {
 		return nil, object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds()).
 			With("stdout", text(outBuf)).

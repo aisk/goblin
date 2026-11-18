@@ -1,0 +1,9 @@
+import "os"
+
+# The status 0 does not survive a failed deferred call.
+func fail(text) {
+    raise ValueError(text)
+}
+defer fail("first failure")
+defer fail("second failure")
+os.exit(0)

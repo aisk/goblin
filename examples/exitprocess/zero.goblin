@@ -1,0 +1,7 @@
+import "os"
+defer print("deferred")
+func f() {
+    defer print("f: deferred")
+    os.exit()
+}
+f()

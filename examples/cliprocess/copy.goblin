@@ -1,5 +1,6 @@
 # Run with real arguments by cli_process_test.go: parse reads the command
-# line, prints help and exits 0, or reports a usage error and exits 2.
+# line, prints help and exits 0, or reports a usage error and exits 2. Either
+# way the pending deferred call runs before the process ends, as for os.exit.
 import "cli"
 
 defer print("deferred")

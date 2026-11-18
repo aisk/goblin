@@ -85,6 +85,19 @@ func TestValues(t *testing.T) {
 	if _, err := m.Members["exit"].(*object.Function).Call(object.CallArgs{Positional: object.Args{object.Integer(256)}}); !errors.Is(err, object.ValueError) {
 		t.Fatalf("exit(256) error = %v", err)
 	}
+	// exit raises the exit request the top of the task ends the process
+	// with, after the deferred calls on the way have run.
+	exit := m.Members["exit"].(*object.Function)
+	if _, err := exit.Call(object.CallArgs{Positional: object.Args{object.Integer(3)}}); err == nil {
+		t.Fatal("exit(3) returned")
+	} else if code, ok := object.ExitCode(err); !ok || code != 3 {
+		t.Fatalf("exit(3) error = %v", err)
+	}
+	if _, err := exit.Call(object.CallArgs{}); err == nil {
+		t.Fatal("exit() returned")
+	} else if code, ok := object.ExitCode(err); !ok || code != 0 {
+		t.Fatalf("exit() error = %v", err)
+	}
 	if _, err := m.Members["Env"].(*object.Function).Call(object.CallArgs{}); !errors.Is(err, object.TypeError) {
 		t.Fatalf("Env() error = %v", err)
 	}

@@ -191,7 +191,9 @@ func moduleVarName(name string) string {
 // mainBody emits the generated main(): run Execute, print failures, and turn a
 // Go-side runtime panic into a clean internal error instead of a Go stack dump.
 // A program that ends normally reports the errors of goblins nobody waited
-// for, as interpreter.Run does.
+// for, as interpreter.Run does. A program that called os.exit has run its
+// deferred calls by then and ends with the status it asked for, printing
+// nothing (object.ExitNow).
 func mainBody() []jen.Code {
 	return []jen.Code{
 		jen.Defer().Func().Params().Block(
@@ -202,6 +204,7 @@ func mainBody() []jen.Code {
 		).Call(),
 		jen.List(jen.Id("_"), jen.Id("err")).Op(":=").Id("Execute").Call(),
 		jen.If(jen.Id("err").Op("!=").Nil()).Block(
+			jen.Qual(pathObject, "ExitNow").Call(jen.Id("err")),
 			jen.Qual("fmt", "Fprintf").Call(jen.Qual("os", "Stderr"), jen.Lit("%+v\n"), jen.Id("err")),
 			jen.Qual("os", "Exit").Call(jen.Lit(1)),
 		),

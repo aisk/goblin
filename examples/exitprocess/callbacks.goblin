@@ -1,0 +1,115 @@
+import "os"
+import "regex"
+import "hash"
+import "gzip"
+import "json"
+import "csv"
+import "exec"
+import "fs"
+import "cli"
+import "tar"
+import "zip"
+
+# os.exit called from a function the library calls back ends the program in
+# the same way: the library passes the exit on and no catch sees it. The case
+# is chosen by the first argument; exitprocess_test.go runs each one.
+type Quitter(code) {
+    func read(self, size) {
+        os.exit(self.code)
+    }
+    func write(self, data) {
+        os.exit(self.code)
+    }
+    func to_json(self) {
+        os.exit(self.code)
+    }
+    impl Iter {
+        func iter(self) {
+            os.exit(self.code)
+        }
+    }
+    impl Show {
+        func show(self) {
+            os.exit(self.code)
+        }
+    }
+    impl Eq {
+        func eq(self, other) {
+            os.exit(self.code)
+        }
+    }
+}
+
+func run(which) {
+    defer print("run: deferred after", which)
+    var q = Quitter(11)
+    if which == "sort" {
+        [3, 1, 2].sort(key=func(x) { os.exit(11) })
+    } else if which == "map" {
+        [1, 2].map(func(x) { os.exit(11) })
+    } else if which == "max" {
+        max([1, 2], key=func(x) { os.exit(11) })
+    } else if which == "regex" {
+        regex.replace(`\d`, "a1", func(m) { os.exit(11) })
+    } else if which == "hash" {
+        hash.sha256(q)
+    } else if which == "gzip" {
+        gzip.decompress(q)
+    } else if which == "json_decode" {
+        json.decode(q)
+    } else if which == "json_encode" {
+        json.encode([q])
+    } else if which == "csv" {
+        csv.decode(q)
+    } else if which == "for" {
+        for v in q {
+        }
+    } else if which == "list" {
+        List(q)
+    } else if which == "interpolate" {
+        var s = "{q}"
+    } else if which == "print" {
+        print([q])
+    } else if which == "eq" {
+        [q].contains(q)
+    } else if which == "error_message" {
+        # The show of the error's value exits where no error can be
+        # returned: the process ends at once, without running deferred calls.
+        raise Error(q)
+    } else if which == "exec" {
+        # os/exec drops a stream's error when the command also fails.
+        exec.run(["sh", "-c", "echo hi; exit 1"], stdout=Quitter(31))
+    } else if which == "exec_timeout" {
+        exec.run(["sh", "-c", "echo hi; sleep 1"], stdout=Quitter(31), timeout=0.2)
+    } else if which == "exec_stdin" {
+        exec.run(["sh", "-c", "cat > /dev/null; exit 1"], stdin=Quitter(31))
+    } else if which == "exec_start" {
+        var c = exec.start(["sh", "-c", "echo hi; exit 1"], stdout=Quitter(31))
+        c.wait()
+    } else if which == "walk" {
+        var dir = fs.mkdir_temp(prefix="goblin-exit-")
+        defer fs.remove(dir, recursive=true)
+        fs.mkdir(dir.join("sub"))
+        for p in fs.walk(dir, skip=func(p) { os.exit(11) }) {
+        }
+    } else if which == "conv" {
+        cli.parse(n=cli.Option("n", default=1, convert=func(s) { os.exit(11) }), argv=["--n", "3"])
+    } else if which == "tar_read" {
+        tar.Reader(q)
+    } else if which == "tar_write" {
+        tar.Writer(q).add_data("a.txt", "a")
+    } else if which == "zip_data" {
+        var dir = fs.mkdir_temp(prefix="goblin-exit-")
+        defer fs.remove(dir, recursive=true)
+        zip.create(dir.join("a.zip")).add_data("a.txt", q)
+    }
+    print("unreachable: after", which)
+}
+
+defer print("module: deferred")
+try {
+    run(os.args[0])
+} catch e {
+    print("unreachable: catch", e)
+}
+print("unreachable: end")

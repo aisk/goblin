@@ -737,6 +737,11 @@ func (c *compiler) tryCatch(s *ast.TryCatch) stmtFn {
 			// genuine errors (raised Errors and runtime errors) are caught.
 			return ct, v, nil
 		}
+		// An exit request (os.exit) is not caught by any clause; it keeps
+		// unwinding, position tag included, before any kind is evaluated.
+		if object.IsExit(err) {
+			return ctrlNone, nil, err
+		}
 		inner, _ := takePosition(err, token.Pos{})
 		caught := object.ErrorValue(inner)
 		for i := range clauses {

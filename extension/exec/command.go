@@ -18,6 +18,9 @@ type Command struct {
 	object.OpaqueBase
 	argv []string
 	cmd  *stdexec.Cmd
+	// exit holds the exit request a read or write method handed as a
+	// stream raised; wait() returns it ahead of the process's outcome.
+	exit *exitLatch
 	// stdin, stdout and stderr are the pipes asked for with exec.PIPE, or
 	// nil.
 	stdin, stdout, stderr object.Object
@@ -38,7 +41,7 @@ func start(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Command{OpaqueBase: object.MakeOpaqueBase("Command"), argv: s.argv, cmd: cmd, stdin: object.Nil, stdout: object.Nil, stderr: object.Nil}
+	c := &Command{OpaqueBase: object.MakeOpaqueBase("Command"), argv: s.argv, cmd: cmd, exit: &s.exit, stdin: object.Nil, stdout: object.Nil, stderr: object.Nil}
 	// The child's ends of the pipes, closed here once it has started.
 	var childEnds []*os.File
 	closeAll := func(files []*os.File) {
@@ -110,7 +113,8 @@ func start(args object.CallArgs) (object.Object, error) {
 }
 
 // reap waits for the process in the background, so running is accurate and
-// wait can give up after a timeout.
+// wait can give up after a timeout. An exit request raised by a stream
+// handed to the command becomes wait()'s error whatever the process did.
 func (c *Command) reap() {
 	err := c.cmd.Wait()
 	c.mu.Lock()
@@ -119,6 +123,9 @@ func (c *Command) reap() {
 		if !errors.As(err, &exitErr) {
 			c.waitErr = object.WrapNativeError(object.IOError, `wait() "`+c.argv[0]+`" failed`, err)
 		}
+	}
+	if exit := c.exit.get(); exit != nil {
+		c.waitErr = exit
 	}
 	c.result = newResult(c.cmd.ProcessState.ExitCode(), nil, nil)
 	c.mu.Unlock()

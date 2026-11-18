@@ -233,7 +233,9 @@ func strayCtrl(c ctrl) error {
 
 // Run interprets a checked module (see source.LoadFile). sourcePath is the path of the source file,
 // used to resolve relative imports. sourcePath is os.program and
-// scriptArgs are os.args.
+// scriptArgs are os.args. The error of a program that called os.exit
+// satisfies object.IsExit: its deferred calls have run and the caller ends
+// the process (see main.go).
 func Run(mod *ast.Module, sourcePath string, scriptArgs ...string) (err error) {
 	// A Go-side panic in the runtime must not kill the process with a raw Go
 	// stack trace; surface it as an internal error instead.

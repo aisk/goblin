@@ -1,0 +1,23 @@
+import "os"
+
+# os.exit in a goblin unwinds that goblin only, then ends the process: the
+# deferred calls of the main goblin do not run.
+defer print("not printed: main deferred")
+var started = Chan()
+func task() {
+    defer print("task: deferred")
+    started.receive()
+    try {
+        os.exit(14)
+    } catch e {
+        print("unreachable: catch in task")
+    }
+}
+var g = spawn(task)
+started.send(nil)
+try {
+    g.wait()
+} catch e {
+    print("unreachable: catch around wait")
+}
+print("unreachable: after wait")

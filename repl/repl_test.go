@@ -2,6 +2,8 @@ package repl
 
 import (
 	"reflect"
+
+	"github.com/aisk/goblin/object"
 	"strings"
 	"testing"
 
@@ -119,5 +121,32 @@ func TestEvalLineReportsUnwaitedGoblinErrors(t *testing.T) {
 	want := "uncaught error in goblin: lost\n2\n"
 	if got := out.String(); got != want {
 		t.Errorf("output = %q, want %q", got, want)
+	}
+}
+
+// An input that calls os.exit ends the REPL: evalLine returns the exit
+// request and prints nothing for it.
+func TestEvalLineReturnsExit(t *testing.T) {
+	s := interpreter.NewSession(".")
+	var out strings.Builder
+	if err := evalLine(&out, s, `import "os"`); err != nil {
+		t.Fatal(err)
+	}
+	if err := evalLine(&out, s, `var log = []`); err != nil {
+		t.Fatal(err)
+	}
+	err := evalLine(&out, s, "defer log.push(1)\nos.exit(21)")
+	if code, ok := object.ExitCode(err); !ok || code != 21 {
+		t.Fatalf("evalLine = %v, want exit 21", err)
+	}
+	if out.Len() != 0 {
+		t.Fatalf("output = %q, want nothing", out.String())
+	}
+	// Any other error is printed and the REPL goes on.
+	if err := evalLine(&out, s, `raise Error("shown")`); err != nil {
+		t.Fatalf("evalLine returned an ordinary error: %v", err)
+	}
+	if !strings.Contains(out.String(), "shown") {
+		t.Fatalf("output = %q", out.String())
 	}
 }

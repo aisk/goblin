@@ -1,0 +1,5 @@
+quitter: body
+quitter: module deferred, runs when the import finishes
+quitter.quit: deferred
+main.call: deferred
+main: module deferred

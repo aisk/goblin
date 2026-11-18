@@ -276,3 +276,33 @@ func TestChanIteratesUntilClosed(t *testing.T) {
 		t.Fatalf("Collect(chan) = %v, %v", items, err)
 	}
 }
+
+// A goblin that calls os.exit ends the process from its own goroutine; the
+// request is never stored as a failure nobody waited for.
+func TestSpawnExitEndsTheProcess(t *testing.T) {
+	codes := make(chan int, 1)
+	old := exitProcess
+	// The real exitProcess does not return; neither does this one, so the
+	// goroutine stops where the process would end.
+	exitProcess = func(code int) {
+		codes <- code
+		select {}
+	}
+	t.Cleanup(func() { exitProcess = old })
+	g := startGoblin(t, func(CallArgs) (Object, error) { return nil, NewExit(3) })
+	select {
+	case code := <-codes:
+		if code != 3 {
+			t.Fatalf("exit code %d, want 3", code)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("the goblin did not end the process")
+	}
+	unwaited.mu.Lock()
+	defer unwaited.mu.Unlock()
+	for _, pending := range unwaited.goblins {
+		if pending == g {
+			t.Fatal("the exit was recorded as an unwaited failure")
+		}
+	}
+}

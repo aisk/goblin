@@ -1,0 +1,6 @@
+inner: deferred inside try
+inner: deferred
+outer: deferred 1
+outer: deferred 0
+module: second deferred
+module: first deferred, runs last

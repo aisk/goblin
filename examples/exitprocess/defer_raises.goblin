@@ -1,0 +1,31 @@
+import "os"
+
+# A deferred call that raises while the process is exiting is reported and
+# the exit goes on: the other deferred calls run and no catch sees either.
+func fail(text) {
+    raise ValueError(text)
+}
+
+# A deferred call may still catch its own errors while the process exits.
+func tidy() {
+    try {
+        fail("handled inside")
+    } catch e: ValueError {
+        print("tidy: caught", e.message)
+    }
+}
+
+func work() {
+    defer tidy()
+    defer print("work: runs after the failing one")
+    defer fail("cannot clean up")
+    defer print("work: runs first")
+    os.exit(4)
+}
+
+defer print("module: deferred")
+try {
+    work()
+} catch e {
+    print("unreachable: catch")
+}

@@ -1,0 +1,11 @@
+import "os"
+
+defer print("quitter: module deferred, runs when the import finishes")
+print("quitter: body")
+
+func quit(code) {
+    defer print("quitter.quit: deferred")
+    os.exit(code)
+}
+
+export quit

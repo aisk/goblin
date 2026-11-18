@@ -1,0 +1,14 @@
+import "os"
+
+# os.exit in a deferred call replaces an error in flight, as any error a
+# deferred call raises does; nothing is printed for the replaced error.
+func work() {
+    defer os.exit(8)
+    raise Error("lost")
+}
+defer print("module: deferred")
+try {
+    work()
+} catch e {
+    print("unreachable: catch")
+}

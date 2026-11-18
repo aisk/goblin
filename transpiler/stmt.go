@@ -455,6 +455,10 @@ func (g *generator) transpileDefer(d *ast.Defer, onError errHandler) ([]jen.Code
 // try body that failed; so each failing site records its index in excAt and
 // the fall-through dispatches on it, generating the enclosing handler once
 // per distinct site position.
+//
+// The first statement after the catch label hands an exit request
+// (object.IsExit) to the enclosing handler, so os.exit unwinds through the
+// try, running deferred calls on the way, and no clause receives it.
 func (g *generator) transpileTryCatch(tc *ast.TryCatch, onError errHandler) ([]jen.Code, error) {
 	excVar := g.localName("exc")
 	catchLabel := g.localName("catch")
@@ -489,8 +493,17 @@ func (g *generator) transpileTryCatch(tc *ast.TryCatch, onError errHandler) ([]j
 		return nil, err
 	}
 
+	// An exit request (os.exit) is not an error any clause receives: it goes
+	// straight to the enclosing handler, before any kind is evaluated. Its
+	// position is never reported, so the try statement's own is used.
+	savedPos := g.errorPos
+	g.errorPos = tc.Position()
+	exitGate := jen.If(jen.Qual(pathObject, "IsExit").Call(jen.Id(excVar))).Block(onError(excVar))
+	g.errorPos = savedPos
+
 	caughtVar := g.localName("caught")
 	catchBlock := []jen.Code{
+		exitGate,
 		jen.Id(caughtVar).Op(":=").Qual(pathObject, "ErrorValue").Call(jen.Id(excVar)),
 		jen.Id("_").Op("=").Id(caughtVar),
 	}

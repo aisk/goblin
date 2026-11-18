@@ -34,6 +34,29 @@ func TestSessionArgv(t *testing.T) {
 	}
 }
 
+// os.exit in a fragment runs the deferred calls of the functions on the way
+// and of the fragment, and Eval returns the exit request for the REPL to end
+// with.
+func TestSessionEvalExit(t *testing.T) {
+	s := NewSession(".")
+	for _, src := range []string{`import "os"`, `var log = []`, "func quit(code) {\n    defer log.push(\"f\")\n    os.exit(code)\n}"} {
+		if _, err := s.Eval(src); err != nil {
+			t.Fatal(err)
+		}
+	}
+	v, err := s.Eval("defer log.push(\"d\")\ntry {\n    quit(3)\n} catch e {\n    log.push(\"caught\")\n}")
+	if code, ok := object.ExitCode(err); !ok || code != 3 || v != nil {
+		t.Fatalf("Eval = %v, %v, want exit 3", v, err)
+	}
+	v, err = s.Eval(`log`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := fmt.Sprint(v); got != `["f", "d"]` {
+		t.Fatalf("log = %s, want [\"f\", \"d\"]", got)
+	}
+}
+
 func TestSessionCompletionCandidates(t *testing.T) {
 	s := NewSession(".")
 	if names := s.CompletionCandidates(nil); !containsString(names, "print") || !containsString(names, "eprint") || !sort.StringsAreSorted(names) {

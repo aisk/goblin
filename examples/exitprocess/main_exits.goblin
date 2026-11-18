@@ -1,0 +1,19 @@
+import "os"
+
+# os.exit in the main goblin: goblins still running are stopped where they
+# are and their deferred calls do not run. A failed goblin nobody waited for
+# is not reported either.
+var never = Chan()
+func blocked() {
+    defer print("not printed: blocked deferred")
+    never.receive()
+}
+func failed() {
+    raise Error("not reported")
+}
+spawn(blocked)
+spawn(failed).done
+var f = spawn(failed)
+wait_any([f])
+defer print("main: deferred")
+os.exit(15)

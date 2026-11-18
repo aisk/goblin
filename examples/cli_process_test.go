@@ -13,7 +13,8 @@ import (
 )
 
 // cliProgram is run with real arguments: cli.parse exits the process on
-// --help and on a usage error, which no in-process test can observe.
+// --help and on a usage error, after the program's pending deferred calls
+// run, which no in-process test can observe.
 const cliProgram = "cliprocess/copy.goblin"
 
 // TestCLIProcessMode runs the program under goblin run and as a compiled
@@ -73,12 +74,12 @@ func TestCLIProcessMode(t *testing.T) {
 			status         int
 		}{
 			{"good", []string{"a", "-v", "b"}, "Args(source=\"a\", target=\"b\", verbose=true)\ndeferred\n", "", 0},
-			{"help", []string{"a", "--help"}, help, "", 0},
-			{"short help", []string{"-h"}, help, "", 0},
-			{"usage error", []string{"a"}, "", "error: missing argument <target>\n" +
+			{"help", []string{"a", "--help"}, help + "deferred\n", "", 0},
+			{"short help", []string{"-h"}, help + "deferred\n", "", 0},
+			{"usage error", []string{"a"}, "deferred\n", "error: missing argument <target>\n" +
 				"usage: " + b.program + " [options] <source> <target>\n" +
 				"Run '" + b.program + " --help' for details.\n", 2},
-			{"suggestion", []string{"a", "b", "--verbsoe"}, "", "error: unknown option --verbsoe (did you mean --verbose?)\n" +
+			{"suggestion", []string{"a", "b", "--verbsoe"}, "deferred\n", "error: unknown option --verbsoe (did you mean --verbose?)\n" +
 				"usage: " + b.program + " [options] <source> <target>\n" +
 				"Run '" + b.program + " --help' for details.\n", 2},
 		}

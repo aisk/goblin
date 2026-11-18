@@ -79,7 +79,9 @@ func NewSession(baseDir string) *Session {
 
 // Eval parses and evaluates a source fragment against the session's scope. If
 // the fragment's last statement is an expression, its value is returned (for
-// REPL display); otherwise it returns nil.
+// REPL display); otherwise it returns nil. When the fragment calls os.exit,
+// the deferred calls of the fragment and of the functions on the way have
+// run and the error satisfies object.IsExit; the caller ends the session.
 func (s *Session) Eval(src string) (result object.Object, err error) {
 	// Keep the REPL alive when a Go-side panic escapes the runtime.
 	defer func() {
