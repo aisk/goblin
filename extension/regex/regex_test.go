@@ -59,8 +59,18 @@ func TestFind(t *testing.T) {
 	if show(attr(t, m, "groups")) != `["ada", "example"]` {
 		t.Fatalf("groups = %s", show(attr(t, m, "groups")))
 	}
-	if attr(t, m, "groups") != attr(t, m, "groups") {
-		t.Fatal("groups is not the same List on every read")
+	// groups is a new List on every read, so changing it leaves the Match
+	// as it was.
+	groups := attr(t, m, "groups").(*object.List)
+	if groups == attr(t, m, "groups") {
+		t.Fatal("groups is the same List on every read")
+	}
+	groups.Elements = append(groups.Elements, s("changed"))
+	if show(attr(t, m, "groups")) != `["ada", "example"]` {
+		t.Fatalf("changing groups changed the Match: %s", show(attr(t, m, "groups")))
+	}
+	if show(m) != `<Match "ada@example.com">` {
+		t.Fatalf("display = %s", show(m))
 	}
 	if m.(*Match).Constructor() != MatchType.Function {
 		t.Fatal("type_of(Match) is not regex.Match")
@@ -246,7 +256,7 @@ func TestReplace(t *testing.T) {
 		t.Fatalf("raised error = %v", err)
 	}
 	_, err = callFn("replace", object.Args{s(`\d`), s("a1"), object.Integer(3)})
-	if !errors.Is(err, object.TypeError) || err.Error() != "replace() argument 'replacement' must be String or Function, got Int" {
+	if !errors.Is(err, object.TypeError) || err.Error() != "replace() argument 'replacement' must be String or callable, got Int" {
 		t.Fatalf("bad replacement = %v", err)
 	}
 }

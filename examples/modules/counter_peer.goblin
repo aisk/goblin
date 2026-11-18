@@ -1,0 +1,15 @@
+# Imports the same counter module as the program does: both share one module
+# and one count.
+import "./counter"
+
+func bump_twice() {
+    counter.bump()
+    return counter.bump()
+}
+
+func seen() {
+    return counter.count
+}
+
+export bump_twice
+export seen

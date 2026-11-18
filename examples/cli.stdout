@@ -35,7 +35,7 @@ Args(level=2)
 UsageError: invalid value "7" for <level>: expected one of 1, 2, 3 | usage: tool [options] <level>
 true ["source", "target", "verbose"]
 Args has no attribute 'verbsoe'
-Args is read-only
+Args does not support attribute assignment
 <Option> <Flag> <Arg> <Command> true false
 1 2
 Args cannot be constructed; use cli.parse()

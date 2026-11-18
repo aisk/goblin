@@ -86,6 +86,7 @@ func (g *generator) file() (*jen.File, error) {
 func (g *generator) executeBody() ([]jen.Code, error) {
 	mod := g.mod
 	g.exportsVar = g.localName("exports")
+	g.assigned = ast.AssignedNames(mod.Body)
 
 	onError := func(errVar string) jen.Code {
 		return tracedReturn(jen.Nil(), errVar, sourceModuleName(modulePosition(mod)), "<module>", g.framePos(modulePosition(mod)))
@@ -97,7 +98,9 @@ func (g *generator) executeBody() ([]jen.Code, error) {
 	}
 
 	body := []jen.Code{
-		jen.Id(g.exportsVar).Op(":=").Map(jen.String()).Qual(pathObject, "Object").Values(),
+		jen.Id(g.exportsVar).Op(":=").Op("&").Qual(pathObject, "Module").Values(
+			jen.Id("Members").Op(":").Map(jen.String()).Qual(pathObject, "Object").Values(),
+		),
 	}
 	// loadModule declares the package-level variable holding a loaded module
 	// and emits its registry Load call.
@@ -131,14 +134,30 @@ func (g *generator) executeBody() ([]jen.Code, error) {
 	}
 
 	body = append(body, stmts...)
-	body = append(body, jen.Return(
-		jen.Op("&").Qual(pathObject, "Module").Values(jen.Id("Members").Op(":").Id(g.exportsVar)),
-		jen.Nil(),
-	))
+	body = append(body, jen.Return(jen.Id(g.exportsVar), jen.Nil()))
 	return body, nil
 }
 
-func (g *generator) transpileExport(export *ast.Export) ([]jen.Code, error) {
+// transpileExport adds a name to the module value. A name the module assigns
+// somewhere is exported as a live binding, a function that reads the
+// package-level variable when the member is read, so importers see later
+// assignments; the interpreter's exportModule makes the same split. Any
+// other name keeps the value it has here, which is final: functions and
+// types are hoisted above the body, and a variable is declared before the
+// export statement can name it.
+func (g *generator) transpileExport(export *ast.Export, onError errHandler) ([]jen.Code, error) {
+	if g.assigned[export.Name] {
+		pre, value, err := g.transpileExpression(&ast.Identifier{Name: export.Name}, onError)
+		if err != nil {
+			return nil, err
+		}
+		if len(pre) > 0 {
+			return nil, fmt.Errorf("export %s: reading the variable needs statements", export.Name)
+		}
+		return []jen.Code{
+			jen.Id(g.exportsVar).Dot("Bind").Call(jen.Lit(export.Name), jen.Func().Params().Qual(pathObject, "Object").Block(jen.Return(value))),
+		}, nil
+	}
 	// A type's name is its Go struct; the value to export is the constructor
 	// variable, which moduleBinding maps it to (imported modules likewise).
 	value := jen.Id(export.Name)
@@ -146,7 +165,7 @@ func (g *generator) transpileExport(export *ast.Export) ([]jen.Code, error) {
 		value = jen.Id(mapped)
 	}
 	return []jen.Code{
-		jen.Id(g.exportsVar).Index(jen.Lit(export.Name)).Op("=").Add(value),
+		jen.Id(g.exportsVar).Dot("Members").Index(jen.Lit(export.Name)).Op("=").Add(value),
 	}, nil
 }
 

@@ -6,6 +6,8 @@ hello from exec
 ["a", "b"]
 hello from fs fixture
 working tree is dirty (status 1)
+5
+hi
 capture() "sh" exited with status 128: fatal: not a git repository
 3 broken true
 4 nil nil

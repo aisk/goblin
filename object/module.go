@@ -7,8 +7,16 @@ import (
 
 type Module struct {
 	inert[moduleName]
-	Name    string
+	Name string
+	// Members holds the members whose value never changes once the module
+	// has loaded: library functions, and the exported names a Goblin module
+	// never assigns after their definition.
 	Members map[string]Object
+	// Vars holds the exported names the module's own code may assign. Each
+	// reads the module's variable as it is when the member is read, so an
+	// importer sees the module's later assignments: an export is a live
+	// binding, not a copy.
+	Vars map[string]func() Object
 }
 
 var _ Object = (*Module)(nil)
@@ -36,17 +44,31 @@ func (m *Module) GetAttr(name string) (Object, error) {
 	if val, ok := m.Members[name]; ok {
 		return val, nil
 	}
+	if get, ok := m.Vars[name]; ok {
+		return get(), nil
+	}
 	return nil, NewAttributeError("Module has no attribute '%s'", name)
 }
 
 // Attributes lists the module's members, sorted by name.
 func (m *Module) Attributes() []string {
-	names := make([]string, 0, len(m.Members))
+	names := make([]string, 0, len(m.Members)+len(m.Vars))
 	for name := range m.Members {
+		names = append(names, name)
+	}
+	for name := range m.Vars {
 		names = append(names, name)
 	}
 	sort.Strings(names)
 	return names
+}
+
+// Bind adds an exported name whose value get reads afresh at every access.
+func (m *Module) Bind(name string, get func() Object) {
+	if m.Vars == nil {
+		m.Vars = map[string]func() Object{}
+	}
+	m.Vars[name] = get
 }
 
 type moduleName struct{}

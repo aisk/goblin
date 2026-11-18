@@ -203,6 +203,12 @@ func errEmpty(name string) error {
 	return object.NewValueError("%s() argument 'values' is empty", name)
 }
 
+// errNaN is what median and percentile raise for a NaN among the values: a
+// NaN has no place in sorted order, the rule sort() and compare() follow.
+func errNaN(name string) error {
+	return object.NewValueError("%s() cannot order NaN", name)
+}
+
 func hasNaN(values []float64) bool {
 	for _, v := range values {
 		if math.IsNaN(v) {
@@ -263,7 +269,7 @@ func median(args object.CallArgs) (object.Object, error) {
 		return nil, errEmpty("median")
 	}
 	if hasNaN(values) {
-		return object.Float(math.NaN()), nil
+		return nil, errNaN("median")
 	}
 	return object.Float(rank(sorted(values), 0.5*float64(len(values)-1))), nil
 }
@@ -303,7 +309,7 @@ func percentile(args object.CallArgs) (object.Object, error) {
 		return nil, errEmpty("percentile")
 	}
 	if hasNaN(values) {
-		return object.Float(math.NaN()), nil
+		return nil, errNaN("percentile")
 	}
 	return object.Float(rank(sorted(values), pct/100*float64(len(values)-1))), nil
 }

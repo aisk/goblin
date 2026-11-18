@@ -176,6 +176,8 @@ func numericEquals(a, b Object) (bool, bool) {
 	return false, false
 }
 
+// numericCompare ranks two numbers, reporting false when either operand is
+// not a number. A pair with a NaN has no order and ranks as unordered.
 func numericCompare(a, b Object) (int, bool) {
 	switch lhs := a.(type) {
 	case Integer:
@@ -183,23 +185,27 @@ func numericCompare(a, b Object) (int, bool) {
 		case Integer:
 			return compareOrdered(lhs, rhs), true
 		case Float:
-			return compareOrdered(Float(lhs), rhs), true
+			return compareFloats(Float(lhs), rhs), true
 		}
 	case Float:
 		switch rhs := b.(type) {
 		case Float:
-			return compareOrdered(lhs, rhs), true
+			return compareFloats(lhs, rhs), true
 		case Integer:
-			return compareOrdered(lhs, Float(rhs)), true
+			return compareFloats(lhs, Float(rhs)), true
 		}
 	}
 	return 0, false
 }
 
-// compareOrdered ranks two values of the same ordered type. Floats follow IEEE
-// 754 through the < and > operators: a NaN operand is neither, and reports as
-// equal, which is what Float.Compare has always done.
-func compareOrdered[T Integer | Float | String](a, b T) int {
+// unordered is the rank of a pair of numbers with a NaN among them. It is
+// outside -1, 0 and 1, so `c < 0`, `c <= 0` and `c == 1` are all false for
+// it, which is how the ordering operators answer false for NaN (IEEE 754)
+// without a test of their own; Compare reports it as errUnordered.
+const unordered = 2
+
+// compareOrdered ranks two values of the same totally ordered type.
+func compareOrdered[T Integer | String](a, b T) int {
 	switch {
 	case a < b:
 		return -1
@@ -208,3 +214,20 @@ func compareOrdered[T Integer | Float | String](a, b T) int {
 	}
 	return 0
 }
+
+// compareFloats ranks two floats, unordered when either is NaN.
+func compareFloats(a, b Float) int {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	case a == b:
+		return 0
+	}
+	return unordered
+}
+
+// errUnordered is what ordering a NaN raises anywhere but in the four
+// ordering operators: compare(), sorting, max and min have no answer to give.
+func errUnordered() error { return NewValueError("cannot order NaN") }

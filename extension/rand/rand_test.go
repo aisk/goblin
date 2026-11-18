@@ -86,7 +86,7 @@ func TestSeededSequenceIsPinned(t *testing.T) {
 	if got := sequence(t, again); got != want {
 		t.Fatal("two Rand(42) differ")
 	}
-	if show(r) != "<rand.Rand seed=42>" || r.(*Rand).Constructor() != member("Rand") {
+	if show(r) != "<Rand seed=42>" || r.(*Rand).Constructor() != member("Rand") {
 		t.Fatal("Rand identity")
 	}
 	if eq, _ := r.Equals(again); eq {

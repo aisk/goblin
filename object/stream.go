@@ -29,7 +29,7 @@ func duckMethod(fn, param string, value Object, name, shape string) (*Function, 
 	if err != nil {
 		return nil, NewTypeError("%s() argument '%s' must have a %s method, got %s", fn, param, shape, value.TypeName())
 	}
-	method, ok := obj.(*Function)
+	method, ok := AsFunction(obj)
 	if !ok {
 		return nil, NewTypeError("%s() argument '%s' %s attribute must be callable, got %s", fn, param, name, obj.TypeName())
 	}
@@ -43,7 +43,7 @@ func duckCloseMethod(fn, param string, value Object) (*Function, error) {
 	if err != nil {
 		return nil, nil
 	}
-	method, ok := obj.(*Function)
+	method, ok := AsFunction(obj)
 	if !ok {
 		return nil, NewTypeError("%s() argument '%s' close attribute must be callable, got %s", fn, param, obj.TypeName())
 	}

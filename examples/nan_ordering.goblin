@@ -1,0 +1,50 @@
+# NaN is unordered. The ordering operators answer false when either operand is
+# NaN, as IEEE 754 has it, and everything that needs an order raises
+# ValueError instead of giving an answer that is not one.
+var nan = Float("nan")
+var one = 1.0
+
+print(nan < 1, nan <= 1, nan > 1, nan >= 1)
+print(1 < nan, 1 <= nan, 1 > nan, 1 >= nan)
+print(nan <= nan, nan >= nan, nan == nan, nan != nan)
+print(one <= nan, one >= nan, nan <= one, nan >= one)
+
+# Ordinary floats keep their order, the equal case included.
+var total = 0.0
+var steps = 0
+while total <= 1.0 {
+    total = total + 0.25
+    steps = steps + 1
+}
+print(steps, 2.0 >= 2, 2 <= 2.0, 1.5 > 1.5)
+
+func tries(label, f) {
+    try {
+        print(label, f())
+    } catch e: ValueError {
+        print(label, "ValueError:", e)
+    }
+}
+
+tries("compare", func() { return compare(nan, 1) })
+tries("compare both", func() { return compare(nan, nan) })
+tries("max", func() { return max(1.0, nan) })
+tries("min", func() { return min(nan, 1.0) })
+tries("max key", func() { return max(["a", "b"], key=func(s) { return nan }) })
+tries("list <", func() { return [nan] < [1.0] })
+
+var xs = [3.0, nan, 1.0]
+tries("sort", func() { return xs.sort() })
+print("unchanged:", xs)
+var ys = [2, 1]
+tries("sort key", func() { return ys.sort(key=func(y) { return nan }) })
+print("unchanged:", ys)
+
+# Nothing to order, nothing raised.
+print(max([nan]), [nan].sort())
+
+# A NaN key is one key: every NaN finds the entry, although nan != nan.
+var d = {nan: "a"}
+d[Float("nan")] = "b"
+print(d, d.size, d.contains(nan))
+print([nan].contains(nan), [nan].index(nan))

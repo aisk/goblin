@@ -54,3 +54,5 @@ gzip ["id,name", "1,Ada"]
 ["Accept-Encoding: gzip", "User-Agent: goblin/<version>"]
 ["Accept-Encoding: gzip", "User-Agent: mine/1.0", "X-Tag: a | b"]
 ["X-Tag: only"]
+/target?q=new%20york&lang=pt-BR&city=S%C3%A3o%20Paulo&tag=a+b <base>/target?q=new york&lang=pt-BR&city=São%20Paulo&tag=a+b
+/target?city=S%C3%A3o%20Paulo&page=2 <base>/target?city=São Paulo&page=2

@@ -648,6 +648,57 @@ func TestFile(t *testing.T) {
 	}
 }
 
+// An empty String names no file: every function that takes a path, and
+// fs.Path itself, refuse it with one ValueError instead of reading it as ".".
+func TestEmptyPath(t *testing.T) {
+	empty := str("")
+	dir := str(t.TempDir())
+	for _, c := range []struct {
+		fn, param  string
+		positional []object.Object
+	}{
+		{"Path", "text", []object.Object{empty}},
+		{"read", "path", []object.Object{empty}},
+		{"read_bytes", "path", []object.Object{empty}},
+		{"read_lines", "path", []object.Object{empty}},
+		{"write", "path", []object.Object{empty, str("x")}},
+		{"open", "path", []object.Object{empty}},
+		{"exists", "path", []object.Object{empty}},
+		{"is_file", "path", []object.Object{empty}},
+		{"is_dir", "path", []object.Object{empty}},
+		{"stat", "path", []object.Object{empty}},
+		{"read_dir", "path", []object.Object{empty}},
+		{"walk", "path", []object.Object{empty}},
+		{"glob", "pattern", []object.Object{empty}},
+		{"mkdir", "path", []object.Object{empty}},
+		{"remove", "path", []object.Object{empty}},
+		{"copy", "src", []object.Object{empty, dir}},
+		{"copy", "dst", []object.Object{dir, empty}},
+		{"move", "src", []object.Object{empty, dir}},
+		{"move", "dst", []object.Object{dir, empty}},
+		{"chmod", "path", []object.Object{empty, object.Integer(0o644)}},
+		{"resolve", "path", []object.Object{empty}},
+	} {
+		callErr(t, object.ValueError, c.fn+"() argument '"+c.param+"' must not be empty", c.fn, c.positional)
+	}
+	p := call(t, "Path", str("a"))
+	for _, m := range []struct {
+		name string
+		arg  object.Object
+	}{{"join", empty}, {"relative_to", empty}} {
+		_, err := methodErr(p, m.name, m.arg)
+		if !errors.Is(err, object.ValueError) || !strings.Contains(err.Error(), "must not be empty") {
+			t.Errorf("Path(\"a\").%s(\"\") error = %v, want the empty-path ValueError", m.name, err)
+		}
+	}
+	// A computed "here" is ".", never an empty Path.
+	for _, got := range []object.Object{attr(t, p, "parent"), method(t, p, "relative_to", str("a"))} {
+		if s, _ := got.ToString(); s != "." {
+			t.Errorf("computed here = %q, want \".\"", s)
+		}
+	}
+}
+
 func TestPath(t *testing.T) {
 	p := func(s string) *pathvalue.Path {
 		return call(t, "Path", str(filepath.FromSlash(s))).(*pathvalue.Path)
@@ -661,7 +712,7 @@ func TestPath(t *testing.T) {
 		{"a//b/./c/../d.md", "d.md", "d", ".md", "a/b"},
 		{".bashrc", ".bashrc", ".bashrc", "", "."},
 		{"a", "a", "a", "", "."},
-		{"", "", "", "", "."},
+		{".", "", "", "", "."},
 		{"/", "", "", "", "/"},
 		{"..", "..", "..", "", "."},
 	} {

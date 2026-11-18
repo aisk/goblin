@@ -24,8 +24,10 @@ var _ object.PlainText = (*Path)(nil)
 // Type is the one constructor identity of Path, exported as fs.Path.
 var Type = object.NewNativeConstructor("Path", construct)
 
-// NewPath returns a Path holding the cleaned form of s. An empty string
-// becomes ".", matching filepath.Clean.
+// NewPath returns a Path holding the cleaned form of s. Paths the library
+// computes go through it, so a computed "here" (the parent of a bare name, a
+// path relative to itself) is ".", never empty. fs.Path("") itself is
+// refused by the ArgParser.
 func NewPath(s string) *Path {
 	return &Path{OpaqueBase: object.MakeOpaqueBase("Path"), raw: filepath.Clean(s)}
 }
@@ -39,11 +41,15 @@ func construct(args object.CallArgs) (object.Object, error) {
 	return NewPath(text), nil
 }
 
-// PathArg is object.PathString for a value that is not bound through an
+// PathArg is ArgParser.Path for a value that is not bound through an
 // ArgParser (a list element, a variadic segment): anything other than a
-// String or Path raises the standard TypeError for argument argName of fnName.
+// String or Path raises the standard TypeError for argument argName of fnName,
+// and an empty String the ValueError of object.EmptyPathError.
 func PathArg(fnName, argName string, arg object.Object) (string, error) {
 	if path, ok := object.PathString(arg); ok {
+		if path == "" {
+			return "", object.EmptyPathError(fnName, argName)
+		}
 		return path, nil
 	}
 	return "", object.NewTypeError("%s() argument '%s' must be String or Path, got %s", fnName, argName, arg.TypeName())

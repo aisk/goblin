@@ -15,10 +15,23 @@ package object
 // Numbers and strings, which every loop condition is made of, are ordered here
 // without the interface call the general path pays for; the result is the one
 // Integer.Compare, Float.Compare and String.Compare define.
+//
+// A NaN has no place in an order, so Compare raises ValueError for it: every
+// caller (compare(), sorting, max, min, list and structural ordering) would
+// otherwise give an answer that is not one. The four ordering operators do
+// not go through this: they answer false for a NaN operand.
 func Compare(a, b Object) (int, error) {
 	if c, ok := numericCompare(a, b); ok {
+		if c == unordered {
+			return 0, errUnordered()
+		}
 		return c, nil
 	}
+	return compareOthers(a, b)
+}
+
+// compareOthers is Compare for a pair that is not two numbers.
+func compareOthers(a, b Object) (int, error) {
 	if lhs, ok := a.(String); ok {
 		if rhs, ok := b.(String); ok {
 			return compareOrdered(lhs, rhs), nil
@@ -47,49 +60,40 @@ func compareReflected(a, b Object, err error) (int, error) {
 	return 0, err
 }
 
-// orderOp is one of the four ordering operators. Its value is the offset of
-// the matching Ord method from OrdLt.
-type orderOp int
-
-const (
-	opLt orderOp = iota
-	opLe
-	opGt
-	opGe
-)
-
-// test answers the operator from a three-way comparison result.
-func (op orderOp) test(c int) bool {
-	switch op {
-	case opLt:
-		return c < 0
-	case opLe:
-		return c <= 0
-	case opGt:
-		return c > 0
-	}
-	return c >= 0
-}
-
 // Less, LessEqual, Greater and GreaterEqual are the entry points both backends
-// use for <, <=, > and >=. They answer from Compare, so a user value orders
-// through its Ord impl's compare, the same method sorting uses.
+// use for <, <=, > and >=. They answer from the same three-way comparison as
+// Compare, so a user value orders through its Ord impl's compare, the method
+// sorting uses. Two numbers are ranked directly: a pair with a NaN ranks
+// unordered, for which each test below is false, as IEEE 754 has it, and
+// which the native float comparisons of compiled code agree with.
 func Less(a, b Object) (bool, error) {
-	c, err := Compare(a, b)
+	if c, ok := numericCompare(a, b); ok {
+		return c < 0, nil
+	}
+	c, err := compareOthers(a, b)
 	return err == nil && c < 0, err
 }
 
 func LessEqual(a, b Object) (bool, error) {
-	c, err := Compare(a, b)
+	if c, ok := numericCompare(a, b); ok {
+		return c <= 0, nil
+	}
+	c, err := compareOthers(a, b)
 	return err == nil && c <= 0, err
 }
 
 func Greater(a, b Object) (bool, error) {
-	c, err := Compare(a, b)
+	if c, ok := numericCompare(a, b); ok {
+		return c == 1, nil
+	}
+	c, err := compareOthers(a, b)
 	return err == nil && c > 0, err
 }
 
 func GreaterEqual(a, b Object) (bool, error) {
-	c, err := Compare(a, b)
+	if c, ok := numericCompare(a, b); ok {
+		return c == 0 || c == 1, nil
+	}
+	c, err := compareOthers(a, b)
 	return err == nil && c >= 0, err
 }

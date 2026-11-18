@@ -24,6 +24,9 @@ var diff = exec.run(["sh", "-c", "exit 1"], check=false)
 if !diff.success {
     print("working tree is dirty (status {diff.code})")
 }
+# Positionally timeout comes before check, as in Command.wait and http.send.
+print(exec.run(["sh", "-c", "exit 5"], nil, nil, nil, nil, nil, 30, false).code)
+print(exec.capture(["sh", "-c", "echo hi; exit 6"], nil, nil, nil, 30, false).stdout.trim())
 try {
     exec.capture(["sh", "-c", "echo 'fatal: not a git repository' >&2; exit 128"])
 } catch e: exec.ExitError {

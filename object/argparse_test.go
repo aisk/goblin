@@ -223,7 +223,7 @@ func TestArgParserFuncTypeMismatch(t *testing.T) {
 	p := NewArgParser("f", CallArgs{Positional: Args{Integer(1)}})
 	p.Func("fn")
 	err := p.Finish()
-	if err == nil || !strings.Contains(err.Error(), "argument 'fn' must be Function") {
+	if err == nil || !strings.Contains(err.Error(), "argument 'fn' must be callable") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

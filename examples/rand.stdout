@@ -21,7 +21,7 @@ true 36 4 true true
 uuid() argument 'version' must be 4 or 7, got 1
 uuid() argument 'version' must be 4 or 7, got 5
 bytes() argument 'size' must be non-negative, got -1
-<rand.Rand seed=42> true
+<Rand seed=42> true
 75 2 0.604093851558642
 0 0
 [5, 7, 2] [1, 4, 0, 5, 3, 2]

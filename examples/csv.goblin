@@ -29,15 +29,17 @@ for row in csv.decode(fs.read(scratch.join("legacy.csv")))[1:] {
 }
 
 # Read a file of any size one row at a time; the file stays open until the
-# defer, and a header row is paired with the rows after it by hand
+# defer. The first loop takes the header row; the second continues with the
+# next row, because the Rows keeps what it read ahead
 var big = fs.open(scratch.join("people.csv"))
 defer big.close()
+var reader = csv.read_rows(big)
 var columns = nil
-for row in csv.read_rows(big) {
-    if columns == nil {
-        columns = row
-        continue
-    }
+for row in reader {
+    columns = row
+    break
+}
+for row in reader {
     var record = {}
     for i in range(columns.size) {
         record[columns[i]] = row[i]

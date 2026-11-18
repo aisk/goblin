@@ -6,6 +6,9 @@ print(m.text, m.start, m.end)
 var user, domain = m.groups
 print(user, domain)
 print(m.groups == m.groups, type_of(m) == regex.Match)
+var groups = m.groups
+groups.push("changed")
+print(groups.size, m.groups)
 print(regex.find(`x`, "abc"))
 if regex.find(`^[a-z0-9_]+$`, "ada_99") {
     print("valid name")

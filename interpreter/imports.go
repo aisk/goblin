@@ -59,15 +59,34 @@ func loadModuleFile(path string, reg *object.Registry, argv []string) (object.Ob
 		return nil, err
 	}
 
-	members := make(map[string]object.Object)
+	return exportModule(mod, g, source.ModuleName(path), path)
+}
+
+// exportModule builds the module value of a loaded module. An exported name
+// the module assigns somewhere is a live binding that reads the module's
+// cell; any other exported name holds the value it was defined with, which
+// cannot change, so it is stored directly and read without the indirection.
+func exportModule(mod *ast.Module, g *globals, name, path string) (*object.Module, error) {
+	m := &object.Module{Name: name, Members: map[string]object.Object{}}
+	var assigned map[string]bool
 	for _, stmt := range mod.Body {
-		if exp, ok := stmt.(*ast.Export); ok {
-			v, ok := g.Get(exp.Name)
-			if !ok {
-				return nil, fmt.Errorf("module %s exports undefined name '%s'", path, exp.Name)
-			}
-			members[exp.Name] = v
+		exp, ok := stmt.(*ast.Export)
+		if !ok {
+			continue
 		}
+		v, ok := g.Get(exp.Name)
+		if !ok {
+			return nil, fmt.Errorf("module %s exports undefined name '%s'", path, exp.Name)
+		}
+		if assigned == nil {
+			assigned = ast.AssignedNames(mod.Body)
+		}
+		if !assigned[exp.Name] {
+			m.Members[exp.Name] = v
+			continue
+		}
+		c := g.cell(exp.Name)
+		m.Bind(exp.Name, func() object.Object { return c.value })
 	}
-	return &object.Module{Name: source.ModuleName(path), Members: members}, nil
+	return m, nil
 }

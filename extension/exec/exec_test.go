@@ -194,6 +194,28 @@ func TestRun(t *testing.T) {
 		}
 	}
 
+	// An empty cwd names no directory: the ValueError every path argument
+	// gives, not this program's working directory.
+	if err := callErr("run", helper(), kw("cwd", object.String(""))); !errors.Is(err, object.ValueError) || err.Error() != `run() argument 'cwd' must not be empty` {
+		t.Fatalf("run(cwd=\"\") = %v", err)
+	}
+
+	// Positionally timeout comes before check, as in Command.wait and
+	// http.send: run(args, cwd, env, stdin, stdout, stderr, timeout, check)
+	// and capture(args, cwd, env, stdin, timeout, check).
+	m, _ := Execute()
+	for fn, unset := range map[string]int{"run": 5, "capture": 3} {
+		positional := object.Args{helper("exit=3")}
+		for range unset {
+			positional = append(positional, object.Nil)
+		}
+		positional = append(positional, object.Integer(5), object.False)
+		r, err := m.(*object.Module).Members[fn].(*object.Function).Call(object.CallArgs{Positional: positional})
+		if err != nil || get(t, r, "code") != object.Integer(3) {
+			t.Fatalf("%s(..., 5, false) = %v, %v", fn, r, err)
+		}
+	}
+
 	start := time.Now()
 	err = callErr("run", helper("sleep=10s"), kw("timeout", object.Float(0.2)))
 	if !errors.Is(err, object.TimeoutError) || !strings.Contains(err.Error(), "timed out after 0.2 seconds") {

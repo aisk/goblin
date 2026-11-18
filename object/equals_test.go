@@ -154,3 +154,96 @@ func TestEqualsPropagatesComparisonFailure(t *testing.T) {
 		}
 	}
 }
+
+// eqType builds a user type whose eq answers with answer (or raises err),
+// counting its calls.
+func eqType(t *testing.T, name string, calls *int, answer Object, err error) *UserType {
+	return sealed(t, name, []string{"v"}, ImplSpec{Protocol: EqProtocol, Methods: []ImplMethod{
+		method("eq", 2, func([]Object) (Object, error) {
+			*calls++
+			return answer, err
+		}),
+	}})
+}
+
+// TestEqualsNilNeverReachesEq: nil is unequal to every user value without
+// the value's eq being asked, in either order, so an eq that reads a field of
+// other never sees nil.
+func TestEqualsNilNeverReachesEq(t *testing.T) {
+	calls := 0
+	money := eqType(t, "Money", &calls, nil, NewAttributeError("Nil has no attribute 'amount'"))
+	m := &fakeValue{typ: money, fields: []Object{Integer(5)}}
+	for _, pair := range [][2]Object{{m, Nil}, {Nil, m}} {
+		if eq, err := Equals(pair[0], pair[1]); err != nil || eq {
+			t.Errorf("Equals(%s, %s) = %v, %v; want false", inspect(pair[0]), inspect(pair[1]), eq, err)
+		}
+		if ne, err := NotEquals(pair[0], pair[1]); err != nil || !ne {
+			t.Errorf("NotEquals(%s, %s) = %v, %v; want true", inspect(pair[0]), inspect(pair[1]), ne, err)
+		}
+	}
+	l := &List{Elements: []Object{m, Nil}}
+	if r, err := CallMethod(l, "index", CallArgs{Positional: Args{Nil}}); err != nil || r != Integer(1) {
+		t.Errorf("index(nil) = %v, %v", r, err)
+	}
+	if r, err := CallMethod(l, "count", CallArgs{Positional: Args{Nil}}); err != nil || r != Integer(1) {
+		t.Errorf("count(nil) = %v, %v", r, err)
+	}
+	d := NewDict()
+	d.Set(Nil, Integer(1))
+	if r, err := d.Index(Nil); err != nil || r != Integer(1) {
+		t.Errorf("d[nil] = %v, %v", r, err)
+	}
+	if calls != 0 {
+		t.Errorf("eq ran %d times against nil", calls)
+	}
+}
+
+// TestEqualsLeftDecides: the left operand's eq answers when it returns a
+// Bool; the right one is asked only when the left has no eq for the pair, and
+// the same object is equal to itself without eq being asked.
+func TestEqualsLeftDecides(t *testing.T) {
+	var neverCalls, alwaysCalls, pickyCalls int
+	never := eqType(t, "Never", &neverCalls, False, nil)
+	always := eqType(t, "Always", &alwaysCalls, True, nil)
+	picky := eqType(t, "Picky", &pickyCalls, nil, NewTypeError("no"))
+	plain := sealed(t, "Plain", []string{"v"})
+	boomCalls := 0
+	boom := eqType(t, "Boom", &boomCalls, nil, NewZeroDivisionError("division by zero"))
+	v := func(typ *UserType) *fakeValue { return &fakeValue{typ: typ, fields: []Object{Integer(1)}} }
+
+	n := v(never)
+	cases := []struct {
+		name string
+		a, b Object
+		want bool
+	}{
+		{"left false is final", v(never), v(always), false},
+		{"left true is final", v(always), v(never), true},
+		{"same object without eq", n, n, true},
+		{"same type, eq says no", v(never), v(never), false},
+		{"left without impl Eq asks right", v(plain), v(always), true},
+		{"left TypeError asks right", v(picky), v(always), true},
+		{"left TypeError, right without Eq", v(picky), v(plain), false},
+		{"built-in left asks right", Integer(1), v(always), true},
+		{"user left against built-in", v(never), Integer(1), false},
+		{"plain is only itself", v(plain), v(plain), false},
+	}
+	for _, c := range cases {
+		if got, err := Equals(c.a, c.b); err != nil || got != c.want {
+			t.Errorf("%s: Equals = %v, %v; want %v", c.name, got, err, c.want)
+		}
+	}
+	before := neverCalls
+	if eq, _ := Equals(n, n); !eq || neverCalls != before {
+		t.Errorf("identity must answer without eq: eq=%v, calls %d -> %d", eq, before, neverCalls)
+	}
+	if ne, err := NotEquals(v(never), v(always)); err != nil || !ne {
+		t.Errorf("!= must negate the left's answer: %v, %v", ne, err)
+	}
+	if _, err := Equals(v(boom), v(always)); !errors.Is(err, ZeroDivisionError) {
+		t.Errorf("an eq that fails for its own reason must propagate, got %v", err)
+	}
+	if alwaysCalls == 0 || pickyCalls == 0 {
+		t.Errorf("eq calls: always %d, picky %d", alwaysCalls, pickyCalls)
+	}
+}

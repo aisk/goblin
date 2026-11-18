@@ -6,7 +6,7 @@ OverflowError Float() value out of range: "1e400"
 OverflowError Int() value out of range: "99999999999999999999"
 ValueError Float() invalid literal for Float: "abc"
 TypeError spawn() takes the function to run as its first positional argument
-TypeError spawn() first argument must be Function, got Int
+TypeError spawn() first argument must be callable, got Int
 TypeError max() argument must be iterable, got Int
 TypeError area() missing required argument: 'height'
 TypeError <lambda>() missing required argument: 'a'

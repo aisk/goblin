@@ -30,6 +30,9 @@ func (i Integer) Equals(other Object) (bool, error) {
 
 func (i Integer) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(i, other); ok {
+		if c == unordered {
+			return 0, errUnordered()
+		}
 		return c, nil
 	}
 	return 0, NewOperandError(OpCompare, "Int", other)

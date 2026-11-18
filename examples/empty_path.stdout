@@ -1,0 +1,22 @@
+Path() argument 'text' must not be empty
+exists() argument 'path' must not be empty
+read() argument 'path' must not be empty
+write() argument 'path' must not be empty
+glob() argument 'pattern' must not be empty
+resolve() argument 'path' must not be empty
+copy() argument 'dst' must not be empty
+join() argument 'segments' must not be empty
+relative_to() argument 'base' must not be empty
+open() argument 'path' must not be empty
+read_lines() argument 'path' must not be empty
+open() argument 'path' must not be empty
+create() argument 'path' must not be empty
+open() argument 'path' must not be empty
+create() argument 'path' must not be empty
+run() argument 'cwd' must not be empty
+capture() argument 'cwd' must not be empty
+add_data() argument 'name' must not be empty
+add() argument 'name' must not be empty
+. . .
+true true
+[Path(".")]

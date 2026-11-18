@@ -1,6 +1,9 @@
 package object
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // renderer formats the values nested inside a collection or a structural
 // Show. It remembers the containers it is currently inside, so a value that
@@ -45,8 +48,8 @@ type PlainText interface {
 }
 
 // element renders a value nested inside another: strings are quoted, plain
-// text library values show as TypeName("text"), and containers recurse
-// through the same renderer.
+// text library values show as TypeName("text"), errors as Kind("message")
+// (see inspectElement), and containers recurse through the same renderer.
 func (r *renderer) element(obj Object) (string, error) {
 	// Deep but acyclic nesting recurses too.
 	if err := CheckStack(); err != nil {
@@ -57,6 +60,8 @@ func (r *renderer) element(obj Object) (string, error) {
 		return v.Literal(), nil
 	case PlainText:
 		return v.TypeName() + "(" + String(v.PlainText()).Literal() + ")", nil
+	case *Error:
+		return v.inspectElement(), nil
 	case *List:
 		return r.list(v)
 	case *Dict:
@@ -153,4 +158,47 @@ func (r *renderer) user(v UserValue) (string, error) {
 func hasStructuralShow(v UserValue) bool {
 	impl := v.UserType().impls[showID]
 	return impl != nil && impl.structural
+}
+
+// inspectElement is how an error shows inside a collection or a structural
+// Show. Its direct display is the bare message, which inside a collection
+// could not be told from a name, from a String, or from nothing at all, so
+// the same rule as PlainText applies: an error shows as Kind("message"),
+// Kind being the nearest kind down its cause chain, with the message quoted
+// as a String element is. A kind is an error whose message is a name (a
+// capital letter, then letters, digits or underscores), as ValueError's is
+// and as `var ConfigError = ValueError("ConfigError")` makes one; a kind
+// itself shows as that bare name.
+func (e *Error) inspectElement() string {
+	e = e.origin()
+	if isKindName(e.Value) {
+		return e.Value
+	}
+	kind := "Error"
+	for c := e.Cause(); ; {
+		next, ok := c.(*Error)
+		if !ok {
+			break
+		}
+		if name := next.origin().Value; isKindName(name) {
+			kind = name
+			break
+		}
+		c = next.Cause()
+	}
+	return kind + "(" + String(e.Value).Literal() + ")"
+}
+
+// isKindName reports whether an error's message names a kind: a capital
+// letter followed by letters, digits or underscores.
+func isKindName(s string) bool {
+	for i, r := range s {
+		if i == 0 && !unicode.IsUpper(r) {
+			return false
+		}
+		if r != '_' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return false
+		}
+	}
+	return s != ""
 }

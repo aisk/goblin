@@ -25,7 +25,8 @@ func PathString(obj Object) (string, bool) {
 }
 
 // Path returns a required argument that names a file, a String or a Path,
-// as the path text.
+// as the path text. An empty String names nothing and is a ValueError (see
+// EmptyPathError).
 func (p *ArgParser) Path(name string) string {
 	v, ok := p.required(name)
 	if !ok {
@@ -35,6 +36,7 @@ func (p *ArgParser) Path(name string) string {
 	if !ok {
 		p.typeErr(name, "String or Path", v)
 	}
+	p.nonEmptyPath(name, s, ok)
 	return s
 }
 
@@ -49,7 +51,26 @@ func (p *ArgParser) NullablePath(name string) (string, bool) {
 	if !ok {
 		p.typeErr(name, "String, Path or Nil", v)
 	}
+	p.nonEmptyPath(name, s, ok)
 	return s, ok
+}
+
+func (p *ArgParser) nonEmptyPath(name, s string, ok bool) {
+	if ok && s == "" && !p.failed {
+		p.fail("() " + emptyPathText(name))
+		p.valueErr = true
+	}
+}
+
+// EmptyPathError is the ValueError for an empty String given where a path is
+// expected: "" names no file, and reading it as "." would make fs.exists("")
+// and fs.exists(fs.Path("")) disagree. A Path is never empty.
+func EmptyPathError(funcName, name string) *Error {
+	return NewValueError("%s() %s", funcName, emptyPathText(name))
+}
+
+func emptyPathText(name string) string {
+	return "argument '" + name + "' must not be empty"
 }
 
 // DataReader returns a reader over v as a `data` argument accepts it: the

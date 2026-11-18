@@ -1,0 +1,32 @@
+# Every callable value is accepted where a function is expected: functions,
+# built-in and user constructors, bound methods, and error kinds.
+type Point(x) {
+    impl Show {}
+}
+
+var ConfigError = ValueError("ConfigError")
+
+print(["1", "2"].map(Int), [1, 2].map(Point), ["ab", "b"].map("abc".has_prefix))
+var errors = ["bad port", "bad host"].map(ConfigError)
+print(errors[0].message, errors[1].is(ConfigError), errors[1].is(ValueError))
+print(Function(ValueError) == ValueError, Function(Point) == Point)
+print(spawn(ValueError, "late").wait().message)
+print([0, 1, "", "x"].filter(Bool))
+
+for value in [1, "f", nil] {
+    try {
+        Function(value)
+    } catch e: TypeError {
+        print(e)
+    }
+}
+try {
+    [1].map(2)
+} catch e: TypeError {
+    print(e)
+}
+try {
+    [2, 1].sort(key="len")
+} catch e: TypeError {
+    print(e)
+}

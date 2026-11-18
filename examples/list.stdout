@@ -41,13 +41,13 @@ false false true pop() from empty list
 [3, 2, 1] [1, 2, 3]
 true false false sort() argument 'descending' must be Bool, got Int
 true false false sort() got an unexpected keyword argument 'reverse'
-true false false sort() argument 'key' must be Function or Nil, got Int
+true false false sort() argument 'key' must be callable or Nil, got Int
 true false false cannot compare String and Int
-true false false map() argument 'fn' must be Function, got Int
-true false false filter() argument 'fn' must be Function, got String
-true false false find() argument 'fn' must be Function, got Nil
-true false false reduce() argument 'fn' must be Function, got Int
-true false false any() argument 'fn' must be Function or Nil, got Int
+true false false map() argument 'fn' must be callable, got Int
+true false false filter() argument 'fn' must be callable, got String
+true false false find() argument 'fn' must be callable, got Nil
+true false false reduce() argument 'fn' must be callable, got Int
+true false false any() argument 'fn' must be callable or Nil, got Int
 true false true true false
 true false
 2 nil

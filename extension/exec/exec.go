@@ -106,7 +106,7 @@ func (l *exitLatch) get() error {
 }
 
 // parse binds the parameters of fn in their documented order; output and
-// check/timeout are only bound for the functions that take them.
+// timeout/check are only bound for the functions that take them.
 func parse(fn string, args object.CallArgs, output, wait bool) (*spec, error) {
 	p := object.NewArgParser(fn, args)
 	s := &spec{fn: fn}
@@ -121,8 +121,9 @@ func parse(fn string, args object.CallArgs, output, wait bool) (*spec, error) {
 	}
 	s.check = true
 	if wait {
-		s.check = bool(p.BoolOr("check", true))
+		// timeout comes before check, as in Command.wait and http.send.
 		s.timeout, s.limited = p.Timeout("timeout")
+		s.check = bool(p.BoolOr("check", true))
 	}
 	if err := p.Finish(); err != nil {
 		return nil, err

@@ -1,0 +1,48 @@
+import "exec"
+import "fs"
+import "gzip"
+import "tar"
+import "zip"
+
+# An empty String names no file. Every function that takes a path refuses it
+# with the same ValueError, and fs.Path("") is refused too, so "" never means
+# the current directory. The current directory is written ".".
+var scratch = fs.mkdir_temp(prefix="goblin-empty-path-")
+defer fs.remove(scratch, recursive=true)
+
+func refused(call) {
+    try {
+        call()
+        print("accepted")
+    } catch e: ValueError {
+        print(e.message)
+    }
+}
+
+refused(func() { return fs.Path("") })
+refused(func() { return fs.exists("") })
+refused(func() { return fs.read("") })
+refused(func() { return fs.write("", "x") })
+refused(func() { return fs.glob("") })
+refused(func() { return fs.resolve("") })
+refused(func() { return fs.copy(scratch, "") })
+refused(func() { return fs.Path("a").join("b", "") })
+refused(func() { return fs.Path("a").relative_to("") })
+refused(func() { return gzip.open("") })
+refused(func() { return gzip.read_lines("") })
+refused(func() { return zip.open("") })
+refused(func() { return zip.create("") })
+refused(func() { return tar.open("") })
+refused(func() { return tar.create("") })
+refused(func() { return exec.run(["true"], cwd="") })
+refused(func() { return exec.capture(["true"], cwd="") })
+
+var writer = zip.create(scratch.join("a.zip"))
+refused(func() { return writer.add_data("", "x") })
+refused(func() { return writer.add(scratch, name="") })
+writer.close()
+
+# A computed "here" is Path("."), never an empty Path
+print(fs.Path("notes.txt").parent, fs.Path("a/b").relative_to("a/b"), fs.Path("."))
+print(fs.exists("."), fs.exists(fs.Path(".")))
+print([fs.Path("notes.txt").parent])

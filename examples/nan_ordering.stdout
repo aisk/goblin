@@ -1,0 +1,18 @@
+false false false false
+false false false false
+false false false true
+false false false false
+5 true true false
+compare ValueError: cannot order NaN
+compare both ValueError: cannot order NaN
+max ValueError: cannot order NaN
+min ValueError: cannot order NaN
+max key ValueError: cannot order NaN
+list < ValueError: cannot order NaN
+sort ValueError: cannot order NaN
+unchanged: [3.0, NaN, 1.0]
+sort key ValueError: cannot order NaN
+unchanged: [2, 1]
+NaN [NaN]
+{NaN: "b"} 1 true
+false nil

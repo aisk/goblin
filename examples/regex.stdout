@@ -1,12 +1,13 @@
 ada@example.com 5 20
 ada example
 true true
+3 ["ada", "example"]
 nil
 valid name
 false
 true
 ab
-<regex.Match "ada@example.com">
+<Match "ada@example.com">
 port= port port nil nil
 ["port", nil, nil]
 {"key": "port", "value": nil, "unit": nil}
@@ -40,7 +41,7 @@ replace() template refers to unknown group 2
 replace() template refers to unknown group '1x'; write ${...} to separate a group number from the text after it
 replace() replacement function must return String, got Int
 from the function
-replace() argument 'replacement' must be String or Function, got Int
+replace() argument 'replacement' must be String or callable, got Int
 ["a", "b", "c"]
 ["a", "b,c"] ["a,b"] ["abc"]
 split() argument 'count' must be non-negative, got -1

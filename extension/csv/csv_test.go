@@ -348,6 +348,53 @@ func TestReadRowsIsLazy(t *testing.T) {
 	}
 }
 
+// The read-ahead belongs to the Rows, so a pass left early leaves the rows
+// it had read for the next pass: take the header, then loop over the rest.
+// An error ends the Rows, and a later pass raises it again.
+func TestReadRowsContinuesAfterEarlyStop(t *testing.T) {
+	source := &object.Module{Name: "whole", Members: map[string]object.Object{
+		"read": &object.Function{Name: "read", Fn: func() func(object.CallArgs) (object.Object, error) {
+			rest := []byte("\xef\xbb\xbfid,name\n1,ada\n2,bob\n3,\"cy\n")
+			return func(object.CallArgs) (object.Object, error) {
+				out := object.NewBytes(rest)
+				rest = nil
+				return out, nil
+			}
+		}()},
+	}}
+	rows, err := call("read_rows", object.Args{source})
+	if err != nil {
+		t.Fatal(err)
+	}
+	pass := func(limit int) (got []string, err error) {
+		it, err := object.Iterate(rows)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for len(got) < limit {
+			row, ok, err := it.Next()
+			if err != nil || !ok {
+				return got, err
+			}
+			got = append(got, show(t, row))
+		}
+		return got, nil
+	}
+	if got, err := pass(1); err != nil || strings.Join(got, " ") != `["id", "name"]` {
+		t.Fatalf("first pass = %v %v", got, err)
+	}
+	if got, err := pass(1); err != nil || strings.Join(got, " ") != `["1", "ada"]` {
+		t.Fatalf("second pass = %v %v", got, err)
+	}
+	want := `read_rows() invalid CSV at line 4, column 7: quoted field never ends`
+	if got, err := pass(10); err == nil || err.Error() != want || strings.Join(got, " ") != `["2", "bob"]` {
+		t.Fatalf("third pass = %v %v", got, err)
+	}
+	if got, err := pass(10); len(got) != 0 || err == nil || err.Error() != want {
+		t.Fatalf("a pass after the error = %v %v", got, err)
+	}
+}
+
 func TestDecodeRejectsInvalidUTF8(t *testing.T) {
 	for _, fn := range []string{"decode", "decode_dicts"} {
 		_, err := call(fn, object.Args{object.NewBytes([]byte("name\nä,b\xffc\n"))})

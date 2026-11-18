@@ -2,7 +2,6 @@ package regex
 
 import (
 	"fmt"
-	"sync"
 	"unicode/utf8"
 
 	"github.com/aisk/goblin/object"
@@ -19,9 +18,6 @@ type Match struct {
 	names []string
 	// ascii is set when byte offsets are already character positions.
 	ascii bool
-
-	groupsOnce sync.Once
-	groupsList *object.List
 }
 
 func newMatch(source string, indices []int, names []string) *Match {
@@ -46,7 +42,7 @@ func isASCII(s string) bool {
 // Constructor makes type_of(m) answer regex.Match.
 func (m *Match) Constructor() *object.Function { return MatchType.Function }
 
-func (m *Match) String() string            { return fmt.Sprintf("<regex.Match %q>", m.substring(0)) }
+func (m *Match) String() string            { return fmt.Sprintf("<Match %q>", m.substring(0)) }
 func (m *Match) ToString() (string, error) { return m.String(), nil }
 
 // position converts a byte offset into the searched text to a character
@@ -135,21 +131,18 @@ func (m *Match) span(args object.CallArgs) (object.Object, error) {
 	}}, nil
 }
 
-// groups is the List of groups 1…n, made once so every read is the same
-// List.
+// groups is a new List of groups 1…n on every read, so a caller that
+// changes it cannot change the Match.
 func (m *Match) groups() *object.List {
-	m.groupsOnce.Do(func() {
-		items := make([]object.Object, len(m.indices)/2-1)
-		for i := range items {
-			if m.participated(i + 1) {
-				items[i] = object.String(m.substring(i + 1))
-			} else {
-				items[i] = object.Nil
-			}
+	items := make([]object.Object, len(m.indices)/2-1)
+	for i := range items {
+		if m.participated(i + 1) {
+			items[i] = object.String(m.substring(i + 1))
+		} else {
+			items[i] = object.Nil
 		}
-		m.groupsList = &object.List{Elements: items}
-	})
-	return m.groupsList
+	}
+	return &object.List{Elements: items}
 }
 
 // toDict maps every named group to its text, in the order the names first

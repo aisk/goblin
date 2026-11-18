@@ -27,7 +27,7 @@ date fig
 pear a
 1.0 1 1 1.0
 plum
-true false max() argument 'key' must be Function or Nil, got Int
+true false max() argument 'key' must be callable or Nil, got Int
 true false cannot compare Int and String
 6 0 1.5 5050
 true false cannot add Int and String

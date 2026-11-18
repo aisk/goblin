@@ -34,6 +34,9 @@ type generator struct {
 	moduleVars map[string]string
 	// exportsVar is the Execute local collecting the module's exports.
 	exportsVar string
+	// assigned holds the names some assignment in the module targets; an
+	// exported one is a live binding (see transpileExport).
+	assigned map[string]bool
 
 	// rangeNative reports whether `range` resolves to the builtin throughout
 	// the module, making `for x in range(a, b)` eligible for lowering to a

@@ -1,0 +1,31 @@
+# An exported variable is a live binding: reading counter.count gives the
+# module's variable as it is now, not a copy taken when it was exported.
+import "./modules/counter"
+import "./modules/counter_peer"
+
+print(counter.bump(), counter.count, counter.bump(), counter.count)
+print(counter.history)
+print(counter.Tally("t").read())
+
+# Assignments after the export statement are visible too.
+print(counter.label, counter.ratio, counter.describe())
+
+# A module imported by two modules is loaded once, so its state is shared.
+print(counter_peer.bump_twice(), counter.count, counter_peer.seen())
+counter.reset()
+print(counter.count, counter_peer.seen())
+
+# A list is the same list either way; mutations were always visible.
+counter.history.push(99)
+print(counter.history.size)
+
+print(attributes(counter))
+print(type_of(counter.count) == Int, counter.count == 0)
+
+# Only the module assigns its variables.
+try {
+    counter.count = 10
+} catch e: TypeError {
+    print(e)
+}
+print(counter.count)

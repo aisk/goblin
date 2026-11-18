@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"net"
 	stdhttp "net/http"
@@ -321,5 +322,60 @@ func TestConnectionsShared(t *testing.T) {
 	text(t, method(t, newClientT(t, kw("insecure", object.True)), "get", args(str(srv.URL))))
 	if n := conns.n.Load(); n != 2 {
 		t.Fatalf("the insecure Client reused a verifying connection (%d connections)", n)
+	}
+}
+
+// A query is sent with the bytes a request target cannot hold
+// percent-encoded, as the path is, on the first request and on a followed
+// redirect; existing escapes and the query's delimiters are sent as
+// written, and request.url and response.url keep the text the caller wrote.
+func TestQueryIsEscapedOnTheWire(t *testing.T) {
+	var targets []string
+	srv := httptest.NewServer(stdhttp.HandlerFunc(func(w stdhttp.ResponseWriter, r *stdhttp.Request) {
+		targets = append(targets, r.RequestURI)
+		if r.URL.Path == "/redirect" {
+			w.Header().Set("Location", "/to?q=r s&y=é")
+			w.WriteHeader(stdhttp.StatusFound)
+			return
+		}
+		fmt.Fprint(w, r.URL.Query().Get("q"))
+	}))
+	defer srv.Close()
+
+	written := srv.URL + "/a b?q=x y&e=é&k=%41+b&l=[1]&p=100%"
+	resp := call(t, member(t, "get"), args(str(written)))
+	if got := text(t, resp); got != "x y" {
+		t.Fatalf("the server read q=%q", got)
+	}
+	if want := "/a%20b?q=x%20y&e=%C3%A9&k=%41+b&l=[1]&p=100%25"; targets[0] != want {
+		t.Fatalf("request target = %q, want %q", targets[0], want)
+	}
+	if got := get(t, resp, "url"); fmt.Sprint(got) != srv.URL+"/a%20b?q=x y&e=é&k=%41+b&l=[1]&p=100%" {
+		t.Fatalf("response.url = %v", got)
+	}
+
+	req := newRequestT(t, "GET", srv.URL+"/redirect?z=a b")
+	resp = call(t, member(t, "send"), args(req))
+	if want := []string{"/redirect?z=a%20b", "/to?q=r%20s&y=%C3%A9"}; strings.Join(targets[1:], " ") != strings.Join(want, " ") {
+		t.Fatalf("request targets = %q, want %q", targets[1:], want)
+	}
+	if got := fmt.Sprint(get(t, req, "url")); got != srv.URL+"/redirect?z=a b" {
+		t.Fatalf("request.url = %v", got)
+	}
+	if got := fmt.Sprint(get(t, resp, "url")); got != srv.URL+"/to?q=r s&y=é" {
+		t.Fatalf("response.url after the redirect = %v", got)
+	}
+
+	for query, want := range map[string]string{
+		"":              "",
+		"a=1&b=2":       "a=1&b=2",
+		"%zz":           "%25zz",
+		"a%2":           "a%252",
+		"x=\"<>\\^`{|}": "x=%22%3C%3E%5C%5E%60%7B%7C%7D",
+		"/?:@!$'()*,;":  "/?:@!$'()*,;",
+	} {
+		if got := escapeQuery(query); got != want {
+			t.Errorf("escapeQuery(%q) = %q, want %q", query, got, want)
+		}
 	}
 }

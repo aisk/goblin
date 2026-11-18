@@ -303,7 +303,8 @@ func TestArgs(t *testing.T) {
 	if _, err := args.GetAttr("verbsoe"); err == nil || err.Error() != "Args has no attribute 'verbsoe'" {
 		t.Fatal(err)
 	}
-	if _, err := args.SetAttr("verbose", object.Bool(true)); err == nil || err.Error() != "Args is read-only" {
+	// Assigning is refused like on every other library value.
+	if err := object.SetAttr(args, "verbose", object.Bool(true)); err == nil || err.Error() != "Args does not support attribute assignment" || !errors.Is(err, object.TypeError) {
 		t.Fatal(err)
 	}
 	// A many default is a new List on every parse.

@@ -91,6 +91,67 @@ func transport(insecure bool) *stdhttp.Transport {
 	return insecureTransport
 }
 
+// queryEscaping sends every request, a followed redirect included, with the
+// bytes of its query that a request target cannot hold percent-encoded, as
+// Go already does for the path: a space or a non-ASCII character would
+// otherwise be written raw into the request line. What a request target
+// may hold is left as written, so an existing escape and the query's own
+// delimiters keep their meaning. The URL the caller sees on the request and
+// the response stays the one written.
+type queryEscaping struct{ base stdhttp.RoundTripper }
+
+func (q queryEscaping) RoundTrip(req *stdhttp.Request) (*stdhttp.Response, error) {
+	escaped := escapeQuery(req.URL.RawQuery)
+	if escaped == req.URL.RawQuery {
+		return q.base.RoundTrip(req)
+	}
+	sent := req.Clone(req.Context())
+	sent.URL.RawQuery = escaped
+	resp, err := q.base.RoundTrip(sent)
+	if resp != nil {
+		resp.Request = req
+	}
+	return resp, err
+}
+
+// escapeQuery percent-encodes the bytes of a raw query that are neither
+// allowed in a request target's query nor part of a %XX escape. The bytes
+// left alone are those RFC 3986 allows in a query, plus "[" and "]", which
+// Go also leaves in a path.
+func escapeQuery(query string) string {
+	var out []byte // nil until the first byte that needs escaping
+	for i := 0; i < len(query); i++ {
+		c := query[i]
+		if queryByte(c) || (c == '%' && i+2 < len(query) && isHex(query[i+1]) && isHex(query[i+2])) {
+			if out != nil {
+				out = append(out, c)
+			}
+			continue
+		}
+		if out == nil {
+			out = append(make([]byte, 0, len(query)+8), query[:i]...)
+		}
+		const hex = "0123456789ABCDEF"
+		out = append(out, '%', hex[c>>4], hex[c&15])
+	}
+	if out == nil {
+		return query
+	}
+	return string(out)
+}
+
+func queryByte(c byte) bool {
+	switch {
+	case 'a' <= c && c <= 'z', 'A' <= c && c <= 'Z', '0' <= c && c <= '9':
+		return true
+	}
+	return strings.IndexByte("-._~!$&'()*+,;=:@/?[]", c) >= 0
+}
+
+func isHex(c byte) bool {
+	return '0' <= c && c <= '9' || 'a' <= c && c <= 'f' || 'A' <= c && c <= 'F'
+}
+
 // watchdog bounds a call, and after it each wait for body data, by
 // cancelling the exchange's context when the limit passes.
 type watchdog struct {
@@ -206,7 +267,7 @@ func (c *Client) run(fn string, req *Request, agent bool, timeout time.Duration,
 	goReq.Header = header
 	stream := req.attach(fn, goReq)
 
-	client := &stdhttp.Client{Transport: transport(c.insecure)}
+	client := &stdhttp.Client{Transport: queryEscaping{transport(c.insecure)}}
 	limitReached := false
 	if agent {
 		client.Jar = c.jar

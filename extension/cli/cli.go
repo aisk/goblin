@@ -205,8 +205,4 @@ func (a *Args) GetAttr(name string) (object.Object, error) {
 
 func (a *Args) Attributes() []string { return append([]string(nil), a.names...) }
 
-func (a *Args) SetAttr(string, object.Object) (bool, error) {
-	return true, object.NewAttributeError("Args is read-only")
-}
-
 var _ object.Object = (*Args)(nil)

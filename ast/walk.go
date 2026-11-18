@@ -183,3 +183,19 @@ func WalkStatements(stmts []Statement, f func(Statement)) {
 		}
 	}
 }
+
+// AssignedNames returns the names some `name = value` statement under stmts
+// assigns, at any depth, nested functions and methods included. Shadowing is
+// not resolved, so a name may be listed because of an assignment to a local
+// of the same name; callers use the set to decide what may change, for which
+// a false positive only costs speed.
+func AssignedNames(stmts []Statement) map[string]bool {
+	names := map[string]bool{}
+	InspectList(stmts, func(n Statement) bool {
+		if a, ok := n.(*Assign); ok {
+			names[a.Target] = true
+		}
+		return true
+	})
+	return names
+}

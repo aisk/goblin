@@ -23,7 +23,7 @@ integer overflow
 0.79 1.31 true
 2.0 2.5 2.0
 15.0 1.75
-true
+median() cannot order NaN
 [3, 1, 2]
 mean() argument 'values' is empty
 median() argument 'values' is empty

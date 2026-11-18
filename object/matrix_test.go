@@ -245,7 +245,7 @@ var calls = []struct {
 	{func() Object { return list(Bytes("a"), Integer(1)) }, "join", kw("sep", Bytes("-")), fails(TypeError, "join() element 1 must be Bytes, got Int")},
 	{func() Object { return list(Integer(1)) }, "map", kw("fn", identity), val("[1]")},
 	{func() Object { return list(Integer(1)) }, "filter", kw("fn", never), val("[]")},
-	{func() Object { return list(Integer(1)) }, "map", kw("fn", Integer(1)), fails(TypeError, "map() argument 'fn' must be Function, got Int")},
+	{func() Object { return list(Integer(1)) }, "map", kw("fn", Integer(1)), fails(TypeError, "map() argument 'fn' must be callable, got Int")},
 	{func() Object { return list(Integer(1), Integer(2)) }, "reduce", kw("fn", add, "initial", Integer(10)), val("13")},
 	{func() Object { return list() }, "reduce", kw("fn", add), fails(ValueError, "reduce() of empty list with no initial value")},
 	{func() Object { return list() }, "any", kw("fn", Nil), val("false")},
@@ -270,7 +270,7 @@ var calls = []struct {
 	{func() Object { return dict(String("b"), Integer(1), String("a"), Integer(2)) }, "copy", CallArgs{}, val(`{"b": 1, "a": 2}`)},
 
 	// Error, Chan
-	{func() Object { return NewError("boom") }, "wrap", kw("message", String("ctx")), val("ctx: boom")},
+	{func() Object { return NewError("boom") }, "wrap", kw("message", String("ctx")), val(`Error("ctx: boom")`)},
 	{func() Object { return NewError("boom") }, "wrap", kw("message", Integer(1)), fails(TypeError, "wrap() argument 'message' must be String, got Int")},
 	{func() Object { return NewError("boom") }, "is", kw("target", Integer(1)), fails(TypeError, "is() argument must be an Error, got Int")},
 	{func() Object { c := NewChan(1); c.Close(CallArgs{}); return c }, "send", kw("value", Integer(1)), fails(ValueError, "send() on closed channel")},

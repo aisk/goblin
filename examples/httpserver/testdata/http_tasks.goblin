@@ -312,3 +312,11 @@ print(http.get(export_url).text().lines())
 print(http.get("{base}/headers").text().lines())
 print(http.get("{base}/headers", headers={"User-Agent": "mine/1.0", "X-Tag": ["a", "b"]}).text().lines())
 print(http.exchange(http.Request("GET", "{base}/headers", headers={"X-Tag": "only"})).text().lines())
+
+# A query is written as it reads; the bytes a request line cannot hold (a
+# space, non-ASCII) are percent-encoded when it is sent, on a redirect too,
+# and the URL the program sees stays as written
+var target = http.get("{base}/target?q=new york&lang=pt-BR&city=São%20Paulo&tag=a+b")
+print(target.text(), show(target.url))
+var moved = http.get("{base}/target/moved")
+print(moved.text(), show(moved.url))

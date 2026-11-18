@@ -71,7 +71,7 @@ func run(which) {
     } else if which == "print" {
         print([q])
     } else if which == "eq" {
-        [q].contains(q)
+        [q].contains(1)
     } else if which == "error_message" {
         # The show of the error's value exits where no error can be
         # returned: the process ends at once, without running deferred calls.

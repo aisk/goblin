@@ -1,0 +1,53 @@
+# How == chooses an eq: nil is unequal to every user value without its eq
+# being asked; the same object is equal to itself; otherwise the left
+# operand's eq decides, and the right one's is asked only when the left has
+# no eq for the pair.
+type Money(amount) {
+    impl Eq {
+        func eq(self, other) {
+            return self.amount == other.amount
+        }
+    }
+}
+
+var m = Money(5)
+print(m == nil, nil == m, m != nil, nil != m)
+print([m, nil].contains(nil), [nil, m].index(nil), [m, nil, nil].count(nil))
+var items = [m, nil]
+items.remove(nil)
+print(items.size, m == Money(5), m == Money(6))
+
+type Never(v) {
+    impl Eq {
+        func eq(self, other) {
+            return false
+        }
+    }
+}
+
+type Always(v) {
+    impl Eq {
+        func eq(self, other) {
+            return true
+        }
+    }
+}
+
+type Plain(v) {}
+
+type Strict(v) {
+    impl Eq {
+        func eq(self, other) {
+            if type_of(other) != Strict {
+                raise TypeError("Strict compares only with Strict")
+            }
+            return self.v == other.v
+        }
+    }
+}
+
+var n = Never(1)
+print(Never(1) == Always(1), Always(1) == Never(1), Never(1) != Always(1))
+print(n == n, [n].contains(n), Never(1) == Never(1))
+print(Plain(1) == Always(1), Strict(1) == Always(1), Strict(1) == Plain(1))
+print(1 == Always(1), Always(1) == 1, 1 == Never(1))

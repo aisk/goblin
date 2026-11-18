@@ -283,7 +283,7 @@ func formatUUID(b [16]byte) string {
 	return h[0:8] + "-" + h[8:12] + "-" + h[12:16] + "-" + h[16:20] + "-" + h[20:32]
 }
 
-func (r *Rand) String() string            { return fmt.Sprintf("<rand.Rand seed=%d>", r.seed) }
+func (r *Rand) String() string            { return fmt.Sprintf("<Rand seed=%d>", r.seed) }
 func (r *Rand) ToString() (string, error) { return r.String(), nil }
 
 // Equals is identity: two generators are never interchangeable.

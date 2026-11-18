@@ -1,0 +1,26 @@
+# Inside a collection or a structural Show an error shows as
+# Kind("message"); a kind shows as its name. Printing the error itself shows
+# only its message.
+type Result(value, error) {
+    impl Show {}
+}
+
+var ConfigError = ValueError("ConfigError")
+var not_found = Error("not found")
+
+print([ValueError("bad input"), "bad input", ValueError("")])
+print({"err": KeyError("a, b")})
+print(Result(nil, ValueError("boom")))
+print([ValueError, Error, ConfigError, ConfigError("missing \"name\"")])
+print([Error("x"), not_found, not_found.wrap("loading"), ValueError("bad").wrap("parsing")])
+
+try {
+    print([1][3])
+} catch e {
+    print([e], {e.cause: e.message})
+}
+
+var e = ValueError("bad input")
+print(e)
+print(String(e), "{e}", e.message)
+print(String([e]), "{[e]}")

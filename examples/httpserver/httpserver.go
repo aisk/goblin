@@ -260,6 +260,15 @@ func (s *state) mux() *http.ServeMux {
 		io.WriteString(zw, "id,name\n1,Ada\n")
 		zw.Close()
 	})
+	// /target answers with the request target as it arrived on the wire;
+	// /target/moved redirects to a Location whose query is not escaped.
+	m.HandleFunc("GET /target", func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, r.RequestURI)
+	})
+	m.HandleFunc("GET /target/moved", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/target?city=S\u00e3o Paulo&page=2")
+		w.WriteHeader(http.StatusFound)
+	})
 	m.HandleFunc("PUT /up", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/storage/up", http.StatusTemporaryRedirect)
 	})

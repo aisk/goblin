@@ -117,9 +117,9 @@ func Spawn(args CallArgs) (Object, error) {
 	if len(args.Positional) == 0 {
 		return nil, NewTypeError("spawn() takes the function to run as its first positional argument")
 	}
-	fn, ok := args.Positional[0].(*Function)
+	fn, ok := AsFunction(args.Positional[0])
 	if !ok {
-		return nil, NewTypeError("spawn() first argument must be Function, got %s", args.Positional[0].TypeName())
+		return nil, NewTypeError("spawn() first argument must be callable, got %s", args.Positional[0].TypeName())
 	}
 	// The arguments only live for this call (see CallArgs); the goroutine
 	// runs after it returns, so it gets its own copy.

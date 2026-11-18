@@ -232,7 +232,7 @@ func TestSpawnMessagesNameNoParameter(t *testing.T) {
 	_, err := Spawn(CallArgs{Keyword: Kwargs{{Name: "fn", Value: SpawnFn}}})
 	wantError(t, err, TypeError, "spawn() takes the function to run as its first positional argument")
 	_, err = Spawn(CallArgs{Positional: Args{Integer(1)}})
-	wantError(t, err, TypeError, "spawn() first argument must be Function, got Int")
+	wantError(t, err, TypeError, "spawn() first argument must be callable, got Int")
 	if strings.Contains(err.Error(), "'fn'") {
 		t.Fatal(err)
 	}

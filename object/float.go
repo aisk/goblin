@@ -43,6 +43,9 @@ func (f Float) Equals(other Object) (bool, error) {
 
 func (f Float) Compare(other Object) (int, error) {
 	if c, ok := numericCompare(f, other); ok {
+		if c == unordered {
+			return 0, errUnordered()
+		}
 		return c, nil
 	}
 	return 0, NewOperandError(OpCompare, "Float", other)

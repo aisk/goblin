@@ -114,7 +114,7 @@ attempt(["--format", "jpg"], format=cli.Option(choices=["png", "jpg"], default="
 attempt(["--level", "2"], level=cli.Option(choices=[1, 2, 3], convert=Int))
 attempt(["7"], cli.Arg("level", choices=[1, 2, 3], convert=Int))
 
-# Args is read-only and has exactly the declared names
+# Args is immutable and has exactly the declared names
 var copy = cli.parse("source", "target", verbose=false, argv=["a", "b", "--verbose"])
 print(copy.verbose, attributes(copy))
 try {
@@ -124,7 +124,7 @@ try {
 }
 try {
     copy.verbose = false
-} catch e: AttributeError {
+} catch e: TypeError {
     print(e.message)
 }
 var opt = cli.Option("where to write")

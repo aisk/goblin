@@ -169,9 +169,9 @@ func replace(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	template, isTemplate := replacement.(object.String)
-	fn, isFunc := replacement.(*object.Function)
+	fn, isFunc := object.AsFunction(replacement)
 	if !isTemplate && !isFunc {
-		return nil, object.NewTypeError("replace() argument 'replacement' must be String or Function, got %s", replacement.TypeName())
+		return nil, object.NewTypeError("replace() argument 'replacement' must be String or callable, got %s", replacement.TypeName())
 	}
 	re, err := compile("replace", string(pattern), false)
 	if err != nil {

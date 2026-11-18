@@ -192,13 +192,12 @@ func TestStatistics(t *testing.T) {
 	if got, _ := call("mean", values); got != object.Float(15) {
 		t.Errorf("mean of Dict values = %v", got)
 	}
-	got, _ = call("median", floats(1, math.NaN(), 3))
-	if !math.IsNaN(float64(got.(object.Float))) {
-		t.Errorf("NAN in median = %v", got)
+	// A NaN has no place in sorted order, so the functions that order raise.
+	if _, err := call("median", floats(1, math.NaN(), 3)); err == nil || err.Error() != "median() cannot order NaN" || !errors.Is(err, object.ValueError) {
+		t.Errorf("NAN in median: %v", err)
 	}
-	got, _ = call("percentile", floats(1, math.NaN()), object.Integer(0))
-	if !math.IsNaN(float64(got.(object.Float))) {
-		t.Errorf("NAN in percentile = %v", got)
+	if _, err := call("percentile", floats(1, math.NaN()), object.Integer(0)); err == nil || err.Error() != "percentile() cannot order NaN" || !errors.Is(err, object.ValueError) {
+		t.Errorf("NAN in percentile: %v", err)
 	}
 	// An infinity is an ordinary value: a rank on or next to it is not NaN.
 	inf := math.Inf(1)

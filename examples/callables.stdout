@@ -1,0 +1,10 @@
+[1, 2] [Point(x=1), Point(x=2)] [true, false]
+bad port true true
+true true
+late
+[1, "x"]
+Function() argument 'value' must be callable, got Int
+Function() argument 'value' must be callable, got String
+Function() argument 'value' must be callable, got Nil
+map() argument 'fn' must be callable, got Int
+sort() argument 'key' must be callable or Nil, got String

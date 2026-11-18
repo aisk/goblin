@@ -647,7 +647,7 @@ func (g *generator) transpileStatement(stmt ast.Statement, onError errHandler) (
 	case *ast.TryCatch:
 		codes, err = g.transpileTryCatch(v, onError)
 	case *ast.Export:
-		codes, err = g.transpileExport(v)
+		codes, err = g.transpileExport(v, onError)
 	case *ast.BinaryOperation:
 		var pre []jen.Code
 		pre, _, err = g.transpileBinaryOperation(v, onError)

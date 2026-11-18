@@ -296,8 +296,19 @@ func (p *ArgParser) DictOr(name string, def *Dict) *Dict {
 	return argValueOr(p, name, "Dict", def)
 }
 
-// Func returns a required Function argument.
-func (p *ArgParser) Func(name string) *Function { return argValue[*Function](p, name, "Function") }
+// Func returns a required callable argument (see AsFunction). A value that is
+// not callable is reported as "must be callable".
+func (p *ArgParser) Func(name string) *Function {
+	v, ok := p.required(name)
+	if !ok {
+		return nil
+	}
+	fn, ok := AsFunction(v)
+	if !ok {
+		p.typeErr(name, "callable", v)
+	}
+	return fn
+}
 
 // nullableArgValue extracts an optional argument of concrete type T where nil
 // means the same as leaving it out. ok is false then; any other type is
@@ -332,9 +343,18 @@ func (p *ArgParser) NullableList(name string) (*List, bool) {
 	return nullableArgValue[*List](p, name, "List")
 }
 
-// NullableFunc returns an optional Function argument; see NullableInt.
+// NullableFunc returns an optional callable argument; see NullableInt and
+// Func.
 func (p *ArgParser) NullableFunc(name string) (*Function, bool) {
-	return nullableArgValue[*Function](p, name, "Function")
+	v, ok := p.next(name)
+	if !ok || v == Nil {
+		return nil, false
+	}
+	fn, ok := AsFunction(v)
+	if !ok {
+		p.typeErr(name, "callable or Nil", v)
+	}
+	return fn, ok
 }
 
 // Number returns a required argument that must be an Integer or Float, as the

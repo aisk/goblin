@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"io"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/aisk/goblin/object"
@@ -13,13 +14,24 @@ import (
 
 var rowsType = object.NewOpaqueConstructor("Rows", "csv.read_rows(readable)")
 
-// Rows is what csv.read_rows returns: each pass reads rows from the
-// readable it was given, one at a time, by the rules decode follows. It
-// never closes the readable: whoever opened it does.
+// Rows is what csv.read_rows returns: it reads rows from the readable it
+// was given, one at a time, by the rules decode follows. The read-ahead
+// belongs to the Rows, not to one pass, so a pass that stops early leaves
+// the rows it read ahead for the next pass. It never closes the readable:
+// whoever opened it does.
 type Rows struct {
 	object.OpaqueBase
 	source io.Reader
 	sep    rune
+
+	mu sync.Mutex
+	// keeper and reader are made by the first pass, so a byte order mark
+	// is looked for where the readable is when reading starts.
+	keeper *lineKeeper
+	reader *csv.Reader
+	// fail rebuilds the error that ended reading, so every later pass
+	// raises it again instead of reading past a broken row.
+	fail func() error
 }
 
 // read_rows(readable, sep=",") reads CSV from anything with a read(size)
@@ -53,47 +65,58 @@ func (r *Rows) GetAttr(name string) (object.Object, error) {
 
 func (r *Rows) Iter() ([]object.Object, error) { return object.Collect(r) }
 
-// Iterator starts a pass where the readable now is. A byte order mark at
-// that point is dropped, as decode drops one at the start of its data.
+// Iterator continues where the last pass stopped. The first pass starts
+// where the readable is then, dropping a byte order mark at that point, as
+// decode drops one at the start of its data.
 func (r *Rows) Iterator() (object.Iterator, error) {
-	buffered := bufio.NewReader(r.source)
-	if head, _ := buffered.Peek(len(byteOrderMark)); bytes.Equal(head, byteOrderMark) {
-		buffered.Discard(len(byteOrderMark))
+	return object.IteratorFunc(r.next), nil
+}
+
+func (r *Rows) next() (object.Object, bool, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.fail != nil {
+		return nil, false, r.fail()
 	}
-	keeper := &lineKeeper{r: buffered, first: 1}
-	reader := newReader(keeper, r.sep)
-	done := false
-	return object.IteratorFunc(func() (object.Object, bool, error) {
-		if done {
-			return nil, false, nil
+	if r.reader == nil {
+		buffered := bufio.NewReader(r.source)
+		if head, _ := buffered.Peek(len(byteOrderMark)); bytes.Equal(head, byteOrderMark) {
+			buffered.Discard(len(byteOrderMark))
 		}
-		record, err := reader.Read()
-		if err == io.EOF {
-			done = true
-			return nil, false, nil
+		r.keeper = &lineKeeper{r: buffered, first: 1}
+		r.reader = newReader(r.keeper, r.sep)
+	}
+	keeper, reader := r.keeper, r.reader
+	record, err := reader.Read()
+	if err == io.EOF {
+		// Not kept: a readable that has more later (a growing file) is
+		// read on by the next pass.
+		return nil, false, nil
+	}
+	if err != nil {
+		var pe *csv.ParseError
+		if !errors.As(err, &pe) {
+			// The readable's own failure, raised as it is.
+			r.fail = func() error { return err }
+			return nil, false, err
 		}
-		if err != nil {
-			done = true
-			var pe *csv.ParseError
-			if !errors.As(err, &pe) {
-				// The readable's own failure, raised as it is.
-				return nil, false, err
-			}
-			atEnd := keeper.offset(pe.Line, pe.Column) >= len(bytes.TrimRight(keeper.buf, "\r\n"))
-			return nil, false, errorAt("read_rows", pe.Line, keeper.column(pe.Line, pe.Column), problem(pe, atEnd))
+		atEnd := keeper.offset(pe.Line, pe.Column) >= len(bytes.TrimRight(keeper.buf, "\r\n"))
+		line, column, what := pe.Line, keeper.column(pe.Line, pe.Column), problem(pe, atEnd)
+		r.fail = func() error { return errorAt("read_rows", line, column, what) }
+		return nil, false, r.fail()
+	}
+	for i, field := range record {
+		if !utf8.ValidString(field) {
+			line, column := reader.FieldPos(i)
+			failure := keeper.invalidUTF8(line, column)
+			r.fail = func() error { return keeper.invalidUTF8(line, column) }
+			return nil, false, failure
 		}
-		for i, field := range record {
-			if !utf8.ValidString(field) {
-				done = true
-				line, column := reader.FieldPos(i)
-				return nil, false, keeper.invalidUTF8(line, column)
-			}
-		}
-		// Nothing before this record is needed again.
-		line, _ := reader.FieldPos(0)
-		keeper.drop(line)
-		return stringList(record), true, nil
-	}), nil
+	}
+	// Nothing before this record is needed again.
+	line, _ := reader.FieldPos(0)
+	keeper.drop(line)
+	return stringList(record), true, nil
 }
 
 // lineKeeper passes the readable through to encoding/csv and keeps what it
