@@ -47,6 +47,8 @@ true
 true
 true
 Error true true
+Error Error true false
+ann
 Error x
 caught by Error: a kind true
 caught by Error: plain true

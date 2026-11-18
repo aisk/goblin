@@ -157,6 +157,12 @@ func TestErrorMatches(t *testing.T) {
 // and every error matches it, whatever its chain holds, except the exit
 // request os.exit raises.
 func TestBaseErrorKind(t *testing.T) {
+	if name, err := BaseError.GetAttr("name"); err != nil || name != String("Error") {
+		t.Errorf("Error.name = %v, %v", name, err)
+	}
+	if _, err := ValueError.GetAttr("name"); err == nil {
+		t.Error("ValueError.name should be free for data")
+	}
 	v, err := Call(BaseError, CallArgs{Positional: Args{String("plain")}, Keyword: Kwargs{{Name: "code", Value: Integer(2)}}})
 	if err != nil {
 		t.Fatal(err)

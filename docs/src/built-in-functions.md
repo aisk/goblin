@@ -117,7 +117,10 @@ function named after the type (`type_of(nil).name` is `"Nil"`) that compares
 equal for values of the same type and raises TypeError when called. The type
 of an error is `Error`, the base error kind: `type_of(e) == Error` holds for
 every error, and calling `Error` makes a new one. It is an error rather than a
-function, so it has a `message` (`"Error"`) instead of a `name`.
+function, but it has a `name` like every other type, so `type_of(value).name`
+works for any value (`type_of(e).name` is `"Error"`). Only `Error` itself has
+it: on any other error `name` is free for data, as in
+`NotFound("no such user", name="ann")`.
 
 `attributes(value)` returns a new list of the names a value answers to: its
 properties or fields first, then its methods, in declaration order (a

@@ -209,6 +209,8 @@ try {
 # of any kind, plain errors made with Error(...), the runtime's own failures
 # and wrapped errors
 print(type_of(Error), type_of(ValueError) == Error, Error("x").cause == Error)
+print(type_of(ValueError("x")).name, Error.name, attributes(Error).contains("name"), attributes(ValueError).contains("name"))
+print(ValueError("no such user", name="ann").name)
 print(Error().message, Error("x").message)
 var any_errors = [
     func() { raise ValueError("a kind") },

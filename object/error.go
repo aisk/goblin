@@ -351,6 +351,9 @@ func (e *Error) GetAttr(name string) (Object, error) {
 	case "traceback":
 		return String(e.Traceback()), nil
 	}
+	if name == "name" && e == BaseError {
+		return String(e.TypeName()), nil
+	}
 	if v, ok := e.Field(name); ok {
 		return v, nil
 	}
@@ -358,9 +361,15 @@ func (e *Error) GetAttr(name string) (Object, error) {
 }
 
 // Attributes lists the built-in members, then the data names visible through
-// the cause chain, nearest first.
+// the cause chain, nearest first. The base kind is what type_of returns for
+// an error, so it alone also answers `name`, as every other type does; on
+// any other error `name` stays free for data.
 func (e *Error) Attributes() []string {
-	return append([]string{"message", "traceback", "cause", "wrap", "is"}, e.fieldNames()...)
+	names := []string{"message", "traceback", "cause", "wrap", "is"}
+	if e == BaseError {
+		names = append(names, "name")
+	}
+	return append(names, e.fieldNames()...)
 }
 
 // reservedDataNames are the built-in members a data name would hide.
