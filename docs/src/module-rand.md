@@ -97,7 +97,7 @@ results for the same calls, on every run and on every machine.
 | `int(end)` / `int(start, end)`, `float()`, `choice(items, weights=nil)`, `sample(items, count)`, `shuffle(list)` | As the module functions, drawing from this generator |
 
 There is no `Rand.bytes` and no `Rand.uuid`: both promise unpredictability,
-which a seed removes. A Rand prints as `<rand.Rand seed=42>` and equals only
+which a seed removes. A Rand prints as `<Rand seed=42>` and equals only
 itself.
 
 ## Left out

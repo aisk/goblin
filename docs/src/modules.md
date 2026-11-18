@@ -33,6 +33,33 @@ Names without export remain private. Define a module-level name before code
 that uses it; this also applies to names referenced from an exported function.
 Named functions may call themselves recursively.
 
+An exported name is a live binding, not a copy: reading `counter.count` gives
+the module's variable `count` as it is at that moment, including assignments
+the module makes after its `export` statement or later from its own
+functions. Only the module itself can assign its variables; `counter.count =
+10` from outside raises TypeError (`Module does not support attribute
+assignment`).
+
+~~~goblin
+# counter.goblin
+var count = 0
+
+func bump() {
+    count = count + 1
+    return count
+}
+
+export count
+export bump
+~~~
+
+~~~goblin
+# main.goblin
+import "./counter"
+
+print(counter.bump(), counter.count, counter.bump(), counter.count)   # 1 1 2 2
+~~~
+
 ## A complete local module
 
 For a small project, keep the entry point and local module in separate files:
@@ -68,7 +95,7 @@ directory. A local import's final path component becomes its module name, so
 `./modules/greeter` is available as `greeter`.
 
 A module is loaded once and cached; later imports of the same file reuse the
-loaded module. Two modules importing each other is a cycle, reported as
+loaded module, so every module that imports it sees the same variables. Two modules importing each other is a cycle, reported as
 `circular import detected`.
 
 The remaining chapters document each built-in module separately.

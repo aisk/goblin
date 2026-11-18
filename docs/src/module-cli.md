@@ -152,7 +152,8 @@ An immutable value with exactly one attribute per declared parameter (plus
 `command` when subcommands are declared) and no methods, so no option name is
 ever taken. `attributes(args)` lists them in declaration order. A wrong name
 raises `AttributeError: Args has no attribute 'verbsoe'`, and assigning
-raises `AttributeError: Args is read-only`. It prints as
+raises `TypeError: Args does not support attribute assignment`, as on every
+other library value. It prints as
 `Args(source="a", target="b", verbose=false)`.
 
 ## Two modes

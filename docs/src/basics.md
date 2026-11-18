@@ -72,12 +72,16 @@ print(10 % 3)          # 1
 
 Comparison operators are `==`, `!=`, `<`, `<=`, `>`, and `>=`; each produces a
 boolean. Equality is total across types: values of unrelated types are simply
-unequal, so `x == nil` is always a safe test, and lists and dictionaries
-compare element by element. Ordering comparisons (`<`, `<=`, `>`, `>=`) order
+unequal, and lists and dictionaries compare element by element. `x == nil` is
+always a safe test: it is true only for `nil` itself, and it never calls a user
+type's `eq` (see [Eq and Ord](./protocols.md#eq-and-ord)). Ordering comparisons (`<`, `<=`, `>`, `>=`) order
 numbers (an Int against a Float too), Strings, Bytes, Bools (`false < true`),
 Lists (element by element, the first unequal pair deciding), `nil` against
 `nil` (equal), and user types with an `Ord` impl. Any other pair, such as an
-Int and a String, a Dict, or a Function, raises TypeError. Comparisons do not chain:
+Int and a String, a Dict, or a Function, raises TypeError. A NaN Float is
+unordered, as IEEE 754 defines it: all four ordering operators are false when
+either operand is NaN, and `nan == nan` is false too (see
+[Numbers](./built-in-types.md#numbers)). Comparisons do not chain:
 `a < b < c` is a syntax error rather than the surprising `(a < b) < c`, so
 write `a < b && b < c`, or parenthesize explicitly when you really mean to
 compare a boolean result. Logical operators are `!`, `&&`, and `||`.

@@ -179,7 +179,8 @@ default stores `site/…`, as `cp -r build/site dst/` would.
 written on this platform and is stored with `/`. It must be usable when
 unpacked: not empty, not absolute, with no `..` component and no NUL or `\`.
 Anything else raises `ValueError: add() name "../x" would be unpacked outside
-its directory`. A Writer therefore cannot produce an archive that `extract`
+its directory`; an empty String raises `ValueError: add() argument 'name' must
+not be empty`, as an empty path does everywhere. A Writer therefore cannot produce an archive that `extract`
 refuses for its names.
 
 Every file is compressed with DEFLATE at the usual level. Names that are not

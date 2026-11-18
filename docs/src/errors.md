@@ -66,6 +66,10 @@ print(err.is(ValueError))    # true
 Calling a kind with no message keeps the kind's own: `ValueError().message` is
 `ValueError`, and `Error().message` is `Error`.
 
+A kind is callable like any constructor, so it can be passed wherever a
+function is expected: `["bad port", "bad host"].map(ConfigError)` makes one
+ConfigError per message, and `Function(ValueError)` returns the kind itself.
+
 The `cause` property is the next error down the chain, and is() tests the
 complete chain, the error itself included.
 
@@ -162,6 +166,32 @@ try {
   Error() cannot use 'cause' as a data name`).
 - Data is for code: `print(e)`, `e.message` and the traceback show only the
   message.
+
+## How an error displays
+
+`print(e)`, `String(e)`, interpolation and an uncaught error show the message
+alone. Inside a list, a dictionary or a structural `impl Show {}`, a bare
+message could not be told apart from a String, from a name, or (when empty)
+from nothing, so there an error shows as `Kind("message")`: Kind is the
+nearest kind in its cause chain, and the message is quoted as a String
+element is. A kind itself, being an error whose message is a capitalized name,
+shows as that bare name.
+
+~~~goblin
+var ConfigError = ValueError("ConfigError")
+var not_found = Error("not found")
+
+print([ValueError("bad input"), "bad input", ValueError("")])
+# [ValueError("bad input"), "bad input", ValueError("")]
+print([ValueError, ConfigError, ConfigError("missing name")])
+# [ValueError, ConfigError, ConfigError("missing name")]
+print([not_found, ValueError("bad").wrap("parsing")])
+# [Error("not found"), ValueError("parsing: bad")]
+~~~
+
+A sentinel such as `not_found` is not a kind by that rule (its message is not
+a name), so it shows with the kind it was made from; a wrapped error shows its
+full message with the kind of the error it wraps.
 
 ## Error kinds
 

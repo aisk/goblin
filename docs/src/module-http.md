@@ -300,7 +300,7 @@ It sends nothing: something a retry function, a signer or a logger can take.
 | Argument | Accepts | Meaning |
 | --- | --- | --- |
 | `method` | String | Any HTTP method name, sent as written. Method names are case-sensitive: `"GET"` is the method, `"get"` a different token that servers refuse |
-| `url` | String or [`url.URL`](./module-url.md#url) | Absolute, scheme `http` or `https`, without a user name or password. There is no base to resolve against: a URL built from parts is an interpolation, `"{api}/users/{id}"` |
+| `url` | String or [`url.URL`](./module-url.md#url) | Absolute, scheme `http` or `https`, without a user name or password. There is no base to resolve against: a URL built from parts is an interpolation, `"{api}/users/{id}"`. When the request is sent, a byte the request line cannot hold (a space, a non-ASCII character, a `%` that starts no escape) is percent-encoded, in the path and in the query, and so is a followed redirect's `Location`; an existing `%XX` escape and the query's delimiters (`&`, `=`, `+`, …) are sent as written, so `?q=new york` arrives as `?q=new%20york` and `?tag=a+b` as `?tag=a+b`. The `url` of the Request and of the Response show the query as written: it is encoded only on the wire |
 | `headers` | `nil`, Dict, Headers | [Headers](#headers) |
 | `body` | `nil`, String, Bytes, readable | The content, as it is. No `Content-Type` is added. See [How a body is sent](#how-a-body-is-sent) |
 

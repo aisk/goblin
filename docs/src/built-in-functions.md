@@ -14,7 +14,7 @@ These names are available without an import.
 | `Int(value=0, base=10)` / `Float(value=0.0)` / `String(value="")` / `Bool(value=false)` | Convert a value; `base` reads text in another base. Called with no argument, each returns its zero value |
 | `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value; `value` and `iterable` are optional, and without them the result is empty |
 | `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
-| `Function(value)` | Validate and return a callable value unchanged; the one constructor whose argument is required |
+| `Function(value)` | Validate and return a callable value (a function, a constructor, a bound method or an error kind) unchanged; the one constructor whose argument is required |
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
 | `Error(message="Error", **data)` | The base error kind; calling it creates an error of that kind, optionally carrying named data |
@@ -37,7 +37,9 @@ later candidate and `min` the earlier one, the last and first elements a
 stable sort would give. `sum(values)` adds an iterable's elements with `+`
 starting from `0`, so an empty one sums to `0`. `compare(a, b)` is `-1`, `0`
 or `1` as `a` sorts before, with or after `b`, and raises the TypeError `<`
-raises for values without an order. `hash(value)` is the hash a dictionary
+raises for values without an order. A NaN has no place in an order, so
+`compare`, `min` and `max` raise ValueError `cannot order NaN` when they meet
+one, where `<` answers false. `hash(value)` is the hash a dictionary
 files the value under, so equal values hash equal; it is stable within one
 run of a program but not between runs, and a value that cannot be a key
 raises TypeError (`cannot hash List`). Constructors that use an
@@ -45,6 +47,12 @@ argument parser, including `range`, numeric conversions, and `Dict`, accept
 their documented keyword names; `print` and `eprint` are positional-only, and
 `spawn` takes its function positionally and forwards every other argument,
 keyword arguments included, to it.
+
+Every argument that takes a function (`key=` of `min`, `max` and `sort`, the
+`fn` of `map` and `filter`, `spawn`'s first argument) accepts any value that
+can be called: a function, a constructor such as `Int` or a user type, a bound
+method, or an error kind. Anything else raises TypeError
+(`map() argument 'fn' must be callable, got Int`).
 
 `format(value, spec)` returns the String `"{value:spec}"` would give, for a
 specifier built at run time (`format(name, "<{width}")`) or formatting outside

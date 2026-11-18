@@ -88,7 +88,10 @@ changed.
   first when empty is expected.
 - An element that is not an Int or Float is a TypeError
   (`mean() argument 'values' must contain only Int or Float, got String`); a
-  Bool is not a number. A `NAN` among the values gives `NAN`.
+  Bool is not a number. A `NAN` among the values gives `NAN` from `mean` and
+  `stdev`, whose arithmetic carries it through, and is a ValueError from
+  `median` and `percentile` (`median() cannot order NaN`): they sort the
+  values, and a NaN has no place in an order, as with `sort()`.
 - A `p` outside 0–100 is a ValueError.
 - The population deviation is `math.stdev(xs) * math.sqrt((n - 1.0) / n)`,
   and the variance `math.pow(math.stdev(xs), 2)`.

@@ -130,13 +130,14 @@ TypeError, and an error the function raises ends `replace` and propagates.
 
 The type name `Match` is exported for `type_of(m) == regex.Match`; calling it
 raises TypeError. A Match is an immutable snapshot of one match, and always
-truthy, so `if regex.find(...)` is the test for "does it match".
+truthy, so `if regex.find(...)` is the test for "does it match". It shows as
+`<Match "ada@example.com">`, with the matched text.
 
 | Member | Kind | Value |
 | --- | --- | --- |
 | `text` | property | String, what the whole pattern matched |
 | `start`, `end` | property | Int positions in the searched text, **counted in characters** like every String position, so `searched[m.start:m.end] == m.text` |
-| `groups` | property | List of the capture groups 1…n, each a String, or `nil` for a group that took no part. The same List on every read; made for destructuring |
+| `groups` | property | List of the capture groups 1…n, each a String, or `nil` for a group that took no part. A new List on every read, so changing it does not change the Match; made for destructuring |
 | `match[key]` | index | An Int selects a group by number (`0` is the whole match), a String by name. `nil` for a group that took no part |
 | `to_dict()` | method | A new Dict of every **named** group, name to String (or `nil` for one that took no part), in the order the names appear in the pattern. `{}` when the pattern names none |
 | `span(key)` | method | `[start, end]`: where that group matched, in characters, so `searched[start:end] == match[key]`. `key` as for `match[key]`. `nil` for a group that took no part |

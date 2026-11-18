@@ -45,15 +45,16 @@ try {
     eprint("upload.csv, line {e.line}: {e.message}")
 }
 
-# A file of any size, one row at a time; pair the header with the rows yourself
+# A file of any size, one row at a time: take the header, then loop over the rest
 var big = fs.open("big.csv")
 defer big.close()
+var reader = csv.read_rows(big)
 var columns = nil
-for row in csv.read_rows(big) {
-    if columns == nil {
-        columns = row
-        continue
-    }
+for row in reader {
+    columns = row
+    break
+}
+for row in reader {
     var record = {}
     for i in range(columns.size) {
         record[columns[i]] = row[i]
@@ -75,7 +76,7 @@ with `fs.write(path, csv.encode([row]), append=true)`.
 | --- | --- | --- |
 | `decode(data, sep=",")` | List of List of String | Every record as a row, as long as the record is. `data` is a String, Bytes, or a readable read to its end. Quoted fields, line breaks inside them and `""` escapes follow RFC 4180. A leading byte-order mark is dropped and blank lines are skipped. Empty input is `[]` |
 | `decode_dicts(data, sep=",")` | List of Dict | The first record is the header; every later record becomes a Dict from column name to field, in header order. Every record must have exactly as many fields as the header. Empty input, or a header alone, is `[]` |
-| `read_rows(readable, sep=",")` | `csv.Rows` | A lazy iterable over the rows `decode` would return for what `readable` (anything with a `read(size)` method, such as a File from `fs.open` or `gzip.open`) holds. Each step reads only as far as the next row, so the data never has to fit in memory. A pass starts where the readable is, dropping a byte-order mark there; it reads ahead in chunks, so after a loop that stops early the readable's position is past the last row given. `read_rows` never closes the readable: whoever opened it does, with `defer`. It takes no path and no String or Bytes; for those use `decode` |
+| `read_rows(readable, sep=",")` | `csv.Rows` | A lazy iterable over the rows `decode` would return for what `readable` (anything with a `read(size)` method, such as a File from `fs.open` or `gzip.open`) holds. Each step reads only as far as the next row, so the data never has to fit in memory. Reading starts where the readable is when the first loop begins, dropping a byte-order mark there. The Rows reads ahead in chunks and keeps what it read ahead, so a second loop over the same Rows continues with the row after the last one given (take the header with `break`, then loop over the rest); the readable's own position may be past that row, which matters only to code that reads the readable directly. After an error every later loop raises the same error. `read_rows` never closes the readable: whoever opened it does, with `defer`. It takes no path and no String or Bytes; for those use `decode` |
 | `encode(rows, sep=",", columns=nil)` | String | CSV text, one `\n`-terminated line per row, quoting only where needed. A row whose only field is empty is written as `""`, because `decode` skips a blank line; an empty row `[]` is written as a blank line, so it is not read back. `rows` is any iterable of Lists or of Dicts. For Dicts a header line comes first: `columns` (a List of Strings) when given, otherwise the keys of the first Dict; a Dict without one of the columns writes an empty field there. With List rows, `columns` is written as the header line. No rows and no `columns` is `""` |
 
 `sep` is one character, other than a quote or a line break.

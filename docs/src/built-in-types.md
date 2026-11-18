@@ -54,7 +54,16 @@ OverflowError too for text that is a valid number too large for a Float, such
 as `Float("1e400")`; text that is not a number raises ValueError.
 
 Numbers can be compared across integer and float values. Division or modulo by
-zero raises ZeroDivisionError. Int() and Float() convert numbers, booleans,
+zero raises ZeroDivisionError.
+
+A NaN (`Float("nan")`, or `math.NAN`) has no place in an order. The ordering
+operators follow IEEE 754 and answer false when either operand is NaN, and
+`nan == nan` is false while `nan != nan` is true. Everything that needs an
+actual order raises ValueError `cannot order NaN` when it meets a NaN, because
+any answer it gave would be wrong: `compare`, `sort()` (also through a `key`
+that returns NaN, and the list stays as it was), `max`, `min`, and a list or
+structural comparison that reaches a NaN element. Test for NaN with
+`math.is_nan(x)` or `x != x`. Int() and Float() convert numbers, booleans,
 and numeric strings; converting a float to Int removes its fractional portion.
 
 ~~~goblin
@@ -109,8 +118,8 @@ print(true && false)  # false
 ~~~
 
 A function with no explicit result returns nil. Comparing any value against
-nil with `==` is safe — it is true only for nil itself — but arithmetic and
-indexing on nil are errors.
+nil with `==` is safe: it is true only for nil itself, and a user type's `eq`
+is not called for it. Arithmetic and indexing on nil are errors.
 
 ### Using truthiness for optional values
 

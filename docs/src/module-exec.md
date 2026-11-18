@@ -90,8 +90,8 @@ archive.wait()
 
 | Member | Returns | Behaviour |
 | --- | --- | --- |
-| `run(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil, check=true, timeout=nil)` | Result | Runs the command to completion; its output goes where this program's goes, or to `stdout=`/`stderr=`. `result.stdout` and `stderr` are `nil` |
-| `capture(args, cwd=nil, env=nil, stdin=nil, check=true, timeout=nil)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal. Output that is not valid UTF-8 raises ValueError: read binary output through `start` with `stdout=exec.PIPE` |
+| `run(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil, timeout=nil, check=true)` | Result | Runs the command to completion; its output goes where this program's goes, or to `stdout=`/`stderr=`. `result.stdout` and `stderr` are `nil` |
+| `capture(args, cwd=nil, env=nil, stdin=nil, timeout=nil, check=true)` | Result | Runs the command to completion, collecting stdout and stderr as text in the Result. Nothing reaches the terminal. Output that is not valid UTF-8 raises ValueError: read binary output through `start` with `stdout=exec.PIPE` |
 | `start(args, cwd=nil, env=nil, stdin=nil, stdout=nil, stderr=nil)` | Command | Starts the command and returns at once. `stdin`, `stdout` and `stderr` also accept `exec.PIPE` |
 | `find(name)` | Path or `nil` | Where `name` would be found on `PATH`; `nil` when it is not installed |
 | `ExitError` | error kind | Raised by `run`, `capture` and `Command.wait` for a non-zero exit under `check=true` |
@@ -102,12 +102,12 @@ The parameters they share:
 | Parameter | Accepts | Meaning |
 | --- | --- | --- |
 | `args` | non-empty List of String or Path | Program and arguments. A bare name is looked up on `PATH` |
-| `cwd=nil` | String, Path | Working directory for the command; `nil` is this program's |
+| `cwd=nil` | String, Path | Working directory for the command; `nil` is this program's. An empty String raises ValueError `run() argument 'cwd' must not be empty`, as an empty path does in `fs` |
 | `env=nil` | Dict of String to String or `nil` | **Added to** the inherited environment; a `nil` value removes that variable. Names and values are checked as `os.env` checks them: ValueError `run() invalid environment variable name "A=B"` for an empty name or one with `=`, and for a value with a NUL character |
 | `stdin=nil` | `nil`, String, Bytes or a readable | `nil`: the command reads this program's stdin. Data is fed to the command, then its stdin is closed |
 | `stdout=nil`, `stderr=nil` | `nil` or a writable | `nil`: the command writes to this program's stream. A writable (a File, anything with `write(data)`) receives the output and is not closed |
-| `check=true` | Bool | A non-zero exit raises. `false` returns the Result for you to inspect |
 | `timeout=nil` | seconds | When it expires the process is killed and TimeoutError is raised |
+| `check=true` | Bool | A non-zero exit raises. `false` returns the Result for you to inspect |
 
 The type names `Command` and `Result` are exported for `type_of`; calling them
 raises TypeError pointing at `exec.start` / `exec.run`. `PIPE` is compared as

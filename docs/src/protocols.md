@@ -104,10 +104,26 @@ explicitly. A structural `Ord` pairs with `impl Eq {}`; a custom `compare`
 usually pairs with an `eq` that asks it, as `Money` does below, so that `==`
 agrees with the ordering.
 
-Equality never raises over a type mismatch. `a == b` asks the left operand's
-`eq`, then the right one's, and falls back to identity; a TypeError raised
-inside an `eq` means "unequal", so `money == nil` stays false for an `eq`
-written only for numbers. Any other error propagates. `!=` is always the
+`a == b` with a user type is answered in this order:
+
+1. When either operand is `nil`, the answer is true only if both are, and no
+   `eq` is called. So `x == nil` is a safe test whatever an `eq` does with
+   `other`, and so are `contains(nil)`, `index(nil)`, `count(nil)` and
+   `remove(nil)`.
+2. When `a` and `b` are the same object, the answer is true without calling
+   `eq`: a value is always equal to itself.
+3. Otherwise the left operand's `eq` is asked, and the Bool it returns is the
+   answer, `false` included.
+4. The right operand's `eq` is asked only when the left one has no `eq` for
+   the pair: it is a built-in value or a type without `impl Eq`, or its `eq`
+   raised TypeError. This is how `5 == money` reaches Money's `eq`. Without
+   an `eq` on either side the two are unequal.
+
+A TypeError raised inside an `eq` therefore means "I cannot compare with
+that", never a failure of `==`; any other error propagates. An `eq` that
+reads fields of `other` should still check `other`'s type when values of
+other types can reach it (`type_of(other) == Money`), or raise TypeError for
+them, since only `nil` is filtered out before `eq` runs. `!=` is always the
 negation of `==`.
 
 The ordering operators, `sort`, and the built-in `compare`, `max` and `min`

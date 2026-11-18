@@ -26,6 +26,12 @@ var combined = first + [3, 4]
 print(combined) # [1, 2, 3, 4]
 ~~~
 
+Printing a collection shows each String element quoted, so `["a, b"]` and
+`["a", "b"]` print differently. A value whose own display is bare text shows
+its type around that text inside a collection, for the same reason: a Path
+as `Path("a b")`, an error as `ValueError("bad input")` (see
+[Errors](./errors.md#how-an-error-displays)).
+
 ### Slicing
 
 `list[low:high]` makes a new list of the elements from index `low` up to, but
@@ -100,9 +106,14 @@ sort() is always stable: elements that compare equal (or whose keys do) keep
 their order, with `descending=true` as well. `descending` must be a Bool.
 `key` is called once per element, before any comparison, and the list is
 changed only when the whole sort succeeds: a `key` or a comparison that raises
-leaves the list as it was.
-Arguments that are functions (`fn`, `key`) are checked when the method is
-called, so `xs.map(1)` raises TypeError before doing anything.
+leaves the list as it was. That includes a NaN among the elements or the keys,
+which raises ValueError `cannot order NaN` (see
+[Numbers](./built-in-types.md#numbers)).
+Arguments that are functions (`fn`, `key`) accept any callable value: a
+function, a constructor such as `Int`, a bound method, or an error kind
+(`messages.map(ValueError)` makes one error per message). They are checked
+when the method is called, so `xs.map(1)` raises `TypeError: map() argument
+'fn' must be callable, got Int` before doing anything.
 
 ### Common list patterns
 
@@ -180,6 +191,12 @@ identity, such as functions, error kinds and channels, hash by
 identity. Standard library values like `Time`, `Path` and `URL` hash by the
 value they compare equal on. Using a list, dictionary,
 or a user type without an `impl Hashable` as a key raises TypeError.
+
+NaN is the one exception to "key identity follows `==`": `nan == nan` is
+false, yet every NaN names the same entry, so `d[Float("nan")]` finds what
+`d[math.NAN]` stored and `d.contains(nan)` is true. Following `==` would make
+a NaN key impossible to look up again and let each write add another entry.
+`[nan].contains(nan)` stays false, since a list tests with `==`.
 
 Looking up a missing key with dictionary[key] raises KeyError. Use get() when a
 missing value is expected. Dictionary iteration yields keys; items() yields

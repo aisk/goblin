@@ -102,6 +102,12 @@ scratch directory.
 | `resolve(path)` | Path | The absolute form: joined onto `cwd()`, cleaned, symlinks resolved. A path that does not exist is still made absolute |
 | `cwd()` / `home()` / `temp_dir()` | Path | The working directory, the user's home directory, the directory for temporary files |
 
+Every function that takes a path accepts a String or a Path. An empty String
+names no file, so it raises ValueError `read() argument 'path' must not be
+empty` rather than standing for the current directory, which is written `"."`.
+The same holds for every path argument in the other modules (`gzip`, `zip`,
+`tar`, and `cwd=` in `exec`).
+
 The module also exports the type names `File`, `FileInfo`, `Lines` and `Walk`
 so `type_of(v) == fs.File` works. They cannot be called:
 `fs.File()` raises `TypeError: File cannot be constructed; use fs.open(path)`.
@@ -180,8 +186,11 @@ before anything is written.
 An immutable name. It performs no I/O.
 
 - `fs.Path(text)` takes exactly one String or Path. The text is cleaned:
-  repeated separators and `.` are dropped, `..` is applied lexically, and `""`
-  becomes `.`.
+  repeated separators and `.` are dropped, and `..` is applied lexically.
+  `fs.Path("")` raises ValueError `Path() argument 'text' must not be empty`,
+  as an empty path does everywhere; the current directory is `fs.Path(".")`.
+  A Path the library computes is never empty: the parent of `"a"` and
+  `Path("a").relative_to("a")` are both `.`.
 - Paths compare (`==`, `<`), hash and print by their text, with the platform's
   separator. A Path never equals a String: compare `String(p) == "a/b"` or
   `p == fs.Path("a/b")`.
@@ -198,7 +207,7 @@ An immutable name. It performs no I/O.
 | `suffix` | property | From the last dot of `name` (`".gz"`); `""` when there is none, and for a name whose only dot is the first character (`.bashrc`) |
 | `parent` | property | The path without its last component. A root is its own parent; the parent of `"a"` is `.` |
 | `is_absolute` | property | Bool |
-| `join(*segments)` | method | The path with each segment (String or Path) appended, then cleaned. `Path("a").join("/b")` is `a/b` |
+| `join(*segments)` | method | The path with each segment (String or Path) appended, then cleaned. `Path("a").join("/b")` is `a/b`. An empty segment raises ValueError, as an empty path does everywhere |
 | `with_name(name)` | method | The last component replaced. ValueError for an empty name, one containing a separator, or a path with no name |
 | `with_suffix(suffix)` | method | The suffix replaced; `""` removes it. ValueError unless `suffix` is `""` or starts with `.` |
 | `relative_to(base)` | method | The path leading from `base` to this one, worked out from the names alone; may start with `..`. ValueError when one is absolute and the other is not |
