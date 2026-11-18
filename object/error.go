@@ -36,6 +36,11 @@ type Error struct {
 	// read as attributes; see Field. There are rarely more than a few
 	// entries, so a slice beats a map.
 	data []errorField
+	// named marks a kind defined in Go (ValueError, exec.ExitError, the base
+	// Error): the one case where Value is a name rather than a message. A
+	// collection shows such a kind as that name and any other error as
+	// Name("message") after its nearest named kind; see inspectElement.
+	named bool
 }
 
 // errorField is one named piece of data carried by an error.
@@ -61,7 +66,7 @@ func NewError(value string) *Error {
 // parent, so errors of the kind match parent too. A module exports its own
 // kinds as module values (exec.ExitError).
 func NewErrorKind(name string, parent *Error) *Error {
-	return &Error{Value: name, Wrapped: parent}
+	return &Error{Value: name, Wrapped: parent, named: true}
 }
 
 // NewKindError builds an error of kind with a formatted message: the message
@@ -472,7 +477,7 @@ var _ error = (*Error)(nil)
 // the root kind, with no cause of its own, that every other kind descends
 // from and every error matches.
 var (
-	BaseError       = NewError("Error")
+	BaseError       = &Error{Value: "Error", named: true}
 	TypeError       = NewErrorKind("TypeError", BaseError)
 	ValueError      = NewErrorKind("ValueError", BaseError)
 	LookupError     = NewErrorKind("LookupError", BaseError)

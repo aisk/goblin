@@ -2,7 +2,6 @@ package object
 
 import (
 	"strings"
-	"unicode"
 )
 
 // renderer formats the values nested inside a collection or a structural
@@ -164,14 +163,15 @@ func hasStructuralShow(v UserValue) bool {
 // Show. Its direct display is the bare message, which inside a collection
 // could not be told from a name, from a String, or from nothing at all, so
 // the same rule as PlainText applies: an error shows as Kind("message"),
-// Kind being the nearest kind down its cause chain, with the message quoted
-// as a String element is. A kind is an error whose message is a name (a
-// capital letter, then letters, digits or underscores), as ValueError's is
-// and as `var ConfigError = ValueError("ConfigError")` makes one; a kind
-// itself shows as that bare name.
+// with the message quoted as a String element is. Kind is the nearest kind
+// defined in Go down its cause chain (ValueError, exec.ExitError, and Error
+// when there is no other); such a kind itself shows as its bare name. An
+// error a program uses as a kind of its own is an error like any other here:
+// `var ConfigError = ValueError("ConfigError")` shows as
+// ValueError("ConfigError").
 func (e *Error) inspectElement() string {
 	e = e.origin()
-	if isKindName(e.Value) {
+	if e.named {
 		return e.Value
 	}
 	kind := "Error"
@@ -180,25 +180,11 @@ func (e *Error) inspectElement() string {
 		if !ok {
 			break
 		}
-		if name := next.origin().Value; isKindName(name) {
-			kind = name
+		if next = next.origin(); next.named {
+			kind = next.Value
 			break
 		}
 		c = next.Cause()
 	}
 	return kind + "(" + String(e.Value).Literal() + ")"
-}
-
-// isKindName reports whether an error's message names a kind: a capital
-// letter followed by letters, digits or underscores.
-func isKindName(s string) bool {
-	for i, r := range s {
-		if i == 0 && !unicode.IsUpper(r) {
-			return false
-		}
-		if r != '_' && !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			return false
-		}
-	}
-	return s != ""
 }

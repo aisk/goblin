@@ -1,7 +1,7 @@
 [ValueError("bad input"), "bad input", ValueError("")]
 {"err": KeyError("a, b")}
 Result(value=nil, error=ValueError("boom"))
-[ValueError, Error, ConfigError, ConfigError("missing \"name\"")]
+[ValueError, Error, ValueError("ConfigError"), ValueError("missing \"name\"")]
 [Error("x"), Error("not found"), Error("loading: not found"), ValueError("parsing: bad")]
 [IndexError("List index out of range: 3")] {IndexError: "List index out of range: 3"}
 bad input

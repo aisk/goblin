@@ -1,5 +1,5 @@
 # Inside a collection or a structural Show an error shows as
-# Kind("message"); a kind shows as its name. Printing the error itself shows
+# Kind("message") after its nearest built-in kind; a built-in kind shows as its name. Printing the error itself shows
 # only its message.
 type Result(value, error) {
     impl Show {}
