@@ -1,0 +1,34 @@
+<tar.Writer <scratch>/project.tar.gz> true
+gzip magic: 31 139
+<tar.Reader <scratch>/project.tar.gz>
+   0  755  dir   project
+   6  644  file  project/VERSION
+  43  755  file  project/build.sh
+   0  755  dir   project/src
+  15  644  file  project/src/main.goblin
+  20  644  file  project/build.json
+version: 1.4.2
+after: project/build.sh
+after: project/src
+after: project/src/main.goblin
+after: project/build.json
+print("hello")
+build.sh is executable: true
+<scratch>/flat/VERSION
+<scratch>/flat/build.sh
+<scratch>/flat/src
+<scratch>/flat/src/main.goblin
+<scratch>/flat/build.json
+extract() member "project/VERSION" of "<scratch>/project.tar.gz" would be written outside "<scratch>/flat" as "../project-VERSION"
+project/VERSION project.tar.gz
+false
+extract() "<scratch>/unpacked/project/VERSION" already exists (pass overwrite=true)
+extract() "<scratch>/project.tar.gz" unpacks to at least 49 bytes, over max_size 10 project/build.sh
+<tar.Writer> nil
+<tar.Reader> hello.txt hello
+false
+add_data() name "../escape.txt" would be unpacked outside its directory
+add_data() argument 'data' must be String or Bytes, got File (a tar header holds the size before the content; write a stream to a file and add() it)
+Reader() argument 'source' must have a read(size) method, got String
+extract() "<scratch>/text.tar" is not a tar archive
+true UnsafeError

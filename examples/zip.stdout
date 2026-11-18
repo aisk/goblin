@@ -1,0 +1,30 @@
+<zip.Writer <scratch>/site.zip> true
+true
+<zip.Reader <scratch>/site.zip> true
+   0  755  dir   site
+   0  755  dir   site/css
+  21  644  file  site/css/main.css
+  24  755  file  site/deploy.sh
+  16  644  file  site/index.html
+  27  644  file  manifest.json
+  32  755  file  run.sh
+120 bytes when unpacked
+site 3
+<h1>Goblin</h1>
+nil
+<Member site/css/main.css> true
+css: h1 { color: green; }
+echo deployed
+run.sh is executable: true
+<scratch>/public/home.html <h1>Goblin</h1>
+extract() member "site/css/main.css" of "<scratch>/site.zip" would be written outside "<scratch>/public" as "../site-css-main.css"
+site/css/main.css site.zip
+false
+extract() "<scratch>/unpacked/site/css/main.css" already exists (pass overwrite=true)
+extract() "<scratch>/site.zip" unpacks to 120 bytes, over max_size 10 nil
+false
+open() no member "missing.txt" in "<scratch>/site.zip"
+add_data() name "../escape.txt" would be unpacked outside its directory
+open() called on closed archive
+open() "<scratch>/text.zip" is not a zip archive
+true UnsafeError

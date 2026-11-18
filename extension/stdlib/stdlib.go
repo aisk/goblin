@@ -22,8 +22,10 @@ import (
 	osExt "github.com/aisk/goblin/extension/os"
 	randExt "github.com/aisk/goblin/extension/rand"
 	regexExt "github.com/aisk/goblin/extension/regex"
+	tarExt "github.com/aisk/goblin/extension/tar"
 	timeExt "github.com/aisk/goblin/extension/time"
 	urlExt "github.com/aisk/goblin/extension/url"
+	zipExt "github.com/aisk/goblin/extension/zip"
 	"github.com/aisk/goblin/object"
 )
 
@@ -41,8 +43,10 @@ var modules = map[string]object.ModuleExecutor{
 	"os":     osExt.Execute,
 	"rand":   randExt.Execute,
 	"regex":  regexExt.Execute,
+	"tar":    tarExt.Execute,
 	"time":   timeExt.Execute,
 	"url":    urlExt.Execute,
+	"zip":    zipExt.Execute,
 }
 
 // withArgs lists the modules that read the program's command line (the

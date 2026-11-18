@@ -1,0 +1,155 @@
+import "fs"
+import "gzip"
+import "json"
+import "tar"
+
+var scratch = fs.mkdir_temp(prefix="goblin-tar-")
+defer fs.remove(scratch, recursive=true)
+
+func shown(value) {
+    return String(value).replace(String(scratch), "<scratch>")
+}
+
+# A small source tree to pack
+var project = scratch.join("project")
+fs.mkdir(project.join("src"))
+fs.write(project.join("VERSION"), "1.4.2\n")
+fs.write(project.join("src", "main.goblin"), "print(\"hello\")\n")
+fs.write(project.join("build.sh"), "#!/bin/sh\ngoblin build-exe src/main.goblin\n")
+fs.chmod(project, 0o755)
+fs.chmod(project.join("src"), 0o755)
+fs.chmod(project.join("VERSION"), 0o644)
+fs.chmod(project.join("src", "main.goblin"), 0o644)
+fs.chmod(project.join("build.sh"), 0o755)
+
+# Pack a directory into a .tar.gz, with content the program made
+var archive_path = scratch.join("project.tar.gz")
+var out = tar.create(archive_path, gzip=true)
+print(shown(out), type_of(out) == tar.Writer)
+out.add(project)
+out.add_data("project/build.json", json.encode({"target": "release"}))
+out.close()
+var head = fs.read_bytes(archive_path)
+print("gzip magic:", head[0], head[1])
+
+# List what it contains
+var listing = tar.open(archive_path)
+print(shown(listing))
+for member in listing {
+    var kind = "file"
+    if member.is_dir {
+        kind = "dir"
+    }
+    var mode = format(member.mode, "o")
+    print("{member.size:>4}  {mode}  {kind:<4}  {member.name}")
+}
+listing.close()
+
+# Read one member: stop when it has been found
+var source = tar.open(archive_path)
+var version = nil
+for member in source {
+    if member.name == "project/VERSION" {
+        version = source.open(member).read().decode().trim()
+        break
+    }
+}
+print("version:", version)
+# A later loop continues after it
+for member in source {
+    print("after:", member.name)
+}
+source.close()
+
+# Unpack everything
+var unpacked = scratch.join("unpacked")
+tar.extract(archive_path, unpacked)
+print(fs.read(unpacked.join("project", "src", "main.goblin")).trim())
+print("build.sh is executable:", fs.stat(unpacked.join("project", "build.sh")).mode / 64 % 2 == 1)
+
+# Unpack without the top-level directory
+var release = tar.open(archive_path)
+for member in release {
+    var top, rest = member.name.cut("/")
+    if rest != nil && rest != "" {
+        print(shown(release.extract(member, scratch.join("flat"), name=rest)))
+    }
+}
+release.close()
+
+# A name the script computed that would leave the directory is refused
+var hostile = tar.open(archive_path)
+for member in hostile {
+    if member.is_file {
+        try {
+            hostile.extract(member, scratch.join("flat"), name="../" + member.name.replace("/", "-"))
+        } catch e: tar.UnsafeError {
+            print(shown(e.message))
+            print(e.member.name, e.path.name)
+        }
+        break
+    }
+}
+hostile.close()
+print(fs.exists(scratch.join("project-VERSION")))
+
+# Unpacking over an earlier version needs overwrite=true
+try {
+    tar.extract(archive_path, unpacked)
+} catch e: ExistError {
+    print(shown(e.message))
+}
+tar.extract(archive_path, unpacked, overwrite=true)
+
+# Bound what an archive may write
+try {
+    tar.extract(archive_path, scratch.join("bounded"), max_size=10)
+} catch e: tar.UnsafeError {
+    print(shown(e.message), e.member.name)
+}
+
+# A tar over a stream: the File from gzip.open, with a compression level
+var packed = gzip.open(scratch.join("small.tar.gz"), write=true, level=9)
+var small = tar.Writer(packed)
+print(small, small.path)
+small.add_data("hello.txt", "hello\n")
+small.close()
+packed.close()
+var compressed = gzip.open(scratch.join("small.tar.gz"))
+var stream = tar.Reader(compressed)
+for member in stream {
+    print(stream, member.name, stream.open(member).read().decode().trim())
+}
+stream.close()
+print(compressed.closed)
+compressed.close()
+
+# Errors
+var bad = tar.create(scratch.join("bad.tar"))
+try {
+    bad.add_data("../escape.txt", "x")
+} catch e: ValueError {
+    print(e.message)
+}
+var version_file = fs.open(project.join("VERSION"))
+try {
+    bad.add_data("big.txt", version_file)
+} catch e: TypeError {
+    print(e.message)
+}
+version_file.close()
+bad.close()
+try {
+    tar.Reader("not a stream")
+} catch e: TypeError {
+    print(e.message)
+}
+fs.write(scratch.join("text.tar"), "not an archive\n" * 100)
+try {
+    tar.extract(scratch.join("text.tar"), scratch.join("nothing"))
+} catch e: ParseError {
+    print(shown(e.message))
+}
+var again = tar.open(archive_path)
+print(tar.Member == type_of(List(again)[0]), tar.UnsafeError)
+again.close()

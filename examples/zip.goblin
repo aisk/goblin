@@ -1,0 +1,119 @@
+import "fs"
+import "json"
+import "zip"
+
+var scratch = fs.mkdir_temp(prefix="goblin-zip-")
+defer fs.remove(scratch, recursive=true)
+
+func shown(value) {
+    return String(value).replace(String(scratch), "<scratch>")
+}
+
+# A small tree to pack
+var site = scratch.join("site")
+fs.mkdir(site.join("css"))
+fs.write(site.join("index.html"), "<h1>Goblin</h1>\n")
+fs.write(site.join("css", "main.css"), "h1 \{ color: green; }\n")
+fs.write(site.join("deploy.sh"), "#!/bin/sh\necho deployed\n")
+fs.chmod(site, 0o755)
+fs.chmod(site.join("css"), 0o755)
+fs.chmod(site.join("index.html"), 0o644)
+fs.chmod(site.join("css", "main.css"), 0o644)
+fs.chmod(site.join("deploy.sh"), 0o755)
+
+# Pack a directory, and add content the program made
+var bundle_path = scratch.join("site.zip")
+var out = zip.create(bundle_path)
+print(shown(out), type_of(out) == zip.Writer)
+out.add(site)
+out.add_data("manifest.json", json.encode({"name": "site", "version": 3}))
+out.add_data("run.sh", "#!/bin/sh\nexec ./site/deploy.sh\n", mode=0o755)
+out.close()
+print(out.closed)
+
+# List what it contains
+var bundle = zip.open(bundle_path)
+print(shown(bundle), type_of(bundle) == zip.Reader)
+for member in bundle {
+    var kind = "file"
+    if member.is_dir {
+        kind = "dir"
+    }
+    var mode = format(member.mode, "o")
+    print("{member.size:>4}  {mode}  {kind:<4}  {member.name}")
+}
+print(sum(List(bundle).map(func(m) { return m.size })), "bytes when unpacked")
+
+# Read one member without unpacking the rest
+var manifest = json.decode(bundle.open("manifest.json"))
+print(manifest["name"], manifest["version"])
+print(bundle.open("site/index.html").read().decode().trim())
+var notes = bundle.find("NOTES.txt")
+print(notes)
+var css = bundle.find("site/css/main.css")
+print(css, type_of(css) == zip.Member)
+for line in bundle.open(css) {
+    print("css:", line)
+}
+
+# Unpack everything
+var unpacked = scratch.join("unpacked")
+zip.extract(bundle_path, unpacked)
+print(fs.read(unpacked.join("site", "deploy.sh")).lines()[1])
+print("run.sh is executable:", fs.stat(unpacked.join("run.sh")).mode / 64 % 2 == 1)
+
+# Unpack one member under another name
+var written = bundle.extract("site/index.html", scratch.join("public"), name="home.html")
+print(shown(written), fs.read(written).trim())
+
+# A name the script computed that would leave the directory is refused
+try {
+    bundle.extract(css, scratch.join("public"), name="../" + css.name.replace("/", "-"))
+} catch e: zip.UnsafeError {
+    print(shown(e.message))
+    print(e.member.name, e.path.name)
+}
+print(fs.exists(scratch.join("site-css-main.css")))
+
+# Unpacking over an earlier version needs overwrite=true
+try {
+    zip.extract(bundle_path, unpacked)
+} catch e: ExistError {
+    print(shown(e.message))
+}
+zip.extract(bundle_path, unpacked, overwrite=true)
+
+# Bound what an archive may write
+try {
+    zip.extract(bundle_path, scratch.join("bounded"), max_size=10)
+} catch e: zip.UnsafeError {
+    print(shown(e.message), e.member)
+}
+print(fs.exists(scratch.join("bounded")))
+
+# Errors
+try {
+    bundle.open("missing.txt")
+} catch e: KeyError {
+    print(shown(e.message))
+}
+var writer = zip.create(scratch.join("bad.zip"))
+try {
+    writer.add_data("../escape.txt", "x")
+} catch e: ValueError {
+    print(e.message)
+}
+writer.close()
+bundle.close()
+try {
+    bundle.open("manifest.json")
+} catch e: ValueError {
+    print(e.message)
+}
+fs.write(scratch.join("text.zip"), "not an archive")
+try {
+    zip.open(scratch.join("text.zip"))
+} catch e: ParseError {
+    print(shown(e.message))
+}
+print(zip.Member == type_of(css), zip.UnsafeError)
