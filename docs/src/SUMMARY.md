@@ -45,6 +45,8 @@
 - [hash](./module-hash.md)
 - [base64](./module-base64.md)
 - [gzip](./module-gzip.md)
+- [zip](./module-zip.md)
+- [tar](./module-tar.md)
 
 # Extending Goblin with Go
 

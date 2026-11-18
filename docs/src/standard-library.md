@@ -2,7 +2,7 @@
 
 Goblin's standard library provides modules for common program boundaries:
 files and paths, environment variables, external commands, time, data formats,
-digests and compression, networking, random values, and mathematics. Import a module at module scope, then
+digests, compression and archives, networking, random values, and mathematics. Import a module at module scope, then
 access its members with dot notation.
 
 ~~~goblin
@@ -38,6 +38,8 @@ needed.
 | [hash](./module-hash.md) | Digests of data: checksums and HMAC signatures | sha256(), hmac() |
 | [base64](./module-base64.md) | Bytes as Base64 text and back | encode(), decode() |
 | [gzip](./module-gzip.md) | Gzip data, in memory and as files of any size | compress(), decompress(), open(), read_lines() |
+| [zip](./module-zip.md) | Zip archives: list, read one member, unpack safely, pack | extract(), open(), create() |
+| [tar](./module-tar.md) | Tar archives, plain or gzip-compressed, from files or streams | extract(), open(), create(), Reader() |
 
 ## Imports and errors
 

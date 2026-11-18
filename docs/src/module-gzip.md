@@ -130,5 +130,6 @@ Wrapping a readable or writable that is not a file (`open` takes a path, like
 every `open`: decompress a response body or a pipe in memory with
 `gzip.decompress(readable)`, or through a file); appending to an existing
 `.gz`; gzip header fields such as the stored file name; and every other
-format: zlib, raw DEFLATE, bzip2 and LZW. For zip and tar archives run the
-system tool, for example `exec.run(["tar", "-xzf", archive, "-C", dir])`.
+format: zlib, raw DEFLATE, bzip2 and LZW. Archives are other modules:
+[tar](./module-tar.md) reads a `.tar.gz` by itself and writes one with
+`tar.create(path, gzip=true)`, and [zip](./module-zip.md) handles `.zip`.
