@@ -17,7 +17,7 @@ These names are available without an import.
 | `Function(value)` | Validate and return a callable value unchanged |
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
-| `Error(message="", **data)` | Create an error value, optionally carrying named data |
+| `Error(message="Error", **data)` | The base error kind; calling it creates an error of that kind, optionally carrying named data |
 | `input(prompt="")` | Write a prompt to stdout and read one line from stdin, or nil at the end of input |
 | `format(value, spec)` | Format a value under a format specifier, as `"{value:spec}"` does |
 | `type_of(value)` | The constructor of a value's type |
@@ -114,7 +114,10 @@ rule: `type_of(instance)` is identical to the type callable that created them.
 Every value has a type, including those that cannot be constructed: for
 `nil`, a module or a Goblin handle, `type_of` returns a stand-in
 function named after the type (`type_of(nil).name` is `"Nil"`) that compares
-equal for values of the same type and raises TypeError when called.
+equal for values of the same type and raises TypeError when called. The type
+of an error is `Error`, the base error kind: `type_of(e) == Error` holds for
+every error, and calling `Error` makes a new one. It is an error rather than a
+function, so it has a `message` (`"Error"`) instead of a `name`.
 
 `attributes(value)` returns a new list of the names a value answers to: its
 properties or fields first, then its methods, in declaration order (a

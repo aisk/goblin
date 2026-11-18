@@ -34,9 +34,11 @@ There are two ways to derive an error, and they have different jobs:
   `"loading profile: "` followed by the original message, and whose `cause` is
   the original error.
 
-`Error("message")` creates a plain error with no kind. Any error can serve as a
-kind: a kind is simply an error you call or test for. Use one when callers need
-to tell a particular failure apart from unrelated errors.
+`Error` is the base kind, the one every other kind descends from, so
+`Error("message")` creates an error of the base kind and nothing more specific:
+its `cause` is `Error`. Any error can serve as a kind: a kind is simply an error
+you call or test for. Use one when callers need to tell a particular failure
+apart from unrelated errors.
 
 ~~~goblin
 var ConfigError = ValueError("ConfigError")   # a kind of your own, a ValueError
@@ -62,10 +64,10 @@ print(err.is(ValueError))    # true
 ~~~
 
 Calling a kind with no message keeps the kind's own: `ValueError().message` is
-`ValueError`.
+`ValueError`, and `Error().message` is `Error`.
 
-The `cause` property is the next error down the chain, or nil at the bottom,
-and is() tests the complete chain, the error itself included.
+The `cause` property is the next error down the chain, and is() tests the
+complete chain, the error itself included.
 
 ~~~goblin
 var base = Error("connection failed")
@@ -74,15 +76,17 @@ print(err.message)       # loading profile: connection failed
 print(err.cause.message) # connection failed
 print(err.cause == base) # true
 print(err.is(base))      # true
-print(base.cause)        # nil
+print(base.cause)        # Error
+print(Error.cause)       # nil
 ~~~
 
 The chain continues through error kinds: a kind's `cause` is its parent kind,
-so `IndexError.cause == LookupError`, and the base `Error` kind, at the top,
-has a nil cause. A failure reported by a library module carries its kind one
-level down: when `fs.read` fails, `e.message` describes what failed,
-`e.cause` is the operating system's own error (`open nope.txt: no such file
-or directory`), and `e.cause.is(NotExistError)` is true, as is `e.is(NotExistError)`.
+so `IndexError.cause == LookupError`. Every chain ends at the base kind
+`Error`, the only error whose `cause` is nil. A failure reported by a library
+module carries its kind one level down: when `fs.read` fails, `e.message`
+describes what failed, `e.cause` is the operating system's own error (`open
+nope.txt: no such file or directory`), and `e.cause.is(NotExistError)` is
+true, as is `e.is(NotExistError)`.
 
 The error a `catch` binds is the error that was raised, however many calls it
 passed through on the way: `e == not_found` and `e.cause` give the same answer
@@ -93,7 +97,9 @@ its entry.
 ## Catching by kind
 
 `catch e: Kind { ... }` handles an error only when `e.is(Kind)` is true;
-`catch e { ... }` handles any error. A try can have several clauses. They are
+`catch e { ... }` handles any error. `e.is(Error)` is true for every error,
+including the runtime's own failures and wrapped errors, so `catch e: Error`
+and `catch e` handle the same errors. A try can have several clauses. They are
 tested from top to bottom, and the first that matches runs; the others are
 skipped.
 
@@ -122,7 +128,7 @@ try {
   `catch after a catch-all clause can never run` is reported when the program
   is parsed.
 - `os.exit()` is not an error: no `catch` clause receives it, with or without a
-  kind.
+  kind, `catch e: Error` included.
 - Each clause has its own variable and scope; clauses may use different names.
 - An error raised inside a clause body is not offered to the later clauses of
   the same try.
@@ -160,7 +166,8 @@ try {
 ## Error kinds
 
 The runtime uses named error kinds. Raise one as it is, or call it to make an
-error of that kind with a message of your own.
+error of that kind with a message of your own. Each kind below descends from
+the base kind `Error`.
 
 | Kind | Typical cause |
 | --- | --- |

@@ -130,9 +130,9 @@ print(describe(nil))          # nothing
 ```
 
 Built-in values answer with the conversion functions: `Int`, `Float`, `String`,
-`Bool`, `Bytes`, `List`, `Dict`, `Function`, `Error` and `Chan`. A value whose
-type has no constructor (`nil`, a module, a Goblin handle) answers a
-stand-in that still compares equal across values of that type and has its
-`name`, such as `type_of(nil).name == "Nil"`. There is no question for
+`Bool`, `Bytes`, `List`, `Dict`, `Function` and `Chan`, and an error answers
+`Error`, the base error kind. A value whose type has no constructor (`nil`, a
+module, a Goblin handle) answers a stand-in that still compares equal across
+values of that type and has its `name`, such as `type_of(nil).name == "Nil"`. There is no question for
 behaviour, such as whether a value implements a protocol: use the operation
 itself, or compare `type_of(value)` with the type you expect.
