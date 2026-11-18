@@ -173,9 +173,9 @@ try {
 alone. Inside a list, a dictionary or a structural `impl Show {}`, a bare
 message could not be told apart from a String, from a name, or (when empty)
 from nothing, so there an error shows as `Kind("message")`: Kind is the
-nearest kind in its cause chain, and the message is quoted as a String
-element is. A kind itself, being an error whose message is a capitalized name,
-shows as that bare name.
+nearest built-in or library kind in its cause chain (`ValueError`,
+`exec.ExitError`, and `Error` when there is no other), and the message is
+quoted as a String element is. Such a kind itself shows as its bare name.
 
 ~~~goblin
 var ConfigError = ValueError("ConfigError")
@@ -184,14 +184,16 @@ var not_found = Error("not found")
 print([ValueError("bad input"), "bad input", ValueError("")])
 # [ValueError("bad input"), "bad input", ValueError("")]
 print([ValueError, ConfigError, ConfigError("missing name")])
-# [ValueError, ConfigError, ConfigError("missing name")]
+# [ValueError, ValueError("ConfigError"), ValueError("missing name")]
 print([not_found, ValueError("bad").wrap("parsing")])
 # [Error("not found"), ValueError("parsing: bad")]
 ~~~
 
-A sentinel such as `not_found` is not a kind by that rule (its message is not
-a name), so it shows with the kind it was made from; a wrapped error shows its
-full message with the kind of the error it wraps.
+An error a program uses as a kind of its own, such as `ConfigError`, and a
+sentinel such as `not_found` are errors like any other here: each shows with
+the built-in kind it was made from, and so do the errors made by calling them.
+The display does not guess from a message whether an error is meant as a kind.
+A wrapped error shows its full message with the kind of the error it wraps.
 
 ## Error kinds
 
