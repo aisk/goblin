@@ -21,7 +21,7 @@ before designing a larger program:
 | Imports | Module scope only; local paths are relative to the importing file |
 | Concurrency | `spawn` returns a joinable Goblin handle; iterable channels; `timeout=` on every blocking operation; no select or cancellation |
 | Errors | Explicit raise and try/catch; a spawned function's error is re-raised by `wait()`, and reported on stderr at exit if nobody waited |
-| Cleanup | `defer call()` runs the call when the enclosing function ends; there is no `finally` and no block-scoped cleanup. `os.exit()` and Ctrl-C end the process without running deferred calls |
+| Cleanup | `defer call()` runs the call when the enclosing function ends; there is no `finally` and no block-scoped cleanup. `os.exit()` runs the pending deferred calls of the goblin that called it; Ctrl-C ends the process without running them |
 
 Goblin favors direct, explicit code over a large amount of syntax. When a
 feature is absent, compose the available pieces: use a channel instead of a

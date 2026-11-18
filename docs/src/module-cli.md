@@ -165,7 +165,7 @@ raises `AttributeError: Args is read-only`. It prints as
 | Program name in texts | base name of `os.program` (`program` when empty, as in the REPL) | same |
 
 The process's command line gets the process's behaviour; a List gets a
-function's. Exiting works like `os.exit`: deferred calls do not run.
+function's. Exiting works like `os.exit`: pending deferred calls run first.
 
 - `UsageError`: `message` is the one-line reason, standing alone; the data
   `usage` is the usage line.

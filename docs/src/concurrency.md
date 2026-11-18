@@ -55,8 +55,10 @@ line of its own is fine. An error is still never lost: when the program ends
 normally, every goblin that failed without any `wait()` seeing its error is
 reported on stderr as `uncaught error in goblin: <error>`, in the order they
 failed. The report does not change the exit status. Goblins still running when
-the program ends are stopped mid-flight and not reported. The REPL makes the
-same report after each line it evaluates.
+the program ends are stopped mid-flight and not reported. The same holds when a
+goblin calls `os.exit()`: that goblin runs its deferred calls, every other
+goblin is stopped mid-flight, and failed goblins nobody waited for are not
+reported. The REPL makes the same report after each line it evaluates.
 
 ### Waiting for the first of several
 

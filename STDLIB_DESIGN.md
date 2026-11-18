@@ -164,6 +164,7 @@ The built-in types are the part of the library every program uses, so consistenc
 - Messages follow `funcname() <what failed>`. A bare `funcname() failed` says nothing: name the failure (`decode() invalid Base64 at position 5`, `read() failed to read HTTP body`).
 - An error raised by syntax rather than by a call (indexing, iteration, an operator) has no function to name, so its message starts with what failed: `environment variable 'X' is not set`, `line 3 of "x" is not valid UTF-8`, `cannot add String and Int`.
 - A missing language protocol should say how to get it: `cannot compare Deck (add 'impl Ord' to type Deck)`.
+- A function that receives an error from Goblin code it called returns it unchanged or wraps it with the chain kept; it never rebuilds it from its message and never discards it, because `os.exit` travels as such an error (`object.NewExit`) and ends the process with its status only when its chain reaches the top of the task intact.
 
 ## 8. Values, not Go internals
 

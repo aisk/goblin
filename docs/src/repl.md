@@ -58,5 +58,6 @@ after `import "json"`, type `json.` and press Tab to see members. Completion
 only reads attributes; it does not call Goblin functions.
 
 History is stored in `~/.goblin_history`; use Up/Down to revisit entries and
-Ctrl-D to exit. Use the REPL for small experiments and API discovery, then move
+Ctrl-D to exit. `os.exit()` leaves the REPL with that status after running the
+deferred calls of the current input. Use the REPL for small experiments and API discovery, then move
 repeatable work into a `.goblin` file.

@@ -56,16 +56,27 @@ input; `examples/os.goblin` covers the rest of the module.
 | `stderr` | `fs.File` | Writable |
 | `pid` | Int | The process id |
 | `platform` | String | `"linux"`, `"darwin"`, `"windows"`, … (Go's `runtime.GOOS`) |
-| `exit(code=0)` | function | Ends the process with that status, from 0 to 255 (ValueError otherwise) |
+| `exit(code=0)` | function | Ends the process with that status, from 0 to 255 (ValueError otherwise), after running pending deferred calls |
 
 A fact fixed for the life of the process is a value (`os.args`, `os.pid`),
 the environment is an object, and ending the process is a function.
 
-`os.exit()` ends the process at once: deferred calls, including those of the
-calling function, do not run, so a temporary directory removed by a `defer`
-stays on disk. Clean up before calling it. An interrupt (Ctrl-C) also ends the
-process without running deferred calls. Avoid `os.exit()` in library code;
-raise an error instead and let the program decide.
+`os.exit()` ends the program: nothing after the call runs, and no `catch` clause
+sees it. Before the process ends, the deferred calls that are still pending run
+as they would for an error nobody catches: those of the calling function, of each
+of its callers, then of the file's top level. A temporary directory removed by a
+`defer` is removed.
+
+If one of those deferred calls raises, the error is written to stderr as
+`uncaught error in deferred call: <error>`, the remaining ones still run, and a
+status of 0 becomes 1. A deferred call that itself calls `os.exit()` replaces
+the status. A deferred call that blocks delays the exit.
+
+Only the goblin that called `os.exit()` runs its deferred calls; every other
+goblin is stopped where it is, including the main one when a spawned goblin
+exits. An interrupt (Ctrl-C) ends the process without running deferred calls.
+Avoid `os.exit()` in library code; raise an error instead and let the program
+decide.
 
 The standard streams are ordinary [File](./module-fs.md#file) values whose
 `path` is `nil`; their methods raise IOError when the stream fails. `print`

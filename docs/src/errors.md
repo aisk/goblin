@@ -121,6 +121,8 @@ try {
 - A clause without a kind catches everything, so it must be the last one:
   `catch after a catch-all clause can never run` is reported when the program
   is parsed.
+- `os.exit()` is not an error: no `catch` clause receives it, with or without a
+  kind.
 - Each clause has its own variable and scope; clauses may use different names.
 - An error raised inside a clause body is not offered to the later clauses of
   the same try.

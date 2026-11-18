@@ -191,10 +191,11 @@ A few rules follow from "when the function ends":
 - At the top level of a file, deferred calls run when the file's own
   statements finish, also when they stop with an unhandled error. In the REPL
   that is the end of each input.
-- Deferred calls do not run when the process is ended from outside the
-  function's flow: `os.exit()` ends it at once, and so does an interrupt
-  (Ctrl-C) or any other signal that terminates it. To clean up and then exit
-  with a status, do the cleanup before calling `os.exit()`.
+- `os.exit()` runs the pending deferred calls of the goblin that called it before
+  the process ends, innermost function first; see [os](./module-os.md). Deferred
+  calls do not run when the process is ended from outside: an interrupt (Ctrl-C)
+  or any other signal that terminates it, or `os.exit()` called by another
+  goblin.
 
 ## Recursion and callbacks
 
