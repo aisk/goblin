@@ -6,6 +6,7 @@ import "time"
 # Build a wall-clock time in a zone, and read it back
 var meeting = time.Time(2026, 7, 19, hour=9, minute=30, zone="America/New_York")
 print(meeting)
+print([meeting])
 print(meeting.year, meeting.month, meeting.day, meeting.hour, meeting.minute, meeting.second)
 print(meeting.weekday, meeting.format("%A"))
 print(meeting.zone, meeting.offset, meeting.offset / time.HOUR)

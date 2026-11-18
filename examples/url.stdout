@@ -1,6 +1,7 @@
 https example.com 8443 /docs/intro lang=en&page=2 install
 {"lang": "en", "page": "2"} 2
 https://example.com:8443/docs/intro?lang=en&page=2#install true
+[URL("https://example.com:8443/docs/intro?lang=en&page=2#install"), "https://example.com/"]
 true true nil example.com/a true true
 ../a b x=1 true
 ::1 nil

@@ -37,6 +37,7 @@ print(fs.Path("a//b/../c.txt"), fs.Path("x/report.tar.gz").stem)
 print(fs.Path("/srv/www/index.html").relative_to("/srv"))
 print(fs.Path("a") == fs.Path("a/"), fs.Path("a") == "a", String(fs.Path("a")) == "a")
 print(type_of(source) == fs.Path)
+print([fs.Path("a b"), "a b"], {"page": target})
 
 # Make sure the output directory is there, then write into it.
 var page = scratch.join(target)
@@ -97,6 +98,7 @@ if fs.exists(config) {
     var info = fs.stat(config)
     var age = time.now() - info.modified_at
     print(info.size, info.is_file, info.is_dir, info.is_symlink, age >= 0, age < 3600)
+    print(info, fs.stat(scratch.join("docs")))
 }
 
 # Failures keep their kind and name the path.

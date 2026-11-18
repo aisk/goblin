@@ -93,6 +93,10 @@ func TestShowAndProperties(t *testing.T) {
 	if got := tm.String(); got != "2026-07-19T09:30:15+08:00" {
 		t.Fatalf("Show = %s", got)
 	}
+	list := &object.List{Elements: object.Args{tm}}
+	if got, _ := list.ToString(); got != `[Time("2026-07-19T09:30:15+08:00")]` {
+		t.Fatalf("Time in a List shows as %s", got)
+	}
 	want := map[string]object.Object{
 		"year": object.Integer(2026), "month": object.Integer(7), "day": object.Integer(19),
 		"hour": object.Integer(9), "minute": object.Integer(30), "second": object.Integer(15),

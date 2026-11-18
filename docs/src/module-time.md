@@ -168,7 +168,9 @@ Immutable: an instant together with the zone it is shown in.
 (09:00+08:00 equals 01:00Z), and a Time can be a Dict key on the same terms.
 A Time prints as RFC 3339 (`2026-07-19T09:30:00+08:00`), with fractional
 seconds only when they are not zero; its zone's name is not shown, its offset
-is. Like every library value it is always truthy.
+is. Inside a List, a Dict or a structural Show it shows as
+`Time("2026-07-19T09:30:00+08:00")`, so it is not mistaken for a String. Like
+every library value it is always truthy.
 
 | Member | Kind | Value |
 | --- | --- | --- |

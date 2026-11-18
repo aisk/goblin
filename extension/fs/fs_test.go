@@ -374,6 +374,39 @@ func TestQuestionsAndStat(t *testing.T) {
 	}
 }
 
+func TestFileInfoDisplay(t *testing.T) {
+	dir := makeTree(t)
+	shown := func(path string) string {
+		s, err := call(t, "stat", str(path)).ToString()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	if got := shown(filepath.Join(dir, "b.txt")); got != "<FileInfo file size=1>" {
+		t.Errorf("stat(file) shows %q", got)
+	}
+	if got := shown(dir); got != "<FileInfo dir>" {
+		t.Errorf("stat(dir) shows %q", got)
+	}
+	if runtime.GOOS == "windows" {
+		return
+	}
+	link := filepath.Join(dir, "link")
+	os.Symlink(filepath.Join(dir, "b.txt"), link)
+	if got := shown(link); got != "<FileInfo file size=1>" {
+		t.Errorf("stat(link to file) shows %q", got)
+	}
+	broken := filepath.Join(dir, "broken")
+	os.Symlink(filepath.Join(dir, "gone"), broken)
+	if got := shown(broken); got != "<FileInfo symlink>" {
+		t.Errorf("stat(broken link) shows %q", got)
+	}
+	if got := shown("/dev/null"); got != "<FileInfo other>" {
+		t.Errorf("stat(/dev/null) shows %q", got)
+	}
+}
+
 func TestReadDirMkdirRemove(t *testing.T) {
 	dir := makeTree(t)
 	got := relative(t, dir, collect(t, call(t, "read_dir", str(dir))))
@@ -692,6 +725,18 @@ func TestPath(t *testing.T) {
 		t.Fatal("type_of(Path) is not fs.Path")
 	}
 	callErr(t, object.TypeError, "Path() takes 1 positional arguments, got 2", "Path", []object.Object{str("a"), str("b")})
+
+	// Direct display is the plain text; inside a collection a Path shows as
+	// Path("text") so it is not taken for a String.
+	spaced := p("a b")
+	if s, _ := spaced.ToString(); s != "a b" || spaced.String() != "a b" || spaced.FilePath() != "a b" {
+		t.Fatalf("Path direct display = %q", s)
+	}
+	list := &object.List{Elements: []object.Object{spaced, p(`q"x`), str("a b")}}
+	want := `[Path("a b"), Path("q\"x"), "a b"]`
+	if s, _ := list.ToString(); s != want || list.String() != want {
+		t.Fatalf("Path in a List shows as %q, want %q", s, want)
+	}
 }
 
 // errorPath calls a member expecting an error and returns the text of its

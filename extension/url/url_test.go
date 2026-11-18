@@ -50,6 +50,16 @@ func TestParseParts(t *testing.T) {
 	if u.(*urlvalue.URL).Constructor() != urlvalue.Type.Function {
 		t.Fatal("type_of(URL) is not url.URL")
 	}
+
+	// Direct display is the URL text; inside a collection it is URL("text").
+	plain := modtest.CallModule(t, Execute, "parse", object.CallArgs{Positional: object.Args{object.String("http://x/")}})
+	if s, _ := plain.ToString(); s != "http://x/" {
+		t.Errorf("URL shows as %q", s)
+	}
+	list := &object.List{Elements: object.Args{plain, object.String("http://x/")}}
+	if s, _ := list.ToString(); s != `[URL("http://x/"), "http://x/"]` {
+		t.Errorf("URL in a List shows as %q", s)
+	}
 }
 
 func TestErrorsCarryText(t *testing.T) {

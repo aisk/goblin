@@ -19,6 +19,7 @@ type Path struct {
 
 var _ object.Object = (*Path)(nil)
 var _ object.PathValue = (*Path)(nil)
+var _ object.PlainText = (*Path)(nil)
 
 // Type is the one constructor identity of Path, exported as fs.Path.
 var Type = object.NewNativeConstructor("Path", construct)
@@ -53,6 +54,10 @@ func (p *Path) FilePath() string { return p.raw }
 
 func (p *Path) String() string            { return p.raw }
 func (p *Path) ToString() (string, error) { return p.raw, nil }
+
+// PlainText satisfies object.PlainText: inside a collection a Path shows as
+// Path("text").
+func (p *Path) PlainText() string { return p.raw }
 
 // Equals compares the cleaned text; a Path never equals a String.
 func (p *Path) Equals(other object.Object) (bool, error) {

@@ -93,8 +93,10 @@ The type name `URL` is exported for `type_of(u) == url.URL`; calling it raises
 ## URL
 
 Immutable. Two URLs are equal when their text is (a URL never equals a
-String), a URL can be a Dict key, and it prints as the full URL. URLs have no
-order.
+String), a URL can be a Dict key, and it prints as the full URL. Inside a List,
+a Dict or a structural Show it shows as `URL("https://example.com/")`, the
+text quoted like a String element, so it is not mistaken for a String. URLs
+have no order.
 
 | Member | Kind | Value | When absent |
 | --- | --- | --- | --- |

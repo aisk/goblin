@@ -33,8 +33,20 @@ func (r *renderer) enter(container Object) bool {
 
 func (r *renderer) leave(container Object) { delete(r.active, container) }
 
-// element renders a value nested inside another: strings are quoted, and
-// containers recurse through the same renderer.
+// PlainText is implemented by a library value whose direct display is plain
+// text, such as a Path or a URL. Inside a collection it shows as
+// TypeName("text") with the text quoted as a String element is, because the
+// bare text could not be told apart from a String and would hide where the
+// element ends. Its direct display (print, String(), interpolation) stays
+// the plain text.
+type PlainText interface {
+	Object
+	PlainText() string
+}
+
+// element renders a value nested inside another: strings are quoted, plain
+// text library values show as TypeName("text"), and containers recurse
+// through the same renderer.
 func (r *renderer) element(obj Object) (string, error) {
 	// Deep but acyclic nesting recurses too.
 	if err := CheckStack(); err != nil {
@@ -43,6 +55,8 @@ func (r *renderer) element(obj Object) (string, error) {
 	switch v := obj.(type) {
 	case String:
 		return v.Literal(), nil
+	case PlainText:
+		return v.TypeName() + "(" + String(v.PlainText()).Literal() + ")", nil
 	case *List:
 		return r.list(v)
 	case *Dict:

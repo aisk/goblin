@@ -2,6 +2,7 @@ package fs
 
 import (
 	stdfs "io/fs"
+	"strconv"
 
 	"github.com/aisk/goblin/extension/internal/timevalue"
 	"github.com/aisk/goblin/object"
@@ -22,7 +23,22 @@ func newFileInfo(info stdfs.FileInfo, symlink bool) *FileInfo {
 
 func (f *FileInfo) Constructor() *object.Function { return fileInfoType.Function }
 
-func (f *FileInfo) String() string            { return "<FileInfo>" }
+// String names the kind the properties describe: <FileInfo file size=12>,
+// <FileInfo dir>, <FileInfo other>. For a symbolic link the properties
+// describe its target, so a link shows its target's kind; only a broken link,
+// which describes the link itself, shows as <FileInfo symlink>.
+func (f *FileInfo) String() string {
+	switch {
+	case f.info.Mode().IsRegular():
+		return "<FileInfo file size=" + strconv.FormatInt(f.info.Size(), 10) + ">"
+	case f.info.IsDir():
+		return "<FileInfo dir>"
+	case f.symlink:
+		return "<FileInfo symlink>"
+	}
+	return "<FileInfo other>"
+}
+
 func (f *FileInfo) ToString() (string, error) { return f.String(), nil }
 
 func (f *FileInfo) GetAttr(name string) (object.Object, error) {

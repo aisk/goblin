@@ -78,6 +78,10 @@ func (u *URL) Constructor() *object.Function { return Type.Function }
 func (u *URL) String() string                { return u.u.String() }
 func (u *URL) ToString() (string, error)     { return u.u.String(), nil }
 
+// PlainText satisfies object.PlainText: inside a collection a URL shows as
+// URL("text").
+func (u *URL) PlainText() string { return u.u.String() }
+
 // Equals compares the text; a URL never equals a String.
 func (u *URL) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*URL)

@@ -185,6 +185,10 @@ An immutable name. It performs no I/O.
 - Paths compare (`==`, `<`), hash and print by their text, with the platform's
   separator. A Path never equals a String: compare `String(p) == "a/b"` or
   `p == fs.Path("a/b")`.
+- Inside a List, a Dict or a structural Show, a Path shows as `Path("a b")`,
+  its text quoted like a String element, so it is not mistaken for a String:
+  `print([fs.Path("a b"), "a b"])` prints `[Path("a b"), "a b"]`. `print(p)`,
+  `String(p)` and `"{p}"` give the plain text.
 - There is no `/` operator; joining is `join`.
 
 | Member | Kind | Value |
@@ -248,6 +252,13 @@ An immutable snapshot from `fs.stat`. All members are properties.
 | `is_dir` | Bool |
 | `is_symlink` | Bool: the path itself is a symbolic link (the other properties describe its target) |
 | `mode` | Int, permission bits (`info.mode == 0o644`) |
+
+A FileInfo shows the kind of entry its properties describe:
+`<FileInfo file size=12>` for a regular file, `<FileInfo dir>` for a
+directory, `<FileInfo other>` for anything else (a device, a named pipe, a
+socket). A symbolic link shows its target's kind, since the properties
+describe the target; a broken link, which `stat` describes itself, shows as
+`<FileInfo symlink>`.
 
 `info.is_dir` reads a snapshot already taken, while `fs.is_dir(path)` asks the
 disk again.

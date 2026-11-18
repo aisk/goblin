@@ -10,6 +10,7 @@ a/c.txt report.tar
 www/index.html
 true false true
 true
+[Path("a b"), "a b"] {"page": Path("build/guide.html")}
 <h1>hello from fs fixture</h1>
 fs_dir_fixture/alpha.txt alpha.txt 6
 fs_dir_fixture/beta.txt beta.txt 5
@@ -28,6 +29,7 @@ nil
 true false true
 ["copy.txt", "guide", "intro.md"]
 13 true false false true true
+<FileInfo file size=13> <FileInfo dir>
 read() cannot open "missing.txt": no such file or directory
 remove() directory "<scratch>/docs" is not empty (pass recursive=true)
 copy() "<scratch>/docs-backup" already exists

@@ -7,6 +7,7 @@ print(link.scheme, link.host, link.port, link.path, link.query, link.fragment)
 var params = url.decode_query(link.query)
 print(params, params.get("page", default="1"))
 print(link, type_of(link) == url.URL)
+print([link, "https://example.com/"])
 
 # Absent parts
 var bare = url.parse("example.com/a")

@@ -34,6 +34,10 @@ func (t *Time) String() string {
 
 func (t *Time) ToString() (string, error) { return t.String(), nil }
 
+// PlainText satisfies object.PlainText: inside a collection a Time shows as
+// Time("RFC 3339 text").
+func (t *Time) PlainText() string { return t.String() }
+
 func (t *Time) Equals(other object.Object) (bool, error) {
 	v, ok := other.(*Time)
 	return ok && t.Value.Equal(v.Value), nil
