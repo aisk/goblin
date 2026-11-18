@@ -79,7 +79,7 @@ func TestCallingAnErrorMakesOneOfItsKind(t *testing.T) {
 			t.Errorf("%s: the error is not a ValueError", name)
 		}
 	}
-	_, err = ErrorConstructor(CallArgs{Keyword: Kwargs{{Name: "cause", Value: Integer(1)}}})
+	_, err = Call(BaseError, CallArgs{Keyword: Kwargs{{Name: "cause", Value: Integer(1)}}})
 	if err == nil || err.Error() != "Error() cannot use 'cause' as a data name" {
 		t.Errorf("Error(cause=1): %v", err)
 	}
@@ -150,5 +150,72 @@ func TestErrorMatches(t *testing.T) {
 	}
 	if got, _ := ErrorMatches(String("x"), IndexError); got {
 		t.Error("a String matched")
+	}
+}
+
+// The global Error is the base kind: calling it makes an error of that kind,
+// and every error matches it, whatever its chain holds, except the exit
+// request os.exit raises.
+func TestBaseErrorKind(t *testing.T) {
+	v, err := Call(BaseError, CallArgs{Positional: Args{String("plain")}, Keyword: Kwargs{{Name: "code", Value: Integer(2)}}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	plain := v.(*Error)
+	if plain.Value != "plain" || plain.Cause() != BaseError {
+		t.Fatalf("Error(\"plain\") = %q with cause %v", plain.Value, plain.Cause())
+	}
+	if code, ok := plain.Field("code"); !ok || code != Integer(2) {
+		t.Errorf("code = %v, %v", code, ok)
+	}
+	if v, err := Call(BaseError, CallArgs{}); err != nil || v.(*Error).Value != "Error" {
+		t.Fatalf("Error() = %v, %v", v, err)
+	}
+	if BaseError.Cause() != Nil || ValueError.Cause() != BaseError {
+		t.Fatal("the base kind has no cause and is the parent of the root kinds")
+	}
+
+	sentinel := plain
+	framed := func(err error) Object {
+		return ErrorValue(WithFrame(WithFrame(err, Frame{Function: "f"}), Frame{Function: "g"}))
+	}
+	for name, e := range map[string]Object{
+		"kind error":        NewValueError("bad"),
+		"plain":             plain,
+		"sentinel raised":   framed(sentinel),
+		"wrapped":           NewWrappedError("loading", NewIndexError("out of range")),
+		"internal":          NewInternalError("panic"),
+		"native kind":       WrapNativeError(IOError, "read", fs.ErrNotExist),
+		"framed native":     framed(fmt.Errorf("no kind")),
+		"native":            ErrorValue(fmt.Errorf("no kind")),
+		"kindless value":    &Error{Value: "built by hand"},
+		"wrapping a native": &Error{Value: "x", Wrapped: fmt.Errorf("no kind")},
+		"a kind":            KeyError,
+		"the base kind":     BaseError,
+	} {
+		if ok, err := ErrorMatches(e, BaseError); !ok || err != nil {
+			t.Errorf("%s: ErrorMatches(e, Error) = %v, %v", name, ok, err)
+		}
+		if ok, err := e.(*Error).IsValue(CallArgs{Positional: Args{BaseError}}); ok != True || err != nil {
+			t.Errorf("%s: e.is(Error) = %v, %v", name, ok, err)
+		}
+	}
+	// A sentinel made with Error(...) still matches only itself among
+	// errors made from the base kind.
+	other, _ := Call(BaseError, CallArgs{Positional: Args{String("plain")}})
+	if ok, _ := ErrorMatches(framed(sentinel), sentinel); !ok {
+		t.Error("a raised sentinel does not match itself")
+	}
+	if ok, _ := ErrorMatches(other, sentinel); ok {
+		t.Error("another error matches the sentinel")
+	}
+	if eq, _ := framed(sentinel).Equals(sentinel); !eq {
+		t.Error("a raised sentinel does not equal itself")
+	}
+	if ok, _ := ErrorMatches(Integer(1), BaseError); ok {
+		t.Error("a value that is not an error matches the base kind")
+	}
+	if TypeOf(plain) != BaseError || TypeOf(BaseError) != BaseError {
+		t.Error("the type of an error is the base kind")
 	}
 }

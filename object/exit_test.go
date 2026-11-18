@@ -72,3 +72,20 @@ func TestExitNow(t *testing.T) {
 		t.Fatalf("exit codes = %v, want [7]", *codes)
 	}
 }
+
+// The base kind matches every error but the exit request, also once the
+// request has collected stack frames.
+func TestExitDoesNotMatchTheBaseKind(t *testing.T) {
+	req := WithFrame(WithFrame(NewExit(4), Frame{Function: "f"}), Frame{Function: "g"})
+	for _, caught := range []Object{ErrorValue(req), ErrorValue(NewExit(4))} {
+		if matched, err := ErrorMatches(caught, BaseError); err != nil || matched {
+			t.Errorf("ErrorMatches(exit, Error) = %v, %v", matched, err)
+		}
+		if v, _ := caught.(*Error).IsValue(CallArgs{Positional: Args{BaseError}}); v != False {
+			t.Errorf("exit.is(Error) = %v", v)
+		}
+	}
+	if errors.Is(req, BaseError) {
+		t.Error("errors.Is(exit, Error)")
+	}
+}

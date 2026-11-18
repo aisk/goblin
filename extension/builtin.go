@@ -10,7 +10,7 @@ import (
 )
 
 var BuiltinsModule = object.NewModule("builtin", map[string]object.Object{
-	"Error":               object.ErrorConstructorFn,
+	"Error":               object.BaseError,
 	"TypeError":           object.TypeError,
 	"ValueError":          object.ValueError,
 	"LookupError":         object.LookupError,

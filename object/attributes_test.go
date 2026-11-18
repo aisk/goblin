@@ -39,7 +39,7 @@ func TestAttributesReturnsFreshList(t *testing.T) {
 func TestTypeOf(t *testing.T) {
 	tests := []struct {
 		value Object
-		want  *Function
+		want  Object
 	}{
 		{Integer(1), IntConstructorFn},
 		{Float(1), FloatConstructorFn},
@@ -48,8 +48,9 @@ func TestTypeOf(t *testing.T) {
 		{Bytes("x"), BytesConstructorFn},
 		{&List{}, ListConstructorFn},
 		{NewDict(), DictConstructorFn},
-		{NewError("x"), ErrorConstructorFn},
-		{TypeError, ErrorConstructorFn},
+		{NewError("x"), BaseError},
+		{TypeError, BaseError},
+		{BaseError, BaseError},
 		{IntConstructorFn, FunctionConstructorFn},
 		{NewChan(0), ChanConstructorFn},
 	}
@@ -59,13 +60,13 @@ func TestTypeOf(t *testing.T) {
 		}
 	}
 	// A type that cannot be constructed has one stand-in per type name.
-	if TypeOf(Nil) != TypeOf(Unit{}) || TypeOf(Nil).Name != "Nil" {
+	if TypeOf(Nil) != TypeOf(Unit{}) || TypeOf(Nil).(*Function).Name != "Nil" {
 		t.Errorf("TypeOf(nil) = %v", TypeOf(Nil))
 	}
-	if mod := (&Module{Name: "m"}); TypeOf(mod) == TypeOf(Nil) || TypeOf(mod).Name != "Module" {
+	if mod := (&Module{Name: "m"}); TypeOf(mod) == TypeOf(Nil) || TypeOf(mod).(*Function).Name != "Module" {
 		t.Errorf("TypeOf(module) = %v", TypeOf(mod))
 	}
-	if _, err := TypeOf(Nil).Call(CallArgs{}); err == nil || err.Error() != "Nil cannot be constructed" {
+	if _, err := TypeOf(Nil).(*Function).Call(CallArgs{}); err == nil || err.Error() != "Nil cannot be constructed" {
 		t.Errorf("calling type_of(nil): %v", err)
 	}
 }

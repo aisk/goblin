@@ -1,8 +1,9 @@
 import "fs"
 import "json"
 
-# Errors are values. Error() makes one; calling a kind makes an error of
-# that kind; wrap, cause and is relate them; catch can pick errors by kind.
+# Errors are values. Calling a kind makes an error of that kind, and Error is
+# the base kind that every other kind descends from; wrap, cause and is
+# relate errors; catch can pick errors by kind.
 
 # A sentinel error, reused by identity (like a named error constant)
 var not_found = Error("not found")
@@ -23,9 +24,10 @@ var deep = err.wrap("startup")
 print(deep.message)
 print(deep.is(not_found))
 
-# cause at the bottom of the chain is nil; an error kind's cause is its
-# parent kind
-print(not_found.cause, IndexError.cause == LookupError, LookupError.cause.message)
+# An error kind's cause is its parent kind. An error made with Error(...) is
+# of the base kind Error, and Error is the bottom of every chain: its own
+# cause is nil.
+print(not_found.cause == Error, Error.cause, IndexError.cause == LookupError, LookupError.cause.message)
 
 # wrap/is compose with raise and catch
 func load() {
@@ -202,6 +204,26 @@ try {
     print(e.is(ValueError))
 }
 
+# Error is a kind like the others, and every error is of that kind, so
+# `catch e: Error` handles exactly the errors a bare `catch e` handles: errors
+# of any kind, plain errors made with Error(...), the runtime's own failures
+# and wrapped errors
+print(type_of(Error), type_of(ValueError) == Error, Error("x").cause == Error)
+print(Error().message, Error("x").message)
+var any_errors = [
+    func() { raise ValueError("a kind") },
+    func() { raise Error("plain") },
+    func() { return [1, 2][5] },
+    func() { raise not_found.wrap("wrapped") },
+]
+for action in any_errors {
+    try {
+        action()
+    } catch e: Error {
+        print("caught by Error:", e.message, e.is(Error))
+    }
+}
+
 # If no error is raised, the catch block is skipped.
 try {
     print("no error here")
@@ -245,7 +267,7 @@ try {
 
 # A caught error is the error that was raised, however deep the raise was:
 # it equals the sentinel, keys a dict like it, and its cause is what the
-# raised error wraps.
+# raised error wraps (Error, for an error made with Error(...)).
 var base = Error("base")
 func inner(wrapped) {
     if wrapped {
@@ -259,7 +281,7 @@ func outer(wrapped) {
 try {
     outer(false)
 } catch e {
-    print(e == base, {base: "found"}[e], e.cause)
+    print(e == base, {base: "found"}[e], e.cause == Error)
 }
 try {
     outer(true)

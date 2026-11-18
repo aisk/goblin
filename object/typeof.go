@@ -12,10 +12,14 @@ type Constructed interface {
 // TypeOf returns the constructor of obj's type, what `type_of(obj)` answers.
 // Every value has one: a type that cannot be constructed (Nil, Module,
 // Goblin, a native handle without a constructor) answers its
-// OpaqueType, so `type_of(a) == type_of(b)` and `type_of(x).name` hold for
-// any value.
-func TypeOf(obj Object) *Function {
+// OpaqueType, so `type_of(a) == type_of(b)` holds for any value. An error's
+// type is the base error kind BaseError (the global `Error`), which is
+// callable like the other constructors; every other answer is a Function
+// with a `name`.
+func TypeOf(obj Object) Object {
 	switch v := obj.(type) {
+	case *Error:
+		return BaseError
 	case Integer:
 		return IntConstructorFn
 	case Float:
@@ -30,8 +34,6 @@ func TypeOf(obj Object) *Function {
 		return ListConstructorFn
 	case *Dict:
 		return DictConstructorFn
-	case *Error:
-		return ErrorConstructorFn
 	case *Function:
 		return FunctionConstructorFn
 	case *Chan:

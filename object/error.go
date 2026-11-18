@@ -204,8 +204,9 @@ func (e *Error) Equals(other Object) (bool, error) {
 // Hash follows identity, so errors and error kinds can be dict keys.
 func (e *Error) Hash() (uint64, error) { return identityHash(e.origin()), nil }
 
-// Cause is the next error down the cause chain, or Nil: what the error
-// wraps, the kind of a native error, or the parent of an error kind.
+// Cause is the next error down the cause chain: what the error wraps, the
+// kind of a native error (BaseError when it has no other), or the parent of
+// an error kind. Only BaseError itself has no cause and answers Nil.
 func (e *Error) Cause() Object {
 	origin := e.origin()
 	switch w := origin.Wrapped.(type) {
@@ -218,10 +219,11 @@ func (e *Error) Cause() Object {
 	default:
 		if origin.frames != nil {
 			// A frame wrapper around a native error: the native error is
-			// the error itself, not its cause.
-			return Nil
+			// the error itself, not its cause, and has no kind but the
+			// base one.
+			return BaseError
 		}
-		return NewError(w.Error())
+		return nativeError(w)
 	}
 }
 
@@ -371,9 +373,9 @@ func reservedDataName(name string) bool {
 	return false
 }
 
-// newError builds the error `Error(...)` or `kind(...)` makes: the message,
-// rendered as print renders it, defaulting to def, and every remaining
-// keyword argument as data.
+// newError builds the error `kind(...)` makes: the message, rendered as
+// print renders it, defaulting to def, and every remaining keyword argument
+// as data.
 func newError(kind *Error, def Object, args CallArgs) (*Error, error) {
 	ap := NewArgParser("Error", args)
 	message := ap.AnyOr("message", def)
@@ -381,10 +383,7 @@ func newError(kind *Error, def Object, args CallArgs) (*Error, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	e := &Error{Value: inspect(message)}
-	if kind != nil {
-		e.Wrapped = kind
-	}
+	e := &Error{Value: inspect(message), Wrapped: kind}
 	for _, kw := range data {
 		if reservedDataName(kw.Name) {
 			return nil, NewValueError("Error() cannot use '%s' as a data name", kw.Name)
@@ -433,7 +432,9 @@ func (e *Error) IsValue(args CallArgs) (Object, error) {
 
 // ErrorMatches reports whether kind appears anywhere in the cause chain of
 // caught, the error a catch clause is offered. It is what `catch e: kind`
-// and e.is(kind) run; a kind that is not an Error is a TypeError.
+// and e.is(kind) run; a kind that is not an Error is a TypeError. The base
+// kind (the global `Error`) matches every error except the exit request, so
+// `catch e: Error` handles exactly what a bare `catch e` handles.
 func ErrorMatches(caught Object, kind Object) (bool, error) {
 	k, ok := kind.(*Error)
 	if !ok {
@@ -443,14 +444,23 @@ func ErrorMatches(caught Object, kind Object) (bool, error) {
 	if !ok {
 		return false, nil
 	}
-	return errors.Is(e, k.origin()), nil
+	k = k.origin()
+	if k == BaseError {
+		// Every error is of the base kind, whatever its chain holds: a
+		// native failure wrapped without a kind still matches. The exit
+		// request is not an error a program handles, so it never does.
+		return !IsExit(e), nil
+	}
+	return errors.Is(e, k), nil
 }
 
 var _ error = (*Error)(nil)
 
 // Predefined error values covering the common failure kinds. Each is a distinct
 // sentinel that can be raised, given context with .wrap(), matched with .is(),
-// or used as the base for a derived error.
+// or used as the base for a derived error. BaseError is the global `Error`:
+// the root kind, with no cause of its own, that every other kind descends
+// from and every error matches.
 var (
 	BaseError       = NewError("Error")
 	TypeError       = NewErrorKind("TypeError", BaseError)
@@ -566,14 +576,6 @@ func WrapNativeError(fallback *Error, message string, err error) *Error {
 	return WrapError(ErrorKind(err, fallback), message, err)
 }
 
-var ErrorConstructorFn = &Function{Name: "Error", Fn: ErrorConstructor}
-
-// ErrorConstructor is the global `Error(message="", **data)`: a new error
-// with no cause.
-func ErrorConstructor(args CallArgs) (Object, error) {
-	return newError(nil, String(""), args)
-}
-
 // Raise validates the value thrown by a `raise` statement. Only Error values
 // may be raised; raising anything else is itself an error. It returns the
 // error to propagate through the Go error channel that both backends use.
@@ -595,7 +597,13 @@ func ErrorValue(err error) Object {
 			return obj
 		}
 	}
-	return NewError(err.Error())
+	return nativeError(err)
+}
+
+// nativeError presents a native Go error that carries no Goblin error as an
+// Error of the base kind, still matching err under errors.Is.
+func nativeError(err error) *Error {
+	return &Error{Value: err.Error(), Wrapped: typedCause{cause: err, base: BaseError}}
 }
 
 type errorName struct{}

@@ -4,7 +4,7 @@ true
 false
 startup: loading config: not found
 true
-nil true Error
+true nil true Error
 reading file: not found
 true
 ValueError
@@ -46,13 +46,19 @@ true
 true
 true
 true
+Error true true
+Error x
+caught by Error: a kind true
+caught by Error: plain true
+caught by Error: List index out of range: 5 true
+caught by Error: wrapped: not found true
 no error here
 returned
 inner caught: inner
 after inner
 raising again
 outer caught: original
-true found nil
+true found true
 ctx: base true base
 true true true
 true

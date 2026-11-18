@@ -34,12 +34,19 @@ func TestErrorCauseAndOrigin(t *testing.T) {
 	if inner.Cause() != IOError {
 		t.Fatalf("the native layer's cause = %v, want its kind", inner.Cause())
 	}
-	if got := WithFrame(fs.ErrNotExist, Frame{}).(*Error).Cause(); got != Nil {
-		t.Fatalf("a framed native error's cause = %v, want nil", got)
+	if got := WithFrame(fs.ErrNotExist, Frame{}).(*Error).Cause(); got != BaseError {
+		t.Fatalf("a framed native error's cause = %v, want the base kind", got)
 	}
 	plain := &Error{Value: "x", Wrapped: fs.ErrNotExist}
-	if got, ok := plain.Cause().(*Error); !ok || got.Value != fs.ErrNotExist.Error() {
+	got, ok := plain.Cause().(*Error)
+	if !ok || got.Value != fs.ErrNotExist.Error() || !errors.Is(got, fs.ErrNotExist) {
 		t.Fatalf("a wrapped native error's cause = %v", plain.Cause())
+	}
+	if got.Cause() != BaseError {
+		t.Fatalf("a native error's own cause = %v, want the base kind", got.Cause())
+	}
+	if v := ErrorValue(fs.ErrNotExist).(*Error); v.Cause() != BaseError || !errors.Is(v, fs.ErrNotExist) {
+		t.Fatalf("ErrorValue of a native error = %v with cause %v", v, v.Cause())
 	}
 	if IndexError.Cause() != LookupError || BaseError.Cause() != Nil {
 		t.Fatal("kinds chain to their parents")
