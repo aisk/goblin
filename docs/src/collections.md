@@ -98,6 +98,9 @@ position does not matter.
 
 sort() is always stable: elements that compare equal (or whose keys do) keep
 their order, with `descending=true` as well. `descending` must be a Bool.
+`key` is called once per element, before any comparison, and the list is
+changed only when the whole sort succeeds: a `key` or a comparison that raises
+leaves the list as it was.
 Arguments that are functions (`fn`, `key`) are checked when the method is
 called, so `xs.map(1)` raises TypeError before doing anything.
 

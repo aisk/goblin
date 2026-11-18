@@ -229,7 +229,7 @@ them in one message), then the first missing required option.
 | Unknown option | `unknown option --widht (did you mean --width?)` / `unknown option -x` |
 | Option without a value | `option --output needs a value` |
 | Flag given a value | `option --verbose takes no value` |
-| Int conversion fails | `invalid value "abc" for --count: expected an integer` |
+| Int conversion fails, a number too large for an Int included | `invalid value "abc" for --count: expected an integer` |
 | Float conversion fails | `invalid value "abc" for --timeout: expected a number` |
 | Another `convert` raises ValueError | `invalid value "abc" for --since: ` and the error's message |
 | Not among `choices` | `invalid value "gif" for --format: expected one of png, jpg` |

@@ -58,7 +58,7 @@ Be sure that a `while` condition eventually changes or that the loop reaches a
 ## `for ... in` loops
 
 `for` iterates over lists, strings, dictionaries, and other iterable values.
-Iterating over a dictionary produces its keys; do not depend on their order.
+Iterating over a dictionary produces its keys, in insertion order.
 
 ```goblin
 for name in ["Ada", "Linus"] {
@@ -84,10 +84,14 @@ A loop takes one element at a time from the value it walks. For a file that
 means one line at a time (see [fs](module-fs.md)): the loop reads only as far
 as it gets, and an error such as an invalid line is raised when the loop
 reaches it, after the earlier elements have run through the body. A list is
-walked over the elements it held when the loop started: assigning an element
-the loop has not reached yet is seen, but `push` and `pop` do not change how
-many elements it visits. A dictionary loop visits the keys it held when the
-loop started.
+walked in place, by position, over at most as many elements as it held when
+the loop started: assigning an element the loop has not reached yet is seen,
+elements pushed during the loop are not visited, and when `pop`, `remove` or
+`clear` has made the list shorter than the position the loop reached, the
+loop ends there. The list is not copied, so a loop costs nothing up front.
+Every other walk over a list follows the same rule, such as the function
+given to `map`, `filter`, `find` or `max(key=)`. A dictionary loop visits the
+keys it held when the loop started.
 
 However a loop ends (it runs out of elements, `break`, a `return` in its body,
 or an error leaving it) the value being walked is told once that the loop is

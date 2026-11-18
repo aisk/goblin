@@ -258,7 +258,7 @@ the Headers afterwards does not change the message.
 | Member | Kind | Value |
 | --- | --- | --- |
 | `h[name]` | index | String: the value, or all values joined with `", "`. KeyError when the name is absent |
-| `h[name] = value` | index assignment | Replaces every value of `name`. `value` is a String or a List of String |
+| `h[name] = value` | index assignment | Replaces every value of `name`. `value` is a String or a List of String; an empty List removes `name`, as `remove` does, because a field without a value is not sent. A Dict given to `Headers` (or any `headers=`) treats an empty List the same way |
 | `get(name, default=nil)` | method | As `h[name]`, or `default` when the name is absent |
 | `get_all(name)` | method | A new List of String: each value as it was sent or added, in order. `[]` when absent. This is the reading for `set-cookie`, whose values contain commas |
 | `add(name, value)` | method | Adds one more value (a String) to `name` and keeps the ones it has. Returns the Headers |
@@ -285,7 +285,7 @@ the Headers afterwards does not change the message.
 | `fields` of another type; a name that is not a String; a value that is not a String (or List of String where a List is allowed) | TypeError `Headers() argument 'fields' values must be String or List of String, got Int` |
 | A name that is empty or has a character outside the RFC 9110 token set (a space, a colon, a control or non-ASCII character) | ValueError `Headers() invalid header name "a b"` |
 | A value with a control character other than tab, or DEL | ValueError `Headers() invalid value for header "x-id"` |
-| `h[name]` on an absent name | KeyError `key not found: x-id`, as a Dict |
+| `h[name]` on an absent name | KeyError `key not found: "x-id"`, as a Dict |
 
 The function named is the one used (`add() invalid header name "a b"`), or the
 one whose `headers=` received the value (`request() argument 'headers' values
@@ -461,7 +461,7 @@ base URL: every request names its full URL.
 | `send(request, timeout=<client's>, check=true)` | [send](#send-a-user-agents-request) |
 | `request(method, url, headers=nil, body=nil, timeout=<client's>, check=true)` | `client.send(http.Request(method, url, headers=headers, body=body), timeout=timeout, check=check)` |
 | `get(url, headers=nil, timeout=<client's>, check=true)` | `client.request("GET", url, headers=headers, timeout=timeout, check=check)` |
-| `cookies(url)` | A new Dict of name to value: the cookies the client would send to `url` (String or URL) now. `{}` when there are none. ParseError for an invalid URL |
+| `cookies(url)` | A new Dict of name to value: the cookies the client would send to `url` (String or URL) now. `{}` when there are none. ParseError for an invalid URL, ValueError for one that is not an absolute http or https URL (`cookies() needs an absolute URL, got "shop"`) |
 
 `check` is per call; it is not a Client setting. A per-call `timeout`, `nil`
 included, replaces the Client's.
@@ -535,6 +535,13 @@ starts with cookies: the keys are URLs (String or URL) and the values are what
   expiry dates are not restored.
 - A bare `{name: value}` has no site to belong to and is a TypeError
   (`Client() argument 'cookies' values must be Dict, got String`).
+- A key is checked as `Request()` checks its URL: `"example.com"`, without a
+  scheme, is a ValueError (`Client() needs an absolute URL, got "example.com"`)
+  rather than a site no request would match.
+- A name must be a token and a value made of cookie characters (printable
+  ASCII other than space, `"`, `,`, `;` and `\`), or the cookie could not be
+  sent as given: ValueError `Client() invalid cookie name "a b"`,
+  `Client() invalid value for cookie "sid"`.
 - As in browsers, `localhost` and loopback addresses count as secure, so a
   `Secure` cookie for them is also sent over plain `http`.
 - Cookies cannot be edited or cleared: a session that should forget is a new
@@ -558,6 +565,7 @@ keychain or certificate store elsewhere).
 | `redirects` negative | ValueError `Client() argument 'redirects' must be non-negative, got -1` |
 | `redirects` a Bool or another type | TypeError `Client() argument 'redirects' must be Int, got Bool` |
 | `cookies` keys or values of the wrong type | TypeError |
+| `cookies` key not an absolute http or https URL; a cookie name or value that cannot be sent | ValueError `Client() needs an absolute URL, got "example.com"`, `Client() invalid cookie name "a b"`, `Client() invalid value for cookie "sid"` |
 | `headers` | As for [Headers](#headers) |
 
 ## Timeouts
@@ -645,6 +653,10 @@ A part in `files` is data, never a path:
   This is also what catches `files={"avatar": "photo.png"}`: a String here
   would be content, not a path.
 - Nothing is guessed: the content type is not derived from the file name.
+- In field names and file names, a carriage return, a line feed and `"` are
+  written as `%0D`, `%0A` and `%22`, which is how browsers encode a form.
+  Written as they are, a line break would end the part's header line and a
+  quote would end the name.
 - The library closes nothing. Whoever opened a file closes it, with `defer`.
 - The body is good for one request. Sending it again is a ValueError
   (`send() this multipart body was already sent; build it again`); call
@@ -670,7 +682,7 @@ A part in `files` is data, never a path:
 | `url` is not a URL | ParseError `Request() invalid URL "ht!tp://x": …`, as `url.parse` | `text` |
 | `url` has no scheme and host, a scheme other than `http` or `https`, or a user name or password | ValueError `Request() needs an absolute URL, got "users/7"`; `… URL scheme must be http or https, got "ftp"`; `… URL must not contain a user name or password; send an Authorization header` | — |
 | `method` empty or not a token | ValueError `Request() invalid method "GET /"` | — |
-| `status` outside 100–999 | ValueError `Response() argument 'status' must be from 100 to 999, got 20` | — |
+| `status` outside 100–999 | ValueError `Response() argument 'status' must be between 100 and 999, got 20` | — |
 | `body` of another type | TypeError `Request() argument 'body' must be String, Bytes, Nil or have a read(size) method, got Int` | — |
 
 About `StatusError`:
@@ -686,7 +698,9 @@ About `StatusError`:
 - Its parent is `Error`. It is not an IOError, because the exchange worked and
   the server said no. `catch e: IOError` is "could not talk to the server"
   (NetworkError and TimeoutError are both IOErrors, and siblings: catching one
-  does not catch the other).
+  does not catch the other). A failure of a local file is an IOError but
+  neither of the two, so a retry loop that catches NetworkError and
+  TimeoutError does not retry a file that cannot be read.
 - `exchange` never raises it.
 
 ## Left out

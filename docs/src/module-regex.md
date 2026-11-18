@@ -157,7 +157,7 @@ TypeError. When a pattern uses one name for several groups, `match[name]`,
 | An invalid pattern, in any function | ParseError ``find() invalid pattern: missing closing ): `(` `` | `pattern`, the String as given |
 | A template naming a missing group | ValueError `replace() template refers to unknown group 'x'` | — |
 | A replacement function returning something other than a String | TypeError | — |
-| A negative `count` | ValueError `split() count must not be negative` | — |
+| A negative `count` | ValueError `split() argument 'count' must be non-negative, got -1` | — |
 | A group the pattern does not have, in `match[key]` or `span(key)` | IndexError `no such capture group: 3` | — |
 
 An invalid pattern raises the same ParseError on every call that uses it: a

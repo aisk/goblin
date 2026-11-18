@@ -148,7 +148,8 @@ The File from `open(member)`:
 - holds no resource of its own: `close()` on it is allowed and never needed,
   and the Reader's `close()` is what releases the file on disk;
 - stops working when its Reader is closed:
-  `ValueError: read() member "a.log" is no longer open`;
+  `ValueError: read() member "a.log" is no longer open`, and from then on its
+  `closed` is `true`;
 - raises ParseError `read() corrupt data in member "x" of "bundle.zip"` from
   the call that reaches damage, including a failed checksum at the end of the
   member.
@@ -197,7 +198,7 @@ only when they are the same value.
 | --- | --- |
 | `name` | String: the name as stored, components separated by `/`, without the trailing `/` of a directory entry. It is not cleaned: `../x` and `/etc/passwd` are reported as they are. Bytes that are not valid UTF-8 are shown as U+FFFD |
 | `size` | Int: bytes of content when unpacked; `0` for a directory or a link |
-| `modified_at` | `time.Time` |
+| `modified_at` | `time.Time`, in the local zone (as `fs.stat` gives it) |
 | `mode` | Int: permission bits as stored (`member.mode == 0o755`). A zip written on a system without them reports `0o644` for a file and `0o755` for a directory |
 | `is_file` | Bool: a regular file |
 | `is_dir` | Bool |
@@ -288,7 +289,7 @@ that no member exceeds its declared size.
 
 | From | Kinds (besides TypeError and ValueError for arguments) | Data |
 | --- | --- | --- |
-| `open`, `create`, `extract`: the archive file | NotExistError, PermissionError, IOError | `path`: the archive |
+| `open`, `create`, `extract`: the archive file | NotExistError, PermissionError, IOError (a directory: `open() cannot read "d": is a directory`, as gzip and tar report it) | `path`: the archive |
 | `open`, a member File, `extract`: not a zip, damaged, encrypted, unsupported compression | ParseError: `open() "x.zip" is not a zip archive`, `open() member "x" of "bundle.zip" is encrypted`, `open() member "x" of "bundle.zip" uses a compression method zip does not read`, `read() corrupt data in member "x" of "bundle.zip"` | `path`: the archive |
 | `Reader.open(name)`, `Reader.extract(name, …)`: no such member | KeyError `open() no member "x" in "bundle.zip"` | — |
 | `extract`: a refused member | UnsafeError | `member`: the Member refused, `nil` when the refusal is about the whole archive (`max_size`). `path`: the archive |

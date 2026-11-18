@@ -103,7 +103,7 @@ The parameters they share:
 | --- | --- | --- |
 | `args` | non-empty List of String or Path | Program and arguments. A bare name is looked up on `PATH` |
 | `cwd=nil` | String, Path | Working directory for the command; `nil` is this program's |
-| `env=nil` | Dict of String to String or `nil` | **Added to** the inherited environment; a `nil` value removes that variable |
+| `env=nil` | Dict of String to String or `nil` | **Added to** the inherited environment; a `nil` value removes that variable. Names and values are checked as `os.env` checks them: ValueError `run() invalid environment variable name "A=B"` for an empty name or one with `=`, and for a value with a NUL character |
 | `stdin=nil` | `nil`, String, Bytes or a readable | `nil`: the command reads this program's stdin. Data is fed to the command, then its stdin is closed |
 | `stdout=nil`, `stderr=nil` | `nil` or a writable | `nil`: the command writes to this program's stream. A writable (a File, anything with `write(data)`) receives the output and is not closed |
 | `check=true` | Bool | A non-zero exit raises. `false` returns the Result for you to inspect |
@@ -118,10 +118,11 @@ itself (`stream == exec.PIPE`), so its type has no exported name.
 | Failure | Raises | Data |
 | --- | --- | --- |
 | The program is not found | NotExistError `run() program "gti" not found` | — |
+| The program name is `""` | ValueError `run() argument 'args' has an empty program name` | — |
 | `cwd` does not exist | NotExistError `run() working directory "build": no such file or directory` | `path`: the `cwd` given, a Path |
 | `cwd` is not a directory | IOError `run() working directory "notes.txt" is not a directory`, as `fs` reports a file where a directory belongs | `path` |
 | It cannot be run | PermissionError, IOError | — |
-| `timeout` expired | TimeoutError `run() "sleep" timed out after 2 seconds` | `stdout`, `stderr`: what `capture` had collected when the process was killed; `nil` from `run` |
+| `timeout` expired, `timeout=0` included | TimeoutError `run() "sleep" timed out after 2 seconds` | `stdout`, `stderr`: what `capture` had collected when the process was killed; `nil` from `run` |
 | Non-zero exit with `check=true` | `exec.ExitError` `run() "git" exited with status 128`; `capture` adds the last non-empty stderr line: `capture() "git" exited with status 128: fatal: not a git repository`; `Command.wait` says `wait() "make" exited with status 2` | `code`, `stdout`, `stderr` |
 | `capture` collected output that is not valid UTF-8 | ValueError `capture() "cat" wrote stdout that is not valid UTF-8 (use exec.start with stdout=exec.PIPE for bytes)`, after the timeout and exit checks | — |
 

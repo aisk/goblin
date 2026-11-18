@@ -171,9 +171,10 @@ can see.
 
 A File from `open(member)` reads ahead when it is read line by line, so a
 second File over the same member continues after what the first one
-buffered. `extract` of a member whose content was already partly read raises
-`ValueError: extract() member "a.log" was partly read through open(); a tar
-archive is read in order`, because what is left is not the member.
+buffered. `extract` of a member whose content was already read, in part or
+in full, through `open` or by an earlier `extract`, raises
+`ValueError: extract() member "a.log" was already read; a tar archive is
+read in order`, because what is left is not the member.
 
 ### Member Files
 
@@ -186,7 +187,8 @@ The File from `open(member)`:
   gives lines;
 - holds no resource of its own: `close()` on it is allowed and never needed;
 - stops working when the loop moves to the next member, and when its Reader
-  is closed: `ValueError: read() member "a.log" is no longer open`;
+  is closed: `ValueError: read() member "a.log" is no longer open`, and from
+  then on its `closed` is `true`;
 - raises ParseError `read() corrupt data in member "a.log" of "logs.tar.gz"`
   from the call that reaches damage.
 
@@ -238,7 +240,7 @@ only when they are the same value.
 | --- | --- |
 | `name` | String: the name as stored, components separated by `/`, without the trailing `/` of a directory entry. It is not cleaned: `../x` and `/etc/passwd` are reported as they are. Bytes that are not valid UTF-8 are shown as U+FFFD |
 | `size` | Int: bytes of content when unpacked; `0` for a directory or a link |
-| `modified_at` | `time.Time` |
+| `modified_at` | `time.Time`, in the local zone (as `fs.stat` gives it) |
 | `mode` | Int: permission bits as stored (`member.mode == 0o755`). |
 | `is_file` | Bool: a regular file |
 | `is_dir` | Bool |

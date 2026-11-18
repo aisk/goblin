@@ -122,7 +122,7 @@ func fetch_with_retry() {
 | --- | --- | --- |
 | `now()` | Time | The current instant, in the local zone |
 | `sleep(seconds)` | `nil` | Pauses this goblin for an Int or Float number of seconds; `0` returns at once. ValueError for a negative number |
-| `Time(year, month, day, hour=0, minute=0, second=0, zone=nil)` | Time | That wall-clock time in `zone`; `nil` is the local zone. Out-of-range parts roll over: `month=13` is January of the next year, `day=0` the last day of the previous month. TypeError for a part that is not an Int |
+| `Time(year, month, day, hour=0, minute=0, second=0, zone=nil)` | Time | That wall-clock time in `zone`; `nil` is the local zone. Out-of-range parts roll over: `month=13` is January of the next year, `day=0` the last day of the previous month. ValueError `Time() result is out of range (years 1 to 9999)` when the result, as an instant in UTC, is outside the years 1 to 9999, or a part is too large to roll over. TypeError for a part that is not an Int |
 | `parse(text, layout=nil, zone=nil)` | Time | Without a layout, ISO 8601 / RFC 3339 (below). With one, the layout's form exactly. Text that carries an offset keeps it; text that carries none is wall-clock time in `zone`, `nil` being the local zone |
 | `unix(seconds)` | Time | The instant that many seconds (Int or Float) after 1970-01-01 UTC, in the local zone. ValueError outside the years 1 to 9999 |
 | `MINUTE`, `HOUR`, `DAY` | Int | `60`, `3600`, `86400`: `time.sleep(5 * time.MINUTE)` |
@@ -142,7 +142,7 @@ A zone is a String, written the same four ways wherever one is accepted
 | --- | --- |
 | `"local"` | The computer's zone (the `TZ` environment variable, else the system setting) |
 | `"UTC"` | UTC |
-| `"Asia/Shanghai"`, `"America/New_York"`, … | A zone of the IANA time zone database, by its name exactly as listed there. Its offset follows that place's rules, daylight saving included |
+| `"Asia/Shanghai"`, `"America/New_York"`, … | A zone of the IANA time zone database, by its name exactly as listed there, in the same case on every system (`"asia/shanghai"` is an unknown zone). Its offset follows that place's rules, daylight saving included |
 | `"+08:00"`, `"-03:30"` | A fixed offset from UTC, always `±HH:MM` |
 
 - A `zone=` keyword also accepts `nil`, meaning `"local"`.
@@ -184,7 +184,7 @@ every library value it is always truthy.
 | `format(layout=nil)` | method | String. `nil` gives the printed form; otherwise per the layout. ValueError for an unknown directive |
 | `to_utc()` | method | The same instant shown in UTC: exactly `t.to_zone("UTC")` |
 | `to_zone(zone)` | method | The same instant shown in `zone`. `t.to_zone("local")` shows it in the computer's zone. ValueError for an unknown zone |
-| `start_of_day()` | method | 00:00:00 of the same calendar day, in the same zone |
+| `start_of_day()` | method | 00:00:00 of the same calendar day, in the same zone. Where the clocks jump over midnight on that day (`America/Santiago` in September), 00:00 does not exist and the day starts at the jump (01:00) |
 
 All the wall-clock properties are read in the Time's zone. `Time.zone` reports
 `"local"` for the local zone rather than guessing its IANA name, which the
@@ -192,7 +192,7 @@ operating system does not reliably tell a program.
 
 | Expression | Result |
 | --- | --- |
-| `t + seconds`, `seconds + t`, `t - seconds` | A Time shifted by exactly that many elapsed seconds, in the same zone. ValueError outside the representable range |
+| `t + seconds`, `seconds + t`, `t - seconds` | A Time shifted by exactly that many elapsed seconds, in the same zone. ValueError `Time arithmetic result is out of range (years 1 to 9999)` outside the years 1 to 9999, the range of `Time(...)` and `unix` |
 | `t - u` | Float, the seconds from `u` to `t`. Between two `now()` values of one process it is measured on the monotonic clock |
 | `t < u`, `t == u`, … | By instant |
 
@@ -258,7 +258,7 @@ print("{t.format(`%H:%M`):>8}")           # valid: a method call, then padding
 | An unknown directive | ValueError `format() unknown layout directive %Q` | — |
 | `%Z`, `%G` or `%V` in a `parse` layout | ValueError `parse() layout directive %Z can only be used to format` | — |
 | An unknown zone | ValueError `to_zone() unknown time zone "Asia/Shangai"` | — |
-| A negative `sleep`, a `unix` out of range, arithmetic out of range | ValueError | — |
+| A negative `sleep`; a constructor result, a `unix` or arithmetic outside the years 1 to 9999 | ValueError | — |
 
 A bad layout or zone is a mistake in the program rather than in the data, so
 it is a ValueError and is reported whatever the text.

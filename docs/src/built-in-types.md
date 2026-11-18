@@ -49,7 +49,9 @@ number of decimals, format it: `"{2 / 3.0:.2f}"` is `0.67` (see
 
 Integers are 64-bit and Goblin has no big integers. Arithmetic whose result
 does not fit raises OverflowError instead of wrapping around, and so does
-converting a float or string that is out of range with Int().
+converting a float or string that is out of range with Int(). Float() raises
+OverflowError too for text that is a valid number too large for a Float, such
+as `Float("1e400")`; text that is not a number raises ValueError.
 
 Numbers can be compared across integer and float values. Division or modulo by
 zero raises ZeroDivisionError. Int() and Float() convert numbers, booleans,

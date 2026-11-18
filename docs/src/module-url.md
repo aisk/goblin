@@ -104,7 +104,7 @@ have no order.
 | `user` | property | String, the user name, decoded (`"ada"` in `postgres://ada:p%40ss@db/shop`) | `""` |
 | `password` | property | String, the password, decoded (`"p@ss"`) | `""` |
 | `host` | property | String, the host name or address without the port and without IPv6 brackets | `""` |
-| `port` | property | Int | `nil`; it is not filled in from the scheme |
+| `port` | property | Int, 0 to 65535 (`parse` refuses a larger one) | `nil`; it is not filled in from the scheme |
 | `path` | property | String, decoded (`"/a b/c"`) | `""` |
 | `query` | property | String, as written, without `?` (`"q=a+b&page=2"`); read it with `url.decode_query` | `""` |
 | `fragment` | property | String, decoded, without `#` | `""` |
@@ -131,6 +131,7 @@ a query string defines nothing.
 | Failure | Raises | Data |
 | --- | --- | --- |
 | `parse(text)` of text that is not a URL | ParseError `parse() invalid URL "ht!tp://x": first path segment in URL cannot contain colon` | `text` |
+| `parse(text)` with a port above 65535 | ParseError `parse() invalid URL "http://h:99999/": port out of range` | `text` |
 | `join(reference)` with a String that is not a URL | ParseError `join() invalid URL "…": …` | `text`, the reference |
 | `decode_query` or `query_values` with a bad `%` escape anywhere in the query | ParseError `decode_query() invalid escape "%zz"` | `text`, the whole query |
 | A Dict key that is not a String, a value that is not String, Int, Float, Bool, List or `nil` | TypeError | — |

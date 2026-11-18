@@ -11,10 +11,10 @@ These names are available without an import.
 | `sum(values)` | Add up an iterable's elements with `+`, starting from `0` |
 | `compare(a, b)` | Order two values as `<` does: `-1`, `0` or `1` |
 | `hash(value)` | The hash a dictionary files a key under |
-| `Int(value, base=10)` / `Float(value)` / `String(value)` / `Bool(value)` | Convert a value; `base` reads text in another base |
-| `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value |
+| `Int(value=0, base=10)` / `Float(value=0.0)` / `String(value="")` / `Bool(value=false)` | Convert a value; `base` reads text in another base. Called with no argument, each returns its zero value |
+| `Bytes(value)` / `List(iterable)` / `Dict(key=value, ...)` | Construct a collection value; `value` and `iterable` are optional, and without them the result is empty |
 | `Chan(capacity=0)` | Create a channel; capacity 0 means unbuffered |
-| `Function(value)` | Validate and return a callable value unchanged |
+| `Function(value)` | Validate and return a callable value unchanged; the one constructor whose argument is required |
 | `spawn(function, args...)` | Run a function concurrently, returning a Goblin handle to join it |
 | `wait_any(goblins, timeout=nil)` | Wait until one of several goblins finishes and return it |
 | `Error(message="Error", **data)` | The base error kind; calling it creates an error of that kind, optionally carrying named data |

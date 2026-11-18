@@ -131,7 +131,7 @@ func area(width, height = 1) {
     return width * height
 }
 
-area()             # error: area() missing required positional argument: 'width'
+area()             # error: area() missing required argument: 'width'
 area(1, 2, 3)      # error: area() takes 2 positional arguments, got 3
 area(1, depth=2)   # error: area() got an unexpected keyword argument 'depth'
 area(1, width=2)   # error: area() got multiple values for argument 'width'

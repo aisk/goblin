@@ -12,7 +12,9 @@ case. A decimal integer cannot start with `0`: `0644` is an error, so it can
 never be mistaken for an octal number. Float literals have a decimal point
 (`3.14`), an exponent (`1e9`), or both (`1.5e-3`). An `_` may separate two
 digits in any number literal (`1_000_000`, `0xFF_FF`); anywhere else it is an
-error. An integer literal outside the 64-bit range is an error too.
+error. An integer literal outside the 64-bit range is an error too. The
+smallest Int is written `-9223372036854775808`: its digits alone exceed the
+largest Int, so they are accepted only directly after a unary minus.
 Strings use double quotes, and `{expression}` inside one inserts the
 expression's value; backtick strings are raw, with no escapes and no
 interpolation, and may span lines. Double-quoted strings support `\n`, `\t`,

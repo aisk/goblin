@@ -166,28 +166,40 @@ try {
 ## Error kinds
 
 The runtime uses named error kinds. Raise one as it is, or call it to make an
-error of that kind with a message of your own. Each kind below descends from
-the base kind `Error`.
+error of that kind with a message of your own. Every kind descends from the
+base kind `Error`; the table lists all of them with the kind each one directly
+descends from.
 
-| Kind | Typical cause |
-| --- | --- |
-| TypeError | An operation receives an incompatible value |
-| ValueError | A valid type has an invalid value |
-| IndexError / KeyError | A missing list index or dictionary key |
-| ZeroDivisionError | Division or modulo by zero |
-| OverflowError | An integer result that does not fit in 64 bits |
-| AttributeError / NameError | A missing member or identifier |
-| ImportError | An unavailable module |
-| ParseError | Invalid JSON or other parsed input |
-| IOError | Generic file, network, or operating-system failure |
-| NotExistError / ExistError / PermissionError | A missing, existing, or inaccessible filesystem path |
-| TimeoutError / NetworkError | A timed-out or other network operation |
-| NotImplementedError | An operation the runtime does not implement |
-| RecursionError | Recursion, or comparing or printing nested values, too deep for the stack |
+| Kind | Parent | Typical cause |
+| --- | --- | --- |
+| TypeError | Error | An operation receives an incompatible value |
+| ValueError | Error | A valid type has an invalid value |
+| ParseError | ValueError | Invalid JSON or other parsed input |
+| LookupError | Error | Not raised by the runtime directly; it groups the five kinds below it |
+| IndexError | LookupError | A list index out of range |
+| KeyError | LookupError | A missing dictionary key |
+| AttributeError | LookupError | A missing member, such as a misspelled field |
+| NameError | LookupError | A missing identifier |
+| ImportError | LookupError | An unavailable module |
+| ArithmeticError | Error | Not raised by the runtime directly; it groups the two kinds below it |
+| ZeroDivisionError | ArithmeticError | Division or modulo by zero |
+| OverflowError | ArithmeticError | An integer result that does not fit in 64 bits, or a number too large for its type |
+| IOError | Error | Generic file, network, or operating-system failure |
+| NotExistError | IOError | A missing filesystem path |
+| ExistError | IOError | A filesystem path that already exists |
+| PermissionError | IOError | An inaccessible filesystem path |
+| TimeoutError | IOError | A `timeout=` that ran out, with or without I/O: a channel's `send` or `receive`, a goblin's `wait`, `wait_any`, or a network request |
+| NetworkError | IOError | A failed network operation (a connection refused, reset or unreachable, a broken pipe). A local file failure such as "is a directory" is a plain IOError |
+| NotImplementedError | Error | An operation the runtime does not implement |
+| RecursionError | Error | Recursion, or comparing or printing nested values, too deep for the stack |
+| InternalError | Error | A failure inside the runtime itself, such as a Go panic in a goblin |
 
-Kinds are hierarchical. IndexError and KeyError are LookupErrors;
-ZeroDivisionError and OverflowError are ArithmeticErrors; ParseError is a ValueError. Therefore
-`catch e: LookupError` handles more than one specific lookup failure.
+A `catch` clause handles its kind and every kind below it. So `catch e:
+LookupError` also handles AttributeError, NameError and ImportError, which can
+come from a misspelled name rather than a missing entry; catch IndexError or
+KeyError when only a missing index or key is expected. Likewise `catch e:
+IOError` handles a TimeoutError from a channel or a goblin, not only one from
+the file system or the network.
 
 An uncaught error prints its message, not its kind name, so give the errors
 you make a message that says what went wrong.

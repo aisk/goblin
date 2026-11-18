@@ -133,7 +133,7 @@ creates a buffer that can hold up to `n` values before sends block.
 | `channel.receive(timeout = nil)` | Blocks until a value is available |
 | `channel.close()` | Prevents future sends; buffered values can still be received. Returns `nil`; closing a closed channel does nothing |
 | `for value in channel` | Receives values until the channel is closed and drained |
-| `Chan(capacity = 0)` | Requires a non-negative integer |
+| `Chan(capacity = 0)` | Requires an integer from 0 to 1000000; Go allocates the whole buffer when the channel is made |
 
 Sending on a closed channel, or calling `receive()` after a channel is closed
 and drained, raises ValueError. Closing a channel twice is allowed, as for a

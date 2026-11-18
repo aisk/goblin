@@ -47,6 +47,16 @@ types, loops, and try/catch blocks.
 Enter a blank line to force evaluation of a malformed fragment, or press
 Ctrl-C to discard the input currently being collected.
 
+The REPL does not run the checks a file gets before it runs, because a line
+may use names declared on earlier lines. The mistakes those checks catch are
+reported when the line runs instead, with the same message. Assigning to a
+name nothing has declared raises NameError
+(`assignment to undefined identifier: total`), including from inside a
+function, so a misspelled name does not silently create a global; declare a
+new name with `var`. Assigning to a type name or to a built-in such as `print`
+without `var` raises NameError as well, while `var print = ...` declares a
+binding that shadows the built-in.
+
 Entering a `type` declaration again rebinds its name. Values made before keep
 the old type. The REPL checks each type's impls when the type is defined, so
 `impl Shape {}` reports that `Shape` is not a protocol right away.

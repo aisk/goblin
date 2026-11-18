@@ -197,6 +197,5 @@ reads it line by line. An `Index` impl's `get` backs
 
 Library functions that need something from a value ask for an ordinary method
 by name, not for a protocol: `read(size)` for something readable,
-`write(data)` for something writable, `close()` for a resource, and
-`to_json()` for a value [json](./module-json.md) should encode. Define them
+`write(data)` for something writable, and `to_json()` for a value [json](./module-json.md) should encode. Define them
 directly in the type body; there is nothing to import or implement.

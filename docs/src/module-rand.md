@@ -65,7 +65,7 @@ covers the rest of the module.
 | `choice(items, weights=nil)` | element | One element of `items` (any iterable), each equally likely. With `weights`, a List of non-negative Ints or Floats, one per item, an item is picked in proportion to its weight (`[90, 9, 1]`: nine times in ten the first) |
 | `sample(items, count)` | List | `count` different elements of `items`, in random order. Different means by position, so equal values may repeat if `items` has them. `count=0` is `[]` |
 | `shuffle(list)` | the same List | Puts `list` in random order in place and returns it |
-| `bytes(size)` | Bytes | `size` bytes from the operating system's secure source: fit for tokens, keys and passwords |
+| `bytes(size)` | Bytes | `size` bytes from the operating system's secure source: fit for tokens, keys and passwords. `size` is at most 1073741824 (1 GiB), because the bytes are made in memory at once |
 | `uuid(version=4)` | String | A new UUID in its usual text form, 36 lower-case characters: `0190f3c2-7b1a-7d3e-9c4f-2a6b8e1d5f00`. Version 4 is random. Version 7 starts with the time in milliseconds, so ids made later sort later as plain Strings. The random bits come from the secure source |
 | `Rand(seed)` | Rand | A generator of its own whose sequence is fixed by the Int `seed` |
 
@@ -80,7 +80,7 @@ goblins at once.
 | `weights` of a different length, with a negative number, or all zero | ValueError |
 | `sample` with a negative `count` or more than there are items | ValueError |
 | `shuffle` of anything but a List | TypeError |
-| A negative `bytes` size; a `uuid` version other than 4 or 7 | ValueError (`uuid() argument 'version' must be 4 or 7, got 1`) |
+| A negative `bytes` size or one above 1 GiB; a `uuid` version other than 4 or 7 | ValueError (`bytes() argument 'size' must be at most 1073741824, got 2147483648`, `uuid() argument 'version' must be 4 or 7, got 1`) |
 | The secure source failing | IOError |
 
 Two version-7 ids made in the same millisecond are not ordered: the random

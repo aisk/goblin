@@ -109,7 +109,7 @@ through `gzip.read_lines(path)`.
 
 | Failure | Raises |
 | --- | --- |
-| `level` outside 1 to 9 | ValueError `compress() argument 'level' must be from 1 to 9, got 0` |
+| `level` outside 1 to 9 | ValueError `compress() argument 'level' must be between 1 and 9, got 0` |
 | `level` given to `open` without `write=true` | ValueError |
 | `data` does not start like gzip (empty data included) | ParseError `decompress() not gzip data` |
 | The data is truncated or damaged | ParseError `decompress() corrupt gzip data` |
