@@ -84,6 +84,7 @@ func defineType(tp *typeProto, g *globals, f *frame) error {
 	}
 	t.info.Constructor = t.constructor
 	g.Define(def.Name, t.constructor)
+	g.cell(def.Name).isType = true
 	return nil
 }
 
@@ -173,6 +174,9 @@ func (in *instance) SetAttr(name string, value object.Object) (bool, error) {
 	if i := in.typ.fieldIndex(name); i >= 0 {
 		in.fields[i] = value
 		return true, nil
+	}
+	if _, ok := in.typ.methods[name]; ok {
+		return true, object.NewAttributeError(object.ErrFmtAssignMethod, name, in.typ.name)
 	}
 	return true, object.NewAttributeError("%s has no attribute '%s'", in.typ.name, name)
 }

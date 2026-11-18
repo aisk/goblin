@@ -287,7 +287,7 @@ func encode(args object.CallArgs) (object.Object, error) {
 		}
 	}
 	if haveColumns {
-		writer.Write(columns)
+		writeRecord(writer, &out, columns)
 	}
 	index := make(map[string]int, len(columns))
 	for i, name := range columns {
@@ -322,13 +322,25 @@ func encode(args object.CallArgs) (object.Object, error) {
 		default:
 			return nil, object.NewTypeError("encode() row %d must be List or Dict, got %s", n, rowValue.TypeName())
 		}
-		writer.Write(record)
+		writeRecord(writer, &out, record)
 	}
 	writer.Flush()
 	if err := writer.Error(); err != nil {
 		return nil, object.WrapNativeError(object.IOError, "encode() cannot write CSV", err)
 	}
 	return object.String(out.String()), nil
+}
+
+// writeRecord writes one record. A record whose only field is empty is
+// written as "" rather than as the blank line Go writes, because a blank line
+// is skipped when the text is read back and the row would be lost.
+func writeRecord(writer *csv.Writer, out *strings.Builder, record []string) {
+	if len(record) == 1 && record[0] == "" {
+		writer.Flush()
+		out.WriteString("\"\"\n")
+		return
+	}
+	writer.Write(record)
 }
 
 // quote renders a Dict key for a message: a String in quotes, anything else

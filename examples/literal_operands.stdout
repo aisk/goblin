@@ -1,0 +1,16 @@
+one
+one
+non-empty list and function are true
+List index must be Int, got String
+List index must be Int, got Nil
+List index must be Int, got Bool
+Int is not callable
+Float is not callable
+Bool is not callable
+Int is not callable
+Float is not callable
+Bool is not callable
+Int is not callable
+Int is not callable
+Int is not callable
+P is not callable

@@ -29,14 +29,14 @@ String index out of range: 4
 two two two
 two two one
 one two
-true replace() count must not be negative
+true replace() argument 'count' must be non-negative, got -1
 ["a", "b", "c"]
 ["a", "b,c"]
 ["a,b,c"] ["", ""] [""]
 ["one", "two", "three"]
 ["one", "two\nthree  "] []
 true split() separator must not be empty
-true split() count must not be negative
+true split() argument 'count' must be non-negative, got -1
 ["a", "b"] ["a", "", "b"] ["a\rb"] [] [""]
 2 <function List>
 ["key", "value=x"] ["key", nil]

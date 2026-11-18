@@ -24,6 +24,20 @@ func (k Kwargs) Get(name string) (Object, bool) {
 	return nil, false
 }
 
+// Duplicate returns the first name supplied twice, which the callee reports
+// as `f() got multiple values for argument 'name'`. Building the arguments
+// cannot report it: the callee's name is not known there.
+func (k Kwargs) Duplicate() (string, bool) {
+	for i := 1; i < len(k); i++ {
+		for j := 0; j < i; j++ {
+			if k[i].Name == k[j].Name {
+				return k[i].Name, true
+			}
+		}
+	}
+	return "", false
+}
+
 // Set binds name to value, replacing an existing binding of that name.
 func (k *Kwargs) Set(name string, value Object) {
 	for i := range *k {
@@ -45,20 +59,19 @@ type CallArgs struct {
 	Keyword    Kwargs
 }
 
-// AddKeyword records one keyword argument, rejecting a name that was already
-// supplied. Both backends build keyword arguments through this so duplicate
-// detection behaves identically.
+// AddKeyword records one keyword argument. Both backends build keyword
+// arguments through this. A name supplied twice (through `**`; the checker
+// rejects two literal keywords of one name) is kept, and the callee rejects
+// it with its own name in the message: BindArguments, ArgParser.Finish and the
+// Dict constructor check Kwargs.Duplicate.
 func (c *CallArgs) AddKeyword(name string, value Object) error {
-	if _, exists := c.Keyword.Get(name); exists {
-		return NewTypeError("got multiple values for argument '%s'", name)
-	}
 	c.Keyword = append(c.Keyword, KwArg{Name: name, Value: value})
 	return nil
 }
 
 // UnpackKeywords merges a **-unpacked value into the keyword arguments. The
 // value must be a dict with string keys; a name that was already supplied is
-// rejected like any other duplicate keyword.
+// left for the callee to reject, as for AddKeyword.
 func (c *CallArgs) UnpackKeywords(v Object) error {
 	d, ok := v.(*Dict)
 	if !ok {
@@ -122,6 +135,12 @@ func BindArguments(funcName string, params []string, defaults []ParamDefault, va
 		return bound, nil
 	}
 
+	if len(call.Keyword) > 1 {
+		if name, dup := call.Keyword.Duplicate(); dup {
+			return nil, NewTypeError("%s() got multiple values for argument '%s'", funcName, name)
+		}
+	}
+
 	fixedCount := len(call.Positional)
 	if fixedCount > len(params) {
 		fixedCount = len(params)
@@ -164,7 +183,7 @@ func BindArguments(funcName string, params []string, defaults []ParamDefault, va
 			bound[i] = value
 			continue
 		}
-		return nil, NewTypeError("%s() missing required positional argument: '%s'", funcName, param)
+		return nil, NewTypeError("%s() missing required argument: '%s'", funcName, param)
 	}
 
 	next := len(params)

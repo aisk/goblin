@@ -43,7 +43,7 @@ from the function
 replace() argument 'replacement' must be String or Function, got Int
 ["a", "b", "c"]
 ["a", "b,c"] ["a,b"] ["abc"]
-split() count must not be negative
+split() argument 'count' must be non-negative, got -1
 (?i)a\.c
 nil
 A.C

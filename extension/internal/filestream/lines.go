@@ -2,6 +2,7 @@ package filestream
 
 import (
 	"bufio"
+	"errors"
 	"io"
 
 	"github.com/aisk/goblin/object"
@@ -45,6 +46,12 @@ func (l *Lines) Iter() ([]object.Object, error) { return object.Collect(l) }
 func (l *Lines) Iterator() (object.Iterator, error) {
 	r, c, err := l.open()
 	if err != nil {
+		// An opener that already reported the failure (gzip's, which names
+		// the call and the path) is not wrapped in a second report.
+		var goblinErr *object.Error
+		if errors.As(err, &goblinErr) {
+			return nil, err
+		}
 		return nil, Fail(l.fn, "cannot open", l.path, err)
 	}
 	reader := bufio.NewReader(r)

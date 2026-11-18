@@ -178,12 +178,25 @@ func (g *generator) transpileTypeDefine(typeDef *ast.TypeDefine, onError errHand
 		)
 	}
 
-	setAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+1)
+	setAttrCases := make([]jen.Code, 0, len(typeDef.Fields)+len(typeDef.Methods)+1)
+	isField := make(map[string]bool, len(typeDef.Fields))
 	for _, field := range typeDef.Fields {
+		isField[field.Name] = true
 		setAttrCases = append(setAttrCases,
 			jen.Case(jen.Lit(field.Name)).Block(
 				jen.Id(receiverName).Dot(fieldGoName(field.Name)).Op("=").Id("value"),
 				jen.Return(jen.True(), jen.Nil()),
+			),
+		)
+	}
+	for _, method := range typeDef.Methods {
+		if isField[method.Name] {
+			continue
+		}
+		isField[method.Name] = true
+		setAttrCases = append(setAttrCases,
+			jen.Case(jen.Lit(method.Name)).Block(
+				jen.Return(jen.True(), jen.Qual(pathObject, "NewAttributeError").Call(jen.Lit(object.ErrFmtAssignMethod), jen.Lit(method.Name), jen.Lit(typeDef.Name))),
 			),
 		)
 	}

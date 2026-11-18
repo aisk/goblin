@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/aisk/goblin/extension/internal/procargs"
 	"github.com/aisk/goblin/object"
 )
 
@@ -55,11 +56,8 @@ func (e *Env) SetIndex(key, value object.Object) (bool, error) {
 	if !ok {
 		return true, object.NewTypeError("environment variable value must be String, got %s", value.TypeName())
 	}
-	if name == "" || strings.ContainsAny(name, "=\x00") {
-		return true, object.NewValueError("invalid environment variable name %q", name)
-	}
-	if strings.ContainsRune(string(s), 0) {
-		return true, object.NewValueError("environment variable '%s' value contains NUL", name)
+	if err := procargs.CheckEnv("", name, string(s)); err != nil {
+		return true, err
 	}
 	if err := os.Setenv(name, string(s)); err != nil {
 		return true, object.WrapNativeError(object.ValueError, "cannot set environment variable '"+name+"'", err)

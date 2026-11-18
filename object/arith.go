@@ -134,6 +134,7 @@ func Negate(v Object) (Object, error) {
 		if impl := n.UserType().impls[negID]; impl != nil {
 			return impl.call(n, NegNeg, []Object{n})
 		}
+		return nil, NewUnsupportedError(v.TypeName(), ErrFmtCannotNegate+missingImplHint, v.TypeName(), "Neg", v.TypeName())
 	}
 	return nil, Unsupported(v.TypeName(), ErrFmtCannotNegate)
 }

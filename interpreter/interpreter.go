@@ -118,6 +118,24 @@ type cell struct {
 	name    string
 	value   object.Object
 	builtin object.Object
+	// isType is set while the cell holds the type a `type` statement
+	// bound, which an assignment may not replace (see assignable).
+	isType bool
+}
+
+// assignable reports why `name = value` may not store into the cell, with
+// the semantic checker's wording. Only the REPL, which runs unchecked
+// code, asks: a file never reaches an assignment the checker refused.
+func (c *cell) assignable() error {
+	switch {
+	case c.value == nil && c.builtin != nil:
+		return object.NewNameError(object.ErrFmtAssignBuiltin, c.name)
+	case c.value == nil:
+		return object.NewNameError(object.ErrFmtAssignUndefined, c.name)
+	case c.isType:
+		return object.NewNameError("cannot assign to type %s", c.name)
+	}
+	return nil
 }
 
 func (c *cell) get() (object.Object, error) {
@@ -131,7 +149,7 @@ func (c *cell) get() (object.Object, error) {
 }
 
 func undefinedName(name string) error {
-	return object.NewNameError("undefined: %s", name)
+	return object.NewNameError(object.ErrFmtUndefined, name)
 }
 
 // globals is a module's top-level scope. The map is only consulted while
@@ -168,7 +186,8 @@ func (g *globals) Get(name string) (object.Object, bool) {
 
 // Define binds a module-level name.
 func (g *globals) Define(name string, v object.Object) {
-	g.cell(name).value = v
+	c := g.cell(name)
+	c.value, c.isType = v, false
 }
 
 // resolve looks a name up the way an identifier does: module bindings first,
@@ -210,11 +229,11 @@ const (
 // REPL input can produce them; the semantic checker rejects them in files.
 type breakSignal struct{}
 
-func (breakSignal) Error() string { return "break outside loop" }
+func (breakSignal) Error() string { return "break used outside loop" }
 
 type continueSignal struct{}
 
-func (continueSignal) Error() string { return "continue outside loop" }
+func (continueSignal) Error() string { return "continue used outside loop" }
 
 type returnSignal struct{}
 

@@ -411,7 +411,7 @@ func (r *Reader) extractMember(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if m.Kind == archive.KindFile && r.consumed > 0 {
-		return nil, object.NewValueError("extract() member %s was partly read through open(); a tar archive is read in order", archive.Quote(m.Display))
+		return nil, object.NewValueError("extract() member %s was already read; a tar archive is read in order", archive.Quote(m.Display))
 	}
 	landing := m.Raw
 	if hasName {
@@ -455,7 +455,7 @@ func extract(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if limited && maxSize < 0 {
-		return nil, object.NewValueError("extract() argument 'max_size' must be non-negative, got %d", int64(maxSize))
+		return nil, object.NegativeArgumentError("extract", "max_size", int64(maxSize))
 	}
 	r, err := openReader("extract", path)
 	if err != nil {

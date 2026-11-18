@@ -3,6 +3,7 @@ package ast
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -204,8 +205,10 @@ func NewDestructureFor(first, rest, iterator, body any) (any, error) {
 	}, nil
 }
 
-func NewBreak() (any, error)    { return &Break{}, nil }
-func NewContinue() (any, error) { return &Continue{}, nil }
+func NewBreak(x any) (any, error) { return &Break{statementMixin: stmtAt(tokenOf(x).Pos)}, nil }
+func NewContinue(x any) (any, error) {
+	return &Continue{statementMixin: stmtAt(tokenOf(x).Pos)}, nil
+}
 
 func NewReturn(x any) (any, error) {
 	return &Return{statementMixin: stmtAt(positionOf(x)), Value: x.(Expression)}, nil
@@ -351,6 +354,15 @@ func NewIdentifier(x any) (any, error) {
 // literal with a leading zero is an error rather than either a decimal or an
 // octal number, so `0644` cannot silently mean the wrong thing.
 func NewIntegerLiteral(x any) (any, error) {
+	l, err := integerLiteral(x)
+	if err != nil {
+		// Reported at the start of the literal, not at the token after it.
+		return nil, &SyntaxError{Pos: tokenOf(x).Pos, Message: err.Error()}
+	}
+	return l, nil
+}
+
+func integerLiteral(x any) (*Literal, error) {
 	text := lit(x)
 	digits, base, kind := text, 10, "decimal"
 	if len(text) > 1 && text[0] == '0' {
@@ -377,7 +389,13 @@ func NewIntegerLiteral(x any) (any, error) {
 	d, err := strconv.ParseInt(digits, base, 64)
 	if err != nil {
 		if errors.Is(err, strconv.ErrRange) {
-			return nil, fmt.Errorf("integer literal %s is out of range for Int", text)
+			// 2**63 is the magnitude of the smallest Int: written after a
+			// unary minus it is that Int (see NewUnaryOperation), anywhere
+			// else CheckLiterals reports it.
+			if u, uerr := strconv.ParseUint(digits, base, 64); uerr == nil && u == 1<<63 {
+				return &Literal{expressionMixin: exprAt(tokenOf(x).Pos), Value: object.Integer(math.MinInt64), minIntText: text}, nil
+			}
+			return nil, fmt.Errorf(errFmtIntRange, text)
 		}
 		return nil, fmt.Errorf("invalid digit in %s literal %s", kind, text)
 	}
@@ -387,6 +405,14 @@ func NewIntegerLiteral(x any) (any, error) {
 // NewFloatLiteral reads a decimal floating-point literal with an optional
 // exponent (`1.5`, `1e9`, `1.5e-3`) and '_' separators between digits.
 func NewFloatLiteral(x any) (any, error) {
+	l, err := floatLiteral(x)
+	if err != nil {
+		return nil, &SyntaxError{Pos: tokenOf(x).Pos, Message: err.Error()}
+	}
+	return l, nil
+}
+
+func floatLiteral(x any) (*Literal, error) {
 	text := lit(x)
 	if err := checkSeparators(text, text, 10); err != nil {
 		return nil, err
@@ -493,6 +519,9 @@ func NewUnaryOperation(operator, operand any) (any, error) {
 	default:
 		return nil, fmt.Errorf("invalid unary operator: '%s'", op)
 	}
+	if l, ok := operand.(*Literal); ok && op == Minus && l.minIntText != "" {
+		return &Literal{expressionMixin: exprAt(tokenOf(operator).Pos), Value: l.Value}, nil
+	}
 	return &UnaryOperation{expressionMixin: exprAt(tokenOf(operator).Pos), Operand: operand.(Expression), Operator: op}, nil
 }
 
@@ -523,4 +552,21 @@ func NewSliceExpression(obj, bounds any) (any, error) {
 
 func NewMemberExpression(obj, prop any) (any, error) {
 	return &MemberExpression{expressionMixin: exprAt(tokenOf(prop).Pos), Object: obj.(Expression), Property: lit(prop)}, nil
+}
+
+const errFmtIntRange = "integer literal %s is out of range for Int"
+
+// CheckLiterals reports an integer literal 9223372036854775808 (2**63, in
+// any base) that is not the operand of a unary minus: only -9223372036854775808
+// is an Int. The parser cannot tell while it reads the literal, so the check
+// runs on the finished tree.
+func CheckLiterals(stmts []Statement) error {
+	var err error
+	InspectList(stmts, func(n Statement) bool {
+		if l, ok := n.(*Literal); ok && l.minIntText != "" && err == nil {
+			err = &SyntaxError{Pos: l.Position(), Message: fmt.Sprintf(errFmtIntRange, l.minIntText)}
+		}
+		return err == nil
+	})
+	return err
 }

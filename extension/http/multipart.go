@@ -107,7 +107,11 @@ func optionalDict(fn, param string, v object.Object) (*object.Dict, error) {
 	return d, nil
 }
 
-var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+// quoteEscaper applies the rule browsers follow for the names in a
+// form-data part header (the HTML standard's multipart/form-data encoding):
+// a line break would end the header line and a quote the value, so they are
+// percent-encoded; every other character is written as it is.
+var quoteEscaper = strings.NewReplacer("\r", "%0D", "\n", "%0A", `"`, "%22")
 
 func escapeQuotes(s string) string { return quoteEscaper.Replace(s) }
 

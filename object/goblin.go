@@ -113,14 +113,17 @@ var SpawnFn = &Function{Name: "spawn", Fn: Spawn}
 // own deferred calls and then ends the process from its goroutine; the
 // other goblins, the main one included, are stopped where they are.
 func Spawn(args CallArgs) (Object, error) {
-	p := NewArgParser("spawn", CallArgs{Positional: args.Positional})
-	fn := p.Func("fn")
+	// fn cannot be passed by keyword, so the messages do not name it.
+	if len(args.Positional) == 0 {
+		return nil, NewTypeError("spawn() takes the function to run as its first positional argument")
+	}
+	fn, ok := args.Positional[0].(*Function)
+	if !ok {
+		return nil, NewTypeError("spawn() first argument must be Function, got %s", args.Positional[0].TypeName())
+	}
 	// The arguments only live for this call (see CallArgs); the goroutine
 	// runs after it returns, so it gets its own copy.
-	call := CallArgs{Positional: append(Args(nil), p.Rest()...)}
-	if err := p.Finish(); err != nil {
-		return nil, err
-	}
+	call := CallArgs{Positional: append(Args(nil), args.Positional[1:]...)}
 	if len(args.Keyword) > 0 {
 		call.Keyword = append(Kwargs(nil), args.Keyword...)
 	}

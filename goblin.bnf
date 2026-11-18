@@ -325,11 +325,11 @@ For
 ;
 
 Break
-    : "break"                                << ast.NewBreak() >>
+    : "break"                                << ast.NewBreak($0) >>
 ;
 
 Continue
-    : "continue"                             << ast.NewContinue() >>
+    : "continue"                             << ast.NewContinue($0) >>
 ;
 
 // Parameters includes the parentheses so that newlines inside them can be

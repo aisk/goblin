@@ -1,0 +1,86 @@
+# Literals and typed locals in operand positions the compiled program used to
+# reject: a list or function literal indexed or used as a condition, and a
+# variable inferred as Int, Float or Bool in the callee position.
+var m = 1
+func pick() {
+    return ["zero", "one"][m]
+}
+print(pick())
+var parsed = Int("1")
+print(["zero", "one"][parsed])
+
+func conditions(p) {
+    if [] {
+        return "empty list is true"
+    }
+    while [] {
+        return "unreachable"
+    }
+    if [p] {
+        if func() {} {
+            return "non-empty list and function are true"
+        }
+    }
+    return "end"
+}
+print(conditions(0))
+
+for index in ["a", nil, true] {
+    try {
+        print([1, 2][index])
+    } catch e: TypeError {
+        print(e)
+    }
+}
+
+func call_int() {
+    var i = 1
+    return i()
+}
+func call_float() {
+    var f = 2.5
+    return f(1)
+}
+func call_bool() {
+    var b = true
+    return (b)()
+}
+for callee in [call_int, call_float, call_bool] {
+    try {
+        callee()
+    } catch e: TypeError {
+        print(e)
+    }
+}
+
+func call_typed() {
+    var i = 1
+    var f = 2.5
+    var b = true
+    for callee in [func() { return i() }, func() { return f() }, func() { return b() }, func() { return (i)(1) }] {
+        try {
+            callee()
+        } catch e: TypeError {
+            print(e)
+        }
+    }
+}
+call_typed()
+
+var top = 3
+try {
+    top()
+} catch e: TypeError {
+    print(e)
+}
+try {
+    "abc".size()
+} catch e: TypeError {
+    print(e)
+}
+type P(x) {}
+try {
+    P(1)()
+} catch e: TypeError {
+    print(e)
+}

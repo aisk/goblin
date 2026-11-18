@@ -1,6 +1,7 @@
 package object
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"time"
@@ -423,7 +424,7 @@ func (p *ArgParser) timeoutValue(name string, v Object) (time.Duration, bool) {
 	}
 	if seconds < 0 || math.IsNaN(seconds) {
 		if !p.failed {
-			p.fail("() argument '" + name + "' must be non-negative, got " + strconv.FormatFloat(seconds, 'g', -1, 64))
+			p.fail("() " + negativeText(name, strconv.FormatFloat(seconds, 'g', -1, 64)))
 			p.valueErr = true
 		}
 		return 0, false
@@ -467,6 +468,14 @@ func (p *ArgParser) KeywordRest() Kwargs {
 // unconsumed positional arguments or unexpected keyword arguments. Callers that
 // accept an open-ended argument list should call Rest before Finish.
 func (p *ArgParser) Finish() error {
+	// A keyword supplied twice (through `**`) is the call's first mistake,
+	// whatever the accessors made of it. Checked here rather than in
+	// NewArgParser, which must stay small enough to inline.
+	if len(p.call.Keyword) > 1 {
+		if name, dup := p.call.Keyword.Duplicate(); dup {
+			return NewTypeErrorText(p.funcName + "() got multiple values for argument '" + name + "'")
+		}
+	}
 	if p.failed {
 		if p.dataErr != nil {
 			return p.dataErr
@@ -486,4 +495,24 @@ func (p *ArgParser) Finish() error {
 		}
 	}
 	return nil
+}
+
+// NegativeArgumentError is the ValueError for a count, size, limit or
+// number of seconds below zero, so every function words it the same way:
+// `read() argument 'size' must be non-negative, got -1`. got is the value as
+// the message shows it.
+func NegativeArgumentError(funcName, name string, got any) *Error {
+	return NewValueError("%s() %s", funcName, negativeText(name, fmt.Sprint(got)))
+}
+
+// RangeArgumentError is the ValueError for an argument outside an
+// inclusive range: `exit() argument 'code' must be between 0 and 255, got
+// 256`. The bounds and got are shown as given, so a mode can be written in
+// octal.
+func RangeArgumentError(funcName, name string, low, high, got any) *Error {
+	return NewValueError("%s() argument '%s' must be between %v and %v, got %v", funcName, name, low, high, got)
+}
+
+func negativeText(name, got string) string {
+	return "argument '" + name + "' must be non-negative, got " + got
 }

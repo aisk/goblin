@@ -1162,23 +1162,23 @@ var productionsTable = ProdTab{
 		},
 	},
 	ProdTabEntry{
-		String: `Break : "break"	<< ast.NewBreak() >>`,
+		String: `Break : "break"	<< ast.NewBreak(X[0]) >>`,
 		Id:         "Break",
 		NTType:     40,
 		Index:      114,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewBreak()
+			return ast.NewBreak(X[0])
 		},
 	},
 	ProdTabEntry{
-		String: `Continue : "continue"	<< ast.NewContinue() >>`,
+		String: `Continue : "continue"	<< ast.NewContinue(X[0]) >>`,
 		Id:         "Continue",
 		NTType:     41,
 		Index:      115,
 		NumSymbols: 1,
 		ReduceFunc: func(X []Attrib, C interface{}) (Attrib, error) {
-			return ast.NewContinue()
+			return ast.NewContinue(X[0])
 		},
 	},
 	ProdTabEntry{

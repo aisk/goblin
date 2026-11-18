@@ -3,6 +3,7 @@ package object
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // Iteration has two Go-level shapes. Object.Iter is the eager one: it returns
@@ -56,19 +57,23 @@ type Iterable interface {
 // passes walk a slice in place.
 type Iteration struct {
 	items []Object
+	list  *List
+	n     int
 	pos   int
 	src   Iterator
 }
 
 // Iterate starts a pass over v: through Iterable when v implements it,
-// otherwise over the elements v.Iter returns. A List is walked over the
-// element slice it holds when the pass starts, as a Go range over it would:
-// assigning an existing element shows up later in the pass, while push and
-// pop do not change how many elements it visits.
+// otherwise over the elements v.Iter returns. A List is walked in place, by
+// position, over at most the number of elements it had when the pass
+// started: assigning an existing element shows up later in the pass,
+// elements pushed during the pass are not visited, and the pass ends early
+// when the list has become shorter than the position it reached. It never
+// copies the list and never hands out a slot that a pop or remove vacated.
 func Iterate(v Object) (Iteration, error) {
 	switch v := v.(type) {
 	case *List:
-		return Iteration{items: v.Elements}, nil
+		return Iteration{list: v, n: len(v.Elements)}, nil
 	case Iterable:
 		src, err := v.Iterator()
 		if err != nil {
@@ -94,8 +99,16 @@ func (it *Iteration) Next() (Object, bool, error) {
 // Fast returns the next element when the pass walks a slice and has one
 // left; otherwise it returns false and the caller continues with Pull. The
 // split keeps Fast small enough to inline, so a transpiled loop over a List
-// costs an index and a bounds check per element.
+// costs an index and two bounds checks per element.
 func (it *Iteration) Fast() (Object, bool) {
+	if l := it.list; l != nil {
+		if it.pos < it.n && it.pos < len(l.Elements) {
+			v := l.Elements[it.pos]
+			it.pos++
+			return v, true
+		}
+		return nil, false
+	}
 	if it.pos < len(it.items) {
 		v := it.items[it.pos]
 		it.pos++
@@ -137,11 +150,15 @@ func IterationOf(src Iterator) Iteration { return Iteration{src: src} }
 // Collect runs a whole pass over v and returns its elements. For a List and
 // for a value that only implements the eager Iter, the result is the slice
 // Iter returns, which may be the value's own storage: callers must copy it
-// before modifying it or keeping it.
+// before modifying it or keeping it, and a caller that runs Goblin code while
+// it reads the slice (which may pop from the list) uses CollectCopy instead.
 func Collect(v Object) ([]Object, error) {
 	it, err := Iterate(v)
 	if err != nil {
 		return nil, err
+	}
+	if it.list != nil {
+		return it.list.Elements, nil
 	}
 	if it.src == nil {
 		return it.items, nil
@@ -187,11 +204,33 @@ func (it *closingIterator) Close()                      { it.close() }
 func CollectArg(fn, param string, v Object) ([]Object, error) {
 	items, err := Collect(v)
 	if err != nil {
-		var e *Error
-		if errors.As(err, &e) && errors.Is(err, TypeError) && e.Value == fmt.Sprintf(ErrFmtNotIterable, v.TypeName()) {
-			return nil, NewTypeError("%s() argument '%s' must be iterable, got %s", fn, param, v.TypeName())
-		}
-		return nil, err
+		return nil, iterableArgError(fn, param, v, err)
 	}
 	return items, nil
+}
+
+// IterateArg is Iterate for the argument param of the builtin fn, reporting
+// a value that is not iterable as CollectArg does. A builtin that runs Goblin
+// code for each element (a key, a user Add) walks with it rather than with
+// CollectArg, so a List changed by that code follows the rule of Iterate.
+// An empty param leaves the parameter unnamed: "fn() argument must be
+// iterable, got Int", for a builtin that takes the value only by position.
+func IterateArg(fn, param string, v Object) (Iteration, error) {
+	it, err := Iterate(v)
+	if err != nil {
+		return it, iterableArgError(fn, param, v, err)
+	}
+	return it, nil
+}
+
+func iterableArgError(fn, param string, v Object, err error) error {
+	var e *Error
+	// A user type's message carries a hint after the shared text.
+	if errors.As(err, &e) && errors.Is(err, TypeError) && strings.HasPrefix(e.Value, fmt.Sprintf(ErrFmtNotIterable, v.TypeName())) {
+		if param == "" {
+			return NewTypeError("%s() argument must be iterable, got %s", fn, v.TypeName())
+		}
+		return NewTypeError("%s() argument '%s' must be iterable, got %s", fn, param, v.TypeName())
+	}
+	return err
 }

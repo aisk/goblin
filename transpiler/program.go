@@ -57,7 +57,7 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return fmt.Errorf("failed to create output directory: %v", err)
 	}
-	if err := p.emitModule(mod, absSource, ""); err != nil {
+	if err := p.emitModule(mod, absSource, sourceFile, ""); err != nil {
 		return err
 	}
 	return writeGoMod(outputDir, p.goModule)
@@ -65,11 +65,16 @@ func TranspileToDir(mod *ast.Module, sourceFile, outputDir string) error {
 
 // emitModule transpiles the modules mod imports from disk, then mod itself,
 // and writes its Go file. label is the import path mod was loaded through,
-// empty for the program's entry module.
-func (p *program) emitModule(mod *ast.Module, absPath, label string) error {
+// empty for the program's entry module. path is the module's path as the
+// interpreter forms it, joined from the entry file's path as given on the
+// command line; the messages and source positions of loading use it, so
+// both commands report a module under the same path.
+func (p *program) emitModule(mod *ast.Module, absPath, path, label string) error {
 	for _, imp := range moduleImports(mod) {
 		if imp.IsPathImport() {
-			if err := p.emitImport(resolveImport(filepath.Dir(absPath), imp.Path), imp.Path); err != nil {
+			abs := resolveImport(filepath.Dir(absPath), imp.Path)
+			shown := resolveImport(filepath.Dir(path), imp.Path)
+			if err := p.emitImport(abs, shown, imp.Path); err != nil {
 				return err
 			}
 		}
@@ -84,42 +89,43 @@ func (p *program) emitModule(mod *ast.Module, absPath, label string) error {
 		return err
 	}
 
-	path := filepath.Join(p.outputDir, "main.go")
+	goFile := filepath.Join(p.outputDir, "main.go")
 	if key != "" {
 		dir := filepath.Join(p.outputDir, filepath.FromSlash(key))
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			return fmt.Errorf("failed to create package directory %s: %v", dir, err)
 		}
-		path = filepath.Join(dir, packageName(key)+".go")
+		goFile = filepath.Join(dir, packageName(key)+".go")
 	}
-	out, err := os.Create(path)
+	out, err := os.Create(goFile)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %v", path, err)
+		return fmt.Errorf("failed to create file %s: %v", goFile, err)
 	}
 	defer out.Close()
 	if err := file.Render(out); err != nil {
-		return fmt.Errorf("failed to render file %s: %v", path, err)
+		return fmt.Errorf("failed to render file %s: %v", goFile, err)
 	}
 	return nil
 }
 
 // emitImport loads and emits the module at absPath once, however many
-// modules import it, and rejects import cycles.
-func (p *program) emitImport(absPath, importPath string) error {
+// modules import it, and rejects import cycles. path is the module's path
+// as the interpreter shows it (see emitModule).
+func (p *program) emitImport(absPath, path, importPath string) error {
 	if p.done[absPath] {
 		return nil
 	}
 	if p.loading[absPath] {
-		return fmt.Errorf("circular import detected: %s", importPath)
+		return fmt.Errorf("circular import detected: %s", path)
 	}
 	p.loading[absPath] = true
 	defer delete(p.loading, absPath)
 
-	mod, err := source.LoadFile(absPath)
+	mod, err := source.LoadFile(path)
 	if err != nil {
 		return err
 	}
-	if err := p.emitModule(mod, absPath, importPath); err != nil {
+	if err := p.emitModule(mod, absPath, path, importPath); err != nil {
 		return err
 	}
 	p.done[absPath] = true

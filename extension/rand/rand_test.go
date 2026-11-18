@@ -202,7 +202,7 @@ func TestSampleAndShuffle(t *testing.T) {
 	for _, c := range []struct {
 		count int64
 		msg   string
-	}{{-1, "sample() argument 'count' must not be negative, got -1"}, {5, "sample() argument 'count' is larger than the number of items (4), got 5"}} {
+	}{{-1, "sample() argument 'count' must be non-negative, got -1"}, {5, "sample() argument 'count' is larger than the number of items (4), got 5"}} {
 		_, err := call(member("sample"), object.Args{items, object.Integer(c.count)})
 		if !errors.Is(err, object.ValueError) || err.Error() != c.msg {
 			t.Errorf("sample count %d = %v", c.count, err)
@@ -234,8 +234,12 @@ func TestBytes(t *testing.T) {
 	if got := mustCall(t, member("bytes"), object.Args{object.Integer(0)}).(object.Bytes); len(got) != 0 {
 		t.Fatal("bytes(0)")
 	}
-	if _, err := call(member("bytes"), object.Args{object.Integer(-1)}); !errors.Is(err, object.ValueError) || err.Error() != "bytes() argument 'size' must not be negative, got -1" {
+	if _, err := call(member("bytes"), object.Args{object.Integer(-1)}); !errors.Is(err, object.ValueError) || err.Error() != "bytes() argument 'size' must be non-negative, got -1" {
 		t.Fatalf("bytes(-1) = %v", err)
+	}
+	// A size beyond the limit is refused before anything is allocated.
+	if _, err := call(member("bytes"), object.Args{object.Integer(1 << 62)}); !errors.Is(err, object.ValueError) || err.Error() != "bytes() argument 'size' must be at most 1073741824, got 4611686018427387904" {
+		t.Fatalf("bytes(2**62) = %v", err)
 	}
 	saved := readSecure
 	defer func() { readSecure = saved }()

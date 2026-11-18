@@ -20,8 +20,8 @@ Frozen does not support index assignment
 opaque is truthy
 false
 Opaque does not support index assignment
-cannot add Opaque
-cannot negate Opaque
+cannot add Opaque (add 'impl Add' to type Opaque)
+cannot negate Opaque (add 'impl Neg' to type Opaque)
 Counter(0) is falsy
 false false
 fallback

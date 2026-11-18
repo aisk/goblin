@@ -8,6 +8,7 @@ import (
 	stdfs "io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"unicode/utf8"
@@ -319,7 +320,7 @@ func chmod(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if mode < 0 || mode > 0o777 {
-		return nil, object.NewValueError("chmod() argument 'mode' must be between 0 and 0o777, got 0o%o", int64(mode))
+		return nil, object.RangeArgumentError("chmod", "mode", "0", "0o777", octalText(int64(mode)))
 	}
 	if err := os.Chmod(path, os.FileMode(mode)); err != nil {
 		return nil, fail("chmod", "cannot change the mode of", path, err)
@@ -393,3 +394,10 @@ func tempDir(args object.CallArgs) (object.Object, error) {
 	return pathvalue.NewPath(os.TempDir()), nil
 }
 
+// octalText writes a mode as Goblin's octal literal for it: 0o755, -0o1.
+func octalText(mode int64) string {
+	if mode < 0 {
+		return "-0o" + strconv.FormatInt(-mode, 8)
+	}
+	return "0o" + strconv.FormatInt(mode, 8)
+}

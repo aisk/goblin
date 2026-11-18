@@ -276,6 +276,10 @@ type Identifier struct {
 type Literal struct {
 	expressionMixin
 	Value object.Object
+	// minIntText is the source of an integer literal of 2**63 while it
+	// waits for the unary minus that makes it the smallest Int; see
+	// CheckLiterals.
+	minIntText string
 }
 
 // Interpolation is a double-quoted string literal with `{expression}` parts.

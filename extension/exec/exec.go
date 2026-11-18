@@ -16,6 +16,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/aisk/goblin/extension/internal/pathvalue"
+	"github.com/aisk/goblin/extension/internal/procargs"
 	"github.com/aisk/goblin/object"
 )
 
@@ -137,6 +138,9 @@ func parse(fn string, args object.CallArgs, output, wait bool) (*spec, error) {
 		}
 		s.argv[i] = text
 	}
+	if s.argv[0] == "" {
+		return nil, object.NewValueError("%s() argument 'args' has an empty program name", fn)
+	}
 	if envObj != object.Nil {
 		dict, ok := envObj.(*object.Dict)
 		if !ok {
@@ -148,6 +152,12 @@ func parse(fn string, args object.CallArgs, output, wait bool) (*spec, error) {
 			}
 			if _, ok := entry.Value.(object.String); !ok && entry.Value != object.Nil {
 				return nil, object.NewTypeError("%s() argument 'env' values must be String or Nil, got %s", fn, entry.Value.TypeName())
+			}
+			// Checked as os.env checks it: "A=B" would set A, and a NUL
+			// cannot be passed to the child at all.
+			value, _ := entry.Value.(object.String)
+			if err := procargs.CheckEnv(fn+"() ", string(entry.Key.(object.String)), string(value)); err != nil {
+				return nil, err
 			}
 		}
 		s.env = dict
@@ -303,7 +313,9 @@ func (s *spec) startError(err error) error {
 	}
 	cause := unwrapPath(err)
 	if errors.Is(err, stdexec.ErrNotFound) || errors.Is(err, stdfs.ErrNotExist) {
-		return object.WrapError(object.NotExistError, s.fn+`() program "`+s.argv[0]+`" not found`, cause)
+		// The message says all there is; Go's "executable file not found
+		// in $PATH" would only repeat it in Go's words.
+		return object.NewKindError(object.NotExistError, `%s() program "%s" not found`, s.fn, s.argv[0])
 	}
 	return object.WrapNativeError(object.IOError, s.fn+`() cannot run "`+s.argv[0]+`"`, cause)
 }
@@ -356,7 +368,17 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 		return nil, err
 	}
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = stdin, stdout, stderr
+	timedOut := func() error {
+		return object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds()).
+			With("stdout", text(outBuf)).
+			With("stderr", text(errBuf))
+	}
 	if err := cmd.Start(); err != nil {
+		// With timeout=0 the limit has passed before the start, and Go
+		// refuses to start with its context's error.
+		if ctx != nil && ctx.Err() != nil {
+			return nil, timedOut()
+		}
 		return nil, s.startError(err)
 	}
 	err = cmd.Wait()
@@ -364,9 +386,7 @@ func (s *spec) complete(stdout, stderr io.Writer, outBuf, errBuf *bytes.Buffer) 
 		return nil, exit
 	}
 	if ctx != nil && ctx.Err() != nil {
-		return nil, object.NewTimeoutError(`%s() "%s" timed out after %g seconds`, s.fn, s.argv[0], s.timeout.Seconds()).
-			With("stdout", text(outBuf)).
-			With("stderr", text(errBuf))
+		return nil, timedOut()
 	}
 	if err != nil {
 		var exitErr *stdexec.ExitError

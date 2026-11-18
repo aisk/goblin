@@ -151,7 +151,7 @@ func TestResponseValue(t *testing.T) {
 	}
 	for _, status := range []int64{20, 99, 1000} {
 		_, err := callErr(t, responseType.Function, args(object.Integer(status)))
-		wantErrPrefix(t, err, object.ValueError, "Response() argument 'status' must be from 100 to 999, got ")
+		wantErrPrefix(t, err, object.ValueError, "Response() argument 'status' must be between 100 and 999, got ")
 	}
 	_, err := callErr(t, responseType.Function, args(object.Integer(200)), kw("body", object.Integer(1)))
 	wantErr(t, err, object.TypeError, "Response() argument 'body' must be String, Bytes, Nil or have a read(size) method, got Int")

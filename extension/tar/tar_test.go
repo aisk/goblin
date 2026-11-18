@@ -490,7 +490,7 @@ func TestReaderOrder(t *testing.T) {
 				t.Fatalf("rest = %v", rest)
 			}
 			_, err = invoke(t, r, "extract", args(first, filepath.Join(root, "out")))
-			wantErr(t, err, object.ValueError, `extract() member "a.log" was partly read through open(); a tar archive is read in order`)
+			wantErr(t, err, object.ValueError, `extract() member "a.log" was already read; a tar archive is read in order`)
 			// A later loop continues after the member the first one stopped at,
 			// passing over the unread content of b.log.
 			if got := names(t, r); !reflect.DeepEqual(got, []string{"b.log", "d", "c.log"}) {
@@ -498,6 +498,9 @@ func TestReaderOrder(t *testing.T) {
 			}
 			_, err = invoke(t, r, "open", args(first))
 			wantErr(t, err, object.ValueError, `open() "a.log" is not the current member; a tar archive is read in order`)
+			if closed, _ := f.GetAttr("closed"); closed != object.True {
+				t.Fatal("a member File the loop moved past is not closed")
+			}
 			_, err = invoke(t, f, "read", nil)
 			wantErr(t, err, object.ValueError, `read() member "a.log" is no longer open`)
 			_, err = invoke(t, r, "open", args("c.log"))
@@ -597,6 +600,15 @@ func TestStreams(t *testing.T) {
 	if field(t, e, "path") != object.Nil {
 		t.Fatal("path over a stream is not nil")
 	}
+
+	// A member extracted once cannot be extracted again: its content was
+	// read, not by open().
+	r = mustCall(t, "Reader", args(stream(tarBytes(t, file("a.txt", "hello")), &closed)))
+	it, _ = object.Iterate(r)
+	m, _, _ = it.Next()
+	mustInvoke(t, r, "extract", args(m, filepath.Join(t.TempDir(), "one")))
+	_, err = invoke(t, r, "extract", args(m, filepath.Join(t.TempDir(), "two")))
+	wantErr(t, err, object.ValueError, `extract() member "a.txt" was already read; a tar archive is read in order`)
 
 	var buf bytes.Buffer
 	targetClosed := false

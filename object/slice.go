@@ -82,7 +82,9 @@ func runeOffset(s string, n int) int {
 }
 
 // Unpack iterates value for a destructuring statement with count targets
-// and returns its elements, which must number exactly count.
+// and returns its elements, which must number exactly count. A List's
+// elements are copied: the stores run Goblin code (an index or attribute
+// expression) that may change the list before the last element is read.
 func Unpack(value Object, count int) ([]Object, error) {
 	items, err := Collect(value)
 	if err != nil {
@@ -90,6 +92,9 @@ func Unpack(value Object, count int) ([]Object, error) {
 	}
 	if len(items) != count {
 		return nil, NewValueError("cannot unpack %d values into %d targets", len(items), count)
+	}
+	if _, ok := value.(*List); ok {
+		items = append([]Object(nil), items...)
 	}
 	return items, nil
 }

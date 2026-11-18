@@ -1,7 +1,11 @@
 package timevalue
 
 import (
+	"os"
+	"path/filepath"
+	"slices"
 	"strconv"
+	"strings"
 	"sync"
 	stdtime "time"
 
@@ -33,11 +37,42 @@ func Zone(fn, name string) (*stdtime.Location, error) {
 		return loc.(*stdtime.Location), nil
 	}
 	loc, err := stdtime.LoadLocation(name)
-	if err != nil {
+	if err != nil || !spelledAsOnDisk(name) {
 		return nil, unknownZone(fn, name)
 	}
 	loaded.Store(name, loc)
 	return loc, nil
+}
+
+// zoneDirs are the directories Go's LoadLocation reads the system database
+// from, after $ZONEINFO.
+var zoneDirs = []string{"/usr/share/zoneinfo/", "/usr/share/lib/zoneinfo/", "/usr/lib/locale/TZ/", "/etc/zoneinfo/"}
+
+// spelledAsOnDisk reports whether name, which LoadLocation accepted, is
+// spelled as the zone's file is. On a case-insensitive file system (macOS)
+// LoadLocation also finds "asia/shanghai", which Linux and Go's embedded
+// database refuse, and the Time would report that spelling as its zone. A
+// zone that is not in a system directory came from Go's own database,
+// whose lookup is exact.
+func spelledAsOnDisk(name string) bool {
+	dirs := zoneDirs
+	if env := os.Getenv("ZONEINFO"); env != "" {
+		dirs = append([]string{env}, dirs...)
+	}
+	for _, dir := range dirs {
+		if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
+			continue
+		}
+		for _, part := range strings.Split(name, "/") {
+			entries, err := os.ReadDir(dir)
+			if err != nil || !slices.ContainsFunc(entries, func(e os.DirEntry) bool { return e.Name() == part }) {
+				return false
+			}
+			dir = filepath.Join(dir, part)
+		}
+		return true
+	}
+	return true
 }
 
 func unknownZone(fn, name string) error {

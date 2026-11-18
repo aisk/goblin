@@ -20,7 +20,7 @@ plum
 apple
 cannot compare String and Int
 true false max() requires at least 1 argument
-true false min() argument 'values' must be iterable, got Int
+true false min() argument must be iterable, got Int
 false true max() of empty sequence
 false true min() of empty sequence
 date fig

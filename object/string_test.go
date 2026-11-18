@@ -54,7 +54,7 @@ func TestStringReplaceDefaultsAndKeywords(t *testing.T) {
 		t.Fatalf("named count: got %q", got)
 	}
 	fn, _ := String("x").GetAttr("replace")
-	if _, err := Call(fn, CallArgs{Positional: Args{String("x"), String("y"), Integer(-1)}}); err == nil || err.Error() != "replace() count must not be negative" {
+	if _, err := Call(fn, CallArgs{Positional: Args{String("x"), String("y"), Integer(-1)}}); err == nil || err.Error() != "replace() argument 'count' must be non-negative, got -1" {
 		t.Fatalf("negative count error = %v", err)
 	}
 }
@@ -83,7 +83,7 @@ func TestStringSplitCounts(t *testing.T) {
 	if _, err := Call(fn, CallArgs{Positional: Args{String("")}}); err == nil || err.Error() != "split() separator must not be empty" {
 		t.Fatalf("empty separator error = %v", err)
 	}
-	if _, err := Call(fn, CallArgs{Positional: Args{String(","), Integer(-1)}}); err == nil || err.Error() != "split() count must not be negative" {
+	if _, err := Call(fn, CallArgs{Positional: Args{String(","), Integer(-1)}}); err == nil || err.Error() != "split() argument 'count' must be non-negative, got -1" {
 		t.Fatalf("negative count error = %v", err)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"net"
 	"os"
+	"syscall"
 	"testing"
 )
 
@@ -14,6 +15,8 @@ import (
 func TestErrorKindClassifiesNativeErrors(t *testing.T) {
 	_, notExist := os.Open("/definitely/not/here")
 	_, refused := net.Dial("tcp", "127.0.0.1:1")
+	_, isDir := os.ReadFile(t.TempDir())
+	_, notDir := os.Stat("/etc/hosts/x")
 	timeout := &net.DNSError{Err: "timeout", IsTimeout: true}
 	cases := []struct {
 		name string
@@ -27,6 +30,14 @@ func TestErrorKindClassifiesNativeErrors(t *testing.T) {
 		{"network timeout", timeout, TimeoutError},
 		{"deadline", context.DeadlineExceeded, TimeoutError},
 		{"other", fmt.Errorf("boom"), IOError},
+		// An error number has net.Error's method set; only the ones naming
+		// a network condition are network errors.
+		{"is a directory", isDir, IOError},
+		{"not a directory", notDir, IOError},
+		{"would block", &os.PathError{Op: "read", Path: "p", Err: syscall.EAGAIN}, IOError},
+		{"broken pipe", &os.PathError{Op: "write", Path: "p", Err: syscall.EPIPE}, NetworkError},
+		{"refused", os.NewSyscallError("connect", syscall.ECONNREFUSED), NetworkError},
+		{"timed out", syscall.ETIMEDOUT, TimeoutError},
 	}
 	for _, c := range cases {
 		if c.err == nil {

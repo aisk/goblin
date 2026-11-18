@@ -158,7 +158,7 @@ func (d *Dict) Pop(args CallArgs) (Object, error) {
 	if hasDefault {
 		return def, nil
 	}
-	return nil, NewKeyError("key not found: %s", inspect(key))
+	return nil, keyNotFound(key)
 }
 
 // Remove deletes key's entry; without one it does nothing.
@@ -419,7 +419,7 @@ func (d *Dict) Index(index Object) (Object, error) {
 	if ok {
 		return val, nil
 	}
-	return nil, NewKeyError("key not found: %s", inspect(index))
+	return nil, keyNotFound(index)
 }
 
 func (d *Dict) SetIndex(index Object, value Object) (bool, error) {
@@ -450,6 +450,9 @@ func DictConstructor(args CallArgs) (Object, error) {
 	if len(args.Positional) != 0 {
 		return nil, NewTypeError("Dict() takes no positional arguments, got %d", len(args.Positional))
 	}
+	if name, dup := args.Keyword.Duplicate(); dup {
+		return nil, NewTypeError("Dict() got multiple values for argument '%s'", name)
+	}
 	result := NewDict()
 	for _, kw := range args.Keyword {
 		if err := result.Set(String(kw.Name), kw.Value); err != nil {
@@ -457,4 +460,14 @@ func DictConstructor(args CallArgs) (Object, error) {
 		}
 	}
 	return result, nil
+}
+
+// keyNotFound is the KeyError for a missing key, which shows the key as a
+// collection shows an element, so `d[1]` and `d["1"]` are told apart.
+func keyNotFound(key Object) *Error {
+	s, err := (&renderer{}).element(key)
+	if err != nil {
+		s = inspect(key)
+	}
+	return NewKeyError("key not found: %s", s)
 }

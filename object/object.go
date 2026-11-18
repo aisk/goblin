@@ -125,7 +125,7 @@ func Call(obj Object, args CallArgs) (Object, error) {
 		// Calling an error makes an error of that kind.
 		return v.New(args)
 	}
-	return nil, NewTypeError("%s is not callable", inspect(obj))
+	return nil, NewTypeError("%s is not callable", obj.TypeName())
 }
 
 // NoReflectedOps answers "not handled" for every reflected operator. Types

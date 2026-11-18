@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"strings"
+	"syscall"
 )
 
 // Frame describes one Goblin-level stack frame. It deliberately contains
@@ -572,6 +573,12 @@ func ErrorKind(err error, fallback *Error) *Error {
 	}
 	var netErr networkError
 	if errors.As(err, &netErr) {
+		// A bare operating-system error number has the same method set,
+		// so every failure of a local file would match; only the numbers
+		// that name a network condition are network errors.
+		if errno, ok := netErr.(syscall.Errno); ok {
+			return errnoKind(errno, fallback)
+		}
 		if netErr.Timeout() {
 			return TimeoutError
 		}
@@ -592,7 +599,7 @@ func Raise(v Object) error {
 	if e, ok := v.(*Error); ok {
 		return e
 	}
-	return NewTypeError("raise expects an Error, got: %s", inspect(v))
+	return NewTypeError("raise expects an Error, got %s", v.TypeName())
 }
 
 // ErrorValue extracts the Goblin Error value carried by err, unwrapping any

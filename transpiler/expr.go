@@ -37,9 +37,12 @@ func (g *generator) transpileListLiteral(list *ast.ListLiteral, onError errHandl
 		return nil, nil, err
 	}
 
-	return preStmts, jen.Op("&").Qual(pathObject, "List").Values(
+	// Parenthesized so a method call on the literal (`[...][i]` emits
+	// `.Index(i)`, a condition `.ToBool()`) applies to the pointer: Go reads
+	// `&T{...}.M()` as `&(T{...}.M())`.
+	return preStmts, jen.Parens(jen.Op("&").Qual(pathObject, "List").Values(
 		jen.Id("Elements").Op(":").Index().Qual(pathObject, "Object").Values(elements...),
-	), nil
+	)), nil
 }
 
 func (g *generator) transpileIndexExpression(expr *ast.IndexExpression, onError errHandler) ([]jen.Code, *jen.Statement, error) {
@@ -430,6 +433,14 @@ func (g *generator) transpileCallExpression(call *ast.CallExpression, onError er
 				return argPreStmts, jen.Qual(direct.path, direct.name).Call(args), nil
 			}
 			callee = jen.Id("builtin").Dot("Members").Index(jen.Lit(ident.Name))
+		} else if t := g.nativeTypeOf(ident); t.native() {
+			// A variable inferred as Int, Float or Bool is boxed, so calling
+			// it raises object.Call's TypeError as in the interpreter.
+			var pre []jen.Code
+			if pre, callee, err = g.transpileExpression(ident, onError); err != nil {
+				return nil, nil, err
+			}
+			argPreStmts = append(pre, argPreStmts...)
 		} else {
 			callee = jen.Id(ident.Name)
 		}

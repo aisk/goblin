@@ -74,7 +74,7 @@ func exit(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if code < 0 || code > 255 {
-		return nil, object.NewValueError("exit() argument 'code' must be between 0 and 255, got %d", int64(code))
+		return nil, object.RangeArgumentError("exit", "code", 0, 255, int64(code))
 	}
 	// The request unwinds the calling goblin like an error, running its
 	// pending deferred calls, and the process ends at the top of the goblin

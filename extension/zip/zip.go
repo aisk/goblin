@@ -12,6 +12,7 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"github.com/aisk/goblin/extension/internal/archive"
@@ -73,8 +74,10 @@ func openReader(fn, path string) (*Reader, error) {
 		return nil, filestream.Fail(fn, "cannot open", clean.String(), err)
 	}
 	if info.IsDir() {
+		// Reported as gzip and tar report it, as a file that cannot be
+		// read rather than as data in the wrong format.
 		file.Close()
-		return nil, notZip(fn, clean)
+		return nil, filestream.Fail(fn, "cannot read", clean.String(), syscall.EISDIR)
 	}
 	zr, err := gozip.NewReader(file, info.Size())
 	// Go may report names it considers insecure together with a usable
@@ -159,7 +162,9 @@ func newMember(owner *Reader, f *gozip.File) *archive.Member {
 	if size < 0 {
 		size = int64(^uint64(0) >> 1)
 	}
-	return archive.NewMember(owner, f.Name, kind, size, f.Modified, perm)
+	// Go gives the time in an unnamed fixed zone (or UTC), which no zone=
+	// accepts; like fs.stat and tar, a member's time is in the local zone.
+	return archive.NewMember(owner, f.Name, kind, size, f.Modified.Local(), perm)
 }
 
 func open(args object.CallArgs) (object.Object, error) {
@@ -423,7 +428,7 @@ func extract(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if limited && maxSize < 0 {
-		return nil, object.NewValueError("extract() argument 'max_size' must be non-negative, got %d", maxSize)
+		return nil, object.NegativeArgumentError("extract", "max_size", int64(maxSize))
 	}
 	r, err := openReader("extract", path)
 	if err != nil {

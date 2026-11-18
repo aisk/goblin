@@ -124,7 +124,7 @@ func IntConstructor(args CallArgs) (Object, error) {
 	}
 	if hasBase {
 		if base < 2 || base > 36 {
-			return nil, NewValueError("Int() argument 'base' must be from 2 to 36, got %d", int64(base))
+			return nil, RangeArgumentError("Int", "base", 2, 36, int64(base))
 		}
 		text, ok := value.(String)
 		if !ok {

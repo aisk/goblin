@@ -190,7 +190,7 @@ func (r *Rand) sample(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if count < 0 {
-		return nil, object.NewValueError("sample() argument 'count' must not be negative, got %d", count)
+		return nil, object.NegativeArgumentError("sample", "count", int64(count))
 	}
 	if int64(count) > int64(len(items)) {
 		return nil, object.NewValueError("sample() argument 'count' is larger than the number of items (%d), got %d", len(items), count)
@@ -225,6 +225,9 @@ func (r *Rand) shuffle(args object.CallArgs) (object.Object, error) {
 	return list, nil
 }
 
+// maxSecureBytes is the most rand.bytes makes in one call (1 GiB).
+const maxSecureBytes = 1 << 30
+
 // readSecure fills b from the operating system's secure source.
 var readSecure = cryptorand.Read
 
@@ -235,7 +238,12 @@ func secureBytes(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if size < 0 {
-		return nil, object.NewValueError("bytes() argument 'size' must not be negative, got %d", size)
+		return nil, object.NegativeArgumentError("bytes", "size", int64(size))
+	}
+	// The bytes are made up front, so a limit keeps an absurd size from
+	// exhausting memory; no script needs a GiB of random data at once.
+	if size > maxSecureBytes {
+		return nil, object.NewValueError("bytes() argument 'size' must be at most %d, got %d", maxSecureBytes, int64(size))
 	}
 	b := make([]byte, size)
 	if _, err := readSecure(b); err != nil {

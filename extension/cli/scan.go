@@ -288,7 +288,10 @@ func (s *scanner) convert(p *param, text string) (object.Object, error) {
 	if err == nil {
 		return v, nil
 	}
-	if !errors.Is(err, object.ValueError) {
+	// A number too large for an Int is an OverflowError from Int, but to
+	// the user it is a value that is not a valid integer like any other.
+	overflow := conv == object.IntConstructorFn && errors.Is(err, object.OverflowError)
+	if !errors.Is(err, object.ValueError) && !overflow {
 		return nil, err
 	}
 	switch conv {

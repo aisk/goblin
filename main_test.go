@@ -217,3 +217,41 @@ func sharedGoblinBin(t *testing.T) string {
 	}
 	return goblinBinPath
 }
+
+// A module that cannot be loaded is reported under the same path by both
+// commands: the path joined from the entry file's path as given.
+func TestLoadErrorsUseOnePathForm(t *testing.T) {
+	bin := sharedGoblinBin(t)
+	dir := t.TempDir()
+	files := map[string]string{
+		"m/cycle.goblin":   "import \"./other\"\n",
+		"m/other.goblin":   "import \"./cycle\"\nvar x = 1\nexport x\n",
+		"m/missing.goblin": "import \"./nope\"\n",
+		"m/broken.goblin":  "import \"./bad\"\n",
+		"m/bad.goblin":     "var x = (\n",
+	}
+	for name, src := range files {
+		path := filepath.Join(dir, name)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(src), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	want := map[string]string{
+		"m/cycle.goblin":   "circular import detected: m/other.goblin",
+		"m/missing.goblin": "failed to read m/nope.goblin: open m/nope.goblin: no such file or directory",
+		"m/broken.goblin":  "m/bad.goblin:2:1: error:",
+	}
+	for entry, text := range want {
+		for _, args := range [][]string{{"run", entry}, {"build-exe", entry, "-o", filepath.Join(dir, "out.bin")}} {
+			cmd := exec.Command(bin, args...)
+			cmd.Dir = dir
+			out, err := cmd.CombinedOutput()
+			if err == nil || !strings.HasPrefix(string(out), text) {
+				t.Errorf("goblin %s: %v\n%s\nwant output starting with %q", strings.Join(args, " "), err, out, text)
+			}
+		}
+	}
+}

@@ -114,7 +114,7 @@ func countArg(fn string, ap *object.ArgParser) (int, error) {
 		return -1, nil
 	}
 	if count < 0 {
-		return 0, object.NewValueError("%s() count must not be negative", fn)
+		return 0, object.NegativeArgumentError(fn, "count", int64(count))
 	}
 	return int(count), nil
 }

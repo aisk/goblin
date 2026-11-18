@@ -317,7 +317,8 @@ func g() {
     return f(2)
 }
 `)
-		if !strings.Contains(code, `object.Call(f`) {
+		// The local is inferred as an Int, so it is boxed for the call.
+		if !strings.Contains(code, `object.Call(object.Integer(f)`) {
 			t.Fatalf("a call through a shadowing local must stay generic\n%s", code)
 		}
 	})

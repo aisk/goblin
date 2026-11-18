@@ -1,6 +1,7 @@
 package source
 
 import (
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -164,6 +165,36 @@ func TestParseNumberLiterals(t *testing.T) {
 		_, err := ParseString("var x = " + src + "\n")
 		if err == nil || !strings.Contains(err.Error(), want) {
 			t.Errorf("%s: error %v, want one containing %q", src, err, want)
+		}
+		// The error points at the start of the literal, column 9.
+		if err != nil && !strings.HasPrefix(err.Error(), "1:9: ") {
+			t.Errorf("%s: error %v, want it at 1:9", src, err)
+		}
+	}
+}
+
+// 9223372036854775808 is accepted only as the operand of a unary minus,
+// where it makes the smallest Int.
+func TestParseSmallestInt(t *testing.T) {
+	for _, src := range []string{"-9223372036854775808", "-0x8000000000000000"} {
+		mod, err := ParseString("var x = " + src + "\n")
+		if err != nil {
+			t.Fatalf("%s: %v", src, err)
+		}
+		lit, ok := mod.Body[0].(*ast.Declare).Value.(*ast.Literal)
+		if !ok || lit.Value != object.Integer(math.MinInt64) || lit.Position().Column != 9 {
+			t.Fatalf("%s parsed as %#v", src, mod.Body[0].(*ast.Declare).Value)
+		}
+	}
+	for src, at := range map[string]string{
+		"1 - 9223372036854775808":   "1:13: ",
+		"-9223372036854775808[0]":   "1:10: ",
+		"\"{9223372036854775808}\"": "1:11: ",
+		"[9223372036854775808]":     "1:10: ",
+	} {
+		_, err := ParseString("var x = " + src + "\n")
+		if err == nil || !strings.HasPrefix(err.Error(), at) || !strings.Contains(err.Error(), "integer literal 9223372036854775808 is out of range for Int") {
+			t.Errorf("%s: error %v, want it at %s", src, err, at)
 		}
 	}
 }

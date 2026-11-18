@@ -1,0 +1,121 @@
+# A list walked while its own loop body or callback changes it: the walk
+# visits at most the elements the list had when it started and ends early
+# once the list has become shorter than the position it reached. Elements
+# pushed during the walk are not visited.
+var xs = [1, 2, 3]
+for x in xs {
+    print("for", x)
+    if xs.size > 1 {
+        xs.pop()
+    }
+}
+
+var ys = [1, 2, 3]
+for y in ys {
+    print("pop(0)", y, ys)
+    ys.pop(0)
+}
+
+var zs = [1, 2, 3]
+for z in zs {
+    zs.push(z * 10)
+}
+print("pushed", zs)
+
+var ws = [1, 2, 3]
+for w in ws {
+    print("assigned", w)
+    if w == 1 {
+        ws[2] = 30
+    }
+}
+
+func shrinking() {
+    return [1, 2, 3, 4]
+}
+var a = shrinking()
+print("map", a.map(func(x) {
+    a.pop()
+    return x * 2
+}))
+a = shrinking()
+print("filter", a.filter(func(x) {
+    a.pop()
+    return true
+}))
+a = shrinking()
+print("find", a.find(func(x) {
+    a.pop()
+    return x == nil
+}))
+a = shrinking()
+print("any", a.any(func(x) {
+    a.pop()
+    return x == nil
+}))
+a = shrinking()
+print("reduce", a.reduce(func(acc, x) {
+    a.pop()
+    return acc + x
+}, 0))
+a = shrinking()
+print("max", max(a, key=func(x) {
+    a.pop()
+    return x
+}))
+
+# Destructuring copies the elements before the stores run.
+var pair = [1, 2]
+func side() {
+    pair.pop()
+    return 0
+}
+var holder = [0, 0]
+holder[side()], holder[1] = pair
+print("destructure", holder, pair)
+
+# sort(key=) calls key once per element, before comparing, and changes the
+# list only when the whole sort succeeds.
+var calls = 0
+var nums = [3, 1, 2]
+nums.sort(key=func(n) {
+    calls = calls + 1
+    return n
+})
+print("sorted", nums, "key calls", calls)
+var keep = [3, 2, 1]
+try {
+    keep.sort(key=func(n) {
+        if n == 1 {
+            raise ValueError("bad key")
+        }
+        return n
+    })
+} catch e: ValueError {
+    print("failed sort", e, keep)
+}
+var cleared = [3, 1, 2]
+cleared.sort(key=func(n) {
+    cleared.clear()
+    return n
+})
+print("key cleared", cleared)
+var grown = [3, 1, 2]
+grown.sort(key=func(n) {
+    if grown.size < 6 {
+        grown.push(0)
+    }
+    return n
+})
+print("key pushed", grown)
+try {
+    [3, "a", 1].sort()
+} catch e: TypeError {
+    print("mixed sort", e)
+}
+
+# List(xs) is a copy.
+var original = [1, 2]
+var copied = List(original)
+copied[0] = 9
+print("List copy", original, copied)

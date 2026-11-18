@@ -90,7 +90,7 @@ func (q seq) replace(old, new string, count Integer, limited bool) (Object, erro
 	n := -1
 	if limited {
 		if count < 0 {
-			return nil, NewValueError("replace() count must not be negative")
+			return nil, NegativeArgumentError("replace", "count", int64(count))
 		}
 		n = int(count)
 	}
@@ -109,7 +109,7 @@ func (q seq) split(sep string, hasSep bool, count Integer, limited bool) (Object
 	n := -1
 	if limited {
 		if count < 0 {
-			return nil, NewValueError("split() count must not be negative")
+			return nil, NegativeArgumentError("split", "count", int64(count))
 		}
 		n = int(count)
 	}

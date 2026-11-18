@@ -121,19 +121,24 @@ func (t *Time) shift(seconds object.Object, sign int64) (result object.Object, o
 	default:
 		return nil, false, nil
 	}
+	var shifted stdtime.Time
 	if whole > -maxDurationSeconds && whole < maxDurationSeconds-1 {
-		return NewTime(t.Value.Add(stdtime.Duration(whole)*stdtime.Second + stdtime.Duration(nanos))), true, nil
+		shifted = t.Value.Add(stdtime.Duration(whole)*stdtime.Second + stdtime.Duration(nanos))
+	} else {
+		unix := t.Value.Unix() + whole
+		if unix < -maxShiftUnix || unix > maxShiftUnix {
+			return nil, true, errTimeRange()
+		}
+		shifted = stdtime.Unix(unix, int64(t.Value.Nanosecond())+nanos).In(t.Value.Location())
 	}
-	unix := t.Value.Unix() + whole
-	if unix < -maxShiftUnix || unix > maxShiftUnix {
+	if !InRange(shifted) {
 		return nil, true, errTimeRange()
 	}
-	shifted := stdtime.Unix(unix, int64(t.Value.Nanosecond())+nanos).In(t.Value.Location())
 	return NewTime(shifted), true, nil
 }
 
 func errTimeRange() error {
-	return object.NewValueError("Time arithmetic result is out of range")
+	return object.NewValueError("Time arithmetic result is out of range (years 1 to 9999)")
 }
 
 // Constructor satisfies object.Constructed, so type_of answers the
@@ -223,8 +228,21 @@ func (t *Time) startOfDay(args object.CallArgs) (object.Object, error) {
 	if err := object.RequireNoArgs("start_of_day", args); err != nil {
 		return nil, err
 	}
-	v := t.Value
-	return NewTime(stdtime.Date(v.Year(), v.Month(), v.Day(), 0, 0, 0, 0, v.Location())), nil
+	return NewTime(StartOfDay(t.Value)), nil
+}
+
+// StartOfDay is the first instant of v's calendar day in v's zone. Where
+// the clocks jump over midnight (America/Santiago in September) 00:00 does
+// not exist and Go's Date may answer with an instant of the day before; the
+// day then starts at the end of that zone period, when the clocks jump.
+func StartOfDay(v stdtime.Time) stdtime.Time {
+	day := stdtime.Date(v.Year(), v.Month(), v.Day(), 0, 0, 0, 0, v.Location())
+	if day.Day() != v.Day() {
+		if _, end := day.ZoneBounds(); !end.IsZero() {
+			return end.In(v.Location())
+		}
+	}
+	return day
 }
 
 var _ object.Object = (*Time)(nil)
@@ -250,6 +268,46 @@ func construct(args object.CallArgs) (object.Object, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Go's Date wraps around silently when a part is large enough for the
+	// roll-over to overflow, so such a part is refused before it is used;
+	// none can give a time in range anyway.
+	for _, part := range []struct {
+		value   object.Integer
+		seconds float64
+	}{{year, yearSeconds}, {month, yearSeconds / 12}, {day, 86400}, {hour, 3600}, {minute, 60}, {second, 1}} {
+		if math.Abs(float64(part.value))*part.seconds > maxPartSeconds {
+			return nil, errConstructRange()
+		}
+	}
 	t := stdtime.Date(int(year), stdtime.Month(month), int(day), int(hour), int(minute), int(second), 0, loc)
+	if !InRange(t) {
+		return nil, errConstructRange()
+	}
 	return NewTime(t), nil
+}
+
+// yearSeconds is the length of an average year, and maxPartSeconds how far
+// one part of the constructor may reach (100000 years): far beyond the
+// range, and small enough that Go's Date computes the roll-over exactly.
+const (
+	yearSeconds    = 365.25 * 86400
+	maxPartSeconds = 100000 * yearSeconds
+)
+
+// MinYear and MaxYear bound every Time: the years an ISO 8601 text, which
+// time.parse reads and a Time prints as, can hold. The year is the one of
+// the instant in UTC, the range time.unix accepts.
+const (
+	MinYear = 1
+	MaxYear = 9999
+)
+
+// InRange reports whether t is within the years MinYear to MaxYear.
+func InRange(t stdtime.Time) bool {
+	year := t.UTC().Year()
+	return year >= MinYear && year <= MaxYear
+}
+
+func errConstructRange() error {
+	return object.NewValueError("Time() result is out of range (years 1 to 9999)")
 }

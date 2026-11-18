@@ -28,7 +28,7 @@ func TestBindArgumentsTooFewArgs(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	if !strings.Contains(err.Error(), "missing required positional argument: 'b'") {
+	if !strings.Contains(err.Error(), "missing required argument: 'b'") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }
@@ -166,7 +166,7 @@ func TestBindArgumentsMissingRequiredWithDefaults(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected error, got nil")
 	}
-	if !strings.Contains(err.Error(), "missing required positional argument: 'a'") {
+	if !strings.Contains(err.Error(), "missing required argument: 'a'") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 }

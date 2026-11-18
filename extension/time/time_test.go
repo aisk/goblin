@@ -144,7 +144,8 @@ func TestZones(t *testing.T) {
 	if attr(t, newTime(t, ints(2026, 1, 15)), "zone") != str("local") {
 		t.Fatal("zone=nil is not local")
 	}
-	for _, bad := range []string{"Asia/Shangai", "", "Local", "+8:00", "+24:00", "CST6CDT/x", "../etc"} {
+	// A name is matched exactly, also on a case-insensitive file system.
+	for _, bad := range []string{"Asia/Shangai", "", "Local", "+8:00", "+24:00", "CST6CDT/x", "../etc", "utc", "asia/shanghai", "ASIA/Shanghai", "Asia/shanghai", "europe/london"} {
 		_, err := timevalue.Type.Function.Call(object.CallArgs{Positional: ints(2026, 1, 1), Keyword: object.Kwargs{kw("zone", str(bad))}})
 		if !errors.Is(err, object.ValueError) || !strings.Contains(err.Error(), `Time() unknown time zone "`+bad+`"`) {
 			t.Errorf("Time(zone=%q) = %v", bad, err)
@@ -234,6 +235,22 @@ func TestDaylightSaving(t *testing.T) {
 	if repeated != "2026-11-01T01:30:00-04:00" && repeated != "2026-11-01T01:30:00-05:00" {
 		t.Fatalf("01:30 on November 1 = %s", repeated)
 	}
+
+	// Where the clocks jump over midnight, the day starts when they jump:
+	// 00:00 does not exist, and the start is still on the same calendar day.
+	for zone, want := range map[string]string{
+		"America/Santiago": "2026-09-06T01:00:00-03:00",
+		"Africa/Cairo":     "2026-04-24T01:00:00+03:00",
+	} {
+		day := ints(2026, 9, 6, 12)
+		if zone == "Africa/Cairo" {
+			day = ints(2026, 4, 24, 12)
+		}
+		start := mustMethod(t, newTime(t, day, kw("zone", str(zone))), "start_of_day")
+		if text(start) != want {
+			t.Errorf("start_of_day in %s = %s, want %s", zone, text(start), want)
+		}
+	}
 }
 
 func TestRollover(t *testing.T) {
@@ -247,6 +264,28 @@ func TestRollover(t *testing.T) {
 	for want, got := range cases {
 		if got.String() != want {
 			t.Errorf("got %s, want %s", got, want)
+		}
+	}
+	// The result must be within the years 1 to 9999, and a part too large
+	// to roll over is refused rather than wrapped around.
+	edges := map[string]*timevalue.Time{
+		"9999-12-31T23:59:59Z": newTime(t, ints(9999, 12, 31, 23, 59, 59), utc),
+		"0001-01-01T00:00:00Z": newTime(t, ints(1, 1, 1), utc),
+		"9999-12-31T00:00:00Z": newTime(t, ints(10000, 1, 0), utc),
+	}
+	for want, got := range edges {
+		if got.String() != want {
+			t.Errorf("got %s, want %s", got, want)
+		}
+	}
+	for _, parts := range []object.Args{
+		ints(10000, 1, 1), ints(0, 12, 31), ints(-1, 1, 1), ints(9999, 12, 31, 24),
+		ints(2026, 9223372036854775807, 1), ints(2026, 1, -9223372036854775807-1),
+		ints(2026, 1, 1, 0, 0, 9223372036854775807), ints(9223372036854775807, 1, 1),
+	} {
+		_, err := timevalue.Type.Function.Call(object.CallArgs{Positional: parts, Keyword: object.Kwargs{utc}})
+		if err == nil || !errors.Is(err, object.ValueError) || err.Error() != "Time() result is out of range (years 1 to 9999)" {
+			t.Errorf("Time%v = %v", parts, err)
 		}
 	}
 	_, err := timevalue.Type.Function.Call(object.CallArgs{Positional: object.Args{object.Integer(2026), object.Float(1), object.Integer(1)}})
@@ -436,6 +475,15 @@ func TestArithmetic(t *testing.T) {
 	}
 	if _, err := start.Add(object.Integer(1 << 62)); !errors.Is(err, object.ValueError) {
 		t.Fatalf("out of range = %v", err)
+	}
+	// One range for every Time: the years 1 to 9999, what unix accepts.
+	for _, seconds := range []object.Object{object.Float(1e18), object.Integer(300000000000), object.Integer(-70000000000)} {
+		if _, err := start.Add(seconds); err == nil || err.Error() != "Time arithmetic result is out of range (years 1 to 9999)" {
+			t.Errorf("t + %v = %v", seconds, err)
+		}
+	}
+	if _, err := far.Minus(object.Integer(-40000000000)); err == nil || !errors.Is(err, object.ValueError) {
+		t.Errorf("t - big = %v", err)
 	}
 	if _, err := start.Add(str("soon")); !errors.Is(err, object.TypeError) {
 		t.Fatalf("t + String = %v", err)

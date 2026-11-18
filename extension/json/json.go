@@ -23,7 +23,7 @@ func encode(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if indent < 0 {
-		return nil, object.NewValueError("encode() argument 'indent' must be non-negative, got %d", int64(indent))
+		return nil, object.NegativeArgumentError("encode", "indent", int64(indent))
 	}
 	text, err := jsonvalue.Encode("encode", value, int(indent), pretty)
 	if err != nil {

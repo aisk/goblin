@@ -245,6 +245,12 @@ func rank(values []float64, r float64) float64 {
 	if i+1 >= len(values) {
 		return values[len(values)-1]
 	}
+	// A position on a value, or between two equal ones, needs no
+	// interpolation; computing it anyway gives NaN next to an infinity
+	// (x + 0*Inf, or Inf + 0.5*(Inf-Inf)).
+	if r == lower || values[i] == values[i+1] {
+		return values[i]
+	}
 	return values[i] + (r-lower)*(values[i+1]-values[i])
 }
 
@@ -287,7 +293,7 @@ func percentile(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if !(pct >= 0 && pct <= 100) {
-		return nil, object.NewValueError("percentile() argument 'p' must be between 0 and 100, got %s", formatFloat(pct))
+		return nil, object.RangeArgumentError("percentile", "p", 0, 100, formatFloat(pct))
 	}
 	values, err := collect("percentile", valuesArg)
 	if err != nil {

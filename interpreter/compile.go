@@ -60,6 +60,10 @@ type compiler struct {
 	// unpacked is the slot holding the elements of the destructuring
 	// statement whose stores are being compiled.
 	unpacked int
+	// unchecked is set for REPL input, which the semantic checker never
+	// saw: an assignment to a global then checks at run time what the
+	// checker would have refused (see cell.assignable).
+	unchecked bool
 
 	funcs map[*ast.FunctionDefine]*funcProto
 	types map[*ast.TypeDefine]*typeProto
@@ -303,11 +307,37 @@ func (c *compiler) statement(stmt ast.Statement) stmtFn {
 	switch s := stmt.(type) {
 	case *ast.Declare:
 		value := c.expr(s.Value)
-		return c.declare(s.Name).store(value)
+		ref := c.declare(s.Name)
+		if cl := ref.cell; cl != nil && c.unchecked {
+			// `var T = ...` in the REPL replaces a type binding.
+			return func(f *frame) (ctrl, object.Object, error) {
+				v, err := value(f)
+				if err != nil {
+					return ctrlNone, nil, err
+				}
+				cl.value, cl.isType = v, false
+				return ctrlNone, nil, nil
+			}
+		}
+		return ref.store(value)
 
 	case *ast.Assign:
 		value := c.expr(s.Value)
-		return c.lookup(s.Target).store(value)
+		ref := c.lookup(s.Target)
+		if cl := ref.cell; cl != nil && c.unchecked {
+			return func(f *frame) (ctrl, object.Object, error) {
+				v, err := value(f)
+				if err != nil {
+					return ctrlNone, nil, err
+				}
+				if err := cl.assignable(); err != nil {
+					return ctrlNone, nil, err
+				}
+				cl.value = v
+				return ctrlNone, nil, nil
+			}
+		}
+		return ref.store(value)
 
 	case *ast.Destructure:
 		return c.destructure(s)

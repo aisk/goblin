@@ -20,8 +20,8 @@ true true
 id,name b"1,ada\n"
 rest: 2,grace
 ["a", "b"]
-compress() argument 'level' must be from 1 to 9, got 0
-compress() argument 'level' must be from 1 to 9, got 10
+compress() argument 'level' must be between 1 and 9, got 0
+compress() argument 'level' must be between 1 and 9, got 10
 decompress() not gzip data
 decompress() not gzip data
 decompress() corrupt gzip data

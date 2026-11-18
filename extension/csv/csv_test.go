@@ -156,6 +156,10 @@ func TestEncode(t *testing.T) {
 		{people, nil, "name,age\nAda,36\nLinus,28\nGrace,\n"},
 		{people, []object.KwArg{columns("age", "name")}, "age,name\n36,Ada\n28,Linus\n,Grace\n"},
 		{rows(strs("1", "2")), []object.KwArg{columns("a", "b"), {Name: "sep", Value: object.String(";")}}, "a;b\n1;2\n"},
+		// A row whose only field is empty is "", not a blank line, which
+		// decode skips; an empty row is still a blank line.
+		{rows(strs("name"), strs("ada"), strs(""), rows(object.Nil), strs()), nil, "name\nada\n\"\"\n\"\"\n\n"},
+		{rows(dict(object.String("note"), object.String("x")), dict(object.String("note"), object.String(""))), nil, "note\nx\n\"\"\n"},
 	}
 	for _, c := range cases {
 		got, err := call("encode", object.Args{c.rows}, c.kw...)
@@ -192,7 +196,7 @@ func TestEncodeErrors(t *testing.T) {
 }
 
 func TestRoundTrip(t *testing.T) {
-	table := rows(strs("name", "note"), strs("Goblin", "a,b\nc \"d\""), strs("", " x"))
+	table := rows(strs("name", "note"), strs("Goblin", "a,b\nc \"d\""), strs("", " x"), strs(""), strs("last", ""))
 	text, err := call("encode", object.Args{table})
 	if err != nil {
 		t.Fatal(err)

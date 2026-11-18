@@ -102,6 +102,7 @@ func (s *Session) Eval(src string) (result object.Object, err error) {
 	// declared resolves to the cell that line bound; a name nobody has
 	// declared yet gets an unbound cell and is reported at run time.
 	c := newCompiler(s.global)
+	c.unchecked = true
 	exprs := make([]exprFn, len(mod.Body))
 	stmts := make([]stmtFn, len(mod.Body))
 	for i, stmt := range mod.Body {

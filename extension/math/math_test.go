@@ -200,6 +200,27 @@ func TestStatistics(t *testing.T) {
 	if !math.IsNaN(float64(got.(object.Float))) {
 		t.Errorf("NAN in percentile = %v", got)
 	}
+	// An infinity is an ordinary value: a rank on or next to it is not NaN.
+	inf := math.Inf(1)
+	for _, c := range []struct {
+		name string
+		args object.Args
+		want float64
+	}{
+		{"median", object.Args{floats(1, 2, inf)}, 2},
+		{"median", object.Args{floats(1, inf)}, inf},
+		{"median", object.Args{floats(1, inf, inf)}, inf},
+		{"median", object.Args{floats(inf, inf)}, inf},
+		{"percentile", object.Args{floats(1, 2, inf), object.Integer(50)}, 2},
+		{"percentile", object.Args{floats(1, inf), object.Integer(0)}, 1},
+		{"percentile", object.Args{floats(-inf, 1, 2), object.Integer(0)}, -inf},
+		{"percentile", object.Args{floats(-inf, 1, 2), object.Integer(100)}, 2},
+	} {
+		got, err := call(c.name, c.args...)
+		if err != nil || got != object.Float(c.want) {
+			t.Errorf("%s%v = %v, %v; want %v", c.name, c.args, got, err, c.want)
+		}
+	}
 	for _, c := range []struct {
 		name string
 		args object.Args

@@ -149,6 +149,11 @@ func (c *Chan) Close(args CallArgs) (result Object, err error) {
 
 var ChanConstructorFn = &Function{Name: "Chan", Fn: ChanConstructor}
 
+// MaxChanCapacity bounds Chan(capacity): Go allocates the whole buffer when
+// the channel is made, and a capacity it cannot allocate would end the
+// process instead of raising.
+const MaxChanCapacity = 1000000
+
 // ChanConstructor implements Chan(capacity=0): an unbuffered channel, or one
 // buffering up to capacity values.
 func ChanConstructor(args CallArgs) (Object, error) {
@@ -158,7 +163,10 @@ func ChanConstructor(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	if capacity < 0 {
-		return nil, NewValueError("Chan() capacity must be non-negative, got %d", int64(capacity))
+		return nil, NewValueError("Chan() argument 'capacity' must be non-negative, got %d", int64(capacity))
+	}
+	if capacity > MaxChanCapacity {
+		return nil, NewValueError("Chan() argument 'capacity' must be at most %d, got %d", MaxChanCapacity, int64(capacity))
 	}
 	return NewChan(int(capacity)), nil
 }

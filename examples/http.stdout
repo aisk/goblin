@@ -28,10 +28,10 @@ ValueError: request() invalid method "GE T"
 ValueError: request() cannot send a CONNECT request
 ValueError: get() argument 'timeout' must be non-negative, got -1
 TypeError: send() argument 'request' must be Request, got Dict
-ValueError: Response() argument 'status' must be from 100 to 999, got 20
+ValueError: Response() argument 'status' must be between 100 and 999, got 20
 TypeError: Headers() argument 'fields' must be Dict, Headers or Nil, got List
 TypeError: header value must be String or List of String, got Int
-KeyError: key not found: x-missing
+KeyError: key not found: "x-missing"
 ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
 ValueError: multipart() file "avatar" needs a name: pass an open fs.File, or {"name": …, "data": …}
 ValueError: multipart() file "avatar" needs "data"

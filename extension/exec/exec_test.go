@@ -173,8 +173,25 @@ func TestRun(t *testing.T) {
 
 	missing := &object.List{Elements: []object.Object{object.String("goblin-no-such-program")}}
 	err = callErr("run", missing)
-	if !errors.Is(err, object.NotExistError) || !strings.HasPrefix(err.Error(), `run() program "goblin-no-such-program" not found`) {
+	if !errors.Is(err, object.NotExistError) || err.Error() != `run() program "goblin-no-such-program" not found` {
 		t.Fatalf("missing program error = %v", err)
+	}
+	empty := &object.List{Elements: []object.Object{object.String("")}}
+	if err := callErr("capture", empty); !errors.Is(err, object.ValueError) || err.Error() != `capture() argument 'args' has an empty program name` {
+		t.Fatalf("empty program error = %v", err)
+	}
+	// A limit that has passed before the start is the ordinary timeout.
+	for _, fn := range []string{"run", "capture"} {
+		err = callErr(fn, helper("sleep=10s"), kw("timeout", object.Integer(0)))
+		if !errors.Is(err, object.TimeoutError) || err.Error() != fn+`() "`+os.Args[0]+`" timed out after 0 seconds` {
+			t.Fatalf("%s(timeout=0) = %v", fn, err)
+		}
+		if !errors.As(err, &e) {
+			t.Fatal(err)
+		}
+		if _, ok := e.Field("stdout"); !ok {
+			t.Fatalf("%s(timeout=0) carries no stdout", fn)
+		}
 	}
 
 	start := time.Now()
@@ -214,6 +231,24 @@ func TestEnvAndCwd(t *testing.T) {
 	r := call(t, "capture", helper("env=GOBLIN_EXEC_INHERITED", "env=GOBLIN_EXEC_ADDED", "has-env=GOBLIN_EXEC_DROPPED"), kw("env", env))
 	if got := get(t, r, "stdout"); got != object.String("kept|added|false|") {
 		t.Fatalf("env = %q", got)
+	}
+	// Names and values are checked as os.env checks them.
+	for _, c := range []struct {
+		name  string
+		value object.Object
+		msg   string
+	}{
+		{"A=B", object.String("c"), `capture() invalid environment variable name "A=B"`},
+		{"", object.String("c"), `capture() invalid environment variable name ""`},
+		{"", object.Nil, `capture() invalid environment variable name ""`},
+		{"Z", object.String("b\x00c"), `capture() environment variable 'Z' value contains NUL`},
+	} {
+		bad := object.NewDict()
+		bad.Set(object.String(c.name), c.value)
+		err := callErr("capture", helper(), kw("env", bad))
+		if !errors.Is(err, object.ValueError) || err.Error() != c.msg {
+			t.Errorf("env %q = %v, want %q", c.name, err, c.msg)
+		}
 	}
 
 	dir := t.TempDir()

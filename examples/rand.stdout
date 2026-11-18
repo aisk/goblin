@@ -11,7 +11,7 @@ choice() argument 'weights' must not be all zero
 choice() argument 'items' is empty
 3 3
 ["a", "a", "b"] []
-sample() argument 'count' must not be negative, got -1
+sample() argument 'count' must be non-negative, got -1
 sample() argument 'count' is larger than the number of items (2), got 3
 true 52 1326
 shuffle() argument 'list' must be List, got String
@@ -20,7 +20,7 @@ true 36 4 true true
 7 7 true true
 uuid() argument 'version' must be 4 or 7, got 1
 uuid() argument 'version' must be 4 or 7, got 5
-bytes() argument 'size' must not be negative, got -1
+bytes() argument 'size' must be non-negative, got -1
 <rand.Rand seed=42> true
 75 2 0.604093851558642
 0 0

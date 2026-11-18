@@ -87,7 +87,7 @@ func TestHeadersMembers(t *testing.T) {
 		t.Fatalf("joined = %v", v)
 	}
 	_, err := idx("X-Absent")
-	wantErr(t, err, object.KeyError, "key not found: X-Absent")
+	wantErr(t, err, object.KeyError, "key not found: \"X-Absent\"")
 	if _, err := h.Index(object.Integer(1)); err == nil {
 		t.Fatal("h[1]")
 	}
@@ -195,5 +195,27 @@ func TestHeadersEquality(t *testing.T) {
 	}
 	if modtest.Equal(d, dict(str("a"), str("1"))) {
 		t.Fatal("a Headers equals a Dict")
+	}
+}
+
+// TestHeadersNeverHoldANameWithoutValues: an empty List of values removes
+// the name, by assignment and when building from a Dict.
+func TestHeadersNeverHoldANameWithoutValues(t *testing.T) {
+	h := newHeadersT(t, dict(str("a"), list(), str("b"), str("1")))
+	if h.has("a") || h.String() != `Headers({"b": "1"})` {
+		t.Fatalf("Headers({a: [], b: 1}) = %v", h)
+	}
+	if _, err := h.SetIndex(str("B"), list()); err != nil {
+		t.Fatal(err)
+	}
+	if truth, _ := h.ToBool(); h.has("b") || h.String() != "Headers({})" || truth {
+		t.Fatalf("after h[\"B\"] = [] = %v", h)
+	}
+	if eq, _ := h.Equals(newHeadersT(t)); !eq {
+		t.Fatal("an emptied Headers differs from Headers()")
+	}
+	// Assigning to a name that is not there adds nothing.
+	if _, err := h.SetIndex(str("c"), list()); err != nil || h.has("c") {
+		t.Fatalf("h[\"c\"] = [] = %v, %v", h, err)
 	}
 }

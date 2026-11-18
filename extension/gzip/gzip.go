@@ -31,7 +31,7 @@ func levelArg(fn string, level object.Integer, hasLevel bool) (int, error) {
 		return gzip.DefaultCompression, nil
 	}
 	if level < gzip.BestSpeed || level > gzip.BestCompression {
-		return 0, object.NewValueError("%s() argument 'level' must be from 1 to 9, got %d", fn, int64(level))
+		return 0, object.RangeArgumentError(fn, "level", 1, 9, int64(level))
 	}
 	return int(level), nil
 }

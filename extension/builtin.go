@@ -210,41 +210,55 @@ func extreme(name string, args object.CallArgs, replaces func(c int) bool) (obje
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
+	// The candidates are walked one at a time, each key computed as its
+	// candidate is reached, so a key that changes the list being walked
+	// follows the rule of object.Iterate.
+	var it object.Iteration
 	switch len(values) {
 	case 0:
 		return nil, object.NewTypeError("%s() requires at least 1 argument", name)
 	case 1:
-		items, err := object.CollectArg(name, "values", values[0])
+		var err error
+		if it, err = object.IterateArg(name, "", values[0]); err != nil {
+			return nil, err
+		}
+	default:
+		it, _ = object.Iterate(&object.List{Elements: values})
+	}
+	defer it.Close()
+	var best, bestKey object.Object
+	argv := make(object.Args, 1)
+	for {
+		v, ok, err := it.Next()
 		if err != nil {
 			return nil, err
 		}
-		if len(items) == 0 {
-			return nil, object.NewValueError("%s() of empty sequence", name)
+		if !ok {
+			break
 		}
-		values = items
-	}
-	keys := values
-	if hasKey {
-		keys = make([]object.Object, len(values))
-		for i, v := range values {
-			k, err := key.Call(object.CallArgs{Positional: object.Args{v}})
-			if err != nil {
+		k := v
+		if hasKey {
+			argv[0] = v
+			if k, err = key.Call(object.CallArgs{Positional: argv}); err != nil {
 				return nil, err
 			}
-			keys[i] = k
 		}
-	}
-	best := 0
-	for i := 1; i < len(values); i++ {
-		c, err := object.Compare(keys[i], keys[best])
+		if best == nil {
+			best, bestKey = v, k
+			continue
+		}
+		c, err := object.Compare(k, bestKey)
 		if err != nil {
 			return nil, err
 		}
 		if replaces(c) {
-			best = i
+			best, bestKey = v, k
 		}
 	}
-	return values[best], nil
+	if best == nil {
+		return nil, object.NewValueError("%s() of empty sequence", name)
+	}
+	return best, nil
 }
 
 // Sum adds up the elements of an iterable with +, starting from the Int 0.
@@ -254,17 +268,24 @@ func Sum(args object.CallArgs) (object.Object, error) {
 	if err := p.Finish(); err != nil {
 		return nil, err
 	}
-	items, err := object.CollectArg("sum", "values", iterable)
+	it, err := object.IterateArg("sum", "values", iterable)
 	if err != nil {
 		return nil, err
 	}
+	defer it.Close()
 	var total object.Object = object.Integer(0)
-	for _, item := range items {
+	for {
+		item, ok, err := it.Next()
+		if err != nil {
+			return nil, err
+		}
+		if !ok {
+			return total, nil
+		}
 		if total, err = object.Add(total, item); err != nil {
 			return nil, err
 		}
 	}
-	return total, nil
 }
 
 // Compare orders two values the way <, <=, > and >= do, as -1, 0 or 1.

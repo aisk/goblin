@@ -45,6 +45,13 @@ func Parse(fn, text string) (*URL, error) {
 	if err != nil {
 		return nil, invalid(fn, text, err)
 	}
+	// Go accepts any run of digits as a port; one no connection can use
+	// would otherwise read as an absent port (nil) or a number above 65535.
+	if port := u.Port(); port != "" {
+		if n, err := strconv.Atoi(port); err != nil || n > 65535 {
+			return nil, invalid(fn, text, errors.New("port out of range"))
+		}
+	}
 	return New(u), nil
 }
 

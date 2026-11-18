@@ -78,13 +78,14 @@ func (l *List) Join(args CallArgs) (Object, error) {
 	}
 	switch sep := sepObj.(type) {
 	case String:
-		elements := make([]string, len(l.Elements))
-		for i, elem := range l.Elements {
-			s, err := elem.ToString()
+		// ToString runs a user Show, which may change the list; see walk.
+		elements := make([]string, 0, len(l.Elements))
+		for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+			s, err := l.Elements[i].ToString()
 			if err != nil {
 				return nil, err
 			}
-			elements[i] = s
+			elements = append(elements, s)
 		}
 		return String(strings.Join(elements, string(sep))), nil
 	case Bytes:
@@ -134,7 +135,7 @@ func (l *List) Contains(args CallArgs) (Object, error) {
 // find returns the position of the first element from start on that equals
 // value, or -1.
 func (l *List) find(value Object, start int) (int, error) {
-	for i := start; i < len(l.Elements); i++ {
+	for i, n := start, len(l.Elements); i < n && i < len(l.Elements); i++ {
 		eq, err := Equals(l.Elements[i], value)
 		if err != nil {
 			return 0, err
@@ -153,8 +154,8 @@ func (l *List) Count(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	count := 0
-	for _, elem := range l.Elements {
-		eq, err := Equals(elem, value)
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		eq, err := Equals(l.Elements[i], value)
 		if err != nil {
 			return nil, err
 		}
@@ -197,7 +198,8 @@ func (l *List) Remove(args CallArgs) (Object, error) {
 	if err != nil {
 		return nil, err
 	}
-	if i >= 0 {
+	// An eq that shrank the list may have left i past its end.
+	if i >= 0 && i < len(l.Elements) {
 		copy(l.Elements[i:], l.Elements[i+1:])
 		l.Elements[len(l.Elements)-1] = nil
 		l.Elements = l.Elements[:len(l.Elements)-1]
@@ -256,13 +258,15 @@ func (l *List) Equals(other Object) (bool, error) {
 	if err := CheckStack(); err != nil {
 		return false, err
 	}
-	for i, elem := range l.Elements {
-		eq, err := Equals(elem, v.Elements[i])
+	// A user eq may change either list, so both lengths are read again at
+	// every step.
+	for i := 0; i < len(l.Elements) && i < len(v.Elements); i++ {
+		eq, err := Equals(l.Elements[i], v.Elements[i])
 		if err != nil || !eq {
 			return false, err
 		}
 	}
-	return true, nil
+	return len(l.Elements) == len(v.Elements), nil
 }
 
 // Compare orders lists lexicographically: the first unequal pair of elements
@@ -398,8 +402,14 @@ func (l *List) GetAttr(name string) (Object, error) {
 	return nil, NewAttributeError("List has no attribute '%s'", name)
 }
 
-// sortMethod sorts the list in place, stably: elements that order equal,
-// or whose keys do, keep their relative order, descending included.
+// sortMethod sorts the list, stably: elements that order equal, or whose
+// keys do, keep their relative order, descending included. key is called
+// once per element, before any comparison, over the elements a walk visits
+// (see Iterate). The sort runs on a copy that replaces the list's elements
+// only when it succeeded, so a failing key or comparison leaves the list as
+// it was, and a key or a user compare that changes the list cannot break the
+// sort: the list then holds the visited elements in sorted order, followed
+// by any elements pushed during the walk.
 func (l *List) sortMethod(args CallArgs) (Object, error) {
 	p := NewArgParser("sort", args)
 	key, hasKey := p.NullableFunc("key")
@@ -408,24 +418,28 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 		return nil, err
 	}
 
-	var sortErr error
+	type pair struct{ value, key Object }
+	pairs := make([]pair, 0, len(l.Elements))
 	argv := make(Args, 1)
-	less := func(i, j int) bool {
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		e := l.Elements[i]
+		k := e
+		if hasKey {
+			argv[0] = e
+			var err error
+			if k, err = key.Call(CallArgs{Positional: argv}); err != nil {
+				return nil, err
+			}
+		}
+		pairs = append(pairs, pair{e, k})
+	}
+
+	var sortErr error
+	sort.SliceStable(pairs, func(i, j int) bool {
 		if sortErr != nil {
 			return false
 		}
-		a, b := l.Elements[i], l.Elements[j]
-		if hasKey {
-			argv[0] = a
-			if a, sortErr = key.Call(CallArgs{Positional: argv}); sortErr != nil {
-				return false
-			}
-			argv[0] = b
-			if b, sortErr = key.Call(CallArgs{Positional: argv}); sortErr != nil {
-				return false
-			}
-		}
-		res, err := Compare(a, b)
+		res, err := Compare(pairs[i].key, pairs[j].key)
 		if err != nil {
 			sortErr = err
 			return false
@@ -434,11 +448,20 @@ func (l *List) sortMethod(args CallArgs) (Object, error) {
 			return res > 0
 		}
 		return res < 0
-	}
-	sort.SliceStable(l.Elements, less)
+	})
 	if sortErr != nil {
 		return nil, sortErr
 	}
+	// Elements a key pushed stay after the sorted ones.
+	var pushed []Object
+	if len(l.Elements) > len(pairs) {
+		pushed = l.Elements[len(pairs):]
+	}
+	sorted := make([]Object, len(pairs), len(pairs)+len(pushed))
+	for i, p := range pairs {
+		sorted[i] = p.value
+	}
+	l.Elements = append(sorted, pushed...)
 	return l, nil
 }
 
@@ -458,15 +481,15 @@ func (l *List) mapMethod(args CallArgs) (Object, error) {
 	if err := ap.Finish(); err != nil {
 		return nil, err
 	}
-	newElems := make([]Object, len(l.Elements))
+	newElems := make([]Object, 0, len(l.Elements))
 	argv := make(Args, 1)
-	for i, e := range l.Elements {
-		argv[0] = e
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		argv[0] = l.Elements[i]
 		res, err := fn.Call(CallArgs{Positional: argv})
 		if err != nil {
 			return nil, err
 		}
-		newElems[i] = res
+		newElems = append(newElems, res)
 	}
 	return &List{Elements: newElems}, nil
 }
@@ -479,7 +502,8 @@ func (l *List) filterMethod(args CallArgs) (Object, error) {
 	}
 	newElems := []Object{}
 	argv := make(Args, 1)
-	for _, e := range l.Elements {
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		e := l.Elements[i]
 		keep, err := callTruth(fn, argv, e)
 		if err != nil {
 			return nil, err
@@ -509,7 +533,7 @@ func (l *List) reduceMethod(args CallArgs) (Object, error) {
 		start = 1
 	}
 	argv := make(Args, 2)
-	for i := start; i < len(l.Elements); i++ {
+	for i, n := start, len(l.Elements); i < n && i < len(l.Elements); i++ {
 		var err error
 		argv[0], argv[1] = acc, l.Elements[i]
 		acc, err = fn.Call(CallArgs{Positional: argv})
@@ -527,7 +551,8 @@ func (l *List) findMethod(args CallArgs) (Object, error) {
 		return nil, err
 	}
 	argv := make(Args, 1)
-	for _, e := range l.Elements {
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		e := l.Elements[i]
 		found, err := callTruth(fn, argv, e)
 		if err != nil {
 			return nil, err
@@ -549,7 +574,8 @@ func (l *List) anyAll(name string, args CallArgs, want bool) (Object, error) {
 		return nil, err
 	}
 	argv := make(Args, 1)
-	for _, e := range l.Elements {
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
+		e := l.Elements[i]
 		var b bool
 		var err error
 		if hasFn {
@@ -593,6 +619,10 @@ func ListConstructor(args CallArgs) (Object, error) {
 	elements, err := CollectArg("List", "iterable", iterable)
 	if err != nil {
 		return nil, err
+	}
+	if _, ok := iterable.(*List); ok {
+		// Collect hands out a List's own storage; List(xs) is a copy.
+		elements = append([]Object{}, elements...)
 	}
 	return &List{Elements: elements}, nil
 }

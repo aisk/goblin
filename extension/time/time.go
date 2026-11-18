@@ -43,7 +43,7 @@ func seconds(fn string, p *object.ArgParser) (float64, error) {
 		return 0, err
 	}
 	if s < 0 || math.IsNaN(s) {
-		return 0, object.NewValueError("%s() argument 'seconds' must be non-negative, got %v", fn, s)
+		return 0, object.NegativeArgumentError(fn, "seconds", s)
 	}
 	return s, nil
 }

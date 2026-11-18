@@ -128,7 +128,30 @@ func TestCheckModule(t *testing.T) {
 			name:        "break outside loop",
 			source:      "break\n",
 			wantErr:     true,
-			errContains: "break used outside loop",
+			errContains: "1:1: semantic error: break used outside loop",
+		},
+		{
+			name:        "continue outside loop has a position",
+			source:      "var a = 1\nif true {\n  continue\n}\n",
+			wantErr:     true,
+			errContains: "3:3: semantic error: continue used outside loop",
+		},
+		{
+			name:        "assignment to a built-in",
+			source:      "print = 1\n",
+			wantErr:     true,
+			errContains: "1:1: semantic error: cannot assign to built-in 'print' (declare your own with var)",
+		},
+		{
+			name:        "assignment to a built-in kind",
+			source:      "ValueError = 1\n",
+			wantErr:     true,
+			errContains: "cannot assign to built-in 'ValueError' (declare your own with var)",
+		},
+		{
+			name:    "a var shadows a built-in and may be assigned",
+			source:  "var print = 1\nprint = 2\n",
+			wantErr: false,
 		},
 		{
 			name:        "go keyword is reserved",

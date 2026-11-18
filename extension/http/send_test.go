@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	stdhttp "net/http"
 	"net/http/httptest"
 	"net/http/httputil"
@@ -401,4 +402,33 @@ func TestCookies(t *testing.T) {
 	}
 	_, err = methodErr(t, site, "cookies", args(str("ht!tp://x")))
 	wantErrPrefix(t, err, object.ParseError, `cookies() invalid URL "ht!tp://x"`)
+
+	// A URL the client cannot address, and a name or value that cannot be
+	// sent as it is, are refused instead of being dropped later.
+	for _, c := range []struct {
+		cookies object.Object
+		msg     string
+	}{
+		{dict(str("example.com"), dict(str("sid"), str("saved"))), `Client() needs an absolute URL, got "example.com"`},
+		{dict(str("ftp://example.com"), dict(str("sid"), str("saved"))), `Client() URL scheme must be http or https, got "ftp"`},
+		{dict(str("https://x.test"), dict(str("a b;"), str("x"))), `Client() invalid cookie name "a b;"`},
+		{dict(str("https://x.test"), dict(str(""), str("x"))), `Client() invalid cookie name ""`},
+		{dict(str("https://x.test"), dict(str("a"), str("x y;z"))), `Client() invalid value for cookie "a"`},
+		{dict(str("https://x.test"), dict(str("a"), str("caf\u00e9"))), `Client() invalid value for cookie "a"`},
+	} {
+		_, err := callErr(t, clientType.Function, nil, kw("cookies", c.cookies))
+		wantErr(t, err, object.ValueError, c.msg)
+	}
+	newClientT(t, kw("cookies", dict(str("https://x.test"), dict(str("a"), str(""), str("b"), str("tok=en/+:")))))
+	_, err = methodErr(t, site, "cookies", args(str("foo")))
+	wantErr(t, err, object.ValueError, `cookies() needs an absolute URL, got "foo"`)
+}
+
+// TestGoLogIsDiscarded: what Go's transport and cookie code log is not the
+// program's output and never reaches its stderr.
+func TestGoLogIsDiscarded(t *testing.T) {
+	transport(true)
+	if log.Writer() != io.Discard {
+		t.Fatal("Go's standard logger still writes to stderr")
+	}
 }

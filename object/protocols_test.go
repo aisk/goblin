@@ -180,13 +180,13 @@ func TestArithDispatch(t *testing.T) {
 		t.Fatalf("add = %v, %v", sum, err)
 	}
 	// Sub is a protocol of its own: add and neg do not imply it.
-	if _, err := Minus(v(5), v(3)); err == nil || err.Error() != "cannot subtract Vec" {
+	if _, err := Minus(v(5), v(3)); err == nil || err.Error() != "cannot subtract Vec (add 'impl Sub' to type Vec)" {
 		t.Fatalf("missing sub = %v", err)
 	}
 	if r, err := Multiply(Integer(2), v(1)); err != nil || r != String("rmul") {
 		t.Fatalf("reflected mul = %v, %v", r, err)
 	}
-	if _, err := Divide(v(1), Integer(2)); err == nil || err.Error() != "cannot divide Vec" {
+	if _, err := Divide(v(1), Integer(2)); err == nil || err.Error() != "cannot divide Vec (add 'impl Div' to type Vec)" {
 		t.Fatalf("missing div = %v", err)
 	}
 	if _, err := Add(Integer(1), v(1)); err == nil || err.Error() != "cannot add Int and Vec" {

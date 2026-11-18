@@ -47,7 +47,7 @@ func newClient(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if redirects < 0 {
-		return nil, object.NewValueError("Client() argument 'redirects' must be non-negative, got %d", int64(redirects))
+		return nil, object.NegativeArgumentError("Client", "redirects", int64(redirects))
 	}
 	c := defaultClient()
 	headers, err := headersFrom("Client", "headers", headersObj)
@@ -91,6 +91,11 @@ func startCookies(jar *cookiejar.Jar, v object.Object) error {
 		if !ok {
 			return object.NewTypeError("Client() argument 'cookies' values must be Dict, got %s", entry.Value.TypeName())
 		}
+		// A key the client can never send to ("example.com" without a
+		// scheme) would keep its cookies where no request finds them.
+		if err := checkAbsolute("Client", u); err != nil {
+			return err
+		}
 		var cookies []*stdhttp.Cookie
 		for _, c := range values.Entries() {
 			name, ok1 := c.Key.(object.String)
@@ -98,11 +103,30 @@ func startCookies(jar *cookiejar.Jar, v object.Object) error {
 			if !ok1 || !ok2 {
 				return object.NewTypeError("Client() argument 'cookies' must map each URL to a Dict of String to String")
 			}
+			if !validName(string(name)) {
+				return object.NewValueError("Client() invalid cookie name %q", string(name))
+			}
+			if !validCookieValue(string(value)) {
+				return object.NewValueError("Client() invalid value for cookie %q", string(name))
+			}
 			cookies = append(cookies, &stdhttp.Cookie{Name: string(name), Value: string(value), Path: "/", Secure: u.Scheme == "https"})
 		}
 		jar.SetCookies(u, cookies)
 	}
 	return nil
+}
+
+// validCookieValue reports whether v is made of RFC 6265 cookie-octets:
+// printable ASCII other than space, `"`, `,`, `;` and `\`. Go would drop
+// any other byte on sending, and quote a value with a space or a comma.
+func validCookieValue(v string) bool {
+	for i := 0; i < len(v); i++ {
+		c := v[i]
+		if c <= 0x20 || c >= 0x7f || c == '"' || c == ',' || c == ';' || c == '\\' {
+			return false
+		}
+	}
+	return true
 }
 
 func (c *Client) Constructor() *object.Function { return clientType.Function }
@@ -119,6 +143,9 @@ func (c *Client) cookies(args object.CallArgs) (object.Object, error) {
 	}
 	u, err := urlvalue.FromObject("cookies", "url", target)
 	if err != nil {
+		return nil, err
+	}
+	if err := checkAbsolute("cookies", u); err != nil {
 		return nil, err
 	}
 	d := object.NewDict()

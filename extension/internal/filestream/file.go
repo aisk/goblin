@@ -180,17 +180,44 @@ func (f *File) Read(args object.CallArgs) (object.Object, error) {
 	if size == 0 {
 		return object.NewBytes(nil), nil
 	}
-	buf := make([]byte, int(size))
+	// The buffer follows the data, not the request: a size far beyond what
+	// the stream holds must neither reserve that much memory nor fail.
+	src := f.source()
+	want := int64(size)
+	buf := make([]byte, min(want, readChunk))
+	n := 0
 	for {
-		n, err := f.source().Read(buf)
-		if n > 0 || err == io.EOF {
-			return object.NewBytes(buf[:n]), nil
+		m, err := src.Read(buf)
+		if m > 0 || err == io.EOF {
+			n = m
+			break
 		}
 		if err != nil {
 			return nil, f.ioError("read", "read "+f.where(), err)
 		}
 	}
+	// A file on disk does not block, so while it fills the buffer the read
+	// goes on up to size, as one read of that size would. Other streams
+	// (pipes, sockets, decompressors) return what one read gave them.
+	if _, onDisk := src.(*os.File); onDisk {
+		for n == len(buf) && int64(n) < want {
+			grown := make([]byte, min(want, 2*int64(len(buf))))
+			copy(grown, buf[:n])
+			buf = grown
+			m, err := src.Read(buf[n:])
+			n += m
+			if m == 0 || err != nil {
+				// What was read is returned; a failure shows again on the
+				// next read.
+				break
+			}
+		}
+	}
+	return object.NewBytes(buf[:n]), nil
 }
+
+// readChunk is the most read(size) reserves before data arrives.
+const readChunk = 64 << 10
 
 // nextLine returns the next line without its terminator, or false at end
 // of stream. A line ends at "\n" or "\r\n"; a last line without one counts.
@@ -306,10 +333,22 @@ func (f *File) Close(args object.CallArgs) (object.Object, error) {
 func validUTF8(s string) bool { return utf8.ValidString(s) }
 
 // Closed reports whether close() has been called.
+// Closed is the File's closed property: true once it was closed, or once
+// its source can no longer be read (an archive member whose archive was
+// closed).
 func (f *File) Closed() bool {
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	if gone, ok := f.r.(Ender); ok && gone.Ended() {
+		return true
+	}
 	return f.closed
+}
+
+// Ender is a source that can stop being readable while its File is open:
+// Ended reports that it has.
+type Ender interface {
+	Ended() bool
 }
 
 func (f *File) GetAttr(name string) (object.Object, error) {

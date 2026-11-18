@@ -112,3 +112,21 @@ func TestQueryValues(t *testing.T) {
 		}
 	}
 }
+
+// TestPortOutOfRange: a port no connection can use is a ParseError rather
+// than nil (absent) or a number above 65535.
+func TestPortOutOfRange(t *testing.T) {
+	for _, text := range []string{"http://h:65536/", "http://h:99999/", "http://h:99999999999999999999/"} {
+		_, err := callFn("parse", object.String(text))
+		if !errors.Is(err, object.ParseError) || err.Error() != `parse() invalid URL "`+text+`": port out of range` {
+			t.Errorf("parse(%q) = %v", text, err)
+		}
+	}
+	u, err := callFn("parse", object.String("http://h:65535/"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if port, _ := u.GetAttr("port"); port != object.Integer(65535) {
+		t.Fatalf("port = %v", port)
+	}
+}

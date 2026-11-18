@@ -1,0 +1,21 @@
+for 1
+for 2
+pop(0) 1 [1, 2, 3]
+pop(0) 3 [2, 3]
+pushed [1, 2, 3, 10, 20, 30]
+assigned 1
+assigned 2
+assigned 30
+map [2, 4]
+filter [1, 2]
+find nil
+any false
+reduce 3
+max 2
+destructure [1, 2] [1]
+sorted [1, 2, 3] key calls 3
+failed sort bad key [3, 2, 1]
+key cleared [3]
+key pushed [1, 2, 3, 0, 0, 0]
+mixed sort cannot compare String and Int
+List copy [1, 2] [9, 2]

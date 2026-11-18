@@ -1,6 +1,7 @@
 package object
 
 import (
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -122,6 +123,11 @@ func FloatConstructor(args CallArgs) (Object, error) {
 	case String:
 		n, err := strconv.ParseFloat(string(v), 64)
 		if err != nil {
+			// A well-formed number too large for a Float is the OverflowError
+			// Int(text) raises for the same mistake.
+			if errors.Is(err, strconv.ErrRange) {
+				return nil, NewOverflowError("Float() value out of range: %q", string(v))
+			}
 			return nil, NewValueError("Float() invalid literal for Float: %q", string(v))
 		}
 		return Float(n), nil

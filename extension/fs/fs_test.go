@@ -506,6 +506,7 @@ func TestCopyMoveChmod(t *testing.T) {
 	callErr(t, object.NotExistError, "move() cannot move", "move", []object.Object{str(copied), str(moved)})
 
 	callErr(t, object.ValueError, "between 0 and 0o777", "chmod", []object.Object{str(file), object.Integer(0o1000)})
+	callErr(t, object.ValueError, "chmod() argument 'mode' must be between 0 and 0o777, got -0o10", "chmod", []object.Object{str(file), object.Integer(-8)})
 	callErr(t, object.NotExistError, "chmod()", "chmod", []object.Object{str(copied), object.Integer(0o644)})
 }
 

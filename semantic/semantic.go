@@ -287,7 +287,10 @@ func (c *checker) checkStatement(stmt ast.Statement, isModuleScope bool) error {
 	case *ast.Assign:
 		sym, ok := c.currentScope.resolve(v.Target)
 		if !ok {
-			return c.newError(v.Position(), "assignment to undefined identifier: %s", v.Target)
+			if isBuiltin(v.Target) {
+				return c.newError(v.Position(), object.ErrFmtAssignBuiltin, v.Target)
+			}
+			return c.newError(v.Position(), object.ErrFmtAssignUndefined, v.Target)
 		}
 		if sym.kind != "" {
 			return c.newError(v.Position(), "cannot assign to %s %s", sym.kind, v.Target)
@@ -615,7 +618,7 @@ func (c *checker) checkExpression(expr ast.Expression) error {
 		return c.checkFunction(v.Parameters, v.Body)
 	case *ast.Identifier:
 		if !isBuiltin(v.Name) && !c.currentScope.lookup(v.Name) {
-			return c.newError(v.Position(), "undefined identifier: %s", v.Name)
+			return c.newError(v.Position(), object.ErrFmtUndefined, v.Name)
 		}
 		return nil
 	case *ast.Literal:

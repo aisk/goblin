@@ -31,6 +31,10 @@ func (c *Content) Read(p []byte) (int, error) {
 	return n, err
 }
 
+// Ended reports that the member can no longer be read, which the File's
+// closed property shows.
+func (c *Content) Ended() bool { return !c.Alive() }
+
 // MemberFile wraps content as the File open(member) returns: it has no
 // path and shows as <File bundle.zip:manifest.json>. It holds nothing of
 // its own, so its close() releases nothing.

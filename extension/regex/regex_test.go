@@ -192,7 +192,7 @@ func TestFindAllAndSplit(t *testing.T) {
 			args = append(args, s("b"))
 		}
 		_, err := callFn(name, args, object.KwArg{Name: "count", Value: object.Integer(-1)})
-		if !errors.Is(err, object.ValueError) || err.Error() != name+"() count must not be negative" {
+		if !errors.Is(err, object.ValueError) || err.Error() != name+"() argument 'count' must be non-negative, got -1" {
 			t.Errorf("%s negative count = %v", name, err)
 		}
 	}

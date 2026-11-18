@@ -317,3 +317,25 @@ func TestInsecure(t *testing.T) {
 		t.Fatalf("cookies(http on loopback) = %v", got)
 	}
 }
+
+// TestMultipartEncodesNames checks that a field name or file name cannot end
+// its part header: CR, LF and the quote are percent-encoded, as browsers
+// encode them, and Go's mime/multipart reads the names back.
+func TestMultipartEncodesNames(t *testing.T) {
+	result := call(t, member(t, "multipart"), nil,
+		kw("fields", dict(str("a\"b"), str("v"))),
+		kw("files", dict(str("f\r\n"), dict(str("data"), str("x"), str("name"), str("we\"ird\r\nname.txt")))))
+	parts := result.(*object.List).Elements
+	data := string(method(t, parts[0], "read", nil).(object.Bytes))
+	for _, want := range []string{
+		`Content-Disposition: form-data; name="a%22b"` + "\r\n",
+		`Content-Disposition: form-data; name="f%0D%0A"; filename="we%22ird%0D%0Aname.txt"` + "\r\n",
+	} {
+		if !strings.Contains(data, want) {
+			t.Fatalf("body %q lacks %q", data, want)
+		}
+	}
+	if strings.Contains(data, "\\\"") || strings.Contains(data, "ird\r\n") {
+		t.Fatalf("a name was written raw: %q", data)
+	}
+}

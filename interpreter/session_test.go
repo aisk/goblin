@@ -301,3 +301,42 @@ func TestSessionUnknownProtocol(t *testing.T) {
 		t.Fatalf("String(Show(1)) = %v, %v", v, err)
 	}
 }
+
+// An assignment in the REPL refuses what the checker refuses in a file: a
+// name nothing declared, a type and a built-in without var. The refusal is a
+// NameError with the checker's wording, raised when the line runs.
+func TestSessionAssignmentNeedsADeclaration(t *testing.T) {
+	s := NewSession(".")
+	for _, src := range []string{"func f() { z = 5 }", "type T(a) {}", "var q = 1"} {
+		if _, err := s.Eval(src); err != nil {
+			t.Fatal(err)
+		}
+	}
+	refused := map[string]string{
+		"y = 1":     "assignment to undefined identifier: y",
+		"f()":       "assignment to undefined identifier: z",
+		"T = 4":     "cannot assign to type T",
+		"print = 1": "cannot assign to built-in 'print' (declare your own with var)",
+		"Int = 1":   "cannot assign to built-in 'Int' (declare your own with var)",
+		"break":     "break used outside loop",
+		"nope":      "undefined identifier: nope",
+	}
+	for src, want := range refused {
+		_, err := s.Eval(src)
+		if err == nil || !strings.Contains(err.Error(), want) {
+			t.Errorf("%s: error %v, want %q", src, err, want)
+			continue
+		}
+		if src != "break" && !errors.Is(err, object.NameError) {
+			t.Errorf("%s: %v is not a NameError", src, err)
+		}
+	}
+	for _, src := range []string{"q = 2", "var T = 5", "T = 6", "var print = 1", "print = 2", "var y = 1", "y = 2"} {
+		if _, err := s.Eval(src); err != nil {
+			t.Errorf("%s: %v", src, err)
+		}
+	}
+	if v, err := s.Eval("[q, T, print, y]"); err != nil || fmt.Sprint(v) != "[2, 6, 2, 2]" {
+		t.Fatalf("values = %v, %v", v, err)
+	}
+}

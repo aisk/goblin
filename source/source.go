@@ -89,6 +89,10 @@ func parse(s parser.Scanner) (*ast.Module, error) {
 	if err := resolveInterpolations(mod); err != nil {
 		return nil, err
 	}
+	if err := ast.CheckLiterals(mod.Body); err != nil {
+		serr := err.(*ast.SyntaxError)
+		return nil, &parseErrors.Error{Err: err, ErrorToken: &token.Token{Pos: serr.Pos}}
+	}
 	return mod, nil
 }
 

@@ -225,10 +225,12 @@ func (g *generator) buildFunctionValue(name string, pos token.Pos, params []*ast
 		jen.Qual(pathObject, "Object"), jen.Id("error")),
 	).Block(bodyCode...)
 
-	return jen.Op("&").Qual(pathObject, "Function").Values(
+	// Parenthesized like a list literal, so `if func() {} {...}` emits a
+	// ToBool call on the pointer.
+	return jen.Parens(jen.Op("&").Qual(pathObject, "Function").Values(
 		jen.Id("Name").Op(":").Lit(name),
 		jen.Id("Fn").Op(":").Add(closure),
-	), nil
+	)), nil
 }
 
 // buildDirectFunction generates a direct-lowered module-level function: a

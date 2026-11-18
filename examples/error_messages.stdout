@@ -1,0 +1,28 @@
+ValueError Chan() argument 'capacity' must be non-negative, got -1
+ValueError Chan() argument 'capacity' must be at most 1000000, got 1000001
+ValueError Chan() argument 'capacity' must be at most 1000000, got 9223372036854775807
+Chan
+OverflowError Float() value out of range: "1e400"
+OverflowError Int() value out of range: "99999999999999999999"
+ValueError Float() invalid literal for Float: "abc"
+TypeError spawn() takes the function to run as its first positional argument
+TypeError spawn() first argument must be Function, got Int
+TypeError max() argument must be iterable, got Int
+TypeError area() missing required argument: 'height'
+TypeError <lambda>() missing required argument: 'a'
+TypeError area() got multiple values for argument 'width'
+TypeError area() got multiple values for argument 'width'
+TypeError split() got multiple values for argument 'sep'
+TypeError Dict() got multiple values for argument 'a'
+TypeError raise expects an Error, got String
+TypeError cannot compare Plain (add 'impl Ord' to type Plain)
+TypeError cannot add Plain (add 'impl Add' to type Plain)
+TypeError cannot negate Plain (add 'impl Neg' to type Plain)
+TypeError Plain is not iterable (add 'impl Iter' to type Plain)
+TypeError Plain is not indexable (add 'impl Index' to type Plain)
+TypeError cannot hash Plain (add 'impl Hashable' to type Plain)
+AttributeError cannot assign to method 'm' of Plain
+KeyError key not found: 1
+KeyError key not found: "2"
+KeyError key not found: nil
+-9223372036854775808 true

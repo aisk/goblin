@@ -10,6 +10,8 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"io"
+	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -59,6 +61,7 @@ func Execute() (object.Object, error) {
 // separate, so a connection opened without verification is never reused by
 // a verifying Client.
 var (
+	quietLog          sync.Once
 	transportOnce     sync.Once
 	secureTransport   *stdhttp.Transport
 	insecureOnce      sync.Once
@@ -66,6 +69,11 @@ var (
 )
 
 func transport(insecure bool) *stdhttp.Transport {
+	// Go's transport and cookie code report what they repair or drop (an
+	// unsolicited response, an invalid cookie byte) through the standard
+	// logger, which writes to stderr. That output is Go's machinery, not
+	// the program's, so it is discarded before the first request.
+	quietLog.Do(func() { log.SetOutput(io.Discard) })
 	transportOnce.Do(func() {
 		t := stdhttp.DefaultTransport.(*stdhttp.Transport).Clone()
 		t.DisableCompression = true

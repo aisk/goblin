@@ -114,16 +114,25 @@ func requestURL(fn string, v object.Object) (*url.URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Scheme == "" || u.Host == "" {
-		return nil, object.NewValueError("%s() needs an absolute URL, got %q", fn, u.String())
-	}
-	if u.Scheme != "http" && u.Scheme != "https" {
-		return nil, object.NewValueError("%s() URL scheme must be http or https, got %q", fn, u.Scheme)
+	if err := checkAbsolute(fn, u); err != nil {
+		return nil, err
 	}
 	if u.User != nil {
 		return nil, object.NewValueError("%s() URL must not contain a user name or password; send an Authorization header", fn)
 	}
 	return u, nil
+}
+
+// checkAbsolute refuses a URL the client cannot address: one without a
+// scheme and host, or with a scheme other than http and https.
+func checkAbsolute(fn string, u *url.URL) error {
+	if u.Scheme == "" || u.Host == "" {
+		return object.NewValueError("%s() needs an absolute URL, got %q", fn, u.String())
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return object.NewValueError("%s() URL scheme must be http or https, got %q", fn, u.Scheme)
+	}
+	return nil
 }
 
 func (r *Request) Constructor() *object.Function { return requestType.Function }
@@ -192,7 +201,7 @@ func newResponse(args object.CallArgs) (object.Object, error) {
 		return nil, err
 	}
 	if status < 100 || status > 999 {
-		return nil, object.NewValueError("Response() argument 'status' must be from 100 to 999, got %d", int64(status))
+		return nil, object.RangeArgumentError("Response", "status", 100, 999, int64(status))
 	}
 	headers, err := headersFrom("Response", "headers", headersObj)
 	if err != nil {

@@ -75,8 +75,8 @@ func TestErrors(t *testing.T) {
 		kind *object.Error
 		msg  string
 	}{
-		{"compress", object.CallArgs{Positional: object.Args{object.String("x"), object.Integer(0)}}, object.ValueError, "compress() argument 'level' must be from 1 to 9, got 0"},
-		{"compress", object.CallArgs{Positional: object.Args{object.String("x"), object.Integer(10)}}, object.ValueError, "compress() argument 'level' must be from 1 to 9, got 10"},
+		{"compress", object.CallArgs{Positional: object.Args{object.String("x"), object.Integer(0)}}, object.ValueError, "compress() argument 'level' must be between 1 and 9, got 0"},
+		{"compress", object.CallArgs{Positional: object.Args{object.String("x"), object.Integer(10)}}, object.ValueError, "compress() argument 'level' must be between 1 and 9, got 10"},
 		{"compress", object.CallArgs{Positional: object.Args{object.String("x"), object.String("9")}}, object.TypeError, "compress() argument 'level' must be Int or Nil, got String"},
 		{"compress", object.CallArgs{Positional: object.Args{object.Integer(1)}}, object.TypeError, "compress() argument 'data' must be String, Bytes or have a read(size) method, got Int"},
 		{"decompress", object.CallArgs{Positional: object.Args{object.NewBytes(nil)}}, object.ParseError, "decompress() not gzip data"},
@@ -256,6 +256,14 @@ func TestReadLines(t *testing.T) {
 	if !errors.Is(err, object.NotExistError) || pathOf(t, err) != filepath.Join(dir, "missing.gz") {
 		t.Fatalf("missing = %v", err)
 	}
+	// The call is named once, as fs.read_lines names it.
+	if want := `read_lines() cannot open "` + filepath.Join(dir, "missing.gz") + `": no such file or directory`; err.Error() != want {
+		t.Fatalf("missing = %q, want %q", err, want)
+	}
+	_, err = object.Iterate(mustCall(t, "read_lines", []object.Object{object.String(dir)}))
+	if want := `read_lines() cannot read "` + dir + `": is a directory`; err == nil || err.Error() != want || errors.Is(err, object.NetworkError) {
+		t.Fatalf("directory = %v, want %q", err, want)
+	}
 
 	// Truncated: the lines before the damage arrive, then the read that
 	// reaches it raises.
@@ -289,7 +297,7 @@ func TestOpenErrors(t *testing.T) {
 	if _, err := call(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "level", Value: object.Integer(5)}); !errors.Is(err, object.ValueError) {
 		t.Fatalf("level without write = %v", err)
 	}
-	if _, err := call(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "write", Value: object.True}, object.KwArg{Name: "level", Value: object.Integer(0)}); err == nil || err.Error() != "open() argument 'level' must be from 1 to 9, got 0" {
+	if _, err := call(t, "open", []object.Object{object.String(path)}, object.KwArg{Name: "write", Value: object.True}, object.KwArg{Name: "level", Value: object.Integer(0)}); err == nil || err.Error() != "open() argument 'level' must be between 1 and 9, got 0" {
 		t.Fatalf("level 0 = %v", err)
 	}
 	if _, err := call(t, "open", []object.Object{object.String(path)}); !errors.Is(err, object.NotExistError) || pathOf(t, err) != path {

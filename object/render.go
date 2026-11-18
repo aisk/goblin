@@ -79,11 +79,13 @@ func (r *renderer) list(l *List) (string, error) {
 	defer r.leave(l)
 	var b strings.Builder
 	b.WriteByte('[')
-	for i, elem := range l.Elements {
+	// A user Show may change the list while it is rendered; the walk follows
+	// the rule of Iterate.
+	for i, n := 0, len(l.Elements); i < n && i < len(l.Elements); i++ {
 		if i > 0 {
 			b.WriteString(", ")
 		}
-		s, err := r.element(elem)
+		s, err := r.element(l.Elements[i])
 		if err != nil {
 			return "", err
 		}

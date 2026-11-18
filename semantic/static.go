@@ -2,6 +2,7 @@ package semantic
 
 import (
 	"github.com/aisk/goblin/ast"
+	"github.com/aisk/goblin/object"
 )
 
 // Static call and attribute checks.
@@ -99,7 +100,9 @@ func (c *checker) instanceOf(expr ast.Expression) (*symbol, *ast.TypeDefine) {
 // value must be inspected before the variable itself comes into scope.
 func (c *checker) valueFacts(name string, value ast.Expression) (sig *signature, instance *ast.TypeDefine) {
 	if fn, ok := value.(*ast.FunctionLiteral); ok {
-		return functionSignature(name, fn.Parameters, 0), nil
+		// Named as the runtime names a function literal, so the message
+		// matches the one a call the checker cannot see raises.
+		return functionSignature("<lambda>", fn.Parameters, 0), nil
 	}
 	// A variable copied from another variable is not tracked: only a
 	// construction makes the type certain without following assignments.
@@ -151,6 +154,9 @@ func (c *checker) noteAttr(obj ast.Expression, name string, at ast.Statement, st
 	c.later(sym, func() error {
 		if hasAttribute(def, name, store) {
 			return nil
+		}
+		if store && hasAttribute(def, name, false) {
+			return c.newError(at.Position(), object.ErrFmtAssignMethod, name, def.Name)
 		}
 		return c.newError(at.Position(), "%s has no attribute '%s'", def.Name, name)
 	})
@@ -220,7 +226,7 @@ func (c *checker) checkArity(sig *signature, call *ast.CallExpression) error {
 	}
 	for i, p := range sig.params {
 		if i >= positional && p.required && !keywords[p.name] {
-			return c.newError(call.Position(), "%s() missing required positional argument: '%s'", sig.name, p.name)
+			return c.newError(call.Position(), "%s() missing required argument: '%s'", sig.name, p.name)
 		}
 	}
 	return nil

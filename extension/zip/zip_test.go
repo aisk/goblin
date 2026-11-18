@@ -248,6 +248,11 @@ func TestRoundTrip(t *testing.T) {
 	if run.Mode != 0o755 || !run.ModTime.Equal(stamp) {
 		t.Fatalf("run.sh mode %o time %v", run.Mode, run.ModTime)
 	}
+	// The time is in the local zone, as fs.stat and tar give it, so its
+	// zone is a name zone= accepts.
+	if run.ModTime.Location() != time.Local {
+		t.Fatalf("run.sh time is in %q, not the local zone", run.ModTime.Location())
+	}
 	mustInvoke(t, r, "close", nil)
 
 	dst := filepath.Join(dir, "dst")
@@ -512,8 +517,15 @@ func TestReader(t *testing.T) {
 	wantErr(t, err, object.ValueError, `open() member "a.txt" is not from "`+arch+`"`)
 	mustInvoke(t, other, "close", nil)
 
+	if closed, _ := file.GetAttr("closed"); closed != object.False {
+		t.Fatal("a member File is closed while its archive is open")
+	}
 	mustInvoke(t, r, "close", nil)
 	mustInvoke(t, r, "close", nil)
+	// The member can no longer be read, and its File says so.
+	if closed, _ := file.GetAttr("closed"); closed != object.True {
+		t.Fatal("a member File of a closed archive is not closed")
+	}
 	_, err = invoke(t, file, "read", nil)
 	wantErr(t, err, object.ValueError, `read() member "manifest.json" is no longer open`)
 	_, err = object.Collect(r)
@@ -554,6 +566,16 @@ func TestDamage(t *testing.T) {
 	}
 	_, err = call(t, "open", args(filepath.Join(dir, "missing.zip")))
 	wantErr(t, err, object.NotExistError, "")
+	// A directory is a file that cannot be read, as gzip and tar say, and
+	// an IOError of no more specific kind.
+	_, err = call(t, "open", args(dir))
+	e = wantErr(t, err, object.IOError, `open() cannot read "`+dir+`": is a directory`)
+	if errors.Is(err, object.ParseError) || errors.Is(err, object.NetworkError) {
+		t.Fatalf("a directory is %v", err)
+	}
+	if pathField(t, e) != dir {
+		t.Fatal("wrong path")
+	}
 }
 
 func TestWriterErrors(t *testing.T) {
@@ -567,6 +589,8 @@ func TestWriterErrors(t *testing.T) {
 	wantErr(t, err, object.ValueError, `add_data() name "../x" would be unpacked outside its directory`)
 	_, err = invoke(t, w, "add_data", args("m", "y"), kw("mode", object.Integer(0o1000)))
 	wantErr(t, err, object.ValueError, "add_data() argument 'mode' must be between 0 and 0o777, got 0o1000")
+	_, err = invoke(t, w, "add_data", args("m", "y"), kw("mode", object.Integer(-1)))
+	wantErr(t, err, object.ValueError, "add_data() argument 'mode' must be between 0 and 0o777, got -0o1")
 	_, err = invoke(t, w, "add", args("."))
 	wantErr(t, err, object.ValueError, `add() "." has no name; pass name=`)
 	_, err = invoke(t, w, "add", args(dir), kw("name", object.String("/abs")))

@@ -6,6 +6,7 @@ import (
 	stdfs "io/fs"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/aisk/goblin/extension/internal/filestream"
 	"github.com/aisk/goblin/object"
@@ -134,7 +135,7 @@ func (a *Adder) entry(fn, path, name string, info stdfs.FileInfo) error {
 // ModeArg checks the mode= of add_data.
 func ModeArg(fn string, mode object.Integer) error {
 	if mode < 0 || mode > 0o777 {
-		return object.NewValueError("%s() argument 'mode' must be between 0 and 0o777, got 0o%o", fn, int64(mode))
+		return object.RangeArgumentError(fn, "mode", "0", "0o777", OctalText(int64(mode)))
 	}
 	return nil
 }
@@ -142,4 +143,12 @@ func ModeArg(fn string, mode object.Integer) error {
 // Closed is the ValueError for a call on a closed Reader or Writer.
 func Closed(fn string) error {
 	return object.NewValueError("%s() called on closed archive", fn)
+}
+
+// OctalText writes a mode as Goblin's octal literal for it: 0o755, -0o1.
+func OctalText(mode int64) string {
+	if mode < 0 {
+		return "-0o" + strconv.FormatInt(-mode, 8)
+	}
+	return "0o" + strconv.FormatInt(mode, 8)
 }

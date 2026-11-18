@@ -1,0 +1,68 @@
+# The wording of runtime errors whose text names a type, a key, a hint or the
+# function called. Each mistake is reached through a value read back from a
+# list, so the static checker cannot report it before the program runs.
+func show(f) {
+    try {
+        f()
+    } catch e {
+        print(e.cause, e)
+    }
+}
+
+# A Chan buffer is allocated up front, so its capacity has a limit.
+show(func() { Chan(-1) })
+show(func() { Chan(1000001) })
+show(func() { Chan(9223372036854775807) })
+print(type_of(Chan(1000000)).name)
+
+# Float(text) for a number too large reports it as Int(text) does.
+show(func() { Float("1e400") })
+show(func() { Int("99999999999999999999") })
+show(func() { Float("abc") })
+
+# spawn and max take these values only by position, so the messages do not
+# name a parameter.
+var by_position = [spawn, max]
+show(func() { by_position[0](fn=print) })
+show(func() { by_position[0](5) })
+show(func() { by_position[1](5) })
+
+# One wording wherever the mistake is found.
+func area(width, height) {
+    return width * height
+}
+var fns = [area, func(a) { return a }]
+show(func() { fns[0](1) })
+show(func() { fns[1]() })
+show(func() { fns[0](1, **{"width": 2}) })
+show(func() { fns[0](width=1, **{"width": 2}) })
+show(func() { "a,b".split(sep=",", **{"sep": ";"}) })
+show(func() { Dict(a=1, **{"a": 2}) })
+var not_errors = ["boom", 1]
+show(func() { raise not_errors[0] })
+
+# A user type without an impl says which one to add.
+type Plain(x) {
+    func m(self) {
+        return self.x
+    }
+}
+var plains = [Plain(1), Plain(2)]
+show(func() { return plains[0] < plains[1] })
+show(func() { return plains[0] + plains[1] })
+show(func() { return -plains[0] })
+show(func() { for p in plains[0] {} })
+show(func() { return plains[0][0] })
+show(func() { return {plains[0]: 1} })
+
+# Assigning to a method of an instance.
+show(func() { plains[0].m = 5 })
+
+# A missing key is shown as a collection shows it.
+var d = {"1": "s", 2: "i"}
+show(func() { return d[1] })
+show(func() { return d["2"] })
+show(func() { d.pop(nil) })
+
+# The smallest Int can be written as a literal.
+print(-9223372036854775808, -9223372036854775808 == -9223372036854775807 - 1)

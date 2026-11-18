@@ -149,8 +149,12 @@ func validValue(v string) bool {
 	return true
 }
 
-// append adds values to name, creating it at the end when it is new.
+// append adds values to name, creating it at the end when it is new. No
+// values add nothing: a name is never held without a value.
 func (h *Headers) append(name string, values ...string) {
+	if len(values) == 0 {
+		return
+	}
 	key := strings.ToLower(name)
 	if i, ok := h.index[key]; ok {
 		h.fields[i].values = append(h.fields[i].values, values...)
@@ -161,7 +165,12 @@ func (h *Headers) append(name string, values ...string) {
 }
 
 // replace sets every value of name, keeping its position when it exists.
+// No values remove the name, as h[name] = [] says.
 func (h *Headers) replace(name string, values []string) {
+	if len(values) == 0 {
+		h.remove(name)
+		return
+	}
 	key := strings.ToLower(name)
 	if i, ok := h.index[key]; ok {
 		h.fields[i].values = append([]string(nil), values...)
@@ -271,7 +280,7 @@ func (h *Headers) Index(index object.Object) (object.Object, error) {
 	}
 	values, ok := h.lookup(string(name))
 	if !ok {
-		return nil, object.NewKeyError("key not found: %s", string(name))
+		return nil, object.NewKeyError("key not found: %q", string(name))
 	}
 	return object.String(strings.Join(values, ", ")), nil
 }

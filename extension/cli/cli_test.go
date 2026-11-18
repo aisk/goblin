@@ -140,6 +140,8 @@ func TestUsageMessages(t *testing.T) {
 		{[]string{"--verb"}, nil, []object.KwArg{width}, "unknown option --verb"},
 		{[]string{"--Count"}, nil, []object.KwArg{count}, "unknown option --Count (did you mean --count?)"},
 		{[]string{"--count", "x"}, nil, []object.KwArg{count}, `invalid value "x" for --count: expected an integer`},
+		// A number too large for an Int fails the conversion like any other.
+		{[]string{"--count", "99999999999999999999"}, nil, []object.KwArg{count}, `invalid value "99999999999999999999" for --count: expected an integer`},
 		{[]string{"a", "b"}, object.Args{str("one")}, nil, `unexpected argument "b"`},
 		{[]string{}, object.Args{str("one"), str("two_words")}, nil, "missing arguments <one> <two-words>"},
 	}

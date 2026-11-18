@@ -280,7 +280,7 @@ func userEquals(v UserValue, other Object) (bool, error) {
 func userCompare(v UserValue, other Object) (int, error) {
 	impl := v.UserType().impls[ordID]
 	if impl == nil {
-		return 0, NewTypeError(ErrFmtCannotCompare, v.TypeName())
+		return 0, missingImpl(v, ErrFmtCannotCompare, "Ord")
 	}
 	r, err := impl.call(v, OrdCompare, []Object{v, other})
 	if err != nil {
@@ -297,12 +297,31 @@ var arithErrFmts = [...]string{
 	ArithMod: ErrFmtCannotModulo,
 }
 
+var arithProtocols = [...]string{
+	ArithAdd: "Add",
+	ArithSub: "Sub",
+	ArithMul: "Mul",
+	ArithDiv: "Div",
+	ArithMod: "Mod",
+}
+
+// missingImplHint follows the message of an operation whose protocol a user
+// type does not implement, naming the impl to add.
+const missingImplHint = " (add 'impl %s' to type %s)"
+
+// missingImpl is the TypeError for an operation v's type has no impl of
+// protocol for: format, which takes the type name, plus the hint.
+func missingImpl(v UserValue, format, protocol string) *Error {
+	tn := v.TypeName()
+	return NewTypeError(format+missingImplHint, tn, protocol, tn)
+}
+
 // userArith performs a binary operator with v on the left through its
 // arithmetic protocol. op is ArithAdd, ArithSub, ArithMul, ArithDiv or ArithMod.
 func userArith(v UserValue, op int, other Object) (Object, error) {
 	impl := v.UserType().impls[addID+op]
 	if impl == nil {
-		return nil, NewTypeError(arithErrFmts[op], v.TypeName())
+		return nil, missingImpl(v, arithErrFmts[op], arithProtocols[op])
 	}
 	return impl.call(v, ArithForward, []Object{v, other})
 }
@@ -326,7 +345,7 @@ func userReflected(v UserValue, op int, left Object) (result Object, handled boo
 func userIterator(v UserValue) (Iterator, error) {
 	impl := v.UserType().impls[iterID]
 	if impl == nil {
-		return nil, NewTypeError(ErrFmtNotIterable, v.TypeName())
+		return nil, missingImpl(v, ErrFmtNotIterable, "Iter")
 	}
 	r, err := impl.call(v, IterIter, []Object{v})
 	if err != nil {
@@ -343,7 +362,7 @@ func userIterator(v UserValue) (Iterator, error) {
 func userIter(v UserValue) ([]Object, error) {
 	impl := v.UserType().impls[iterID]
 	if impl == nil {
-		return nil, NewTypeError(ErrFmtNotIterable, v.TypeName())
+		return nil, missingImpl(v, ErrFmtNotIterable, "Iter")
 	}
 	r, err := impl.call(v, IterIter, []Object{v})
 	if err != nil {
@@ -356,7 +375,7 @@ func userIter(v UserValue) ([]Object, error) {
 func userIndex(v UserValue, index Object) (Object, error) {
 	impl := v.UserType().impls[indexID]
 	if impl == nil {
-		return nil, NewTypeError(ErrFmtNotIndexable, v.TypeName())
+		return nil, missingImpl(v, ErrFmtNotIndexable, "Index")
 	}
 	return impl.call(v, IndexGet, []Object{v, index})
 }
@@ -376,7 +395,7 @@ func userSetIndex(v UserValue, index, value Object) (bool, error) {
 func userHash(v UserValue) (uint64, error) {
 	impl := v.UserType().impls[hashableID]
 	if impl == nil {
-		return 0, NewTypeError("cannot hash %s (add 'impl Hashable' to type %s)", v.TypeName(), v.TypeName())
+		return 0, missingImpl(v, "cannot hash %s", "Hashable")
 	}
 	r, err := impl.call(v, HashableHash, []Object{v})
 	if err != nil {
